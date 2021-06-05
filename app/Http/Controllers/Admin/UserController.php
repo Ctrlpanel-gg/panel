@@ -138,7 +138,7 @@ class UserController extends Controller
     public function reSendVerificationEmail(User $user)
     {
         if ($user->hasVerifiedEmail())
-            return redirect()->back()->with('error', 'User has already verified there email');
+            return redirect()->back()->with('error', 'User has already verified their email');
 
         $user->sendEmailVerificationNotification();
         return redirect()->back()->with('success', 'User has been emailed again!');
