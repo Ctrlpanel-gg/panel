@@ -95,7 +95,7 @@ class UserController extends Controller
             "role"           => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
 
-        if (is_null(Pterodactyl::getUser($request->input('pterodactyl_id')))){
+        if (is_null(Pterodactyl::getUser($request->input('pterodactyl_id')))) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
             ]);
