@@ -1,0 +1,65 @@
+version: '3'
+
+networks:
+  laravel:
+
+services:
+  nginx:
+    build:
+      context: ../
+      dockerfile: docker/nginx/Dockerfile
+    container_name: controlpanel_nginx
+    ports:
+      - 80:80
+    volumes:
+      - ../:/var/www/html:delegated
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - laravel
+
+  mysql:
+    image: mysql
+    container_name: controlpanel_mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: controlpanel
+      MYSQL_USER: controlpanel
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - "mysql:/var/lib/mysql:delegated"
+    networks:
+      - laravel
+
+  php:
+    build:
+      context: ../
+      dockerfile: docker/php/Dockerfile
+    container_name: controlpanel_php
+    volumes:
+      - ../:/var/www/html:delegated
+    networks:
+      - laravel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: controlpanel_phpmyadmin
+    depends_on:
+      - mysql
+    ports:
+      - '8080:80'
+    environment:
+      - PMA_HOST=controlpanel_mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+      - PMA_ARBITRARY=1
+    networks:
+      - laravel
+
+volumes:
+  mysql:
