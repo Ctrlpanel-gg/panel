@@ -219,6 +219,14 @@
                         <li class="nav-header">Dashboard</li>
 
                         <li class="nav-item">
+                            <a href="{{route('admin.api.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.api.*')) active @endif">
+                                <i class="nav-icon fa fa-gamepad"></i>
+                                <p>Application API</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
                             <a href="{{route('admin.configurations.index')}}"
                                class="nav-link @if(Request::routeIs('admin.configurations.*')) active @endif">
                                 <i class="nav-icon fas fa-cogs"></i>

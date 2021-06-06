@@ -58,7 +58,7 @@ class RegisterController extends Controller
 
         //check if registered cookie exists as extra defense
         if (isset($_COOKIE['4b3403665fea6'])) {
-            $data['registered'] = true;
+            $data['registered'] = env('APP_ENV') == 'local' ? false : true;
         }
 
         return Validator::make($data, [

@@ -1,6 +1,6 @@
 <?php
 
-//use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VerifyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,7 +20,9 @@ Route::post('/verify' , [VerifyController::class , 'verify']);
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::middleware('api.token')->group(function(){
+    Route::resource('users' , UserController::class);
+});
 
-//Route::resource('users' , UserController::class);
 
 
