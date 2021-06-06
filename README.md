@@ -101,7 +101,9 @@ Store it somewhere safe - not just on your server. If you lose it all encrypted 
 
 ### Environment Configuration
 Simply edit the .env to your needs
-Please **do not** forget to enter the database creds in here or the next step wont work
+
+Please **do not** forget to enter the database creds in here, or the next step won't work
+Please **do not** forget to enter your pterodactyl api key in here, or the next steps won't work
 
 ``` bash
 nano .env
