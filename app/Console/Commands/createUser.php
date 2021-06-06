@@ -45,6 +45,13 @@ class createUser extends Command
 
         $password = $this->option('password') ?? $this->ask('Please specify your password.');
         
+        
+        if (strlen($password) < 8) {
+            print_r('Your password need to be atleast 8 characters long');
+
+            return false;
+        };
+        
         $response = Pterodactyl::getUser($ptero_id);
 
 
