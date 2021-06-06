@@ -3,7 +3,6 @@
 namespace App\Classes;
 
 use App\Models\Egg;
-use App\Models\Location;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Server;
@@ -15,8 +14,32 @@ use Illuminate\Support\Facades\Http;
 class Pterodactyl
 {
     /**
+     * @return PendingRequest
+     */
+    public static function client()
+    {
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('PTERODACTYL_TOKEN', false),
+            'Content-type'  => 'application/json',
+            'Accept'        => 'Application/vnd.pterodactyl.v1+json',
+        ])->baseUrl(env('PTERODACTYL_URL') . '/api');
+    }
+
+    /**
+     * Get user by pterodactyl id
+     * @param int $pterodactylId
+     * @return mixed
+     */
+    public static function getUser(int $pterodactylId){
+        $response = self::client()->get("/application/users/{$pterodactylId}");
+        if ($response->failed()) return null;
+        return $response->json()['attributes'];
+    }
+
+    /**
      * @param Node $node
      * @return array|mixed|null
+     * @throws Exception
      */
     public static function getFreeAllocations(Node $node)
     {
@@ -98,17 +121,6 @@ class Pterodactyl
         return $response->json();
     }
 
-    /**
-     * @return PendingRequest
-     */
-    public static function client()
-    {
-        return Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('PTERODACTYL_TOKEN', false),
-            'Content-type' => 'application/json',
-            'Accept' => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(env('PTERODACTYL_URL') . '/api');
-    }
 
     /**
      * @param String $route
@@ -125,41 +137,43 @@ class Pterodactyl
      * @param Node $node
      * @return Response
      */
-    public static function createServer(Server $server , Egg $egg , Node $node)
+    public static function createServer(Server $server, Egg $egg, Node $node)
     {
         return self::client()->post("/application/servers", [
-            "name" => $server->name,
-            "external_id" => $server->id,
-            "user" => $server->user->pterodactyl_id,
-            "egg" => $egg->id,
-            "docker_image" => $egg->docker_image,
-            "startup" => $egg->startup,
-            "environment" => $egg->getEnvironmentVariables(),
-            "limits" => [
+            "name"           => $server->name,
+            "external_id"    => $server->id,
+            "user"           => $server->user->pterodactyl_id,
+            "egg"            => $egg->id,
+            "docker_image"   => $egg->docker_image,
+            "startup"        => $egg->startup,
+            "environment"    => $egg->getEnvironmentVariables(),
+            "limits"         => [
                 "memory" => $server->product->memory,
-                "swap" => $server->product->swap,
-                "disk" => $server->product->disk,
-                "io" => $server->product->io,
-                "cpu" => $server->product->cpu
+                "swap"   => $server->product->swap,
+                "disk"   => $server->product->disk,
+                "io"     => $server->product->io,
+                "cpu"    => $server->product->cpu
             ],
             "feature_limits" => [
-                "databases" => $server->product->databases,
-                "backups" => $server->product->backups,
+                "databases"   => $server->product->databases,
+                "backups"     => $server->product->backups,
                 "allocations" => 1
             ],
-            "allocation" => [
+            "allocation"     => [
                 "default" => Pterodactyl::getFreeAllocationId($node)
             ]
         ]);
     }
 
-    public static function suspendServer(Server $server){
+    public static function suspendServer(Server $server)
+    {
         $response = self::client()->post("/application/servers/$server->pterodactyl_id/suspend");
         if ($response->failed()) throw self::getException();
         return $response;
     }
 
-    public static function unSuspendServer(Server $server){
+    public static function unSuspendServer(Server $server)
+    {
         $response = self::client()->post("/application/servers/$server->pterodactyl_id/unsuspend");
         if ($response->failed()) throw self::getException();
         return $response;
