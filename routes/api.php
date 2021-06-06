@@ -16,17 +16,17 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/verify' , [VerifyController::class , 'verify']);
+Route::post('/verify', [VerifyController::class, 'verify']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::middleware('api.token')->group(function(){
-    Route::resource('users' , UserController::class)->except(['store' , 'create']);
+Route::middleware('api.token')->group(function () {
+    Route::resource('users', UserController::class)->except(['store', 'create']);
 
-    Route::patch('/servers/{server}/suspend' , [ServerController::class , 'suspend']);
-    Route::patch('/servers/{server}/unsuspend' , [ServerController::class , 'unSuspend']);
-    Route::resource('servers' , ServerController::class)->except(['store' , 'create' , 'edit' , 'update']);
+    Route::patch('/servers/{server}/suspend', [ServerController::class, 'suspend']);
+    Route::patch('/servers/{server}/unsuspend', [ServerController::class, 'unSuspend']);
+    Route::resource('servers', ServerController::class)->except(['store', 'create', 'edit', 'update']);
 });
 
 
