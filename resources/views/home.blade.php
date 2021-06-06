@@ -58,8 +58,8 @@
                         <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-chart-line"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Usage</span>
-                            <span class="info-box-number">{{number_format($useage, 2, '.', '')}} <sup>p/m</sup></span>
+                            <span class="info-box-text">Credit usage</span>
+                            <span class="info-box-number">{{number_format($useage, 2, '.', '')}} <sup>per month</sup></span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>
@@ -83,23 +83,23 @@
                         <div class="card-body">
                             <div class="alert alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                <h5><a class="alert-link text-decoration-none" href="{{env('PTERODACTYL_URL' , 'http://localhost')}}"><i
+                                <h5><a class="alert-link text-decoration-none" target="__blank" href="{{env('PTERODACTYL_URL' , 'http://localhost')}}"><i
                                             class="fas fa-egg mr-2"></i>Pterodactyl Panel</a></h5>
                                 Use your servers on our pterodactyl panel <small>(You can use the same login details)</small>
                             </div>
 
                             <div class="alert alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                <h5><a class="alert-link text-decoration-none" href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}"><i
+                                <h5><a class="alert-link text-decoration-none" target="__blank" href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}"><i
                                             class="fas fa-database mr-2"></i>phpMyAdmin</a></h5>
                                 View your database online using phpMyAdmin
                             </div>
 
                             <div class="alert alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                <h5><a class="alert-link text-decoration-none" href="{{env('DISCORD_INVITE_URL')}}"><i
+                                <h5><a class="alert-link text-decoration-none" target="__blank" href="{{env('DISCORD_INVITE_URL')}}"><i
                                             class="fab fa-discord mr-2"></i>Discord</a></h5>
-                                Need a helping hand? want to chat? got any questions? Join our discord!
+                                Need a helping hand? Want to chat? Got any questions? Join our discord!
                             </div>
                         </div>
                         <!-- /.card-body -->
