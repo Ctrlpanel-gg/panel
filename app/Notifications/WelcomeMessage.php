@@ -52,7 +52,7 @@ class WelcomeMessage extends Notification
                 <h5>Verification</h5>
                 <p>Please verify your email address to get " . Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL') . " extra credits and increase your server limit to " . Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') . "<br />You can also verify your discord account to get another " . Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') . " credits and to increase your server limit again with " . Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') . "</p>
                 <h5>Information</h5>
-                <p>This dashboard can be used to create and delete servers.<br /> These servers can be used and managed thru our pterodactyl panel.<br /> If you have any questions, please join our Discord and #create-a-ticket.</p>
+                <p>This dashboard can be used to create and delete servers.<br /> These servers can be used and managed on our pterodactyl panel.<br /> If you have any questions, please join our Discord server and #create-a-ticket.</p>
                 <p>We hope you can enjoy this hosting experience and if you have any suggestions please let us know!</p>
                 <p>Regards,<br />" . config('app.name', 'Laravel') . "</p>
             ",
