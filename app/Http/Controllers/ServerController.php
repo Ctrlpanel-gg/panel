@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Auth;
 class ServerController extends Controller
 {
     /** Display a listing of the resource. */
-    public function index(): View|Factory
+    public function index()
     {
         return view('servers.index')->with([
             'servers' => Auth::user()->Servers
@@ -31,7 +31,7 @@ class ServerController extends Controller
     }
 
     /** Show the form for creating a new resource. */
-    public function create(): View|Factory|RedirectResponse
+    public function create()
     {
         //limit
         if (Auth::user()->Servers->count() >= Auth::user()->server_limit) {
@@ -54,7 +54,7 @@ class ServerController extends Controller
     }
 
     /** Store a newly created resource in storage. */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
         $request->validate([
             "name"        => "required|max:191",
@@ -95,7 +95,7 @@ class ServerController extends Controller
     }
 
     /** Quick Fix */
-    private function serverCreationFailed(Server $server): RedirectResponse
+    private function serverCreationFailed(Server $server)
     {
         $server->delete();
 
@@ -104,7 +104,7 @@ class ServerController extends Controller
     }
 
     /** Remove the specified resource from storage. */
-    public function destroy(Server $server): RedirectResponse
+    public function destroy(Server $server)
     {
         try {
             $server->delete();

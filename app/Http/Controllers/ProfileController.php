@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Hash;
 class ProfileController extends Controller
 {
     /** Display a listing of the resource. */
-    public function index(): View|Factory
+    public function index()
     {
         return view('profile.index')->with([
             'user' => Auth::user(),
@@ -25,7 +25,7 @@ class ProfileController extends Controller
     }
 
     /** Update the specified resource in storage. */
-    public function update(Request $request, int $id): RedirectResponse
+    public function update(Request $request, int $id)
     {
         //prevent other users from editing a user
         if ($id != Auth::user()->id) dd(401);

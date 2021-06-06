@@ -12,7 +12,7 @@ use Illuminate\Http\Response;
 class StoreController extends Controller
 {
     /** Display a listing of the resource. */
-    public function index(): View|Factory|Response|Application
+    public function index()
     {
         $isPaypalSetup = false;
         if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;

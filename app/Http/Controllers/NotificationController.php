@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class NotificationController extends Controller
 {
     /** Display a listing of the resource. */
-    public function index(): View|Factory
+    public function index()
     {
         $notifications = Auth::user()->notifications()->paginate();
 
@@ -22,7 +22,7 @@ class NotificationController extends Controller
     }
 
     /** Display the specified resource. */
-    public function show(string $id): View|Factory
+    public function show(string $id)
     {
         $notification = Auth::user()->notifications()->findOrFail($id);
 
