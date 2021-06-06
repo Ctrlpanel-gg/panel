@@ -51,7 +51,7 @@ class createUser extends Command
         if (is_null($response)) {
             print_r('It seems that your Pterodactyl ID isnt correct. Rerun the command and input an correct ID');
 
-            return;
+            return false;
         };
 
         $user = User::create([
@@ -69,5 +69,6 @@ class createUser extends Command
             ['Ptero-ID', $user->pterodactyl_id],
             ['Admin', $user->role],
         ]);
+        return true;
     }
 }
