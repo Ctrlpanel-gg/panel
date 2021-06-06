@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -12,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -79,16 +82,24 @@ class UserController extends Controller
      * @param Request $request
      * @param User $user
      * @return RedirectResponse
+     * @throws Exception
      */
     public function update(Request $request, User $user)
     {
         $request->validate([
-            "name"         => "required|string|min:4|max:30",
-            "email"        => "required|string|email",
-            "credits"      => "required|numeric|min:0|max:1000000",
-            "server_limit" => "required|numeric|min:0|max:1000000",
-            "role"         => Rule::in(['admin', 'mod', 'client', 'member']),
+            "name"           => "required|string|min:4|max:30",
+            "pterodactyl_id" => "required|numeric|unique:users,pterodactyl_id,{$user->pterodactyl_id}",
+            "email"          => "required|string|email",
+            "credits"        => "required|numeric|min:0|max:1000000",
+            "server_limit"   => "required|numeric|min:0|max:1000000",
+            "role"           => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
+
+        if (is_null(Pterodactyl::getUser($request->input('pterodactyl_id')))){
+            throw ValidationException::withMessages([
+                'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
+            ]);
+        }
 
         $user->update($request->all());
 
@@ -138,7 +149,7 @@ class UserController extends Controller
     public function reSendVerificationEmail(User $user)
     {
         if ($user->hasVerifiedEmail())
-            return redirect()->back()->with('error', 'User has already verified there email');
+            return redirect()->back()->with('error', 'User has already verified their email');
 
         $user->sendEmailVerificationNotification();
         return redirect()->back()->with('success', 'User has been emailed again!');
@@ -146,7 +157,7 @@ class UserController extends Controller
 
     /**
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function dataTable()
     {

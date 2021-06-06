@@ -52,6 +52,20 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
+                                    <label for="pterodactyl_id">Pterodactyl ID</label>
+                                    <input value="{{$user->pterodactyl_id}}" id="pterodactyl_id" name="pterodactyl_id" type="number"
+                                           class="form-control @error('pterodactyl_id') is-invalid @enderror" required="required">
+                                    @error('pterodactyl_id')
+                                    <div class="invalid-feedback">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                    <div class="text-muted">
+                                        This ID refers to the user account created on pterodactyl's panel. <br>
+                                        <small>Only edit this if you know what you're doing :)</small>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label for="credits">Credits</label>
                                     <input value="{{$user->credits}}" id="credits" name="credits" step="any" min="0" max="1000000"
                                            type="number" class="form-control @error('credits') is-invalid @enderror" required="required">

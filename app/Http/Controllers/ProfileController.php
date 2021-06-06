@@ -23,6 +23,7 @@ class ProfileController extends Controller
     {
         return view('profile.index')->with([
             'user' => Auth::user(),
+            'credits_reward_after_verify_discord' => Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD'),
             'discord_verify_command' => Configuration::getValueByKey('DISCORD_VERIFY_COMMAND')
         ]);
     }

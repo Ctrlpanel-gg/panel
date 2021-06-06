@@ -159,7 +159,7 @@
                                             @if(is_null(Auth::user()->discordUser))
                                             <div class="verify-discord">
                                                 <div class="mb-3">
-                                                    <p>By verifying your discord account, you receive an extra <b><i class="fa fa-coins mx-1"></i>375</b> credits and the <span class="text-primary">Verified</span> role!</p>
+                                                    <p>By verifying your discord account, you receive an extra <b><i class="fa fa-coins mx-1"></i>{{$credits_reward_after_verify_discord}}</b> credits and the <span class="text-primary">Verified</span> role!</p>
                                                 </div>
                                             </div>
 
