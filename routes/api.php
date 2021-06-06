@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VerifyController;
 use Illuminate\Http\Request;
@@ -22,6 +23,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 Route::middleware('api.token')->group(function(){
     Route::resource('users' , UserController::class)->except(['store' , 'create']);
+
+    Route::patch('/servers/{server}/suspend' , [ServerController::class , 'suspend']);
+    Route::patch('/servers/{server}/unsuspend' , [ServerController::class , 'unSuspend']);
+    Route::resource('servers' , ServerController::class)->except(['store' , 'create' , 'edit' , 'update']);
 });
 
 
