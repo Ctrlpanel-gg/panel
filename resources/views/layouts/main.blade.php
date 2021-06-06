@@ -34,7 +34,7 @@
                 <a href="{{route('home')}}" class="nav-link">Home</a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link">Discord</a>
+                <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link" target="__blank">Discord</a>
             </li>
         </ul>
 
