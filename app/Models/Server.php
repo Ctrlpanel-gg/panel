@@ -30,7 +30,7 @@ class Server extends Model
     /**
      * @var string[]
      */
-    protected static $ignoreChangedAttributes = ['pterodactyl_id' , 'identifier' , 'updated_at'];
+    protected static $ignoreChangedAttributes = ['pterodactyl_id', 'identifier', 'updated_at'];
 
     /**
      * @var string[]
@@ -59,16 +59,17 @@ class Server extends Model
     /**
      *
      */
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        static::creating(function(Server $server) {
+        static::creating(function (Server $server) {
             $client = new Client();
 
             $server->{$server->getKeyName()} = $client->generateId($size = 21);
         });
 
-        static::deleting(function(Server $server) {
+        static::deleting(function (Server $server) {
             Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
         });
     }
@@ -76,7 +77,8 @@ class Server extends Model
     /**
      * @return bool
      */
-    public function isSuspended(){
+    public function isSuspended()
+    {
         return !is_null($this->suspended);
     }
 
@@ -84,7 +86,8 @@ class Server extends Model
     /**
      * @return PromiseInterface|Response
      */
-    public function getPterodactylServer(){
+    public function getPterodactylServer()
+    {
         return Pterodactyl::client()->get("/application/servers/{$this->pterodactyl_id}");
     }
 
@@ -92,7 +95,8 @@ class Server extends Model
      *
      * @throws Exception
      */
-    public function suspend(){
+    public function suspend()
+    {
         $response = Pterodactyl::suspendServer($this);
 
         if ($response->successful()) {
@@ -120,40 +124,20 @@ class Server extends Model
         return $this;
     }
 
-
     /**
      * @return HasOne
      */
-    public function product(){
-        return $this->hasOne(Product::class , 'id' , 'product_id');
-    }
-
-    /**
-     * @return HasOne
-     */
-    public function nest(){
-        return $this->hasOne(Nest::class , 'id' , 'nest_id');
-    }
-
-    /**
-     * @return HasOne
-     */
-    public function egg(){
-        return $this->hasOne(Egg::class , 'id' , 'egg_id');
-    }
-
-    /**
-     * @return HasOne
-     */
-    public function location(){
-        return $this->hasOne(Location::class , 'id' , 'location_id');
+    public function product()
+    {
+        return $this->hasOne(Product::class, 'id', 'product_id');
     }
 
     /**
      * @return BelongsTo
      */
-    public function user(){
-        return $this->belongsTo(User::class , 'user_id' , 'id');
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
 }
