@@ -114,7 +114,7 @@ class ServerController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $query = Server::with(['user', 'product', 'egg']);
+        $query = Server::with(['user', 'product']);
         if ($request->has('product')) $query->where('product_id', '=', $request->input('product'));
         if ($request->has('user')) $query->where('user_id', '=', $request->input('user'));
         $query->select('servers.*');

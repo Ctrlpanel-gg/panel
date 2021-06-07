@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\NestsController;
 use App\Http\Controllers\Admin\NodeController;
@@ -99,6 +100,11 @@ Route::middleware('auth')->group(function () {
 
         Route::patch('settings/update/icons', [SettingsController::class , 'updateIcons'])->name('settings.update.icons');
         Route::resource('settings', SettingsController::class)->only('index');
+
+        Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
+        Route::resource('api', ApplicationApiController::class)->parameters([
+            'api' => 'applicationApi',
+        ]);
     });
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');

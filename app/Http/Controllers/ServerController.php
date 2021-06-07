@@ -22,13 +22,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ServerController extends Controller
 {
-
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Factory|View
-     */
+    /** Display a listing of the resource. */
     public function index()
     {
         return view('servers.index')->with([
@@ -36,11 +30,7 @@ class ServerController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Factory|View|RedirectResponse
-     */
+    /** Show the form for creating a new resource. */
     public function create()
     {
         //limit
@@ -63,12 +53,7 @@ class ServerController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return RedirectResponse
-     */
+    /** Store a newly created resource in storage. */
     public function store(Request $request)
     {
         $request->validate([
@@ -88,7 +73,6 @@ class ServerController extends Controller
         if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER' , 50)) {
             return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
         }
-
 
         //create server
         $egg = Egg::findOrFail($request->input('egg_id'));
@@ -110,12 +94,8 @@ class ServerController extends Controller
         return redirect()->route('servers.index')->with('success', 'server created');
     }
 
-    /**
-     * Quick Fix
-     * @param Server $server
-     * @return RedirectResponse
-     */
-    private function serverCreationFailed(Server $server): RedirectResponse
+    /** Quick Fix */
+    private function serverCreationFailed(Server $server)
     {
         $server->delete();
 
@@ -123,51 +103,14 @@ class ServerController extends Controller
         return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment were found.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param Server $server
-     * @return Response
-     */
-    public function show(Server $server)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param Server $server
-     * @return Response
-     */
-    public function edit(Server $server)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param Server $server
-     * @return Response
-     */
-    public function update(Request $request, Server $server)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Server $server
-     * @return RedirectResponse
-     * @throws Exception
-     */
+    /** Remove the specified resource from storage. */
     public function destroy(Server $server)
     {
-        $server->delete();
-
-        return redirect()->route('servers.index')->with('success', 'server removed');
+        try {
+            $server->delete();
+            return redirect()->route('servers.index')->with('success', 'server removed');
+        } catch (\Exception $e) {
+            return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource');
+        }
     }
 }

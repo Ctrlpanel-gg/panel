@@ -68,8 +68,6 @@ mkdir -p /var/www/dashboard
 cd /var/www/dashboard
 ```
 
-TEXT
-
 ``` bash
 git clone https://github.com/ControlPanel-gg/dashboard.git ./
 chmod -R 755 storage/* bootstrap/cache/
@@ -103,7 +101,9 @@ Store it somewhere safe - not just on your server. If you lose it all encrypted 
 
 ### Environment Configuration
 Simply edit the .env to your needs
-Please do not forget to enter the database creds in here or the next step wont work
+
+Please **do not** forget to enter the database creds in here, or the next step won't work
+Please **do not** forget to enter your pterodactyl api key in here, or the next steps won't work
 
 ``` bash
 nano .env
@@ -119,8 +119,9 @@ php artisan migrate --seed --force
 ```
 
 ### Add The First User
-Currenly I haven't made a easy command for this so just enter your databse with phpmyadmin and create a new user with the role 'admin'
-
+``` bash
+php artisan make:user
+```
 
 ### Set Permissions
 The last step in the installation process is to set the correct permissions on the Panel files so that the webserver can

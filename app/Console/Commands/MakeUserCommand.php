@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Classes\Pterodactyl;
 use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 
-class createUser extends Command
+class MakeUserCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -39,33 +39,29 @@ class createUser extends Command
      * @return int
      */
     public function handle()
-    {   
-
+    {
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
-
         $password = $this->option('password') ?? $this->ask('Please specify your password.');
-        
-        
+
         if (strlen($password) < 8) {
-            print_r('Your password need to be atleast 8 characters long');
+            print_r('Your password need to be at least 8 characters long');
 
             return false;
-        };
-        
-        $response = Pterodactyl::getUser($ptero_id);
+        }
 
+        $response = Pterodactyl::getUser($ptero_id);
 
         if (is_null($response)) {
             print_r('It seems that your Pterodactyl ID isnt correct. Rerun the command and input an correct ID');
 
             return false;
-        };
+        }
 
         $user = User::create([
-            'name'         => $response['first_name'],
-            'email'        => $response['email'],
-            'role'         => 'admin',
-            'password'     => Hash::make($password),
+            'name'           => $response['first_name'],
+            'email'          => $response['email'],
+            'role'           => 'admin',
+            'password'       => Hash::make($password),
             'pterodactyl_id' => $response['id']
         ]);
 
@@ -76,6 +72,7 @@ class createUser extends Command
             ['Ptero-ID', $user->pterodactyl_id],
             ['Admin', $user->role],
         ]);
+
         return true;
     }
 }
