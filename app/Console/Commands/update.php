@@ -42,7 +42,7 @@ class update extends Command
      */
     public function handle()
     {
-            $this->output->warning('This command does just pull the newest changes from the github repo. Verify the github repo before running this');
+        $this->output->warning('This command does just pull the newest changes from the github repo. Verify the github repo before running this');
 
         if (version_compare(PHP_VERSION, '8.0.0') < 0) {
             $this->error('Cannot execute self-upgrade process. The minimum required PHP version required is 8.0.0, you have [' . PHP_VERSION . '].');
@@ -90,17 +90,17 @@ class update extends Command
             }
 
 
-            $bar = $this->output->createProgressBar( 9);
+            $bar = $this->output->createProgressBar(9);
             $bar->start();
 
 
             $this->withProgress($bar, function () {
-                    $this->line("\$upgrader> git pull");
-                    $process = Process::fromShellCommandline("git pull");
-                    $process->run(function ($type, $buffer) {
-                        $this->{$type === Process::ERR ? 'error' : 'line'}($buffer);
-                    });
+                $this->line("\$upgrader> git pull");
+                $process = Process::fromShellCommandline("git pull");
+                $process->run(function ($type, $buffer) {
+                    $this->{$type === Process::ERR ? 'error' : 'line'}($buffer);
                 });
+            });
 
 
             $this->withProgress($bar, function () {
@@ -163,8 +163,7 @@ class update extends Command
             $this->newLine();
             $this->info('Finished running upgrade.');
         };
-}
-
+    }
 
 
     protected function withProgress(ProgressBar $bar, Closure $callback)
@@ -174,4 +173,4 @@ class update extends Command
         $bar->advance();
         $bar->display();
     }
-    }
+}
