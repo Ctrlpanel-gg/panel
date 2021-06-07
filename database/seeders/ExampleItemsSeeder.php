@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class ExampleItemsSeeder extends Seeder
 {
     /**
      * Seed the application's database.
@@ -14,7 +14,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            ConfigurationSeeder::class,
+            ProductSeeder::class,
+            PaypalProductSeeder::class,
+            ApplicationApiSeeder::class,
         ]);
 
     }

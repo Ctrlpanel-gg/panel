@@ -118,6 +118,12 @@ command will setup the database tables and then add all of the Nests & Eggs that
 php artisan migrate --seed --force
 ```
 
+### Add some example products
+This step is optional, only run this once
+``` bash
+php artisan db:seed --class=ExampleItemsSeeder --force
+```
+
 ### Add The First User
 ``` bash
 php artisan make:user

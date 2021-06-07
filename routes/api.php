@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VerifyController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
