@@ -44,7 +44,7 @@
                                          data-save-initial-image="true"
                                          style="width: 140px;height:140px; cursor: pointer"
                                          data-size="140,140">
-                                         <img src="{{$user->getAvatar()}}" alt="avatar">
+                                        <img src="{{$user->getAvatar()}}" alt="avatar">
                                     </div>
                                 </div>
                                 <div class="col d-flex flex-column flex-sm-row justify-content-between mb-3">
@@ -154,36 +154,36 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-12 col-sm-5 offset-sm-1 mb-3">
-                                            <b>Link your discord account!</b>
-                                            @if(is_null(Auth::user()->discordUser))
-                                            <div class="verify-discord">
-                                                <div class="mb-3">
-                                                    <p>By verifying your discord account, you receive an extra <b><i class="fa fa-coins mx-1"></i>{{$credits_reward_after_verify_discord}}</b> credits and the <span class="text-primary">Verified</span> role!</p>
-                                                </div>
-                                            </div>
-
-                                            <a class="btn btn-light" href="{{route('auth.redirect')}}">
-                                                <i class="fab fa-discord mr-2"></i>Login with Discord
-                                            </a>
-                                            @else
-                                                @if(is_null(Auth::user()->discord_verified_at))
-                                                <div class="verify-in-server">
-                                                    <div class="my-3 callout callout-warning">
-                                                      <p>Hello <b>{{Auth::user()->discordUser->username}}</b>!<br>
-                                                          To complete the verification process, join our discord server and type the command <code>{{$discord_verify_command}}</code></p>
+                                        @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
+                                            <div class="col-12 col-sm-5 offset-sm-1 mb-3">
+                                                <b>Link your discord account!</b>
+                                                @if(is_null(Auth::user()->discordUser))
+                                                    <div class="verify-discord">
+                                                        <div class="mb-3">
+                                                            @if($credits_reward_after_verify_discord)
+                                                                <p>By verifying your discord account, you receive an
+                                                                    extra
+                                                                    <b><i
+                                                                            class="fa fa-coins mx-1"></i>{{$credits_reward_after_verify_discord}}
+                                                                    </b> credits and increased server limit
+                                                                </p>
+                                                            @endif
+                                                        </div>
                                                     </div>
-                                                </div>
+
+                                                    <a class="btn btn-light" href="{{route('auth.redirect')}}">
+                                                        <i class="fab fa-discord mr-2"></i>Login with Discord
+                                                    </a>
                                                 @else
                                                     <div class="verified-discord">
                                                         <div class="my-3 callout callout-info">
                                                             <p>You are verified!</p>
                                                         </div>
                                                     </div>
-                                                    @endif
-                                            @endif
+                                                @endif
 
-                                        </div>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">

@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\VerifyController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/verify', [VerifyController::class, 'verify']);
 
 Route::middleware('api.token')->group(function () {
     Route::resource('users', UserController::class)->except(['store', 'create']);
