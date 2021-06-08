@@ -88,12 +88,12 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            "name"           => "required|string|min:4|max:30",
+            "name" => "required|string|min:4|max:30",
             "pterodactyl_id" => "required|numeric|unique:users,pterodactyl_id,{$user->pterodactyl_id}",
-            "email"          => "required|string|email",
-            "credits"        => "required|numeric|min:0|max:1000000",
-            "server_limit"   => "required|numeric|min:0|max:1000000",
-            "role"           => Rule::in(['admin', 'mod', 'client', 'member']),
+            "email" => "required|string|email",
+            "credits" => "required|numeric|min:0|max:1000000",
+            "server_limit" => "required|numeric|min:0|max:1000000",
+            "role" => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
 
         if (is_null(Pterodactyl::getUser($request->input('pterodactyl_id')))) {
@@ -101,6 +101,7 @@ class UserController extends Controller
                 'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
             ]);
         }
+
 
         if (!is_null($request->input('new_password'))) {
             $request->validate([
