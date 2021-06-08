@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -98,6 +99,17 @@ class UserController extends Controller
         if (is_null(Pterodactyl::getUser($request->input('pterodactyl_id')))) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
+            ]);
+        }
+
+        if (!is_null($request->input('new_password'))) {
+            $request->validate([
+                'new_password' => 'required|string|min:8',
+                'new_password_confirmation' => 'required|same:new_password'
+            ]);
+
+            $user->update([
+                'password' => Hash::make($request->input('new_password')),
             ]);
         }
 

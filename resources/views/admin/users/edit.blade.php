@@ -108,6 +108,36 @@
                                     </div>
                                     @enderror
                                 </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="form-group"><label>New Password</label> <input
+                                                class="form-control @error('new_password') is-invalid @enderror"
+                                                name="new_password" type="password" placeholder="••••••">
+
+                                            @error('new_password')
+                                            <div class="invalid-feedback">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group"><label>Confirm Password</label>
+                                                <input
+                                                    class="form-control @error('new_password_confirmation') is-invalid @enderror"
+                                                    name="new_password_confirmation" type="password"
+                                                    placeholder="••••••">
+
+                                                @error('new_password_confirmation')
+                                                <div class="invalid-feedback">
+                                                    {{$message}}
+                                                </div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">Submit</button>
                                 </div>
