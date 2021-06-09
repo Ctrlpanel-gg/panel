@@ -19,6 +19,13 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    private Pterodactyl $pterodactyl;
+
+    public function __construct(Pterodactyl $pterodactyl)
+    {
+        $this->pterodactyl = $pterodactyl;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -28,27 +35,6 @@ class UserController extends Controller
     public function index(Request $request)
     {
         return view('admin.users.index');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return Response
-     */
-    public function store(Request $request)
-    {
-        //
     }
 
     /**
@@ -96,7 +82,7 @@ class UserController extends Controller
             "role" => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
 
-        if (is_null(Pterodactyl::getUser($request->input('pterodactyl_id')))) {
+        if (is_null($this->pterodactyl->getUser($request->input('pterodactyl_id')))) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
             ]);

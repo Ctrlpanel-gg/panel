@@ -23,14 +23,17 @@ class MakeUserCommand extends Command
      */
     protected $description = 'Create an admin account with the Artisan Console';
 
+    private Pterodactyl $pterodactyl;
+
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Pterodactyl $pterodactyl)
     {
         parent::__construct();
+        $this->pterodactyl = $pterodactyl;
     }
 
     /**
@@ -44,17 +47,16 @@ class MakeUserCommand extends Command
         $password = $this->option('password') ?? $this->ask('Please specify your password.');
 
         if (strlen($password) < 8) {
-            print_r('Your password need to be at least 8 characters long');
-
-            return false;
+            $this->alert('Your password need to be at least 8 characters long');
+            return 0;
         }
 
-        $response = Pterodactyl::getUser($ptero_id);
+        //TODO: Do something with response (check for status code and give hints based upon that)
+        $response = $this->pterodactyl->getUser($ptero_id);
 
-        if (is_null($response)) {
-            print_r('It seems that your Pterodactyl ID isnt correct. Rerun the command and input an correct ID');
-
-            return false;
+        if ($response === []) {
+            $this->alert('It seems that your Pterodactyl ID is not correct. Rerun the command and input an correct ID');
+            return 0;
         }
 
         $user = User::create([
@@ -73,6 +75,6 @@ class MakeUserCommand extends Command
             ['Admin', $user->role],
         ]);
 
-        return true;
+        return 1;
     }
 }

@@ -1,9 +1,0 @@
-,
-fnDrawCallback: function( oSettings ) {
-                    $('[data-toggle="popover"]').popover();
-                }
-
-
-
-
-                data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top"
