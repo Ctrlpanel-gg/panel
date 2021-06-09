@@ -32,6 +32,6 @@ php artisan config:clear
 
 Now when running tests with PHPUnit it will use your testing database and not your local development one.
 This is configured in the __phpunit.xml__. You can run your tests by running the command like this. Just type and enter.
-`./vendor/bin/phpunit`. If you don't want to type that all the time you can also use my shortcut `bin/test.sh`
+`php artisan test`.
 
 
