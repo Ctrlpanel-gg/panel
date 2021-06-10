@@ -6,15 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Products</h1>
+                    <h1>Useful Links</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.products.index')}}">Products</a></li>
+                                                       href="{{route('admin.usefullinks.index')}}">Useful Links</a></li>
                     </ol>
-                </div>
             </div>
         </div>
     </section>
@@ -28,29 +27,20 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>Products</h5>
-                        <a href="{{route('admin.products.create')}}" class="btn btn-sm btn-primary"><i
+                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>Useful Links</h5>
+                        <a href="{{route('admin.usefullinks.create')}}" class="btn btn-sm btn-primary"><i
                                 class="fas fa-plus mr-1"></i>Create new</a>
                     </div>
                 </div>
 
                 <div class="card-body table-responsive">
-
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Active</th>
-                            <th>Name</th>
-                            <th>Price</th>
-                            <th>Memory</th>
-                            <th>Cpu</th>
-                            <th>Swap</th>
-                            <th>Disk</th>
-                            <th>IO</th>
-                            <th>Databases</th>
-                            <th>Backups</th>
-                            <th>Allocations</th>
-                            <th>Servers</th>
+                            <th>description</th>
+                            <th width="50">Icon</th>
+                            <th>Title</th>
+                            <th>Link</th>
                             <th>Created at</th>
                             <th></th>
                         </tr>
@@ -79,20 +69,13 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                ajax: "{{route('admin.products.datatable')}}",
+                ajax: "{{route('admin.usefullinks.datatable')}}",
+                order: [[ 1, "asc" ]],
                 columns: [
-                    {data: 'disabled'},
-                    {data: 'name'},
-                    {data: 'price'},
-                    {data: 'memory'},
-                    {data: 'cpu'},
-                    {data: 'swap'},
-                    {data: 'disk'},
-                    {data: 'io'},
-                    {data: 'databases'},
-                    {data: 'backups'},
-                    {data: 'allocations'},
-                    {data: 'servers', sortable: false},
+                    {data: 'description' ,visible: false},
+                    {data: 'icon'},
+                    {data: 'title'},
+                    {data: 'link'},
                     {data: 'created_at'},
                     {data: 'actions', sortable: false},
                 ],

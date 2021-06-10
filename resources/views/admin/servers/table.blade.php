@@ -25,7 +25,7 @@
             serverSide: true,
             stateSave: true,
             ajax: "{{route('admin.servers.datatable')}}{{$filter ?? ''}}",
-            order: [[ 6, "desc" ]],
+            order: [[ 5, "desc" ]],
             columns: [
                 {data: 'status' , name : 'servers.suspended'},
                 {data: 'name'},

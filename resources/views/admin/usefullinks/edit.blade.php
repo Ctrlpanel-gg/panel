@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{route('admin.usefullinks.index')}}">Useful Links</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.usefullinks.create')}}">Create</a>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.usefullinks.edit' , $link->id)}}">Edit</a>
                         </li>
                     </ol>
                 </div>
@@ -29,13 +29,14 @@
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{route('admin.usefullinks.store')}}" method="POST">
+                            <form action="{{route('admin.usefullinks.update' , $link->id)}}" method="POST">
                                 @csrf
+                                @method('PATCH')
 
 
                                 <div class="form-group">
                                     <label for="icon">Icon class name</label>
-                                    <input value="{{old('icon')}}" id="icon" name="icon"
+                                    <input value="{{$link->icon}}" id="icon" name="icon"
                                            type="text"
                                            placeholder="fas fa-user"
                                            class="form-control @error('icon') is-invalid @enderror"
@@ -53,7 +54,7 @@
 
                                 <div class="form-group">
                                     <label for="title">Title</label>
-                                    <input value="{{old('title')}}" id="title" name="title"
+                                    <input value="{{$link->title}}" id="title" name="title"
                                            type="text"
                                            class="form-control @error('title') is-invalid @enderror"
                                            required="required">
@@ -66,7 +67,7 @@
 
                                 <div class="form-group">
                                     <label for="link">Link</label>
-                                    <input value="{{old('link')}}" id="link" name="link"
+                                    <input value="{{$link->link}}" id="link" name="link"
                                            type="text"
                                            class="form-control @error('link') is-invalid @enderror"
                                            required="required">
@@ -83,7 +84,7 @@
                                               name="description"
                                               type="text"
                                               class="form-control @error('description') is-invalid @enderror">
-                                        {{old('description')}}
+                                        {{$link->description}}
                                     </textarea>
                                     @error('description')
                                     <div class="text-danger">
@@ -112,7 +113,20 @@
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             // Summernote
-            $('#description').summernote()
+            $('#description').summernote({
+                height: 100,
+                toolbar: [
+                    [ 'style', [ 'style' ] ],
+                    [ 'font', [ 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear'] ],
+                    [ 'fontname', [ 'fontname' ] ],
+                    [ 'fontsize', [ 'fontsize' ] ],
+                    [ 'color', [ 'color' ] ],
+                    [ 'para', [ 'ol', 'ul', 'paragraph', 'height' ] ],
+                    [ 'table', [ 'table' ] ],
+                    [ 'insert', [ 'link'] ],
+                    [ 'view', [ 'undo', 'redo', 'fullscreen', 'codeview', 'help' ] ]
+                ]
+            })
         })
     </script>
 

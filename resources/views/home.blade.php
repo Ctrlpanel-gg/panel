@@ -89,7 +89,7 @@
                                             <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
                                         </a>
                                     </h5>
-                                    {!! $useful_link->message !!}
+                                    {!! $useful_link->description !!}
                                 </div>
                             @endforeach
                         </div>
