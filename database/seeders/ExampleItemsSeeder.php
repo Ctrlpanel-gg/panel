@@ -17,6 +17,7 @@ class ExampleItemsSeeder extends Seeder
             ProductSeeder::class,
             PaypalProductSeeder::class,
             ApplicationApiSeeder::class,
+            UsefulLinksSeeder::class
         ]);
 
     }
