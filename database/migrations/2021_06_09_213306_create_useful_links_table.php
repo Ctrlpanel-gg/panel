@@ -16,10 +16,10 @@ class CreateUsefulLinksTable extends Migration
     {
         Schema::create('useful_links', function (Blueprint $table) {
             $table->id();
-            $table->string('icon')->default('');
-            $table->string('title')->default('Default Title');
-            $table->string('link')->default('https://bitsec.dev');
-            $table->string('message')->default('Default Message');
+            $table->string('icon');
+            $table->string('title');
+            $table->string('link')->nullable();
+            $table->text('description');
             $table->timestamps();
         });
     }

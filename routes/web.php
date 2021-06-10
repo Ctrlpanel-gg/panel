@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PaypalProductController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
@@ -100,6 +101,9 @@ Route::middleware('auth')->group(function () {
 
         Route::patch('settings/update/icons', [SettingsController::class , 'updateIcons'])->name('settings.update.icons');
         Route::resource('settings', SettingsController::class)->only('index');
+
+        Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
+        Route::resource('usefullinks', UsefulLinkController::class);
 
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
         Route::resource('api', ApplicationApiController::class)->parameters([
