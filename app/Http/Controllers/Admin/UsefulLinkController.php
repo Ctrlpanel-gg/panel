@@ -26,8 +26,6 @@ class UsefulLinkController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return Application|Factory|View|Response
-     */
     public function create()
     {
         return view('admin.usefullinks.create');
@@ -133,5 +131,4 @@ class UsefulLinkController extends Controller
             ->rawColumns(['actions' , 'icon'])
             ->make();
     }
-
 }

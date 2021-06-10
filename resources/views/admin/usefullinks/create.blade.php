@@ -93,7 +93,6 @@
                                 </div>
 
 
-
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">
                                         Submit
@@ -108,7 +107,6 @@
         </div>
     </section>
     <!-- END CONTENT -->
-
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             // Summernote
