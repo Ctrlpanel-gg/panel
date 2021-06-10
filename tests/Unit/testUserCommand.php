@@ -3,9 +3,7 @@
 namespace Tests\Unit;
 
 use App\Classes\Pterodactyl;
-use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class testUserCommand extends TestCase
