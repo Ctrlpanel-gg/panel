@@ -41,10 +41,11 @@ class UsefulLinkController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
            'icon' => 'required|string',
            'title' => 'required|string|max:60',
-           'link' => 'required|string|max:191',
+           'link' => 'required|url|string|max:191',
            'description' => 'required|string|max:2000',
         ]);
 
@@ -88,7 +89,7 @@ class UsefulLinkController extends Controller
         $request->validate([
             'icon' => 'required|string',
             'title' => 'required|string|max:60',
-            'link' => 'required|string|max:191',
+            'link' => 'required|url|string|max:191',
             'description' => 'required|string|max:2000',
         ]);
 
