@@ -1,6 +1,6 @@
 # Building the development environment
 
-cd into the project directory and run the following command: `sudo sh bin/startdocker.sh`
+cd into the project directory and run the following command: `sh bin/startdocker.sh`
 This should start building the images and start the containers.
 
 After that you need to go into the controlpanel_php container and run some commands:
@@ -24,9 +24,7 @@ Now you're ready to run the following commands which switches to the testing con
 After that you can switch back to your dev environment again. Clear the config from cache so changes will be instantly available.
 
 ```shell
-php artisan migrate --env=testing
-php artisan db:seed --env=testing
-php artisan config:cache --env=dev
+php artisan migrate:fresh --seed --env=testing
 php artisan config:clear
 ```
 
