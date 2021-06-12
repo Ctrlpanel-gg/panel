@@ -143,19 +143,6 @@ class UserController extends Controller
     }
 
     /**
-     * @param User $user
-     * @return RedirectResponse
-     */
-    public function reSendVerificationEmail(User $user)
-    {
-        if ($user->hasVerifiedEmail())
-            return redirect()->back()->with('error', 'User has already verified their email');
-
-        $user->sendEmailVerificationNotification();
-        return redirect()->back()->with('success', 'User has been emailed again!');
-    }
-
-    /**
      *
      * @throws Exception
      */
@@ -187,7 +174,6 @@ class UserController extends Controller
             })
             ->addColumn('actions', function (User $user) {
                 return '
-                <a data-content="Resend verification" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.reSendVerificationEmail', $user->id) . '" class="btn btn-sm text-white btn-light mr-1"><i class="far fa-envelope"></i></a>
                 <a data-content="Login as user" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
                 <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
                 <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
