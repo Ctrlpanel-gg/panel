@@ -6,7 +6,7 @@ use App\Classes\Pterodactyl;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
-class testUserCommand extends TestCase
+class TestUserCommand extends TestCase
 {
     use DatabaseTransactions;
 
