@@ -109,7 +109,6 @@
         </ul>
     </nav>
     <!-- /.navbar -->
-
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-open sidebar-dark-primary elevation-4">
         <!-- Brand Logo -->
@@ -273,7 +272,22 @@
     </aside>
 
     <!-- Content Wrapper. Contains page content -->
+
     <div class="content-wrapper">
+
+        @if(!Auth::user()->hasVerifiedEmail())
+            @if(Auth::user()->created_at->diffInHours(now(), false) > 2)
+                <div class="alert alert-warning p-2 m-2">
+                    <h5><i class="icon fas fa-exclamation-circle"></i> Warning!</h5>
+                    You have not yet verified your email address <a class="text-primary"
+                                                                    href="{{route('verification.send')}}">Click here to
+                        resend
+                        verification email</a> <br>
+                    Please contact support If you didn't receive your verification email.
+                </div>
+            @endif
+        @endif
+
         @yield('content')
     </div>
     <!-- /.content-wrapper -->

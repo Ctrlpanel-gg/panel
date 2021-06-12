@@ -18,7 +18,9 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,14 +37,16 @@ Route::middleware('guest')->get('/', function () {
     return redirect('login');
 })->name('welcome');
 
-Route::get('/terms', function () {
-    return view('terms');
-})->name('terms');
-
-
 Auth::routes(['verify' => true]);
 
 Route::middleware('auth')->group(function () {
+    #resend verification email
+    Route::get('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('success', 'Verification link sent!');
+    })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
+
     #normal routes
     Route::resource('notifications', NotificationController::class);
     Route::resource('servers', ServerController::class);
