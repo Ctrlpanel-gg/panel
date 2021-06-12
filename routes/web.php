@@ -70,7 +70,6 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('activitylogs', ActivityLogController::class);
 
-        Route::get('users/resendverificationemail/{user}', [UserController::class, 'reSendVerificationEmail'])->name('users.reSendVerificationEmail');
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
         Route::resource('users', UserController::class);
