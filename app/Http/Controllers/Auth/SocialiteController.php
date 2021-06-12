@@ -29,8 +29,9 @@ class SocialiteController extends Controller
         $discord = Socialite::driver('discord')->user();
         $discordUser = DiscordUser::find($discord->id);
 
-        $guildId = env('DISCORD_GUILD_ID');
         $botToken = env('DISCORD_BOT_TOKEN');
+        $guildId = env('DISCORD_GUILD_ID');
+        $roleId = env('DISCORD_ROLE_ID');
 
         //force user into discord server
         //TODO Add event on failure, to notify ppl involved
@@ -42,6 +43,17 @@ class SocialiteController extends Controller
                 ]
             )->put("https://discord.com/api/guilds/{$guildId}/members/{$discord->id}",
                 ['access_token' => $discord->token]);
+
+            //give user a role in the discord server
+            if (!empty($roleId)){
+                $response = Http::withHeaders(
+                    [
+                        'Authorization' => 'Bot ' . $botToken,
+                        'Content-Type' => 'application/json',
+                    ]
+                )->put("https://discord.com/api/guilds/{$guildId}/members/{$discord->id}/roles/{$roleId}",
+                    ['access_token' => $discord->token]);
+            }
         }
 
 
