@@ -59,13 +59,6 @@ class ConfigurationSeeder extends Seeder
             'type'  => 'integer',
         ]);
 
-        Configuration::firstOrCreate([
-            'key' => 'DISCORD_VERIFY_COMMAND',
-        ], [
-            'value' => '!verify',
-            'type'  => 'string',
-        ]);
-
         //other
         Configuration::firstOrCreate([
             'key' => 'MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER',
