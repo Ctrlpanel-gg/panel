@@ -13,6 +13,8 @@
     {{--    <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}">--}}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css"/>
 
+    {{--  summernote --}}
+    <link rel="stylesheet" href="{{asset('plugins/summernote/summernote-bs4.min.css')}}">
 
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
     <link rel="preload" href="{{asset('plugins/fontawesome-free/css/all.min.css')}}" as="style"
@@ -45,7 +47,8 @@
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="far fa-bell"></i>
                     @if(Auth::user()->unreadNotifications->count() != 0)
-                        <span class="badge badge-warning navbar-badge">{{Auth::user()->unreadNotifications->count()}}</span>
+                        <span
+                            class="badge badge-warning navbar-badge">{{Auth::user()->unreadNotifications->count()}}</span>
                     @endif
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
@@ -54,19 +57,22 @@
 
                     @foreach(Auth::user()->unreadNotifications->sortBy('created_at')->take(5) as $notification)
                         <a href="{{route('notifications.show' , $notification->id)}}" class="dropdown-item">
-                            <span class="d-inline-block text-truncate" style="max-width: 150px;"><i class="fas fa-envelope mr-2"></i>{{$notification->data['title']}}</span>
+                            <span class="d-inline-block text-truncate" style="max-width: 150px;"><i
+                                    class="fas fa-envelope mr-2"></i>{{$notification->data['title']}}</span>
                             <span
                                 class="float-right text-muted text-sm">{{$notification->created_at->longAbsoluteDiffForHumans()}} ago</span>
                         </a>
                     @endforeach
 
                     <div class="dropdown-divider"></div>
-                    <a href="{{route('notifications.index')}}" class="dropdown-item dropdown-footer">See All Notifications</a>
+                    <a href="{{route('notifications.index')}}" class="dropdown-item dropdown-footer">See All
+                        Notifications</a>
                 </div>
             </li>
 
             <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true"
                    aria-expanded="false">
                     <span class="mr-1 d-none d-lg-inline text-gray-600 small">
                         {{Auth::user()->name}}
@@ -103,7 +109,6 @@
         </ul>
     </nav>
     <!-- /.navbar -->
-
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-open sidebar-dark-primary elevation-4">
         <!-- Brand Logo -->
@@ -115,11 +120,12 @@
         </a>
 
         <!-- Sidebar -->
-        <div class="sidebar">
+        <div class="sidebar" style="overflow-y: auto">
 
             <!-- Sidebar Menu -->
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <nav class="my-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                    data-accordion="false">
                     <!-- Add icons to the links using the .nav-icon class
                          with font-awesome or any other icon font library -->
                     <li class="nav-item">
@@ -130,7 +136,8 @@
                     </li>
 
                     <li class="nav-item">
-                        <a href="{{route('servers.index')}}" class="nav-link @if(Request::routeIs('servers.*')) active @endif">
+                        <a href="{{route('servers.index')}}"
+                           class="nav-link @if(Request::routeIs('servers.*')) active @endif">
                             <i class="nav-icon fa fa-server"></i>
                             <p>Servers
                                 <span
@@ -151,7 +158,8 @@
                         <li class="nav-header">Admin</li>
 
                         <li class="nav-item">
-                            <a href="{{route('admin.users.index')}}" class="nav-link @if(Request::routeIs('admin.users.*')) active @endif">
+                            <a href="{{route('admin.users.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.users.*')) active @endif">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Users</p>
                             </a>
@@ -174,7 +182,8 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="{{route('admin.store.index')}}" class="nav-link @if(Request::routeIs('admin.store.*')) active @endif">
+                            <a href="{{route('admin.store.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.store.*')) active @endif">
                                 <i class="nav-icon fas fa-shopping-basket"></i>
                                 <p>Store</p>
                             </a>
@@ -183,14 +192,16 @@
                         <li class="nav-header">Pterodactyl</li>
 
                         <li class="nav-item">
-                            <a href="{{route('admin.nodes.index')}}" class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">
+                            <a href="{{route('admin.nodes.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">
                                 <i class="nav-icon fas fa-sitemap"></i>
                                 <p>Nodes</p>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a href="{{route('admin.nests.index')}}" class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">
+                            <a href="{{route('admin.nests.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">
                                 <i class="nav-icon fas fa-th-large"></i>
                                 <p>Nests</p>
                             </a>
@@ -242,6 +253,15 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a href="{{route('admin.usefullinks.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.usefullinks.*')) active @endif">
+                                <i class="nav-icon fas fa-link"></i>
+                                <p>Useful Links</p>
+                            </a>
+                        </li>
+
+
                     @endif
 
                 </ul>
@@ -252,12 +272,28 @@
     </aside>
 
     <!-- Content Wrapper. Contains page content -->
+
     <div class="content-wrapper">
+
+        @if(!Auth::user()->hasVerifiedEmail())
+            @if(Auth::user()->created_at->diffInHours(now(), false) > 2)
+                <div class="alert alert-warning p-2 m-2">
+                    <h5><i class="icon fas fa-exclamation-circle"></i> Warning!</h5>
+                    You have not yet verified your email address <a class="text-primary"
+                                                                    href="{{route('verification.send')}}">Click here to
+                        resend
+                        verification email</a> <br>
+                    Please contact support If you didn't receive your verification email.
+                </div>
+            @endif
+        @endif
+
         @yield('content')
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer">
-        <strong>Copyright &copy; 2021-{{date('Y')}} <a href="{{url('/')}}">{{env('APP_NAME' , 'Laravel')}}</a>.</strong> All rights
+        <strong>Copyright &copy; 2021-{{date('Y')}} <a href="{{url('/')}}">{{env('APP_NAME' , 'Laravel')}}</a>.</strong>
+        All rights
         reserved.
     </footer>
 
@@ -277,6 +313,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
 <script src="{{asset('js/app.js')}}"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
+<!-- Summernote -->
+<script src="{{asset('plugins/summernote/summernote-bs4.min.js')}}"></script>
 
 <script>
     $(document).ready(function () {

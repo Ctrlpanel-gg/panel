@@ -15,8 +15,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             ConfigurationSeeder::class,
-            ProductSeeder::class,
-            PaypalProductSeeder::class,
         ]);
 
     }

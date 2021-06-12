@@ -25,14 +25,17 @@ class Pterodactyl
         ])->baseUrl(env('PTERODACTYL_URL') . '/api');
     }
 
+    //TODO: Extend error handling (maybe logger for more errors when debugging)
     /**
      * Get user by pterodactyl id
      * @param int $pterodactylId
      * @return mixed
      */
-    public static function getUser(int $pterodactylId){
+    public function getUser(int $pterodactylId){
         $response = self::client()->get("/application/users/{$pterodactylId}");
-        if ($response->failed()) return null;
+        if ($response->failed()) {
+            return [];
+        }
         return $response->json()['attributes'];
     }
 

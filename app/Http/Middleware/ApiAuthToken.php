@@ -17,8 +17,11 @@ class ApiAuthToken
      */
     public function handle(Request $request, Closure $next)
     {
+        if (empty($request->bearerToken())) return response()->json(['message' => 'Missing Authorization header'], 403);
+
         $token = ApplicationApi::find($request->bearerToken());
         if (is_null($token)) return response()->json(['message' => 'Invalid Authorization token'], 401);
+
         $token->updateLastUsed();
         return $next($request);
     }

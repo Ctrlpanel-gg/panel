@@ -24,7 +24,11 @@ class ProfileController extends Controller
         ]);
     }
 
-    /** Update the specified resource in storage. */
+    /** Update the specified resource in storage.
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse
+     */
     public function update(Request $request, int $id)
     {
         //prevent other users from editing a user

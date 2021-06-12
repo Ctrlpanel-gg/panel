@@ -13,11 +13,19 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    private Pterodactyl $pterodactyl;
+
+    public function __construct(Pterodactyl $pterodactyl)
+    {
+        $this->pterodactyl = $pterodactyl;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -27,27 +35,6 @@ class UserController extends Controller
     public function index(Request $request)
     {
         return view('admin.users.index');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return Response
-     */
-    public function store(Request $request)
-    {
-        //
     }
 
     /**
@@ -86,18 +73,31 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+
         $request->validate([
-            "name"           => "required|string|min:4|max:30",
-            "pterodactyl_id" => "required|numeric|unique:users,pterodactyl_id,{$user->pterodactyl_id}",
-            "email"          => "required|string|email",
-            "credits"        => "required|numeric|min:0|max:1000000",
-            "server_limit"   => "required|numeric|min:0|max:1000000",
-            "role"           => Rule::in(['admin', 'mod', 'client', 'member']),
+            "name" => "required|string|min:4|max:30",
+            "pterodactyl_id" => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
+            "email" => "required|string|email",
+            "credits" => "required|numeric|min:0|max:1000000",
+            "server_limit" => "required|numeric|min:0|max:1000000",
+            "role" => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
 
-        if (is_null(Pterodactyl::getUser($request->input('pterodactyl_id')))) {
+        if (empty($this->pterodactyl->getUser($request->input('pterodactyl_id')))) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
+            ]);
+        }
+
+
+        if (!is_null($request->input('new_password'))) {
+            $request->validate([
+                'new_password' => 'required|string|min:8',
+                'new_password_confirmation' => 'required|same:new_password'
+            ]);
+
+            $user->update([
+                'password' => Hash::make($request->input('new_password')),
             ]);
         }
 
@@ -143,19 +143,6 @@ class UserController extends Controller
     }
 
     /**
-     * @param User $user
-     * @return RedirectResponse
-     */
-    public function reSendVerificationEmail(User $user)
-    {
-        if ($user->hasVerifiedEmail())
-            return redirect()->back()->with('error', 'User has already verified their email');
-
-        $user->sendEmailVerificationNotification();
-        return redirect()->back()->with('success', 'User has been emailed again!');
-    }
-
-    /**
      *
      * @throws Exception
      */
@@ -187,7 +174,6 @@ class UserController extends Controller
             })
             ->addColumn('actions', function (User $user) {
                 return '
-                <a data-content="Resend verification" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.reSendVerificationEmail', $user->id) . '" class="btn btn-sm text-white btn-light mr-1"><i class="far fa-envelope"></i></a>
                 <a data-content="Login as user" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
                 <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
                 <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
@@ -216,10 +202,13 @@ class UserController extends Controller
 
                 return '<span class="badge ' . $badgeColor . '">' . $user->role . '</span>';
             })
+            ->editColumn('name', function (User $user) {
+                return '<a class="text-info" target="_blank" href="' . env('PTERODACTYL_URL', 'http://localhost') . '/admin/users/view/' . $user->pterodactyl_id . '">' . $user->name . '</a>';
+            })
             ->orderColumn('last_seen', function ($query, $order) {
                 $query->orderBy('last_seen', $order);
             })
-            ->rawColumns(['avatar', 'credits', 'role', 'usage', 'actions', 'last_seen'])
+            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'actions', 'last_seen'])
             ->make(true);
     }
 }
