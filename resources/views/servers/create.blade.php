@@ -67,8 +67,10 @@
 
                                         @foreach($locations as $location)
                                             <optgroup label="{{$location->name}}">
-                                                @foreach($location->nodes as $nodes)
-                                                    <option value="{{$nodes->id}}">{{$nodes->name}}</option>
+                                                @foreach($location->nodes as $node)
+                                                    @if(!$node->disabled)
+                                                        <option value="{{$node->id}}">{{$node->name}}</option>
+                                                    @endif
                                                 @endforeach
                                             </optgroup>
                                         @endforeach
