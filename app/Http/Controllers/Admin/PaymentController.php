@@ -60,6 +60,7 @@ class PaymentController extends Controller
             "purchase_units"      => [
                 [
                     "reference_id" => uniqid(),
+                    "description" => $paypalProduct->display,
                     "amount"       => [
                         "value"         => $paypalProduct->price,
                         "currency_code" => strtoupper($paypalProduct->currency_code)
@@ -69,7 +70,9 @@ class PaymentController extends Controller
             "application_context" => [
                 "cancel_url" => route('payment.cancel'),
                 "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
-                'brand_name' =>  config('app.name', 'Laravel') ,
+                'brand_name' =>  config('app.name', 'Laravel'),
+                'shipping_preference'  => 'NO_SHIPPING',
+                'user_action'  => 'PAY_NOW'
             ]
         ];
 
@@ -155,7 +158,7 @@ class PaymentController extends Controller
                 ]);
 
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Credits have been increased!');
+                return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
             }
 
             // If call returns body in response, you can get the deserialized version from the result attribute of the response
@@ -183,6 +186,6 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        return redirect()->route('store.index')->with('success', 'Payment Canceled');
+        return redirect()->route('store.index')->with('success', 'Payment was Cannceled');
     }
 }
