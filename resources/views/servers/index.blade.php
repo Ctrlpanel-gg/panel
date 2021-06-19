@@ -66,7 +66,7 @@
                                         <td>{{$server->product->cpu}} %</td>
                                     </tr>
                                     <tr>
-                                        <td>Ram</td>
+                                        <td>RAM</td>
                                         <td>{{$server->product->memory}} MB</td>
                                     </tr>
                                     <tr>
