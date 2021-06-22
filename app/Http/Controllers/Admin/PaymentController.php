@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Configuration;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
+use App\Models\User;
+use App\Notifications\ConfirmPaymentNotification;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -117,7 +119,10 @@ class PaymentController extends Controller
      */
     public function success(Request $laravelRequest)
     {
+        /** @var PaypalProduct $paypalProduct */
         $paypalProduct = PaypalProduct::findOrFail($laravelRequest->input('product'));
+        /** @var User $user */
+        $user = Auth::user();
 
         $request = new OrdersCaptureRequest($laravelRequest->input('token'));
         $request->prefer('return=representation');
@@ -127,31 +132,34 @@ class PaymentController extends Controller
             if ($response->statusCode == 201 || $response->statusCode == 200) {
 
                 //update credits
-                Auth::user()->increment('credits', $paypalProduct->quantity);
+                $user->increment('credits', $paypalProduct->quantity);
 
                 //update server limit
                 if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10) !== 0) {
-                    if (Auth::user()->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10)) {
-                        Auth::user()->update(['server_limit' => 10]);
+                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10)) {
+                        $user->update(['server_limit' => 10]);
                     }
                 }
 
                 //update role
-                if (Auth::user()->role == 'member') {
-                    Auth::user()->update(['role' => 'client']);
+                if ($user->role == 'member') {
+                    $user->update(['role' => 'client']);
                 }
 
                 //store payment
-                Payment::create([
-                    'user_id' => Auth::user()->id,
+                $payment = Payment::create([
+                    'user_id' => $user->id,
                     'payment_id' => $response->result->id,
                     'payer_id' => $laravelRequest->input('PayerID'),
                     'type' => 'Credits',
                     'status' => $response->result->status,
                     'amount' => $paypalProduct->quantity,
-                    'price' => $paypalProduct->price,
+                    'price' => $paypalProduct->formatCurrency(),
                     'payer' => json_encode($response->result->payer),
                 ]);
+
+                //payment notification
+                $user->notify(new ConfirmPaymentNotification($payment));
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', 'Credits have been increased!');

@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 class ServerCreationError extends Notification
+
 {
     use Queueable;
     /**
