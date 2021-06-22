@@ -80,7 +80,7 @@ class ConfigurationSeeder extends Seeder
         ], [
             'value' => '10',
             'type'  => 'integer',
-            'description' => 'Sets the users server limit to this amount after purchasing with money, set to 0 to ignore this.',
+            'description' => 'updates the users server limit to this amount (unless the user already has a higher server limit) after making a purchase with real money, set to 0 to ignore this.',
         ]);
     }
 }

@@ -59,10 +59,10 @@
             @else
                 <div class="alert alert-danger alert-dismissible">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h4><i class="icon fa fa-ban"></i> @if($products->count() == 0) The store is temporarily
-                        disabled! @else The store is not correctly configured! @endif
+                    <h4><i class="icon fa fa-ban"></i> @if($products->count() == 0) There are no store products! @else The store is not correctly configured! @endif
                     </h4>
                 </div>
+
             @endif
 
 

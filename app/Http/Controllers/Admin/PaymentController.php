@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
 use Illuminate\Contracts\Foundation\Application;
@@ -20,15 +21,11 @@ use PayPalHttp\HttpException;
 
 class PaymentController extends Controller
 {
-    protected $allowedAmounts = [
-        '87',
-        '350',
-        '1000',
-        '2000',
-        '4000'
-    ];
-
-    public function index(){
+    /**
+     * @return Application|Factory|View
+     */
+    public function index()
+    {
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15)
         ]);
@@ -51,17 +48,17 @@ class PaymentController extends Controller
      * @param PaypalProduct $paypalProduct
      * @return RedirectResponse
      */
-    public function pay(Request $request , PaypalProduct $paypalProduct)
+    public function pay(Request $request, PaypalProduct $paypalProduct)
     {
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
-            "intent"              => "CAPTURE",
-            "purchase_units"      => [
+            "intent" => "CAPTURE",
+            "purchase_units" => [
                 [
                     "reference_id" => uniqid(),
-                    "amount"       => [
-                        "value"         => $paypalProduct->price,
+                    "amount" => [
+                        "value" => $paypalProduct->price,
                         "currency_code" => strtoupper($paypalProduct->currency_code)
                     ]
                 ]
@@ -69,7 +66,7 @@ class PaymentController extends Controller
             "application_context" => [
                 "cancel_url" => route('payment.cancel'),
                 "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
-                'brand_name' =>  config('app.name', 'Laravel') ,
+                'brand_name' => config('app.name', 'Laravel'),
             ]
         ];
 
@@ -133,8 +130,10 @@ class PaymentController extends Controller
                 Auth::user()->increment('credits', $paypalProduct->quantity);
 
                 //update server limit
-                if (Auth::user()->server_limit < 10) {
-                    Auth::user()->update(['server_limit' => 10]);
+                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10) !== 0) {
+                    if (Auth::user()->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10)) {
+                        Auth::user()->update(['server_limit' => 10]);
+                    }
                 }
 
                 //update role
