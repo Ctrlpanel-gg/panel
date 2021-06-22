@@ -56,21 +56,14 @@ class RegisterController extends Controller
         $data['ip'] = session()->get('ip') ?? request()->ip();
         if (User::where('ip', '=', request()->ip())->exists()) session()->put('ip', request()->ip());
 
-        //check if registered cookie exists as extra defense
-        if (isset($_COOKIE['4b3403665fea6'])) {
-            $data['registered'] = env('APP_ENV') == 'local' ? false : true;
-        }
-
         return Validator::make($data, [
             'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
             'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
             'password'             => ['required', 'string', 'min:8', 'confirmed'],
             'g-recaptcha-response' => ['recaptcha'],
             'ip'                   => ['unique:users'],
-            'registered'           => ['nullable', 'boolean', 'in:true']
         ], [
-            'ip.unique'  => "You have already made an account with us! Please contact support if you think this is incorrect.",
-            'registered.in' => "You have already made an account with us! Please contact support if you think this is incorrect."
+            'ip.unique'  => "You have already made an account with us! Please contact support if you think this is incorrect."
         ]);
     }
 
