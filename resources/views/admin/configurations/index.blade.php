@@ -40,7 +40,7 @@
                             <th>Key</th>
                             <th>Value</th>
                             <th>Type</th>
-                            <th>Description</th>
+                            <th width="600">Description</th>
                             <th>Created at</th>
                             <th></th>
                         </tr>
