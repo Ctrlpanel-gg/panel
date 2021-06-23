@@ -158,6 +158,7 @@ class PaymentController extends Controller
                     'status' => $response->result->status,
                     'amount' => $paypalProduct->quantity,
                     'price' => $paypalProduct->price,
+                    'currency_code' => $paypalProduct->currency_code,
                     'payer' => json_encode($response->result->payer),
                 ]);
 

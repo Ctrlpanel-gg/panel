@@ -29,6 +29,7 @@ class Payment extends Model
         'type',
         'amount',
         'price',
+        'currency_code',
     ];
 
     public static function boot()
