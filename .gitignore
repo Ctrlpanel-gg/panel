@@ -5,8 +5,9 @@
 /vendor
 /storage/credit_deduction_log
 .env
-.idea
+.env.testing
 .env.backup
+.idea
 .phpunit.result.cache
 docker-compose.override.yml
 Homestead.json

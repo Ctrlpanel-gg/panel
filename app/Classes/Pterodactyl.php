@@ -49,8 +49,12 @@ class Pterodactyl
         $response = self::getAllocations($node);
         $freeAllocations = [];
 
-        foreach ($response['data'] as $allocation) {
-            if (!$allocation['attributes']['assigned']) array_push($freeAllocations, $allocation);
+        if(isset($response['data'])){
+            if (!empty($response['data'])) {
+                foreach ($response['data'] as $allocation) {
+                    if (!$allocation['attributes']['assigned']) array_push($freeAllocations, $allocation);
+                }
+            }
         }
 
         return $freeAllocations;

@@ -6,6 +6,7 @@ use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use NumberFormatter;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Payment extends Model
@@ -19,21 +20,23 @@ class Payment extends Model
      * @var string[]
      */
     protected $fillable = [
-       'id',
-      'user_id',
-      'payment_id',
-      'payer_id',
-      'payer',
-      'status',
-      'type',
-      'amount',
-      'price',
+        'id',
+        'user_id',
+        'payment_id',
+        'payer_id',
+        'payer',
+        'status',
+        'type',
+        'amount',
+        'price',
+        'currency_code',
     ];
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        static::creating(function(Payment $payment) {
+        static::creating(function (Payment $payment) {
             $client = new Client();
 
             $payment->{$payment->getKeyName()} = $client->generateId($size = 8);
@@ -43,12 +46,14 @@ class Payment extends Model
     /**
      * @return BelongsTo
      */
-    public function User(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function Price()
+    public function formatCurrency($locale = 'en_US')
     {
-        return number_format($this->price, 2, '.', '');
+        $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+        return $formatter->formatCurrency($this->price, $this->currency_code);
     }
 }

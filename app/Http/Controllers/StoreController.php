@@ -16,6 +16,7 @@ class StoreController extends Controller
     {
         $isPaypalSetup = false;
         if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;
+        if (env('APP_ENV' , 'local') == 'local') $isPaypalSetup = true;
 
         return view('store.index')->with([
             'products' => PaypalProduct::where('disabled' , '=' , false)->orderBy('price' , 'asc')->get(),

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Seeds;
 
 use App\Models\Configuration;
 use Illuminate\Database\Seeder;
@@ -20,6 +20,7 @@ class ConfigurationSeeder extends Seeder
         ], [
             'value' => '250',
             'type'  => 'integer',
+            'description' => 'The initial amount of credits the user starts with.'
         ]);
 
         Configuration::firstOrCreate([
@@ -27,6 +28,7 @@ class ConfigurationSeeder extends Seeder
         ], [
             'value' => '1',
             'type'  => 'integer',
+            'description' => 'The initial server limit the user starts with.'
         ]);
 
         //verify email event
@@ -35,6 +37,7 @@ class ConfigurationSeeder extends Seeder
         ], [
             'value' => '250',
             'type'  => 'integer',
+            'description' => 'Increase in credits after the user has verified their email account.'
         ]);
 
         Configuration::firstOrCreate([
@@ -42,6 +45,7 @@ class ConfigurationSeeder extends Seeder
         ], [
             'value' => '2',
             'type'  => 'integer',
+            'description' => 'Increase in server limit after the user has verified their email account.'
         ]);
 
         //verify discord event
@@ -50,6 +54,7 @@ class ConfigurationSeeder extends Seeder
         ] , [
             'value' => '375',
             'type'  => 'integer',
+            'description' => 'Increase in credits after the user has verified their discord account.'
         ]);
 
         Configuration::firstOrCreate([
@@ -57,6 +62,7 @@ class ConfigurationSeeder extends Seeder
         ], [
             'value' => '2',
             'type'  => 'integer',
+            'description' => 'Increase in server limit after the user has verified their discord account.'
         ]);
 
         //other
@@ -65,6 +71,16 @@ class ConfigurationSeeder extends Seeder
         ], [
             'value' => '50',
             'type'  => 'integer',
+            'description' => 'The minimum amount of credits the user would need to make a server.'
+        ]);
+
+        //purchasing
+        Configuration::firstOrCreate([
+            'key' => 'SERVER_LIMIT_AFTER_IRL_PURCHASE',
+        ], [
+            'value' => '10',
+            'type'  => 'integer',
+            'description' => 'updates the users server limit to this amount (unless the user already has a higher server limit) after making a purchase with real money, set to 0 to ignore this.',
         ]);
     }
 }

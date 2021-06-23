@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\ApplicationApi;
+use Database\Seeders\Seeds\UserSeeder;
 use Illuminate\Database\Seeder;
 
-class ApplicationApiSeeder extends Seeder
+class DevelopmentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,8 +14,8 @@ class ApplicationApiSeeder extends Seeder
      */
     public function run()
     {
-        ApplicationApi::create([
-            'memo' => 'admin'
+        $this->call([
+            UserSeeder::class,
         ]);
     }
 }

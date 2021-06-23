@@ -3,11 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
+use App\Models\Product;
+use App\Models\User;
+use App\Notifications\ConfirmPaymentNotification;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,15 +26,11 @@ use PayPalHttp\HttpException;
 
 class PaymentController extends Controller
 {
-    protected $allowedAmounts = [
-        '87',
-        '350',
-        '1000',
-        '2000',
-        '4000'
-    ];
-
-    public function index(){
+    /**
+     * @return Application|Factory|View
+     */
+    public function index()
+    {
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15)
         ]);
@@ -51,13 +53,13 @@ class PaymentController extends Controller
      * @param PaypalProduct $paypalProduct
      * @return RedirectResponse
      */
-    public function pay(Request $request , PaypalProduct $paypalProduct)
+    public function pay(Request $request, PaypalProduct $paypalProduct)
     {
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
-            "intent"              => "CAPTURE",
-            "purchase_units"      => [
+            "intent" => "CAPTURE",
+            "purchase_units" => [
                 [
                     "reference_id" => uniqid(),
                     "description" => $paypalProduct->description,
@@ -122,7 +124,10 @@ class PaymentController extends Controller
      */
     public function success(Request $laravelRequest)
     {
+        /** @var PaypalProduct $paypalProduct */
         $paypalProduct = PaypalProduct::findOrFail($laravelRequest->input('product'));
+        /** @var User $user */
+        $user = Auth::user();
 
         $request = new OrdersCaptureRequest($laravelRequest->input('token'));
         $request->prefer('return=representation');
@@ -132,29 +137,35 @@ class PaymentController extends Controller
             if ($response->statusCode == 201 || $response->statusCode == 200) {
 
                 //update credits
-                Auth::user()->increment('credits', $paypalProduct->quantity);
+                $user->increment('credits', $paypalProduct->quantity);
 
                 //update server limit
-                if (Auth::user()->server_limit < 10) {
-                    Auth::user()->update(['server_limit' => 10]);
+                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10) !== 0) {
+                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10)) {
+                        $user->update(['server_limit' => 10]);
+                    }
                 }
 
                 //update role
-                if (Auth::user()->role == 'member') {
-                    Auth::user()->update(['role' => 'client']);
+                if ($user->role == 'member') {
+                    $user->update(['role' => 'client']);
                 }
 
                 //store payment
-                Payment::create([
-                    'user_id' => Auth::user()->id,
+                $payment = Payment::create([
+                    'user_id' => $user->id,
                     'payment_id' => $response->result->id,
                     'payer_id' => $laravelRequest->input('PayerID'),
                     'type' => 'Credits',
                     'status' => $response->result->status,
                     'amount' => $paypalProduct->quantity,
                     'price' => $paypalProduct->price,
+                    'currency_code' => $paypalProduct->currency_code,
                     'payer' => json_encode($response->result->payer),
                 ]);
+
+                //payment notification
+                $user->notify(new ConfirmPaymentNotification($payment));
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
@@ -186,5 +197,27 @@ class PaymentController extends Controller
     public function cancel(Request $request)
     {
         return redirect()->route('store.index')->with('success', 'Payment was Cannceled');
+    }
+
+
+    /**
+     * @return JsonResponse|mixed
+     * @throws Exception
+     */
+    public function dataTable()
+    {
+        $query = Payment::with('user');
+
+        return datatables($query)
+            ->editColumn('user', function (Payment $payment) {
+                return $payment->user->name;
+            })
+            ->editColumn('price', function (Payment $payment) {
+                return $payment->formatCurrency();
+            })
+            ->editColumn('created_at', function (Payment $payment) {
+                return $payment->created_at ? $payment->created_at->diffForHumans() : '';
+            })
+            ->make();
     }
 }
