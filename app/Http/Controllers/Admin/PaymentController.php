@@ -71,8 +71,7 @@ class PaymentController extends Controller
                 "cancel_url" => route('payment.cancel'),
                 "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
                 'brand_name' =>  config('app.name', 'Laravel'),
-                'shipping_preference'  => 'NO_SHIPPING',
-                'user_action'  => 'PAY_NOW'
+                'shipping_preference'  => 'NO_SHIPPING'
             ]
         ];
 
