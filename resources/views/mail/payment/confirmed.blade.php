@@ -6,7 +6,7 @@ Your payment has been confirmed; Your credit balance has been updated.
 ___
 ### Payment ID: **{{$payment->id}}**
 ### Status:     **{{$payment->status}}**
-### Price:      **{{$payment->price}}**
+### Price:      **{{$payment->formatCurrency()}}**
 ### Type:       **{{$payment->type}}**
 ### Amount:     **{{$payment->amount}}**
 ### Balance:    **{{$payment->user->credits}}**

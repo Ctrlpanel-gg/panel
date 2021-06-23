@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Configuration;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
+use App\Models\Product;
 use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -154,7 +157,7 @@ class PaymentController extends Controller
                     'type' => 'Credits',
                     'status' => $response->result->status,
                     'amount' => $paypalProduct->quantity,
-                    'price' => $paypalProduct->formatCurrency(),
+                    'price' => $paypalProduct->price,
                     'payer' => json_encode($response->result->payer),
                 ]);
 
@@ -191,5 +194,27 @@ class PaymentController extends Controller
     public function cancel(Request $request)
     {
         return redirect()->route('store.index')->with('success', 'Payment Canceled');
+    }
+
+
+    /**
+     * @return JsonResponse|mixed
+     * @throws Exception
+     */
+    public function dataTable()
+    {
+        $query = Payment::with('user');
+
+        return datatables($query)
+            ->editColumn('user', function (Payment $payment) {
+                return $payment->user->name;
+            })
+            ->editColumn('price', function (Payment $payment) {
+                return $payment->formatCurrency();
+            })
+            ->editColumn('created_at', function (Payment $payment) {
+                return $payment->created_at ? $payment->created_at->diffForHumans() : '';
+            })
+            ->make();
     }
 }

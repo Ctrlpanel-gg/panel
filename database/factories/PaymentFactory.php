@@ -30,7 +30,8 @@ class PaymentFactory extends Factory
             'type' => "Credits",
             'status' => "Completed",
             'amount' => $this->faker->numberBetween(10, 10000),
-            'price' => '€' . $this->faker->numerify('##.##'),
+            'price' => $this->faker->numerify('##.##'),
+            'currency_code' => ['EUR', 'USD'][rand(0,1)],
             'payer' => '{}',
         ];
     }
