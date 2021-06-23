@@ -1,6 +1,6 @@
 @component('mail::message')
 # Thank you for your purchase!
-Your payment has been confirmed; Your balance has been updated.
+Your payment has been confirmed; Your credit balance has been updated.
 
 # Details
 ___
@@ -9,7 +9,7 @@ ___
 ### Price:      **{{$payment->price}}**
 ### Type:       **{{$payment->type}}**
 ### Amount:     **{{$payment->amount}}**
-### Balance     **{{$payment->user->credits}}**
+### Balance:    **{{$payment->user->credits}}**
 ### User ID:    **{{$payment->user_id}}**
 
 <br>
