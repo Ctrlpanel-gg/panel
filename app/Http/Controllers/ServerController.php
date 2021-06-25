@@ -11,12 +11,7 @@ use App\Models\Node;
 use App\Models\Product;
 use App\Models\Server;
 use App\Notifications\ServerCreationError;
-use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -36,6 +31,16 @@ class ServerController extends Controller
         //limit
         if (Auth::user()->Servers->count() >= Auth::user()->server_limit) {
             return redirect()->route('servers.index')->with('error', "You've already reached your server limit!");
+        }
+
+        //Required Verification for creating an server
+        if(Configuration::getValueByKey('VERIFIED_EMAIL_TO_MAKE_SERVER') === 'true' && !Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('profile.index')->with('error', "You havent verified your email! Thats required to create an server.");
+        }
+
+        //Required Verification for creating an server
+        if(Configuration::getValueByKey('VERIFIED_DISCORD_TO_MAKE_SERVER') === 'true' && !Auth::user()->discordUser) {
+            return redirect()->route('profile.index')->with('error', "You havent linked an Discord Account to your profile! Thats required to create an server");
         }
 
         //minimum credits
@@ -68,7 +73,6 @@ class ServerController extends Controller
         if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
             return redirect()->route('servers.index')->with('error', 'Server limit reached!');
         }
-
         //minimum credits
         if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER' , 50)) {
             return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");

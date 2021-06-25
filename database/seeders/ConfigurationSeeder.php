@@ -19,14 +19,14 @@ class ConfigurationSeeder extends Seeder
             'key' => 'INITIAL_CREDITS',
         ], [
             'value' => '250',
-            'type'  => 'integer',
+            'type' => 'integer',
         ]);
 
         Configuration::firstOrCreate([
             'key' => 'INITIAL_SERVER_LIMIT',
         ], [
             'value' => '1',
-            'type'  => 'integer',
+            'type' => 'integer',
         ]);
 
         //verify email event
@@ -34,29 +34,43 @@ class ConfigurationSeeder extends Seeder
             'key' => 'CREDITS_REWARD_AFTER_VERIFY_EMAIL',
         ], [
             'value' => '250',
-            'type'  => 'integer',
+            'type' => 'integer',
+        ]);
+
+        Configuration::firstOrCreate([
+            'key' => 'VERIFIED_EMAIL_TO_MAKE_SERVER',
+        ], [
+            'value' => 'true',
+            'type' => 'boolean',
+        ]);
+
+        Configuration::firstOrCreate([
+            'key' => 'VERIFIED_DISCORD_TO_MAKE_SERVER',
+        ], [
+            'value' => 'true',
+            'type' => 'boolean',
         ]);
 
         Configuration::firstOrCreate([
             'key' => 'SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL',
         ], [
             'value' => '2',
-            'type'  => 'integer',
+            'type' => 'integer',
         ]);
 
         //verify discord event
         Configuration::firstOrCreate([
-            'key'   => 'CREDITS_REWARD_AFTER_VERIFY_DISCORD',
-        ] , [
+            'key' => 'CREDITS_REWARD_AFTER_VERIFY_DISCORD',
+        ], [
             'value' => '375',
-            'type'  => 'integer',
+            'type' => 'integer',
         ]);
 
         Configuration::firstOrCreate([
             'key' => 'SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD',
         ], [
             'value' => '2',
-            'type'  => 'integer',
+            'type' => 'integer',
         ]);
 
         //other
@@ -64,7 +78,7 @@ class ConfigurationSeeder extends Seeder
             'key' => 'MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER',
         ], [
             'value' => '50',
-            'type'  => 'integer',
+            'type' => 'integer',
         ]);
     }
 }
