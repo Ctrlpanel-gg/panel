@@ -124,6 +124,7 @@ class Server extends Model
         return $this;
     }
 
+
     /**
      * @return HasOne
      */

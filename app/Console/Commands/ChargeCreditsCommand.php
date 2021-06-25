@@ -3,9 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Classes\Pterodactyl;
+use App\Models\Product;
 use App\Models\Server;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 
 class ChargeCreditsCommand extends Command
 {
@@ -40,42 +43,23 @@ class ChargeCreditsCommand extends Command
      */
     public function handle()
     {
-        Server::chunk(10, function ($servers) {
+        return Server::whereNull('suspended')->chunk(10, function ($servers) {
             /** @var Server $server */
             foreach ($servers as $server) {
-
-                //ignore suspended servers
-                if ($server->isSuspended()) {
-                    echo Carbon::now()->isoFormat('LLL') . " Ignoring suspended server";
-                    continue;
-                }
-
-                //vars
+                /** @var Product $product */
+                $product = $server->product;
+                /** @var User $user */
                 $user = $server->user;
-                $price = ($server->product->price / 30) / 24;
 
-                //remove credits or suspend server
-                if ($user->credits >= $price) {
-                    $user->decrement('credits', $price);
-
-                    //log
-                    echo Carbon::now()->isoFormat('LLL') . " [CREDIT DEDUCTION] Removed " . number_format($price, 2, '.', '') . " from user (" . $user->name . ") for server (" . $server->name . ")\n";
-
+               #charge credits / suspend server
+                if ($user->credits >= $product->getHourlyPrice()){
+                    $this->line("<fg=blue>{$user->name}</> Current credits: <fg=green>{$user->credits}</> Credits to be removed: <fg=red>{$product->getHourlyPrice()}</>");
+                    $user->decrement('credits', $product->getHourlyPrice());
                 } else {
-                    $response = Pterodactyl::client()->post("/application/servers/{$server->pterodactyl_id}/suspend");
-
-                    if ($response->successful()) {
-                        echo Carbon::now()->isoFormat('LLL') . " [CREDIT DEDUCTION] Suspended server (" . $server->name . ") from user (" . $user->name . ")\n";
-                        $server->update(['suspended' => now()]);
-                    } else {
-                        echo Carbon::now()->isoFormat('LLL') . " [CREDIT DEDUCTION] CRITICAL ERROR! Unable to suspend server (" . $server->name . ") from user (" . $user->name . ")\n";
-                        dump($response->json());
-                    }
+                    $this->line("server <fg=blue>{$server->name}</> <fg=red>has been suspended! </>");
+                    $server->suspend();
                 }
-
             }
         });
-
-        return 'Charged credits for existing servers!\n';
     }
 }

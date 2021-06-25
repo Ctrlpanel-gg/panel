@@ -27,6 +27,21 @@ class Product extends Model
         });
     }
 
+    public function getHourlyPrice()
+    {
+        return ($this->price / 30) / 24;
+    }
+
+    public function getDailyPrice()
+    {
+        return ($this->price / 30);
+    }
+
+    public function getWeeklyPrice()
+    {
+        return ($this->price / 4);
+    }
+
     /**
      * @return BelongsTo
      */
