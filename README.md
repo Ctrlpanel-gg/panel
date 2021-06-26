@@ -9,10 +9,7 @@
 - and so much more!
 
 # ControlPanel-gg
-<p style="text-align: center;">
-![controlpanel](https://user-images.githubusercontent.com/45005889/123518781-d36dc100-d6a7-11eb-9eef-5fcba616fc65.png)
-</p>
-
+![controlpanel](https://user-images.githubusercontent.com/45005889/123518824-06b05000-d6a8-11eb-91b9-d1ed36bd2317.png)
 
 ## About
 ControlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that credits users hourly for each server they have and suspends them if they run out of credits.
