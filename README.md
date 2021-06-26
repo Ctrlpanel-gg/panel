@@ -10,7 +10,7 @@
 
 # ControlPanel-gg
 <p style="text-align: center;">
-![Alt text](/public/images/bitsec.png?raw=true "Title")
+![controlpanel](https://user-images.githubusercontent.com/45005889/123518781-d36dc100-d6a7-11eb-9eef-5fcba616fc65.png)
 </p>
 
 
