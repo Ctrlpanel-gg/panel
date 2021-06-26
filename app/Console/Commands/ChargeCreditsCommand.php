@@ -64,7 +64,7 @@ class ChargeCreditsCommand extends Command
                     try {
                         #suspend server
                         $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> has been <fg=red>suspended!</>");
-                        #$server->suspend();
+                        $server->suspend();
 
                         #add user to notify list
                         if (!in_array($user, $this->usersToNotify)) {

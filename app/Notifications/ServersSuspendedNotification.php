@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\Configuration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -29,7 +30,7 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail' , 'database'];
     }
 
     /**
@@ -43,7 +44,7 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->subject('Your servers have been suspended!')
                     ->greeting('Your servers have been suspended!')
-                    ->line("To unsuspend your server/s you need to purchase more credits.")
+                    ->line("To automatically re-enable your server/s, you need to purchase more credits.")
                     ->action('Purchase credits', route('store.index'))
                     ->line('If you have any questions please let us know.');
     }
@@ -57,7 +58,13 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            //
+            'title'   => "Servers suspended!",
+            'content' => "
+                <h5>Your servers have been suspended!</h5>
+                <p>To automatically re-enable your server/s, you need to purchase more credits.</p>
+                <p>If you have any questions please let us know.</p>
+                <p>Regards,<br />" . config('app.name', 'Laravel') . "</p>
+            ",
         ];
     }
 }

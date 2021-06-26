@@ -114,11 +114,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('api', ApplicationApiController::class)->parameters([
             'api' => 'applicationApi',
         ]);
-
-        #Testing route to preview new ConfirmedPaymentNotification email
-        Route::get('test' , function(Request $request){
-            return (new \App\Notifications\ConfirmPaymentNotification(\App\Models\Payment::factory()->create()))->toMail($request->user());
-        });
     });
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
