@@ -80,6 +80,16 @@ class ServerController extends Controller
             return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
         }
 
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', false) === 'true' && !Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('profile.index')->with('error', "You havent verified your email! Thats required to create an server.");
+        }
+
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', false) === 'true' && !Auth::user()->discordUser) {
+            return redirect()->route('profile.index')->with('error', "You havent linked an Discord Account to your profile! Thats required to create an server");
+        }
+
         //create server
         $egg = Egg::findOrFail($request->input('egg_id'));
         $server = Auth::user()->servers()->create($request->all());
