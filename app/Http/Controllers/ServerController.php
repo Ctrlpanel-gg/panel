@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\Server;
 use App\Notifications\ServerCreationError;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,26 +30,7 @@ class ServerController extends Controller
     /** Show the form for creating a new resource. */
     public function create()
     {
-        //limit
-        if (Auth::user()->Servers->count() >= Auth::user()->server_limit) {
-            return redirect()->route('servers.index')->with('error', "You've already reached your server limit!");
-        }
-
-        //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', false) === 'true' && !Auth::user()->hasVerifiedEmail()) {
-            return redirect()->route('profile.index')->with('error', "You havent verified your email! Thats required to create an server.");
-        }
-
-        //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', false) === 'true' && !Auth::user()->discordUser) {
-            return redirect()->route('profile.index')->with('error', "You havent linked an Discord Account to your profile! Thats required to create an server");
-        }
-
-        //minimum credits
-        if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)) {
-            return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
-        }
-
+        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
         return view('servers.create')->with([
             'products' => Product::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
@@ -70,25 +52,7 @@ class ServerController extends Controller
             "product_id" => "required|exists:products,id",
         ]);
 
-        //limit validation
-        if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
-            return redirect()->route('servers.index')->with('error', 'Server limit reached!');
-        }
-
-        //minimum credits
-        if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)) {
-            return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
-        }
-
-        //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', false) === 'true' && !Auth::user()->hasVerifiedEmail()) {
-            return redirect()->route('profile.index')->with('error', "You havent verified your email! Thats required to create an server.");
-        }
-
-        //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', false) === 'true' && !Auth::user()->discordUser) {
-            return redirect()->route('profile.index')->with('error', "You havent linked an Discord Account to your profile! Thats required to create an server");
-        }
+        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
         //create server
         $egg = Egg::findOrFail($request->input('egg_id'));
@@ -117,6 +81,34 @@ class ServerController extends Controller
 
         Auth::user()->notify(new ServerCreationError($server));
         return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment were found.');
+    }
+
+
+    /**
+     * @return bool|RedirectResponse
+     */
+    private function validateConfigurationRules(){
+        //limit validation
+        if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
+            return redirect()->route('servers.index')->with('error', 'Server limit reached!');
+        }
+
+        //minimum credits
+        if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)) {
+            return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
+        }
+
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('profile.index')->with('error', "You are required to verify your email address before you can create a server.");
+        }
+
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {
+            return redirect()->route('profile.index')->with('error', "You are required to link your discord account before you can create a server.");
+        }
+
+        return null;
     }
 
     /** Remove the specified resource from storage. */
