@@ -85,7 +85,7 @@ class ServerController extends Controller
 
 
     /**
-     * @return bool|RedirectResponse
+     * @return null|RedirectResponse
      */
     private function validateConfigurationRules(){
         //limit validation
