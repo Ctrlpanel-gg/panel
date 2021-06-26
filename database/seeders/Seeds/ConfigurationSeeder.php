@@ -82,5 +82,21 @@ class ConfigurationSeeder extends Seeder
             'type'  => 'integer',
             'description' => 'updates the users server limit to this amount (unless the user already has a higher server limit) after making a purchase with real money, set to 0 to ignore this.',
         ]);
+
+        Configuration::firstOrCreate([
+            'key'   => 'FORCE_EMAIL_VERIFICATION',
+        ] , [
+            'value' => 'false',
+            'type'  => 'boolean',
+            'description' => 'Force an user to verify the email adress before creating a server / buying credits.'
+        ]);
+
+        Configuration::firstOrCreate([
+            'key'   => 'FORCE_DISCORD_VERIFICATION',
+        ] , [
+            'value' => 'false',
+            'type'  => 'boolean',
+            'description' => 'Force an user to link an Discord Account before creating a server / buying credits.'
+        ]);
     }
 }
