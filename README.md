@@ -10,7 +10,7 @@
 
 # ControlPanel-gg
 <p style="text-align: center;">
-![alt text](https://github.com/ControlPanel-gg/dashboard/blob/main/public/images/bitsec.png?raw=true)
+![Alt text](/public/images/bitsec.png?raw=true "Title")
 </p>
 
 
@@ -22,5 +22,5 @@ This dashboard offers an easy to use and free billing solution for all starting 
 ### [Installation](https://github.com/ControlPanel-gg/dashboard/wiki "Installation")
 ### [Updating](https://github.com/ControlPanel-gg/dashboard/wiki/Updating "Updating")
 ### [Discord](https://discord.gg/4Y6HjD2uyU "discord")
-###[Contributing](https://github.com/ControlPanel-gg/dashboard/wiki/Contributing "Contributing")
+### [Contributing](https://github.com/ControlPanel-gg/dashboard/wiki/Contributing "Contributing")
 ### [Donating](https://github.com/ControlPanel-gg/dashboard/wiki#donating "Donating")
