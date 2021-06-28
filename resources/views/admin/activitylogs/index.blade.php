@@ -33,7 +33,7 @@
                     @else
                         <div class="callout callout-danger">
                             <h4>No recent activity from cronjobs</h4>
-                            <p>Are cronjobs running? <a class="text-primary" target="_blank" href="https://github.com/AVMG20/bitsec-dashboard#crontab-configuration">link</a></p>
+                            <p>Are cronjobs running? <a class="text-primary" target="_blank" href="https://github.com/ControlPanel-gg/dashboard/wiki/Installation#crontab-configuration">Check the docs for it here</a></p>
                         </div>
                     @endif
 
