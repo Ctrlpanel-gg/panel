@@ -5,9 +5,10 @@ namespace App\Notifications;
 use App\Models\Configuration;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class WelcomeMessage extends Notification
+class WelcomeMessage extends Notification implements ShouldQueue
 {
     use Queueable;
 

@@ -26,7 +26,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('credits:charge')->hourly();
-        $schedule->command('queue:work --once')->everyMinute();
 
         //log cronjob activity
         $schedule->call(function () {

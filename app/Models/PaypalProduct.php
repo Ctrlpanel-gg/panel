@@ -39,6 +39,10 @@ class PaypalProduct extends Model
         });
     }
 
+    /**
+     * @param string $locale
+     * @return string
+     */
     public function formatCurrency($locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);

@@ -12,11 +12,8 @@ use App\Models\Product;
 use App\Models\Server;
 use App\Notifications\ServerCreationError;
 use Exception;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -33,23 +30,14 @@ class ServerController extends Controller
     /** Show the form for creating a new resource. */
     public function create()
     {
-        //limit
-        if (Auth::user()->Servers->count() >= Auth::user()->server_limit) {
-            return redirect()->route('servers.index')->with('error', "You've already reached your server limit!");
-        }
-
-        //minimum credits
-        if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER' , 50)) {
-            return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
-        }
-
+        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
         return view('servers.create')->with([
-            'products'  => Product::where('disabled' , '=' , false)->orderBy('price', 'asc')->get(),
-            'locations' => Location::whereHas('nodes' , function ($query) {
-                $query->where('disabled' , '=' , false);
+            'products' => Product::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
+            'locations' => Location::whereHas('nodes', function ($query) {
+                $query->where('disabled', '=', false);
             })->get(),
-            'nests'     => Nest::where('disabled' , '=' , false)->get(),
+            'nests' => Nest::where('disabled', '=', false)->get(),
         ]);
     }
 
@@ -57,22 +45,14 @@ class ServerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            "name"        => "required|max:191",
+            "name" => "required|max:191",
             "description" => "nullable|max:191",
-            "node_id"     => "required|exists:nodes,id",
-            "egg_id"      => "required|exists:eggs,id",
-            "product_id"  => "required|exists:products,id",
+            "node_id" => "required|exists:nodes,id",
+            "egg_id" => "required|exists:eggs,id",
+            "product_id" => "required|exists:products,id",
         ]);
 
-        //limit validation
-        if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
-            return redirect()->route('servers.index')->with('error', 'Server limit reached!');
-        }
-
-        //minimum credits
-        if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER' , 50)) {
-            return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
-        }
+        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
         //create server
         $egg = Egg::findOrFail($request->input('egg_id'));
@@ -80,7 +60,7 @@ class ServerController extends Controller
         $node = Node::findOrFail($request->input('node_id'));
 
         //create server on pterodactyl
-        $response = Pterodactyl::createServer($server , $egg , $node);
+        $response = Pterodactyl::createServer($server, $egg, $node);
 
         if (is_null($response)) return $this->serverCreationFailed($server);
         if ($response->failed()) return $this->serverCreationFailed($server);
@@ -88,7 +68,7 @@ class ServerController extends Controller
         //update server with pterodactyl_id
         $server->update([
             'pterodactyl_id' => $response->json()['attributes']['id'],
-            'identifier'     => $response->json()['attributes']['identifier']
+            'identifier' => $response->json()['attributes']['identifier']
         ]);
 
         return redirect()->route('servers.index')->with('success', 'server created');
@@ -103,13 +83,41 @@ class ServerController extends Controller
         return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment were found.');
     }
 
+
+    /**
+     * @return null|RedirectResponse
+     */
+    private function validateConfigurationRules(){
+        //limit validation
+        if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
+            return redirect()->route('servers.index')->with('error', 'Server limit reached!');
+        }
+
+        //minimum credits
+        if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)) {
+            return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
+        }
+
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('profile.index')->with('error', "You are required to verify your email address before you can create a server.");
+        }
+
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {
+            return redirect()->route('profile.index')->with('error', "You are required to link your discord account before you can create a server.");
+        }
+
+        return null;
+    }
+
     /** Remove the specified resource from storage. */
     public function destroy(Server $server)
     {
         try {
             $server->delete();
             return redirect()->route('servers.index')->with('success', 'server removed');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource');
         }
     }

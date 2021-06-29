@@ -8,9 +8,10 @@ use App\Models\Configuration;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -52,13 +53,21 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        //check if ip has already made an account
-        $data['ip'] = session()->get('ip') ?? request()->ip();
-        if (User::where('ip', '=', request()->ip())->exists()) session()->put('ip', request()->ip());
+        if (Configuration::getValueByKey('REGISTER_IP_CHECK', 'true') == 'true') {
 
-        //check if registered cookie exists as extra defense
-        if (isset($_COOKIE['4b3403665fea6'])) {
-            $data['registered'] = env('APP_ENV') == 'local' ? false : true;
+            //check if ip has already made an account
+            $data['ip'] = session()->get('ip') ?? request()->ip();
+            if (User::where('ip', '=', request()->ip())->exists()) session()->put('ip', request()->ip());
+
+            return Validator::make($data, [
+                'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
+                'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
+                'password'             => ['required', 'string', 'min:8', 'confirmed'],
+                'g-recaptcha-response' => ['recaptcha'],
+                'ip'                   => ['unique:users'],
+            ], [
+                'ip.unique' => "You have already made an account with us! Please contact support if you think this is incorrect."
+            ]);
         }
 
         return Validator::make($data, [
@@ -66,32 +75,28 @@ class RegisterController extends Controller
             'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
             'password'             => ['required', 'string', 'min:8', 'confirmed'],
             'g-recaptcha-response' => ['recaptcha'],
-            'ip'                   => ['unique:users'],
-            'registered'           => ['nullable', 'boolean', 'in:true']
-        ], [
-            'ip.unique'  => "You have already made an account with us! Please contact support if you think this is incorrect.",
-            'registered.in' => "You have already made an account with us! Please contact support if you think this is incorrect."
         ]);
+
     }
 
     /**
      * Create a new user instance after a valid registration.
      *
      * @param array $data
-     * @return User|\Illuminate\Http\RedirectResponse
+     * @return User
      */
     protected function create(array $data)
     {
         $user = User::create([
             'name'         => $data['name'],
             'email'        => $data['email'],
-            'credits'      => Configuration::getValueByKey('INITIAL_CREDITS'),
-            'server_limit' => Configuration::getValueByKey('INITIAL_SERVER_LIMIT'),
+            'credits'      => Configuration::getValueByKey('INITIAL_CREDITS', 150),
+            'server_limit' => Configuration::getValueByKey('INITIAL_SERVER_LIMIT', 1),
             'password'     => Hash::make($data['password']),
         ]);
 
         $response = Pterodactyl::client()->post('/application/users', [
-            "external_id" => (string)$user->id,
+            "external_id" => App::environment('local') ? Str::random(16) : (string)$user->id,
             "username"    => $user->name,
             "email"       => $user->email,
             "first_name"  => $user->name,
@@ -103,7 +108,6 @@ class RegisterController extends Controller
 
         if ($response->failed()) {
             $user->delete();
-            redirect()->route('register')->with('error', 'pterodactyl error');
             return $user;
         }
 

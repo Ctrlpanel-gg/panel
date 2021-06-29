@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
             'store' => 'paypalProduct',
         ]);
 
+        Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
         Route::get('nodes/datatable', [NodeController::class, 'datatable'])->name('nodes.datatable');
@@ -100,6 +101,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('configurations/datatable', [ConfigurationController::class, 'datatable'])->name('configurations.datatable');
         Route::patch('configurations/updatevalue', [ConfigurationController::class, 'updatevalue'])->name('configurations.updatevalue');
+        Route::resource('configurations', ConfigurationController::class);
         Route::resource('configurations', ConfigurationController::class);
 
         Route::patch('settings/update/icons', [SettingsController::class , 'updateIcons'])->name('settings.update.icons');

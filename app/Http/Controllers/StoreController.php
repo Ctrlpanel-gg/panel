@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Configuration;
 use App\Models\PaypalProduct;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
 {
@@ -16,9 +13,21 @@ class StoreController extends Controller
     {
         $isPaypalSetup = false;
         if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;
+        if (env('APP_ENV', 'local') == 'local') $isPaypalSetup = true;
+
+
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', false) === 'true' && !Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('profile.index')->with('error', "You are required to verify your email address before you can purchase credits.");
+        }
+
+        //Required Verification for creating an server
+        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', false) === 'true' && !Auth::user()->discordUser) {
+            return redirect()->route('profile.index')->with('error', "You are required to link your discord account before you can purchase credits.");
+        }
 
         return view('store.index')->with([
-            'products' => PaypalProduct::where('disabled' , '=' , false)->orderBy('price' , 'asc')->get(),
+            'products' => PaypalProduct::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
             'isPaypalSetup' => $isPaypalSetup
         ]);
     }
