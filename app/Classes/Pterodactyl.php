@@ -113,7 +113,8 @@ class Pterodactyl
      */
     public static function getFreeAllocationId(Node $node)
     {
-        return self::getFreeAllocations($node)[0]['attributes']['id'];
+
+        return self::getFreeAllocations($node)[0]['attributes']['id'] ?? null;
     }
 
 
@@ -141,10 +142,10 @@ class Pterodactyl
     /**
      * @param Server $server
      * @param Egg $egg
-     * @param Node $node
+     * @param int $allocationId
      * @return Response
      */
-    public static function createServer(Server $server, Egg $egg, Node $node)
+    public static function createServer(Server $server, Egg $egg, int $allocationId)
     {
         return self::client()->post("/application/servers", [
             "name"           => $server->name,
@@ -167,7 +168,7 @@ class Pterodactyl
                 "allocations" => 1
             ],
             "allocation"     => [
-                "default" => Pterodactyl::getFreeAllocationId($node)
+                "default" => $allocationId
             ]
         ]);
     }
