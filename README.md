@@ -18,7 +18,7 @@ ControlPanel's Dashboard is a dashboard application designed to offer clients a 
 
 This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customization options and added discord 0auth verification to offer a solid link between your discord server and your dashboard.
 
-### [Installation](https://github.com/ControlPanel-gg/dashboard/wiki "Installation")
+### [Installation](https://github.com/ControlPanel-gg/dashboard/wiki/Installation "Installation")
 ### [Updating](https://github.com/ControlPanel-gg/dashboard/wiki/Updating "Updating")
 ### [Discord](https://discord.gg/4Y6HjD2uyU "discord")
 ### [Contributing](https://github.com/ControlPanel-gg/dashboard/wiki/Contributing "Contributing")
