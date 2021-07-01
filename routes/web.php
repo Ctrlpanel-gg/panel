@@ -104,7 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('configurations', ConfigurationController::class);
         Route::resource('configurations', ConfigurationController::class);
 
-        Route::patch('settings/update/icons', [SettingsController::class , 'updateIcons'])->name('settings.update.icons');
+        Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
         Route::resource('settings', SettingsController::class)->only('index');
 
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
