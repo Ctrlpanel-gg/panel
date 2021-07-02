@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
+    <script type="text/javascript" src="public/google_analytics.js"></script>
+    <script async src="https://arc.io/widget.min.js#{{env('ARC_WIDGET_CODE')}}"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
@@ -12,6 +14,16 @@
 
     {{--    <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}">--}}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css"/>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{env('GOOGLE_ANALYTICS_UA_CODE')}}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{env('GOOGLE_ANALYTICS_UA_CODE')}}');
+</script>
 
     {{--  summernote --}}
     <link rel="stylesheet" href="{{asset('plugins/summernote/summernote-bs4.min.css')}}">
@@ -37,6 +49,9 @@
             </li>
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link" target="__blank">Discord</a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="{{env('STATUS_URL')}}" class="nav-link" target="__blank">Status</a>
             </li>
         </ul>
 
