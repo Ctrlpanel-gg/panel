@@ -54,6 +54,25 @@
                         @enderror
                     </div>
 
+                    <div class="input-group mb-3">
+                        {!! htmlFormSnippet() !!}
+                        @error('g-recaptcha-response')
+                        <span class="text-danger" role="alert">
+                                <small><strong>{{ $message }}</strong></small>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="row">
+                        <div class="col-8">
+{{--                            <div class="icheck-primary">--}}
+{{--                                <input type="checkbox" id="agreeTerms" name="terms" value="agree">--}}
+{{--                                <label for="agreeTerms">--}}
+{{--                                    I agree to the <a href="#">terms</a>--}}
+{{--                                </label>--}}
+{{--                            </div>--}}
+                        </div>
+
                     <div class="row">
                         <div class="col-8">
                             <div class="icheck-primary">
@@ -89,7 +108,7 @@
                     @endif
                 </p>
                 <p class="mb-0">
-                    <a href="{{route('register')}}" class="text-center">Register a new membership</a>
+                    <a href="{{route('register')}}" class="text-center">Register</a>
                 </p>
             </div>
             <!-- /.card-body -->
