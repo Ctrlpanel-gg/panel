@@ -59,6 +59,27 @@
 
                             </div>
                             <div class="form-group">
+                                <label for="egg_id">* Server configuration</label>
+                                <div>
+                                    <select id="egg_id" name="egg_id" required="required"
+                                            class="custom-select @error('egg_id') is-invalid @enderror">
+                                        @foreach($nests as $nest)
+                                            <optgroup label="{{$nest->name}}">
+                                                @foreach($nest->eggs as $egg)
+                                                    <option value="{{$egg->id}}">{{$egg->name}}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                @error('egg_id')
+                                <div class="invalid-feedback">
+                                    Please fill out this field.
+                                </div>
+                                @enderror
+                            </div>
+                            <div class="form-group">
                                 <label for="location_id">* Server location</label>
                                 <div>
 
@@ -79,27 +100,6 @@
                                 </div>
 
                                 @error('node_id')
-                                <div class="invalid-feedback">
-                                    Please fill out this field.
-                                </div>
-                                @enderror
-                            </div>
-                            <div class="form-group">
-                                <label for="egg_id">* Server configuration</label>
-                                <div>
-                                    <select id="egg_id" name="egg_id" required="required"
-                                            class="custom-select @error('egg_id') is-invalid @enderror">
-                                        @foreach($nests as $nest)
-                                            <optgroup label="{{$nest->name}}">
-                                                @foreach($nest->eggs as $egg)
-                                                    <option value="{{$egg->id}}">{{$egg->name}}</option>
-                                                @endforeach
-                                            </optgroup>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                @error('egg_id')
                                 <div class="invalid-feedback">
                                     Please fill out this field.
                                 </div>
