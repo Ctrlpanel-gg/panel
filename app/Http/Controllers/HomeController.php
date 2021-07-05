@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\UsefulLink;
-use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -20,15 +18,13 @@ class HomeController extends Controller
     {
         $usage = 0;
 
-        foreach (Auth::user()->Servers as $server){
+        foreach (Auth::user()->servers as $server){
             $usage += $server->product->price;
         }
 
-        $useful_links = DB::table('useful_links')->get();
-
         return view('home')->with([
             'useage' => $usage,
-            'useful_links' => $useful_links
+            'useful_links' => UsefulLink::all()->sortBy('id')
         ]);
     }
 }
