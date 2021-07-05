@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Models\Configuration;
 use App\Models\Egg;
 use App\Models\Nest;
 use App\Models\Node;
@@ -124,7 +125,8 @@ class Pterodactyl
      */
     public static function getAllocations(Node $node)
     {
-        $response = self::client()->get("/application/nodes/{$node->id}/allocations");
+        $per_page = Configuration::getValueByKey('ALLOCATION_LIMIT' , 200);
+        $response = self::client()->get("/application/nodes/{$node->id}/allocations?per_page={$per_page}");
         if ($response->failed()) throw self::getException();
         return $response->json();
     }
