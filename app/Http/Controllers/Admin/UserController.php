@@ -78,7 +78,7 @@ class UserController extends Controller
             "name" => "required|string|min:4|max:30",
             "pterodactyl_id" => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
             "email" => "required|string|email",
-            "credits" => "required|numeric|min:0|max:1000000",
+            "credits" => "required|numeric|min:0|max:999999",
             "server_limit" => "required|numeric|min:0|max:1000000",
             "role" => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
