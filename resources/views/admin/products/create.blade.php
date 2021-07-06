@@ -24,17 +24,24 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
+            <form action="{{route('admin.products.store')}}" method="POST">
+                @csrf
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Product Details</h5>
+                            </div>
+                            <div class="card-body">
 
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <form action="{{route('admin.products.store')}}" method="POST">
-                                @csrf
                                 <div class="d-flex flex-row-reverse">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" name="disabled" class="custom-control-input custom-control-input-danger" id="switch1">
-                                        <label class="custom-control-label" for="switch1">Disabled <i data-toggle="popover" data-trigger="hover" data-content="Will hide this option from being selected" class="fas fa-info-circle"></i></label>
+                                        <input type="checkbox" name="disabled"
+                                               class="custom-control-input custom-control-input-danger" id="switch1">
+                                        <label class="custom-control-label" for="switch1">Disabled <i
+                                                data-toggle="popover" data-trigger="hover"
+                                                data-content="Will hide this option from being selected"
+                                                class="fas fa-info-circle"></i></label>
                                     </div>
                                 </div>
 
@@ -105,7 +112,10 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="description">Description <i data-toggle="popover" data-trigger="hover" data-content="This is what the users sees" class="fas fa-info-circle"></i></label>
+                                            <label for="description">Description <i data-toggle="popover"
+                                                                                    data-trigger="hover"
+                                                                                    data-content="This is what the users sees"
+                                                                                    class="fas fa-info-circle"></i></label>
                                             <textarea id="description" name="description"
                                                       type="text"
                                                       class="form-control @error('description') is-invalid @enderror"
@@ -190,16 +200,80 @@
                                         Submit
                                     </button>
                                 </div>
-                            </form>
+
+                            </div>
                         </div>
                     </div>
+
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Product Linking <i data-toggle="popover" data-trigger="hover"
+                                                                          data-content="Linked products will only be available when the user has selected the linked node and/or egg"
+                                                                          class="fas fa-info-circle"></i></h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="form-group">
+                                    <label for="nodes">Nodes</label>
+                                    <select id="nodes" class="custom-select @error('nodes') is-invalid @enderror"
+                                            name="nodes[]" multiple="multiple" autocomplete="off">
+                                        @foreach($locations as $location)
+                                            <optgroup label="{{$location->name}}">
+                                                @foreach($location->nodes as $node)
+                                                    <option value="{{$node->id}}">{{$node->name}}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                    @error('nodes')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                    <div class="text-muted">
+                                        This product will only be available for these nodes
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="eggs">Eggs</label>
+                                    <select id="eggs" class="custom-select @error('eggs') is-invalid @enderror"
+                                            name="eggs[]" multiple="multiple" autocomplete="off">
+                                        @foreach($nests as $nest)
+                                            <optgroup label="{{$nest->name}}">
+                                                @foreach($nest->eggs as $egg)
+                                                    <option value="{{$egg->id}}">{{$egg->name}}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                    @error('eggs')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                    <div class="text-muted">
+                                        This product will only be available for these eggs
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
+            </form>
 
         </div>
     </section>
     <!-- END CONTENT -->
 
-
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            $('.custom-select').select2();
+        })
+    </script>
 
 @endsection

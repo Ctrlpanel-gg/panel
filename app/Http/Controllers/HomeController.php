@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Egg;
+use App\Models\Product;
 use App\Models\UsefulLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +18,9 @@ class HomeController extends Controller
     /** Show the application dashboard. */
     public function index(Request $request)
     {
+
+        dd(Product::first()->nodes()->get() , Product::first()->eggs()->get());
+
         $usage = 0;
 
         foreach (Auth::user()->servers as $server){

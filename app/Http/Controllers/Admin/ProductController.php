@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Egg;
+use App\Models\Location;
+use App\Models\Nest;
+use App\Models\Node;
 use App\Models\Product;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -32,7 +36,10 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        return view('admin.products.create' , [
+            'locations' => Location::with('nodes')->get(),
+            'nests' => Nest::with('eggs')->get(),
+        ]);
     }
 
     /**
@@ -55,11 +62,17 @@ class ProductController extends Controller
             "databases" => "required|numeric|max:1000000|min:0",
             "backups" => "required|numeric|max:1000000|min:0",
             "allocations" => "required|numeric|max:1000000|min:0",
+            "nodes.*" => "required|exists:nodes,id",
+            "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
         ]);
 
         $disabled = !is_null($request->input('disabled'));
-        Product::create(array_merge($request->all(), ['disabled' => $disabled]));
+        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled]));
+
+        #link nodes and eggs
+        $product->eggs()->attach($request->input('eggs'));
+        $product->nodes()->attach($request->input('nodes'));
 
         return redirect()->route('admin.products.index')->with('success', 'product has been created!');
     }
@@ -86,7 +99,9 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         return view('admin.products.edit', [
-            'product' => $product
+            'product' => $product,
+            'locations' => Location::with('nodes')->get(),
+            'nests' => Nest::with('eggs')->get(),
         ]);
     }
 
@@ -111,11 +126,19 @@ class ProductController extends Controller
             "databases" => "required|numeric|max:1000000|min:0",
             "backups" => "required|numeric|max:1000000|min:0",
             "allocations" => "required|numeric|max:1000000|min:0",
+            "nodes.*" => "required|exists:nodes,id",
+            "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
         ]);
 
         $disabled = !is_null($request->input('disabled'));
         $product->update(array_merge($request->all(), ['disabled' => $disabled]));
+
+        #link nodes and eggs
+        $product->eggs()->detach();
+        $product->nodes()->detach();
+        $product->eggs()->attach($request->input('eggs'));
+        $product->nodes()->attach($request->input('nodes'));
 
         return redirect()->route('admin.products.index')->with('success', 'product has been updated!');
     }
@@ -173,6 +196,12 @@ class ProductController extends Controller
 
             ->addColumn('servers', function (Product $product) {
                 return $product->servers()->count();
+            })
+            ->addColumn('nodes', function (Product $product) {
+                return $product->nodes()->count();
+            })
+            ->addColumn('eggs', function (Product $product) {
+                return $product->eggs()->count();
             })
             ->addColumn('disabled', function (Product $product) {
                 $checked = $product->disabled == false ? "checked" : "";

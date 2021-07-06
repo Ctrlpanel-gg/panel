@@ -12,7 +12,8 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{route('admin.products.index')}}">Products</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.products.edit' , $product->id)}}">Edit</a>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                                       href="{{route('admin.products.edit' , $product->id)}}">Edit</a>
                         </li>
                     </ol>
                 </div>
@@ -24,32 +25,42 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
+            <form action="{{route('admin.products.update' , $product->id)}}" method="POST">
+                @csrf
+                @method('PATCH')
 
+                <div class="row">
+                    <div class="col-lg-6">
 
-            <div class="row">
-                <div class="col-lg-6">
+                        @if($product->servers()->count() > 0)
+                            <div class="callout callout-danger">
+                                <h4>Editing the resource options will not automatically update the servers on
+                                    pterodactyl's side!</h4>
+                                <p class="text-muted">Automatically updating resource options on pterodactyl side is on
+                                    my todo list :)</p>
+                            </div>
+                        @endif
 
-                    @if($product->servers()->count() > 0)
-                        <div class="callout callout-danger">
-                            <h4>Editing the resource options will not automatically update the servers on pterodactyl's side!</h4>
-                            <p class="text-muted">Automatically updating resource options on pterodactyl side is on my todo list :)</p>
-                        </div>
-                    @endif
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Product Details</h5>
+                            </div>
+                            <div class="card-body">
 
-                    <div class="card">
-                        <div class="card-body">
-                            <form action="{{route('admin.products.update' , $product->id)}}" method="POST">
-                                @csrf
-                                @method('PATCH')
                                 <div class="d-flex flex-row-reverse">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" @if($product->disabled) checked @endif name="disabled" class="custom-control-input custom-control-input-danger" id="switch1">
-                                        <label class="custom-control-label" for="switch1">Disabled <i data-toggle="popover" data-trigger="hover" data-content="Will hide this option from being selected" class="fas fa-info-circle"></i></label>
+                                        <input type="checkbox" @if($product->disabled) checked @endif name="disabled"
+                                               class="custom-control-input custom-control-input-danger" id="switch1">
+                                        <label class="custom-control-label" for="switch1">Disabled <i
+                                                data-toggle="popover" data-trigger="hover"
+                                                data-content="Will hide this option from being selected"
+                                                class="fas fa-info-circle"></i></label>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-lg-6">
+
                                         <div class="form-group">
                                             <label for="name">Name</label>
                                             <input value="{{$product->name}}" id="name" name="name" type="text"
@@ -115,7 +126,10 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="description">Description <i data-toggle="popover" data-trigger="hover" data-content="This is what the users sees" class="fas fa-info-circle"></i></label>
+                                            <label for="description">Description <i data-toggle="popover"
+                                                                                    data-trigger="hover"
+                                                                                    data-content="This is what the users sees"
+                                                                                    class="fas fa-info-circle"></i></label>
                                             <textarea id="description" name="description"
                                                       type="text"
                                                       class="form-control @error('description') is-invalid @enderror"
@@ -200,16 +214,82 @@
                                         Submit
                                     </button>
                                 </div>
-                            </form>
+
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Product Linking <i data-toggle="popover" data-trigger="hover"
+                                                                          data-content="Linked products will only be available when the user has selected the linked node and/or egg"
+                                                                          class="fas fa-info-circle"></i></h5>
+                            </div>
+                            <div class="card-body">
+
+                                <div class="form-group">
+                                    <label for="nodes">Nodes</label>
+                                    <select id="nodes" style="width:100%"
+                                            class="custom-select @error('nodes') is-invalid @enderror" name="nodes[]"
+                                            multiple="multiple" autocomplete="off">
+                                        @foreach($locations as $location)
+                                            <optgroup label="{{$location->name}}">
+                                                @foreach($location->nodes as $node)
+                                                    <option @if($product->nodes->contains('id' , $node->id)) selected
+                                                            @endif value="{{$node->id}}">{{$node->name}}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                    @error('nodes')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                    <div class="text-muted">
+                                        This product will only be available for these nodes
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="eggs">Eggs</label>
+                                    <select id="eggs" style="width:100%"
+                                            class="custom-select @error('eggs') is-invalid @enderror" name="eggs[]"
+                                            multiple="multiple" autocomplete="off">
+                                        @foreach($nests as $nest)
+                                            <optgroup label="{{$nest->name}}">
+                                                @foreach($nest->eggs as $egg)
+                                                    <option @if($product->eggs->contains('id' , $egg->id)) selected
+                                                            @endif value="{{$egg->id}}">{{$egg->name}}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                    @error('eggs')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                    <div class="text-muted">
+                                        This product will only be available for these eggs
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
         </div>
     </section>
     <!-- END CONTENT -->
 
-
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            $('.custom-select').select2();
+        })
+    </script>
 
 @endsection

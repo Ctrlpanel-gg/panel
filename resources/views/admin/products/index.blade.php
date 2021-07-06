@@ -46,10 +46,10 @@
                             <th>Cpu</th>
                             <th>Swap</th>
                             <th>Disk</th>
-                            <th>IO</th>
                             <th>Databases</th>
                             <th>Backups</th>
-                            <th>Allocations</th>
+                            <th>Eggs</th>
+                            <th>Nodes</th>
                             <th>Servers</th>
                             <th>Created at</th>
                             <th></th>
@@ -79,6 +79,7 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
+                order: [[ 2, "asc" ]],
                 ajax: "{{route('admin.products.datatable')}}",
                 columns: [
                     {data: 'disabled'},
@@ -88,10 +89,10 @@
                     {data: 'cpu'},
                     {data: 'swap'},
                     {data: 'disk'},
-                    {data: 'io'},
                     {data: 'databases'},
                     {data: 'backups'},
-                    {data: 'allocations'},
+                    {data: 'nodes', sortable: false},
+                    {data: 'eggs', sortable: false},
                     {data: 'servers', sortable: false},
                     {data: 'created_at'},
                     {data: 'actions', sortable: false},

@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Node extends Model
 {
@@ -47,5 +48,13 @@ class Node extends Model
             self::firstOrCreate(['id' => $node['id']] , $node);
         }
 
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
     }
 }
