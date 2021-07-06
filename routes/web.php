@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('servers', AdminServerController::class);
 
         Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
+        Route::get('products/clone/{product}', [ProductController::class, 'clone'])->name('products.clone');
         Route::patch('products/disable/{product}', [ProductController::class, 'disable'])->name('products.disable');
         Route::resource('products', ProductController::class);
 
