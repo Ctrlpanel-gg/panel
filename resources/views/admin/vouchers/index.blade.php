@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Products</h1>
+                    <h1>Vouchers</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.products.index')}}">Products</a></li>
+                                                       href="{{route('admin.vouchers.index')}}">Vouchers</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,8 +28,8 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>Products</h5>
-                        <a href="{{route('admin.products.create')}}" class="btn btn-sm btn-primary"><i
+                        <h5 class="card-title"><i class="fas fa-money-check-alt mr-2"></i>Vouchers</h5>
+                        <a href="{{route('admin.vouchers.create')}}" class="btn btn-sm btn-primary"><i
                                 class="fas fa-plus mr-1"></i>Create new</a>
                     </div>
                 </div>
@@ -39,19 +39,12 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Active</th>
-                            <th>Name</th>
-                            <th>Price</th>
-                            <th>Memory</th>
-                            <th>Cpu</th>
-                            <th>Swap</th>
-                            <th>Disk</th>
-                            <th>IO</th>
-                            <th>Databases</th>
-                            <th>Backups</th>
-                            <th>Allocations</th>
-                            <th>Servers</th>
-                            <th>Created at</th>
+                            <th>Status</th>
+                            <th>Code</th>
+                            <th>Memo</th>
+                            <th>Credits</th>
+                            <th>Used / Uses</th>
+                            <th>Expires</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -79,21 +72,14 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                ajax: "{{route('admin.products.datatable')}}",
+                ajax: "{{route('admin.vouchers.datatable')}}",
                 columns: [
-                    {data: 'disabled'},
-                    {data: 'name'},
-                    {data: 'price'},
-                    {data: 'memory'},
-                    {data: 'cpu'},
-                    {data: 'swap'},
-                    {data: 'disk'},
-                    {data: 'io'},
-                    {data: 'databases'},
-                    {data: 'backups'},
-                    {data: 'allocations'},
-                    {data: 'servers', sortable: false},
-                    {data: 'created_at'},
+                    {data: 'status'},
+                    {data: 'code'},
+                    {data: 'memo'},
+                    {data: 'credits'},
+                    {data: 'uses'},
+                    {data: 'expires_at'},
                     {data: 'actions', sortable: false},
                 ],
                 fnDrawCallback: function( oSettings ) {

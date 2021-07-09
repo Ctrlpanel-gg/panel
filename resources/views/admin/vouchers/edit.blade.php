@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{route('admin.products.index')}}">Vouchers</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.products.create')}}">Create</a>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.products.edit' , $voucher->id)}}">Edit</a>
                         </li>
                     </ol>
                 </div>
@@ -34,12 +34,13 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{route('admin.vouchers.store')}}" method="POST">
+                            <form action="{{route('admin.vouchers.update' , $voucher->id)}}" method="POST">
                                 @csrf
+                                @method('PATCH')
 
                                 <div class="form-group">
                                     <label for="memo">Memo</label>
-                                    <input value="{{old('memo')}}" placeholder="Summer break voucher" id="memo"
+                                    <input value="{{ $voucher->memo }}" placeholder="Summer break voucher" id="memo"
                                            name="memo" type="text"
                                            class="form-control @error('memo') is-invalid @enderror">
                                     @error('memo')
@@ -51,7 +52,7 @@
 
                                 <div class="form-group">
                                     <label for="credits">Credits *</label>
-                                    <input value="{{old('credits')}}" placeholder="500" id="credits"
+                                    <input value="{{ $voucher->credits }}" placeholder="500" id="credits"
                                            name="credits" type="number" step="any" min="0"
                                            max="999999"
                                            class="form-control @error('credits') is-invalid @enderror">
@@ -66,7 +67,7 @@
                                 <div class="form-group">
                                     <label for="code">Code *</label>
                                     <div class="input-group">
-                                        <input value="{{old('code')}}" placeholder="SUMMER" id="code" name="code"
+                                        <input value="{{ $voucher->code }}" placeholder="SUMMER" id="code" name="code"
                                                type="text"
                                                class="form-control @error('code') is-invalid @enderror"
                                                required="required">
@@ -86,7 +87,7 @@
                                 <div class="form-group">
                                     <label for="uses">Uses *</label>
                                     <div class="input-group">
-                                        <input value="{{old('uses') ?? 1}}" id="uses" min="1" max="2147483647"
+                                        <input value="{{ $voucher->uses }}" id="uses" min="1" max="2147483647"
                                                name="uses" type="number"
                                                class="form-control @error('uses') is-invalid @enderror"
                                                required="required">
@@ -105,7 +106,7 @@
 
                                 <div class="form-group">
                                     <label for="expires_at">Expires at</label>
-                                    <input value="{{old('expires_at')}}" id="expires_at" name="expires_at"
+                                    <input value="{{ $voucher->expires_at }}" id="expires_at" name="expires_at"
                                            type="datetime-local"
                                            class="form-control @error('expires_at') is-invalid @enderror">
                                     @error('expires_at')
