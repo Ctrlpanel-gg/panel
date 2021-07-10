@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
@@ -65,6 +66,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/auth/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect');
     Route::get('/auth/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
 
+    #voucher redeem
+    Route::post('/voucher/redeem' , [VoucherController::class , 'redeem'])->name('voucher.redeem');
+
+    Route::get('/test' , function (Request $request) {
+        $voucher = \App\Models\Voucher::first();
+        dd($request->user()->vouchers()->where('id' , '=' , $voucher->id)->get()->isEmpty());
+    });
+
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
@@ -109,6 +118,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
+
+        Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
+        Route::resource('vouchers', VoucherController::class);
 
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
         Route::resource('api', ApplicationApiController::class)->parameters([

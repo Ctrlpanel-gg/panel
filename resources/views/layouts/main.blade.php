@@ -96,6 +96,10 @@
                             Log back in
                         </a>
                     @endif
+                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal" href="javascript:void(0)">
+                        <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        Redeem code
+                    </a>
                     <div class="dropdown-divider"></div>
                     <form method="post" action="{{route('logout')}}">
                         @csrf
@@ -254,13 +258,20 @@
                         </li>
 
                         <li class="nav-item">
+                            <a href="{{route('admin.vouchers.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.vouchers.*')) active @endif">
+                                <i class="nav-icon fas fa-money-check-alt"></i>
+                                <p>Vouchers</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
                             <a href="{{route('admin.usefullinks.index')}}"
                                class="nav-link @if(Request::routeIs('admin.usefullinks.*')) active @endif">
                                 <i class="nav-icon fas fa-link"></i>
                                 <p>Useful Links</p>
                             </a>
                         </li>
-
 
                     @endif
 
@@ -289,6 +300,8 @@
         @endif
 
         @yield('content')
+
+        @include('models.redeem_voucher_modal')
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer">
@@ -319,6 +332,12 @@
 <script>
     $(document).ready(function () {
         $('[data-toggle="popover"]').popover();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
     });
 </script>
 <script>

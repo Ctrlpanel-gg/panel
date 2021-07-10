@@ -7,17 +7,30 @@ use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
+/**
+ * Class User
+ * @package App\Models
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, LogsActivity, CausesActivity;
 
+    /**
+     * @var string[]
+     */
     protected static $logAttributes = ['name', 'email'];
 
+    /**
+     * @var string[]
+     */
     protected static $ignoreChangedAttributes = [
         'remember_token',
         'credits',
@@ -68,6 +81,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_seen' => 'datetime',
     ];
 
+    /**
+     *
+     */
     public static function boot()
     {
         parent::boot();
@@ -93,20 +109,32 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
+    /**
+     *
+     */
     public function sendEmailVerificationNotification()
     {
         $this->notify(new QueuedVerifyEmail);
     }
 
+    /**
+     * @return string
+     */
     public function credits()
     {
         return number_format($this->credits, 2, '.', '');
     }
 
+    /**
+     * @return string
+     */
     public function getAvatar(){
         return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
     }
 
+    /**
+     * @return string
+     */
     public function creditUsage()
     {
         $usage = 0;
@@ -118,6 +146,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return number_format($usage, 2, '.', '');
     }
 
+    /**
+     * @return array|string|string[]
+     */
     public function getVerifiedStatus(){
         $status = '';
         if ($this->hasVerifiedEmail()) $status .= 'email ';
@@ -126,15 +157,31 @@ class User extends Authenticatable implements MustVerifyEmail
         return $status;
     }
 
+    /**
+     * @return BelongsToMany
+     */
+    public function vouchers(){
+        return $this->belongsToMany(Voucher::class);
+    }
+
+    /**
+     * @return HasOne
+     */
     public function discordUser(){
         return $this->hasOne(DiscordUser::class);
     }
 
+    /**
+     * @return HasMany
+     */
     public function servers()
     {
         return $this->hasMany(Server::class);
     }
 
+    /**
+     * @return HasMany
+     */
     public function payments()
     {
         return $this->hasMany(Payment::class);
