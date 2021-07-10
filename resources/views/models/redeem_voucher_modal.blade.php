@@ -1,8 +1,3 @@
-<!-- Button to Open the Modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#redeemVoucherModal">
-    Open modal
-</button>
-
 <!-- The Modal -->
 <div class="modal fade" id="redeemVoucherModal">
     <div class="modal-dialog">
