@@ -38,7 +38,7 @@
                                 @csrf
 
                                 <div class="form-group">
-                                    <label for="memo">Memo</label>
+                                    <label for="memo">Memo <i data-toggle="popover" data-trigger="hover" data-content="Only admins can see this" class="fas fa-info-circle"></i></label>
                                     <input value="{{old('memo')}}" placeholder="Summer break voucher" id="memo"
                                            name="memo" type="text"
                                            class="form-control @error('memo') is-invalid @enderror">
@@ -53,7 +53,7 @@
                                     <label for="credits">Credits *</label>
                                     <input value="{{old('credits')}}" placeholder="500" id="credits"
                                            name="credits" type="number" step="any" min="0"
-                                           max="999999"
+                                           max="99999999"
                                            class="form-control @error('credits') is-invalid @enderror">
                                     @error('credits')
                                     <div class="text-danger">
@@ -84,7 +84,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="uses">Uses *</label>
+                                    <label for="uses">Uses * <i data-toggle="popover" data-trigger="hover" data-content="A voucher can only be used one time per user. Uses specifies the number of different users that can use this voucher." class="fas fa-info-circle"></i></label>
                                     <div class="input-group">
                                         <input value="{{old('uses') ?? 1}}" id="uses" min="1" max="2147483647"
                                                name="uses" type="number"

@@ -16,17 +16,19 @@
 
             <!-- Modal body -->
             <div class="modal-body">
-                <form>
+                <form id="redeemVoucherForm" onsubmit="return false" method="post" action="{{route('voucher.redeem')}}">
                     <div class="form-group">
-                        <label for="code">Code</label>
+                        <label for="redeemVoucherCode">Code</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
                                     <i class="fas fa-money-check-alt"></i>
                                 </div>
                             </div>
-                            <input id="code" name="code" placeholder="SUMMER" type="text" class="form-control">
+                            <input id="redeemVoucherCode" name="code" placeholder="SUMMER" type="text" class="form-control">
                         </div>
+                        <span id="redeemVoucherCodeError" class="text-danger"></span>
+                        <span id="redeemVoucherCodeSuccess" class="text-success"></span>
                     </div>
                 </form>
             </div>
@@ -34,7 +36,7 @@
             <!-- Modal footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                <button name="submit" type="button" class="btn btn-primary">Redeem</button>
+                <button name="submit" id="redeemVoucherSubmit"  onclick="redeemVoucherCode()" type="button" class="btn btn-primary">Redeem</button>
             </div>
 
         </div>
@@ -43,9 +45,61 @@
 
 
 <script>
-    function validateCode(){
+    function redeemVoucherCode(){
+        let form = document.getElementById('redeemVoucherForm')
+        let button = document.getElementById('redeemVoucherSubmit')
+        let input = document.getElementById('redeemVoucherCode')
+
+        console.log(form.method , form.action)
+        button.disabled = true
+
         $.ajax({
-            
+            method : form.method,
+            url : form.action,
+            dataType: 'json',
+            data: {
+                code : input.value
+            },
+            success : function (response) {
+                resetForm()
+                redeemVoucherSetSuccess(response)
+            },
+            error : function (jqXHR, textStatus, errorThrown) {
+                resetForm()
+                redeemVoucherSetError(jqXHR.responseJSON)
+                console.error(jqXHR.responseJSON)
+            },
+
         })
+    }
+
+    function resetForm(){
+        let button = document.getElementById('redeemVoucherSubmit')
+        let input = document.getElementById('redeemVoucherCode')
+        let successLabel = document.getElementById('redeemVoucherCodeSuccess')
+        let errorLabel = document.getElementById('redeemVoucherCodeError')
+
+        input.classList.remove('is-invalid')
+        input.classList.remove('is-valid')
+        successLabel.innerHTML = ''
+        errorLabel.innerHTML = ''
+        button.disabled = false
+    }
+
+    function redeemVoucherSetError(error){
+        let input = document.getElementById('redeemVoucherCode')
+        let errorLabel = document.getElementById('redeemVoucherCodeError')
+
+        input.classList.add("is-invalid")
+        errorLabel.innerHTML = error.errors.code[0]
+    }
+
+    function redeemVoucherSetSuccess(response){
+        let input = document.getElementById('redeemVoucherCode')
+        let successLabel = document.getElementById('redeemVoucherCodeSuccess')
+
+        successLabel.innerHTML = response.success
+        input.classList.remove('is-invalid')
+        input.classList.add('is-valid')
     }
 </script>

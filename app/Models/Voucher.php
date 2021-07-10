@@ -41,14 +41,35 @@ class Voucher extends Model
         });
     }
 
+    /**
+     * @return string
+     */
     public function getStatus(){
         if ($this->users()->count() >= $this->uses) return 'USES_LIMIT_REACHED';
-        if ($this->expires_at->isPast()) return 'EXPIRED';
+        if (!is_null($this->expires_at)){
+            if ($this->expires_at->isPast()) return 'EXPIRED';
+        }
+
         return 'VALID';
     }
 
     /**
-     * @return BelongsToMany
+     * @param User $user
+     * @return float
+     */
+    public function redeem(User $user){
+        try {
+            $user->increment('credits' , $this->credits);
+            $this->users()->attach($user);
+        }catch (\Exception $exception) {
+            throw $exception;
+        }
+
+        return $this->credits;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function users()
     {

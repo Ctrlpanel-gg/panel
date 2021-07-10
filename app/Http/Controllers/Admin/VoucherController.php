@@ -7,9 +7,13 @@ use App\Models\Voucher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationData;
+use Illuminate\Validation\ValidationException;
 
 class VoucherController extends Controller
 {
@@ -42,11 +46,11 @@ class VoucherController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'memo' => 'sometimes|string|max:191',
-            'code' => 'required|string|alpha_dash|max:36',
-            'uses' => 'required|numeric|max:2147483647',
-            'credits' => 'required|numeric|between:0,99999999',
-            'expires_at' => 'required|date|after:today',
+            'memo'       => 'sometimes|string|max:191',
+            'code'       => 'required|string|alpha_dash|max:36',
+            'uses'       => 'required|numeric|max:2147483647',
+            'credits'    => 'required|numeric|between:0,99999999',
+            'expires_at' => 'nullable|date|after:1 hour',
         ]);
 
         Voucher::create($request->except('_token'));
@@ -100,9 +104,49 @@ class VoucherController extends Controller
         return redirect()->back()->with('success', 'voucher has been removed!');
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ValidationException
+     */
+    public function redeem(Request $request)
+    {
+        #general validations
+        $request->validate([
+            'code' => 'required|exists:vouchers,code'
+        ]);
+
+        #get voucher by code
+        $voucher = Voucher::where('code' , '=' , $request->input('code'))->firstOrFail();
+
+        #extra validations
+        if ($voucher->getStatus() == 'USES_LIMIT_REACHED') throw ValidationException::withMessages([
+            'code' => 'This voucher has reached the maximum amount of uses'
+        ]);
+
+        if ($voucher->getStatus() == 'EXPIRED') throw ValidationException::withMessages([
+            'code' => 'This voucher has expired'
+        ]);
+
+        if (!$request->user()->vouchers()->where('id' , '=' , $voucher->id)->get()->isEmpty()) throw ValidationException::withMessages([
+            'code' => 'You already redeemed this voucher code'
+        ]);
+
+        if ($request->user()->credits + $voucher->credits >= 99999999) throw ValidationException::withMessages([
+            'code' => "You can't redeem a voucher with this many credits"
+        ]);
+
+        #redeem voucher
+        $voucher->redeem($request->user());
+
+        return response()->json([
+            'success' => "{$voucher->credits} credits have been added to your balance!"
+        ]);
+    }
+
     public function dataTable()
     {
-        $query = Voucher::with(['users']);
+        $query = Voucher::query();
 
         return datatables($query)
             ->addColumn('actions', function (Voucher $voucher) {
@@ -120,7 +164,7 @@ class VoucherController extends Controller
             ->addColumn('status', function (Voucher $voucher) {
                 $color = 'success';
                 if ($voucher->getStatus() != 'VALID') $color = 'danger';
-                return '<span class="badge badge-'.$color.'">'. $voucher->getStatus() .'</span>';
+                return '<span class="badge badge-' . $color . '">' . $voucher->getStatus() . '</span>';
             })
             ->editColumn('uses', function (Voucher $voucher) {
                 $userCount = $voucher->users()->count();
@@ -130,12 +174,13 @@ class VoucherController extends Controller
                 return number_format($voucher->credits, 2, '.', '');
             })
             ->editColumn('expires_at', function (Voucher $voucher) {
+                if (!$voucher->expires_at) return "";
                 return $voucher->expires_at ? $voucher->expires_at->diffForHumans() : '';
             })
-            ->editColumn('code' , function (Voucher $voucher) {
+            ->editColumn('code', function (Voucher $voucher) {
                 return "<code>{$voucher->code}</code>";
             })
-            ->rawColumns(['actions' , 'code' , 'status'])
+            ->rawColumns(['actions', 'code', 'status'])
             ->make();
     }
 

@@ -66,6 +66,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/auth/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect');
     Route::get('/auth/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
 
+    #voucher redeem
+    Route::post('/voucher/redeem' , [VoucherController::class , 'redeem'])->name('voucher.redeem');
+
+    Route::get('/test' , function (Request $request) {
+        $voucher = \App\Models\Voucher::first();
+        dd($request->user()->vouchers()->where('id' , '=' , $voucher->id)->get()->isEmpty());
+    });
+
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
