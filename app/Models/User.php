@@ -105,6 +105,8 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
             });
 
+            $user->vouchers()->detach();
+
             Pterodactyl::client()->delete("/application/users/{$user->pterodactyl_id}");
         });
     }
