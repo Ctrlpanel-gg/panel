@@ -193,6 +193,14 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a href="{{route('admin.vouchers.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.vouchers.*')) active @endif">
+                                <i class="nav-icon fas fa-money-check-alt"></i>
+                                <p>Vouchers</p>
+                            </a>
+                        </li>
+
                         <li class="nav-header">Pterodactyl</li>
 
                         <li class="nav-item">
@@ -231,6 +239,7 @@
                             </a>
                         </li>
 
+
                         <li class="nav-header">Dashboard</li>
 
                         <li class="nav-item">
@@ -240,6 +249,16 @@
                                 <p>Application API</p>
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.usefullinks.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.usefullinks.*')) active @endif">
+                                <i class="nav-icon fas fa-link"></i>
+                                <p>Useful Links</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-header">Settings</li>
 
                         <li class="nav-item">
                             <a href="{{route('admin.configurations.index')}}"
@@ -254,22 +273,6 @@
                                class="nav-link @if(Request::routeIs('admin.settings.*')) active @endif">
                                 <i class="nav-icon fas fa-tools"></i>
                                 <p>Settings</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.vouchers.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.vouchers.*')) active @endif">
-                                <i class="nav-icon fas fa-money-check-alt"></i>
-                                <p>Vouchers</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.usefullinks.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.usefullinks.*')) active @endif">
-                                <i class="nav-icon fas fa-link"></i>
-                                <p>Useful Links</p>
                             </a>
                         </li>
 
