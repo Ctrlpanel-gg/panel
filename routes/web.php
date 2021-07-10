@@ -19,9 +19,9 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,12 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/auth/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
 
     #voucher redeem
-    Route::post('/voucher/redeem' , [VoucherController::class , 'redeem'])->name('voucher.redeem');
-
-    Route::get('/test' , function (Request $request) {
-        $voucher = \App\Models\Voucher::first();
-        dd($request->user()->vouchers()->where('id' , '=' , $voucher->id)->get()->isEmpty());
-    });
+    Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->middleware('throttle:5,1')->name('voucher.redeem');
 
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
