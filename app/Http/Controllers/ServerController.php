@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\Server;
 use App\Notifications\ServerCreationError;
 use Exception;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,8 @@ class ServerController extends Controller
     /** Store a newly created resource in storage. */
     public function store(Request $request)
     {
+        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
+
         $request->validate([
             "name" => "required|max:191",
             "description" => "nullable|max:191",
@@ -52,18 +55,18 @@ class ServerController extends Controller
             "product_id" => "required|exists:products,id",
         ]);
 
-        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
-
-        //create server
+        //get required resources
         $egg = Egg::findOrFail($request->input('egg_id'));
-        $server = Auth::user()->servers()->create($request->all());
         $node = Node::findOrFail($request->input('node_id'));
+        $server = Auth::user()->servers()->create($request->all());
+
+        //get free allocation ID
+        $allocationId = Pterodactyl::getFreeAllocationId($node);
+        if (!$allocationId) return $this->noAllocationsError($server);
 
         //create server on pterodactyl
-        $response = Pterodactyl::createServer($server, $egg, $node);
-
-        if (is_null($response)) return $this->serverCreationFailed($server);
-        if ($response->failed()) return $this->serverCreationFailed($server);
+        $response = Pterodactyl::createServer($server, $egg, $allocationId);
+        if ($response->failed()) return $this->serverCreationFailed($response, $server);
 
         //update server with pterodactyl_id
         $server->update([
@@ -73,16 +76,6 @@ class ServerController extends Controller
 
         return redirect()->route('servers.index')->with('success', 'server created');
     }
-
-    /** Quick Fix */
-    private function serverCreationFailed(Server $server)
-    {
-        $server->delete();
-
-        Auth::user()->notify(new ServerCreationError($server));
-        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment were found.');
-    }
-
 
     /**
      * @return null|RedirectResponse
@@ -120,5 +113,32 @@ class ServerController extends Controller
         } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource');
         }
+    }
+
+
+    /**
+     * return redirect with error
+     * @param Server $server
+     * @return RedirectResponse
+     */
+    private function noAllocationsError(Server $server)
+    {
+        $server->delete();
+
+        Auth::user()->notify(new ServerCreationError($server));
+        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment were found.');
+    }
+
+    /**
+     * return redirect with error
+     * @param Response $response
+     * @param Server $server
+     * @return RedirectResponse
+     */
+    private function serverCreationFailed(Response $response , Server $server)
+    {
+        $server->delete();
+
+        return redirect()->route('servers.index')->with('error', json_encode($response->json()));
     }
 }

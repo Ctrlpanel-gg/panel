@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Models\Configuration;
 use App\Models\Egg;
 use App\Models\Nest;
 use App\Models\Node;
@@ -113,7 +114,8 @@ class Pterodactyl
      */
     public static function getFreeAllocationId(Node $node)
     {
-        return self::getFreeAllocations($node)[0]['attributes']['id'];
+
+        return self::getFreeAllocations($node)[0]['attributes']['id'] ?? null;
     }
 
 
@@ -123,7 +125,8 @@ class Pterodactyl
      */
     public static function getAllocations(Node $node)
     {
-        $response = self::client()->get("/application/nodes/{$node->id}/allocations");
+        $per_page = Configuration::getValueByKey('ALLOCATION_LIMIT' , 200);
+        $response = self::client()->get("/application/nodes/{$node->id}/allocations?per_page={$per_page}");
         if ($response->failed()) throw self::getException();
         return $response->json();
     }
@@ -141,10 +144,10 @@ class Pterodactyl
     /**
      * @param Server $server
      * @param Egg $egg
-     * @param Node $node
+     * @param int $allocationId
      * @return Response
      */
-    public static function createServer(Server $server, Egg $egg, Node $node)
+    public static function createServer(Server $server, Egg $egg, int $allocationId)
     {
         return self::client()->post("/application/servers", [
             "name"           => $server->name,
@@ -167,7 +170,7 @@ class Pterodactyl
                 "allocations" => 1
             ],
             "allocation"     => [
-                "default" => Pterodactyl::getFreeAllocationId($node)
+                "default" => $allocationId
             ]
         ]);
     }

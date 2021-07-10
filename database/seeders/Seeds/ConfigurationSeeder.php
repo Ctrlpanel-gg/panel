@@ -109,5 +109,16 @@ class ConfigurationSeeder extends Seeder
             'type'        => 'boolean',
             'description' => 'Prevent users from making multiple accounts using the same IP address'
         ]);
+
+        //per_page on allocations request
+        Configuration::firstOrCreate([
+            'key' => 'ALLOCATION_LIMIT',
+        ], [
+            'value'       => '200',
+            'type'        => 'integer',
+            'description' => 'The maximum amount of allocations to pull per node for automatic deployment, if more allocations are being used than this limit is set to, no new servers can be created!'
+        ]);
+
+
     }
 }
