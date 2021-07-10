@@ -12,7 +12,8 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{route('admin.products.index')}}">Vouchers</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.products.edit' , $voucher->id)}}">Edit</a>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                                       href="{{route('admin.products.edit' , $voucher->id)}}">Edit</a>
                         </li>
                     </ol>
                 </div>
@@ -39,7 +40,9 @@
                                 @method('PATCH')
 
                                 <div class="form-group">
-                                    <label for="memo">Memo</label>
+                                    <label for="memo">Memo <i data-toggle="popover" data-trigger="hover"
+                                                              data-content="Only admins can see this"
+                                                              class="fas fa-info-circle"></i></label>
                                     <input value="{{ $voucher->memo }}" placeholder="Summer break voucher" id="memo"
                                            name="memo" type="text"
                                            class="form-control @error('memo') is-invalid @enderror">
@@ -52,9 +55,9 @@
 
                                 <div class="form-group">
                                     <label for="credits">Credits *</label>
-                                    <input value="{{ $voucher->credits }}" placeholder="500" id="credits"
+                                    <input value="{{$voucher->credits}}" placeholder="500" id="credits"
                                            name="credits" type="number" step="any" min="0"
-                                           max="999999"
+                                           max="99999999"
                                            class="form-control @error('credits') is-invalid @enderror">
                                     @error('credits')
                                     <div class="text-danger">
@@ -67,7 +70,7 @@
                                 <div class="form-group">
                                     <label for="code">Code *</label>
                                     <div class="input-group">
-                                        <input value="{{ $voucher->code }}" placeholder="SUMMER" id="code" name="code"
+                                        <input value="{{$voucher->code}}" placeholder="SUMMER" id="code" name="code"
                                                type="text"
                                                class="form-control @error('code') is-invalid @enderror"
                                                required="required">
@@ -85,9 +88,11 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="uses">Uses *</label>
+                                    <label for="uses">Uses * <i data-toggle="popover" data-trigger="hover"
+                                                                data-content="A voucher can only be used one time per user. Uses specifies the number of different users that can use this voucher."
+                                                                class="fas fa-info-circle"></i></label>
                                     <div class="input-group">
-                                        <input value="{{ $voucher->uses }}" id="uses" min="1" max="2147483647"
+                                        <input value="{{$voucher->uses}}" id="uses" min="1" max="2147483647"
                                                name="uses" type="number"
                                                class="form-control @error('uses') is-invalid @enderror"
                                                required="required">
@@ -103,10 +108,9 @@
                                     @enderror
                                 </div>
 
-
                                 <div class="form-group">
                                     <label for="expires_at">Expires at</label>
-                                    <input value="{{ $voucher->expires_at }}" id="expires_at" name="expires_at"
+                                    <input value="{{ $voucher->expires_at ?  $voucher->expires_at->format('Y-m-d\TH:i') : ''}}" id="expires_at" name="expires_at"
                                            type="datetime-local"
                                            class="form-control @error('expires_at') is-invalid @enderror">
                                     @error('expires_at')

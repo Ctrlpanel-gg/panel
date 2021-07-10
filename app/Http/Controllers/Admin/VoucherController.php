@@ -73,11 +73,13 @@ class VoucherController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param Voucher $voucher
-     * @return Response
+     * @return Application|Factory|View
      */
     public function edit(Voucher $voucher)
     {
-        //
+        return view('admin.vouchers.edit' , [
+            'voucher' => $voucher
+        ]);
     }
 
     /**
@@ -85,11 +87,21 @@ class VoucherController extends Controller
      *
      * @param Request $request
      * @param Voucher $voucher
-     * @return Response
+     * @return RedirectResponse
      */
     public function update(Request $request, Voucher $voucher)
     {
-        //
+        $request->validate([
+            'memo'       => 'sometimes|string|max:191',
+            'code'       => 'required|string|alpha_dash|max:36',
+            'uses'       => 'required|numeric|max:2147483647',
+            'credits'    => 'required|numeric|between:0,99999999',
+            'expires_at' => 'nullable|date|after:1 hour',
+        ]);
+
+        $voucher->update($request->except('_token'));
+
+        return redirect()->route('admin.vouchers.index')->with('success', 'voucher has been updated!');
     }
 
     /**
@@ -151,7 +163,6 @@ class VoucherController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Voucher $voucher) {
                 return '
-                            <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.show', $voucher->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
                             <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.edit', $voucher->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.vouchers.destroy', $voucher->id) . '">
