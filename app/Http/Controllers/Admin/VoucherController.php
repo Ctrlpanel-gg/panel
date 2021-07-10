@@ -46,7 +46,7 @@ class VoucherController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'memo'       => 'sometimes|string|max:191',
+            'memo'       => 'nullable|string|max:191',
             'code'       => 'required|string|alpha_dash|max:36',
             'uses'       => 'required|numeric|max:2147483647',
             'credits'    => 'required|numeric|between:0,99999999',
@@ -92,7 +92,7 @@ class VoucherController extends Controller
     public function update(Request $request, Voucher $voucher)
     {
         $request->validate([
-            'memo'       => 'sometimes|string|max:191',
+            'memo'       => 'nullable|string|max:191',
             'code'       => 'required|string|alpha_dash|max:36',
             'uses'       => 'required|numeric|max:2147483647',
             'credits'    => 'required|numeric|between:0,99999999',
