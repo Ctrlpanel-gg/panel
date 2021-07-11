@@ -24,6 +24,12 @@
     <section class="content">
         <div class="container-fluid">
 
+            <div class="text-right mb-3">
+                <button type="button" data-toggle="modal" data-target="#redeemVoucherModal" class="btn btn-primary">
+                    <i class="fas fa-money-check-alt mr-2"></i>Redeem code
+                </button>
+            </div>
+
             @if($isPaypalSetup && $products->count() > 0)
 
                 <div class="card">
