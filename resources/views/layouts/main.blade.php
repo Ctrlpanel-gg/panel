@@ -96,7 +96,8 @@
                             Log back in
                         </a>
                     @endif
-                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal" href="javascript:void(0)">
+                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal"
+                       href="javascript:void(0)">
                         <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                         Redeem code
                     </a>
@@ -150,13 +151,15 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="{{route('store.index')}}"
-                           class="nav-link @if(Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
-                            <i class="nav-icon fa fa-coins"></i>
-                            <p>Store</p>
-                        </a>
-                    </li>
+                    @if(env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID') || env('APP_ENV', 'local') == 'local')
+                        <li class="nav-item">
+                            <a href="{{route('store.index')}}"
+                               class="nav-link @if(Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
+                                <i class="nav-icon fa fa-coins"></i>
+                                <p>Store</p>
+                            </a>
+                        </li>
+                    @endif
 
                     @if(Auth::user()->role == 'admin')
                         <li class="nav-header">Admin</li>
@@ -290,7 +293,7 @@
     <div class="content-wrapper">
 
         @if(!Auth::user()->hasVerifiedEmail())
-            @if(Auth::user()->created_at->diffInHours(now(), false) > 2)
+            @if(Auth::user()->created_at->diffInHours(now(), false) > 1)
                 <div class="alert alert-warning p-2 m-2">
                     <h5><i class="icon fas fa-exclamation-circle"></i> Warning!</h5>
                     You have not yet verified your email address <a class="text-primary"

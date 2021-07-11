@@ -54,6 +54,15 @@
                         @enderror
                     </div>
 
+                    <div class="input-group mb-3">
+                        {!! htmlFormSnippet() !!}
+                        @error('g-recaptcha-response')
+                        <span class="text-danger" role="alert">
+                                <small><strong>{{ $message }}</strong></small>
+                            </span>
+                        @enderror
+                    </div>
+
                     <div class="row">
                         <div class="col-8">
                             <div class="icheck-primary">
