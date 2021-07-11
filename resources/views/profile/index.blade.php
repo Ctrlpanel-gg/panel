@@ -25,7 +25,33 @@
         <div class="container-fluid">
 
             <div class="row">
-                <div class="col-lg-4">
+                <div class="col-lg-12 px-0">
+                    @if(!Auth::user()->hasVerifiedEmail() && strtolower($force_email_verification) == 'true')
+                        <div class="alert alert-warning p-2 m-2">
+                            <h5><i class="icon fas fa-exclamation-circle"></i>Required Email verification!</h5>
+                            You have not yet verified your email address
+                            <a class="text-primary" href="{{route('verification.send')}}">Click here to resend
+                                verification email</a> <br>
+                            Please contact support If you didn't receive your verification email.
+                        </div>
+                    @endif
+
+                    @if(is_null(Auth::user()->discordUser) && strtolower($force_discord_verification) == 'true')
+                        @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
+                            <div class="alert alert-warning p-2 m-2">
+                                <h5><i class="icon fas fa-exclamation-circle"></i>Required Discord verification!</h5>
+                                You have not yet verified your discord account
+                                <a class="text-primary" href="{{route('auth.redirect')}}">Login with discord</a> <br>
+                                Please contact support If you face any issues.
+                            </div>
+                        @else
+                            <div class="alert alert-danger p-2 m-2">
+                                <h5><i class="icon fas fa-exclamation-circle"></i>Required Discord verification!</h5>
+                                Due to system settings you are required to verify your discord account! <br>
+                                It looks like this hasn't been set-up correctly! Please contact support.
+                            </div>
+                        @endif
+                    @endif
 
                 </div>
             </div>
@@ -50,7 +76,14 @@
                                 <div class="col d-flex flex-column flex-sm-row justify-content-between mb-3">
                                     <div class="text-center text-sm-left mb-2 mb-sm-0"><h4
                                             class="pt-sm-2 pb-1 mb-0 text-nowrap">{{$user->name}}</h4>
-                                        <p class="mb-0">{{$user->email}}</p>
+                                        <p class="mb-0">{{$user->email}}
+                                            @if($user->hasVerifiedEmail())
+                                                <i data-toggle="popover" data-trigger="hover" data-content="Verified" class="text-success fas fa-check-circle"></i>
+                                            @else
+                                                <i data-toggle="popover" data-trigger="hover" data-content="Not verified" class="text-danger fas fa-exclamation-circle"></i>
+                                            @endif
+
+                                        </p>
                                         <div class="mt-1">
                                             <span class="badge badge-primary"><i class="fa fa-coins mr-2"></i>{{$user->Credits()}}</span>
                                         </div>
