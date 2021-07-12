@@ -45,10 +45,10 @@ class VoucherController extends Controller
     {
         $request->validate([
             'memo'       => 'nullable|string|max:191',
-            'code'       => 'required|string|alpha_dash|max:36',
-            'uses'       => 'required|numeric|max:2147483647',
+            'code'       => 'required|string|alpha_dash|max:36|min:4',
+            'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:1000 years"],
+            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:10 years"],
         ]);
 
         Voucher::create($request->except('_token'));
@@ -91,10 +91,10 @@ class VoucherController extends Controller
     {
         $request->validate([
             'memo'       => 'nullable|string|max:191',
-            'code'       => 'required|string|alpha_dash|max:36',
-            'uses'       => 'required|numeric|max:2147483647',
+            'code'       => 'required|string|alpha_dash|max:36|min:4',
+            'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:1000 years"],
+            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:10 years"],
         ]);
 
         $voucher->update($request->except('_token'));

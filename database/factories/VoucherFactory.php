@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\voucher;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class VoucherFactory extends Factory
 {
@@ -22,8 +23,12 @@ class VoucherFactory extends Factory
     public function definition()
     {
         return [
+            'memo'       => $this->faker->word(),
+            'code'       => Str::random(36),
             'credits'    => $this->faker->numberBetween(100, 1000),
-            'expires_at' => $this->faker->dateTimeBetween(now(), '+30 days')
+            'uses'       => $this->faker->numberBetween(1, 1000),
+            'expires_at' => now()->addDays($this->faker->numberBetween(1, 90))->format('d-m-Y')
         ];
+
     }
 }
