@@ -12,15 +12,16 @@ use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +65,9 @@ Route::middleware('auth')->group(function () {
     #discord
     Route::get('/auth/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect');
     Route::get('/auth/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
+
+    #voucher redeem
+    Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->middleware('throttle:5,1')->name('voucher.redeem');
 
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
@@ -109,6 +113,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
+
+        Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
+        Route::resource('vouchers', VoucherController::class);
 
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
         Route::resource('api', ApplicationApiController::class)->parameters([

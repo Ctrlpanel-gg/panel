@@ -117,6 +117,9 @@
                                                 @case('created')
                                                     <small><i class="fas text-success fa-plus mr-2"></i></small>
                                                 @break
+                                                @case('redeemed')
+                                                <small><i class="fas text-success fa-money-check-alt mr-2"></i></small>
+                                                @break
                                                 @case('deleted')
                                                     <small><i class="fas text-danger fa-times mr-2"></i></small>
                                                 @break

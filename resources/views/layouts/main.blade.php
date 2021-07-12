@@ -16,6 +16,9 @@
     {{--  summernote --}}
     <link rel="stylesheet" href="{{asset('plugins/summernote/summernote-bs4.min.css')}}">
 
+    {{--  datetimepicker --}}
+    <link rel="stylesheet" href="{{asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
+
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
     <link rel="preload" href="{{asset('plugins/fontawesome-free/css/all.min.css')}}" as="style"
           onload="this.onload=null;this.rel='stylesheet'">
@@ -96,6 +99,11 @@
                             Log back in
                         </a>
                     @endif
+                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal"
+                       href="javascript:void(0)">
+                        <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        Redeem code
+                    </a>
                     <div class="dropdown-divider"></div>
                     <form method="post" action="{{route('logout')}}">
                         @csrf
@@ -146,13 +154,15 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="{{route('store.index')}}"
-                           class="nav-link @if(Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
-                            <i class="nav-icon fa fa-coins"></i>
-                            <p>Store</p>
-                        </a>
-                    </li>
+                    @if(env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID') || env('APP_ENV', 'local') == 'local')
+                        <li class="nav-item">
+                            <a href="{{route('store.index')}}"
+                               class="nav-link @if(Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
+                                <i class="nav-icon fa fa-coins"></i>
+                                <p>Store</p>
+                            </a>
+                        </li>
+                    @endif
 
                     @if(Auth::user()->role == 'admin')
                         <li class="nav-header">Admin</li>
@@ -186,6 +196,14 @@
                                class="nav-link @if(Request::routeIs('admin.store.*')) active @endif">
                                 <i class="nav-icon fas fa-shopping-basket"></i>
                                 <p>Store</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.vouchers.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.vouchers.*')) active @endif">
+                                <i class="nav-icon fas fa-money-check-alt"></i>
+                                <p>Vouchers</p>
                             </a>
                         </li>
 
@@ -227,6 +245,7 @@
                             </a>
                         </li>
 
+
                         <li class="nav-header">Dashboard</li>
 
                         <li class="nav-item">
@@ -236,6 +255,16 @@
                                 <p>Application API</p>
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.usefullinks.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.usefullinks.*')) active @endif">
+                                <i class="nav-icon fas fa-link"></i>
+                                <p>Useful Links</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-header">Settings</li>
 
                         <li class="nav-item">
                             <a href="{{route('admin.configurations.index')}}"
@@ -253,15 +282,6 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="{{route('admin.usefullinks.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.usefullinks.*')) active @endif">
-                                <i class="nav-icon fas fa-link"></i>
-                                <p>Useful Links</p>
-                            </a>
-                        </li>
-
-
                     @endif
 
                 </ul>
@@ -276,7 +296,7 @@
     <div class="content-wrapper">
 
         @if(!Auth::user()->hasVerifiedEmail())
-            @if(Auth::user()->created_at->diffInHours(now(), false) > 2)
+            @if(Auth::user()->created_at->diffInHours(now(), false) > 1)
                 <div class="alert alert-warning p-2 m-2">
                     <h5><i class="icon fas fa-exclamation-circle"></i> Warning!</h5>
                     You have not yet verified your email address <a class="text-primary"
@@ -289,6 +309,8 @@
         @endif
 
         @yield('content')
+
+        @include('models.redeem_voucher_modal')
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer">
@@ -316,9 +338,21 @@
 <!-- Summernote -->
 <script src="{{asset('plugins/summernote/summernote-bs4.min.js')}}"></script>
 
+<!-- Moment.js -->
+<script src="{{asset('plugins/moment/moment.min.js')}}"></script>
+
+<!-- Datetimepicker -->
+<script src="{{asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
+
 <script>
     $(document).ready(function () {
         $('[data-toggle="popover"]').popover();
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
     });
 </script>
 <script>
