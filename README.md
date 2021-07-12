@@ -6,6 +6,7 @@
 - Admin Dashboard
 - User/Server Management
 - Store (credit system)
+- Vouchers
 - and so much more!
 
 # ControlPanel-gg
