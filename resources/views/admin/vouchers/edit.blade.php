@@ -11,7 +11,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.products.index')}}">Vouchers</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.vouchers.index')}}">Vouchers</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
                                                        href="{{route('admin.products.edit' , $voucher->id)}}">Edit</a>
                         </li>
@@ -108,11 +108,14 @@
                                     @enderror
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="expires_at">Expires at</label>
-                                    <input value="{{ $voucher->expires_at ?  $voucher->expires_at->format('Y-m-d\TH:i') : ''}}" id="expires_at" name="expires_at"
-                                           type="datetime-local"
-                                           class="form-control @error('expires_at') is-invalid @enderror">
+                                    <div class="input-group date" id="expires_at" data-target-input="nearest">
+                                        <input value="{{$voucher->expires_at ? $voucher->expires_at->format('d-m-Y') : ''}}" name="expires_at" placeholder="dd-mm-yyyy" type="text" class="form-control @error('expires_at') is-invalid @enderror datetimepicker-input" data-target="#expires_at"/>
+                                        <div class="input-group-append" data-target="#expires_at" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
                                     @error('expires_at')
                                     <div class="text-danger">
                                         {{$message}}
@@ -138,6 +141,23 @@
 
 
     <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            $('#expires_at').datetimepicker({
+                format : 'DD-MM-yyyy',
+                icons: {
+                    time: 'far fa-clock',
+                    date: 'far fa-calendar',
+                    up: 'fas fa-arrow-up',
+                    down: 'fas fa-arrow-down',
+                    previous: 'fas fa-chevron-left',
+                    next: 'fas fa-chevron-right',
+                    today: 'fas fa-calendar-check',
+                    clear: 'far fa-trash-alt',
+                    close: 'far fa-times-circle'
+                }
+            });
+        })
+
         function setMaxUses() {
             let element = document.getElementById('uses')
             element.value = element.max;

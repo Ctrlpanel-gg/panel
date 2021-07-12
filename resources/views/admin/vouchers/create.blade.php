@@ -11,7 +11,7 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.products.index')}}">Vouchers</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.vouchers.index')}}">Vouchers</a></li>
                         <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.products.create')}}">Create</a>
                         </li>
                     </ol>
@@ -50,7 +50,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="credits">Credits *</label>
+                                    <label for="credits">* Credits</label>
                                     <input value="{{old('credits')}}" placeholder="500" id="credits"
                                            name="credits" type="number" step="any" min="0"
                                            max="99999999"
@@ -64,7 +64,7 @@
 
 
                                 <div class="form-group">
-                                    <label for="code">Code *</label>
+                                    <label for="code">* Code</label>
                                     <div class="input-group">
                                         <input value="{{old('code')}}" placeholder="SUMMER" id="code" name="code"
                                                type="text"
@@ -84,7 +84,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="uses">Uses * <i data-toggle="popover" data-trigger="hover" data-content="A voucher can only be used one time per user. Uses specifies the number of different users that can use this voucher." class="fas fa-info-circle"></i></label>
+                                    <label for="uses">* Uses<i data-toggle="popover" data-trigger="hover" data-content="A voucher can only be used one time per user. Uses specifies the number of different users that can use this voucher." class="fas fa-info-circle"></i></label>
                                     <div class="input-group">
                                         <input value="{{old('uses') ?? 1}}" id="uses" min="1" max="2147483647"
                                                name="uses" type="number"
@@ -102,19 +102,20 @@
                                     @enderror
                                 </div>
 
-
-                                <div class="form-group">
+                                <div class="form-group mb-3">
                                     <label for="expires_at">Expires at</label>
-                                    <input value="{{old('expires_at')}}" id="expires_at" name="expires_at"
-                                           type="datetime-local"
-                                           class="form-control @error('expires_at') is-invalid @enderror">
+                                    <div class="input-group date" id="expires_at" data-target-input="nearest">
+                                        <input value="{{old('expires_at')}}" name="expires_at" placeholder="dd-mm-yyyy" type="text" class="form-control @error('expires_at') is-invalid @enderror datetimepicker-input" data-target="#expires_at"/>
+                                        <div class="input-group-append" data-target="#expires_at" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
                                     @error('expires_at')
                                     <div class="text-danger">
                                         {{$message}}
                                     </div>
                                     @enderror
                                 </div>
-
 
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">
@@ -127,12 +128,31 @@
                 </div>
             </div>
 
+            <i class="fas"></i>
+
         </div>
     </section>
     <!-- END CONTENT -->
 
 
     <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            $('#expires_at').datetimepicker({
+                format : 'DD-MM-yyyy',
+                icons: {
+                    time: 'far fa-clock',
+                    date: 'far fa-calendar',
+                    up: 'fas fa-arrow-up',
+                    down: 'fas fa-arrow-down',
+                    previous: 'fas fa-chevron-left',
+                    next: 'fas fa-chevron-right',
+                    today: 'fas fa-calendar-check',
+                    clear: 'far fa-trash-alt',
+                    close: 'far fa-times-circle'
+                }
+            });
+        })
+
         function setMaxUses() {
             let element = document.getElementById('uses')
             element.value = element.max;

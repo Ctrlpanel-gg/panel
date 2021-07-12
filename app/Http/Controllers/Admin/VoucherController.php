@@ -11,8 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationData;
 use Illuminate\Validation\ValidationException;
 
 class VoucherController extends Controller
@@ -50,7 +48,7 @@ class VoucherController extends Controller
             'code'       => 'required|string|alpha_dash|max:36',
             'uses'       => 'required|numeric|max:2147483647',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => 'nullable|date|after:1 hour',
+            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:1000 years"],
         ]);
 
         Voucher::create($request->except('_token'));
@@ -96,7 +94,7 @@ class VoucherController extends Controller
             'code'       => 'required|string|alpha_dash|max:36',
             'uses'       => 'required|numeric|max:2147483647',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => 'nullable|date|after:1 hour',
+            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:1000 years"],
         ]);
 
         $voucher->update($request->except('_token'));

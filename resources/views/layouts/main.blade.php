@@ -16,6 +16,9 @@
     {{--  summernote --}}
     <link rel="stylesheet" href="{{asset('plugins/summernote/summernote-bs4.min.css')}}">
 
+    {{--  datetimepicker --}}
+    <link rel="stylesheet" href="{{asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
+
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
     <link rel="preload" href="{{asset('plugins/fontawesome-free/css/all.min.css')}}" as="style"
           onload="this.onload=null;this.rel='stylesheet'">
@@ -334,6 +337,12 @@
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
 <!-- Summernote -->
 <script src="{{asset('plugins/summernote/summernote-bs4.min.js')}}"></script>
+
+<!-- Moment.js -->
+<script src="{{asset('plugins/moment/moment.min.js')}}"></script>
+
+<!-- Datetimepicker -->
+<script src="{{asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
 
 <script>
     $(document).ready(function () {
