@@ -61,6 +61,9 @@
             success: function (response) {
                 resetForm()
                 redeemVoucherSetSuccess(response)
+                setTimeout(() => {
+                    $('#redeemVoucherModal').modal('toggle');
+                } , 1500)
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 resetForm()
