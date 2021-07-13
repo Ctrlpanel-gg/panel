@@ -107,6 +107,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->vouchers()->detach();
 
+            $user->discordUser()->delete();
+
             Pterodactyl::client()->delete("/application/users/{$user->pterodactyl_id}");
         });
     }
