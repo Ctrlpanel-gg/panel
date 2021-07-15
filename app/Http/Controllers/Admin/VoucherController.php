@@ -176,8 +176,7 @@ class VoucherController extends Controller
                 return '<span class="badge badge-' . $color . '">' . $voucher->getStatus() . '</span>';
             })
             ->editColumn('uses', function (Voucher $voucher) {
-                $userCount = $voucher->users()->count();
-                return "{$userCount} / {$voucher->uses}";
+                return "{$voucher->used} / {$voucher->uses}";
             })
             ->editColumn('credits', function (Voucher $voucher) {
                 return number_format($voucher->credits, 2, '.', '');
