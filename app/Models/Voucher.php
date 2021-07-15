@@ -31,6 +31,23 @@ class Voucher extends Model
         'expires_at'
     ];
 
+    protected $appends = ['used' , 'status'];
+
+    /**
+     * @return int
+     */
+    public function getUsedAttribute()
+    {
+        return $this->users()->count();
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusAttribute(){
+        return $this->getStatus();
+    }
+
     /**
      *
      */

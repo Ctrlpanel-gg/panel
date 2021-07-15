@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,9 @@ Route::middleware('api.token')->group(function () {
     Route::patch('/servers/{server}/suspend', [ServerController::class, 'suspend']);
     Route::patch('/servers/{server}/unsuspend', [ServerController::class, 'unSuspend']);
     Route::resource('servers', ServerController::class)->except(['store', 'create', 'edit', 'update']);
+
+//    Route::get('/vouchers/{voucher}/users' , [VoucherController::class , 'users']);
+    Route::resource('vouchers', VoucherController::class)->except('create' , 'edit');
 });
 
 
