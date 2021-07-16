@@ -5,13 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
 
 class DiscordUser extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        "id",
+        "user_id",
+        "username",
+        "avatar",
+        "discriminator",
+        "public_flags",
+        "flags",
+        "locale",
+        "mfa_enabled",
+        "premium_type",
+        "email",
+        "verified",
+    ];
 
     public $incrementing = false;
 
