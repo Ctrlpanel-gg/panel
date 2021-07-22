@@ -316,7 +316,7 @@
     <footer class="main-footer">
         <strong>Copyright &copy; 2021-{{date('Y')}} <a href="{{url('/')}}">{{env('APP_NAME' , 'Laravel')}}</a>.</strong>
         All rights
-        reserved.
+        reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>
     </footer>
 
     <!-- Control Sidebar -->
