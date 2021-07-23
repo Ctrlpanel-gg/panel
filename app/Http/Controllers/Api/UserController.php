@@ -64,6 +64,27 @@ class UserController extends Controller
     }
 
     /**
+     * Give credits to a user.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return User
+     */
+    public function addCredits(Request $request, int $id)
+    {
+        $discordUser = DiscordUser::find($id);
+        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+
+        $request->validate([
+            "credits"      => "require|numeric|min:0|max:1000000",
+        ]);
+
+        $user->increment('credits', $request);
+
+        return $user;
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param int $id
