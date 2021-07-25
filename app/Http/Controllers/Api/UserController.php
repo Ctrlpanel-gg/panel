@@ -80,7 +80,7 @@ class UserController extends Controller
         ]);
         
         if ($request->user()->credits + $request->credits >= 99999999) throw ValidationException::withMessages([
-            'code' => "You can't add this amount of credits because you would exceed the credit limit"
+            'credits' => "You can't add this amount of credits because you would exceed the credit limit"
         ]);
         
         $user->increment('credits', $request->credits);
