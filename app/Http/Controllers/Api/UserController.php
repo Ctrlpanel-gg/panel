@@ -76,10 +76,10 @@ class UserController extends Controller
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
 
         $request->validate([
-            "credits"      => "require|numeric|min:0|max:1000000",
+            "credits"      => "required|numeric|min:0|max:1000000",
         ]);
 
-        $user->increment('credits', $request);
+        $user->increment('credits', $request->credits);
 
         return $user;
     }
