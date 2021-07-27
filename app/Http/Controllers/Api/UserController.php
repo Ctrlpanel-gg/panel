@@ -64,26 +64,32 @@ class UserController extends Controller
     }
 
     /**
-     * Give credits to a user.
+     * 
      *
      * @param Request $request
      * @param int $id
      * @return User
      */
-    public function addCredits(Request $request, int $id)
+    public function increment(Request $request, int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
 
         $request->validate([
-            "credits"      => "required|numeric|min:0|max:1000000",
-        ]);
-
-        if ($user->credits + $request->credits >= 99999999) throw ValidationException::withMessages([
-            'credits' => "You can't add this amount of credits because you would exceed the credit limit"
+            "credits"      => "sometimes|numeric|min:0|max:1000000",
+            "server_limit" => "sometimes|numeric|min:0|max:1000000",
         ]);
         
-        $user->increment('credits', $request->credits);
+        if($request->credits){
+             if ($user->credits + $request->credits >= 99999999) throw ValidationException::withMessages([
+                'credits' => "You can't add this amount of credits because you would exceed the credit limit"
+            ]);
+            $user->increment('credits', $request->credits);
+         }
+
+        if($request->server_limit){
+           $user->increment('server_limit', $request->server_limit);
+        }
 
         return $user;
     }
