@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Validator;
 
 class Pterodactyl
 {
@@ -34,9 +35,8 @@ class Pterodactyl
      */
     public function getUser(int $pterodactylId){
         $response = self::client()->get("/application/users/{$pterodactylId}");
-        if ($response->failed()) {
-            return [];
-        }
+
+        if ($response->failed()) return $response->json();
         return $response->json()['attributes'];
     }
 
