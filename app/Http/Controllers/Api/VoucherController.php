@@ -116,7 +116,8 @@ class VoucherController extends Controller
      * @param Voucher $voucher
      * @return LengthAwarePaginator
      */
-    public function users(Request $request, Voucher $voucher){
+    public function users(Request $request, Voucher $voucher)
+    {
         $request->validate([
             'include' => [
                 'nullable',
@@ -125,7 +126,7 @@ class VoucherController extends Controller
             ]
         ]);
 
-        if($request->input('include') == 'discorduser'){
+        if ($request->input('include') == 'discorduser') {
             return $voucher->users()->with('discordUser')->paginate($request->query('per_page') ?? 50);
         }
 

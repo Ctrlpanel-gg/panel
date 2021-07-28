@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class NotificationController extends Controller
 {
     /**
-     * Displays all notifications of an user.
+     * Display all notifications of an user.
      * @param Request $request
      * @param int $userId
      * @return Response
@@ -26,7 +26,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Displays a specific notification
+     * Display a specific notification
      * 
      * @param int $userId
      * @param int $notificationId
@@ -44,19 +44,6 @@ class NotificationController extends Controller
         }
 
         return $notification;
-    }
-    /**
-     * Shows all unread notifications of an user.
-     * @param Request $request
-     * @param int $userId
-     * @return Response
-     */
-    public function indexUnread(Request $request, int $userId)
-    {
-        $discordUser = DiscordUser::find($userId);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
-
-        return $user->unreadNotifications()->paginate($request->query("per_page", 50));
     }
 
     /**
@@ -99,24 +86,9 @@ class NotificationController extends Controller
         return response()->json(["message" => "All notifications have been successfully deleted.", "count" => $count]);
     }
 
-    /**
-     * Delete all read notifications from an user
-     * 
-     * @param int $userId
-     * @return JsonResponse
-     */
-    public function deleteRead(int $userId)
-    {
-        $discordUser = DiscordUser::find($userId);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
-
-        $count = $user->notifications()->whereNotNull("read_at")->delete();
-
-        return response()->json(["message" => "All read notifications have been successfully deleted.", "count" => $count]);
-    }
 
     /**
-     * Deletes a specific notification
+     * Delete a specific notification
      * 
      * @param int $userId
      * @param int $notificationId
