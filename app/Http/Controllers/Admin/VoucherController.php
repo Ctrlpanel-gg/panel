@@ -48,7 +48,7 @@ class VoucherController extends Controller
             'code'       => 'required|string|alpha_dash|max:36|min:4',
             'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:10 years"],
+            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
         Voucher::create($request->except('_token'));
@@ -75,7 +75,7 @@ class VoucherController extends Controller
      */
     public function edit(Voucher $voucher)
     {
-        return view('admin.vouchers.edit' , [
+        return view('admin.vouchers.edit', [
             'voucher' => $voucher
         ]);
     }
@@ -94,7 +94,7 @@ class VoucherController extends Controller
             'code'       => 'required|string|alpha_dash|max:36|min:4',
             'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:10 years"],
+            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
         $voucher->update($request->except('_token'));
@@ -127,7 +127,7 @@ class VoucherController extends Controller
         ]);
 
         #get voucher by code
-        $voucher = Voucher::where('code' , '=' , $request->input('code'))->firstOrFail();
+        $voucher = Voucher::where('code', '=', $request->input('code'))->firstOrFail();
 
         #extra validations
         if ($voucher->getStatus() == 'USES_LIMIT_REACHED') throw ValidationException::withMessages([
@@ -138,7 +138,7 @@ class VoucherController extends Controller
             'code' => 'This voucher has expired'
         ]);
 
-        if (!$request->user()->vouchers()->where('id' , '=' , $voucher->id)->get()->isEmpty()) throw ValidationException::withMessages([
+        if (!$request->user()->vouchers()->where('id', '=', $voucher->id)->get()->isEmpty()) throw ValidationException::withMessages([
             'code' => 'You already redeemed this voucher code'
         ]);
 
@@ -191,5 +191,4 @@ class VoucherController extends Controller
             ->rawColumns(['actions', 'code', 'status'])
             ->make();
     }
-
 }
