@@ -116,20 +116,14 @@ class UserController extends Controller
         ]);
         
         if($request->credits){
-             if ($user->credits - $request->credits >= 99999999) throw ValidationException::withMessages([
-                'credits' => "You cannot remove this amount of credits because you would exceed the minimum credit limit"
-            ]);
-            elseif($user->credits - $request->credits < 0) throw ValidationException::withMessages([
+            if($user->credits - $request->credits < 0) throw ValidationException::withMessages([
                 'credits' => "You can't remove this amount of credits because you would exceed the minimum credit limit"
             ]);
             $user->decrement('credits', $request->credits);
          }
 
         if($request->server_limit){
-            if ($user->server_limit - $request->server_limit >= 2147483647) throw ValidationException::withMessages([
-                'server_limit' => "You cannot remove this amount of servers because it would exceed the minimum server."
-            ]);
-            elseif($user->server_limit - $request->server_limit < 0) throw ValidationException::withMessages([
+            if($user->server_limit - $request->server_limit < 0) throw ValidationException::withMessages([
                 'server_limit' => "You cannot remove this amount of servers because it would exceed the minimum server."
             ]);
            $user->decrement('server_limit', $request->server_limit);
