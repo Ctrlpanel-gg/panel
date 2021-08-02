@@ -46,7 +46,7 @@ class MakeUserCommand extends Command
     public function handle()
     {
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
-        $password = $this->option('password') ?? $this->ask('Please specify your password.');
+        $password = $this->secret('password') ?? $this->ask('Please specify your password.');
 
         // Validate user input
         $validator = Validator::make([
