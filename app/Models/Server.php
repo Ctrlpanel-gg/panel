@@ -71,7 +71,7 @@ class Server extends Model
 
         static::deleting(function (Server $server) {
             $response = Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
-            if ($response->failed()) throw new Exception($response['errors'][0]['code']);
+            if ($response->failed() && !is_null($server->pterodactyl_id)) throw new Exception($response['errors'][0]['code']);
         });
     }
 
