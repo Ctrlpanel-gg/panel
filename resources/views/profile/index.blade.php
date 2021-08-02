@@ -198,7 +198,7 @@
                                                                     extra
                                                                     <b><i
                                                                             class="fa fa-coins mx-1"></i>{{$credits_reward_after_verify_discord}}
-                                                                    </b> credits and increased server limit
+                                                                    </b> {{CREDITS_DISPLAY_NAME}} and increased server limit
                                                                 </p>
                                                             @endif
                                                         </div>

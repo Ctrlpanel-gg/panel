@@ -49,7 +49,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="credits">Credits *</label>
+                                <label for="credits">{{CREDITS_DISPLAY_NAME}} *</label>
                                 <input value="{{$voucher->credits}}" placeholder="500" id="credits" name="credits" type="number" step="any" min="0" max="99999999" class="form-control @error('credits') is-invalid @enderror">
                                 @error('credits')
                                 <div class="text-danger">

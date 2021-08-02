@@ -148,7 +148,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Credits</label>
+                                    <label>{{CREDITS_DISPLAY_NAME}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">

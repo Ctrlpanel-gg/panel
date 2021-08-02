@@ -70,7 +70,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="credits">Credits</label>
+                                    <label for="credits">{{CREDITS_DISPLAY_NAME}}</label>
                                     <input value="{{$user->credits}}" id="credits" name="credits" step="any" min="0"
                                            max="99999999"
                                            type="number" class="form-control @error('credits') is-invalid @enderror"

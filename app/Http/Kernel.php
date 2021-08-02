@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
+use App\Http\Middleware\CreditsDisplayName;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\LastSeen;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -40,12 +41,14 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            LastSeen::class
+            LastSeen::class,
+            CreditsDisplayName::class
         ],
 
         'api' => [
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            CreditsDisplayName::class
         ],
     ];
 

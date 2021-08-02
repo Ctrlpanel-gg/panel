@@ -34,7 +34,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-coins mr-2"></i>Credits</h5>
+                        <h5 class="card-title"><i class="fa fa-coins mr-2"></i>{{CREDITS_DISPLAY_NAME}}</h5>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-responsive-sm">
@@ -51,7 +51,7 @@
                             @foreach($products as $product)
                                 <tr>
                                     <td>{{$product->formatCurrency()}}</td>
-                                    <td>{{$product->type}}</td>
+                                    <td>{{strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type}}</td>
                                     <td><i class="fa fa-coins mr-2"></i>{{$product->display}}</td>
                                     <td><a href="{{route('checkout' , $product->id)}}" class="btn btn-info">Purchase</a>
                                     </td>

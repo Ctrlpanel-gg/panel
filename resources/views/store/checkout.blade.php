@@ -81,7 +81,7 @@
                                     <tbody>
                                     <tr>
                                         <td>1</td>
-                                        <td><i class="fa fa-coins mr-2"></i>{{$product->quantity}} {{$product->type}}</td>
+                                        <td><i class="fa fa-coins mr-2"></i>{{$product->quantity}} {{strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type}}</td>
                                         <td>{{$product->description}}</td>
                                         <td>{{$product->formatCurrency()}}</td>
                                     </tr>

@@ -41,7 +41,7 @@
                         <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-coins"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Credits</span>
+                            <span class="info-box-text">{{CREDITS_DISPLAY_NAME}}</span>
                             <span class="info-box-number">{{Auth::user()->Credits()}}</span>
                         </div>
                         <!-- /.info-box-content -->
@@ -58,7 +58,7 @@
                         <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-chart-line"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Credit usage</span>
+                            <span class="info-box-text">{{CREDITS_DISPLAY_NAME}} usage</span>
                             <span class="info-box-number">{{number_format($useage, 2, '.', '')}} <sup>per month</sup></span>
                         </div>
                         <!-- /.info-box-content -->
