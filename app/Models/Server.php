@@ -70,7 +70,8 @@ class Server extends Model
         });
 
         static::deleting(function (Server $server) {
-            Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
+            $response = Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
+            if ($response->failed()) throw new Exception($response['errors'][0]['code']);
         });
     }
 
