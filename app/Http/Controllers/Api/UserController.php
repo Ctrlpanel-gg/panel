@@ -66,10 +66,11 @@ class UserController extends Controller
 
     /**
      * increments the users credits or/and server_limit
-     * 
+     *
      * @param Request $request
      * @param int $id
      * @return User
+     * @throws ValidationException
      */
     public function increment(Request $request, int $id)
     {
@@ -80,7 +81,7 @@ class UserController extends Controller
             "credits"      => "sometimes|numeric|min:0|max:1000000",
             "server_limit" => "sometimes|numeric|min:0|max:1000000",
         ]);
-        
+
         if($request->credits){
              if ($user->credits + $request->credits >= 99999999) throw ValidationException::withMessages([
                 'credits' => "You can't add this amount of credits because you would exceed the credit limit"
@@ -100,10 +101,11 @@ class UserController extends Controller
 
     /**
      * decrements the users credits or/and server_limit
-     * 
+     *
      * @param Request $request
      * @param int $id
      * @return User
+     * @throws ValidationException
      */
     public function decrement(Request $request, int $id)
     {
@@ -114,7 +116,7 @@ class UserController extends Controller
             "credits"      => "sometimes|numeric|min:0|max:1000000",
             "server_limit" => "sometimes|numeric|min:0|max:1000000",
         ]);
-        
+
         if($request->credits){
             if($user->credits - $request->credits < 0) throw ValidationException::withMessages([
                 'credits' => "You can't remove this amount of credits because you would exceed the minimum credit limit"
@@ -136,7 +138,7 @@ class UserController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return Application|ResponseFactory|Response|void
+     * @return Application|Response|ResponseFactory
      */
     public function destroy(int $id)
     {
