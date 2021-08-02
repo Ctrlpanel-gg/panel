@@ -69,8 +69,8 @@ class NotificationController extends Controller
         $database = null;
         if (in_array('database', $via)) {
             $database = $request->validate([
-                "title" => "required_if:database,true|string|min:1",
-                "content" => "required_if:database,true|string|min:1"
+                "title" => "required|string|min:1",
+                "content" => "required|string|min:1"
             ]);
         }
         if (in_array('mail', $via)) {
