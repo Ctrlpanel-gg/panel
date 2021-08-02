@@ -17,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api.token')->group(function () {
-    Route::patch('/users/{user}/addcredits', [UserController::class, 'addCredits']);
+    Route::patch('/users/{user}/increment', [UserController::class, 'increment']);
+    Route::patch('/users/{user}/decrement', [UserController::class, 'decrement']);
     Route::resource('users', UserController::class)->except(['store', 'create']);
 
     Route::patch('/servers/{server}/suspend', [ServerController::class, 'suspend']);
