@@ -10,24 +10,29 @@ class DynamicNotification extends Notification
 {
     use Queueable;
     /**
-     * @var string
+     * @var array
      */
-    private $title;
+    private $via;
     /**
-     * @var string
+     * @var array
      */
-    private $content;
-
+    private $database;
+    /**
+     * @var MailMessage
+     */
+    private $mail;
     /**
      * Create a new notification instance.
      *
-     * @param string $title
-     * @param string $content
+     * @param array $via
+     * @param array $database
+     * @param MailMessage $mail
      */
-    public function __construct($title, $content)
+    public function __construct($via, $database, $mail)
     {
-        $this->title = $title;
-        $this->content = $content;
+        $this->via = $via;
+        $this->database = $database;
+        $this->mail = $mail;
     }
 
     /**
@@ -38,9 +43,13 @@ class DynamicNotification extends Notification
      */
     public function via()
     {
-        return ['database'];
+        return $this->via;
     }
 
+    public function toMail()
+    {
+        return $this->mail;
+    }
     /**
      * Get the array representation of the notification.
      *
@@ -49,9 +58,6 @@ class DynamicNotification extends Notification
      */
     public function toArray()
     {
-        return [
-            'title' => $this->title,
-            'content' => $this->content,
-        ];
+        return $this->database;
     }
 }

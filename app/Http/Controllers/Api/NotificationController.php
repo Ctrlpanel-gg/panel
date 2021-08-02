@@ -8,6 +8,9 @@ use App\Models\User;
 use App\Notifications\DynamicNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\HtmlString;
+use Spatie\ValidationRules\Rules\Delimited;
 
 class NotificationController extends Controller
 {
@@ -58,13 +61,27 @@ class NotificationController extends Controller
         $discordUser = DiscordUser::find($userId);
         $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
 
-        $body = $request->validate([
-            "title" => "required:string|min:0",
-            "content" => "required:string|min:0"
+        $via = $request->validate([
+            "via" => ["required", new Delimited("in:mail,database")]
         ]);
-
+        $via = explode(',', $via["via"]);
+        $mail = null;
+        $database = null;
+        if (in_array('database', $via)) {
+            $database = $request->validate([
+                "title" => "required_if:database,true|string|min:1",
+                "content" => "required_if:database,true|string|min:1"
+            ]);
+        }
+        if (in_array('mail', $via)) {
+            $data = $request->validate([
+                "subject" => "required|string|min:1",
+                "body" => "required|string|min:1"
+            ]);
+            $mail = (new MailMessage)->subject($data["subject"])->line(new HtmlString($data["body"]));
+        }
         $user->notify(
-            new DynamicNotification($body["title"], $body["content"])
+            new DynamicNotification($via, $database, $mail)
         );
 
         return response()->json(["message" => "Notification successfully sent."]);
