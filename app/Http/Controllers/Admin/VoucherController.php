@@ -143,14 +143,14 @@ class VoucherController extends Controller
         ]);
 
         if ($request->user()->credits + $voucher->credits >= 99999999) throw ValidationException::withMessages([
-            'code' => "You can't redeem this voucher because you would exceed the credit limit"
+            'code' => "You can't redeem this voucher because you would exceed the ".CREDITS_DISPLAY_NAME." limit"
         ]);
 
         #redeem voucher
         $voucher->redeem($request->user());
 
         return response()->json([
-            'success' => "{$voucher->credits} credits have been added to your balance!"
+            'success' => "{$voucher->credits} ".CREDITS_DISPLAY_NAME." have been added to your balance!"
         ]);
     }
 
