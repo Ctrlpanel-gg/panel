@@ -61,24 +61,24 @@ class NotificationController extends Controller
         $discordUser = DiscordUser::find($userId);
         $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
 
-        $via = $request->validate([
-            "via" => ["required", new Delimited("in:mail,database")]
+        $data = $request->validate([
+            "via" => ["required", new Delimited("in:mail,database")],
+            "title" => "required|string|min:1",
+            "content" => "required|string|min:1"
         ]);
-        $via = explode(',', $via["via"]);
+        $via = explode(',', $data["via"]);
         $mail = null;
         $database = null;
         if (in_array('database', $via)) {
-            $database = $request->validate([
-                "title" => "required|string|min:1",
-                "content" => "required|string|min:1"
-            ]);
+            $database = [
+                "title" => $data["title"],
+                "content" => $data["content"]
+            ];
         }
         if (in_array('mail', $via)) {
-            $data = $request->validate([
-                "subject" => "required|string|min:1",
-                "body" => "required|string|min:1"
-            ]);
-            $mail = (new MailMessage)->subject($data["subject"])->line(new HtmlString($data["body"]));
+            $mail = (new MailMessage)
+                ->subject($data["title"])
+                ->line(new HtmlString($data["content"]));
         }
         $user->notify(
             new DynamicNotification($via, $database, $mail)

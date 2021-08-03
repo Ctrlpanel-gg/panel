@@ -167,28 +167,28 @@ class UserController extends Controller
      */
     public function notify(Request $request, User $user)
     {
-        $via = $request->validate([
+        $data = $request->validate([
             "via" => "required|min:1|array",
             "via.*" => "required|string|in:mail,database",
-        ])["via"];
+            "title" => "required|string|min:1",
+            "content" => "required|string|min:1"
+        ]);
 
         $mail = null;
         $database = null;
-        if (in_array('database', $via)) {
-            $database = $request->validate([
-                "title" => "required|string|min:1",
-                "content" => "required|string|min:1"
-            ]);
+        if (in_array('database', $data["via"])) {
+            $database = [
+                "title" => $data["title"],
+                "content" => $data["content"]
+            ];
         }
-        if (in_array('mail', $via)) {
-            $data = $request->validate([
-                "subject" => "required|string|min:1",
-                "body" => "required|string|min:1"
-            ]);
-            $mail = (new MailMessage)->subject($data["subject"])->line(new HtmlString($data["body"]));
+        if (in_array('mail', $data["via"])) {
+            $mail = (new MailMessage)
+                ->subject($data["title"])
+                ->line(new HtmlString($data["content"]));
         }
         $user->notify(
-            new DynamicNotification($via, $database, $mail)
+            new DynamicNotification($data["via"], $database, $mail)
         );
         return redirect()->route('admin.users.notifications', $user->id)->with('success', 'User notified!');
     }
