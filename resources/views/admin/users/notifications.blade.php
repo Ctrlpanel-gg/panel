@@ -104,10 +104,6 @@
                 ]
             })
         })
-
-        function toggleGroup(name) {
-            document.getElementById(name).classList.toggle("d-none")
-        }
     </script>
 
 
