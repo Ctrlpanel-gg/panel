@@ -76,6 +76,8 @@ Route::middleware('auth')->group(function () {
 
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
+        Route::get('users/{user}/notifications', [UserController::class, 'notifications'])->name('users.notifications');
+        Route::post('users/{user}/notifications', [UserController::class, 'notify'])->name('users.notifications');
         Route::resource('users', UserController::class);
 
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
