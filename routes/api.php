@@ -29,7 +29,7 @@ Route::middleware('api.token')->group(function () {
 
     Route::get('/notifications/{user}', [NotificationController::class, 'index']);
     Route::get('/notifications/{user}/{notification}', [NotificationController::class, 'view']);
-    Route::post('/notifications/{user}', [NotificationController::class, 'send']);
+    Route::post('/notifications', [NotificationController::class, 'send']);
     Route::delete('/notifications/{user}', [NotificationController::class, 'delete']);
     Route::delete('/notifications/{user}/{notification}', [NotificationController::class, 'deleteOne']);
 });

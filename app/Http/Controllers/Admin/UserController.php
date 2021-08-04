@@ -6,6 +6,7 @@ use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
+use Spatie\QueryBuilder\QueryBuilder;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -16,6 +17,7 @@ use Illuminate\Http\Response;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -53,6 +55,28 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Get a JSON response of users.
+     *
+     * @return \Illuminate\Support\Collection|\App\models\User
+     */
+    public function json(Request $request)
+    {
+        $users = QueryBuilder::for(User::query())->allowedFilters(['id', 'name', 'pterodactyl_id', 'email'])->paginate(25);
+
+        if ($request->query('user_id')) {
+            $user = User::query()->findOrFail($request->input('user_id'));
+            $user->avatarUrl = $user->getAvatar();
+
+            return $user;
+        }
+
+        return $users->map(function ($item) {
+            $item->avatarUrl = $item->getAvatar();
+
+            return $item;
+        });
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -152,9 +176,7 @@ class UserController extends Controller
      */
     public function notifications(User $user)
     {
-        return view('admin.users.notifications')->with([
-            'user' => $user
-        ]);
+        return view('admin.users.notifications');
     }
 
     /**
@@ -165,11 +187,14 @@ class UserController extends Controller
      * @return RedirectResponse
      * @throws Exception
      */
-    public function notify(Request $request, User $user)
+    public function notify(Request $request)
     {
         $data = $request->validate([
             "via" => "required|min:1|array",
             "via.*" => "required|string|in:mail,database",
+            "all" => "required_without:users|boolean",
+            "users" => "required_without:all|min:1|array",
+            "users.*" => "exists:users,id",
             "title" => "required|string|min:1",
             "content" => "required|string|min:1"
         ]);
@@ -187,10 +212,10 @@ class UserController extends Controller
                 ->subject($data["title"])
                 ->line(new HtmlString($data["content"]));
         }
-        $user->notify(
-            new DynamicNotification($data["via"], $database, $mail)
-        );
-        return redirect()->route('admin.users.notifications', $user->id)->with('success', 'User notified!');
+        $all = $data["all"] ?? false;
+        $users = $all ? User::all() : User::whereIn("id", $data["users"])->get();
+        Notification::send($users, new DynamicNotification($data["via"], $database, $mail));
+        return redirect()->route('admin.users.notifications')->with('success', 'Notification sent!');
     }
 
     /**
@@ -228,7 +253,6 @@ class UserController extends Controller
                 <a data-content="Login as user" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
                 <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
                 <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
-                <a data-content="Notifications" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.notifications', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-paper-plane"></i></a>
                 <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '

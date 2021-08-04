@@ -9,6 +9,7 @@ use App\Notifications\DynamicNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use Spatie\ValidationRules\Rules\Delimited;
 
@@ -56,34 +57,32 @@ class NotificationController extends Controller
      * @param int $userId
      * @return JsonResponse
      */
-    public function send(Request $request, int $userId)
+    public function send(Request $request)
     {
-        $discordUser = DiscordUser::find($userId);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
-
         $data = $request->validate([
             "via" => ["required", new Delimited("in:mail,database")],
+            "all" => "required_without:users|boolean",
+            "users" => ["required_without:all", new Delimited("exists:users,id")],
             "title" => "required|string|min:1",
             "content" => "required|string|min:1"
         ]);
-        $via = explode(',', $data["via"]);
+        $via = explode(",", $data["via"]);
         $mail = null;
         $database = null;
-        if (in_array('database', $via)) {
+        if (in_array("database", $via)) {
             $database = [
                 "title" => $data["title"],
                 "content" => $data["content"]
             ];
         }
-        if (in_array('mail', $via)) {
+        if (in_array("mail", $via)) {
             $mail = (new MailMessage)
                 ->subject($data["title"])
                 ->line(new HtmlString($data["content"]));
         }
-        $user->notify(
-            new DynamicNotification($via, $database, $mail)
-        );
-
+        $all = $data["all"] ?? false;
+        $users = $all ? User::all() : User::whereIn("id", explode(",", $data["users"]))->get();
+        Notification::send($users, new DynamicNotification($via, $database, $mail));
         return response()->json(["message" => "Notification successfully sent."]);
     }
 
