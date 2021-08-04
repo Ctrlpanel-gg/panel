@@ -112,12 +112,11 @@ class UserController extends Controller
             "role" => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
 
-        if (empty($this->pterodactyl->getUser($request->input('pterodactyl_id')))) {
+        if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
             ]);
         }
-
 
         if (!is_null($request->input('new_password'))) {
             $request->validate([

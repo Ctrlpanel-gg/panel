@@ -45,7 +45,7 @@
                             <th>Name</th>
                             <th>Role</th>
                             <th>Email</th>
-                            <th>Credits</th>
+                            <th>{{CREDITS_DISPLAY_NAME}}</th>
                             <th>Usage</th>
                             <th>Servers</th>
                             <th>Verified</th>

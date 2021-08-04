@@ -2,12 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
+use App\Models\Configuration;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class isAdmin
+class CreditsDisplayName
 {
     /**
      * Handle an incoming request.
@@ -18,10 +17,7 @@ class isAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user() && Auth::user()->role == 'admin') {
-            return $next($request);
-        }
-
-        return redirect(RouteServiceProvider::HOME);
+        define('CREDITS_DISPLAY_NAME' , Configuration::getValueByKey('CREDITS_DISPLAY_NAME' , 'Credits'));
+        return $next($request);
     }
 }

@@ -88,7 +88,7 @@ class ServerController extends Controller
 
         //minimum credits
         if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)) {
-            return redirect()->route('servers.index')->with('error', "You do not have the required amount of credits to create a new server!");
+            return redirect()->route('servers.index')->with('error', "You do not have the required amount of ".CREDITS_DISPLAY_NAME." to create a new server!");
         }
 
         //Required Verification for creating an server
@@ -111,7 +111,7 @@ class ServerController extends Controller
             $server->delete();
             return redirect()->route('servers.index')->with('success', 'server removed');
         } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource');
+            return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
         }
     }
 

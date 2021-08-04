@@ -42,7 +42,7 @@
                             <th>Status</th>
                             <th>Code</th>
                             <th>Memo</th>
-                            <th>Credits</th>
+                            <th>{{CREDITS_DISPLAY_NAME}}</th>
                             <th>Used / Uses</th>
                             <th>Expires</th>
                             <th></th>

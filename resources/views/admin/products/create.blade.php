@@ -53,7 +53,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="price">Price in credits</label>
+                                            <label for="price">Price in {{CREDITS_DISPLAY_NAME}}</label>
                                             <input value="{{old('price')}}" id="price" name="price"
                                                    type="number"
                                                    class="form-control @error('price') is-invalid @enderror"
