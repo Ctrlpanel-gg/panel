@@ -41,6 +41,7 @@ class SocialiteController extends Controller
             Auth::user()->increment('credits', Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD'));
             Auth::user()->increment('server_limit', Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD'));
             Auth::user()->update(['discord_verified_at' => now()]);
+            Auth::user()->update(['discord_id' => $discord->id]);
         } else {
             $discordUser->update($discord->user);
         }
