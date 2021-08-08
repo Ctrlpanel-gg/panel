@@ -74,8 +74,11 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('activitylogs', ActivityLogController::class);
 
+        Route::get("users.json", [UserController::class, "json"])->name('users.json');
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
+        Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
+        Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');
         Route::resource('users', UserController::class);
 
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');

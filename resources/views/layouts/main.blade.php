@@ -19,6 +19,9 @@
     {{--  datetimepicker --}}
     <link rel="stylesheet" href="{{asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
 
+    {{-- select2 --}}
+    <link rel="stylesheet" href="{{asset('plugins/select2/css/select2.min.css')}}">
+    
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
     <link rel="preload" href="{{asset('plugins/fontawesome-free/css/all.min.css')}}" as="style"
           onload="this.onload=null;this.rel='stylesheet'">
@@ -343,6 +346,9 @@
 
 <!-- Datetimepicker -->
 <script src="{{asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
+
+<!-- Select2 -->
+<script src={{asset('plugins/select2/js/select2.min.js')}}>
 
 <script>
     $(document).ready(function () {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VoucherController;
@@ -25,9 +26,12 @@ Route::middleware('api.token')->group(function () {
     Route::patch('/servers/{server}/unsuspend', [ServerController::class, 'unSuspend']);
     Route::resource('servers', ServerController::class)->except(['store', 'create', 'edit', 'update']);
 
-//    Route::get('/vouchers/{voucher}/users' , [VoucherController::class , 'users']);
-    Route::resource('vouchers', VoucherController::class)->except('create' , 'edit');
+    //    Route::get('/vouchers/{voucher}/users' , [VoucherController::class , 'users']);
+    Route::resource('vouchers', VoucherController::class)->except('create', 'edit');
+
+    Route::get('/notifications/{user}', [NotificationController::class, 'index']);
+    Route::get('/notifications/{user}/{notification}', [NotificationController::class, 'view']);
+    Route::post('/notifications', [NotificationController::class, 'send']);
+    Route::delete('/notifications/{user}', [NotificationController::class, 'delete']);
+    Route::delete('/notifications/{user}/{notification}', [NotificationController::class, 'deleteOne']);
 });
-
-
-
