@@ -35,7 +35,7 @@
                                 <div class="form-group">
                                     <label>Users</label><br>
                                     <input id="all" name="all"
-                                           type="checkbox"
+                                           type="checkbox" value="1"
                                            onchange="toggleClass('users-form', 'd-none')">
                                     <label for="all">All</label>
                                     <div id="users-form">
@@ -97,6 +97,7 @@
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">Submit</button>
                                 </div>
+                            </form>
                         </div>
                     </div>
                 </div>
