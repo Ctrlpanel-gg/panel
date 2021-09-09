@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Voucher;
 use Illuminate\Contracts\Foundation\Application;
@@ -148,6 +149,8 @@ class VoucherController extends Controller
 
         #redeem voucher
         $voucher->redeem($request->user());
+
+        event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
             'success' => "{$voucher->credits} ".CREDITS_DISPLAY_NAME." have been added to your balance!"

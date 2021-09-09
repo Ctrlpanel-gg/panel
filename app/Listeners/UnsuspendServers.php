@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\UserUpdatedEvent;
+use App\Events\UserUpdateCreditsEvent;
 use App\Models\Configuration;
 use App\Models\Server;
 use Exception;
@@ -14,11 +14,11 @@ class UnsuspendServers implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param UserUpdatedEvent $event
+     * @param UserUpdateCreditsEvent $event
      * @return void
      * @throws Exception
      */
-    public function handle(UserUpdatedEvent $event)
+    public function handle(UserUpdateCreditsEvent $event)
     {
        if ($event->user->credits > Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER' , 50)){
            /** @var Server $server */

@@ -56,6 +56,7 @@
             url: form.action,
             dataType: 'json',
             data: {
+                "_token": "{{ csrf_token() }}",
                 code: input.value
             },
             success: function (response) {

@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Events\UserUpdatedEvent;
+use App\Events\UserUpdateCreditsEvent;
 use App\Listeners\UnsuspendServers;
 use App\Listeners\Verified;
 use Illuminate\Auth\Events\Registered;
@@ -22,7 +22,7 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        UserUpdatedEvent::class => [
+        UserUpdateCreditsEvent::class => [
             UnsuspendServers::class
         ],
         SocialiteWasCalled::class => [

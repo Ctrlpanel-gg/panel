@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
 use App\Models\User;
@@ -61,6 +62,8 @@ class UserController extends Controller
 
         $user->update($request->all());
 
+        event(new UserUpdateCreditsEvent($user));
+
         return $user;
     }
 
@@ -86,6 +89,7 @@ class UserController extends Controller
              if ($user->credits + $request->credits >= 99999999) throw ValidationException::withMessages([
                 'credits' => "You can't add this amount of credits because you would exceed the credit limit"
             ]);
+            event(new UserUpdateCreditsEvent($user));
             $user->increment('credits', $request->credits);
          }
 

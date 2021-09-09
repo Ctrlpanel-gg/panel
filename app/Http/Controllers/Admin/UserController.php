@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Pterodactyl;
+use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
@@ -130,6 +131,7 @@ class UserController extends Controller
         }
 
         $user->update($request->all());
+        event(new UserUpdateCreditsEvent($user));
 
         return redirect()->route('admin.users.index')->with('success', 'User updated!');
     }
