@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\Pterodactyl;
+use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\DynamicNotification;
+use Spatie\QueryBuilder\QueryBuilder;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -12,8 +15,11 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -51,6 +57,30 @@ class UserController extends Controller
     }
 
     /**
+     * Get a JSON response of users.
+     *
+     * @return \Illuminate\Support\Collection|\App\models\User
+     */
+    public function json(Request $request)
+    {
+        $users = QueryBuilder::for(User::query())
+            ->allowedFilters(['id', 'name', 'pterodactyl_id', 'email'])
+            ->paginate(25);
+
+        if ($request->query('user_id')) {
+            $user = User::query()->findOrFail($request->input('user_id'));
+            $user->avatarUrl = $user->getAvatar();
+
+            return $user;
+        }
+
+        return $users->map(function ($item) {
+            $item->avatarUrl = $item->getAvatar();
+
+            return $item;
+        });
+    }
+    /**
      * Show the form for editing the specified resource.
      *
      * @param User $user
@@ -83,12 +113,11 @@ class UserController extends Controller
             "role" => Rule::in(['admin', 'mod', 'client', 'member']),
         ]);
 
-        if (empty($this->pterodactyl->getUser($request->input('pterodactyl_id')))) {
+        if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
             ]);
         }
-
 
         if (!is_null($request->input('new_password'))) {
             $request->validate([
@@ -102,9 +131,9 @@ class UserController extends Controller
         }
 
         $user->update($request->all());
+        event(new UserUpdateCreditsEvent($user));
 
         return redirect()->route('admin.users.index')->with('success', 'User updated!');
-
     }
 
     /**
@@ -140,6 +169,56 @@ class UserController extends Controller
         Auth::loginUsingId($request->session()->get('previousUser'), true);
         $request->session()->remove('previousUser');
         return redirect()->route('admin.users.index');
+    }
+
+    /**
+     * Show the form for seding notifications to the specified resource.
+     *
+     * @param User $user
+     * @return Application|Factory|View|Response
+     */
+    public function notifications(User $user)
+    {
+        return view('admin.users.notifications');
+    }
+
+    /**
+     * Notify the specified resource.
+     *
+     * @param Request $request
+     * @param User $user
+     * @return RedirectResponse
+     * @throws Exception
+     */
+    public function notify(Request $request)
+    {
+        $data = $request->validate([
+            "via" => "required|min:1|array",
+            "via.*" => "required|string|in:mail,database",
+            "all" => "required_without:users|boolean",
+            "users" => "required_without:all|min:1|array",
+            "users.*" => "exists:users,id",
+            "title" => "required|string|min:1",
+            "content" => "required|string|min:1"
+        ]);
+
+        $mail = null;
+        $database = null;
+        if (in_array('database', $data["via"])) {
+            $database = [
+                "title" => $data["title"],
+                "content" => $data["content"]
+            ];
+        }
+        if (in_array('mail', $data["via"])) {
+            $mail = (new MailMessage)
+                ->subject($data["title"])
+                ->line(new HtmlString($data["content"]));
+        }
+        $all = $data["all"] ?? false;
+        $users = $all ? User::all() : User::whereIn("id", $data["users"])->get();
+        Notification::send($users, new DynamicNotification($data["via"], $database, $mail));
+        return redirect()->route('admin.users.notifications')->with('success', 'Notification sent!');
     }
 
     /**
@@ -186,16 +265,16 @@ class UserController extends Controller
             })
             ->editColumn('role', function (User $user) {
                 switch ($user->role) {
-                    case 'admin' :
+                    case 'admin':
                         $badgeColor = 'badge-danger';
                         break;
-                    case 'mod' :
+                    case 'mod':
                         $badgeColor = 'badge-info';
                         break;
-                    case 'client' :
+                    case 'client':
                         $badgeColor = 'badge-success';
                         break;
-                    default :
+                    default:
                         $badgeColor = 'badge-secondary';
                         break;
                 }

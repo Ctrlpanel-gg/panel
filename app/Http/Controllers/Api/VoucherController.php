@@ -41,10 +41,10 @@ class VoucherController extends Controller
     {
         $request->validate([
             'memo'       => 'nullable|string|max:191',
-            'code'       => 'required|string|alpha_dash|max:36|min:4',
+            'code'       => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
             'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => 'nullable|date_format:d-m-Y|after:today|before:10 years'
+            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years'
         ]);
 
         return Voucher::create($request->all());
@@ -85,10 +85,10 @@ class VoucherController extends Controller
 
         $request->validate([
             'memo'       => 'nullable|string|max:191',
-            'code'       => 'required|string|alpha_dash|max:36|min:4',
+            'code'       => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
             'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => 'nullable|date_format:d-m-Y|after:today|before:10 years'
+            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years'
         ]);
 
         $voucher->update($request->all());
@@ -116,7 +116,8 @@ class VoucherController extends Controller
      * @param Voucher $voucher
      * @return LengthAwarePaginator
      */
-    public function users(Request $request, Voucher $voucher){
+    public function users(Request $request, Voucher $voucher)
+    {
         $request->validate([
             'include' => [
                 'nullable',
@@ -125,7 +126,7 @@ class VoucherController extends Controller
             ]
         ]);
 
-        if($request->input('include') == 'discorduser'){
+        if ($request->input('include') == 'discorduser') {
             return $voucher->users()->with('discordUser')->paginate($request->query('per_page') ?? 50);
         }
 

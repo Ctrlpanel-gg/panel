@@ -119,6 +119,15 @@ class ConfigurationSeeder extends Seeder
             'description' => 'The maximum amount of allocations to pull per node for automatic deployment, if more allocations are being used than this limit is set to, no new servers can be created!'
         ]);
 
+        //credits display name
+        Configuration::firstOrCreate([
+            'key' => 'CREDITS_DISPLAY_NAME',
+        ], [
+            'value'       => 'Credits',
+            'type'        => 'string',
+            'description' => 'Set the display name of your currency :)'
+        ]);
+
 
     }
 }

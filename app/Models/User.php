@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Classes\Pterodactyl;
+use App\Events\UserUpdateCreditsEvent;
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;

@@ -90,8 +90,12 @@ class ServerController extends Controller
      */
     public function destroy(Server $server)
     {
-        $server->delete();
-        return redirect()->back()->with('success', 'server has been removed!');
+        try {
+            $server->delete();
+            return redirect()->route('admin.servers.index')->with('success', 'server removed');
+        } catch (Exception $e) {
+            return redirect()->route('admin.servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
+        }
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Voucher;
 use Illuminate\Contracts\Foundation\Application;
@@ -45,10 +46,10 @@ class VoucherController extends Controller
     {
         $request->validate([
             'memo'       => 'nullable|string|max:191',
-            'code'       => 'required|string|alpha_dash|max:36|min:4',
+            'code'       => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
             'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:10 years"],
+            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
         Voucher::create($request->except('_token'));
@@ -75,7 +76,7 @@ class VoucherController extends Controller
      */
     public function edit(Voucher $voucher)
     {
-        return view('admin.vouchers.edit' , [
+        return view('admin.vouchers.edit', [
             'voucher' => $voucher
         ]);
     }
@@ -91,10 +92,10 @@ class VoucherController extends Controller
     {
         $request->validate([
             'memo'       => 'nullable|string|max:191',
-            'code'       => 'required|string|alpha_dash|max:36|min:4',
+            'code'       => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
             'uses'       => 'required|numeric|max:2147483647|min:1',
             'credits'    => 'required|numeric|between:0,99999999',
-            'expires_at' => ['nullable','date_format:d-m-Y','after:today',"before:10 years"],
+            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
         $voucher->update($request->except('_token'));
@@ -127,7 +128,7 @@ class VoucherController extends Controller
         ]);
 
         #get voucher by code
-        $voucher = Voucher::where('code' , '=' , $request->input('code'))->firstOrFail();
+        $voucher = Voucher::where('code', '=', $request->input('code'))->firstOrFail();
 
         #extra validations
         if ($voucher->getStatus() == 'USES_LIMIT_REACHED') throw ValidationException::withMessages([
@@ -138,19 +139,21 @@ class VoucherController extends Controller
             'code' => 'This voucher has expired'
         ]);
 
-        if (!$request->user()->vouchers()->where('id' , '=' , $voucher->id)->get()->isEmpty()) throw ValidationException::withMessages([
+        if (!$request->user()->vouchers()->where('id', '=', $voucher->id)->get()->isEmpty()) throw ValidationException::withMessages([
             'code' => 'You already redeemed this voucher code'
         ]);
 
         if ($request->user()->credits + $voucher->credits >= 99999999) throw ValidationException::withMessages([
-            'code' => "You can't redeem this voucher because you would exceed the credit limit"
+            'code' => "You can't redeem this voucher because you would exceed the ".CREDITS_DISPLAY_NAME." limit"
         ]);
 
         #redeem voucher
         $voucher->redeem($request->user());
 
+        event(new UserUpdateCreditsEvent($request->user()));
+
         return response()->json([
-            'success' => "{$voucher->credits} credits have been added to your balance!"
+            'success' => "{$voucher->credits} ".CREDITS_DISPLAY_NAME." have been added to your balance!"
         ]);
     }
 
@@ -191,5 +194,4 @@ class VoucherController extends Controller
             ->rawColumns(['actions', 'code', 'status'])
             ->make();
     }
-
 }
