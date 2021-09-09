@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\UserUpdatedEvent;
+use App\Listeners\UnsuspendServers;
 use App\Listeners\Verified;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -19,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        UserUpdatedEvent::class => [
+            UnsuspendServers::class
         ],
         SocialiteWasCalled::class => [
             // ... other providers

@@ -31,7 +31,7 @@ class NotificationController extends Controller
 
     /**
      * Display a specific notification
-     * 
+     *
      * @param int $userId
      * @param int $notificationId
      * @return JsonResponse
@@ -52,9 +52,8 @@ class NotificationController extends Controller
 
     /**
      * Send a notification to an user.
-     * 
+     *
      * @param Request $request
-     * @param int $userId
      * @return JsonResponse
      */
     public function send(Request $request)
@@ -88,7 +87,7 @@ class NotificationController extends Controller
 
     /**
      * Delete all notifications from an user
-     * 
+     *
      * @param int $userId
      * @return JsonResponse
      */
@@ -105,7 +104,7 @@ class NotificationController extends Controller
 
     /**
      * Delete a specific notification
-     * 
+     *
      * @param int $userId
      * @param int $notificationId
      * @return JsonResponse

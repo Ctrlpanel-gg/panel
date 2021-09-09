@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Classes\Pterodactyl;
+use App\Events\UserUpdatedEvent;
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -110,6 +111,10 @@ class User extends Authenticatable implements MustVerifyEmail
             $user->discordUser()->delete();
 
             Pterodactyl::client()->delete("/application/users/{$user->pterodactyl_id}");
+        });
+
+        static::updated(function (User $user){
+            event(new UserUpdatedEvent($user));
         });
     }
 
