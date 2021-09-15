@@ -128,6 +128,14 @@ class ConfigurationSeeder extends Seeder
             'description' => 'Set the display name of your currency :)'
         ]);
 
+        //credits display name
+        Configuration::firstOrCreate([
+            'key' => 'SERVER_CREATE_CHARGE_FIRST_HOUR',
+        ], [
+            'value'       => 'true',
+            'type'        => 'boolean',
+            'description' => 'Charges the first hour worth of credits upon creating a server.'
+        ]);
 
     }
 }
