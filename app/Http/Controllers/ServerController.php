@@ -74,6 +74,12 @@ class ServerController extends Controller
             'identifier' => $response->json()['attributes']['identifier']
         ]);
 
+        if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR' , 'true') == 'true'){
+            if (Auth::user()->credits >= $server->product->getHourlyPrice()){
+                Auth::user()->decrement('credits', $server->product->getHourlyPrice());
+            }
+        }
+
         return redirect()->route('servers.index')->with('success', 'server created');
     }
 
