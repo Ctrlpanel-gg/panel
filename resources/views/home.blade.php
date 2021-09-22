@@ -74,7 +74,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">Time left</span>
-                        <span class="info-box-number">{{number_format((Auth::user()->Credits()*30)/$useage, 0, '.', '')}} <sup>days left</sup></span>
+                        <span class="info-box-number">{{number_format((Auth::user()->Credits()*30)/$useage, 0, '.', '')}} <sup>days</sup></span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>
