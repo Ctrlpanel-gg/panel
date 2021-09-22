@@ -66,7 +66,21 @@
                     <!-- /.info-box -->
                 </div>
                 <!-- /.col -->
+                
+                
+           <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box mb-3">
+                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-hourglass-half"></i></span>
 
+                    <div class="info-box-content">
+                        <span class="info-box-text">Time left</span>
+                        <span class="info-box-number">{{number_format(({{Auth::user()->Credits()}}/30)*$useage), 0, '.', '')}} <sup>days left</sup></span>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </div>
+            <!-- /.col -->`
             </div>
 
 
