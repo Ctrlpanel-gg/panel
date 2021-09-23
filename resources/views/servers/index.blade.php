@@ -83,6 +83,14 @@
                                         <td>Backups</td>
                                         <td>{{$server->product->backups}}</td>
                                     </tr>
+                                    <tr>
+                                        <td>Price per Hour</td>
+                                        <td>{{number_format($server->product->getHourlyPrice(),2,".")}} {{CREDITS_DISPLAY_NAME}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Price per Month</td>
+                                        <td>{{$server->product->getHourlyPrice()*24*30}} {{CREDITS_DISPLAY_NAME}}</td>
+                                    </tr>
                                 </table>
                             </div>
 
