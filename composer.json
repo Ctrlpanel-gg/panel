@@ -17,6 +17,7 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "hidehalo/nanoid-php": "^1.1",
         "laravel/framework": "^8.12",
+        "laravel/passport": "^10.1",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.2",
         "paypal/paypal-checkout-sdk": "^1.0",

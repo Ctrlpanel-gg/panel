@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -22,7 +23,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, LogsActivity, CausesActivity;
+    use HasFactory, Notifiable, LogsActivity, CausesActivity, HasApiTokens;
 
     /**
      * @var string[]
@@ -94,13 +95,13 @@ class User extends Authenticatable implements MustVerifyEmail
         });
 
         static::deleting(function (User $user) {
-            $user->servers()->chunk(10 , function ($servers) {
+            $user->servers()->chunk(10, function ($servers) {
                 foreach ($servers as $server) {
                     $server->delete();
                 }
             });
 
-            $user->payments()->chunk(10 , function ($payments) {
+            $user->payments()->chunk(10, function ($payments) {
                 foreach ($payments as $payment) {
                     $payment->delete();
                 }
@@ -133,7 +134,8 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return string
      */
-    public function getAvatar(){
+    public function getAvatar()
+    {
         return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
     }
 
@@ -144,7 +146,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $usage = 0;
 
-        foreach ($this->Servers as $server){
+        foreach ($this->Servers as $server) {
             $usage += $server->product->price;
         }
 
@@ -154,25 +156,28 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return array|string|string[]
      */
-    public function getVerifiedStatus(){
+    public function getVerifiedStatus()
+    {
         $status = '';
         if ($this->hasVerifiedEmail()) $status .= 'email ';
         if ($this->discordUser()->exists()) $status .= 'discord';
-        $status = str_replace(' ' , '/' , $status);
+        $status = str_replace(' ', '/', $status);
         return $status;
     }
 
     /**
      * @return BelongsToMany
      */
-    public function vouchers(){
+    public function vouchers()
+    {
         return $this->belongsToMany(Voucher::class);
     }
 
     /**
      * @return HasOne
      */
-    public function discordUser(){
+    public function discordUser()
+    {
         return $this->hasOne(DiscordUser::class);
     }
 
@@ -191,5 +196,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Payment::class);
     }
-
 }
