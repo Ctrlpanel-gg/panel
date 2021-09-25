@@ -70,6 +70,13 @@ class PaymentController extends Controller
                     ]
                 ]
             ],
+            "payer" => [
+                "email_address" => /*email address of the user who purchased the credits*/,
+                "payer_id" => /* ID from dashboard of the user who purchased the credits*/,
+                "name"     => [
+                     "given_name"  => /*username of the user who purchased the credits*/
+                    ],
+            ],            
             "application_context" => [
                 "cancel_url" => route('payment.cancel'),
                 "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
