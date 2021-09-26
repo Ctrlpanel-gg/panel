@@ -59,7 +59,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'pterodactyl_id',
         'discord_verified_at',
-        'avatar'
+        'avatar',
+        'suspended'
     ];
 
     /**
@@ -79,7 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_seen' => 'datetime',
+        'last_seen'         => 'datetime',
     ];
 
     /**
@@ -94,13 +95,13 @@ class User extends Authenticatable implements MustVerifyEmail
         });
 
         static::deleting(function (User $user) {
-            $user->servers()->chunk(10 , function ($servers) {
+            $user->servers()->chunk(10, function ($servers) {
                 foreach ($servers as $server) {
                     $server->delete();
                 }
             });
 
-            $user->payments()->chunk(10 , function ($payments) {
+            $user->payments()->chunk(10, function ($payments) {
                 foreach ($payments as $payment) {
                     $payment->delete();
                 }
@@ -112,6 +113,38 @@ class User extends Authenticatable implements MustVerifyEmail
 
             Pterodactyl::client()->delete("/application/users/{$user->pterodactyl_id}");
         });
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function servers()
+    {
+        return $this->hasMany(Server::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function vouchers()
+    {
+        return $this->belongsToMany(Voucher::class);
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function discordUser()
+    {
+        return $this->hasOne(DiscordUser::class);
     }
 
     /**
@@ -131,9 +164,43 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * @return bool
+     */
+    public function isSuspended()
+    {
+        return $this->suspended;
+    }
+
+    /**
+     *
+     * @throws Exception
+     */
+    public function suspend()
+    {
+        $this->update([
+            'suspended' => true
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function unSuspend()
+    {
+        $this->update([
+            'suspended' => false
+        ]);
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
-    public function getAvatar(){
+    public function getAvatar()
+    {
         return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
     }
 
@@ -144,7 +211,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $usage = 0;
 
-        foreach ($this->Servers as $server){
+        foreach ($this->Servers as $server) {
             $usage += $server->product->price;
         }
 
@@ -154,42 +221,13 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return array|string|string[]
      */
-    public function getVerifiedStatus(){
+    public function getVerifiedStatus()
+    {
         $status = '';
         if ($this->hasVerifiedEmail()) $status .= 'email ';
         if ($this->discordUser()->exists()) $status .= 'discord';
-        $status = str_replace(' ' , '/' , $status);
+        $status = str_replace(' ', '/', $status);
         return $status;
-    }
-
-    /**
-     * @return BelongsToMany
-     */
-    public function vouchers(){
-        return $this->belongsToMany(Voucher::class);
-    }
-
-    /**
-     * @return HasOne
-     */
-    public function discordUser(){
-        return $this->hasOne(DiscordUser::class);
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function servers()
-    {
-        return $this->hasMany(Server::class);
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
     }
 
 }
