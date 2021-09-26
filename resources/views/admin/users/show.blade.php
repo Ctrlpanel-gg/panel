@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                           {{$user->pterodactyl_id}}
+                                           <a href="{{env('PTERODACTYL_URL', 'http://localhost')}}/admin/users/view/{{$user->pterodactyl_id}}" target="_blank">{{$user->pterodactyl_id}}</a>
                                        </span>
                                 </div>
                             </div>
