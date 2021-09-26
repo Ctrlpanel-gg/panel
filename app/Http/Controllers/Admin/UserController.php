@@ -282,7 +282,7 @@ class UserController extends Controller
                 return '<span class="badge ' . $badgeColor . '">' . $user->role . '</span>';
             })
             ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="' . env('PTERODACTYL_URL', 'http://localhost') . '/admin/users/view/' . $user->pterodactyl_id . '">' . $user->name . '</a>';
+                return '<a class="text-info" target="_blank" href="' . env('APP_URL', 'http://localhost') . '/admin/users/' . $user->id . '">' . $user->name . '</a>';
             })
             ->orderColumn('last_seen', function ($query, $order) {
                 $query->orderBy('last_seen', $order);
