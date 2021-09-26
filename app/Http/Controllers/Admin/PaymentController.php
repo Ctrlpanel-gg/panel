@@ -71,10 +71,10 @@ class PaymentController extends Controller
                 ]
             ],
             "payer" => [
-                "email_address" => /*email address of the user who purchased the credits*/,
-                "payer_id" => /* ID from dashboard of the user who purchased the credits*/,
+                "email_address" => $request->user()->email,
+                "payer_id" => $request->user()->pterodactyl_id,
                 "name"     => [
-                     "given_name"  => /*username of the user who purchased the credits*/
+                     "given_name"  => $request->user()->name
                     ],
             ],            
             "application_context" => [
