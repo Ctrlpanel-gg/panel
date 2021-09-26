@@ -72,7 +72,7 @@ class PaymentController extends Controller
             ],
             "payer" => [
                 "email_address" => $request->user()->email,
-                "payer_id" => $request->user()->pterodactyl_id,
+                "payer_id" => $request->user()->id,
                 "name"     => [
                      "given_name"  => $request->user()->name
                     ],
