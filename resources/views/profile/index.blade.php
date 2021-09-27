@@ -145,7 +145,7 @@
                                                     <div class="form-group"><label>Current Password</label> <input
                                                             class="form-control @error('current_password') is-invalid @enderror"
                                                             name="current_password" type="password"
-                                                            placeholder="••••••">
+                                                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
 
                                                         @error('current_password')
                                                         <div class="invalid-feedback">
@@ -159,7 +159,7 @@
                                                 <div class="col">
                                                     <div class="form-group"><label>New Password</label> <input
                                                             class="form-control @error('new_password') is-invalid @enderror"
-                                                            name="new_password" type="password" placeholder="••••••">
+                                                            name="new_password" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
 
                                                         @error('new_password')
                                                         <div class="invalid-feedback">
@@ -176,7 +176,7 @@
                                                         <input
                                                             class="form-control @error('new_password_confirmation') is-invalid @enderror"
                                                             name="new_password_confirmation" type="password"
-                                                            placeholder="••••••">
+                                                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
 
                                                         @error('new_password_confirmation')
                                                         <div class="invalid-feedback">
@@ -211,6 +211,23 @@
                                                     <div class="verified-discord">
                                                         <div class="my-3 callout callout-info">
                                                             <p>You are verified!</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                            <div class="small-box bg-dark">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <div class="p-3">
+                                                                        <h3>{{$user->discordUser->username}} <sup>{{$user->discordUser->locale}}</sup> </h3>
+                                                                        <p>{{$user->discordUser->id}}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="p-3"><img width="100px" height="100px" class="rounded-circle" src="{{$user->discordUser->getAvatar()}}" alt="avatar"></div>
+                                                                </div>
+								<div class="small-box-footer">
+                                                        	    <a href="{{route('auth.redirect')}}">
+                                                                        <i class="fab fa-discord mr-1"></i>Re-Sync Discord
+								    </a>
+                                                                </div>
                                                         </div>
                                                     </div>
                                                 @endif
