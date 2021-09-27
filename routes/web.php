@@ -40,7 +40,7 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
         Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
         Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');
+        Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
         Route::resource('users', UserController::class);
 
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');

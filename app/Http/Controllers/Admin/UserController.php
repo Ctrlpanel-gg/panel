@@ -222,6 +222,20 @@ class UserController extends Controller
     }
 
     /**
+     * @param User $user
+     * @return RedirectResponse
+     */
+    public function toggleSuspended(User $user){
+        try {
+            !$user->isSuspended() ? $user->suspend() : $user->unSuspend();
+        } catch (Exception $exception) {
+            return redirect()->back()->with('error', $exception->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'User has been updated!');
+    }
+
+    /**
      *
      * @throws Exception
      */
@@ -252,10 +266,17 @@ class UserController extends Controller
                 return $user->last_seen ? $user->last_seen->diffForHumans() : '';
             })
             ->addColumn('actions', function (User $user) {
+                $suspendColor = $user->isSuspended() ? "btn-success" : "btn-warning";
+                $suspendIcon = $user->isSuspended() ? "fa-play-circle" : "fa-pause-circle";
+                $suspendText = $user->isSuspended() ? "Unsuspend" : "Suspend";
                 return '
                 <a data-content="Login as user" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
                 <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
                 <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+               <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
+                            ' . csrf_field() . '
+                           <button data-content="'.$suspendText.'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm '.$suspendColor.' text-white mr-1"><i class="far '.$suspendIcon.'"></i></button>
+                       </form>
                 <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '

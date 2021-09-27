@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
+use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\CreditsDisplayName;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\LastSeen;
@@ -42,7 +43,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             LastSeen::class,
-            CreditsDisplayName::class
+            CreditsDisplayName::class,
         ],
 
         'api' => [
@@ -70,6 +71,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => isAdmin::class,
-        'api.token' => ApiAuthToken::class
+        'api.token' => ApiAuthToken::class,
+        'checkSuspended' => CheckSuspended::class
     ];
 }
