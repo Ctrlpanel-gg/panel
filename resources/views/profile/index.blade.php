@@ -145,7 +145,7 @@
                                                     <div class="form-group"><label>Current Password</label> <input
                                                             class="form-control @error('current_password') is-invalid @enderror"
                                                             name="current_password" type="password"
-                                                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
+                                                            placeholder="••••••">
 
                                                         @error('current_password')
                                                         <div class="invalid-feedback">
@@ -159,7 +159,7 @@
                                                 <div class="col">
                                                     <div class="form-group"><label>New Password</label> <input
                                                             class="form-control @error('new_password') is-invalid @enderror"
-                                                            name="new_password" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
+                                                            name="new_password" type="password" placeholder="••••••">
 
                                                         @error('new_password')
                                                         <div class="invalid-feedback">
@@ -176,7 +176,7 @@
                                                         <input
                                                             class="form-control @error('new_password_confirmation') is-invalid @enderror"
                                                             name="new_password_confirmation" type="password"
-                                                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
+                                                            placeholder="••••••">
 
                                                         @error('new_password_confirmation')
                                                         <div class="invalid-feedback">
