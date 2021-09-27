@@ -177,7 +177,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function suspend()
     {
-        foreach ($this->servers as $server){
+        foreach ($this->servers as $server) {
             $server->suspend();
         }
 
@@ -193,10 +193,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function unSuspend()
     {
-        foreach ($this->servers as $server){
-          if ($this->credits >= $server->product->getHourlyPrice()) {
-            $server->unSuspend();
-        }
+        foreach ($this->servers as $server) {
+            if ($this->credits >= $server->product->getHourlyPrice()) {
+                $server->unSuspend();
+            }
         }
 
         $this->update([
