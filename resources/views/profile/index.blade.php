@@ -223,10 +223,10 @@
                                                                     </div>
                                                                     <div class="p-3"><img width="100px" height="100px" class="rounded-circle" src="{{$user->discordUser->getAvatar()}}" alt="avatar"></div>
                                                                 </div>
-								<div class="small-box-footer">
-                                                        	    <a href="{{route('auth.redirect')}}">
+								                                <div class="small-box-footer">
+                                                                    <a href="{{route('auth.redirect')}}">
                                                                         <i class="fab fa-discord mr-1"></i>Re-Sync Discord
-								    </a>
+                                                                    </a>
                                                                 </div>
                                                         </div>
                                                     </div>
