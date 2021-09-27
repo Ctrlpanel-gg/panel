@@ -65,8 +65,9 @@
                     </div>
                     <!-- /.info-box -->
                 </div>
-                <!-- /.col -->
 
+                <!-- /.col -->
+                @if(Auth::user()->Credits() > 0.01 and $useage > 0)
                 <div class="col-12 col-sm-6 col-md-3">
                     <div class="info-box mb-3">
                         @if(number_format((Auth::user()->Credits()*30)/$useage,0,'.','') >= 15)
@@ -81,7 +82,7 @@
                         <div class="info-box-content">
                             <span class="info-box-text">Out of {{CREDITS_DISPLAY_NAME}} in </span>
                             @if(number_format((Auth::user()->Credits()*30)/$useage,2,'.','') < "1")
-                                @if(number_format(Auth::user()->Credits()/($useage/30/24),0,'.','') < "1")
+                                @if(number_format(Auth::user()->Credits()/($useage/30/24),2,'.','') < "1")
                                     <span class="info-box-number">You ran out of Credits </span>
                                 @else
                                     <span class="info-box-number">{{number_format(Auth::user()->Credits()/($useage/30/24),0,'.','')}} <sup> hours</sup></span>
@@ -95,8 +96,9 @@
                     <!-- /.info-box -->
                 </div>
                 <!-- /.col -->
-
+            @endif
             </div>
+
 
 
             <div class="row">
