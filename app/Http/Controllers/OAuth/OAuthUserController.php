@@ -15,4 +15,10 @@ class OAuthUserController extends Controller
             return response(['message' => 'Unauthorized'], 401);
         }
     }
+
+    public function revoke(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->noContent();
+    }
 }

@@ -15,5 +15,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:oauth')->group(function () {
-    Route::resource('/user', OAuthUserController::class)->middleware('scopes:identify');
+    Route::get('/user', [OAuthUserController::class, 'index'])->middleware('scopes:identify');
+    Route::delete('/revoke', [OAuthUserController::class, 'revoke']);
 });
