@@ -136,7 +136,7 @@
                                         <div class="form-group">
                                             <label for="minimum_credits">Minimum {{ CREDITS_DISPLAY_NAME }} <i
                                                     data-toggle="popover" data-trigger="hover"
-                                                    data-content="Setting to -1 will use the default value."
+                                                    data-content="Setting to -1 will use the value from configuration."
                                                     class="fas fa-info-circle"></i></label>
                                             <input value="{{ old('minimum_credits') ?? -1 }}" id="minimum_credits"
                                                 name="minimum_credits" type="number"
@@ -211,6 +211,11 @@
     </section>
     <!-- END CONTENT -->
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
 
 
 @endsection

@@ -146,7 +146,7 @@
                                         <div class="form-group">
                                             <label for="minimum_credits">Minimum {{ CREDITS_DISPLAY_NAME }} <i
                                                     data-toggle="popover" data-trigger="hover"
-                                                    data-content="Setting to -1 will use the default value."
+                                                    data-content="Setting to -1 will use the value from configuration."
                                                     class="fas fa-info-circle"></i></label>
                                             <input value="{{ $product->minimum_credits }}" id="minimum_credits"
                                                 name="minimum_credits" type="number"
@@ -192,8 +192,8 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="allocations">Allocations</label>
-                                            <input value="{{ $product->allocations }}" id="allocations" name="allocations"
-                                                type="number"
+                                            <input value="{{ $product->allocations }}" id="allocations"
+                                                name="allocations" type="number"
                                                 class="form-control @error('allocations') is-invalid @enderror"
                                                 required="required">
                                             @error('allocations')
@@ -220,6 +220,11 @@
     </section>
     <!-- END CONTENT -->
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
 
 
 @endsection
