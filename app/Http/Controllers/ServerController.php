@@ -16,6 +16,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ServerController extends Controller
@@ -98,7 +99,7 @@ class ServerController extends Controller
         if (FacadesRequest::has("product_id")) {
             $product = Product::findOrFail(FacadesRequest::input("product_id"));
             if (
-                Auth::user()->credits <=
+                Auth::user()->credits <
                 ($product->minimum_credits == -1
                     ? Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
                     : $product->minimum_credits)

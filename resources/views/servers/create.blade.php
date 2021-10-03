@@ -113,7 +113,8 @@
                                         class="custom-select @error('product_id') is-invalid @enderror">
                                         @foreach ($products as $product)
                                             <option value="{{ $product->id }}" @if ($product->minimum_credits == -1 && Auth::user()->credits >= $minimum_credits)
-                                            @elseif (Auth::user()->credits >= $product->minimum_credits)
+                                            @elseif ($product->minimum_credits != -1 && Auth::user()->credits >=
+                                                $product->minimum_credits)
                                             @else
                                                 disabled
                                         @endif
