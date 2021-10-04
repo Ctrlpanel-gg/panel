@@ -119,6 +119,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::resource('usefullinks', UsefulLinkController::class);
 
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
+        Route::get('vouchers/{voucher}/usersdatatable', [VoucherController::class, 'usersdatatable'])->name('vouchers.usersdatatable');
+        Route::get('vouchers/{voucher}/users', [VoucherController::class, 'users'])->name('vouchers.users');
         Route::resource('vouchers', VoucherController::class);
 
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
