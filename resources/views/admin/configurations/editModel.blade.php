@@ -22,7 +22,6 @@
                                     <i class="fa fa-cog"></i>
                                 </div>
                             </div>
-                            <input id="value" name="value" type="text" class="form-control" required="required">
                         </div>
                     </div>
 
@@ -37,16 +36,26 @@
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
 
 <script>
     window.configuration = {
-        parse(key, value){
+        parse(key, value, type) {
             $('#keyLabel').html(key)
             $('#key').val(key)
+            $('#value').remove();
+            if (type === 'integer') {
+                $('.input-group').append('<input id="value" name="value" type="number" class="form-control" required="required">')
+            } else if (type === 'boolean') {
+                $('.input-group').append('<select id="value" name="value" class="form-control" required=required>' +
+                    '<option value="true">true</option>' +
+                    '<option value="false">false</option>' +
+                    '</select>')
+            } else if (type === 'string') {
+                $('.input-group').append('<input id="value" name="value" type="text" class="form-control" required="required">')
+            }
             $('#value').val(value)
             $('#editConfigurationModel').modal('show')
         }
