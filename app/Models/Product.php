@@ -6,7 +6,6 @@ use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
@@ -17,10 +16,11 @@ class Product extends Model
 
     protected $guarded = ['id'];
 
-    public static function boot() {
+    public static function boot()
+    {
         parent::boot();
 
-        static::creating(function(Product $product) {
+        static::creating(function (Product $product) {
             $client = new Client();
 
             $product->{$product->getKeyName()} = $client->generateId($size = 21);
@@ -47,6 +47,6 @@ class Product extends Model
      */
     public function servers(): BelongsTo
     {
-        return $this->belongsTo(Server::class , 'id' , 'product_id');
+        return $this->belongsTo(Server::class, 'id', 'product_id');
     }
 }
