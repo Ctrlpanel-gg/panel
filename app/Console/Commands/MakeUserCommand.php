@@ -6,8 +6,6 @@ use App\Classes\Pterodactyl;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class MakeUserCommand extends Command
 {
@@ -46,37 +44,26 @@ class MakeUserCommand extends Command
     public function handle()
     {
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
-        $password = $this->secret('password') ?? $this->ask('Please specify your password.');
+        $password = $this->option('password') ?? $this->ask('Please specify your password.');
 
-        // Validate user input
-        $validator = Validator::make([
-            'ptero_id' => $ptero_id,
-            'password' => $password,
-        ], [
-            'ptero_id' => 'required|numeric|integer|min:1|max:2147483647',
-            'password' => 'required|string|min:8|max:60',
-        ]);
-
-        if ($validator->fails()) {
-            $this->error($validator->errors()->first());
+        if (strlen($password) < 8) {
+            $this->alert('Your password need to be at least 8 characters long');
             return 0;
         }
 
         //TODO: Do something with response (check for status code and give hints based upon that)
         $response = $this->pterodactyl->getUser($ptero_id);
 
-        if (isset($response['errors'])) {
-            if (isset($response['errors'][0]['code'])) $this->error("code: {$response['errors'][0]['code']}");
-            if (isset($response['errors'][0]['status'])) $this->error("status: {$response['errors'][0]['status']}");
-            if (isset($response['errors'][0]['detail'])) $this->error("detail: {$response['errors'][0]['detail']}");
+        if ($response === []) {
+            $this->alert('It seems that your Pterodactyl ID is not correct. Rerun the command and input an correct ID');
             return 0;
         }
 
         $user = User::create([
-            'name' => $response['first_name'],
-            'email' => $response['email'],
-            'role' => 'admin',
-            'password' => Hash::make($password),
+            'name'           => $response['first_name'],
+            'email'          => $response['email'],
+            'role'           => 'admin',
+            'password'       => Hash::make($password),
             'pterodactyl_id' => $response['id']
         ]);
 

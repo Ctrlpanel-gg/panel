@@ -70,13 +70,7 @@ class Server extends Model
         });
 
         static::deleting(function (Server $server) {
-            $response = Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
-            if ($response->failed() && !is_null($server->pterodactyl_id)) {
-                //only return error when it's not a 404 error
-                if ($response['errors'][0]['status'] != '404') {
-                    throw new Exception($response['errors'][0]['code']);
-                }
-            }
+            Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
         });
     }
 

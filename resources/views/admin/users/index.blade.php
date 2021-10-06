@@ -28,8 +28,6 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title"><i class="fas fa-users mr-2"></i>Users</h5>
-                        <a href="{{route('admin.users.notifications')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-paper-plane mr-1"></i>Notify</a>
                     </div>
                 </div>
 
@@ -45,7 +43,7 @@
                             <th>Name</th>
                             <th>Role</th>
                             <th>Email</th>
-                            <th>{{CREDITS_DISPLAY_NAME}}</th>
+                            <th>Credits</th>
                             <th>Usage</th>
                             <th>Servers</th>
                             <th>Verified</th>

@@ -19,9 +19,6 @@
     {{--  datetimepicker --}}
     <link rel="stylesheet" href="{{asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css')}}">
 
-    {{-- select2 --}}
-    <link rel="stylesheet" href="{{asset('plugins/select2/css/select2.min.css')}}">
-
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
     <link rel="preload" href="{{asset('plugins/fontawesome-free/css/all.min.css')}}" as="style"
           onload="this.onload=null;this.rel='stylesheet'">
@@ -319,7 +316,7 @@
     <footer class="main-footer">
         <strong>Copyright &copy; 2021-{{date('Y')}} <a href="{{url('/')}}">{{env('APP_NAME' , 'Laravel')}}</a>.</strong>
         All rights
-        reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. Version <b>{{config('app')['version']}}</b>
+        reserved.
     </footer>
 
     <!-- Control Sidebar -->
@@ -346,9 +343,6 @@
 
 <!-- Datetimepicker -->
 <script src="{{asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js')}}"></script>
-
-<!-- Select2 -->
-<script src={{asset('plugins/select2/js/select2.min.js')}}>
 
 <script>
     $(document).ready(function () {

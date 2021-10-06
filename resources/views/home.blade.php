@@ -38,10 +38,10 @@
                 <!-- /.col -->
                 <div class="col-12 col-sm-6 col-md-3">
                     <div class="info-box mb-3">
-                        <span class="info-box-icon bg-secondary elevation-1"><i class="fas fa-coins"></i></span>
+                        <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-coins"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{CREDITS_DISPLAY_NAME}}</span>
+                            <span class="info-box-text">Credits</span>
                             <span class="info-box-number">{{Auth::user()->Credits()}}</span>
                         </div>
                         <!-- /.info-box-content -->
@@ -58,47 +58,16 @@
                         <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-chart-line"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{CREDITS_DISPLAY_NAME}} usage</span>
+                            <span class="info-box-text">Credit usage</span>
                             <span class="info-box-number">{{number_format($useage, 2, '.', '')}} <sup>per month</sup></span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>
                     <!-- /.info-box -->
                 </div>
-
                 <!-- /.col -->
-                @if(Auth::user()->Credits() > 0.01 and $useage > 0)
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="info-box mb-3">
-                        @if(number_format((Auth::user()->Credits()*30)/$useage,0,'.','') >= 15)
-                            <span class="info-box-icon bg-success elevation-1">
-                        @elseif (number_format((Auth::user()->Credits()*30)/$useage,0,'.','') >= 8 && number_format((Auth::user()->Credits()*30)/$useage,0,'.','') <= 14)
-                            <span class="info-box-icon bg-warning elevation-1">
-                        @elseif (number_format((Auth::user()->Credits()*30)/$useage,0,'.','') <= 7)
-                            <span class="info-box-icon bg-danger elevation-1">
-                        @endif
-                            <i class="fas fa-hourglass-half"></i></span>
 
-                        <div class="info-box-content">
-                            <span class="info-box-text">Out of {{CREDITS_DISPLAY_NAME}} in </span>
-                            @if(number_format((Auth::user()->Credits()*30)/$useage,2,'.','') < "1")
-                                @if(number_format(Auth::user()->Credits()/($useage/30/24),2,'.','') < "1")
-                                    <span class="info-box-number">You ran out of Credits </span>
-                                @else
-                                    <span class="info-box-number">{{number_format(Auth::user()->Credits()/($useage/30/24),0,'.','')}} <sup> hours</sup></span>
-                                @endif
-                            @else
-                               <span class="info-box-number">{{number_format((Auth::user()->Credits()*30)/$useage,0,'.','')}} <sup> days</sup></span>
-                            @endif
-                        </div>
-                        <!-- /.info-box-content -->
-                    </div>
-                    <!-- /.info-box -->
-                </div>
-                <!-- /.col -->
-            @endif
             </div>
-
 
 
             <div class="row">

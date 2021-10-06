@@ -31,17 +31,7 @@ class Voucher extends Model
         'expires_at'
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'credits' => 'float',
-        'uses'    => 'integer'
-    ];
-
-    protected $appends = ['used', 'status'];
+    protected $appends = ['used' , 'status'];
 
     /**
      * @return int
@@ -54,8 +44,7 @@ class Voucher extends Model
     /**
      * @return string
      */
-    public function getStatusAttribute()
-    {
+    public function getStatusAttribute(){
         return $this->getStatus();
     }
 

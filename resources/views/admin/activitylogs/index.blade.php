@@ -71,10 +71,7 @@
                         <tbody>
                         @foreach($logs as $log)
                             <tr>
-        <td> @if($log->causer) <a href='/admin/users/{{$log->causer_id}}'> {{json_decode($log->causer)->name}} 
-		@else 
-			System
-		@endif</td>
+                                <td>{{$log->causer ? json_decode($log->causer)->name : 'system'}}</td>
                                 <td>
                                         <span>
                                             @switch($log->description)
@@ -93,18 +90,6 @@
                                             @endswitch
                                             {{ucfirst($log->description)}}
                                             {{ explode("\\" , $log->subject_type)[2]}}
-				            @php $first=true @endphp
-					    @foreach(json_decode($log->properties, true) as $properties)
-						@if($first)
-						    @if(isset($properties['name']))
-					    	       " {{$properties['name']}} "
-						    @endif
-						    @if(isset($properties['email']))
-						       < {{$properties['email']}} >
-						    @endif
-						    @php $first=false @endphp
-						@endif
-					    @endforeach
                                         </span>
                                 </td>
 

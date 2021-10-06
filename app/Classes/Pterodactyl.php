@@ -11,7 +11,6 @@ use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Validator;
 
 class Pterodactyl
 {
@@ -33,11 +32,11 @@ class Pterodactyl
      * @param int $pterodactylId
      * @return mixed
      */
-    public function getUser(int $pterodactylId)
-    {
+    public function getUser(int $pterodactylId){
         $response = self::client()->get("/application/users/{$pterodactylId}");
-
-        if ($response->failed()) return $response->json();
+        if ($response->failed()) {
+            return [];
+        }
         return $response->json()['attributes'];
     }
 
@@ -51,7 +50,7 @@ class Pterodactyl
         $response = self::getAllocations($node);
         $freeAllocations = [];
 
-        if (isset($response['data'])) {
+        if(isset($response['data'])){
             if (!empty($response['data'])) {
                 foreach ($response['data'] as $allocation) {
                     if (!$allocation['attributes']['assigned']) array_push($freeAllocations, $allocation);
@@ -126,7 +125,7 @@ class Pterodactyl
      */
     public static function getAllocations(Node $node)
     {
-        $per_page = Configuration::getValueByKey('ALLOCATION_LIMIT', 200);
+        $per_page = Configuration::getValueByKey('ALLOCATION_LIMIT' , 200);
         $response = self::client()->get("/application/nodes/{$node->id}/allocations?per_page={$per_page}");
         if ($response->failed()) throw self::getException();
         return $response->json();
@@ -168,7 +167,7 @@ class Pterodactyl
             "feature_limits" => [
                 "databases"   => $server->product->databases,
                 "backups"     => $server->product->backups,
-                "allocations" => $server->product->allocations,
+                "allocations" => 1
             ],
             "allocation"     => [
                 "default" => $allocationId

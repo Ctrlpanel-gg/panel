@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Configuration;
 use App\Models\Payment;
@@ -167,8 +166,6 @@ class PaymentController extends Controller
 
                 //payment notification
                 $user->notify(new ConfirmPaymentNotification($payment));
-
-                event(new UserUpdateCreditsEvent($user));
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', 'Your credit balance has been increased!');

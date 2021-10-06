@@ -45,9 +45,7 @@
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                                 <a href="{{env('PTERODACTYL_URL' , 'http://localhost')}}/server/{{$server->identifier}}"  target="__blank" class="dropdown-item text-info"><i title="manage" class="fas fa-tasks mr-2"></i><span>Manage</span></a>
-                                                @if(!empty(env('PHPMYADMIN_URL')))
-                                                    <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" class="dropdown-item text-info"  target="__blank"><i title="manage" class="fas fa-database mr-2"></i><span>Database</span></a>
-                                                @endif
+                                                <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" class="dropdown-item text-info"  target="__blank"><i title="manage" class="fas fa-database mr-2"></i><span>Database</span></a>
                                                 <form method="post" onsubmit="return submitResult();" action="{{route('servers.destroy' , $server->id)}}">
                                                     @csrf
                                                     @method('DELETE')
@@ -83,23 +81,13 @@
                                         <td>Backups</td>
                                         <td>{{$server->product->backups}}</td>
                                     </tr>
-                                    <tr>
-                                        <td>Price per Hour</td>
-                                        <td>{{number_format($server->product->getHourlyPrice(),2,".", "")}} {{CREDITS_DISPLAY_NAME}}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Price per Month</td>
-                                        <td>{{$server->product->getHourlyPrice()*24*30}} {{CREDITS_DISPLAY_NAME}}</td>
-                                    </tr>
                                 </table>
                             </div>
 
 
                             <div class="card-footer d-flex justify-content-between">
                                 <a href="{{env('PTERODACTYL_URL' , 'http://localhost')}}/server/{{$server->identifier}}"  target="__blank" class="btn btn-info mx-3 w-100"><i class="fas fa-tasks mr-2"></i>Manage</a>
-                                @if(!empty(env('PHPMYADMIN_URL')))
-                                    <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" target="__blank" class="btn btn-info mx-3 w-100" ><i class="fas fa-database mr-2"></i>Database</a>
-                                @endif
+                                <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" target="__blank" class="btn btn-info mx-3 w-100" ><i class="fas fa-database mr-2"></i>Database</a>
                             </div>
 
                         </div>
