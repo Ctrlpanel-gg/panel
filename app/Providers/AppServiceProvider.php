@@ -29,7 +29,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
         Schema::defaultStringLength(191);
-        QueryBuilderRequest::setArrayValueDelimiter('|');
 
         Validator::extend('multiple_date_format', function ($attribute, $value, $parameters, $validator) {
 
