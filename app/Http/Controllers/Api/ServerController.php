@@ -14,7 +14,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 class ServerController extends Controller
 {
     const ALLOWED_INCLUDES = ['product', 'user'];
-    const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id' , 'product_id'];
+    const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
 
     /**
      * Display a listing of the resource.
@@ -31,9 +31,6 @@ class ServerController extends Controller
         return $query->paginate($request->input('per_page') ?? 50);
     }
 
-
-
-
     /**
      * Display the specified resource.
      *
@@ -43,12 +40,11 @@ class ServerController extends Controller
     public function show(Server $server)
     {
         $query = QueryBuilder::for(Server::class)
-            ->where('id' ,'=' , $server->id)
+            ->where('id', '=', $server->id)
             ->allowedIncludes(self::ALLOWED_INCLUDES);
 
         return $query->get();
     }
-
 
     /**
      * Remove the specified resource from storage.

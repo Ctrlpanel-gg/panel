@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Server;
 use App\Models\Voucher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -69,7 +68,7 @@ class VoucherController extends Controller
     public function show(int $id)
     {
         $query = QueryBuilder::for(Voucher::class)
-            ->where('id' ,'=' , $id)
+            ->where('id', '=', $id)
             ->allowedIncludes(self::ALLOWED_INCLUDES);
 
         return $query->get();

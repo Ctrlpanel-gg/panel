@@ -57,6 +57,7 @@ class NotificationController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function send(Request $request)
     {
@@ -89,11 +90,11 @@ class NotificationController extends Controller
         } else {
             $userIds = explode(",", $data["users"]);
             $users = User::query()
-                    ->whereIn("id", $userIds)
-                    ->orWhereHas('discordUser' , function (Builder $builder) use ($userIds) {
-                        $builder->whereIn('id' , $userIds);
-                    })
-                    ->get();
+                ->whereIn("id", $userIds)
+                ->orWhereHas('discordUser', function (Builder $builder) use ($userIds) {
+                    $builder->whereIn('id', $userIds);
+                })
+                ->get();
         }
 
         if ($users->count() == 0) {
