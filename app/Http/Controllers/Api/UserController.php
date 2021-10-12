@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Classes\Pterodactyl;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\DiscordUser;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
@@ -11,16 +13,21 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
-    const ALLOWED_INCLUDES = ['servers', 'payments', 'vouchers', 'discordUser'];
-    const ALLOWED_FILTERS = ['email', 'pterodactyl_id', 'role', 'suspended'];
+    const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'discordUser'];
+    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'role', 'suspended'];
+
     /**
      * Display a listing of the resource.
      *
@@ -46,14 +53,14 @@ class UserController extends Controller
     public function show(int $id)
     {
         $discordUser = DiscordUser::find($id);
-        $user =  $discordUser ? $discordUser->user : User::findOrFail($id);
+        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
 
         $query = QueryBuilder::for($user)
             ->with('discordUser')
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('users.id' , '=' , $id)
-            ->orWhereHas('discordUser' , function (Builder $builder) use ($id) {
-                $builder->where('id' , '=' , $id);
+            ->where('users.id', '=', $id)
+            ->orWhereHas('discordUser', function (Builder $builder) use ($id) {
+                $builder->where('id', '=', $id);
             });
 
         return $query->get();
@@ -154,6 +161,51 @@ class UserController extends Controller
             ]);
             $user->decrement('server_limit', $request->server_limit);
         }
+
+        return $user;
+    }
+
+    /**
+     * @throws RequestException
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:64', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'max:191'],
+        ]);
+
+        $user = User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'credits' => Configuration::getValueByKey('INITIAL_CREDITS', 150),
+            'server_limit' => Configuration::getValueByKey('INITIAL_SERVER_LIMIT', 1),
+            'password' => Hash::make($request->input('password')),
+        ]);
+
+        $response = Pterodactyl::client()->post('/application/users', [
+            "external_id" => App::environment('local') ? Str::random(16) : (string)$user->id,
+            "username" => $user->name,
+            "email" => $user->email,
+            "first_name" => $user->name,
+            "last_name" => $user->name,
+            "password" => $request->input('password'),
+            "root_admin" => false,
+            "language" => "en"
+        ]);
+
+        if ($response->failed()) {
+            $user->delete();
+            throw ValidationException::withMessages([
+                'pterodactyl_error_message' => $response->toException()->getMessage(),
+                'pterodactyl_error_status' => $response->toException()->getCode()
+            ]);
+        }
+
+        $user->update([
+            'pterodactyl_id' => $response->json()['attributes']['id']
+        ]);
 
         return $user;
     }
