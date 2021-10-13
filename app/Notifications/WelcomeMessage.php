@@ -57,7 +57,7 @@ class WelcomeMessage extends Notification implements ShouldQueue
             if(Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') != 0) {
                 $AdditionalLine .= "Verifying your Mail will also increase your Server Limit by " . Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') . " <br />";
             }
-                $AdditionalLine .="<br />";
+            $AdditionalLine .="<br />";
             if(Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') != 0) {
                 $AdditionalLine .=  "You can also verify your discord account to get another " . Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') . " credits <br />";
             }
