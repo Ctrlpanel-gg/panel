@@ -81,8 +81,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen'         => 'datetime',
-        'credits'           => 'float',
-        'server_limit'      => 'float',
     ];
 
     /**
@@ -179,7 +177,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function suspend()
     {
-        foreach ($this->servers as $server) {
+        foreach ($this->servers as $server){
             $server->suspend();
         }
 
@@ -195,10 +193,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function unSuspend()
     {
-        foreach ($this->servers as $server) {
-            if ($this->credits >= $server->product->getHourlyPrice()) {
-                $server->unSuspend();
-            }
+        foreach ($this->servers as $server){
+          if ($this->credits >= $server->product->getHourlyPrice()) {
+            $server->unSuspend();
+        }
         }
 
         $this->update([
@@ -213,7 +211,12 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAvatar()
     {
-        return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
+        if ($this->discordUser()->exists()){
+            $avatar = $this->discordUser->getAvatar();
+        }else{
+            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
+        }
+        return $avatar;
     }
 
     /**
@@ -241,4 +244,5 @@ class User extends Authenticatable implements MustVerifyEmail
         $status = str_replace(' ', '/', $status);
         return $status;
     }
+
 }
