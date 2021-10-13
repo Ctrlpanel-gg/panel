@@ -213,11 +213,12 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAvatar()
     {
-        if ($this->discordUser()->exists()){
+        if ($this->discordUser()->exists()) {
             $avatar = $this->discordUser->getAvatar();
-        }else{
+        } else {
             $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
         }
+        
         return $avatar;
     }
 
