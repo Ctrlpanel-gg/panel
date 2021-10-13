@@ -67,13 +67,14 @@ class WelcomeMessage extends Notification implements ShouldQueue
 
             return $AdditionalLine;
         }
-        
+
         return [
             'title'   => "Getting started!",
             'content' => "
                <p>Hello <strong>{$this->user->name}</strong>, Welcome to our dashboard!</p>
                 <h5>Verification</h5>
-                <p>Please remember that you can verify your E-Mail Adress and Link/Verify your Discord-Account
+                <p>Please remember that you can verify your E-Mail Adress and Link/Verify your Discord-Account</p>
+                <p>
                     ".AdditionalLines()."
                 </p>
                 <h5>Information</h5>
