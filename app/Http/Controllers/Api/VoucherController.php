@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Voucher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
@@ -63,7 +64,8 @@ class VoucherController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return Collection|Voucher
+     *
+     * @return Voucher|Collection|Model
      */
     public function show(int $id)
     {
@@ -71,7 +73,7 @@ class VoucherController extends Controller
             ->where('id', '=', $id)
             ->allowedIncludes(self::ALLOWED_INCLUDES);
 
-        return $query->get();
+        return $query->firstOrFail();
     }
 
     /**

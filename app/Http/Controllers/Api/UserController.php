@@ -13,6 +13,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
@@ -47,7 +48,8 @@ class UserController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return User|Collection
+     *
+     * @return User|Builder|Collection|Model
      */
     public function show(int $id)
     {
@@ -62,7 +64,7 @@ class UserController extends Controller
                 $builder->where('id', '=', $id);
             });
 
-        return $query->get();
+        return $query->firstOrFail();
     }
 
 

@@ -7,14 +7,15 @@ use App\Models\Server;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class ServerController extends Controller
 {
-    const ALLOWED_INCLUDES = ['product', 'user'];
-    const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
+    public const ALLOWED_INCLUDES = ['product', 'user'];
+    public const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
 
     /**
      * Display a listing of the resource.
@@ -35,7 +36,8 @@ class ServerController extends Controller
      * Display the specified resource.
      *
      * @param Server $server
-     * @return Server|Collection
+     *
+     * @return Server|Collection|Model
      */
     public function show(Server $server)
     {
@@ -43,7 +45,7 @@ class ServerController extends Controller
             ->where('id', '=', $server->id)
             ->allowedIncludes(self::ALLOWED_INCLUDES);
 
-        return $query->get();
+        return $query->firstOrFail();
     }
 
     /**
