@@ -5,20 +5,29 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Voucher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class VoucherController extends Controller
 {
+    const ALLOWED_INCLUDES = ['users'];
+    const ALLOWED_FILTERS = ['code', 'memo', 'credits', 'uses'];
+
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return LengthAwarePaginator
      */
     public function index(Request $request)
     {
-        return Voucher::paginate($request->query('per_page') ?? 50);
+        $query = QueryBuilder::for(Voucher::class)
+            ->allowedIncludes(self::ALLOWED_INCLUDES)
+            ->allowedFilters(self::ALLOWED_FILTERS);
+
+        return $query->paginate($request->input('per_page') ?? 50);
     }
 
     /**
@@ -40,10 +49,10 @@ class VoucherController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'memo'       => 'nullable|string|max:191',
-            'code'       => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
-            'uses'       => 'required|numeric|max:2147483647|min:1',
-            'credits'    => 'required|numeric|between:0,99999999',
+            'memo' => 'nullable|string|max:191',
+            'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
+            'uses' => 'required|numeric|max:2147483647|min:1',
+            'credits' => 'required|numeric|between:0,99999999',
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years'
         ]);
 
@@ -54,11 +63,15 @@ class VoucherController extends Controller
      * Display the specified resource.
      *
      * @param int $id
-     * @return Response
+     * @return Collection|Voucher
      */
     public function show(int $id)
     {
-        return Voucher::findOrFail($id);
+        $query = QueryBuilder::for(Voucher::class)
+            ->where('id', '=', $id)
+            ->allowedIncludes(self::ALLOWED_INCLUDES);
+
+        return $query->get();
     }
 
     /**
@@ -84,10 +97,10 @@ class VoucherController extends Controller
         $voucher = Voucher::findOrFail($id);
 
         $request->validate([
-            'memo'       => 'nullable|string|max:191',
-            'code'       => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
-            'uses'       => 'required|numeric|max:2147483647|min:1',
-            'credits'    => 'required|numeric|between:0,99999999',
+            'memo' => 'nullable|string|max:191',
+            'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
+            'uses' => 'required|numeric|max:2147483647|min:1',
+            'credits' => 'required|numeric|between:0,99999999',
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years'
         ]);
 
