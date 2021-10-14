@@ -141,9 +141,9 @@ class PaymentController extends Controller
                 $user->increment('credits', $paypalProduct->quantity);
 
                 //update server limit
-                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                        $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10) !== 0) {
+                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10)) {
+                        $user->update(['server_limit' => 10]);
                     }
                 }
 
