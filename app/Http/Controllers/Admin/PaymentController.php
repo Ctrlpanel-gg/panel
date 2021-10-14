@@ -146,7 +146,7 @@ class PaymentController extends Controller
                         $user->update(['server_limit' => 10]);
                     }
                 }
-
+                
                 //update role
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
