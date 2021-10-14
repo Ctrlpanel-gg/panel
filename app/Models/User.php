@@ -213,17 +213,18 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAvatar()
     {
-        if ($this->discordUser()->exists()) {
-            if(@getimagesize($this->discordUser->getAvatar())) {
-                $avatar = $this->discordUser->getAvatar();
-            } else {
-                $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-            }
-        } else {
-            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-        }
+        //TODO loading the images to confirm they exist is causing to much load time. alternative has to be found :) maybe onerror tag on the <img tags>
+//        if ($this->discordUser()->exists()) {
+//            if(@getimagesize($this->discordUser->getAvatar())) {
+//                $avatar = $this->discordUser->getAvatar();
+//            } else {
+//                $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
+//            }
+//        } else {
+//            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
+//        }
 
-        return $avatar;
+        return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
 
     }
 
