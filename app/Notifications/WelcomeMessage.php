@@ -37,18 +37,7 @@ class WelcomeMessage extends Notification implements ShouldQueue
     {
         return ['database'];
     }
-
-    
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param mixed $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        function AdditionalLines() 
+    public function AdditionalLines() 
         {
             $AdditionalLine = "";
             if(Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL') != 0) {
@@ -67,7 +56,14 @@ class WelcomeMessage extends Notification implements ShouldQueue
 
             return $AdditionalLine;
         }
-
+    /**
+     * Get the array representation of the notification.
+     *
+     * @param mixed $notifiable
+     * @return array
+     */
+    public function toArray($notifiable)
+    {
         return [
             'title'   => "Getting started!",
             'content' => "
@@ -75,7 +71,7 @@ class WelcomeMessage extends Notification implements ShouldQueue
                 <h5>Verification</h5>
                 <p>Please remember that you can verify your E-Mail Adress and Link/Verify your Discord-Account</p>
                 <p>
-                    ".AdditionalLines()."
+                  ".WelcomeMessage::AdditionalLines()."
                 </p>
                 <h5>Information</h5>
                 <p>This dashboard can be used to create and delete servers.<br /> These servers can be used and managed on our pterodactyl panel.<br /> If you have any questions, please join our Discord server and #create-a-ticket.</p>
