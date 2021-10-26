@@ -19,19 +19,17 @@ class HomeController extends Controller
     /** Show the application dashboard. */
     public function index(Request $request)
     {
-        $usage = 0;
+        $usage = Auth::user()->creditUsage();
+        $credits = Auth::user()->Credits();
         $bg="";
         $boxText="";
         $unit = "";
 
-        foreach (Auth::user()->servers as $server){
-            $usage += $server->product->price;
-        }
 
         // START OF THE TIME-REMAINING-BOX
-        if(Auth::user()->Credits() > 0.01 and $usage > 0){
-            $days = number_format((Auth::user()->Credits()*30)/$usage,2,'.','');
-            $hours = number_format(Auth::user()->Credits()/($usage/30/24),2,'.','');
+        if($credits > 0.01 and $usage > 0){
+            $days = number_format(($credits*30)/$usage,2,'.','');
+            $hours = number_format($credits/($usage/30/24),2,'.','');
 
         // DEFINE THE BACKGROUND COLOR
             if($days >= 15){
