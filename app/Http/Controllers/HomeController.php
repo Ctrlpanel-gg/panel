@@ -37,25 +37,24 @@ class HomeController extends Controller
         foreach (Auth::user()->servers as $server){
             $usage += $server->product->price;
         }
-        
+
         if(Auth::user()->Credits() > 0.01 and $usage > 0){
             $days = number_format((Auth::user()->Credits()*30)/$usage,2,'.','');
             $hours = number_format(Auth::user()->Credits()/($usage/30/24),2,'.','');
+
+            if($days >= 15){
+                $bg = "success";
+            }elseif ($days >= 8 && $days <= 14){
+                 $bg = "warning";    
+            }elseif ($days <= 7){  
+                $bg = "danger";        
+            } 
+            
                 echo '
                     <div class="col-12 col-sm-6 col-md-3">
-                        <div class="info-box mb-3">';
-                            if($days >= 15){
-                                echo '<span class="info-box-icon bg-success elevation-1">';
-                            }
-                            elseif ($days >= 8 && $days <= 14){
-                                echo '<span class="info-box-icon bg-warning elevation-1">';
-                            }
-                            elseif ($days <= 7){
-                                echo '<span class="info-box-icon bg-danger elevation-1">';
-                            }
-                            
-                                echo '<i class="fas fa-hourglass-half"></i></span>
-
+                        <div class="info-box mb-3">
+                        <span class="info-box-icon bg-'.$bg.' elevation-1">
+                        <i class="fas fa-hourglass-half"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Out of '. Configuration::getValueByKey('CREDITS_DISPLAY_NAME').' in </span>';
                                 //IF TIME IS LESS THAN 1 DAY CHANGE TO "hours"
