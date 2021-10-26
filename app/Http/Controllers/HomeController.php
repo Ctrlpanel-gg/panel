@@ -43,9 +43,9 @@ class HomeController extends Controller
             }
 
             // DEFINE WETHER DAYS OR HOURS REMAIN
-            if ($days < "1")
+            if ($days < 1)
             {
-                if ($hours < "1")
+                if ($hours < 1)
                 {
                     $boxText = 'You ran out of Credits ';
                 }
