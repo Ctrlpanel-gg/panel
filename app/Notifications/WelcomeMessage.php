@@ -41,14 +41,14 @@ class WelcomeMessage extends Notification implements ShouldQueue
         {
             $AdditionalLine = "";
             if(Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL') != 0) {
-                $AdditionalLine .= "Verifying your E-Mail Adress will grant you ".Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL')." additional Credits <br />";
+                $AdditionalLine .= "Verifying your E-Mail Address will grant you ".Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL')." additional " . Configuration::getValueByKey('CREDITS_DISPLAY_NAME') . " <br />";
             }
             if(Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') != 0) {
                 $AdditionalLine .= "Verifying your Mail will also increase your Server Limit by " . Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') . " <br />";
             }
             $AdditionalLine .="<br />";
             if(Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') != 0) {
-                $AdditionalLine .=  "You can also verify your discord account to get another " . Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') . " credits <br />";
+                $AdditionalLine .=  "You can also verify your discord account to get another " . Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') . " " . Configuration::getValueByKey('CREDITS_DISPLAY_NAME') . " <br />";
             }
             if(Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') != 0) {
                 $AdditionalLine .=  "Verifying Discord will also increase your Server Limit by " . Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') . " <br />";
@@ -69,7 +69,7 @@ class WelcomeMessage extends Notification implements ShouldQueue
             'content' => "
                <p>Hello <strong>{$this->user->name}</strong>, Welcome to our dashboard!</p>
                 <h5>Verification</h5>
-                <p>Please remember that you can verify your E-Mail Adress and Link/Verify your Discord-Account</p>
+                <p>Please remember that you can verify your E-Mail address and Link/Verify your Discord-Account</p>
                 <p>
                   ".WelcomeMessage::AdditionalLines()."
                 </p>
