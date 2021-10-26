@@ -1,8 +1,5 @@
-
-
 @extends('layouts.main')
 
-<?php use App\Http\Controllers\HomeController; ?>
 @section('content')
     <!-- CONTENT HEADER -->
     <section class="content-header">
