@@ -65,7 +65,7 @@
 
                                     <select id="node_id" name="node_id" required="required"
                                         class="custom-select @error('node_id') is-invalid @enderror">
-
+                                        <option selected disabled hidden value="">Please Select ...</option>    
                                         @foreach ($locations as $location)
                                             <optgroup label="{{ $location->name }}">
                                                 @foreach ($location->nodes as $node)
@@ -90,6 +90,7 @@
                                 <div>
                                     <select id="egg_id" name="egg_id" required="required"
                                         class="custom-select @error('egg_id') is-invalid @enderror">
+                                       <option selected disabled hidden value="">Please Select ...</option>    
                                         @foreach ($nests as $nest)
                                             <optgroup label="{{ $nest->name }}">
                                                 @foreach ($nest->eggs as $egg)
@@ -111,6 +112,7 @@
                                 <div>
                                     <select id="product_id" name="product_id" required="required"
                                         class="custom-select @error('product_id') is-invalid @enderror">
+                                        <option selected disabled hidden value="">Please Select...</option>    
                                         @foreach ($products as $product)
                                             <option value="{{ $product->id }}" @if ($product->minimum_credits == -1 && Auth::user()->credits >= $minimum_credits)
                                             @elseif ($product->minimum_credits != -1 && Auth::user()->credits >=
