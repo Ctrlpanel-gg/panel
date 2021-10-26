@@ -70,7 +70,7 @@
                 </div>
 
                 <!-- /.col -->
-                @if(Auth::user()->Credits() > 0.01 and $useage > 0)
+                @if($credits > 0.01 and $useage > 0)
                      <div class="col-12 col-sm-6 col-md-3">
                         <div class="info-box mb-3">
                         <span class="info-box-icon bg-{{$bg}} elevation-1">
