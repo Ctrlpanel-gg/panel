@@ -65,6 +65,7 @@ class HomeController extends Controller
         // RETURN ALL VALUES
         return view('home')->with([
             'useage' => $usage,
+            'credits' => $credits,
             'useful_links' => UsefulLink::all()->sortBy('id'),
             'bg' => $bg,
             'boxText' => $boxText, 
