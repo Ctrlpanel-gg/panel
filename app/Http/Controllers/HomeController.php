@@ -8,19 +8,19 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-    const TIME_LEFT_BG_SUCCESS = "bg-success";
-    const TIME_LEFT_BG_WARNING = "bg-warning";
-    const TIME_LEFT_BG_DANGER  = "bg-danger";
-    const TIME_LEFT_TEXT       = "You ran out of Credits";
+    const TIME_LEFT_BG_SUCCESS          = "bg-success";
+    const TIME_LEFT_BG_WARNING          = "bg-warning";
+    const TIME_LEFT_BG_DANGER           = "bg-danger";
+    const TIME_LEFT_OUT_OF_CREDITS_TEXT = "You ran out of Credits";
 
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    /** 
+    /**
     * @description Get the Background Color for the Days-Left-Box in HomeView
-    * 
+    *
     * @param  float  $days
     *
     * @return string
@@ -46,9 +46,9 @@ class HomeController extends Controller
         }
     }
 
-    /** 
-    * @description Get the Text for the Days-Left-Box in HomeView 
-    * 
+    /**
+    * @description Get the Text for the Days-Left-Box in HomeView
+    *
     * @param  string  $days
     * @param  string  $hours
     *
@@ -60,7 +60,7 @@ class HomeController extends Controller
         {
             if ($hours < 1)
             {
-                return $this::TIME_LEFT_BG_WARNING;
+                return $this::TIME_LEFT_OUT_OF_CREDITS_TEXT;
             }
             else
             {
@@ -70,9 +70,9 @@ class HomeController extends Controller
         return strval(number_format($days, 0));
     }
 
-    /** 
+    /**
     * @description Return either "days" or "hours" to use on the front-end
-    * 
+    *
     * @param  float  $days
     *
     * @return string
@@ -114,7 +114,7 @@ class HomeController extends Controller
             $unit = $this->getTimeLeftUnit($days, $hours);
 
         }
-        
+
 
 
         // RETURN ALL VALUES
@@ -123,7 +123,7 @@ class HomeController extends Controller
             'credits' => $credits,
             'useful_links' => UsefulLink::all()->sortBy('id'),
             'bg' => $bg,
-            'boxText' => $boxText, 
+            'boxText' => $boxText,
             'unit' => $unit
         ]);
     }
