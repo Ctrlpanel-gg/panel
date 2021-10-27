@@ -24,12 +24,15 @@ class HomeController extends Controller
             case ($days >= 15):
                 return $this::TIME_LEFT_BG_SUCCESS;
                 break;
+
             case ($days >= 8 && $days <= 14):
                 return $this::TIME_LEFT_BG_WARNING;
                 break;
+
             case ($days <= 7):
                 return $this::TIME_LEFT_BG_DANGER;
                 break;
+
             default:
                  return $this::TIME_LEFT_BG_WARNING;
             }
@@ -54,14 +57,16 @@ class HomeController extends Controller
             }
         }
 
-    public function getTimeLeftUnit($days){
+    public function getTimeLeftUnit($days){        
             switch($days){
                 case ($days < 1):
                     return "hours";
                     break;
+
                 case ($days > 1):
                     return "days";
                     break;
+
                 default:
                     return "days";
             }
