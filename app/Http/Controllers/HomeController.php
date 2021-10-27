@@ -25,7 +25,7 @@ class HomeController extends Controller
     *
     * @return string
     */
-    public function getTimeLeftBoxBackground($days)
+    public function getTimeLeftBoxBackground(float $days)
     {
         switch ($days)
         {
@@ -49,12 +49,12 @@ class HomeController extends Controller
     /**
     * @description Get the Text for the Days-Left-Box in HomeView
     *
-    * @param  string  $days
-    * @param  string  $hours
+    * @param  float  $days
+    * @param  float  $hours
     *
     * @return string
     */
-    public function getTimeLeftBoxText(string $days, string $hours)
+    public function getTimeLeftBoxText(float $days, float $hours)
     {
         if ($days < 1)
         {
@@ -68,30 +68,6 @@ class HomeController extends Controller
             }
         }
         return strval(number_format($days, 0));
-    }
-
-    /**
-    * @description Return either "days" or "hours" to use on the front-end
-    *
-    * @param  float  $days
-    *
-    * @return string
-    */
-    public function getTimeLeftUnit($days)
-    {
-        switch ($days)
-        {
-            case ($days < 1):
-                return "hours";
-            break;
-
-            case ($days > 1):
-                return "days";
-            break;
-
-            default:
-                return "days";
-        }
     }
 
     /** Show the application dashboard. */
@@ -111,7 +87,7 @@ class HomeController extends Controller
 
             $bg = $this->getTimeLeftBoxBackground($days);
             $boxText = $this->getTimeLeftBoxText($days, $hours);
-            $unit = $this->getTimeLeftUnit($days, $hours);
+            $unit = $days < 1 ? 'hours' : 'days';
 
         }
 
