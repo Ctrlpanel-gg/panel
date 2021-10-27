@@ -11,66 +11,88 @@ class HomeController extends Controller
     const TIME_LEFT_BG_SUCCESS = "bg-success";
     const TIME_LEFT_BG_WARNING = "bg-warning";
     const TIME_LEFT_BG_DANGER  = "bg-danger";
-
+    const TIME_LEFT_TEXT       = "You ran out of Credits";
 
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-/** Get the Background Color for the Days-Left-Box in HomeView */
-    public function getTimeLeftBoxBackground($days){
-        switch($days){
+    /** 
+    * @description Get the Background Color for the Days-Left-Box in HomeView
+    * 
+    * @param  float  $days
+    *
+    * @return string
+    */
+    public function getTimeLeftBoxBackground($days)
+    {
+        switch ($days)
+        {
             case ($days >= 15):
                 return $this::TIME_LEFT_BG_SUCCESS;
-                break;
+            break;
 
             case ($days >= 8 && $days <= 14):
                 return $this::TIME_LEFT_BG_WARNING;
-                break;
+            break;
 
             case ($days <= 7):
                 return $this::TIME_LEFT_BG_DANGER;
-                break;
+            break;
 
             default:
-                 return $this::TIME_LEFT_BG_WARNING;
-            }
-        }  
-        
-/** Get the Text for the Days-Left-Box in HomeView */
-    public function getTimeLeftBoxText($days,$hours){
-            if ($days < 1)
+                return $this::TIME_LEFT_BG_WARNING;
+        }
+    }
+
+    /** 
+    * @description Get the Text for the Days-Left-Box in HomeView 
+    * 
+    * @param  string  $days
+    * @param  string  $hours
+    *
+    * @return string
+    */
+    public function getTimeLeftBoxText(string $days, string $hours)
+    {
+        if ($days < 1)
+        {
+            if ($hours < 1)
             {
-                if ($hours < 1)
-                {
-                  return 'You ran out of Credits ';
-                }
-                else
-                {
-                    return $hours;
-                }
+                return $this::TIME_LEFT_BG_WARNING;
             }
             else
             {
-                return number_format($days, 0);
+                return strval($hours);
             }
         }
+        return strval(number_format($days, 0));
+    }
 
-    public function getTimeLeftUnit($days){        
-            switch($days){
-                case ($days < 1):
-                    return "hours";
-                    break;
+    /** 
+    * @description Return either "days" or "hours" to use on the front-end
+    * 
+    * @param  float  $days
+    *
+    * @return string
+    */
+    public function getTimeLeftUnit($days)
+    {
+        switch ($days)
+        {
+            case ($days < 1):
+                return "hours";
+            break;
 
-                case ($days > 1):
-                    return "days";
-                    break;
+            case ($days > 1):
+                return "days";
+            break;
 
-                default:
-                    return "days";
-            }
+            default:
+                return "days";
         }
+    }
 
     /** Show the application dashboard. */
     public function index(Request $request)
@@ -88,10 +110,12 @@ class HomeController extends Controller
             $hours = number_format($credits / ($usage / 30 / 24) , 2, '.', '');
 
             $bg = $this->getTimeLeftBoxBackground($days);
-            $boxText = $this->getTimeLeftBoxText($days,$hours);
-            $unit = $this->getTimeLeftUnit($days,$hours);
+            $boxText = $this->getTimeLeftBoxText($days, $hours);
+            $unit = $this->getTimeLeftUnit($days, $hours);
 
         }
+        
+
 
         // RETURN ALL VALUES
         return view('home')->with([
