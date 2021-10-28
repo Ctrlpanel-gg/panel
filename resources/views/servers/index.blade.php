@@ -48,7 +48,7 @@
                                                 @if(!empty(env('PHPMYADMIN_URL')))
                                                     <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" class="dropdown-item text-info"  target="__blank"><i title="manage" class="fas fa-database mr-2"></i><span>Database</span></a>
                                                 @endif
-                                                <form method="post" onsubmit="return submitResult();" action="{{route('servers.destroy' , $server->id)}}">
+                                                <form method="post" id="deleteServerForm" onsubmit="return submitResult();" action="{{route('servers.destroy' , $server->id)}}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button class="dropdown-item text-danger"><i title="delete" class="fas fa-trash mr-2"></i><span>Delete server</span></button>
@@ -113,9 +113,32 @@
     </section>
     <!-- END CONTENT -->
 
-    <script>
-        function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
-        }
-    </script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function() {
+      let form = document.getElementById("deleteServerForm")
+      form.addEventListener("submit", function(e) {
+          e.preventDefault();
+          Swal.fire({
+              title: "Are you sure?",
+              html: 'Are you sure you wish to delete this server?<br>This is an irreversible action, all files will be removed.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d9534f',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, delete it!',
+              cancelButtonText: 'No, cancel!',
+              reverseButtons: true
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  return form.submit()
+              } else {
+                  return Swal.fire('Canceled ...', 'Server deletion has been canceled.', 'info')
+              }
+          });
+      });
+
+  });
+  </script>
+
+
 @endsection
