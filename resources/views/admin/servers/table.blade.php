@@ -44,7 +44,6 @@
               title: "Are you sure?",
               html: 'Are you sure you wish to delete this server?<br>This is an irreversible action, all files will be removed.',
               icon: 'warning',
-              showCancelButton: true,
               confirmButtonColor: '#d9534f',
               showCancelButton: true,
               confirmButtonText: 'Yes, delete it!',
