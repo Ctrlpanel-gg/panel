@@ -92,7 +92,7 @@ class ServerController extends Controller
     {
         try {
             $server->delete();
-            return redirect()->route('admin.servers.index')->with('success', 'server removed');
+            return redirect()->route('admin.servers.index')->with('success', 'Server deleted');
         } catch (Exception $e) {
             return redirect()->route('admin.servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
         }
@@ -109,7 +109,7 @@ class ServerController extends Controller
             return redirect()->back()->with('error', $exception->getMessage());
         }
 
-        return redirect()->back()->with('success', 'server has been updated!');
+        return redirect()->back()->with('success', 'Server has been updated!');
     }
 
     /**
@@ -142,7 +142,7 @@ class ServerController extends Controller
                            <button data-content="'.$suspendText.'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm '.$suspendColor.' text-white mr-1"><i class="far '.$suspendIcon.'"></i></button>
                        </form>
 
-                       <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
+                       <form class="d-inline" id="deleteServerForm" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
                            <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
