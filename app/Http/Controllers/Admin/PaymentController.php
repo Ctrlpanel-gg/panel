@@ -56,6 +56,7 @@ class PaymentController extends Controller
      */
     public function pay(Request $request, PaypalProduct $paypalProduct)
     {
+        $user = Auth::user();
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -64,17 +65,16 @@ class PaymentController extends Controller
                 [
                     "reference_id" => uniqid(),
                     "description" => $paypalProduct->description,
-                    "amount"       => [
+                    "amount"      => [
                         "value"         => $paypalProduct->price,
                         "currency_code" => strtoupper($paypalProduct->currency_code)
                     ]
                 ]
             ],
             "payer" => [
-                "email_address" => $request->user()->email,
-                "payer_id" => $request->user()->id,
+                "email_address" => $user->email,
                 "name"     => [
-                     "given_name"  => $request->user()->name
+                     "given_name" => $user->name
                     ],
             ],            
             "application_context" => [
