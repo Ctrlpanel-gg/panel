@@ -15,10 +15,6 @@
 </table>
 
 <script>
-    function submitResult() {
-        return confirm("Are you sure you wish to delete?") !== false;
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
         $('#datatable').DataTable({
             processing: true,
@@ -40,4 +36,27 @@
             }
         });
     });
+    
+      let form = document.getElementById("deleteServerForm")
+      form.addEventListener("submit", function(e) {
+          e.preventDefault();
+          Swal.fire({
+              title: "Are you sure?",
+              html: 'Are you sure you wish to delete this server?<br>This is an irreversible action, all files will be removed.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#d9534f',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, delete it!',
+              cancelButtonText: 'No, cancel!',
+              reverseButtons: true
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  return form.submit()
+              } else {
+                  return Swal.fire('Canceled ...', 'Server deletion has been canceled.', 'info')
+              }
+          });
+      });
+    
 </script>
