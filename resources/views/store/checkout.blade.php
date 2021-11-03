@@ -42,7 +42,7 @@
                         <!-- info row -->
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col">
-                                From
+                                To
                                 <address>
                                     <strong>{{config('app.name' , 'Laravel')}}</strong><br>
                                     Email: {{env('PAYPAL_EMAIL' , env('MAIL_FROM_NAME'))}}
@@ -50,7 +50,7 @@
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                To
+                                From
                                 <address>
                                     <strong>{{Auth::user()->name}}</strong><br>
                                     Email: {{Auth::user()->email}}

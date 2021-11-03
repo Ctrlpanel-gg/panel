@@ -38,7 +38,7 @@
                 <!-- /.col -->
                 <div class="col-12 col-sm-6 col-md-3">
                     <div class="info-box mb-3">
-                        <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-coins"></i></span>
+                        <span class="info-box-icon bg-secondary elevation-1"><i class="fas fa-coins"></i></span>
 
                         <div class="info-box-content">
                             <span class="info-box-text">{{CREDITS_DISPLAY_NAME}}</span>
@@ -65,9 +65,26 @@
                     </div>
                     <!-- /.info-box -->
                 </div>
+
+                <!-- /.col -->
+                @if($credits > 0.01 and $useage > 0)
+                     <div class="col-12 col-sm-6 col-md-3">
+                        <div class="info-box mb-3">
+                        <span class="info-box-icon {{$bg}} elevation-1">
+                        <i class="fas fa-hourglass-half"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Out of {{CREDITS_DISPLAY_NAME}} in </span>
+                                <span class="info-box-number">{{$boxText}}<sup>{{$unit}}</sup></span>
+                            </div>
+                        </div>
+                    <!-- /.info-box -->
+                @endif
+                </div>
                 <!-- /.col -->
 
             </div>
+
+
 
 
             <div class="row">

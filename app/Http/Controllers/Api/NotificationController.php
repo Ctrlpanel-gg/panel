@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
 use Spatie\ValidationRules\Rules\Delimited;
 
 class NotificationController extends Controller
@@ -55,19 +57,21 @@ class NotificationController extends Controller
      *
      * @param Request $request
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function send(Request $request)
     {
         $data = $request->validate([
             "via" => ["required", new Delimited("in:mail,database")],
             "all" => "required_without:users|boolean",
-            "users" => ["required_without:all", new Delimited("exists:users,id")],
+            "users" => ["required_without:all"],
             "title" => "required|string|min:1",
             "content" => "required|string|min:1"
         ]);
         $via = explode(",", $data["via"]);
         $mail = null;
         $database = null;
+
         if (in_array("database", $via)) {
             $database = [
                 "title" => $data["title"],
@@ -79,10 +83,28 @@ class NotificationController extends Controller
                 ->subject($data["title"])
                 ->line(new HtmlString($data["content"]));
         }
+
         $all = $data["all"] ?? false;
-        $users = $all ? User::all() : User::whereIn("id", explode(",", $data["users"]))->get();
+        if ($all) {
+            $users = User::all();
+        } else {
+            $userIds = explode(",", $data["users"]);
+            $users = User::query()
+                ->whereIn("id", $userIds)
+                ->orWhereHas('discordUser', function (Builder $builder) use ($userIds) {
+                    $builder->whereIn('id', $userIds);
+                })
+                ->get();
+        }
+
+        if ($users->count() == 0) {
+            throw ValidationException::withMessages([
+                'users' => ['No users found!'],
+            ]);
+        }
+
         Notification::send($users, new DynamicNotification($via, $database, $mail));
-        return response()->json(["message" => "Notification successfully sent."]);
+        return response()->json(["message" => "Notification successfully sent.", 'user_count' => $users->count()]);
     }
 
     /**

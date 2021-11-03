@@ -16,7 +16,8 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ServerController extends Controller
 {
@@ -39,6 +40,7 @@ class ServerController extends Controller
                 $query->where('disabled', '=', false);
             })->get(),
             'nests' => Nest::where('disabled', '=', false)->get(),
+            'minimum_credits' => Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
         ]);
     }
 
@@ -52,7 +54,7 @@ class ServerController extends Controller
             "description" => "nullable|max:191",
             "node_id" => "required|exists:nodes,id",
             "egg_id" => "required|exists:eggs,id",
-            "product_id" => "required|exists:products,id",
+            "product_id" => "required|exists:products,id"
         ]);
 
         //get required resources
@@ -74,8 +76,8 @@ class ServerController extends Controller
             'identifier' => $response->json()['attributes']['identifier']
         ]);
 
-        if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR' , 'true') == 'true'){
-            if (Auth::user()->credits >= $server->product->getHourlyPrice()){
+        if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
+            if (Auth::user()->credits >= $server->product->getHourlyPrice()) {
                 Auth::user()->decrement('credits', $server->product->getHourlyPrice());
             }
         }
@@ -86,15 +88,24 @@ class ServerController extends Controller
     /**
      * @return null|RedirectResponse
      */
-    private function validateConfigurationRules(){
+    private function validateConfigurationRules()
+    {
         //limit validation
         if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
             return redirect()->route('servers.index')->with('error', 'Server limit reached!');
         }
 
-        //minimum credits
-        if (Auth::user()->credits <= Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)) {
-            return redirect()->route('servers.index')->with('error', "You do not have the required amount of ".CREDITS_DISPLAY_NAME." to create a new server!");
+        // minimum credits
+        if (FacadesRequest::has("product_id")) {
+            $product = Product::findOrFail(FacadesRequest::input("product_id"));
+            if (
+                Auth::user()->credits <
+                ($product->minimum_credits == -1
+                    ? Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
+                    : $product->minimum_credits)
+            ) {
+                return redirect()->route('servers.index')->with('error', "You do not have the required amount of " . CREDITS_DISPLAY_NAME . " to use this product!");
+            }
         }
 
         //Required Verification for creating an server
@@ -141,7 +152,7 @@ class ServerController extends Controller
      * @param Server $server
      * @return RedirectResponse
      */
-    private function serverCreationFailed(Response $response , Server $server)
+    private function serverCreationFailed(Response $response, Server $server)
     {
         $server->delete();
 

@@ -10,9 +10,10 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('servers.index')}}">Servers</a>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('servers.create')}}">Create</a>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('servers.index') }}">Servers</a>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                href="{{ route('servers.create') }}">Create</a>
                         </li>
                     </ol>
                 </div>
@@ -32,29 +33,29 @@
                         <h5 class="card-title"><i class="fa fa-server mr-2"></i>Create Server</h5>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="{{route('servers.store')}}">
+                        <form method="post" action="{{ route('servers.store') }}">
                             @csrf
                             <div class="form-group">
                                 <label for="name">* Name</label>
                                 <input id="name" name="name" type="text" required="required"
-                                       class="form-control @error('name') is-invalid @enderror">
+                                    class="form-control @error('name') is-invalid @enderror">
 
                                 @error('name')
-                                <div class="invalid-feedback">
-                                    Please fill out this field.
-                                </div>
+                                    <div class="invalid-feedback">
+                                        Please fill out this field.
+                                    </div>
                                 @enderror
 
                             </div>
                             <div class="form-group">
                                 <label for="description">Description</label>
                                 <input id="description" name="description" type="text"
-                                       class="form-control @error('description') is-invalid @enderror">
+                                    class="form-control @error('description') is-invalid @enderror">
 
                                 @error('description')
-                                <div class="invalid-feedback">
-                                    Please fill out this field.
-                                </div>
+                                    <div class="invalid-feedback">
+                                        Please fill out this field.
+                                    </div>
                                 @enderror
 
                             </div>
@@ -63,13 +64,13 @@
                                 <div>
 
                                     <select id="node_id" name="node_id" required="required"
-                                            class="custom-select @error('node_id') is-invalid @enderror">
-
-                                        @foreach($locations as $location)
-                                            <optgroup label="{{$location->name}}">
-                                                @foreach($location->nodes as $node)
-                                                    @if(!$node->disabled)
-                                                        <option value="{{$node->id}}">{{$node->name}}</option>
+                                        class="custom-select @error('node_id') is-invalid @enderror">
+                                        <option selected disabled hidden value="">Please Select ...</option>    
+                                        @foreach ($locations as $location)
+                                            <optgroup label="{{ $location->name }}">
+                                                @foreach ($location->nodes as $node)
+                                                    @if (!$node->disabled)
+                                                        <option value="{{ $node->id }}">{{ $node->name }}</option>
                                                     @endif
                                                 @endforeach
                                             </optgroup>
@@ -79,20 +80,21 @@
                                 </div>
 
                                 @error('node_id')
-                                <div class="invalid-feedback">
-                                    Please fill out this field.
-                                </div>
+                                    <div class="invalid-feedback">
+                                        Please fill out this field.
+                                    </div>
                                 @enderror
                             </div>
                             <div class="form-group">
                                 <label for="egg_id">* Server configuration</label>
                                 <div>
                                     <select id="egg_id" name="egg_id" required="required"
-                                            class="custom-select @error('egg_id') is-invalid @enderror">
-                                        @foreach($nests as $nest)
-                                            <optgroup label="{{$nest->name}}">
-                                                @foreach($nest->eggs as $egg)
-                                                    <option value="{{$egg->id}}">{{$egg->name}}</option>
+                                        class="custom-select @error('egg_id') is-invalid @enderror">
+                                       <option selected disabled hidden value="">Please Select ...</option>    
+                                        @foreach ($nests as $nest)
+                                            <optgroup label="{{ $nest->name }}">
+                                                @foreach ($nest->eggs as $egg)
+                                                    <option value="{{ $egg->id }}">{{ $egg->name }}</option>
                                                 @endforeach
                                             </optgroup>
                                         @endforeach
@@ -100,32 +102,40 @@
                                 </div>
 
                                 @error('egg_id')
-                                <div class="invalid-feedback">
-                                    Please fill out this field.
-                                </div>
+                                    <div class="invalid-feedback">
+                                        Please fill out this field.
+                                    </div>
                                 @enderror
                             </div>
                             <div class="form-group">
                                 <label for="product_id">* Resource Configuration</label>
                                 <div>
                                     <select id="product_id" name="product_id" required="required"
-                                            class="custom-select @error('product_id') is-invalid @enderror">
-                                        @foreach($products as $product)
-                                            <option value="{{$product->id}}">{{$product->name}}
-                                                ({{$product->description}})
-                                            </option>
+                                        class="custom-select @error('product_id') is-invalid @enderror">
+                                        <option selected disabled hidden value="">Please Select...</option>    
+                                        @foreach ($products as $product)
+                                            <option value="{{ $product->id }}" @if ($product->minimum_credits == -1 && Auth::user()->credits >= $minimum_credits)
+                                            @elseif ($product->minimum_credits != -1 && Auth::user()->credits >=
+                                                $product->minimum_credits)
+                                            @else
+                                                disabled
+                                        @endif
+                                        >{{ $product->name }}
+                                        ({{ $product->description }})
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 @error('product_id')
-                                <div class="invalid-feedback">
-                                    Please fill out this field.
-                                </div>
+                                    <div class="invalid-feedback">
+                                        Please fill out this field.
+                                    </div>
                                 @enderror
                             </div>
                             <div class="form-group text-right">
-                                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                                <input type="submit" class="btn btn-primary mt-3" value="Submit"
+                                    onclick="this.disabled=true;this.value='Creating, please wait...';this.form.submit();">
                             </div>
                         </form>
 

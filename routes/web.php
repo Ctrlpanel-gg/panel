@@ -40,7 +40,7 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
         Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
         Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');
+        Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
         Route::resource('users', UserController::class);
 
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
@@ -118,6 +119,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('usefullinks', UsefulLinkController::class);
 
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
+        Route::get('vouchers/{voucher}/usersdatatable', [VoucherController::class, 'usersdatatable'])->name('vouchers.usersdatatable');
+        Route::get('vouchers/{voucher}/users', [VoucherController::class, 'users'])->name('vouchers.users');
         Route::resource('vouchers', VoucherController::class);
 
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');

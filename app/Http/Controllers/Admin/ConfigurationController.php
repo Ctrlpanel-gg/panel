@@ -112,7 +112,7 @@ class ConfigurationController extends Controller
 
         return datatables($query)
             ->addColumn('actions', function (Configuration $configuration) {
-                return '<button data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" onclick="configuration.parse(\'' . $configuration->key . '\',\'' . $configuration->value . '\')" data-content="Edit" data-trigger="hover" data-toggle="tooltip" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></button> ';
+                return '<button data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" onclick="configuration.parse(\'' . $configuration->key . '\',\'' . $configuration->value . '\',\'' . $configuration->type . '\')" data-content="Edit" data-trigger="hover" data-toggle="tooltip" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></button> ';
             })
             ->editColumn('created_at', function (Configuration $configuration) {
                 return $configuration->created_at ? $configuration->created_at->diffForHumans() : '';

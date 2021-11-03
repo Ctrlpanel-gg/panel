@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\Product;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -51,6 +52,7 @@ class ProductController extends Controller
             "swap" => "required|numeric|max:1000000|min:0",
             "description" => "required|string|max:191",
             "disk" => "required|numeric|max:1000000|min:5",
+            "minimum_credits" => "required|numeric|max:1000000|min:-1",
             "io" => "required|numeric|max:1000000|min:0",
             "databases" => "required|numeric|max:1000000|min:0",
             "backups" => "required|numeric|max:1000000|min:0",
@@ -73,7 +75,8 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         return view('admin.products.show', [
-            'product' => $product
+            'product' => $product,
+            'minimum_credits' => Configuration::getValueByKey("MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER"),
         ]);
     }
 
@@ -108,6 +111,7 @@ class ProductController extends Controller
             "description" => "required|string|max:191",
             "disk" => "required|numeric|max:1000000|min:5",
             "io" => "required|numeric|max:1000000|min:0",
+            "minimum_credits" => "required|numeric|max:1000000|min:-1",
             "databases" => "required|numeric|max:1000000|min:0",
             "backups" => "required|numeric|max:1000000|min:0",
             "allocations" => "required|numeric|max:1000000|min:0",
@@ -125,7 +129,8 @@ class ProductController extends Controller
      * @param Product $product
      * @return RedirectResponse
      */
-    public function disable(Request $request, Product $product) {
+    public function disable(Request $request, Product $product)
+    {
         $product->update(['disabled' => !$product->disabled]);
 
         return redirect()->route('admin.products.index')->with('success', 'product has been updated!');
@@ -181,12 +186,11 @@ class ProductController extends Controller
                             ' . csrf_field() . '
                             ' . method_field("PATCH") . '
                             <div class="custom-control custom-switch">
-                            <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
-                            <label class="custom-control-label" for="switch'.$product->id.'"></label>
+                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $product->id . '">
+                            <label class="custom-control-label" for="switch' . $product->id . '"></label>
                           </div>
                        </form>
                 ';
-
             })
             ->editColumn('created_at', function (Product $product) {
                 return $product->created_at ? $product->created_at->diffForHumans() : '';
