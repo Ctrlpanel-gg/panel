@@ -71,7 +71,7 @@ class WelcomeMessage extends Notification implements ShouldQueue
                 <h5>Verification</h5>
                 <p>Please remember that you can verify your E-Mail address and Link/Verify your Discord-Account</p>
                 <p>
-                  ".WelcomeMessage::AdditionalLines()."
+                  ".WelcomeMessage->AdditionalLines()."
                 </p>
                 <h5>Information</h5>
                 <p>This dashboard can be used to create and delete servers.<br /> These servers can be used and managed on our pterodactyl panel.<br /> If you have any questions, please join our Discord server and #create-a-ticket.</p>
