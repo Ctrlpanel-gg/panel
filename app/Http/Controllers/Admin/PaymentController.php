@@ -27,6 +27,21 @@ use PayPalHttp\HttpException;
 
 class PaymentController extends Controller
 {
+
+
+    public function getTaxPercent(){
+        return Configuration::getValueByKey("TAX_IN_PERCENT");
+    }
+
+    public function getTaxValue(PaypalProduct $paypalProduct){
+        return $paypalProduct->price*Configuration::getValueByKey("TAX_IN_PERCENT")/100;
+    }
+
+    public function getTotalPrice(PaypalProduct $paypalProduct){
+        return $paypalProduct->price+($this->getTaxValue($paypalProduct));
+    }
+
+
     /**
      * @return Application|Factory|View
      */
@@ -45,7 +60,10 @@ class PaymentController extends Controller
     public function checkOut(Request $request, PaypalProduct $paypalProduct)
     {
         return view('store.checkout')->with([
-            'product' => $paypalProduct
+            'product'      => $paypalProduct,
+            'taxvalue'     => $this->getTaxValue($paypalProduct),
+            'taxpercent'   => $this->getTaxPercent(),
+            'total'        => $this->getTotalPrice($paypalProduct)
         ]);
     }
 
@@ -56,6 +74,7 @@ class PaymentController extends Controller
      */
     public function pay(Request $request, PaypalProduct $paypalProduct)
     {
+        $tax = $paypalProduct->price*Configuration::getValueByKey("TAX_IN_PERCENT")/100;
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -65,7 +84,7 @@ class PaymentController extends Controller
                     "reference_id" => uniqid(),
                     "description" => $paypalProduct->description,
                     "amount"       => [
-                        "value"         => $paypalProduct->price,
+                        "value"         => $this->getTotalPrice($paypalProduct),
                         "currency_code" => strtoupper($paypalProduct->currency_code)
                     ]
                 ]

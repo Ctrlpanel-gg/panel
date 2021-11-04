@@ -18,7 +18,7 @@ class TaxInConfig extends Migration
                 'key'   => 'TAX_IN_PERCENT',
                 'value' => '0',
                 'type'  => 'integer',
-                'description'  => 'This will be added to the Product Price on Checkout',
+                'description'  => 'The %-value of tax that will be added to the product price on checkout',
             )
         );
     }

@@ -114,8 +114,8 @@
                                             <td>{{$product->formatCurrency()}}</td>
                                         </tr>
                                         <tr>
-                                            <th>Tax (0%)</th>
-                                            <td>0.00</td>
+                                            <th>Tax ({{$taxpercent}}%)</th>
+                                            <td>€{{number_format($taxvalue, 2, '.', '')}}</td>
                                         </tr>
                                         <tr>
                                             <th>Quantity:</th>
@@ -123,7 +123,7 @@
                                         </tr>
                                         <tr>
                                             <th>Total:</th>
-                                            <td>{{$product->formatCurrency()}}</td>
+                                            <td>€{{number_format($total, 2, '.', '')}}</td>
                                         </tr>
                                     </table>
                                 </div>
