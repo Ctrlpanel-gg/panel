@@ -6,6 +6,8 @@ use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
@@ -24,6 +26,11 @@ class Product extends Model
             $client = new Client();
 
             $product->{$product->getKeyName()} = $client->generateId($size = 21);
+        });
+
+        static::deleting(function(Product $product) {
+            $product->nodes()->detach();
+            $product->eggs()->detach();
         });
     }
 
@@ -45,8 +52,22 @@ class Product extends Model
     /**
      * @return BelongsTo
      */
-    public function servers(): BelongsTo
+    public function servers()
     {
         return $this->belongsTo(Server::class, 'id', 'product_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function eggs() {
+        return $this->belongsToMany(Egg::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function nodes() {
+        return $this->belongsToMany(Node::class);
     }
 }

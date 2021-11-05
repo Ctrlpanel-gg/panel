@@ -6,6 +6,7 @@ use App\Classes\Pterodactyl;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Egg extends Model
 {
@@ -24,14 +25,6 @@ class Egg extends Model
     ];
 
     /**
-     * @return BelongsTo
-     */
-    public function nest()
-    {
-        return $this->belongsTo(Nest::class, 'id', 'nest_id');
-    }
-
-    /**
      * @return array
      */
     public function getEnvironmentVariables()
@@ -39,7 +32,7 @@ class Egg extends Model
         $array = [];
 
         foreach (json_decode($this->environment) as $variable) {
-            foreach ($variable as $key => $value){
+            foreach ($variable as $key => $value) {
                 $array[$key] = $value;
             }
         }
@@ -47,12 +40,13 @@ class Egg extends Model
         return $array;
     }
 
-    public static function syncEggs(){
+    public static function syncEggs()
+    {
 
-         Nest::all()->each(function (Nest $nest) {
+        Nest::all()->each(function (Nest $nest) {
             $eggs = Pterodactyl::getEggs($nest);
 
-            foreach ($eggs as $egg){
+            foreach ($eggs as $egg) {
                 $array = [];
                 $environment = [];
 
@@ -64,17 +58,32 @@ class Egg extends Model
                 $array['startup'] = $egg['attributes']['startup'];
 
                 //get environment variables
-                foreach ($egg['attributes']['relationships']['variables']['data'] as $variable){
+                foreach ($egg['attributes']['relationships']['variables']['data'] as $variable) {
                     $environment[$variable['attributes']['env_variable']] = $variable['attributes']['default_value'];
                 }
 
                 $array['environment'] = json_encode([$environment]);
 
-                self::firstOrCreate(['id' => $array['id']] , $array);
+                self::firstOrCreate(['id' => $array['id']], $array);
             }
 
         });
-
-
     }
+
+    /**
+     * @return BelongsTo
+     */
+    public function nest()
+    {
+        return $this->belongsTo(Nest::class, 'id', 'nest_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class);
+    }
+
 }
