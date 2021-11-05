@@ -43,9 +43,9 @@ class PaypalProduct extends Model
      * @param string $locale
      * @return string
      */
-    public function formatCurrency($locale = 'en_US')
+    public function formatToCurrency($value,$locale = 'de_DE')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-        return $formatter->formatCurrency($this->price, $this->currency_code);
+        return $formatter->formatCurrency($value, $this->currency_code);
     }
 }

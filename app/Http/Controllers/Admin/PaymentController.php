@@ -255,9 +255,14 @@ class PaymentController extends Controller
                 return $payment->user->name;
             })
             ->editColumn('price', function (Payment $payment) {
-                return $payment->formatCurrency();
+                return $payment->formatToCurrency($payment->price);
             })
-
+            ->editColumn('tax_value', function (Payment $payment) {
+                return $payment->formatToCurrency($payment->tax_value);
+            })
+            ->editColumn('total_price', function (Payment $payment) {
+                return $payment->formatToCurrency($payment->total_price);
+            })
             ->editColumn('created_at', function (Payment $payment) {
                 return $payment->created_at ? $payment->created_at->diffForHumans() : '';
             })

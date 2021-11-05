@@ -83,7 +83,7 @@
                                         <td>1</td>
                                         <td><i class="fa fa-coins mr-2"></i>{{$product->quantity}} {{strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type}}</td>
                                         <td>{{$product->description}}</td>
-                                        <td>{{$product->formatCurrency()}}</td>
+                                        <td>{{$product->formatToCurrency($product->price)}}</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -111,11 +111,11 @@
                                     <table class="table">
                                         <tr>
                                             <th style="width:50%">Subtotal:</th>
-                                            <td>{{$product->formatCurrency()}}</td>
+                                            <td>{{$product->formatToCurrency($product->price)}}</td>
                                         </tr>
                                         <tr>
                                             <th>Tax ({{$taxpercent}}%)</th>
-                                            <td>€{{number_format($taxvalue, 2, '.', '')}}</td>
+                                            <td>{{$product->formatToCurrency($taxvalue)}}</td>
                                         </tr>
                                         <tr>
                                             <th>Quantity:</th>
@@ -123,7 +123,7 @@
                                         </tr>
                                         <tr>
                                             <th>Total:</th>
-                                            <td>€{{number_format($total, 2, '.', '')}}</td>
+                                            <td>{{$product->formatToCurrency($total)}}</td>
                                         </tr>
                                     </table>
                                 </div>
