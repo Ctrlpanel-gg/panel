@@ -28,24 +28,6 @@ use PayPalHttp\HttpException;
 class PaymentController extends Controller
 {
 
-
-    public function getTaxPercent(){
-        $tax = Configuration::getValueByKey("SALES_TAX");
-        if ( $tax < 0 ) {
-            return 0;
-        }
-        return $tax;
-    }
-
-    public function getTaxValue(PaypalProduct $paypalProduct){
-        return $paypalProduct->price*$this->getTaxPercent()/100;
-    }
-
-    public function getTotalPrice(PaypalProduct $paypalProduct){
-        return $paypalProduct->price+($this->getTaxValue($paypalProduct));
-    }
-
-
     /**
      * @return Application|Factory|View
      */
@@ -65,9 +47,9 @@ class PaymentController extends Controller
     {
         return view('store.checkout')->with([
             'product'      => $paypalProduct,
-            'taxvalue'     => $this->getTaxValue($paypalProduct),
-            'taxpercent'   => $this->getTaxPercent(),
-            'total'        => $this->getTotalPrice($paypalProduct)
+            'taxvalue'     => $paypalProduct->getTaxValue(),
+            'taxpercent'   => $paypalProduct->getTaxPercent(),
+            'total'        => $paypalProduct->getTotalPrice()
         ]);
     }
 
@@ -87,7 +69,7 @@ class PaymentController extends Controller
                     "reference_id" => uniqid(),
                     "description" => $paypalProduct->description,
                     "amount"       => [
-                        "value"         => $this->getTotalPrice($paypalProduct),
+                        "value"         => $paypalProduct->getTotalPrice(),
                         'currency_code' => strtoupper($paypalProduct->currency_code),
                         'breakdown' =>[
                             'item_total' =>
@@ -98,7 +80,7 @@ class PaymentController extends Controller
                             'tax_total' =>
                                 [
                                     'currency_code' => strtoupper($paypalProduct->currency_code),
-                                    'value' => $this->getTaxValue($paypalProduct),
+                                    'value' => $paypalProduct->getTaxValue(),
                                 ]
                         ]
                     ]
@@ -197,9 +179,9 @@ class PaymentController extends Controller
                     'status' => $response->result->status,
                     'amount' => $paypalProduct->quantity,
                     'price' => $paypalProduct->price,
-                    'tax_value' => $this->getTaxValue($paypalProduct),
-                    'tax_percent' => $this->getTaxPercent(),
-                    'total_price' => $this->getTotalPrice($paypalProduct),
+                    'tax_value' => $paypalProduct->getTaxValue(),
+                    'tax_percent' => $paypalProduct->getTaxPercent(),
+                    'total_price' => $paypalProduct->getTotalPrice(),
                     'currency_code' => $paypalProduct->currency_code,
                     'payer' => json_encode($response->result->payer),
                 ]);
