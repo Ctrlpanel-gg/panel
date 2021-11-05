@@ -29,6 +29,9 @@ class Payment extends Model
         'type',
         'amount',
         'price',
+        'tax_value',
+        'total_price',
+        'tax_percent',
         'currency_code',
     ];
 

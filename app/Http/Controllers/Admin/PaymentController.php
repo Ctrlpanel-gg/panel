@@ -197,6 +197,9 @@ class PaymentController extends Controller
                     'status' => $response->result->status,
                     'amount' => $paypalProduct->quantity,
                     'price' => $paypalProduct->price,
+                    'tax_value' => $this->getTaxValue($paypalProduct),
+                    'tax_percent' => $this->getTaxPercent(),
+                    'total_price' => $this->getTotalPrice($paypalProduct),
                     'currency_code' => $paypalProduct->currency_code,
                     'payer' => json_encode($response->result->payer),
                 ]);
@@ -235,7 +238,7 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        return redirect()->route('store.index')->with('success', 'Payment was Cannceled');
+        return redirect()->route('store.index')->with('success', 'Payment was Canceled');
     }
 
 
@@ -254,6 +257,7 @@ class PaymentController extends Controller
             ->editColumn('price', function (Payment $payment) {
                 return $payment->formatCurrency();
             })
+
             ->editColumn('created_at', function (Payment $payment) {
                 return $payment->created_at ? $payment->created_at->diffForHumans() : '';
             })
