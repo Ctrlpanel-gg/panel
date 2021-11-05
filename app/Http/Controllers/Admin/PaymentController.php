@@ -30,11 +30,15 @@ class PaymentController extends Controller
 
 
     public function getTaxPercent(){
-        return Configuration::getValueByKey("TAX_IN_PERCENT");
+        $tax = Configuration::getValueByKey("SALES_TAX");
+        if ( $tax < 0 ) {
+            return 0;
+        }
+        return $tax;
     }
 
     public function getTaxValue(PaypalProduct $paypalProduct){
-        return $paypalProduct->price*Configuration::getValueByKey("TAX_IN_PERCENT")/100;
+        return $paypalProduct->price*$this->getTaxPercent()/100;
     }
 
     public function getTotalPrice(PaypalProduct $paypalProduct){
@@ -74,7 +78,6 @@ class PaymentController extends Controller
      */
     public function pay(Request $request, PaypalProduct $paypalProduct)
     {
-        $tax = $paypalProduct->price*Configuration::getValueByKey("TAX_IN_PERCENT")/100;
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -85,10 +88,21 @@ class PaymentController extends Controller
                     "description" => $paypalProduct->description,
                     "amount"       => [
                         "value"         => $this->getTotalPrice($paypalProduct),
-                        "currency_code" => strtoupper($paypalProduct->currency_code)
+                        'currency_code' => strtoupper($paypalProduct->currency_code),
+                        'breakdown' =>[
+                            'item_total' =>
+                               [
+                                    'currency_code' => strtoupper($paypalProduct->currency_code),
+                                    'value' => $paypalProduct->price,
+                                ],
+                            'tax_total' =>
+                                [
+                                    'currency_code' => strtoupper($paypalProduct->currency_code),
+                                    'value' => $this->getTaxValue($paypalProduct),
+                                ]
+                        ]
                     ]
-                ]
-            ],
+                ],
             "application_context" => [
                 "cancel_url" => route('payment.cancel'),
                 "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
