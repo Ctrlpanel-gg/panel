@@ -173,7 +173,7 @@ class PaypalProductController extends Controller
                 return $paypalProduct->created_at ? $paypalProduct->created_at->diffForHumans() : '';
             })
             ->editColumn('price', function (PaypalProduct $paypalProduct) {
-                return $paypalProduct->formatCurrency();
+                return $paypalProduct->formatToCurrency($paypalProduct->price);
             })
             ->rawColumns(['actions', 'disabled'])
             ->make();
