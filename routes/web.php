@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
@@ -53,6 +54,12 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::resource('servers', ServerController::class);
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
+
+    #server create utility routes (product)
+    #routes made for server create page to fetch product info
+    Route::get('/products/nodes/egg/{egg?}' , [FrontProductController::class , 'getNodesBasedOnEgg'])->name('products.nodes.egg');
+    Route::get('/products/products/node/{node?}' , [FrontProductController::class , 'getProductsBasedOnNode'])->name('products.products.node');
+
 
     #payments
     Route::get('checkout/{paypalProduct}', [PaymentController::class, 'checkOut'])->name('checkout');

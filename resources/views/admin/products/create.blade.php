@@ -13,7 +13,7 @@
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('admin.products.index') }}">Products</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('admin.products.create') }}">Create</a>
+                                                       href="{{ route('admin.products.create') }}">Create</a>
                         </li>
                     </ol>
                 </div>
@@ -54,9 +54,9 @@
                                                    class="form-control @error('name') is-invalid @enderror"
                                                    required="required">
                                             @error('name')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -67,9 +67,9 @@
                                                    class="form-control @error('price') is-invalid @enderror"
                                                    required="required">
                                             @error('price')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -81,9 +81,9 @@
                                                    class="form-control @error('memory') is-invalid @enderror"
                                                    required="required">
                                             @error('memory')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -94,9 +94,9 @@
                                                    class="form-control @error('cpu') is-invalid @enderror"
                                                    required="required">
                                             @error('cpu')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -107,9 +107,9 @@
                                                    class="form-control @error('swap') is-invalid @enderror"
                                                    required="required">
                                             @error('swap')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -123,9 +123,9 @@
                                                       class="form-control @error('description') is-invalid @enderror"
                                                       required="required">{{$product->description ?? old('description')}}</textarea>
                                             @error('description')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -138,9 +138,9 @@
                                                    class="form-control @error('disk') is-invalid @enderror"
                                                    required="required">
                                             @error('disk')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -150,13 +150,13 @@
                                                     data-content="Setting to -1 will use the value from configuration."
                                                     class="fas fa-info-circle"></i></label>
                                             <input value="{{ old('minimum_credits') ?? -1 }}" id="minimum_credits"
-                                                name="minimum_credits" type="number"
-                                                class="form-control @error('minimum_credits') is-invalid @enderror"
-                                                required="required">
+                                                   name="minimum_credits" type="number"
+                                                   class="form-control @error('minimum_credits') is-invalid @enderror"
+                                                   required="required">
                                             @error('minimum_credits')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
 
@@ -167,9 +167,9 @@
                                                    class="form-control @error('io') is-invalid @enderror"
                                                    required="required">
                                             @error('io')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
                                         <div class="form-group">
@@ -180,9 +180,9 @@
                                                    class="form-control @error('databases') is-invalid @enderror"
                                                    required="required">
                                             @error('databases')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
                                         <div class="form-group">
@@ -193,9 +193,9 @@
                                                    class="form-control @error('backups') is-invalid @enderror"
                                                    required="required">
                                             @error('backups')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
                                         <div class="form-group">
@@ -206,9 +206,9 @@
                                                    class="form-control @error('allocations') is-invalid @enderror"
                                                    required="required">
                                             @error('allocations')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
                                             @enderror
                                         </div>
                                     </div>
@@ -292,14 +292,9 @@
     <!-- END CONTENT -->
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             $('[data-toggle="popover"]').popover();
+            $('.custom-select').select2();
         });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-        })
-    </script>
-            $('.custom-select').select2();
-
 @endsection

@@ -15,7 +15,6 @@ class Location extends Model
 
     public $guarded = [];
 
-
     public function nodes(){
         return $this->hasMany(Node::class , 'location_id' , 'id');
     }
@@ -39,4 +38,5 @@ class Location extends Model
             self::firstOrCreate(['id' => $location['id']] , $location);
         }
     }
+
 }
