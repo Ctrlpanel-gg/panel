@@ -187,7 +187,42 @@
                     @endif
 
                     @if(Auth::user()->role == 'admin')
-                        <li class="nav-header">Admin</li>
+
+                        <li class="nav-header">Administration</li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.overview.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.overview.*')) active @endif">
+                                <i class="nav-icon fa fa-home"></i>
+                                <p>Overview</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.configurations.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.configurations.*')) active @endif">
+                                <i class="nav-icon fas fa-cogs"></i>
+                                <p>Configurations</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.settings.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.settings.*')) active @endif">
+                                <i class="nav-icon fas fa-tools"></i>
+                                <p>Settings</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.api.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.api.*')) active @endif">
+                                <i class="nav-icon fa fa-gamepad"></i>
+                                <p>Application API</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-header">Management</li>
 
                         <li class="nav-item">
                             <a href="{{route('admin.users.index')}}"
@@ -247,47 +282,14 @@
 {{--                            </a>--}}
 {{--                        </li>--}}
 
-                        <li class="nav-header">Dashboard</li>
 
-                        <li class="nav-item">
-                            <a href="{{route('admin.overview.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.overview.*')) active @endif">
-                                <i class="nav-icon fa fa-gamepad"></i>
-                                <p>Overview</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.api.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.api.*')) active @endif">
-                                <i class="nav-icon fa fa-gamepad"></i>
-                                <p>Application API</p>
-                            </a>
-                        </li>
+                        <li class="nav-header">Other</li>
 
                         <li class="nav-item">
                             <a href="{{route('admin.usefullinks.index')}}"
                                class="nav-link @if(Request::routeIs('admin.usefullinks.*')) active @endif">
                                 <i class="nav-icon fas fa-link"></i>
                                 <p>Useful Links</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-header">Settings</li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.configurations.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.configurations.*')) active @endif">
-                                <i class="nav-icon fas fa-cogs"></i>
-                                <p>Configurations</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.settings.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.settings.*')) active @endif">
-                                <i class="nav-icon fas fa-tools"></i>
-                                <p>Settings</p>
                             </a>
                         </li>
 
