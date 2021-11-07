@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\Pterodactyl;
 use App\Models\Configuration;
 use App\Models\Egg;
+use App\Models\Location;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Product;
@@ -39,16 +40,19 @@ class ServerController extends Controller
 
         $eggs = Egg::query()->has('products')->get();
 
+        $locations = Location::all();
+
         $nests = Nest::query()->whereHas('eggs', function (Builder $builder) {
             $builder->has('products');
         })->get();
 
         return view('servers.create')->with([
-            'productCount'    => $productCount,
-            'nodeCount'       => $nodeCount,
-            'nests'           => $nests,
-            'eggs'            => $eggs,
-            'user'            => Auth::user(),
+            'productCount' => $productCount,
+            'nodeCount'    => $nodeCount,
+            'nests'        => $nests,
+            'locations'    => $locations,
+            'eggs'         => $eggs,
+            'user'         => Auth::user(),
         ]);
     }
 
