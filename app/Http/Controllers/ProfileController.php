@@ -86,6 +86,6 @@ class ProfileController extends Controller
             'email' => $request->input('email'),
         ]);
 
-        return redirect()->route('profile.index')->with('success' , 'profile updated');
+        return redirect()->route('profile.index')->with('success' , 'Profile updated');
     }
 }
