@@ -240,7 +240,7 @@
                                                <small class="text-muted d-inline-block" x-text="selectedProductObject.memory + ' {{__('MB')}}'"></small>
                                            </div>
                                            <div class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Storage')}}</small>
+                                               <small class="text-muted d-inline-block">{{__('Disk')}}</small>
                                                <small class="text-muted d-inline-block" x-text="selectedProductObject.disk + ' {{__('MB')}}'"></small>
                                            </div>
                                            <div class="d-flex justify-content-between">
