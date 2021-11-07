@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Egg;
+use App\Models\Location;
 use App\Models\Node;
 use App\Models\Product;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
 class ProductController extends Controller
@@ -45,6 +43,38 @@ class ProductController extends Controller
     }
 
     /**
+     * @description get product locations based on selected egg
+     * @param Request $request
+     * @param Egg $egg
+     * @return Collection|JsonResponse
+     */
+    public function getLocationsBasedOnEgg(Request $request, Egg $egg)
+    {
+        $nodes = $this->getNodesBasedOnEgg($request, $egg);
+        $locations = collect();
+
+        //locations
+        $nodes->each(function (Node $node) use ($nodes, $locations) {
+            /** @var Location $location */
+            $location = $node->location;
+
+            if (!$locations->contains('id' , $location->id)){
+                $nodeIds = $nodes->map(function ($node){
+                    return $node->id;
+                });
+
+                $location->nodes = $location->nodes()
+                    ->whereIn('id' , $nodeIds)
+                    ->get();
+
+                $locations->add($location);
+            }
+        });
+
+        return $locations;
+    }
+
+    /**
      * @param Node $node
      * @return Collection|JsonResponse
      */
@@ -53,7 +83,7 @@ class ProductController extends Controller
         if (is_null($node->id)) return response()->json('node id is required', '400');
 
         return Product::query()->whereHas('nodes', function (Builder $builder) use ($node) {
-            $builder->where('id' , '=' , $node->id);
+            $builder->where('id', '=', $node->id);
         })->get();
     }
 }

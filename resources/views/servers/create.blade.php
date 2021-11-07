@@ -93,7 +93,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="nest">{{__('Software')}}</label>
+                                        <label for="nest">{{__('Software / Games')}}</label>
                                         <select class="custom-select"
                                                 required
                                                 name="nest"
@@ -112,14 +112,14 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="egg">{{__('Configuration')}}</label>
+                                        <label for="egg">{{__('Specification ')}}</label>
                                         <div>
                                             <select id="egg"
                                                     required
                                                     name="egg"
                                                     :disabled="eggs.length == 0"
                                                     x-model="selectedEgg"
-                                                    @change="fetchNodes();"
+                                                    @change="fetchLocations();"
                                                     required="required"
                                                     class="custom-select">
                                                 <option x-text="getEggInputText()"
@@ -139,15 +139,26 @@
                                         required
                                         id="node"
                                         x-model="selectedNode"
-                                        :disabled="!fetchedNodes"
+                                        :disabled="!fetchedLocations"
                                         @change="fetchProducts();"
                                         class="custom-select">
                                     <option
                                         x-text="getNodeInputText()"
-                                        disabled selected hidden value="null"></option>
-                                    <template x-for="node in nodes" :key="node.id">
-                                        <option x-text="node.name" :value="node.id"></option>
+                                        disabled selected hidden value="null">
+                                    </option>
+
+                                    <template x-for="location in locations" :key="location.id">
+                                        <optgroup :label="location.name">
+
+                                            <template x-for="node in location.nodes" :key="node.id">
+                                                <option x-text="node.name"
+                                                        :value="node.id">
+
+                                                </option>
+                                            </template>
+                                        </optgroup>
                                     </template>
+
                                 </select>
                             </div>
 
@@ -190,14 +201,14 @@
                                 <li x-show="selectedNestObject.name"
                                     class="list-group-item d-flex justify-content-between lh-condensed">
                                     <div>
-                                        <h6 class="my-0">{{__('Software')}}</h6>
+                                        <h6 class="my-0">{{__('Software / Games')}}</h6>
                                         <small x-text="selectedNestObject?.name ?? '{{__('No selection')}}'"
                                                class="text-muted"></small>
                                     </div>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between lh-condensed">
                                     <div>
-                                        <h6 class="my-0">{{__('Configuration')}}</h6>
+                                        <h6 class="my-0">{{__('Specification')}}</h6>
                                         <small x-text="selectedEggObject?.name ?? '{{__('No selection')}}'"
                                                class="text-muted"></small>
                                     </div>
@@ -248,7 +259,7 @@
             return {
                 //loading
                 loading: false,
-                fetchedNodes: false,
+                fetchedLocations: false,
                 fetchedProducts: false,
 
                 //input fields
@@ -269,7 +280,7 @@
                 nests: {!! $nests !!},
                 eggsSave:{!! $eggs !!}, //store back-end eggs
                 eggs: [],
-                nodes: [],
+                locations: [],
                 products: [],
 
 
@@ -279,9 +290,9 @@
                  * @see selectedNest
                  */
                 setNests() {
-                    this.fetchedNodes = false;
+                    this.fetchedLocations = false;
                     this.fetchedProducts = false;
-                    this.nodes = [];
+                    this.locations = [];
                     this.products = [];
                     this.selectedEgg = 'null';
                     this.selectedNode = 'null';
@@ -296,20 +307,20 @@
                  * @note called whenever a server configuration is selected
                  * @see selectedEg
                  */
-                async fetchNodes() {
+                async fetchLocations() {
                     this.loading = true;
-                    this.fetchedNodes = false;
+                    this.fetchedLocations = false;
                     this.fetchedProducts = false;
-                    this.nodes = [];
+                    this.locations = [];
                     this.products = [];
                     this.selectedNode = 'null';
                     this.selectedProduct = 'null';
 
-                    let response = await axios.get(`{{route('products.nodes.egg')}}/${this.selectedEgg}`)
+                    let response = await axios.get(`{{route('products.locations.egg')}}/${this.selectedEgg}`)
                         .catch(console.error)
 
-                    this.fetchedNodes = true;
-                    this.nodes = response.data
+                    this.fetchedLocations = true;
+                    this.locations = response.data
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
@@ -341,7 +352,11 @@
                 updateSelectedObjects() {
                     this.selectedNestObject = this.nests.find(nest => nest.id == this.selectedNest) ?? {}
                     this.selectedEggObject = this.eggs.find(egg => egg.id == this.selectedEgg) ?? {}
-                    this.selectedNodeObject = this.nodes.find(node => node.id == this.selectedNode) ?? {}
+
+                    this.locations.forEach(location => {
+                        this.selectedNodeObject = location.nodes.find(node => node.id == this.selectedNode) ?? {};
+                    })
+
                     this.selectedProductObject = this.products.find(product => product.id == this.selectedProduct) ?? {}
                 },
 
@@ -358,8 +373,8 @@
                 },
 
                 getNodeInputText() {
-                    if (this.fetchedNodes) {
-                        if (this.nodes.length > 0) {
+                    if (this.fetchedLocations) {
+                        if (this.locations.length > 0) {
                             return '{{__('Please select a node...')}}';
                         }
                         return '{{__('No nodes found matching current configuration')}}'
@@ -384,10 +399,10 @@
                     return '{{__('---')}}';
                 },
 
-                getProductOptionText(product){
+                getProductOptionText(product) {
                     let text = product.name + ' (' + product.description + ')';
 
-                    if (product.minimum_credits > this.user.credits){
+                    if (product.minimum_credits > this.user.credits) {
                         return '{{__('Not enough credits!')}} | ' + text;
                     }
 
