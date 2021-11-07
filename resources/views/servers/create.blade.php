@@ -223,13 +223,37 @@
                                                class="text-muted"></small>
                                     </div>
                                 </li>
-                                <li
-                                    class="list-group-item d-flex justify-content-between lh-condensed">
+                                <li class="list-group-item">
                                     <div>
                                         <h6 class="my-0">{{__('Resources')}}</h6>
                                         <small x-text="selectedProductObject?.name ?? '{{__('No selection')}}'"
                                                class="text-muted"></small>
                                     </div>
+                                    <template x-if="selectedProductObject?.name">
+                                       <ul class="pl-0">
+                                           <li class="d-flex justify-content-between">
+                                               <small class="text-muted d-inline-block">{{__('Cpu')}}</small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.cpu + ' %'"></small>
+                                           </li>
+                                           <div class="d-flex justify-content-between">
+                                               <small class="text-muted d-inline-block">{{__('Memory')}}</small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.memory + ' {{__('MB')}}'"></small>
+                                           </div>
+                                           <div class="d-flex justify-content-between">
+                                               <small class="text-muted d-inline-block">{{__('Storage')}}</small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.disk + ' {{__('MB')}}'"></small>
+                                           </div>
+                                           <div class="d-flex justify-content-between">
+                                               <small class="text-muted d-inline-block">{{__('Databases')}}</small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.databases + ' {{__('Mysql')}}'"></small>
+                                           </div>
+                                           <div class="d-flex justify-content-between">
+                                               <small class="text-muted d-inline-block">{{__('Backups')}}</small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.backups"></small>
+                                           </div>
+                                       </ul>
+                                    </template>
+
                                 </li>
                             </ul>
                             <ul class="list-group mb-3">
