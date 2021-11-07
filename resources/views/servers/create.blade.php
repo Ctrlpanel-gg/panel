@@ -103,7 +103,7 @@
                                                 x-model="selectedNest"
                                                 @change="setNests();">
                                             <option selected disabled hidden
-                                                    value="null">{{count($nests) > 0 ? __('Please select software..') : __('---')}}</option>
+                                                    value="null">{{count($nests) > 0 ? __('Please select software ...') : __('---')}}</option>
                                             @foreach ($nests as $nest)
                                                 <option value="{{ $nest->id }}">{{ $nest->name }}</option>
                                             @endforeach
@@ -232,7 +232,7 @@
                                     <template x-if="selectedProductObject?.name">
                                        <ul class="pl-0">
                                            <li class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Cpu')}}</small>
+                                               <small class="text-muted d-inline-block">{{__('CPU')}}</small>
                                                <small class="text-muted d-inline-block" x-text="selectedProductObject.cpu + ' %'"></small>
                                            </li>
                                            <div class="d-flex justify-content-between">
@@ -245,11 +245,15 @@
                                            </div>
                                            <div class="d-flex justify-content-between">
                                                <small class="text-muted d-inline-block">{{__('Databases')}}</small>
-                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.databases + ' {{__('Mysql')}}'"></small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.databases + ' {{__('MySQL')}}'"></small>
                                            </div>
                                            <div class="d-flex justify-content-between">
                                                <small class="text-muted d-inline-block">{{__('Backups')}}</small>
                                                <small class="text-muted d-inline-block" x-text="selectedProductObject.backups"></small>
+                                           </div>
+                                           <div class="d-flex justify-content-between">
+                                               <small class="text-muted d-inline-block">{{__('Allocations (ports)')}}</small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.allocations"></small>
                                            </div>
                                        </ul>
                                     </template>
@@ -401,7 +405,7 @@
                 getNodeInputText() {
                     if (this.fetchedLocations) {
                         if (this.locations.length > 0) {
-                            return '{{__('Please select a node...')}}';
+                            return '{{__('Please select a node ...')}}';
                         }
                         return '{{__('No nodes found matching current configuration')}}'
                     }
@@ -411,7 +415,7 @@
                 getProductInputText() {
                     if (this.fetchedProducts) {
                         if (this.products.length > 0) {
-                            return '{{__('Please select a resource...')}}';
+                            return '{{__('Please select a resource ...')}}';
                         }
                         return '{{__('No resources found matching current configuration')}}'
                     }
@@ -420,7 +424,7 @@
 
                 getEggInputText() {
                     if (this.selectedNest) {
-                        return '{{__('Please select a configuration...')}}';
+                        return '{{__('Please select a configuration ...')}}';
                     }
                     return '{{__('---')}}';
                 },
