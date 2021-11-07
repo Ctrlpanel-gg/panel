@@ -50,7 +50,7 @@ class OverViewController extends Controller
             'syncLastUpdate' => $syncLastUpdate
         ]);
     }
-    
+
     /**
      * @description Sync locations,nodes,nests,eggs with the linked pterodactyl panel
      */
