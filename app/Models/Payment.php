@@ -53,7 +53,13 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function formatToCurrency($value,$locale = 'de_DE')
+
+    /**
+     * @param  float/int
+     * @param  string
+     * @return string
+     */
+    public function formatToCurrency($value,$locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
         return $formatter->formatCurrency($value, $this->currency_code);
