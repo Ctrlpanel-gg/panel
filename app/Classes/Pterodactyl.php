@@ -14,17 +14,6 @@ use Illuminate\Support\Facades\Http;
 
 class Pterodactyl
 {
-    /**
-     * @return null
-     * @throws Exception
-     */
-    public static function getNests()
-    {
-        $response = self::client()->get('/application/nests');
-        if ($response->failed()) throw self::getException();
-        return $response->json()['data'];
-    }
-
     //TODO: Extend error handling (maybe logger for more errors when debugging)
 
     /**
@@ -71,6 +60,17 @@ class Pterodactyl
     }
 
     /**
+     * @return null
+     * @throws Exception
+     */
+    public static function getNests()
+    {
+        $response = self::client()->get('/application/nests');
+        if ($response->failed()) throw self::getException();
+        return $response->json()['data'];
+    }
+
+    /**
      * @return mixed
      * @throws Exception
      */
@@ -84,10 +84,10 @@ class Pterodactyl
     /**
      * @param Node $node
      * @return mixed
+     * @throws Exception
      */
     public static function getFreeAllocationId(Node $node)
     {
-
         return self::getFreeAllocations($node)[0]['attributes']['id'] ?? null;
     }
 
@@ -114,6 +114,7 @@ class Pterodactyl
 
     /**
      * @param Node $node
+     * @return array|mixed
      * @throws Exception
      */
     public static function getAllocations(Node $node)
@@ -142,21 +143,21 @@ class Pterodactyl
     public static function createServer(Server $server, Egg $egg, int $allocationId)
     {
         return self::client()->post("/application/servers", [
-            "name"                => $server->name,
-            "external_id"         => $server->id,
-            "user"                => $server->user->pterodactyl_id,
-            "egg"                 => $egg->id,
-            "docker_image"        => $egg->docker_image,
-            "startup"             => $egg->startup,
-            "environment"         => $egg->getEnvironmentVariables(),
-            "limits"              => [
+            "name"           => $server->name,
+            "external_id"    => $server->id,
+            "user"           => $server->user->pterodactyl_id,
+            "egg"            => $egg->id,
+            "docker_image"   => $egg->docker_image,
+            "startup"        => $egg->startup,
+            "environment"    => $egg->getEnvironmentVariables(),
+            "limits"         => [
                 "memory" => $server->product->memory,
                 "swap"   => $server->product->swap,
                 "disk"   => $server->product->disk,
                 "io"     => $server->product->io,
                 "cpu"    => $server->product->cpu
             ],
-            "feature_limits"      => [
+            "feature_limits" => [
                 "databases"   => $server->product->databases,
                 "backups"     => $server->product->backups,
                 "allocations" => $server->product->allocations,
