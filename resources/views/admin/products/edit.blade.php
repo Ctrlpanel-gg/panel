@@ -224,9 +224,11 @@
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title">Product Linking <i data-toggle="popover" data-trigger="hover"
-                                                                          data-content="Linked products will only be available when the user has selected the linked node and/or egg"
-                                                                          class="fas fa-info-circle"></i></h5>
+                                <h5 class="card-title">Product Linking
+                                    <i data-toggle="popover"
+                                       data-trigger="hover"
+                                       data-content="Link your products to nodes and eggs to create dynamic pricing for each option"
+                                       class="fas fa-info-circle"></i></h5>
                             </div>
                             <div class="card-body">
 

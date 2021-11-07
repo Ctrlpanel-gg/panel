@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\NestsController;
 use App\Http\Controllers\Admin\NodeController;
+use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PaypalProductController;
 use App\Http\Controllers\Admin\ProductController;
@@ -60,7 +61,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('/products/nodes/egg/{egg?}' , [FrontProductController::class , 'getNodesBasedOnEgg'])->name('products.nodes.egg');
     Route::get('/products/products/node/{node?}' , [FrontProductController::class , 'getProductsBasedOnNode'])->name('products.products.node');
 
-
     #payments
     Route::get('checkout/{paypalProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
     Route::get('payment/success', [PaymentController::class, 'success'])->name('payment.success');
@@ -78,6 +78,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+
+        Route::get('overview', [OverViewController::class , 'index'])->name('overview.index');
 
         Route::resource('activitylogs', ActivityLogController::class);
 
@@ -107,13 +109,13 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
-        Route::get('nodes/datatable', [NodeController::class, 'datatable'])->name('nodes.datatable');
-        Route::get('nodes/sync', [NodeController::class, 'sync'])->name('nodes.sync');
-        Route::resource('nodes', NodeController::class);
-
-        Route::get('nests/datatable', [NestsController::class, 'datatable'])->name('nests.datatable');
-        Route::get('nests/sync', [NestsController::class, 'sync'])->name('nests.sync');
-        Route::resource('nests', NestsController::class);
+//        Route::get('nodes/datatable', [NodeController::class, 'datatable'])->name('nodes.datatable');
+//        Route::get('nodes/sync', [NodeController::class, 'sync'])->name('nodes.sync');
+//        Route::resource('nodes', NodeController::class);
+//
+//        Route::get('nests/datatable', [NestsController::class, 'datatable'])->name('nests.datatable');
+//        Route::get('nests/sync', [NestsController::class, 'sync'])->name('nests.sync');
+//        Route::resource('nests', NestsController::class);
 
         Route::get('configurations/datatable', [ConfigurationController::class, 'datatable'])->name('configurations.datatable');
         Route::patch('configurations/updatevalue', [ConfigurationController::class, 'updatevalue'])->name('configurations.updatevalue');

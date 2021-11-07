@@ -50,7 +50,8 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="name">Name</label>
-                                            <input value="{{$product->name ?? old('name')}}" id="name" name="name" type="text"
+                                            <input value="{{$product->name ?? old('name')}}" id="name" name="name"
+                                                   type="text"
                                                    class="form-control @error('name') is-invalid @enderror"
                                                    required="required">
                                             @error('name')
@@ -76,7 +77,8 @@
 
                                         <div class="form-group">
                                             <label for="memory">Memory</label>
-                                            <input value="{{$product->memory ?? old('memory')}}" id="memory" name="memory"
+                                            <input value="{{$product->memory ?? old('memory')}}" id="memory"
+                                                   name="memory"
                                                    type="number"
                                                    class="form-control @error('memory') is-invalid @enderror"
                                                    required="required">
@@ -133,7 +135,8 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="disk">Disk</label>
-                                            <input value="{{$product->disk ?? old('disk') ?? 1000}}" id="disk" name="disk"
+                                            <input value="{{$product->disk ?? old('disk') ?? 1000}}" id="disk"
+                                                   name="disk"
                                                    type="number"
                                                    class="form-control @error('disk') is-invalid @enderror"
                                                    required="required">
@@ -174,7 +177,8 @@
                                         </div>
                                         <div class="form-group">
                                             <label for="databases">Databases</label>
-                                            <input value="{{$product->databases ?? old('databases') ?? 1}}" id="databases"
+                                            <input value="{{$product->databases ?? old('databases') ?? 1}}"
+                                                   id="databases"
                                                    name="databases"
                                                    type="number"
                                                    class="form-control @error('databases') is-invalid @enderror"
@@ -227,21 +231,25 @@
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title">Product Linking <i data-toggle="popover" data-trigger="hover"
-                                                                          data-content="Linked products will only be available when the user has selected the linked node and/or egg"
-                                                                          class="fas fa-info-circle"></i></h5>
+                                <h5 class="card-title">Product Linking
+                                    <i data-toggle="popover"
+                                       data-trigger="hover"
+                                       data-content="Link your products to nodes and eggs to create dynamic pricing for each option"
+                                       class="fas fa-info-circle"></i></h5>
                             </div>
                             <div class="card-body">
 
                                 <div class="form-group">
                                     <label for="nodes">Nodes</label>
-                                    <select id="nodes" style="width:100%" class="custom-select @error('nodes') is-invalid @enderror"
+                                    <select id="nodes" style="width:100%"
+                                            class="custom-select @error('nodes') is-invalid @enderror"
                                             name="nodes[]" multiple="multiple" autocomplete="off">
                                         @foreach($locations as $location)
                                             <optgroup label="{{$location->name}}">
                                                 @foreach($location->nodes as $node)
-                                                    <option @if(isset($product)) @if($product->nodes->contains('id' , $node->id)) selected
-                                                            @endif @endif value="{{$node->id}}">{{$node->name}}</option>
+                                                    <option
+                                                        @if(isset($product)) @if($product->nodes->contains('id' , $node->id)) selected
+                                                        @endif @endif value="{{$node->id}}">{{$node->name}}</option>
                                                 @endforeach
                                             </optgroup>
                                         @endforeach
@@ -259,13 +267,15 @@
 
                                 <div class="form-group">
                                     <label for="eggs">Eggs</label>
-                                    <select id="eggs" style="width:100%" class="custom-select @error('eggs') is-invalid @enderror"
+                                    <select id="eggs" style="width:100%"
+                                            class="custom-select @error('eggs') is-invalid @enderror"
                                             name="eggs[]" multiple="multiple" autocomplete="off">
                                         @foreach($nests as $nest)
                                             <optgroup label="{{$nest->name}}">
                                                 @foreach($nest->eggs as $egg)
-                                                    <option @if(isset($product)) @if($product->eggs->contains('id' , $egg->id)) selected
-                                                            @endif @endif  value="{{$egg->id}}">{{$egg->name}}</option>
+                                                    <option
+                                                        @if(isset($product)) @if($product->eggs->contains('id' , $egg->id)) selected
+                                                        @endif @endif  value="{{$egg->id}}">{{$egg->name}}</option>
                                                 @endforeach
                                             </optgroup>
                                         @endforeach

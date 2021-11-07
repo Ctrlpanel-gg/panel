@@ -212,46 +212,33 @@
                             </a>
                         </li>
 
-                        <li class="nav-header">Pterodactyl</li>
+{{--                        <li class="nav-header">Pterodactyl</li>--}}
 
-                        <li class="nav-item">
-                            <a href="{{route('admin.nodes.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">
-                                <i class="nav-icon fas fa-sitemap"></i>
-                                <p>Nodes</p>
-                            </a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a href="{{route('admin.nodes.index')}}"--}}
+{{--                               class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">--}}
+{{--                                <i class="nav-icon fas fa-sitemap"></i>--}}
+{{--                                <p>Nodes</p>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
 
-                        <li class="nav-item">
-                            <a href="{{route('admin.nests.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">
-                                <i class="nav-icon fas fa-th-large"></i>
-                                <p>Nests</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-header">Logs</li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.payments.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.payments.*')) active @endif">
-                                <i class="nav-icon fas fa-money-bill-wave"></i>
-                                <p>Payments
-                                    <span class="badge badge-success right">{{\App\Models\Payment::count()}}</span>
-                                </p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.activitylogs.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.activitylogs.*')) active @endif">
-                                <i class="nav-icon fas fa-clipboard-list"></i>
-                                <p>Activity Logs</p>
-                            </a>
-                        </li>
-
+{{--                        <li class="nav-item">--}}
+{{--                            <a href="{{route('admin.nests.index')}}"--}}
+{{--                               class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">--}}
+{{--                                <i class="nav-icon fas fa-th-large"></i>--}}
+{{--                                <p>Nests</p>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
 
                         <li class="nav-header">Dashboard</li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.overview.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.overview.*')) active @endif">
+                                <i class="nav-icon fa fa-gamepad"></i>
+                                <p>Overview</p>
+                            </a>
+                        </li>
 
                         <li class="nav-item">
                             <a href="{{route('admin.api.index')}}"
@@ -284,6 +271,26 @@
                                class="nav-link @if(Request::routeIs('admin.settings.*')) active @endif">
                                 <i class="nav-icon fas fa-tools"></i>
                                 <p>Settings</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-header">Logs</li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.payments.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.payments.*')) active @endif">
+                                <i class="nav-icon fas fa-money-bill-wave"></i>
+                                <p>Payments
+                                    <span class="badge badge-success right">{{\App\Models\Payment::count()}}</span>
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.activitylogs.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.activitylogs.*')) active @endif">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Activity Logs</p>
                             </a>
                         </li>
 

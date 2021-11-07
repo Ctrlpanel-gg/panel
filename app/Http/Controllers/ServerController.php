@@ -52,8 +52,8 @@ class ServerController extends Controller
         }
 
         // minimum credits
-        if (FacadesRequest::has("product_id")) {
-            $product = Product::findOrFail(FacadesRequest::input("product_id"));
+        if (FacadesRequest::has("product")) {
+            $product = Product::findOrFail(FacadesRequest::input("product"));
             if (
                 Auth::user()->credits <
                 ($product->minimum_credits == -1
@@ -83,17 +83,20 @@ class ServerController extends Controller
         if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
         $request->validate([
-            "name"        => "required|max:191",
-            "description" => "nullable|max:191",
-            "node_id"     => "required|exists:nodes,id",
-            "egg_id"      => "required|exists:eggs,id",
-            "product_id"  => "required|exists:products,id"
+            "name"    => "required|max:191",
+            "node"    => "required|exists:nodes,id",
+            "egg"     => "required|exists:eggs,id",
+            "product" => "required|exists:products,id"
         ]);
 
         //get required resources
-        $egg = Egg::findOrFail($request->input('egg_id'));
-        $node = Node::findOrFail($request->input('node_id'));
-        $server = Auth::user()->servers()->create($request->all());
+        $egg = Egg::findOrFail($request->input('egg'));
+        $node = Node::findOrFail($request->input('node'));
+
+        $server = $request->user()->servers()->create([
+            'name'       => $request->input('name'),
+            'product_id' => $request->input('product'),
+        ]);
 
         //get free allocation ID
         $allocationId = Pterodactyl::getFreeAllocationId($node);
@@ -110,8 +113,8 @@ class ServerController extends Controller
         ]);
 
         if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
-            if (Auth::user()->credits >= $server->product->getHourlyPrice()) {
-                Auth::user()->decrement('credits', $server->product->getHourlyPrice());
+            if ($request->user()->credits >= $server->product->getHourlyPrice()) {
+                $request->user()->decrement('credits', $server->product->getHourlyPrice());
             }
         }
 

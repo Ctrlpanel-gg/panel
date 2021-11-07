@@ -11,10 +11,22 @@ use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Validation\Validator;
 
 class Pterodactyl
 {
+    /**
+     * @return null
+     * @throws Exception
+     */
+    public static function getNests()
+    {
+        $response = self::client()->get('/application/nests');
+        if ($response->failed()) throw self::getException();
+        return $response->json()['data'];
+    }
+
+    //TODO: Extend error handling (maybe logger for more errors when debugging)
+
     /**
      * @return PendingRequest
      */
@@ -27,18 +39,57 @@ class Pterodactyl
         ])->baseUrl(env('PTERODACTYL_URL') . '/api');
     }
 
-    //TODO: Extend error handling (maybe logger for more errors when debugging)
     /**
-     * Get user by pterodactyl id
-     * @param int $pterodactylId
+     * @return Exception
+     */
+    private static function getException(): Exception
+    {
+        return new Exception('Request Failed, is pterodactyl set-up correctly?');
+    }
+
+    /**
+     * @param Nest $nest
+     * @return mixed
+     * @throws Exception
+     */
+    public static function getEggs(Nest $nest)
+    {
+        $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables");
+        if ($response->failed()) throw self::getException();
+        return $response->json()['data'];
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public static function getNodes()
+    {
+        $response = self::client()->get('/application/nodes');
+        if ($response->failed()) throw self::getException();
+        dd($response->json());
+        return $response->json()['data'];
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public static function getLocations()
+    {
+        $response = self::client()->get('/application/locations');
+        if ($response->failed()) throw self::getException();
+        return $response->json()['data'];
+    }
+
+    /**
+     * @param Node $node
      * @return mixed
      */
-    public function getUser(int $pterodactylId)
+    public static function getFreeAllocationId(Node $node)
     {
-        $response = self::client()->get("/application/users/{$pterodactylId}");
 
-        if ($response->failed()) return $response->json();
-        return $response->json()['attributes'];
+        return self::getFreeAllocations($node)[0]['attributes']['id'] ?? null;
     }
 
     /**
@@ -63,64 +114,6 @@ class Pterodactyl
     }
 
     /**
-     * @return null
-     * @throws Exception
-     */
-    public static function getNests()
-    {
-        $response = self::client()->get('/application/nests');
-        if ($response->failed()) throw self::getException();
-        return $response->json()['data'];
-    }
-
-    /**
-     * @param Nest $nest
-     * @return mixed
-     * @throws Exception
-     */
-    public static function getEggs(Nest $nest)
-    {
-        $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables");
-        if ($response->failed()) throw self::getException();
-        return $response->json()['data'];
-    }
-
-
-    /**
-     * @return mixed
-     * @throws Exception
-     */
-    public static function getNodes()
-    {
-        $response = self::client()->get('/application/nodes');
-        if ($response->failed()) throw self::getException();
-        return $response->json()['data'];
-    }
-
-
-    /**
-     * @return mixed
-     * @throws Exception
-     */
-    public static function getLocations()
-    {
-        $response = self::client()->get('/application/locations');
-        if ($response->failed()) throw self::getException();
-        return $response->json()['data'];
-    }
-
-    /**
-     * @param Node $node
-     * @return mixed
-     */
-    public static function getFreeAllocationId(Node $node)
-    {
-
-        return self::getFreeAllocations($node)[0]['attributes']['id'] ?? null;
-    }
-
-
-    /**
      * @param Node $node
      * @throws Exception
      */
@@ -131,7 +124,6 @@ class Pterodactyl
         if ($response->failed()) throw self::getException();
         return $response->json();
     }
-
 
     /**
      * @param String $route
@@ -151,21 +143,21 @@ class Pterodactyl
     public static function createServer(Server $server, Egg $egg, int $allocationId)
     {
         return self::client()->post("/application/servers", [
-            "name"           => $server->name,
-            "external_id"    => $server->id,
-            "user"           => $server->user->pterodactyl_id,
-            "egg"            => $egg->id,
-            "docker_image"   => $egg->docker_image,
-            "startup"        => $egg->startup,
-            "environment"    => $egg->getEnvironmentVariables(),
-            "limits"         => [
+            "name"                => $server->name,
+            "external_id"         => $server->id,
+            "user"                => $server->user->pterodactyl_id,
+            "egg"                 => $egg->id,
+            "docker_image"        => $egg->docker_image,
+            "startup"             => $egg->startup,
+            "environment"         => $egg->getEnvironmentVariables(),
+            "limits"              => [
                 "memory" => $server->product->memory,
                 "swap"   => $server->product->swap,
                 "disk"   => $server->product->disk,
                 "io"     => $server->product->io,
                 "cpu"    => $server->product->cpu
             ],
-            "feature_limits" => [
+            "feature_limits"      => [
                 "databases"   => $server->product->databases,
                 "backups"     => $server->product->backups,
                 "allocations" => $server->product->allocations,
@@ -174,6 +166,7 @@ class Pterodactyl
                 "default" => $allocationId
             ]
         ]);
+
     }
 
     public static function suspendServer(Server $server)
@@ -191,10 +184,15 @@ class Pterodactyl
     }
 
     /**
-     * @return Exception
+     * Get user by pterodactyl id
+     * @param int $pterodactylId
+     * @return mixed
      */
-    private static function getException(): Exception
+    public function getUser(int $pterodactylId)
     {
-        return new Exception('Request Failed, is pterodactyl set-up correctly?');
+        $response = self::client()->get("/application/users/{$pterodactylId}");
+
+        if ($response->failed()) return $response->json();
+        return $response->json()['attributes'];
     }
 }

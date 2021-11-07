@@ -27,11 +27,12 @@
         <div class="container">
 
             <!-- FORM -->
-            <div class="row">
+            <form action="{{route('servers.store')}}" method="post" class="row">
+                @csrf
                 <div class="col-md-8">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-title">{{__('Server configuration')}}</div>
+                            <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{__('Server configuration')}}</div>
                         </div>
 
                         @if($productCount === 0 || $nodeCount === 0 || count($nests) === 0 || count($eggs) === 0 )
@@ -62,7 +63,17 @@
                             <i class="fas fa-2x fa-sync-alt"></i>
                         </div>
                         <div class="card-body">
-                            @csrf
+
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="list-group pl-3">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
                             <div class="form-group">
                                 <label for="name">{{__('Name')}}</label>
                                 <input x-model="name" id="name" name="name" type="text" required="required"
@@ -70,7 +81,7 @@
 
                                 @error('name')
                                 <div class="invalid-feedback">
-                                    Please fill out this field.
+                                    {{ $message }}
                                 </div>
                                 @enderror
                             </div>
@@ -80,10 +91,11 @@
                                     <div class="form-group">
                                         <label for="nest">{{__('Software')}}</label>
                                         <select class="custom-select"
+                                                required
                                                 name="nest"
                                                 id="nest"
                                                 x-model="selectedNest"
-                                                @change="setNests(); $refs.egg.selectedIndex = '0'">
+                                                @change="setNests();">
                                             <option selected disabled
                                                     value="null">{{count($nests) > 0 ? __('Please select software..') : __('---')}}</option>
                                             @foreach ($nests as $nest)
@@ -99,11 +111,11 @@
                                         <label for="egg">{{__('Configuration')}}</label>
                                         <div>
                                             <select id="egg"
+                                                    required
                                                     name="egg"
-                                                    x-ref="egg"
                                                     :disabled="eggs.length == 0"
                                                     x-model="selectedEgg"
-                                                    @change="fetchNodes(); $refs.node.selectedIndex = '0'"
+                                                    @change="fetchNodes();"
                                                     required="required"
                                                     class="custom-select">
                                                 <option x-text="getEggInputText()"
@@ -120,8 +132,8 @@
                             <div class="form-group">
                                 <label for="node">{{__('Node')}}</label>
                                 <select name="node"
+                                        required
                                         id="node"
-                                        x-ref="node"
                                         x-model="selectedNode"
                                         :disabled="!fetchedNodes"
                                         @change="fetchProducts();"
@@ -139,10 +151,11 @@
                             <div class="form-group">
                                 <label for="product">{{__('Resources')}}</label>
                                 <select name="product"
+                                        required
                                         id="product"
-                                        x-ref="product"
                                         :disabled="!fetchedProducts"
                                         x-model="selectedProduct"
+                                        @change="updateSelectedObjects()"
                                         class="custom-select">
                                     <option
                                         x-text="getProductInputText()"
@@ -160,48 +173,62 @@
                 </div>
                 <div class="col-md-4 mb-4">
                     <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <i class="fas fa-list mr-2"></i>{{__('Server details')}}
+                            </div>
+                        </div>
                         <div class="card-body">
-                            <h4 class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-muted">{{__('Server details')}}</span>
-                            </h4>
+
                             <ul class="list-group mb-3">
-                                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                                <li x-show="selectedNestObject.name"
+                                    class="list-group-item d-flex justify-content-between lh-condensed">
                                     <div>
                                         <h6 class="my-0">{{__('Software')}}</h6>
-                                        <small class="text-muted">Brief description</small>
+                                        <small x-text="selectedNestObject?.name ?? '{{__('No selection')}}'"
+                                               class="text-muted"></small>
                                     </div>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between lh-condensed">
                                     <div>
                                         <h6 class="my-0">{{__('Configuration')}}</h6>
-                                        <small class="text-muted">Brief description</small>
+                                        <small x-text="selectedEggObject?.name ?? '{{__('No selection')}}'"
+                                               class="text-muted"></small>
                                     </div>
                                 </li>
                                 <li
                                     class="list-group-item d-flex justify-content-between lh-condensed">
                                     <div>
                                         <h6 class="my-0">{{__('Node')}}</h6>
-                                        <small class="text-muted">Brief description</small>
+                                        <small x-text="selectedNodeObject?.name ?? '{{__('No selection')}}'"
+                                               class="text-muted"></small>
                                     </div>
                                 </li>
                                 <li
                                     class="list-group-item d-flex justify-content-between lh-condensed">
                                     <div>
                                         <h6 class="my-0">{{__('Resources')}}</h6>
-                                        <small class="text-muted">Brief description</small>
+                                        <small x-text="selectedProductObject?.name ?? '{{__('No selection')}}'"
+                                               class="text-muted"></small>
                                     </div>
                                 </li>
                             </ul>
-                            <ul x-show="selectedProduct" class="list-group">
+                            <ul class="list-group mb-3">
                                 <li class="list-group-item d-flex justify-content-between">
                                     <span>{{CREDITS_DISPLAY_NAME}} {{__('per month')}}</span>
-                                    <strong x-text="selectedProduct"></strong>
+                                    <strong>
+                                        <i x-show="selectedProductObject?.price" class="fas fa-coins"></i>
+                                        <span x-text="selectedProductObject?.price ?? ''"></span>
+                                    </strong>
                                 </li>
                             </ul>
+                            <button :disabled="!isFormValid()" :class="isFormValid() ? '' : 'disabled'" class="btn btn-primary btn-block">
+                                {{__('Create server')}}
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
             <!-- END FORM -->
 
         </div>
@@ -212,16 +239,25 @@
     <script>
         function serverApp() {
             return {
+                //loading
                 loading: false,
                 fetchedNodes: false,
                 fetchedProducts: false,
 
+                //input fields
                 name: null,
                 selectedNest: null,
                 selectedEgg: null,
                 selectedNode: null,
                 selectedProduct: null,
 
+                //selected objects based on input
+                selectedNestObject: {},
+                selectedEggObject: {},
+                selectedNodeObject: {},
+                selectedProductObject: {},
+
+                //values
                 nests: {!! $nests !!},
                 eggsSave:{!! $eggs !!}, //store back-end eggs
                 eggs: [],
@@ -239,8 +275,12 @@
                     this.fetchedProducts = false;
                     this.nodes = [];
                     this.products = [];
+                    this.selectedEgg = 'null';
+                    this.selectedNode = 'null';
+                    this.selectedProduct = 'null';
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)
+                    this.updateSelectedObjects()
                 },
 
                 /**
@@ -254,6 +294,8 @@
                     this.fetchedProducts = false;
                     this.nodes = [];
                     this.products = [];
+                    this.selectedNode = 'null';
+                    this.selectedProduct = 'null';
 
                     let response = await axios.get(`{{route('products.nodes.egg')}}/${this.selectedEgg}`)
                         .catch(console.error)
@@ -261,6 +303,7 @@
                     this.fetchedNodes = true;
                     this.nodes = response.data
                     this.loading = false;
+                    this.updateSelectedObjects()
                 },
 
                 /**
@@ -272,6 +315,7 @@
                     this.loading = true;
                     this.fetchedProducts = false;
                     this.products = [];
+                    this.selectedProduct = 'null';
 
                     let response = await axios.get(`{{route('products.products.node')}}/${this.selectedNode}`)
                         .catch(console.error)
@@ -279,6 +323,30 @@
                     this.fetchedProducts = true;
                     this.products = response.data
                     this.loading = false;
+                    this.updateSelectedObjects()
+                },
+
+                /**
+                 * @description map selected id's to selected objects
+                 * @note being used in the server info box
+                 */
+                updateSelectedObjects() {
+                    this.selectedNestObject = this.nests.find(nest => nest.id == this.selectedNest) ?? {}
+                    this.selectedEggObject = this.eggs.find(egg => egg.id == this.selectedEgg) ?? {}
+                    this.selectedNodeObject = this.nodes.find(node => node.id == this.selectedNode) ?? {}
+                    this.selectedProductObject = this.products.find(product => product.id == this.selectedProduct) ?? {}
+                },
+
+                /**
+                 * @description check if all options are selected
+                 * @return {boolean}
+                 */
+                isFormValid() {
+                    if (Object.keys(this.selectedNestObject).length === 0) return false;
+                    if (Object.keys(this.selectedEggObject).length === 0) return false;
+                    if (Object.keys(this.selectedNodeObject).length === 0) return false;
+                    if (Object.keys(this.selectedProductObject).length === 0) return false;
+                    return !!this.name;
                 },
 
                 getNodeInputText() {

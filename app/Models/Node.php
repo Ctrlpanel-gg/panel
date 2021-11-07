@@ -33,7 +33,6 @@ class Node extends Model
         Location::syncLocations();
         $nodes = Pterodactyl::getNodes();
 
-
         $nodes = array_map(function($node) {
             return array(
                 'id' => $node['attributes']['id'],
