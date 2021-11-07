@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Egg;
+use App\Models\Location;
+use App\Models\Nest;
+use App\Models\Node;
 use App\Models\Configuration;
 use App\Models\Product;
 use Exception;
@@ -33,7 +37,18 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create');
+        return view('admin.products.create' , [
+            'locations' => Location::with('nodes')->get(),
+            'nests' => Nest::with('eggs')->get(),
+        ]);
+    }
+
+    public function clone(Request $request , Product $product){
+        return view('admin.products.create' , [
+            'product' => $product,
+            'locations' => Location::with('nodes')->get(),
+            'nests' => Nest::with('eggs')->get(),
+        ]);
     }
 
     /**
@@ -57,11 +72,17 @@ class ProductController extends Controller
             "databases" => "required|numeric|max:1000000|min:0",
             "backups" => "required|numeric|max:1000000|min:0",
             "allocations" => "required|numeric|max:1000000|min:0",
+            "nodes.*" => "required|exists:nodes,id",
+            "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
         ]);
 
         $disabled = !is_null($request->input('disabled'));
-        Product::create(array_merge($request->all(), ['disabled' => $disabled]));
+        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled]));
+
+        #link nodes and eggs
+        $product->eggs()->attach($request->input('eggs'));
+        $product->nodes()->attach($request->input('nodes'));
 
         return redirect()->route('admin.products.index')->with('success', 'product has been created!');
     }
@@ -89,7 +110,9 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         return view('admin.products.edit', [
-            'product' => $product
+            'product' => $product,
+            'locations' => Location::with('nodes')->get(),
+            'nests' => Nest::with('eggs')->get(),
         ]);
     }
 
@@ -115,11 +138,19 @@ class ProductController extends Controller
             "databases" => "required|numeric|max:1000000|min:0",
             "backups" => "required|numeric|max:1000000|min:0",
             "allocations" => "required|numeric|max:1000000|min:0",
+            "nodes.*" => "required|exists:nodes,id",
+            "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
         ]);
 
         $disabled = !is_null($request->input('disabled'));
         $product->update(array_merge($request->all(), ['disabled' => $disabled]));
+
+        #link nodes and eggs
+        $product->eggs()->detach();
+        $product->nodes()->detach();
+        $product->eggs()->attach($request->input('eggs'));
+        $product->nodes()->attach($request->input('nodes'));
 
         return redirect()->route('admin.products.index')->with('success', 'product has been updated!');
     }
@@ -166,6 +197,7 @@ class ProductController extends Controller
             ->addColumn('actions', function (Product $product) {
                 return '
                             <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.show', $product->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
+                            <a data-content="Clone" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.clone', $product->id) . '" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
                             <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.edit', $product->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.products.destroy', $product->id) . '">
@@ -178,6 +210,12 @@ class ProductController extends Controller
 
             ->addColumn('servers', function (Product $product) {
                 return $product->servers()->count();
+            })
+            ->addColumn('nodes', function (Product $product) {
+                return $product->nodes()->count();
+            })
+            ->addColumn('eggs', function (Product $product) {
+                return $product->eggs()->count();
             })
             ->addColumn('disabled', function (Product $product) {
                 $checked = $product->disabled == false ? "checked" : "";

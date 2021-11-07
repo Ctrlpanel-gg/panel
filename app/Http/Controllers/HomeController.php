@@ -1,6 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Egg;
+use App\Models\Product;
 use App\Models\UsefulLink;
 use App\Models\Configuration;
 use Illuminate\Http\Request;

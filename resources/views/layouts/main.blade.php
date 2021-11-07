@@ -10,6 +10,8 @@
           href="{{\Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico')}}"
           type="image/x-icon">
 
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     {{--    <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}">--}}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css"/>
 
@@ -76,11 +78,33 @@
                 </div>
             </li>
 
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true"
+                   aria-expanded="false">
+                    <span class="mr-1 d-lg-inline text-gray-600">
+                        <small><i class="fas fa-coins mr-2"></i></small>{{Auth::user()->credits()}}
+                    </span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="{{route('store.index')}}">
+                        <i class="fas fa-coins fa-sm fa-fw mr-2 text-gray-400"></i>
+                        {{__('Store')}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal"
+                       href="javascript:void(0)">
+                        <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        {{__('Redeem code')}}
+                    </a>
+                </div>
+            </li>
+
             <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true"
                    aria-expanded="false">
-                    <span class="mr-1 d-none d-lg-inline text-gray-600 small">
+                    <span class="mr-1 d-lg-inline text-gray-600 small">
                         {{Auth::user()->name}}
                         <img width="28px" height="28px" class="rounded-circle ml-1" src="{{Auth::user()->getAvatar()}}">
                     </span>
@@ -102,11 +126,6 @@
                             Log back in
                         </a>
                     @endif
-                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal"
-                       href="javascript:void(0)">
-                        <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Redeem code
-                    </a>
                     <div class="dropdown-divider"></div>
                     <form method="post" action="{{route('logout')}}">
                         @csrf
@@ -210,46 +229,33 @@
                             </a>
                         </li>
 
-                        <li class="nav-header">Pterodactyl</li>
+{{--                        <li class="nav-header">Pterodactyl</li>--}}
 
-                        <li class="nav-item">
-                            <a href="{{route('admin.nodes.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">
-                                <i class="nav-icon fas fa-sitemap"></i>
-                                <p>Nodes</p>
-                            </a>
-                        </li>
+{{--                        <li class="nav-item">--}}
+{{--                            <a href="{{route('admin.nodes.index')}}"--}}
+{{--                               class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">--}}
+{{--                                <i class="nav-icon fas fa-sitemap"></i>--}}
+{{--                                <p>Nodes</p>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
 
-                        <li class="nav-item">
-                            <a href="{{route('admin.nests.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">
-                                <i class="nav-icon fas fa-th-large"></i>
-                                <p>Nests</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-header">Logs</li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.payments.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.payments.*')) active @endif">
-                                <i class="nav-icon fas fa-money-bill-wave"></i>
-                                <p>Payments
-                                    <span class="badge badge-success right">{{\App\Models\Payment::count()}}</span>
-                                </p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{route('admin.activitylogs.index')}}"
-                               class="nav-link @if(Request::routeIs('admin.activitylogs.*')) active @endif">
-                                <i class="nav-icon fas fa-clipboard-list"></i>
-                                <p>Activity Logs</p>
-                            </a>
-                        </li>
-
+{{--                        <li class="nav-item">--}}
+{{--                            <a href="{{route('admin.nests.index')}}"--}}
+{{--                               class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">--}}
+{{--                                <i class="nav-icon fas fa-th-large"></i>--}}
+{{--                                <p>Nests</p>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
 
                         <li class="nav-header">Dashboard</li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.overview.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.overview.*')) active @endif">
+                                <i class="nav-icon fa fa-gamepad"></i>
+                                <p>Overview</p>
+                            </a>
+                        </li>
 
                         <li class="nav-item">
                             <a href="{{route('admin.api.index')}}"
@@ -282,6 +288,26 @@
                                class="nav-link @if(Request::routeIs('admin.settings.*')) active @endif">
                                 <i class="nav-icon fas fa-tools"></i>
                                 <p>Settings</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-header">Logs</li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.payments.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.payments.*')) active @endif">
+                                <i class="nav-icon fas fa-money-bill-wave"></i>
+                                <p>Payments
+                                    <span class="badge badge-success right">{{\App\Models\Payment::count()}}</span>
+                                </p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{route('admin.activitylogs.index')}}"
+                               class="nav-link @if(Request::routeIs('admin.activitylogs.*')) active @endif">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Activity Logs</p>
                             </a>
                         </li>
 
@@ -340,6 +366,8 @@
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
 <!-- Summernote -->
 <script src="{{asset('plugins/summernote/summernote-bs4.min.js')}}"></script>
+<!-- select2 -->
+<script src="{{asset('plugins/select2/js/select2.min.js')}}"></script>
 
 <!-- Moment.js -->
 <script src="{{asset('plugins/moment/moment.min.js')}}"></script>
