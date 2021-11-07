@@ -41,9 +41,9 @@ class PaypalProduct extends Model
     }
 
     /**
-     * @param  float/int
+     * @param mixed $value
      * @param string $locale
-     * @return string
+     * @return NumberFormatter
      */
     public function formatToCurrency($value,$locale = 'en_US')
     {
@@ -52,9 +52,10 @@ class PaypalProduct extends Model
     }
 
     /**
-     * @desc Returns the tax in % or 0 if less than 0
-     * @return int
-     */
+    * @description Returns the tax in % taken from the Configuration
+    *
+    * @return int
+    */
     public function getTaxPercent()
     {
         $tax = Configuration::getValueByKey("SALES_TAX");
@@ -62,18 +63,20 @@ class PaypalProduct extends Model
     }
 
     /**
-     * @desc Returns the total tax value.
-     * @return float
-     */
+    * @description Returns the tax as Number
+    *
+    * @return float
+    */
     public function getTaxValue()
     {
         return $this->price*$this->getTaxPercent()/100;
     }
 
     /**
-     * @desc Returns the total price incl. tax
-     * @return float
-     */
+    * @description Returns the full price of a Product including tax
+    *
+    * @return int
+    */
     public function getTotalPrice() 
     {
         return $this->price+($this->getTaxValue());

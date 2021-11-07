@@ -55,9 +55,9 @@ class Payment extends Model
     }
 
     /**
-     * @param  float/int
-     * @param  string
-     * @return string
+     * @param mixed $value
+     * @param string $locale
+     * @return NumberFormatter
      */
     public function formatToCurrency($value,$locale = 'en_US')
     {
