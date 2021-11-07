@@ -72,7 +72,7 @@
                                         <td>{{$server->product->memory}} MB</td>
                                     </tr>
                                     <tr>
-                                        <td>Disk</td>
+                                        <td>Storage</td>
                                         <td>{{$server->product->disk}} MB</td>
                                     </tr>
                                     <tr>
