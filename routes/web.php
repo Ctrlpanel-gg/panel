@@ -3,8 +3,6 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\ConfigurationController;
-use App\Http\Controllers\Admin\NestsController;
-use App\Http\Controllers\Admin\NodeController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PaypalProductController;
@@ -58,8 +56,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     #server create utility routes (product)
     #routes made for server create page to fetch product info
-    Route::get('/products/nodes/egg/{egg?}' , [FrontProductController::class , 'getNodesBasedOnEgg'])->name('products.nodes.egg');
-    Route::get('/products/products/node/{node?}' , [FrontProductController::class , 'getProductsBasedOnNode'])->name('products.products.node');
+    Route::get('/products/nodes/egg/{egg?}', [FrontProductController::class, 'getNodesBasedOnEgg'])->name('products.nodes.egg');
+    Route::get('/products/products/node/{node?}', [FrontProductController::class, 'getProductsBasedOnNode'])->name('products.products.node');
 
     #payments
     Route::get('checkout/{paypalProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
@@ -79,7 +77,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
-        Route::get('overview', [OverViewController::class , 'index'])->name('overview.index');
+        Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
+        Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
         Route::resource('activitylogs', ActivityLogController::class);
 

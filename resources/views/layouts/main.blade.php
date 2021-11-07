@@ -78,11 +78,33 @@
                 </div>
             </li>
 
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true"
+                   aria-expanded="false">
+                    <span class="mr-1 d-lg-inline text-gray-600">
+                        <small><i class="fas fa-coins mr-2"></i></small>{{Auth::user()->credits()}}
+                    </span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="{{route('store.index')}}">
+                        <i class="fas fa-coins fa-sm fa-fw mr-2 text-gray-400"></i>
+                        {{__('Store')}}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal"
+                       href="javascript:void(0)">
+                        <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        {{__('Redeem code')}}
+                    </a>
+                </div>
+            </li>
+
             <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true"
                    aria-expanded="false">
-                    <span class="mr-1 d-none d-lg-inline text-gray-600 small">
+                    <span class="mr-1 d-lg-inline text-gray-600 small">
                         {{Auth::user()->name}}
                         <img width="28px" height="28px" class="rounded-circle ml-1" src="{{Auth::user()->getAvatar()}}">
                     </span>
@@ -104,11 +126,6 @@
                             Log back in
                         </a>
                     @endif
-                    <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal"
-                       href="javascript:void(0)">
-                        <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                        Redeem code
-                    </a>
                     <div class="dropdown-divider"></div>
                     <form method="post" action="{{route('logout')}}">
                         @csrf

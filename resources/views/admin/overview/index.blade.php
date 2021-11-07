@@ -26,16 +26,20 @@
 
             <div class="row mb-3">
                 <div class="col-md-3">
-                    <a href="https://discord.gg/4Y6HjD2uyU" class="btn btn-dark btn-block px-3"><i class="fab fa-discord mr-2"></i> {{__('Support server')}}</a>
+                    <a href="https://discord.gg/4Y6HjD2uyU" class="btn btn-dark btn-block px-3"><i
+                            class="fab fa-discord mr-2"></i> {{__('Support server')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://controlpanel.gg/docs/intro" class="btn btn-dark btn-block px-3"><i class="fas fa-link mr-2"></i> {{__('Documentation')}}</a>
+                    <a href="https://controlpanel.gg/docs/intro" class="btn btn-dark btn-block px-3"><i
+                            class="fas fa-link mr-2"></i> {{__('Documentation')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://github.com/ControlPanel-gg/dashboard" class="btn btn-dark btn-block px-3"><i class="fab fa-github mr-2"></i> {{__('Github')}}</a>
+                    <a href="https://github.com/ControlPanel-gg/dashboard" class="btn btn-dark btn-block px-3"><i
+                            class="fab fa-github mr-2"></i> {{__('Github')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://controlpanel.gg/docs/Contributing/donating" class="btn btn-dark btn-block px-3"><i class="fas fa-money-bill mr-2"></i> {{__('Support ControlPanel')}}</a>
+                    <a href="https://controlpanel.gg/docs/Contributing/donating" class="btn btn-dark btn-block px-3"><i
+                            class="fas fa-money-bill mr-2"></i> {{__('Support ControlPanel')}}</a>
                 </div>
             </div>
 
@@ -68,7 +72,8 @@
 
                 <div class="col-12 col-sm-6 col-md-3">
                     <div class="info-box">
-                        <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-coins text-white"></i></span>
+                        <span class="info-box-icon bg-warning elevation-1"><i
+                                class="fas fa-coins text-white"></i></span>
 
                         <div class="info-box-content">
                             <span class="info-box-text">{{__('Total')}} {{CREDITS_DISPLAY_NAME}}</span>
@@ -101,39 +106,40 @@
                                 <div class="card-title ">
                                     <span><i class="fas fa-kiwi-bird mr-2"></i>{{__('Pterodactyl')}}</span>
                                 </div>
-                                <button class="btn btn-primary"><i class="fas fa-sync mr-2"></i>{{__('Sync')}}</button>
+                                <a href="{{route('admin.overview.sync')}}" class="btn btn-primary btn-sm"><i
+                                        class="fas fa-sync mr-2"></i>{{__('Sync')}}</a>
                             </div>
                         </div>
                         <div class="card-body py-1">
                             <table class="table">
-                               <thead>
-                               <tr>
-                                   <th>{{__('Resources')}}</th>
-                                   <th>{{__('Count')}}</th>
-                               </tr>
-                               </thead>
+                                <thead>
+                                <tr>
+                                    <th>{{__('Resources')}}</th>
+                                    <th>{{__('Count')}}</th>
+                                </tr>
+                                </thead>
                                 <tbody>
                                 <tr>
                                     <td>{{__('Locations')}}</td>
-                                    <td>1</td>
+                                    <td>{{$locationCount}}</td>
                                 </tr>
                                 <tr>
                                     <td>{{__('Nodes')}}</td>
-                                    <td>1</td>
+                                    <td>{{$nodeCount}}</td>
                                 </tr>
                                 <tr>
                                     <td>{{__('Nests')}}</td>
-                                    <td>1</td>
+                                    <td>{{$nestCount}}</td>
                                 </tr>
                                 <tr>
                                     <td>{{__('Eggs')}}</td>
-                                    <td>1</td>
+                                    <td>{{$eggCount}}</td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
                         <div class="card-footer">
-                            <span><i class="fas fa-sync mr-2"></i>{{__('Last updated :date', ['date' => now()])}}</span>
+                            <span><i class="fas fa-sync mr-2"></i>{{__('Last updated :date', ['date' => $syncLastUpdate])}}</span>
                         </div>
                     </div>
                 </div>

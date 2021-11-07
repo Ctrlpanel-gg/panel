@@ -67,7 +67,6 @@ class Pterodactyl
     {
         $response = self::client()->get('/application/nodes');
         if ($response->failed()) throw self::getException();
-        dd($response->json());
         return $response->json()['data'];
     }
 

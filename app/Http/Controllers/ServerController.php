@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Server;
 use App\Notifications\ServerCreationError;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,12 +33,22 @@ class ServerController extends Controller
     {
         if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
+        $productCount = Product::query()->where('disabled', '=', false)->count();
+
+        $nodeCount = Node::query()->has('products')->count();
+
+        $eggs = Egg::query()->has('products')->get();
+
+        $nests = Nest::query()->whereHas('eggs', function (Builder $builder) {
+            $builder->has('products');
+        })->get();
+
         return view('servers.create')->with([
-            'productCount'    => Product::query()->where('disabled', '=', false)->count(),
-            'nodeCount'       => Node::query()->where('disabled', '=', false)->count(),
-            'nests'           => Nest::query()->where('disabled', '=', false)->get(),
-            'eggs'            => Egg::query()->where('disabled', '=', false)->get(),
-            'minimum_credits' => Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
+            'productCount'    => $productCount,
+            'nodeCount'       => $nodeCount,
+            'nests'           => $nests,
+            'eggs'            => $eggs,
+            'user'            => Auth::user(),
         ]);
     }
 
@@ -80,6 +91,10 @@ class ServerController extends Controller
     /** Store a newly created resource in storage. */
     public function store(Request $request)
     {
+        /** @var Node $node */
+        /** @var Egg $egg */
+        /** @var Product $product */
+
         if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
         $request->validate([
@@ -90,8 +105,9 @@ class ServerController extends Controller
         ]);
 
         //get required resources
-        $egg = Egg::findOrFail($request->input('egg'));
-        $node = Node::findOrFail($request->input('node'));
+        $product = Product::query()->findOrFail($request->input('product'));
+        $egg = $product->eggs()->findOrFail($request->input('egg'));
+        $node = $product->nodes()->findOrFail($request->input('node'));
 
         $server = $request->user()->servers()->create([
             'name'       => $request->input('name'),

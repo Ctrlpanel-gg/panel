@@ -37,14 +37,18 @@
 
                         @if($productCount === 0 || $nodeCount === 0 || count($nests) === 0 || count($eggs) === 0 )
                             <div class="alert alert-danger p-2 m-2">
-                                <h5><i class="icon fas fa-exclamation-circle"></i>Error!</h5>
+                                <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Error!')}}</h5>
+                                <p class="pl-4">
+                                    {{__('Make sure to link your products to nodes and eggs.')}} <br>
+                                    {{__('There has to be at least 1 valid product for server creation')}}
+                                </p>
                                 <ul>
                                     @if($productCount === 0 )
                                         <li> {{__('No products available!')}}</li>
                                     @endif
 
                                     @if($nodeCount === 0 )
-                                        <li>{{__('No nodes available!')}}</li>
+                                        <li>{{__('No nodes have been linked!')}}</li>
                                     @endif
 
                                     @if(count($nests) === 0 )
@@ -52,7 +56,7 @@
                                     @endif
 
                                     @if(count($eggs) === 0 )
-                                        <li>{{__('No eggs available!')}}</li>
+                                        <li>{{__('No eggs have been linked!')}}</li>
                                     @endif
                                 </ul>
                             </div>
@@ -96,7 +100,7 @@
                                                 id="nest"
                                                 x-model="selectedNest"
                                                 @change="setNests();">
-                                            <option selected disabled
+                                            <option selected disabled hidden
                                                     value="null">{{count($nests) > 0 ? __('Please select software..') : __('---')}}</option>
                                             @foreach ($nests as $nest)
                                                 <option value="{{ $nest->id }}">{{ $nest->name }}</option>
@@ -140,7 +144,7 @@
                                         class="custom-select">
                                     <option
                                         x-text="getNodeInputText()"
-                                        disabled selected value="null"></option>
+                                        disabled selected hidden value="null"></option>
                                     <template x-for="node in nodes" :key="node.id">
                                         <option x-text="node.name" :value="node.id"></option>
                                     </template>
@@ -159,10 +163,12 @@
                                         class="custom-select">
                                     <option
                                         x-text="getProductInputText()"
-                                        disabled selected value="null"></option>
+                                        disabled selected hidden value="null"></option>
                                     <template x-for="product in products" :key="product.id">
-                                        <option x-text="product.name + ' (' + product.description + ')'"
-                                                :value="product.id"></option>
+                                        <option :disabled="product.minimum_credits > user.credits"
+                                                x-text="getProductOptionText(product)"
+                                                :value="product.id">
+                                        </option>
                                     </template>
                                 </select>
                             </div>
@@ -222,7 +228,8 @@
                                     </strong>
                                 </li>
                             </ul>
-                            <button :disabled="!isFormValid()" :class="isFormValid() ? '' : 'disabled'" class="btn btn-primary btn-block">
+                            <button :disabled="!isFormValid()" :class="isFormValid() ? '' : 'disabled'"
+                                    class="btn btn-primary btn-block">
                                 {{__('Create server')}}
                             </button>
                         </div>
@@ -258,6 +265,7 @@
                 selectedProductObject: {},
 
                 //values
+                user: {!! $user !!},
                 nests: {!! $nests !!},
                 eggsSave:{!! $eggs !!}, //store back-end eggs
                 eggs: [],
@@ -374,6 +382,16 @@
                         return '{{__('Please select a configuration...')}}';
                     }
                     return '{{__('---')}}';
+                },
+
+                getProductOptionText(product){
+                    let text = product.name + ' (' + product.description + ')';
+
+                    if (product.minimum_credits > this.user.credits){
+                        return '{{__('Not enough credits!')}} | ' + text;
+                    }
+
+                    return text;
                 }
             }
         }
