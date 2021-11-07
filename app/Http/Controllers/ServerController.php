@@ -12,11 +12,11 @@ use App\Models\Product;
 use App\Models\Server;
 use App\Notifications\ServerCreationError;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ServerController extends Controller
@@ -34,55 +34,26 @@ class ServerController extends Controller
     {
         if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
+        $productCount = Product::query()->where('disabled', '=', false)->count();
+
+        $nodeCount = Node::query()->has('products')->count();
+
+        $eggs = Egg::query()->has('products')->get();
+
+        $locations = Location::all();
+
+        $nests = Nest::query()->whereHas('eggs', function (Builder $builder) {
+            $builder->has('products');
+        })->get();
+
         return view('servers.create')->with([
-            'products' => Product::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
-            'locations' => Location::whereHas('nodes', function ($query) {
-                $query->where('disabled', '=', false);
-            })->get(),
-            'nests' => Nest::where('disabled', '=', false)->get(),
-            'minimum_credits' => Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
+            'productCount' => $productCount,
+            'nodeCount'    => $nodeCount,
+            'nests'        => $nests,
+            'locations'    => $locations,
+            'eggs'         => $eggs,
+            'user'         => Auth::user(),
         ]);
-    }
-
-    /** Store a newly created resource in storage. */
-    public function store(Request $request)
-    {
-        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
-
-        $request->validate([
-            "name" => "required|max:191",
-            "description" => "nullable|max:191",
-            "node_id" => "required|exists:nodes,id",
-            "egg_id" => "required|exists:eggs,id",
-            "product_id" => "required|exists:products,id"
-        ]);
-
-        //get required resources
-        $egg = Egg::findOrFail($request->input('egg_id'));
-        $node = Node::findOrFail($request->input('node_id'));
-        $server = Auth::user()->servers()->create($request->all());
-
-        //get free allocation ID
-        $allocationId = Pterodactyl::getFreeAllocationId($node);
-        if (!$allocationId) return $this->noAllocationsError($server);
-
-        //create server on pterodactyl
-        $response = Pterodactyl::createServer($server, $egg, $allocationId);
-        if ($response->failed()) return $this->serverCreationFailed($response, $server);
-
-        //update server with pterodactyl_id
-        $server->update([
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-            'identifier' => $response->json()['attributes']['identifier']
-        ]);
-
-        if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
-            if (Auth::user()->credits >= $server->product->getHourlyPrice()) {
-                Auth::user()->decrement('credits', $server->product->getHourlyPrice());
-            }
-        }
-
-        return redirect()->route('servers.index')->with('success', 'server created');
     }
 
     /**
@@ -96,8 +67,8 @@ class ServerController extends Controller
         }
 
         // minimum credits
-        if (FacadesRequest::has("product_id")) {
-            $product = Product::findOrFail(FacadesRequest::input("product_id"));
+        if (FacadesRequest::has("product")) {
+            $product = Product::findOrFail(FacadesRequest::input("product"));
             if (
                 Auth::user()->credits <
                 ($product->minimum_credits == -1
@@ -121,17 +92,54 @@ class ServerController extends Controller
         return null;
     }
 
-    /** Remove the specified resource from storage. */
-    public function destroy(Server $server)
+    /** Store a newly created resource in storage. */
+    public function store(Request $request)
     {
-        try {
-            $server->delete();
-            return redirect()->route('servers.index')->with('success', 'server removed');
-        } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
-        }
-    }
+        /** @var Node $node */
+        /** @var Egg $egg */
+        /** @var Product $product */
 
+        if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
+
+        $request->validate([
+            "name"    => "required|max:191",
+            "node"    => "required|exists:nodes,id",
+            "egg"     => "required|exists:eggs,id",
+            "product" => "required|exists:products,id"
+        ]);
+
+        //get required resources
+        $product = Product::query()->findOrFail($request->input('product'));
+        $egg = $product->eggs()->findOrFail($request->input('egg'));
+        $node = $product->nodes()->findOrFail($request->input('node'));
+
+        $server = $request->user()->servers()->create([
+            'name'       => $request->input('name'),
+            'product_id' => $request->input('product'),
+        ]);
+
+        //get free allocation ID
+        $allocationId = Pterodactyl::getFreeAllocationId($node);
+        if (!$allocationId) return $this->noAllocationsError($server);
+
+        //create server on pterodactyl
+        $response = Pterodactyl::createServer($server, $egg, $allocationId);
+        if ($response->failed()) return $this->serverCreationFailed($response, $server);
+
+        //update server with pterodactyl_id
+        $server->update([
+            'pterodactyl_id' => $response->json()['attributes']['id'],
+            'identifier'     => $response->json()['attributes']['identifier']
+        ]);
+
+        if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
+            if ($request->user()->credits >= $server->product->getHourlyPrice()) {
+                $request->user()->decrement('credits', $server->product->getHourlyPrice());
+            }
+        }
+
+        return redirect()->route('servers.index')->with('success', 'Server created');
+    }
 
     /**
      * return redirect with error
@@ -143,7 +151,7 @@ class ServerController extends Controller
         $server->delete();
 
         Auth::user()->notify(new ServerCreationError($server));
-        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment were found.');
+        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment on this node were found.');
     }
 
     /**
@@ -157,5 +165,16 @@ class ServerController extends Controller
         $server->delete();
 
         return redirect()->route('servers.index')->with('error', json_encode($response->json()));
+    }
+
+    /** Remove the specified resource from storage. */
+    public function destroy(Server $server)
+    {
+        try {
+            $server->delete();
+            return redirect()->route('servers.index')->with('success', 'Server removed');
+        } catch (Exception $e) {
+            return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
+        }
     }
 }

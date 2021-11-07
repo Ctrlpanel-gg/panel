@@ -67,37 +67,23 @@
                 </div>
 
                 <!-- /.col -->
-                @if(Auth::user()->Credits() > 0.01 and $useage > 0)
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="info-box mb-3">
-                        @if(number_format((Auth::user()->Credits()*30)/$useage,0,'.','') >= 15)
-                            <span class="info-box-icon bg-success elevation-1">
-                        @elseif (number_format((Auth::user()->Credits()*30)/$useage,0,'.','') >= 8 && number_format((Auth::user()->Credits()*30)/$useage,0,'.','') <= 14)
-                            <span class="info-box-icon bg-warning elevation-1">
-                        @elseif (number_format((Auth::user()->Credits()*30)/$useage,0,'.','') <= 7)
-                            <span class="info-box-icon bg-danger elevation-1">
-                        @endif
-                            <i class="fas fa-hourglass-half"></i></span>
-
-                        <div class="info-box-content">
-                            <span class="info-box-text">Out of {{CREDITS_DISPLAY_NAME}} in </span>
-                            @if(number_format((Auth::user()->Credits()*30)/$useage,2,'.','') < "1")
-                                @if(number_format(Auth::user()->Credits()/($useage/30/24),2,'.','') < "1")
-                                    <span class="info-box-number">You ran out of Credits </span>
-                                @else
-                                    <span class="info-box-number">{{number_format(Auth::user()->Credits()/($useage/30/24),0,'.','')}} <sup> hours</sup></span>
-                                @endif
-                            @else
-                               <span class="info-box-number">{{number_format((Auth::user()->Credits()*30)/$useage,0,'.','')}} <sup> days</sup></span>
-                            @endif
+                @if($credits > 0.01 and $useage > 0)
+                     <div class="col-12 col-sm-6 col-md-3">
+                        <div class="info-box mb-3">
+                        <span class="info-box-icon {{$bg}} elevation-1">
+                        <i class="fas fa-hourglass-half"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Out of {{CREDITS_DISPLAY_NAME}} in </span>
+                                <span class="info-box-number">{{$boxText}}<sup>{{$unit}}</sup></span>
+                            </div>
                         </div>
-                        <!-- /.info-box-content -->
-                    </div>
                     <!-- /.info-box -->
+                @endif
                 </div>
                 <!-- /.col -->
-            @endif
+
             </div>
+
 
 
 

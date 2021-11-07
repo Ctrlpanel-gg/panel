@@ -4,6 +4,7 @@
 /storage/*.key
 /vendor
 /storage/credit_deduction_log
+storage/debugbar
 .env
 .env.testing
 .env.backup
