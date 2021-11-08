@@ -242,6 +242,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return number_format($usage, 2, '.', '');
     }
 
+
+    /**
+    * @description Returns the Users "out of Credits" time
+    *
+    * @return string
+    */
     public function outOfCredits()
     {
         $usage = $this->creditUsage();
