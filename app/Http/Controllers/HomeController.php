@@ -49,6 +49,30 @@ class HomeController extends Controller
     }
 
     /**
+    * @description Set "hours", "days" or nothing behind the remaining time
+    *
+    * @param  float  $days
+    * @param  float  $hours
+    *
+    * @return string
+    */
+    public function getTimeLeftBoxUnit(float $days, float $hours)
+    {
+        if ($days < 1)
+        {
+            if ($hours < 1)
+            {
+                return;
+            }
+            else
+            {
+                return "hours";
+            }
+        }
+        return "days";
+    }
+
+    /**
     * @description Get the Text for the Days-Left-Box in HomeView
     *
     * @param  float  $days
@@ -89,7 +113,7 @@ class HomeController extends Controller
 
             $bg = $this->getTimeLeftBoxBackground($days);
             $boxText = $this->getTimeLeftBoxText($days, $hours);
-            $unit = $days < 1 ? 'hours' : 'days';
+            $unit = $this->getTimeLeftBoxUnit($days, $hours);
 
         }
 
