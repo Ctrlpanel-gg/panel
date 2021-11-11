@@ -27,16 +27,16 @@ class HomeController extends Controller
     /**
      * @description Get the Background Color for the Days-Left-Box in HomeView
      *
-     * @param float $days
+     * @param float $daysLeft
      *
      * @return string
      */
-    public function getTimeLeftBoxBackground(float $days): string
+    public function getTimeLeftBoxBackground(float $daysLeft): string
     {
-        if ($days >= 15) {
+        if ($daysLeft >= 15) {
             return $this::TIME_LEFT_BG_SUCCESS;
         }
-        if ($days <= 7) {
+        if ($daysLeft <= 7) {
             return $this::TIME_LEFT_BG_DANGER;
         }
         return $this::TIME_LEFT_BG_WARNING;
@@ -46,15 +46,15 @@ class HomeController extends Controller
     /**
      * @description Set "hours", "days" or nothing behind the remaining time
      *
-     * @param float $days
-     * @param float $hours
+     * @param float $daysLeft
+     * @param float $hoursLeft
      *
      * @return string|void
      */
-    public function getTimeLeftBoxUnit(float $days, float $hours)
+    public function getTimeLeftBoxUnit(float $daysLeft, float $hoursLeft)
     {
-        if ($days < 1) {
-            if ($hours < 1) {
+        if ($daysLeft < 1) {
+            if ($hoursLeft < 1) {
                 return;
             } else {
                 return "hours";
@@ -66,21 +66,21 @@ class HomeController extends Controller
     /**
      * @description Get the Text for the Days-Left-Box in HomeView
      *
-     * @param float $days
-     * @param float $hours
+     * @param float $daysLeft
+     * @param float $hoursLeft
      *
      * @return string
      */
-    public function getTimeLeftBoxText(float $days, float $hours)
+    public function getTimeLeftBoxText(float $daysLeft, float $hoursLeft)
     {
-        if ($days < 1) {
-            if ($hours < 1) {
+        if ($daysLeft < 1) {
+            if ($hoursLeft < 1) {
                 return $this::TIME_LEFT_OUT_OF_CREDITS_TEXT;
             } else {
-                return strval($hours);
+                return strval($hoursLeft);
             }
         }
-        return strval(number_format($days, 0));
+        return strval(number_format($daysLeft, 0));
     }
 
     /** Show the application dashboard. */
@@ -99,7 +99,7 @@ class HomeController extends Controller
 
             $bg = $this->getTimeLeftBoxBackground($daysLeft);
             $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
-            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : "hours") : "daysLeft";
+            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : "hours") : "days";
 
         }
 
