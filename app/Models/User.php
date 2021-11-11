@@ -80,9 +80,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_seen'         => 'datetime',
-        'credits'           => 'float',
-        'server_limit'      => 'float',
+        'last_seen' => 'datetime',
+        'credits' => 'float',
+        'server_limit' => 'float',
     ];
 
     /**
@@ -248,18 +248,20 @@ class User extends Authenticatable implements MustVerifyEmail
     *
     * @return string
     */
+     * @return string
+     */
     public function outOfCredits()
     {
         $usage = $this->creditUsage();
         $credits = $this->credits;
-        $timeLeft = number_format(($credits*30)/$usage);
+        $timeLeft = number_format(($credits * 30) / $usage);
         $unit = "days";
 
-        if($timeLeft < 1){
-         $timeLeft = number_format(($credits*30)/$usage*24,2);
-         $unit = "hours"; 
+        if ($timeLeft < 1) {
+            $timeLeft = number_format(($credits * 30) / $usage * 24, 2);
+            $unit = "hours";
         }
-        return $timeLeft." ".$unit;
+        return $timeLeft . " " . $unit;
     }
 
     /**
