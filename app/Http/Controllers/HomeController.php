@@ -9,9 +9,7 @@ use App\Models\Configuration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-/**
- *
- */
+
 class HomeController extends Controller
 {
     const TIME_LEFT_BG_SUCCESS = "bg-success";
