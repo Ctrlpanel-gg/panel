@@ -362,7 +362,7 @@
                     this.products = [];
                     this.selectedProduct = 'null';
 
-                    let response = await axios.get(`{{route('products.products.node')}}/${this.selectedNode}`)
+                    let response = await axios.get(`{{route('products.products.node')}}/${this.selectedEgg}/${this.selectedNode}`)
                         .catch(console.error)
 
                     this.fetchedProducts = true;
