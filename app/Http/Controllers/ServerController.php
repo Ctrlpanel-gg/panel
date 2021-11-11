@@ -138,7 +138,7 @@ class ServerController extends Controller
             }
         }
 
-        return redirect()->route('servers.index')->with('success', 'server created');
+        return redirect()->route('servers.index')->with('success', 'Server created');
     }
 
     /**
@@ -151,7 +151,7 @@ class ServerController extends Controller
         $server->delete();
 
         Auth::user()->notify(new ServerCreationError($server));
-        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment were found.');
+        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment on this node were found.');
     }
 
     /**
@@ -172,7 +172,7 @@ class ServerController extends Controller
     {
         try {
             $server->delete();
-            return redirect()->route('servers.index')->with('success', 'server removed');
+            return redirect()->route('servers.index')->with('success', 'Server removed');
         } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
         }

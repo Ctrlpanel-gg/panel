@@ -21,7 +21,7 @@ class ProductController extends Controller
      */
     public function getNodesBasedOnEgg(Request $request, Egg $egg)
     {
-        if (is_null($egg->id)) return response()->json('egg id is required', '400');
+        if (is_null($egg->id)) return response()->json('Egg ID is required', '400');
 
         #get products that include this egg
         $products = Product::query()->with('nodes')->whereHas('eggs', function (Builder $builder) use ($egg) {
