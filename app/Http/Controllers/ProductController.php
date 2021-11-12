@@ -58,13 +58,13 @@ class ProductController extends Controller
             /** @var Location $location */
             $location = $node->location;
 
-            if (!$locations->contains('id' , $location->id)){
-                $nodeIds = $nodes->map(function ($node){
+            if (!$locations->contains('id', $location->id)) {
+                $nodeIds = $nodes->map(function ($node) {
                     return $node->id;
                 });
 
                 $location->nodes = $location->nodes()
-                    ->whereIn('id' , $nodeIds)
+                    ->whereIn('id', $nodeIds)
                     ->get();
 
                 $locations->add($location);
@@ -76,14 +76,20 @@ class ProductController extends Controller
 
     /**
      * @param Node $node
+     * @param Egg $egg
      * @return Collection|JsonResponse
      */
-    public function getProductsBasedOnNode(Node $node)
+    public function getProductsBasedOnNode(Egg $egg, Node $node)
     {
-        if (is_null($node->id)) return response()->json('Node ID is required', '400');
+        if (is_null($egg->id) || is_null($node->id)) return response()->json('node and egg id is required', '400');
 
-        return Product::query()->whereHas('nodes', function (Builder $builder) use ($node) {
-            $builder->where('id', '=', $node->id);
-        })->get();
+        return Product::query()
+            ->whereHas('nodes', function (Builder $builder) use ($node) {
+                $builder->where('id', '=', $node->id);
+            })
+            ->whereHas('eggs', function (Builder $builder) use ($egg) {
+                $builder->where('id', '=', $egg->id);
+            })
+            ->get();
     }
 }

@@ -29,6 +29,9 @@ class Payment extends Model
         'type',
         'amount',
         'price',
+        'tax_value',
+        'total_price',
+        'tax_percent',
         'currency_code',
     ];
 
@@ -51,9 +54,15 @@ class Payment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function formatCurrency($locale = 'en_US')
+    /**
+     * @param mixed $value
+     * @param string $locale
+     * 
+     * @return float
+     */
+    public function formatToCurrency($value,$locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-        return $formatter->formatCurrency($this->price, $this->currency_code);
+        return $formatter->formatCurrency($value, $this->currency_code);
     }
 }

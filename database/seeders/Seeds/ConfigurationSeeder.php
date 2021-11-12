@@ -136,6 +136,14 @@ class ConfigurationSeeder extends Seeder
             'type'        => 'boolean',
             'description' => 'Charges the first hour worth of credits upon creating a server.'
         ]);
+        //sales tax
+        Configuration::firstOrCreate([
+            'key'   => 'SALES_TAX',
+        ], [
+            'value' => '0',
+            'type'  => 'integer',
+            'description'  => 'The %-value of tax that will be added to the product price on checkout'
+        ]);
 
     }
 }
