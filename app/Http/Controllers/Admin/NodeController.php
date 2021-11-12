@@ -14,6 +14,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+/**
+ * @deprecated
+ * Class NodeController
+ * @package App\Http\Controllers\Admin
+ */
 class NodeController extends Controller
 {
     /**

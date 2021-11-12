@@ -62,7 +62,7 @@ class PaypalProductController extends Controller
         $disabled = !is_null($request->input('disabled'));
         PaypalProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
 
-        return redirect()->route('admin.store.index')->with('success', 'store item has been created!');
+        return redirect()->route('admin.store.index')->with('success', 'Store item has been created!');
     }
 
     /**
@@ -112,7 +112,7 @@ class PaypalProductController extends Controller
         $disabled = !is_null($request->input('disabled'));
         $paypalProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
 
-        return redirect()->route('admin.store.index')->with('success', 'store item has been updated!');
+        return redirect()->route('admin.store.index')->with('success', 'Store item has been updated!');
     }
 
     /**
@@ -124,7 +124,7 @@ class PaypalProductController extends Controller
     {
         $paypalProduct->update(['disabled' => !$paypalProduct->disabled]);
 
-        return redirect()->route('admin.store.index')->with('success', 'product has been updated!');
+        return redirect()->route('admin.store.index')->with('success', 'Product has been updated!');
     }
 
     /**
@@ -136,7 +136,7 @@ class PaypalProductController extends Controller
     public function destroy(PaypalProduct $paypalProduct)
     {
         $paypalProduct->delete();
-        return redirect()->back()->with('success', 'store item has been removed!');
+        return redirect()->back()->with('success', 'Store item has been removed!');
     }
 
 
@@ -173,7 +173,7 @@ class PaypalProductController extends Controller
                 return $paypalProduct->created_at ? $paypalProduct->created_at->diffForHumans() : '';
             })
             ->editColumn('price', function (PaypalProduct $paypalProduct) {
-                return $paypalProduct->formatCurrency();
+                return $paypalProduct->formatToCurrency($paypalProduct->price);
             })
             ->rawColumns(['actions', 'disabled'])
             ->make();
