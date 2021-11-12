@@ -229,7 +229,7 @@
                                         <small x-text="selectedProductObject?.name ?? '{{__('No selection')}}'"
                                                class="text-muted"></small>
                                     </div>
-                                    
+
                                     <template x-if="selectedProductObject?.name">
                                         <ul class="pl-0">
                                             <li class="d-flex justify-content-between">
@@ -368,7 +368,7 @@
 
                     //automatically select the first entry if there is only 1
                     if (this.locations.length === 1 && this.locations[0]?.nodes?.length === 1) {
-                        this.selectedNode = this.locations[0].id;
+                        this.selectedNode = this.locations[0]?.nodes?.id;
                         await this.fetchProducts();
                         return;
                     }
