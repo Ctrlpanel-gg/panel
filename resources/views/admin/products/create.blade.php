@@ -152,7 +152,7 @@
                                                     data-toggle="popover" data-trigger="hover"
                                                     data-content="Setting to -1 will use the value from configuration."
                                                     class="fas fa-info-circle"></i></label>
-                                            <input value="{{ old('minimum_credits') ?? -1 }}" id="minimum_credits"
+                                            <input value="{{ $product->minimum_credits ?? old('minimum_credits') ?? -1 }}" id="minimum_credits"
                                                    name="minimum_credits" type="number"
                                                    class="form-control @error('minimum_credits') is-invalid @enderror"
                                                    required="required">
