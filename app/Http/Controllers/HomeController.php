@@ -51,14 +51,8 @@ class HomeController extends Controller
      */
     public function getTimeLeftBoxUnit(float $daysLeft, float $hoursLeft)
     {
-        if ($daysLeft < 1) {
-            if ($hoursLeft < 1) {
-                return;
-            } else {
-                return "hours";
-            }
-        }
-        return "days";
+        if ($daysLeft > 1) return 'days';
+        return $hoursLeft < 1 ? null : "hours";
     }
 
     /**
@@ -71,14 +65,9 @@ class HomeController extends Controller
      */
     public function getTimeLeftBoxText(float $daysLeft, float $hoursLeft)
     {
-        if ($daysLeft < 1) {
-            if ($hoursLeft < 1) {
-                return $this::TIME_LEFT_OUT_OF_CREDITS_TEXT;
-            } else {
-                return strval($hoursLeft);
-            }
-        }
-        return strval(number_format($daysLeft, 0));
+        if ($daysLeft > 1) return strval(number_format($daysLeft, 0));
+        return ($hoursLeft < 1 ? $this::TIME_LEFT_OUT_OF_CREDITS_TEXT : strval($hoursLeft));
+
     }
 
     /** Show the application dashboard. */
