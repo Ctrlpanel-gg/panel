@@ -67,7 +67,6 @@ class HomeController extends Controller
     {
         if ($daysLeft > 1) return strval(number_format($daysLeft, 0));
         return ($hoursLeft < 1 ? $this::TIME_LEFT_OUT_OF_CREDITS_TEXT : strval($hoursLeft));
-
     }
 
     /** Show the application dashboard. */
