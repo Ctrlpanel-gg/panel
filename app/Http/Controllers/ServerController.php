@@ -35,16 +35,24 @@ class ServerController extends Controller
         if (!is_null($this->validateConfigurationRules())) return $this->validateConfigurationRules();
 
         $productCount = Product::query()->where('disabled', '=', false)->count();
-
-        $nodeCount = Node::query()->has('products')->count();
-
-        $eggs = Egg::query()->has('products')->get();
-
         $locations = Location::all();
 
-        $nests = Nest::query()->whereHas('eggs', function (Builder $builder) {
-            $builder->has('products');
-        })->get();
+        $nodeCount = Node::query()
+            ->whereHas('products', function (Builder $builder) {
+                $builder->where('disabled', '=', false);
+            })->count();
+
+        $eggs = Egg::query()
+            ->whereHas('products', function (Builder $builder) {
+                $builder->where('disabled', '=', false);
+            })->get();
+
+        $nests = Nest::query()
+            ->whereHas('eggs', function (Builder $builder) {
+                $builder->whereHas('products', function (Builder $builder) {
+                    $builder->where('disabled', '=', false);
+                });
+            })->get();
 
         return view('servers.create')->with([
             'productCount' => $productCount,

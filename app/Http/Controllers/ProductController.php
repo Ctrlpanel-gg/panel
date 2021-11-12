@@ -24,9 +24,12 @@ class ProductController extends Controller
         if (is_null($egg->id)) return response()->json('Egg ID is required', '400');
 
         #get products that include this egg
-        $products = Product::query()->with('nodes')->whereHas('eggs', function (Builder $builder) use ($egg) {
-            $builder->where('id', '=', $egg->id);
-        })->get();
+        $products = Product::query()
+            ->with('nodes')
+            ->where('disabled', '=', false)
+            ->whereHas('eggs', function (Builder $builder) use ($egg) {
+                $builder->where('id', '=', $egg->id);
+            })->get();
 
         $nodes = collect();
 
@@ -38,6 +41,7 @@ class ProductController extends Controller
                 }
             });
         });
+
 
         return $nodes;
     }
