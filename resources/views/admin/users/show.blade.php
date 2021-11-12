@@ -201,19 +201,6 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Out of Credits in</label>
-                                </div>
-                                <div class="col-lg-8">
-                                       <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                          <i class="fas fa-clock mr-2"></i>{{$user->OutOfCredits()}}
-                                       </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
                                     <label>Created At</label>
                                 </div>
                                 <div class="col-lg-8">

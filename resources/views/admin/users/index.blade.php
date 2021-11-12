@@ -46,7 +46,6 @@
                             <th>Role</th>
                             <th>Email</th>
                             <th>{{CREDITS_DISPLAY_NAME}}</th>
-                            <th>Usage (Out of Credits in..)</th>
                             <th>Servers</th>
                             <th>Verified</th>
                             <th>Last seen</th>
@@ -87,7 +86,6 @@
                     {data: 'role'},
                     {data: 'email', name: 'users.email'},
                     {data: 'credits' , name : 'users.credits'},
-                    {data: 'usage' , sortable : false},
                     {data: 'servers' , sortable : false},
                     {data: 'verified' , sortable : false},
                     {data: 'last_seen'},
