@@ -248,8 +248,6 @@ class User extends Authenticatable implements MustVerifyEmail
     *
     * @return string
     */
-     * @return string
-     */
     public function outOfCredits()
     {
         $usage = $this->creditUsage();
