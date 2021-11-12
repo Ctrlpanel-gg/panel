@@ -411,8 +411,11 @@
                     this.selectedNestObject = this.nests.find(nest => nest.id == this.selectedNest) ?? {}
                     this.selectedEggObject = this.eggs.find(egg => egg.id == this.selectedEgg) ?? {}
 
+                    this.selectedNodeObject = {};
                     this.locations.forEach(location => {
-                        this.selectedNodeObject = location.nodes.find(node => node.id == this.selectedNode) ?? {};
+                        if (!this.selectedNodeObject?.id) {
+                            this.selectedNodeObject = location.nodes.find(node => node.id == this.selectedNode) ?? {};
+                        }
                     })
 
                     this.selectedProductObject = this.products.find(product => product.id == this.selectedProduct) ?? {}
