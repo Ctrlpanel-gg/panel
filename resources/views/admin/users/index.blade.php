@@ -46,7 +46,7 @@
                             <th>Role</th>
                             <th>Email</th>
                             <th>{{CREDITS_DISPLAY_NAME}}</th>
-                            <th>Usage</th>
+                            <th>Usage (Out of Credits in..)</th>
                             <th>Servers</th>
                             <th>Verified</th>
                             <th>Last seen</th>

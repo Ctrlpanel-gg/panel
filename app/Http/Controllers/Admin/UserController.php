@@ -251,7 +251,7 @@ class UserController extends Controller
                 return '<i class="fas fa-coins mr-2"></i> ' . $user->credits();
             })
             ->addColumn('usage', function (User $user) {
-                return '<i class="fas fa-coins mr-2"></i> ' . $user->creditUsage();
+                return '<i class="fas fa-coins mr-2"></i> ' . $user->creditUsage(). ' ('.$user->outOfCredits().')';
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
