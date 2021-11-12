@@ -368,7 +368,7 @@
 
                     //automatically select the first entry if there is only 1
                     if (this.locations.length === 1 && this.locations[0]?.nodes?.length === 1) {
-                        this.selectedNode = this.locations[0]?.nodes?.id;
+                        this.selectedNode = this.locations[0]?.nodes[0]?.id;
                         await this.fetchProducts();
                         return;
                     }
