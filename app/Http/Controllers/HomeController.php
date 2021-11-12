@@ -86,7 +86,6 @@ class HomeController extends Controller
             $bg = $this->getTimeLeftBoxBackground($daysLeft);
             $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
             $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : "hours") : "days";
-
         }
 
 
