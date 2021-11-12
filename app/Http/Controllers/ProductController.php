@@ -84,6 +84,7 @@ class ProductController extends Controller
         if (is_null($egg->id) || is_null($node->id)) return response()->json('node and egg id is required', '400');
 
         return Product::query()
+            ->where('disabled', '=', false)
             ->whereHas('nodes', function (Builder $builder) use ($node) {
                 $builder->where('id', '=', $node->id);
             })
