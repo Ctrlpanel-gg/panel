@@ -432,9 +432,13 @@ e.preventDefault();
               if (result.isConfirmed) {
                   return form.submit()
               } else {
-                  return Swal.fire('Canceled ...', `${text} deletion has been canceled.`, 'info')
+                  return Swal.fire('Canceled ...', `${capitalizeWord(text)} deletion has been canceled.`, 'info')
               }
           });    
+}
+
+function capitalizeWord(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 </script>
 </body>
