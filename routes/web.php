@@ -3,8 +3,7 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\ConfigurationController;
-use App\Http\Controllers\Admin\NestsController;
-use App\Http\Controllers\Admin\NodeController;
+use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\PaypalProductController;
 use App\Http\Controllers\Admin\ProductController;
@@ -16,6 +15,7 @@ use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
@@ -40,7 +40,7 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
@@ -53,6 +53,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('servers', ServerController::class);
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
+
+    #server create utility routes (product)
+    #routes made for server create page to fetch product info
+    Route::get('/products/nodes/egg/{egg?}', [FrontProductController::class, 'getNodesBasedOnEgg'])->name('products.nodes.egg');
+    Route::get('/products/locations/egg/{egg?}', [FrontProductController::class, 'getLocationsBasedOnEgg'])->name('products.locations.egg');
+    Route::get('/products/products/{egg?}/{node?}', [FrontProductController::class, 'getProductsBasedOnNode'])->name('products.products.node');
 
     #payments
     Route::get('checkout/{paypalProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
@@ -72,6 +78,9 @@ Route::middleware('auth')->group(function () {
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
+        Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
+        Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
+
         Route::resource('activitylogs', ActivityLogController::class);
 
         Route::get("users.json", [UserController::class, "json"])->name('users.json');
@@ -79,6 +88,7 @@ Route::middleware('auth')->group(function () {
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
         Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
         Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');
+        Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
         Route::resource('users', UserController::class);
 
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
@@ -86,6 +96,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('servers', AdminServerController::class);
 
         Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
+        Route::get('products/clone/{product}', [ProductController::class, 'clone'])->name('products.clone');
         Route::patch('products/disable/{product}', [ProductController::class, 'disable'])->name('products.disable');
         Route::resource('products', ProductController::class);
 
@@ -98,13 +109,13 @@ Route::middleware('auth')->group(function () {
         Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
-        Route::get('nodes/datatable', [NodeController::class, 'datatable'])->name('nodes.datatable');
-        Route::get('nodes/sync', [NodeController::class, 'sync'])->name('nodes.sync');
-        Route::resource('nodes', NodeController::class);
-
-        Route::get('nests/datatable', [NestsController::class, 'datatable'])->name('nests.datatable');
-        Route::get('nests/sync', [NestsController::class, 'sync'])->name('nests.sync');
-        Route::resource('nests', NestsController::class);
+//        Route::get('nodes/datatable', [NodeController::class, 'datatable'])->name('nodes.datatable');
+//        Route::get('nodes/sync', [NodeController::class, 'sync'])->name('nodes.sync');
+//        Route::resource('nodes', NodeController::class);
+//
+//        Route::get('nests/datatable', [NestsController::class, 'datatable'])->name('nests.datatable');
+//        Route::get('nests/sync', [NestsController::class, 'sync'])->name('nests.sync');
+//        Route::resource('nests', NestsController::class);
 
         Route::get('configurations/datatable', [ConfigurationController::class, 'datatable'])->name('configurations.datatable');
         Route::patch('configurations/updatevalue', [ConfigurationController::class, 'updatevalue'])->name('configurations.updatevalue');
@@ -118,6 +129,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('usefullinks', UsefulLinkController::class);
 
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
+        Route::get('vouchers/{voucher}/usersdatatable', [VoucherController::class, 'usersdatatable'])->name('vouchers.usersdatatable');
+        Route::get('vouchers/{voucher}/users', [VoucherController::class, 'users'])->name('vouchers.users');
         Route::resource('vouchers', VoucherController::class);
 
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');

@@ -11,6 +11,10 @@
             <div class="card-body">
                 <p class="login-box-msg">Sign in to start your session</p>
 
+                @if (session('message'))
+                    <div class="alert alert-danger">{{ session('message') }}</div>
+                @endif
+
                 <form action="{{route('login')}}" method="post">
                     @csrf
                     @if(Session::has('error'))

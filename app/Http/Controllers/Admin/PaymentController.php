@@ -27,6 +27,7 @@ use PayPalHttp\HttpException;
 
 class PaymentController extends Controller
 {
+
     /**
      * @return Application|Factory|View
      */
@@ -45,7 +46,10 @@ class PaymentController extends Controller
     public function checkOut(Request $request, PaypalProduct $paypalProduct)
     {
         return view('store.checkout')->with([
-            'product' => $paypalProduct
+            'product'      => $paypalProduct,
+            'taxvalue'     => $paypalProduct->getTaxValue(),
+            'taxpercent'   => $paypalProduct->getTaxPercent(),
+            'total'        => $paypalProduct->getTotalPrice()
         ]);
     }
 
@@ -65,9 +69,22 @@ class PaymentController extends Controller
                 [
                     "reference_id" => uniqid(),
                     "description" => $paypalProduct->description,
-                    "amount"      => [
-                        "value"         => $paypalProduct->price,
-                        "currency_code" => strtoupper($paypalProduct->currency_code)
+ 
+                    "amount"       => [
+                        "value"         => $paypalProduct->getTotalPrice(),
+                        'currency_code' => strtoupper($paypalProduct->currency_code),
+                        'breakdown' =>[
+                            'item_total' =>
+                               [
+                                    'currency_code' => strtoupper($paypalProduct->currency_code),
+                                    'value' => $paypalProduct->price,
+                                ],
+                            'tax_total' =>
+                                [
+                                    'currency_code' => strtoupper($paypalProduct->currency_code),
+                                    'value' => $paypalProduct->getTaxValue(),
+                                ]
+                        ]
                     ]
                 ]
             ],
@@ -83,6 +100,8 @@ class PaymentController extends Controller
                 'brand_name' =>  config('app.name', 'Laravel'),
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
+
+        
         ];
 
 
@@ -148,12 +167,12 @@ class PaymentController extends Controller
                 $user->increment('credits', $paypalProduct->quantity);
 
                 //update server limit
-                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10) !== 0) {
-                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE', 10)) {
-                        $user->update(['server_limit' => 10]);
+                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
-
+                
                 //update role
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
@@ -168,6 +187,9 @@ class PaymentController extends Controller
                     'status' => $response->result->status,
                     'amount' => $paypalProduct->quantity,
                     'price' => $paypalProduct->price,
+                    'tax_value' => $paypalProduct->getTaxValue(),
+                    'tax_percent' => $paypalProduct->getTaxPercent(),
+                    'total_price' => $paypalProduct->getTotalPrice(),
                     'currency_code' => $paypalProduct->currency_code,
                     'payer' => json_encode($response->result->payer),
                 ]);
@@ -206,7 +228,7 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        return redirect()->route('store.index')->with('success', 'Payment was Cannceled');
+        return redirect()->route('store.index')->with('success', 'Payment was Canceled');
     }
 
 
@@ -223,7 +245,13 @@ class PaymentController extends Controller
                 return $payment->user->name;
             })
             ->editColumn('price', function (Payment $payment) {
-                return $payment->formatCurrency();
+                return $payment->formatToCurrency($payment->price);
+            })
+            ->editColumn('tax_value', function (Payment $payment) {
+                return $payment->formatToCurrency($payment->tax_value);
+            })
+            ->editColumn('total_price', function (Payment $payment) {
+                return $payment->formatToCurrency($payment->total_price);
             })
             ->editColumn('created_at', function (Payment $payment) {
                 return $payment->created_at ? $payment->created_at->diffForHumans() : '';

@@ -37,7 +37,10 @@
                             <th>User</th>
                             <th>Type</th>
                             <th>Amount</th>
-                            <th>Price</th>
+                            <th>Product Price</th>
+                            <th>Tax</th>
+                            <th>Tax(%)</th>
+                            <th>Total Price</th>
                             <th>Payment_ID</th>
                             <th>Payer_ID</th>
                             <th>Created at</th>
@@ -68,6 +71,9 @@
                     {data: 'type'},
                     {data: 'amount'},
                     {data: 'price'},
+                    {data: 'tax_value'},
+                    {data: 'tax_percent'},
+                    {data: 'total_price'},
                     {data: 'payment_id'},
                     {data: 'payer_id'},
                     {data: 'created_at'},

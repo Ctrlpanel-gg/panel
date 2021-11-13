@@ -85,7 +85,7 @@
                                     </tr>
                                     <tr>
                                         <td>Price per Hour</td>
-                                        <td>{{number_format($server->product->getHourlyPrice(),2,".")}} {{CREDITS_DISPLAY_NAME}}</td>
+                                        <td>{{number_format($server->product->getHourlyPrice(),2,".", "")}} {{CREDITS_DISPLAY_NAME}}</td>
                                     </tr>
                                     <tr>
                                         <td>Price per Month</td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Voucher;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -115,6 +116,13 @@ class VoucherController extends Controller
         return redirect()->back()->with('success', 'voucher has been removed!');
     }
 
+    public function users(Voucher $voucher)
+    {
+        return view('admin.vouchers.users', [
+            'voucher' => $voucher
+        ]);
+    }
+
     /**
      * @param Request $request
      * @return JsonResponse
@@ -144,7 +152,7 @@ class VoucherController extends Controller
         ]);
 
         if ($request->user()->credits + $voucher->credits >= 99999999) throw ValidationException::withMessages([
-            'code' => "You can't redeem this voucher because you would exceed the ".CREDITS_DISPLAY_NAME." limit"
+            'code' => "You can't redeem this voucher because you would exceed the " . CREDITS_DISPLAY_NAME . " limit"
         ]);
 
         #redeem voucher
@@ -153,10 +161,27 @@ class VoucherController extends Controller
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => "{$voucher->credits} ".CREDITS_DISPLAY_NAME." have been added to your balance!"
+            'success' => "{$voucher->credits} " . CREDITS_DISPLAY_NAME . " have been added to your balance!"
         ]);
     }
 
+    public function usersDataTable(Voucher $voucher)
+    {
+        $users = $voucher->users();
+
+        return datatables($users)
+            ->editColumn('name', function (User $user) {
+                return '<a class="text-info" target="_blank" href="' . route('admin.users.show', $user->id) . '">' . $user->name . '</a>';
+            })
+            ->addColumn('credits', function (User $user) {
+                return '<i class="fas fa-coins mr-2"></i> ' . $user->credits();
+            })
+            ->addColumn('last_seen', function (User $user) {
+                return $user->last_seen ? $user->last_seen->diffForHumans() : '';
+            })
+            ->rawColumns(['name', 'credits', 'last_seen'])
+            ->make();
+    }
     public function dataTable()
     {
         $query = Voucher::query();
@@ -164,6 +189,7 @@ class VoucherController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Voucher $voucher) {
                 return '
+                            <a data-content="Users" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.users', $voucher->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-users"></i></a>
                             <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.edit', $voucher->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.vouchers.destroy', $voucher->id) . '">
