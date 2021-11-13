@@ -45,41 +45,38 @@
                     <div class="tab-content">
                         <div class="tab-pane mt-3 active" id="dashboard-icons">
 
-                            <form method="POST" class="mb-3" action="{{route('admin.settings.update.icons')}}">
+                            <form method="POST" enctype="multipart/form-data" class="mb-3"
+                                  action="{{route('admin.settings.update.icons')}}">
                                 @csrf
                                 @method('PATCH')
 
-                                <div class="d-flex">
-                                    <div class="form-group">
-                                        <div class="text-center mb-2">Dashboard Icon</div>
-                                        <div class="avatar">
-                                            <div class="slim rounded-circle"
-                                                 data-size="128,128"
-                                                 data-ratio="1:1"
-                                                 style="width: 140px;height:140px; cursor: pointer"
-                                                 data-save-initial-image="true">
-                                                <input type="file" name="icon"/>
-                                                <img
-                                                    src="{{\Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/bitsec.png')}}"
-                                                    alt="icon">
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-4 col-12">
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="file" accept="image/png,image/jpeg,image/jpg"
+                                                       class="custom-file-input" name="icon" id="icon">
+                                                <label class="custom-file-label selected"
+                                                       for="icon">{{__('Select panel icon')}}</label>
                                             </div>
+                                            @error('icon')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
                                         </div>
-                                    </div>
-
-
-                                    <div class="form-group ml-5">
-                                        <div class="text-center mb-2">Favicon</div>
-                                        <div class="avatar">
-                                            <div class="slim rounded-circle"
-                                                 data-size="64,64"
-                                                 data-ratio="1:1"
-                                                 style="width: 140px;height:140px; cursor: pointer"
-                                                 data-save-initial-image="true">
-                                                <input accept="image/x-icon" type="file" name="favicon"/>
-                                                <img
-                                                    src="{{\Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico')}}"
-                                                    alt="favicon">
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3">
+                                                <input type="file" accept="image/x-icon" class="custom-file-input"
+                                                       name="favicon" id="favicon">
+                                                <label class="custom-file-label selected"
+                                                       for="favicon">{{__('Select panel favicon')}}</label>
                                             </div>
+                                            @error('favicon')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -87,7 +84,8 @@
                                 <button class="btn btn-primary">Submit</button>
                             </form>
 
-                            <p class="text-muted">Images and Icons may be cached, use <code>CNTRL + F5</code><sup>(google chrome hotkey)</sup> to reload without cache to see your changes appear :)</p>
+                            <p class="text-muted">Images and Icons may be cached, use <code>CNTRL + F5</code><sup>(google
+                                    chrome hotkey)</sup> to reload without cache to see your changes appear :)</p>
 
                         </div>
                     </div>
@@ -103,7 +101,15 @@
     </section>
     <!-- END CONTENT -->
 
-
+    <script>
+        // Add the following code if you want the name of the file appear on select
+        document.addEventListener('DOMContentLoaded', ()=>{
+            $(".custom-file-input").on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+        })
+    </script>
 
 
 @endsection

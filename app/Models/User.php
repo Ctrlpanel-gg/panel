@@ -80,9 +80,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'last_seen'         => 'datetime',
-        'credits'           => 'float',
-        'server_limit'      => 'float',
+        'last_seen' => 'datetime',
+        'credits' => 'float',
+        'server_limit' => 'float',
     ];
 
     /**

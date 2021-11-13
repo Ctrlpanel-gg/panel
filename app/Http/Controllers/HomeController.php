@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Egg;
@@ -8,11 +9,12 @@ use App\Models\Configuration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
 class HomeController extends Controller
 {
-    const TIME_LEFT_BG_SUCCESS          = "bg-success";
-    const TIME_LEFT_BG_WARNING          = "bg-warning";
-    const TIME_LEFT_BG_DANGER           = "bg-danger";
+    const TIME_LEFT_BG_SUCCESS = "bg-success";
+    const TIME_LEFT_BG_WARNING = "bg-warning";
+    const TIME_LEFT_BG_DANGER = "bg-danger";
     const TIME_LEFT_OUT_OF_CREDITS_TEXT = "You ran out of Credits";
 
     public function __construct()
@@ -21,55 +23,50 @@ class HomeController extends Controller
     }
 
     /**
-    * @description Get the Background Color for the Days-Left-Box in HomeView
-    *
-    * @param  float  $days
-    *
-    * @return string
-    */
-    public function getTimeLeftBoxBackground(float $days)
+     * @description Get the Background Color for the Days-Left-Box in HomeView
+     *
+     * @param float $daysLeft
+     *
+     * @return string
+     */
+    public function getTimeLeftBoxBackground(float $daysLeft): string
     {
-        switch ($days)
-        {
-            case ($days >= 15):
-                return $this::TIME_LEFT_BG_SUCCESS;
-            break;
-
-            case ($days >= 8 && $days <= 14):
-                return $this::TIME_LEFT_BG_WARNING;
-            break;
-
-            case ($days <= 7):
-                return $this::TIME_LEFT_BG_DANGER;
-            break;
-
-            default:
-                return $this::TIME_LEFT_BG_WARNING;
+        if ($daysLeft >= 15) {
+            return $this::TIME_LEFT_BG_SUCCESS;
         }
+        if ($daysLeft <= 7) {
+            return $this::TIME_LEFT_BG_DANGER;
+        }
+        return $this::TIME_LEFT_BG_WARNING;
+    }
+
+
+    /**
+     * @description Set "hours", "days" or nothing behind the remaining time
+     *
+     * @param float $daysLeft
+     * @param float $hoursLeft
+     *
+     * @return string|void
+     */
+    public function getTimeLeftBoxUnit(float $daysLeft, float $hoursLeft)
+    {
+        if ($daysLeft > 1) return 'days';
+        return $hoursLeft < 1 ? null : "hours";
     }
 
     /**
-    * @description Get the Text for the Days-Left-Box in HomeView
-    *
-    * @param  float  $days
-    * @param  float  $hours
-    *
-    * @return string
-    */
-    public function getTimeLeftBoxText(float $days, float $hours)
+     * @description Get the Text for the Days-Left-Box in HomeView
+     *
+     * @param float $daysLeft
+     * @param float $hoursLeft
+     *
+     * @return string
+     */
+    public function getTimeLeftBoxText(float $daysLeft, float $hoursLeft)
     {
-        if ($days < 1)
-        {
-            if ($hours < 1)
-            {
-                return $this::TIME_LEFT_OUT_OF_CREDITS_TEXT;
-            }
-            else
-            {
-                return strval($hours);
-            }
-        }
-        return strval(number_format($days, 0));
+        if ($daysLeft > 1) return strval(number_format($daysLeft, 0));
+        return ($hoursLeft < 1 ? $this::TIME_LEFT_OUT_OF_CREDITS_TEXT : strval($hoursLeft));
     }
 
     /** Show the application dashboard. */
@@ -82,17 +79,14 @@ class HomeController extends Controller
         $unit = "";
 
         /** Build our Time-Left-Box */
-        if ($credits > 0.01 and $usage > 0)
-        {
-            $days = number_format(($credits * 30) / $usage, 2, '.', '');
-            $hours = number_format($credits / ($usage / 30 / 24) , 2, '.', '');
+        if ($credits > 0.01 and $usage > 0) {
+            $daysLeft = number_format(($credits * 30) / $usage, 2, '.', '');
+            $hoursLeft = number_format($credits / ($usage / 30 / 24), 2, '.', '');
 
-            $bg = $this->getTimeLeftBoxBackground($days);
-            $boxText = $this->getTimeLeftBoxText($days, $hours);
-            $unit = $days < 1 ? 'hours' : 'days';
-
+            $bg = $this->getTimeLeftBoxBackground($daysLeft);
+            $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
+            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : "hours") : "days";
         }
-
 
 
         // RETURN ALL VALUES

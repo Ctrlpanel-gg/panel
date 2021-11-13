@@ -101,9 +101,9 @@
                                                 name="nest"
                                                 id="nest"
                                                 x-model="selectedNest"
-                                                @change="setNests();">
+                                                @change="setEggs();">
                                             <option selected disabled hidden
-                                                    value="null">{{count($nests) > 0 ? __('Please select software..') : __('---')}}</option>
+                                                    value="null">{{count($nests) > 0 ? __('Please select software ...') : __('---')}}</option>
                                             @foreach ($nests as $nest)
                                                 <option value="{{ $nest->id }}">{{ $nest->name }}</option>
                                             @endforeach
@@ -229,29 +229,39 @@
                                         <small x-text="selectedProductObject?.name ?? '{{__('No selection')}}'"
                                                class="text-muted"></small>
                                     </div>
+
                                     <template x-if="selectedProductObject?.name">
-                                       <ul class="pl-0">
-                                           <li class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Cpu')}}</small>
-                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.cpu + ' %'"></small>
-                                           </li>
-                                           <div class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Memory')}}</small>
-                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.memory + ' {{__('MB')}}'"></small>
+                                        <ul class="pl-0">
+                                            <li class="d-flex justify-content-between">
+                                                <small class="text-muted d-inline-block">{{__('CPU')}}</small>
+                                                <small class="text-muted d-inline-block"
+                                                       x-text="selectedProductObject.cpu + ' %'"></small>
+                                            </li>
+                                            <div class="d-flex justify-content-between">
+                                                <small class="text-muted d-inline-block">{{__('Memory')}}</small>
+                                                <small class="text-muted d-inline-block"
+                                                       x-text="selectedProductObject.memory + ' {{__('MB')}}'"></small>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <small class="text-muted d-inline-block">{{__('Disk')}}</small>
+                                                <small class="text-muted d-inline-block"
+                                                       x-text="selectedProductObject.disk + ' {{__('MB')}}'"></small>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <small class="text-muted d-inline-block">{{__('Databases')}}</small>
+                                                <small class="text-muted d-inline-block"
+                                                       x-text="selectedProductObject.databases + ' {{__('MySQL')}}'"></small>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <small class="text-muted d-inline-block">{{__('Backups')}}</small>
+                                                <small class="text-muted d-inline-block"
+                                                       x-text="selectedProductObject.backups"></small>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                               <small class="text-muted d-inline-block">{{__('Allocations')}} ({{__('ports')}})</small>
+                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.allocations"></small>
                                            </div>
-                                           <div class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Storage')}}</small>
-                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.disk + ' {{__('MB')}}'"></small>
-                                           </div>
-                                           <div class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Databases')}}</small>
-                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.databases + ' {{__('Mysql')}}'"></small>
-                                           </div>
-                                           <div class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Backups')}}</small>
-                                               <small class="text-muted d-inline-block" x-text="selectedProductObject.backups"></small>
-                                           </div>
-                                       </ul>
+                                        </ul>
                                     </template>
 
                                 </li>
@@ -315,7 +325,7 @@
                  * @note called whenever a nest is selected
                  * @see selectedNest
                  */
-                setNests() {
+                async setEggs() {
                     this.fetchedLocations = false;
                     this.fetchedProducts = false;
                     this.locations = [];
@@ -325,6 +335,14 @@
                     this.selectedProduct = 'null';
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)
+
+                    //automatically select the first entry if there is only 1
+                    if (this.eggs.length === 1) {
+                        this.selectedEgg = this.eggs[0].id;
+                        await this.fetchLocations();
+                        return;
+                    }
+
                     this.updateSelectedObjects()
                 },
 
@@ -347,6 +365,14 @@
 
                     this.fetchedLocations = true;
                     this.locations = response.data
+
+                    //automatically select the first entry if there is only 1
+                    if (this.locations.length === 1 && this.locations[0]?.nodes?.length === 1) {
+                        this.selectedNode = this.locations[0]?.nodes[0]?.id;
+                        await this.fetchProducts();
+                        return;
+                    }
+
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
@@ -362,11 +388,17 @@
                     this.products = [];
                     this.selectedProduct = 'null';
 
-                    let response = await axios.get(`{{route('products.products.node')}}/${this.selectedNode}`)
+                    let response = await axios.get(`{{route('products.products.node')}}/${this.selectedEgg}/${this.selectedNode}`)
                         .catch(console.error)
 
                     this.fetchedProducts = true;
                     this.products = response.data
+
+                    //automatically select the first entry if there is only 1
+                    if (this.products.length === 1) {
+                        this.selectedProduct = this.products[0].id;
+                    }
+
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
@@ -379,8 +411,11 @@
                     this.selectedNestObject = this.nests.find(nest => nest.id == this.selectedNest) ?? {}
                     this.selectedEggObject = this.eggs.find(egg => egg.id == this.selectedEgg) ?? {}
 
+                    this.selectedNodeObject = {};
                     this.locations.forEach(location => {
-                        this.selectedNodeObject = location.nodes.find(node => node.id == this.selectedNode) ?? {};
+                        if (!this.selectedNodeObject?.id) {
+                            this.selectedNodeObject = location.nodes.find(node => node.id == this.selectedNode) ?? {};
+                        }
                     })
 
                     this.selectedProductObject = this.products.find(product => product.id == this.selectedProduct) ?? {}
@@ -401,7 +436,7 @@
                 getNodeInputText() {
                     if (this.fetchedLocations) {
                         if (this.locations.length > 0) {
-                            return '{{__('Please select a node...')}}';
+                            return '{{__('Please select a node ...')}}';
                         }
                         return '{{__('No nodes found matching current configuration')}}'
                     }
@@ -411,7 +446,7 @@
                 getProductInputText() {
                     if (this.fetchedProducts) {
                         if (this.products.length > 0) {
-                            return '{{__('Please select a resource...')}}';
+                            return '{{__('Please select a resource ...')}}';
                         }
                         return '{{__('No resources found matching current configuration')}}'
                     }
@@ -420,7 +455,7 @@
 
                 getEggInputText() {
                     if (this.selectedNest) {
-                        return '{{__('Please select a configuration...')}}';
+                        return '{{__('Please select a configuration ...')}}';
                     }
                     return '{{__('---')}}';
                 },

@@ -8,7 +8,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
 {
@@ -22,25 +21,20 @@ class SettingsController extends Controller
         return view('admin.settings.index');
     }
 
-    public function updateIcons(Request $request){
-
+    public function updateIcons(Request $request)
+    {
         $request->validate([
-            'favicon' => 'required',
-            'icon' => 'required',
+            'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
+            'favicon' => 'nullable|max:10000|mimes:ico',
         ]);
 
-        //store favicon
-        $favicon = $request->input('favicon');
-        $favicon = json_decode($favicon);
-        $favicon = explode(",",$favicon->output->image)[1];
-        Storage::disk('public')->put('favicon.ico' , base64_decode($favicon));
+        if ($request->hasFile('icon')) {
+            $request->file('icon')->storeAs('public', 'icon.png');
+        }
 
-        //store dashboard icon
-        $icon = $request->input('icon');
-        $icon = json_decode($icon);
-        $icon = explode(",",$icon->output->image)[1];
-
-        Storage::disk('public')->put('icon.png' , base64_decode($icon));
+        if ($request->hasFile('favicon')) {
+            $request->file('favicon')->storeAs('public', 'favicon.ico');
+        }
 
         return redirect()->route('admin.settings.index')->with('success', 'Icons updated!');
     }

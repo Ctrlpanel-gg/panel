@@ -6,6 +6,7 @@ use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Models\Configuration;
 
 class PaypalProduct extends Model
 {
@@ -40,12 +41,45 @@ class PaypalProduct extends Model
     }
 
     /**
+     * @param mixed $value
      * @param string $locale
-     * @return string
+     * 
+     * @return float
      */
-    public function formatCurrency($locale = 'en_US')
+    public function formatToCurrency($value,$locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-        return $formatter->formatCurrency($this->price, $this->currency_code);
+        return $formatter->formatCurrency($value, $this->currency_code);
+    }
+
+    /**
+    * @description Returns the tax in % taken from the Configuration
+    *
+    * @return int
+    */
+    public function getTaxPercent()
+    {
+        $tax = Configuration::getValueByKey("SALES_TAX");
+        return $tax < 0 ? 0 : $tax;
+    }
+
+    /**
+    * @description Returns the tax as Number
+    *
+    * @return float
+    */
+    public function getTaxValue()
+    {
+        return $this->price*$this->getTaxPercent()/100;
+    }
+
+    /**
+    * @description Returns the full price of a Product including tax
+    *
+    * @return float
+    */
+    public function getTotalPrice() 
+    {
+        return $this->price+($this->getTaxValue());
     }
 }
