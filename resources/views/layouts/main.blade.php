@@ -417,7 +417,7 @@
     })
     @endif
     
-const submitDeletionForm = (e, form, text) => {
+const confirmDeletionForm = (e, form, text) => {
 e.preventDefault();
      Swal.fire({
         title: "Are you sure?",
