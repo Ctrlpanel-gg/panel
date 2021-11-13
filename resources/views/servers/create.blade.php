@@ -275,10 +275,6 @@
                                     </strong>
                                 </li>
                             </ul>
-                            <button :disabled="!isFormValid()" :class="isFormValid() ? '' : 'disabled'"
-                                    class="btn btn-primary btn-block">
-                                {{__('Create server')}}
-                            </button>
                             <input type="submit" :disabled="!isFormValid()" :class="isFormValid() ? '' : 'disabled'" class="btn btn-primary btn-block"  value="Create server" onclick="this.disabled=true;this.value='Creating, please wait...';this.form.submit();" />
                         </div>
                     </div>
