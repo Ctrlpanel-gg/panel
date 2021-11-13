@@ -46,7 +46,7 @@
                                             <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                                                 <a href="{{env('PTERODACTYL_URL' , 'http://localhost')}}/server/{{$server->identifier}}"  target="__blank" class="dropdown-item text-info"><i title="manage" class="fas fa-tasks mr-2"></i><span>Manage</span></a>
                                                 @if(!empty(env('PHPMYADMIN_URL')))
-                                                    <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" class="dropdown-item text-info"  target="__blank"><i title="manage" class="fas fa-database mr-2"></i><span>Database</span></a>
+                                                    <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" class="dropdown-item text-info"  target="__blank"><i title="manage" class="fas fa-database mr-2"></i><span>MySQL GUI</span></a>
                                                 @endif
                                                 <form method="post" onsubmit="return submitResult();" action="{{route('servers.destroy' , $server->id)}}">
                                                     @csrf
@@ -98,7 +98,7 @@
                             <div class="card-footer d-flex justify-content-between">
                                 <a href="{{env('PTERODACTYL_URL' , 'http://localhost')}}/server/{{$server->identifier}}"  target="__blank" class="btn btn-info mx-3 w-100"><i class="fas fa-tasks mr-2"></i>Manage</a>
                                 @if(!empty(env('PHPMYADMIN_URL')))
-                                    <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" target="__blank" class="btn btn-info mx-3 w-100" ><i class="fas fa-database mr-2"></i>Database</a>
+                                    <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" target="__blank" class="btn btn-info mx-3 w-100" ><i class="fas fa-database mr-2"></i>MySQL GUI</a>
                                 @endif
                             </div>
 
