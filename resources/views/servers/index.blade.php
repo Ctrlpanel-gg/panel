@@ -48,7 +48,7 @@
                                                 @if(!empty(env('PHPMYADMIN_URL')))
                                                     <a href="{{env('PHPMYADMIN_URL' , 'http://localhost')}}" class="dropdown-item text-info"  target="__blank"><i title="manage" class="fas fa-database mr-2"></i><span>Database</span></a>
                                                 @endif
-                                                <form method="post" onsubmit="return submitResult();" action="{{route('servers.destroy' , $server->id)}}">
+                                                <form method="post" onsubmit="return submitDeletionForm(event, this, 'server');" action="{{route('servers.destroy' , $server->id)}}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button class="dropdown-item text-danger"><i title="delete" class="fas fa-trash mr-2"></i><span>Delete server</span></button>
@@ -112,10 +112,4 @@
         </div>
     </section>
     <!-- END CONTENT -->
-
-    <script>
-        function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
-        }
-    </script>
 @endsection
