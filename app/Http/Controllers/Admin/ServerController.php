@@ -142,7 +142,7 @@ class ServerController extends Controller
                            <button data-content="'.$suspendText.'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm '.$suspendColor.' text-white mr-1"><i class="far '.$suspendIcon.'"></i></button>
                        </form>
 
-                       <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
+                       <form class="d-inline" onsubmit="return submitDeletionForm(event, this, \'server\');" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
                            <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
