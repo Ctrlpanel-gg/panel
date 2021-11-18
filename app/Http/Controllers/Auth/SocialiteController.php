@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Configuration;
 use App\Models\DiscordUser;
+use App\Models\User;
 use App\Models\Voucher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -27,14 +28,15 @@ class SocialiteController extends Controller
             return abort(500);
         }
 
+        /** @var User $user */
+        $user = Auth::user();
         $discord = Socialite::driver('discord')->user();
-        $discordUser = DiscordUser::find($discord->id);
         $botToken = env('DISCORD_BOT_TOKEN');
         $guildId = env('DISCORD_GUILD_ID');
         $roleId = env('DISCORD_ROLE_ID');
 
         //save / update discord_users
-        if (is_null($discordUser)) {
+        if (is_null($user->discordUser)) {
             //create discord user in db
             DiscordUser::create(array_merge($discord->user, ['user_id' => Auth::user()->id]));
             //update user
@@ -42,7 +44,7 @@ class SocialiteController extends Controller
             Auth::user()->increment('server_limit', Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD'));
             Auth::user()->update(['discord_verified_at' => now()]);
         } else {
-            $discordUser->update($discord->user);
+            $user->discordUser->update($discord->user);
         }
 
         //force user into discord server

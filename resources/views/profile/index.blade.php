@@ -78,9 +78,12 @@
                                             class="pt-sm-2 pb-1 mb-0 text-nowrap">{{$user->name}}</h4>
                                         <p class="mb-0">{{$user->email}}
                                             @if($user->hasVerifiedEmail())
-                                                <i data-toggle="popover" data-trigger="hover" data-content="Verified" class="text-success fas fa-check-circle"></i>
+                                                <i data-toggle="popover" data-trigger="hover" data-content="Verified"
+                                                   class="text-success fas fa-check-circle"></i>
                                             @else
-                                                <i data-toggle="popover" data-trigger="hover" data-content="Not verified" class="text-danger fas fa-exclamation-circle"></i>
+                                                <i data-toggle="popover" data-trigger="hover"
+                                                   data-content="Not verified"
+                                                   class="text-danger fas fa-exclamation-circle"></i>
                                             @endif
 
                                         </p>
@@ -189,8 +192,8 @@
                                         </div>
                                         @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
                                             <div class="col-12 col-sm-5 offset-sm-1 mb-3">
-                                                <b>Link your discord account!</b>
                                                 @if(is_null(Auth::user()->discordUser))
+                                                    <b>Link your discord account!</b>
                                                     <div class="verify-discord">
                                                         <div class="mb-3">
                                                             @if($credits_reward_after_verify_discord)
@@ -198,7 +201,8 @@
                                                                     extra
                                                                     <b><i
                                                                             class="fa fa-coins mx-1"></i>{{$credits_reward_after_verify_discord}}
-                                                                    </b> {{CREDITS_DISPLAY_NAME}} and increased server limit
+                                                                    </b> {{CREDITS_DISPLAY_NAME}} and increased server
+                                                                    limit
                                                                 </p>
                                                             @endif
                                                         </div>
@@ -213,21 +217,25 @@
                                                             <p>You are verified!</p>
                                                         </div>
                                                     </div>
-                                                    <div class="row">
-                                                            <div class="small-box bg-dark">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <div class="p-3">
-                                                                        <h3>{{$user->discordUser->username}} <sup>{{$user->discordUser->locale}}</sup> </h3>
-                                                                        <p>{{$user->discordUser->id}}
-                                                                        </p>
-                                                                    </div>
-                                                                    <div class="p-3"><img width="100px" height="100px" class="rounded-circle" src="{{$user->discordUser->getAvatar()}}" alt="avatar"></div>
+                                                    <div class="row pl-2">
+                                                        <div class="small-box bg-dark">
+                                                            <div class="d-flex justify-content-between">
+                                                                <div class="p-3">
+                                                                    <h3>{{$user->discordUser->username}}
+                                                                        <sup>{{$user->discordUser->locale}}</sup></h3>
+                                                                    <p>{{$user->discordUser->id}}
+                                                                    </p>
                                                                 </div>
-								                                <div class="small-box-footer">
-                                                                    <a href="{{route('auth.redirect')}}">
-                                                                        <i class="fab fa-discord mr-1"></i>Re-Sync Discord
-                                                                    </a>
-                                                                </div>
+                                                                <div class="p-3"><img width="100px" height="100px"
+                                                                                      class="rounded-circle"
+                                                                                      src="{{$user->discordUser->getAvatar()}}"
+                                                                                      alt="avatar"></div>
+                                                            </div>
+                                                            <div class="small-box-footer">
+                                                                <a href="{{route('auth.redirect')}}">
+                                                                    <i class="fab fa-discord mr-1"></i>Re-Sync Discord
+                                                                </a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 @endif
