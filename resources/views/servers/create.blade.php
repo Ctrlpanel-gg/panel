@@ -179,19 +179,18 @@
                                                                 <span>{{ __('CPU') }}</span>
                                                             </div>
                                                             <div class="col">
-                                                                <p x-text="product.cpu + ' %'""></p>
-                                                                                                </div>
-                                                                                            </div>
-
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="            mt-4">
-                                                                    <span class="card-text text-muted">Description</span>
-                                                                <p class="card-text" x-text="product.description"></p>
+                                                                <p x-text="product.cpu + ' %'"></p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="mt-4">
+                                                    <span class="card-text text-muted">Description</span>
+                                                    <p class="card-text" x-text="product.description"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </template>
                             </div>
                         </div>
