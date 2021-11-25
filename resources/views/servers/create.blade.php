@@ -24,11 +24,11 @@
 
     <!-- MAIN CONTENT -->
     <section x-data="serverApp()" class="content">
-        <div class="container">
+        <div class="container-xxl">
             <!-- FORM -->
-            <form action="{{ route('servers.store') }}" method="post" class="row">
+            <form action="{{ route('servers.store') }}" method="post" class="row justify-content-center">
                 @csrf
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{ __('Server configuration') }}
@@ -148,120 +148,28 @@
 
 
                             <!-- <div class="form-group">
-                                                                                                                        <label for="product">{{ __('Resources') }}</label>
-                                                                                                                        <select name="product" required id="product" :disabled="!fetchedProducts"
-                                                                                                                            x-model="selectedProduct" @change="updateSelectedObjects()" class="custom-select">
-                                                                                                                            <option x-text="getProductInputText()" disabled selected hidden value="null"></option>
-                                                                                                                            <template x-for="product in products" :key="product.id">
-                                                                                                                                <option :disabled="product.minimum_credits > user.credits"
-                                                                                                                                    x-text="getProductOptionText(product)" :value="product.id">
-                                                                                                                                </option>
-                                                                                                                            </template>
-                                                                                                                        </select>
-                                                                                                                    </div> -->
+                                                                                                                                                                                                                                                                                                                                                                                            <label for="product">{{ __('Resources') }}</label>
+                                                                                                                                                                                                                                                                                                                                                                                            <select name="product" required id="product" :disabled="!fetchedProducts"
+                                                                                                                                                                                                                                                                                                                                                                                                x-model="selectedProduct" @change="updateSelectedObjects()" class="custom-select">
+                                                                                                                                                                                                                                                                                                                                                                                                <option x-text="getProductInputText()" disabled selected hidden value="null"></option>
+                                                                                                                                                                                                                                                                                                                                                                                                <template x-for="product in products" :key="product.id">
+                                                                                                                                                                                                                                                                                                                                                                                                    <option :disabled="product.minimum_credits > user.credits"
+                                                                                                                                                                                                                                                                                                                                                                                                        x-text="getProductOptionText(product)" :value="product.id">
+                                                                                                                                                                                                                                                                                                                                                                                                    </option>
+                                                                                                                                                                                                                                                                                                                                                                                                </template>
+                                                                                                                                                                                                                                                                                                                                                                                            </select>
+                                                                                                                                                                                                                                                                                                                                                                                        </div> -->
                         </div>
                     </div>
 
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <i class="fas fa-list mr-2"></i>{{ __('Server details') }}
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-group mb-3">
-                                <li x-show="selectedNestObject.name"
-                                    class="list-group-item d-flex justify-content-between lh-condensed">
-                                    <div>
-                                        <h6 class="my-0">{{ __('Software / Games') }}</h6>
-                                        <small x-text="selectedNestObject?.name ?? '{{ __('No selection') }}'"
-                                            class="text-muted"></small>
-                                    </div>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between lh-condensed">
-                                    <div>
-                                        <h6 class="my-0">{{ __('Specification') }}</h6>
-                                        <small x-text="selectedEggObject?.name ?? '{{ __('No selection') }}'"
-                                            class="text-muted"></small>
-                                    </div>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between lh-condensed">
-                                    <div>
-                                        <h6 class="my-0">{{ __('Node') }}</h6>
-                                        <small x-text="selectedNodeObject?.name ?? '{{ __('No selection') }}'"
-                                            class="text-muted"></small>
-                                    </div>
-                                </li>
-                                <li class="list-group-item">
-                                    <div>
-                                        <h6 class="my-0">{{ __('Resources') }}</h6>
-                                        <small x-text="selectedProductObject?.name ?? '{{ __('No selection') }}'"
-                                            class="text-muted"></small>
-                                    </div>
-
-                                    <template x-if="selectedProductObject?.name">
-                                        <ul class="pl-0">
-                                            <li class="d-flex justify-content-between">
-                                                <small class="text-muted d-inline-block">{{ __('CPU') }}</small>
-                                                <small class="text-muted d-inline-block"
-                                                    x-text="selectedProductObject.cpu + ' %'"></small>
-                                            </li>
-                                            <div class="d-flex justify-content-between">
-                                                <small class="text-muted d-inline-block">{{ __('Memory') }}</small>
-                                                <small class="text-muted d-inline-block"
-                                                    x-text="selectedProductObject.memory + ' {{ __('MB') }}'"></small>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <small class="text-muted d-inline-block">{{ __('Disk') }}</small>
-                                                <small class="text-muted d-inline-block"
-                                                    x-text="selectedProductObject.disk + ' {{ __('MB') }}'"></small>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <small class="text-muted d-inline-block">{{ __('Databases') }}</small>
-                                                <small class="text-muted d-inline-block"
-                                                    x-text="selectedProductObject.databases + ' {{ __('MySQL') }}'"></small>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <small class="text-muted d-inline-block">{{ __('Backups') }}</small>
-                                                <small class="text-muted d-inline-block"
-                                                    x-text="selectedProductObject.backups"></small>
-                                            </div>
-                                            <div class="d-flex justify-content-between">
-                                                <small class="text-muted d-inline-block">{{ __('Allocations') }}
-                                                    ({{ __('ports') }})</small>
-                                                <small class="text-muted d-inline-block"
-                                                    x-text="selectedProductObject.allocations"></small>
-                                            </div>
-                                        </ul>
-                                    </template>
-
-                                </li>
-                            </ul>
-                            <ul class="list-group mb-3">
-                                <li class="list-group-item d-flex justify-content-between">
-                                    <span>{{ CREDITS_DISPLAY_NAME }} {{ __('per month') }}</span>
-                                    <strong>
-                                        <i x-show="selectedProductObject?.price" class="fas fa-coins"></i>
-                                        <span x-text="selectedProductObject?.price ?? ''"></span>
-                                    </strong>
-                                </li>
-                            </ul>
-                            <button :disabled="!isFormValid()" :class="isFormValid() ? '' : 'disabled'"
-                                class="btn btn-primary btn-block">
-                                {{ __('Create server') }}
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="w-100"></div>
                 <div class="col" x-show="selectedNode != null">
-                    <div class="row"><label for="product">{{ __('Resources') }}</label></div>
-                    <div class="row">
+                    <!-- <div class="row"><label for="product">{{ __('Resources') }}</label></div> -->
+                    <div class="row justify-content-center">
                         <template x-for="product in products" :key="product.id">
-                            <div class="card col-md-3 mr-4">
+                            <div class="card col-2 mr-2 ml-2 ">
                                 <div class="card-body d-flex  flex-column">
                                     <h4 class="card-title" x-text="product.name"></h4>
                                     <div class="mt-2">
@@ -303,7 +211,26 @@
                                             <p class="card-text" x-text="product.description"></p>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-primary mt-auto"
+
+                                    <div class="row flex mb-3 mt-auto">
+                                        <div class="col-auto my-auto">
+                                            Price:
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="text-muted">per Hour</div>
+                                            <span class="d-inline-block"
+                                                x-text=" Math.round((product.price/30/24) * 100) / 100 + ' Credits'"></span>
+
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="text-muted">per Month
+                                            </div>
+                                            <span class="d-inline-block" x-text="product.price + ' Credits'">
+                                            </span>
+
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary"
                                         :disabled="product.minimum_credits > user.credits">Create Server</button>
                                 </div>
                             </div>
