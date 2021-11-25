@@ -25,7 +25,6 @@
     <!-- MAIN CONTENT -->
     <section x-data="serverApp()" class="content">
         <div class="container">
-
             <!-- FORM -->
             <form action="{{ route('servers.store') }}" method="post" class="row">
                 @csrf
@@ -148,53 +147,21 @@
                             </div>
 
 
-                            <div class="form-group">
-                                <label for="product">{{ __('Resources') }}</label>
-                                <select name="product" required id="product" :disabled="!fetchedProducts"
-                                    x-model="selectedProduct" @change="updateSelectedObjects()" class="custom-select">
-                                    <option x-text="getProductInputText()" disabled selected hidden value="null"></option>
-                                    <template x-for="product in products" :key="product.id">
-                                        <option :disabled="product.minimum_credits > user.credits"
-                                            x-text="getProductOptionText(product)" :value="product.id">
-                                        </option>
-                                    </template>
-                                </select>
-                            </div>
+                            <!-- <div class="form-group">
+                                                                                                                        <label for="product">{{ __('Resources') }}</label>
+                                                                                                                        <select name="product" required id="product" :disabled="!fetchedProducts"
+                                                                                                                            x-model="selectedProduct" @change="updateSelectedObjects()" class="custom-select">
+                                                                                                                            <option x-text="getProductInputText()" disabled selected hidden value="null"></option>
+                                                                                                                            <template x-for="product in products" :key="product.id">
+                                                                                                                                <option :disabled="product.minimum_credits > user.credits"
+                                                                                                                                    x-text="getProductOptionText(product)" :value="product.id">
+                                                                                                                                </option>
+                                                                                                                            </template>
+                                                                                                                        </select>
+                                                                                                                    </div> -->
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="product">{{ __('Resources') }}</label>
-                        <div class="container">
-                            <div class="row justify-content-around">
-                                <template x-for="product in products" :key="product.id">
-                                    <div class="card col-4">
-                                        <div class="card-body">
-                                            <h4 class="card-title" x-text="product.name"></h4>
-                                            <div class="mt-6">
-                                                <div>
-                                                    <p class="card-text text-muted">Resource Data:</p>
-                                                    <div class="col">
-                                                        <div class="row">
-                                                            <div class="col">
-                                                                <span>{{ __('CPU') }}</span>
-                                                            </div>
-                                                            <div class="col">
-                                                                <p x-text="product.cpu + ' %'"></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-4">
-                                                    <span class="card-text text-muted">Description</span>
-                                                    <p class="card-text" x-text="product.description"></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="col-md-4 mb-4">
                     <div class="card">
@@ -288,6 +255,62 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="w-100"></div>
+                <div class="col" x-show="selectedNode != null">
+                    <div class="row"><label for="product">{{ __('Resources') }}</label></div>
+                    <div class="row">
+                        <template x-for="product in products" :key="product.id">
+                            <div class="card col-md-3 mr-4">
+                                <div class="card-body d-flex  flex-column">
+                                    <h4 class="card-title" x-text="product.name"></h4>
+                                    <div class="mt-2">
+                                        <div>
+                                            <p class="card-text text-muted mb-1">Resource Data:</p>
+                                            <ul class="pl-0">
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">{{ __('CPU') }}</span>
+                                                    <span class=" d-inline-block" x-text="product.cpu + ' %'"></span>
+                                                </li>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">{{ __('Memory') }}</span>
+                                                    <span class=" d-inline-block"
+                                                        x-text="product.memory + ' {{ __('MB') }}'"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">{{ __('Disk') }}</span>
+                                                    <span class="d-inline-block"
+                                                        x-text="product.disk + ' {{ __('MB') }}'"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">{{ __('Backups') }}</span>
+                                                    <span class=" d-inline-block" x-text="product.backups"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">{{ __('MySQL') }}
+                                                        {{ __('Databases') }}</span>
+                                                    <span class="d-inline-block" x-text="product.databases"></span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">{{ __('Allocations') }}
+                                                        ({{ __('ports') }})</span>
+                                                    <span class="d-inline-block" x-text="product.allocations"></span>
+                                                </div>
+                                            </ul>
+                                        </div>
+                                        <div class="mt-2 mb-2">
+                                            <span class="card-text text-muted">Description</span>
+                                            <p class="card-text" x-text="product.description"></p>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary mt-auto"
+                                        :disabled="product.minimum_credits > user.credits">Create Server</button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
             </form>
             <!-- END FORM -->
 
