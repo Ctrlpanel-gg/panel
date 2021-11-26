@@ -18,12 +18,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use LaravelDaily\Invoices\Classes\Party;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalHttp\HttpException;
+use LaravelDaily\Invoices\Invoice;
+use LaravelDaily\Invoices\Classes\Buyer;
+use LaravelDaily\Invoices\Classes\InvoiceItem;
 
 class PaymentController extends Controller
 {
@@ -93,7 +97,7 @@ class PaymentController extends Controller
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
 
-        
+
         ];
 
 
@@ -164,7 +168,7 @@ class PaymentController extends Controller
                         $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
-                
+
                 //update role
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
@@ -191,8 +195,45 @@ class PaymentController extends Controller
 
                 event(new UserUpdateCreditsEvent($user));
 
+                //create invoice
+                $seller = new Party([
+                    'name'          => 'Dennis L',
+                    'phone'         => '1234513',
+                    'address'       => 'Deutschlandstr 4, 66666 Hell',
+                    'custom_fields' => [
+                        'UST_ID' => '365#GG',
+                    ],
+                ]);
+
+
+
+                $customer = new Buyer([
+                    'name'          => 'Dennis Leipe',
+                    'custom_fields' => [
+                        'email' => 'dleipe@hafuga.de',
+                        'order number' => '> 654321 <',
+                    ],
+                ]);
+                $item = (new InvoiceItem())->title($paypalProduct->description)->pricePerUnit($paypalProduct->price);
+
+                $invoice = Invoice::make()
+                    ->buyer($customer)
+                    ->seller($seller)
+                    ->discountByPercent(0)
+                    ->taxRate(floatval($paypalProduct->getTaxPercent()))
+                    ->shipping(0)
+                    ->addItem($item)
+                    ->series('BIG')
+
+                    ->status(__('invoices::invoice.paid'))
+                    ->sequence(667)
+                    ->serialNumberFormat('{SEQUENCE}/{SERIES}')
+
+                    ->save('public');
+
+
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
+                return redirect()->route('home')->with('success', 'Your credit balance has been increased! Invoice: '.$invoice->url());
             }
 
             // If call returns body in response, you can get the deserialized version from the result attribute of the response
