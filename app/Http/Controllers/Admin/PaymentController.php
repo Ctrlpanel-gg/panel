@@ -197,20 +197,21 @@ class PaymentController extends Controller
 
                 //create invoice
                 $seller = new Party([
-                    'name'          => 'Dennis L',
-                    'phone'         => '1234513',
+                    'name'          => 'Hafuga Company',
+                    'phone'         => '+49 12346709',
                     'address'       => 'Deutschlandstr 4, 66666 Hell',
                     'custom_fields' => [
                         'UST_ID' => '365#GG',
+                        'E-Mail' => 'invoice@hafuga.de',
                     ],
                 ]);
 
 
 
                 $customer = new Buyer([
-                    'name'          => 'Dennis Leipe',
+                    'name'          => 'Not Dennis',
                     'custom_fields' => [
-                        'email' => 'dleipe@hafuga.de',
+                        'email' => 'customer@google.de',
                         'order number' => '> 654321 <',
                     ],
                 ]);
