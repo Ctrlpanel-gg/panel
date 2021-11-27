@@ -137,6 +137,7 @@
         <table class="table mt-5">
             <tbody>
                 <tr>
+                <tr>
                     <td class="border-0 pl-0" width="70%">
                         <h4 class="text-uppercase">
                             <strong>{{ $invoice->name }}</strong>

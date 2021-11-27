@@ -10,6 +10,7 @@ use App\Models\PaypalProduct;
 use App\Models\Product;
 use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
+use App\Notifications\InvoiceNotification;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -217,6 +218,9 @@ class PaymentController extends Controller
                 ]);
                 $item = (new InvoiceItem())->title($paypalProduct->description)->pricePerUnit($paypalProduct->price);
 
+                $lastInvoiceID = \App\Models\invoice::where("invoice_name","like","%".now()->format('M')."%")->max("id");
+                $newInvoiceID = $lastInvoiceID + 1;
+
                 $invoice = Invoice::make()
                     ->buyer($customer)
                     ->seller($seller)
@@ -224,18 +228,28 @@ class PaymentController extends Controller
                     ->taxRate(floatval($paypalProduct->getTaxPercent()))
                     ->shipping(0)
                     ->addItem($item)
-                    ->series('BIG')
-
                     ->status(__('invoices::invoice.paid'))
-                    ->sequence(667)
-                    ->serialNumberFormat('{SEQUENCE}/{SERIES}')
+
+                    ->series(now()->format('M'))
+                    ->delimiter("-")
+                    ->sequence($newInvoiceID)
+                    ->serialNumberFormat('{SEQUENCE} - {SERIES}')
+
+                    ->logo(public_path('vendor/invoices/logo.png'))
 
                     ->save('public');
 
+                $user->notify(new InvoiceNotification($invoice));
 
+                \App\Models\invoice::create([
+                    'invoice_user' => $user->id,
+                    'invoice_name' => "invoice_".$invoice->series.$invoice->delimiter.$invoice->sequence,
+                    'payment_id' => $payment->payment_id,
+                ]);
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Your credit balance has been increased! Invoice: '.$invoice->url());
+                return redirect()->route('home')->with('success', 'Your credit balance has been increased! Find the invoice in your Notifications');
             }
+
 
             // If call returns body in response, you can get the deserialized version from the result attribute of the response
             if (env('APP_ENV') == 'local') {
