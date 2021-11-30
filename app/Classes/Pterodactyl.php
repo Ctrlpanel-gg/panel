@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Http;
 
 class Pterodactyl
 {
+    /**
+     * @description per_page option to pull more than the default 50 from pterodactyl
+     */
+    public CONST PER_PAGE = 200;
+
     //TODO: Extend error handling (maybe logger for more errors when debugging)
 
     /**
@@ -43,7 +48,7 @@ class Pterodactyl
      */
     public static function getEggs(Nest $nest)
     {
-        $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables");
+        $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . self::PER_PAGE);
         if ($response->failed()) throw self::getException();
         return $response->json()['data'];
     }
@@ -54,7 +59,7 @@ class Pterodactyl
      */
     public static function getNodes()
     {
-        $response = self::client()->get('/application/nodes');
+        $response = self::client()->get('/application/nodes?per_page=' . self::PER_PAGE);
         if ($response->failed()) throw self::getException();
         return $response->json()['data'];
     }
@@ -65,7 +70,7 @@ class Pterodactyl
      */
     public static function getNests()
     {
-        $response = self::client()->get('/application/nests');
+        $response = self::client()->get('/application/nests?per_page=' . self::PER_PAGE);
         if ($response->failed()) throw self::getException();
         return $response->json()['data'];
     }
@@ -76,7 +81,7 @@ class Pterodactyl
      */
     public static function getLocations()
     {
-        $response = self::client()->get('/application/locations');
+        $response = self::client()->get('/application/locations?per_page=' . self::PER_PAGE);
         if ($response->failed()) throw self::getException();
         return $response->json()['data'];
     }
