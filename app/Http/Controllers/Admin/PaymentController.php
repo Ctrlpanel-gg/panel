@@ -237,8 +237,8 @@ class PaymentController extends Controller
                     ->sequence($newInvoiceID)
                     ->serialNumberFormat(env("INVOICE_PREFIX","").'-{SERIES}{SEQUENCE}')
 
-                    ->logo(public_path('vendor/invoices/logo.png'))
-                    ->save("local");
+                    ->logo(public_path('vendor/invoices/logo.png'));
+                
                 //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
                 $invoice->render();
                 Storage::disk("local")->put("invoice/".$user->id."/".now()->format('Y')."/".$invoice->filename, $invoice->output);
