@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Server;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use LaravelDaily\Invoices\Invoice;
 
@@ -34,22 +35,22 @@ class InvoiceNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return ['mail'];
     }
 
     /**
      * Get the array representation of the notification.
      *
      * @param mixed $notifiable
-     * @return array
+     * @return MailMessage
      */
-    public function toArray($notifiable)
+    public function toMail($notifiable)
     {
-        return [
-            'title' => "Invoice Created: Nr.".$this->invoice->sequence,
-            'content' => "
-                <p>Find it <a href='".$this->invoice->url()."'>here</a>.</p>
-            ",
-        ];
+        return (new MailMessage)
+            ->subject('Your Invoice!')
+            ->greeting('Your invoice is ready')
+            ->line("Skurr skurr.")
+            ->line('damn son.')
+            ->attach($this->invoice->stream());
     }
 }
