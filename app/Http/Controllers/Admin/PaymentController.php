@@ -205,12 +205,13 @@ class PaymentController extends Controller
                     'name'          => env("APP_NAME", "Controlpanel.gg"),
                     'phone'         => env("COMPANY_PHONE",""),
                     'address'       => env("COMPANY_ADRESS",""),
+                    'vat'           => env("COMPANY_VAT_ID",""),
                     'custom_fields' => [
-                        'VAT ID' => env("COMPANY_VAT_ID",""),
                         'E-Mail' => env("MAIL_FROM_ADDRESS", "company@mail.com"),
                         "Web" => env("APP_URL","https://controlpanel.gg")
                     ],
                 ]);
+
 
 
 
@@ -235,10 +236,10 @@ class PaymentController extends Controller
                     ->series(now()->format('mY'))
                     ->delimiter("-")
                     ->sequence($newInvoiceID)
-                    ->serialNumberFormat(env("INVOICE_PREFIX","").'-{SERIES}{SEQUENCE}')
+                    ->serialNumberFormat(env("INVOICE_PREFIX","INV").'{DELIMITER}{SERIES}{SEQUENCE}')
 
                     ->logo(public_path('vendor/invoices/logo.png'));
-                
+
                 //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
                 $invoice->render();
                 Storage::disk("local")->put("invoice/".$user->id."/".now()->format('Y')."/".$invoice->filename, $invoice->output);
