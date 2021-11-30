@@ -100,6 +100,34 @@
 
                                 <div class="row">
                                     <div class="col-md-6 col-lg-4 col-12">
+                                        <!-- Name -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-name" id="company-name">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company Name')}}</label>
+                                            </div>
+                                            @error('company-name')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+                                        <!-- adress -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-adress" id="company-adress">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company Adress')}}</label>
+                                            </div>
+                                            @error('company-adress')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
                                         <!-- Phone -->
                                         <div class="form-group">
                                             <div class="custom-file mb-3 mt-3">
@@ -114,20 +142,7 @@
                                                </span>
                                             @enderror
                                         </div>
-<!-- Name -->
-                                        <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-name" id="company-name">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company Name')}}</label>
-                                            </div>
-                                            @error('company-name')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
-                                        </div>
+
                                         <!-- VAT -->
                                         <div class="form-group">
                                             <div class="custom-file mb-3 mt-3">
@@ -143,20 +158,6 @@
                                             @enderror
                                         </div>
 
-                                        <!-- adress -->
-                                        <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-adress" id="company-adress">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company Adress')}}</label>
-                                            </div>
-                                            @error('company-adress')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
-                                        </div>
                                         <!-- email -->
                                         <div class="form-group">
                                             <div class="custom-file mb-3 mt-3">
@@ -185,6 +186,25 @@
                                                </span>
                                             @enderror
                                         </div>
+
+                                        <!-- logo -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3">
+                                                <input type="file" accept="image/x-icon" class="custom-file-input"
+                                                       name="logo" id="logo">
+                                                <label class="custom-file-label selected"
+                                                       for="favicon">{{__('Select Invoice Logo')}}</label>
+                                            </div>
+                                            @error('logo')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                        <!-- end -->
 
                                     </div>
                                 </div>

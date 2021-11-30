@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Models\invoiceSettings;
 
 class SettingsController extends Controller
 {
@@ -45,6 +46,8 @@ class SettingsController extends Controller
             'icon' => 'nullable',
             'favicon' => 'nullable',
         ]);
+
+
 
 
         return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
