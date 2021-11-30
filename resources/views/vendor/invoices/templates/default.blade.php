@@ -140,7 +140,7 @@
                 <tr>
                     <td class="border-0 pl-0" width="70%">
                         <h4 class="text-uppercase">
-                            <strong>{{ $invoice->name }}</strong>
+                            <strong>{{ $invoice->name }}</strong> {{$invoice->getSerialNumber()}}
                         </h4>
                     </td>
                     <td class="border-0 pl-0">

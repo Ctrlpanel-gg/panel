@@ -198,29 +198,30 @@ class PaymentController extends Controller
                 event(new UserUpdateCreditsEvent($user));
 
                 //create invoice
+                $lastInvoiceID = \App\Models\invoice::where("invoice_name","like","%".now()->format('mY')."%")->max("id");
+                $newInvoiceID = $lastInvoiceID + 1;
+
                 $seller = new Party([
-                    'name'          => 'Hafuga Company',
-                    'phone'         => '+49 12346709',
-                    'address'       => 'Deutschlandstr 4, 66666 Hell',
+                    'name'          => env("APP_NAME", "Controlpanel.gg"),
+                    'phone'         => env("COMPANY_PHONE",""),
+                    'address'       => env("COMPANY_ADRESS",""),
                     'custom_fields' => [
-                        'UST_ID' => '365#GG',
-                        'E-Mail' => 'invoice@hafuga.de',
+                        'VAT ID' => env("COMPANY_VAT_ID",""),
+                        'E-Mail' => env("MAIL_FROM_ADDRESS", "company@mail.com"),
+                        "Web" => env("APP_URL","https://controlpanel.gg")
                     ],
                 ]);
 
 
 
                 $customer = new Buyer([
-                    'name'          => 'Not Dennis',
+                    'name'          => $user->name,
                     'custom_fields' => [
-                        'email' => 'customer@google.de',
-                        'order number' => '> 654321 <',
+                        'E-Mail' => $user->email,
+                        'Client ID' => $user->id,
                     ],
                 ]);
                 $item = (new InvoiceItem())->title($paypalProduct->description)->pricePerUnit($paypalProduct->price);
-
-                $lastInvoiceID = \App\Models\invoice::where("invoice_name","like","%".now()->format('M')."%")->max("id");
-                $newInvoiceID = $lastInvoiceID + 1;
 
                 $invoice = Invoice::make()
                     ->buyer($customer)
@@ -231,10 +232,10 @@ class PaymentController extends Controller
                     ->addItem($item)
                     ->status(__('invoices::invoice.paid'))
 
-                    ->series(now()->format('M_Y'))
+                    ->series(now()->format('mY'))
                     ->delimiter("-")
                     ->sequence($newInvoiceID)
-                    ->serialNumberFormat('{SEQUENCE} - {SERIES}')
+                    ->serialNumberFormat(env("INVOICE_PREFIX","").'-{SERIES}{SEQUENCE}')
 
                     ->logo(public_path('vendor/invoices/logo.png'))
                     ->save("local");
