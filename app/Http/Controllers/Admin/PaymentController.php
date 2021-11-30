@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Party;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
@@ -230,16 +231,18 @@ class PaymentController extends Controller
                     ->addItem($item)
                     ->status(__('invoices::invoice.paid'))
 
-                    ->series(now()->format('M'))
+                    ->series(now()->format('M_Y'))
                     ->delimiter("-")
                     ->sequence($newInvoiceID)
                     ->serialNumberFormat('{SEQUENCE} - {SERIES}')
 
                     ->logo(public_path('vendor/invoices/logo.png'))
+                    ->save("local");
+                //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
+                $invoice->render();
+                Storage::disk("local")->put("invoice/".$user->id."/".now()->format('Y')."/".$invoice->filename, $invoice->output);
 
-                    ->save('public');
-
-                $user->notify(new InvoiceNotification($invoice));
+               // $user->notify(new InvoiceNotification($invoice));
 
                 \App\Models\invoice::create([
                     'invoice_user' => $user->id,
