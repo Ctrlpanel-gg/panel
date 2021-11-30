@@ -7,9 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Configuration;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
-use App\Models\Product;
 use App\Models\User;
-use App\Notifications\ConfirmPaymentNotification;
 use App\Notifications\InvoiceNotification;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -192,8 +190,6 @@ class PaymentController extends Controller
                     'payer' => json_encode($response->result->payer),
                 ]);
 
-                //payment notification
-                $user->notify(new ConfirmPaymentNotification($payment));
 
                 event(new UserUpdateCreditsEvent($user));
 
@@ -237,22 +233,25 @@ class PaymentController extends Controller
                     ->delimiter("-")
                     ->sequence($newInvoiceID)
                     ->serialNumberFormat(env("INVOICE_PREFIX","INV").'{DELIMITER}{SERIES}{SEQUENCE}')
-
                     ->logo(public_path('vendor/invoices/logo.png'));
 
                 //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
+                $invoice->filename=$invoice->getSerialNumber().'.pdf';
                 $invoice->render();
                 Storage::disk("local")->put("invoice/".$user->id."/".now()->format('Y')."/".$invoice->filename, $invoice->output);
 
-               // $user->notify(new InvoiceNotification($invoice));
 
                 \App\Models\invoice::create([
                     'invoice_user' => $user->id,
-                    'invoice_name' => "invoice_".$invoice->series.$invoice->delimiter.$invoice->sequence,
+                    'invoice_name' => $invoice->getSerialNumber(),
                     'payment_id' => $payment->payment_id,
                 ]);
+
+                //Send Invoice per Mail
+                $user->notify(new InvoiceNotification($invoice,$user, $payment));
+
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Your credit balance has been increased! Find the invoice in your Notifications');
+                return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
             }
 
 

@@ -2,10 +2,11 @@
 
 namespace App\Notifications;
 
-use App\Models\Server;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Models\Payment;
 use LaravelDaily\Invoices\Invoice;
 
 class InvoiceNotification extends Notification
@@ -14,17 +15,23 @@ class InvoiceNotification extends Notification
     use Queueable;
     /**
      * @var invoice
+     *      * @var invoice
+     *      * @var invoice
      */
     private $invoice;
+    private $user;
+    private $payment;
 
     /**
      * Create a new notification instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, User $user, Payment $payment)
     {
         $this->invoice = $invoice;
+        $this->user = $user;
+        $this->payment = $payment;
     }
 
     /**
@@ -47,10 +54,15 @@ class InvoiceNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Your Invoice!')
-            ->greeting('Your invoice is ready')
-            ->line("Skurr skurr.")
-            ->line('damn son.')
-            ->attach($this->invoice->stream());
+            ->subject('Your Payment was successful!')
+            ->greeting('Hello,')
+            ->line("Your payment was processes!.")
+            ->line('Status: '.$this->payment->status)
+            ->line('Price: '.$this->payment->formatToCurrency($this->payment->total_price))
+            ->line('Type: '.$this->payment->type)
+            ->line('Amount: '.$this->payment->amount)
+            ->line('Balance: '.$this->user->credits)
+            ->line('User ID: '.$this->payment->user_id)
+            ->attach(storage_path('app/invoice/'.$this->user->id.'/'.now()->format('Y').'/'.$this->invoice->filename));
     }
 }
