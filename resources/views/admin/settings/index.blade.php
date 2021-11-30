@@ -39,6 +39,9 @@
                         <li class="nav-item">
                             <a class="nav-link active" data-toggle="pill" href="#dashboard-icons">Dashboard icons</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="pill" href="#invoice-settings">Invoice Settings</a>
+                        </li>
                     </ul>
 
                     <!-- Tab panes -->
@@ -88,14 +91,116 @@
                                     chrome hotkey)</sup> to reload without cache to see your changes appear :)</p>
 
                         </div>
-                    </div>
 
+                            <div class="tab-pane mt-3" id="invoice-settings">
+                            <form method="POST" enctype="multipart/form-data" class="mb-3"
+                                  action="{{route('admin.settings.update.invoicesettings')}}">
+                                @csrf
+                                @method('PATCH')
+
+                                <div class="row">
+                                    <div class="col-md-6 col-lg-4 col-12">
+                                        <!-- Phone -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-phone" id="company-phone">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company Phone Number')}}</label>
+                                            </div>
+                                            @error('company-phone')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+<!-- Name -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-name" id="company-name">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company Name')}}</label>
+                                            </div>
+                                            @error('company-name')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+                                        <!-- VAT -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-vat" id="company-vat">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company VAT')}}</label>
+                                            </div>
+                                            @error('company-vat')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+
+                                        <!-- adress -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-adress" id="company-adress">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company Adress')}}</label>
+                                            </div>
+                                            @error('company-adress')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+                                        <!-- email -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-mail" id="company-mail">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company mail')}}</label>
+                                            </div>
+                                            @error('company-mail')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+                                        <!-- website -->
+                                        <div class="form-group">
+                                            <div class="custom-file mb-3 mt-3">
+                                                <input type="text"
+                                                       class="custom-text-input" name="company-web" id="company-web">
+                                                <label class="custom-text-label selected"
+                                                       for="company-phone">{{__('Enter your Company web')}}</label>
+                                            </div>
+                                            @error('company-web')
+                                            <span class="text-danger">
+                                                   {{$message}}
+                                               </span>
+                                            @enderror
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary">Submit</button>
+                            </form>
+
+
+                        </div>
+                    </div>
 
                 </div>
             </div>
 
 
-        </div>
+
         <!-- END CUSTOM CONTENT -->
 
     </section>

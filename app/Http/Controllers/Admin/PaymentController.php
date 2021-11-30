@@ -18,16 +18,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use LaravelDaily\Invoices\Classes\Buyer;
+use LaravelDaily\Invoices\Classes\InvoiceItem;
 use LaravelDaily\Invoices\Classes\Party;
+use LaravelDaily\Invoices\Invoice;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalHttp\HttpException;
-use LaravelDaily\Invoices\Invoice;
-use LaravelDaily\Invoices\Classes\Buyer;
-use LaravelDaily\Invoices\Classes\InvoiceItem;
 
 class PaymentController extends Controller
 {
@@ -50,10 +50,10 @@ class PaymentController extends Controller
     public function checkOut(Request $request, PaypalProduct $paypalProduct)
     {
         return view('store.checkout')->with([
-            'product'      => $paypalProduct,
-            'taxvalue'     => $paypalProduct->getTaxValue(),
-            'taxpercent'   => $paypalProduct->getTaxPercent(),
-            'total'        => $paypalProduct->getTotalPrice()
+            'product' => $paypalProduct,
+            'taxvalue' => $paypalProduct->getTaxValue(),
+            'taxpercent' => $paypalProduct->getTaxPercent(),
+            'total' => $paypalProduct->getTotalPrice()
         ]);
     }
 
@@ -72,12 +72,12 @@ class PaymentController extends Controller
                 [
                     "reference_id" => uniqid(),
                     "description" => $paypalProduct->description,
-                    "amount"       => [
-                        "value"         => $paypalProduct->getTotalPrice(),
+                    "amount" => [
+                        "value" => $paypalProduct->getTotalPrice(),
                         'currency_code' => strtoupper($paypalProduct->currency_code),
-                        'breakdown' =>[
+                        'breakdown' => [
                             'item_total' =>
-                               [
+                                [
                                     'currency_code' => strtoupper($paypalProduct->currency_code),
                                     'value' => $paypalProduct->price,
                                 ],
@@ -93,8 +93,8 @@ class PaymentController extends Controller
             "application_context" => [
                 "cancel_url" => route('payment.cancel'),
                 "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
-                'brand_name' =>  config('app.name', 'Laravel'),
-                'shipping_preference'  => 'NO_SHIPPING'
+                'brand_name' => config('app.name', 'Laravel'),
+                'shipping_preference' => 'NO_SHIPPING'
             ]
 
 
@@ -194,25 +194,23 @@ class PaymentController extends Controller
                 event(new UserUpdateCreditsEvent($user));
 
                 //create invoice
-                $lastInvoiceID = \App\Models\invoice::where("invoice_name","like","%".now()->format('mY')."%")->max("id");
+                $lastInvoiceID = \App\Models\invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->max("id");
                 $newInvoiceID = $lastInvoiceID + 1;
 
                 $seller = new Party([
-                    'name'          => env("APP_NAME", "Controlpanel.gg"),
-                    'phone'         => env("COMPANY_PHONE",""),
-                    'address'       => env("COMPANY_ADRESS",""),
-                    'vat'           => env("COMPANY_VAT_ID",""),
+                    'name' => env("APP_NAME", "Controlpanel.gg"),
+                    'phone' => env("COMPANY_PHONE", ""),
+                    'address' => env("COMPANY_ADRESS", ""),
+                    'vat' => env("COMPANY_VAT_ID", ""),
                     'custom_fields' => [
                         'E-Mail' => env("MAIL_FROM_ADDRESS", "company@mail.com"),
-                        "Web" => env("APP_URL","https://controlpanel.gg")
+                        "Web" => env("APP_URL", "https://controlpanel.gg")
                     ],
                 ]);
 
 
-
-
                 $customer = new Buyer([
-                    'name'          => $user->name,
+                    'name' => $user->name,
                     'custom_fields' => [
                         'E-Mail' => $user->email,
                         'Client ID' => $user->id,
@@ -228,17 +226,16 @@ class PaymentController extends Controller
                     ->shipping(0)
                     ->addItem($item)
                     ->status(__('invoices::invoice.paid'))
-
                     ->series(now()->format('mY'))
                     ->delimiter("-")
                     ->sequence($newInvoiceID)
-                    ->serialNumberFormat(env("INVOICE_PREFIX","INV").'{DELIMITER}{SERIES}{SEQUENCE}')
+                    ->serialNumberFormat(env("INVOICE_PREFIX", "INV") . '{DELIMITER}{SERIES}{SEQUENCE}')
                     ->logo(public_path('vendor/invoices/logo.png'));
 
                 //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
-                $invoice->filename=$invoice->getSerialNumber().'.pdf';
+                $invoice->filename = $invoice->getSerialNumber() . '.pdf';
                 $invoice->render();
-                Storage::disk("local")->put("invoice/".$user->id."/".now()->format('Y')."/".$invoice->filename, $invoice->output);
+                Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
 
 
                 \App\Models\invoice::create([
@@ -248,7 +245,7 @@ class PaymentController extends Controller
                 ]);
 
                 //Send Invoice per Mail
-                $user->notify(new InvoiceNotification($invoice,$user, $payment));
+                $user->notify(new InvoiceNotification($invoice, $user, $payment));
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', 'Your credit balance has been increased!');

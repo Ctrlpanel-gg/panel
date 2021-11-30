@@ -39,4 +39,15 @@ class SettingsController extends Controller
         return redirect()->route('admin.settings.index')->with('success', 'Icons updated!');
     }
 
+    public function updateInvoiceSettings(Request $request)
+    {
+        $request->validate([
+            'icon' => 'nullable',
+            'favicon' => 'nullable',
+        ]);
+
+
+        return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
+    }
+
 }
