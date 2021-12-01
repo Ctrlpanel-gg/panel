@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Configuration;
+use App\Models\invoiceSettings;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
 use App\Models\User;
@@ -194,17 +195,18 @@ class PaymentController extends Controller
                 event(new UserUpdateCreditsEvent($user));
 
                 //create invoice
-                $lastInvoiceID = \App\Models\invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->max("id");
+                $lastInvoiceID = \App\Models\invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
                 $newInvoiceID = $lastInvoiceID + 1;
+                $invoiceSettings = invoiceSettings::all()->first();
 
                 $seller = new Party([
-                    'name' => env("APP_NAME", "Controlpanel.gg"),
-                    'phone' => env("COMPANY_PHONE", ""),
-                    'address' => env("COMPANY_ADRESS", ""),
-                    'vat' => env("COMPANY_VAT_ID", ""),
+                    'name' => $invoiceSettings->company_name,
+                    'phone' => $invoiceSettings->company_phone,
+                    'address' => $invoiceSettings->company_adress,
+                    'vat' => $invoiceSettings->company_vat,
                     'custom_fields' => [
-                        'E-Mail' => env("MAIL_FROM_ADDRESS", "company@mail.com"),
-                        "Web" => env("APP_URL", "https://controlpanel.gg")
+                        'E-Mail' => $invoiceSettings->company_mail,
+                        "Web" => $invoiceSettings->company_web
                     ],
                 ]);
 
@@ -230,7 +232,7 @@ class PaymentController extends Controller
                     ->delimiter("-")
                     ->sequence($newInvoiceID)
                     ->serialNumberFormat(env("INVOICE_PREFIX", "INV") . '{DELIMITER}{SERIES}{SEQUENCE}')
-                    ->logo(public_path('vendor/invoices/logo.png'));
+                    ->logo(storage_path('app/public/logo.png'));
 
                 //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
                 $invoice->filename = $invoice->getSerialNumber() . '.pdf';
@@ -245,7 +247,7 @@ class PaymentController extends Controller
                 ]);
 
                 //Send Invoice per Mail
-                $user->notify(new InvoiceNotification($invoice, $user, $payment));
+                //$user->notify(new InvoiceNotification($invoice, $user, $payment));
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', 'Your credit balance has been increased!');

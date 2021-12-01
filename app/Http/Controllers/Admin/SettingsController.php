@@ -43,10 +43,32 @@ class SettingsController extends Controller
     public function updateInvoiceSettings(Request $request)
     {
         $request->validate([
-            'icon' => 'nullable',
-            'favicon' => 'nullable',
+            'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
         ]);
 
+
+
+        if($request->filled('company-name')) {
+            invoiceSettings::updateOrCreate(['id'   => "1"],['company_name' => $request->get('company-name')]);
+        }
+        if($request->filled('company-adress')) {
+            invoiceSettings::updateOrCreate(['id'   => "1",],['company_adress' => $request->get('company-adress')]);
+        }
+        if($request->filled('company-phone')) {
+            invoiceSettings::updateOrCreate(['id'   => "1",],['company_phone' => $request->get('company-phone')]);
+        }
+        if($request->filled('company-vat')) {
+            invoiceSettings::updateOrCreate(['id'   => "1",],['company_vat' => $request->get('company-vat')]);
+        }
+        if($request->filled('company-mail')) {
+            invoiceSettings::updateOrCreate(['id'   => "1",],['company_mail' => $request->get('company-mail')]);
+        }
+        if($request->filled('company-web')) {
+            invoiceSettings::updateOrCreate(['id'   => "1",],['company_web' => $request->get('company-web')]);
+        }
+        if ($request->hasFile('logo')) {
+            $request->file('logo')->storeAs('public', 'logo.png');
+        }
 
 
 

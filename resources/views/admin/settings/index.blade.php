@@ -203,13 +203,13 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                <button class="btn btn-primary">Submit</button>
                                         <!-- end -->
 
                                     </div>
                                 </div>
 
-                                <button class="btn btn-primary">Submit</button>
+
                             </form>
 
 

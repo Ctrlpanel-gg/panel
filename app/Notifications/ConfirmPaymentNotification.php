@@ -10,6 +10,9 @@ use Illuminate\Notifications\Notification;
 
 class ConfirmPaymentNotification extends Notification implements ShouldQueue
 {
+
+    //THIS IS BASICALLY NOT USED ANYMORE WITH INVOICENOTIFICATION IN PLACE
+
     use Queueable;
 
     private Payment $payment;
