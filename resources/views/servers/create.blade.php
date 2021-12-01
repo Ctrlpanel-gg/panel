@@ -302,11 +302,6 @@
 
                 },
 
-                debuggershit(e) {
-                    this
-
-                },
-
                 /**
                  * @description fetch all available locations based on the selected egg
                  * @note called whenever a server configuration is selected
@@ -354,7 +349,9 @@
                         .catch(console.error)
 
                     this.fetchedProducts = true;
-                    this.products = response.data
+                    // TODO: Sortable by user chosen property (cpu, ram, disk...)
+                    this.products = response.data.sort((p1, p2) => p1.price > p2.price && 1 || -1  )
+
 
                     this.loading = false;
                     this.updateSelectedObjects()
