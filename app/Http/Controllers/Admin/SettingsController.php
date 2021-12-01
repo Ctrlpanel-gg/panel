@@ -57,7 +57,7 @@ class SettingsController extends Controller
         invoiceSettings::updateOrCreate(['id' => "1"], ['company_name' => $request->get('company-name')]);
         invoiceSettings::updateOrCreate(['id' => "1",], ['company_adress' => $request->get('company-adress')]);
         invoiceSettings::updateOrCreate(['id' => "1",], ['company_phone' => $request->get('company-phone')]);
-        invoiceSettings::updateOrCreate(['id' => "1",], ['company_mail' => $request->get('company-email')]);
+        invoiceSettings::updateOrCreate(['id' => "1",], ['company_mail' => $request->get('company-mail')]);
         invoiceSettings::updateOrCreate(['id' => "1",], ['company_vat' => $request->get('company-vat')]);
         invoiceSettings::updateOrCreate(['id' => "1",], ['company_web' => $request->get('company-web')]);
 
