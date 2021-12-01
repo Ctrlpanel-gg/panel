@@ -92,7 +92,7 @@
 
                         </div>
 
-                            <div class="tab-pane mt-3" id="invoice-settings">
+                        <div class="tab-pane mt-3" id="invoice-settings">
                             <form method="POST" enctype="multipart/form-data" class="mb-3"
                                   action="{{route('admin.settings.update.invoicesettings')}}">
                                 @csrf
@@ -102,89 +102,63 @@
                                     <div class="col-md-6 col-lg-4 col-12">
                                         <!-- Name -->
                                         <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-name" id="company-name">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company Name')}}</label>
+                                            <div class="custom-control mb-3">
+                                                <label for="company-name">{{__('Enter your companys name' )}}</label>
+                                                <input x-model="company-name" id="company-name" name="company-name"
+                                                       type="text" value="{{$company_name}}"
+                                                       class="form-control @error('company-name') is-invalid @enderror">
                                             </div>
-                                            @error('company-name')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
                                         </div>
                                         <!-- adress -->
                                         <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-adress" id="company-adress">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company Adress')}}</label>
+                                            <div class="custom-control mb-3">
+                                                <label
+                                                    for="company-adress">{{__('Enter your companys adress' )}}</label>
+                                                <input x-model="company-adress" id="company-adress"
+                                                       name="company-adress" type="text" value="{{$company_adress}}"
+                                                       class="form-control @error('company-adress') is-invalid @enderror">
                                             </div>
-                                            @error('company-adress')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
                                         </div>
                                         <!-- Phone -->
                                         <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-phone" id="company-phone">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company Phone Number')}}</label>
+                                            <div class="custom-control mb-3">
+                                                <label
+                                                    for="company-phone">{{__('Enter your companys phone number' )}}</label>
+                                                <input x-model="company-phone" id="company-phone" name="company-phone"
+                                                       type="text" value="{{$company_phone}}"
+                                                       class="form-control @error('company-phone') is-invalid @enderror">
                                             </div>
-                                            @error('company-phone')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
                                         </div>
 
                                         <!-- VAT -->
                                         <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-vat" id="company-vat">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company VAT')}}</label>
+                                            <div class="custom-control mb-3">
+                                                <label for="company-vat">{{__('Enter your companys VAT id' )}}</label>
+                                                <input x-model="company-vat" id="company-vat" name="company-vat"
+                                                       type="text" value="{{$company_vat}}"
+                                                       class="form-control @error('company-vat') is-invalid @enderror">
                                             </div>
-                                            @error('company-vat')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
                                         </div>
 
                                         <!-- email -->
                                         <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-mail" id="company-mail">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company mail')}}</label>
+                                            <div class="custom-control mb-3">
+                                                <label
+                                                    for="company-mail">{{__('Enter your companys email adress' )}}</label>
+                                                <input x-model="company-mail" id="company-mail" name="company-mail"
+                                                       type="text" value="{{$company_mail}}"
+                                                       class="form-control @error('company-mail') is-invalid @enderror">
                                             </div>
-                                            @error('company-mail')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
                                         </div>
                                         <!-- website -->
                                         <div class="form-group">
-                                            <div class="custom-file mb-3 mt-3">
-                                                <input type="text"
-                                                       class="custom-text-input" name="company-web" id="company-web">
-                                                <label class="custom-text-label selected"
-                                                       for="company-phone">{{__('Enter your Company web')}}</label>
+                                            <div class="custom-control mb-3">
+                                                <label
+                                                    for="company-web">{{__('Enter your companys website' )}}</label>
+                                                <input x-model="company-web" id="company-web" name="company-web"
+                                                       type="text" value="{{$company_web}}"
+                                                       class="form-control @error('company-web') is-invalid @enderror">
                                             </div>
-                                            @error('company-web')
-                                            <span class="text-danger">
-                                                   {{$message}}
-                                               </span>
-                                            @enderror
                                         </div>
 
                                         <!-- logo -->
@@ -204,21 +178,20 @@
                                     </div>
                                 </div>
                                 <button class="btn btn-primary">Submit</button>
-                                        <!-- end -->
-
-                                    </div>
-                                </div>
-
-
-                            </form>
-
+                                <!-- end -->
 
                         </div>
                     </div>
 
+
+                    </form>
+
+
                 </div>
             </div>
 
+        </div>
+        </div>
 
 
         <!-- END CUSTOM CONTENT -->
@@ -228,7 +201,7 @@
 
     <script>
         // Add the following code if you want the name of the file appear on select
-        document.addEventListener('DOMContentLoaded', ()=>{
+        document.addEventListener('DOMContentLoaded', () => {
             $(".custom-file-input").on("change", function () {
                 var fileName = $(this).val().split("\\").pop();
                 $(this).siblings(".custom-file-label").addClass("selected").html(fileName);

@@ -15,6 +15,7 @@ class invoiceSettings extends Model
         'company_name',
         'company_adress',
         'company_phone',
+        'company_mail',
         'company_vat',
         'company_web'
     ];
