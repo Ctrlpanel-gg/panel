@@ -247,7 +247,7 @@ class PaymentController extends Controller
                 ]);
 
                 //Send Invoice per Mail
-                //$user->notify(new InvoiceNotification($invoice, $user, $payment));
+                $user->notify(new InvoiceNotification($invoice, $user, $payment));
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
