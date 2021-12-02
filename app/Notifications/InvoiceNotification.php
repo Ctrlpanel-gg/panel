@@ -57,7 +57,7 @@ class InvoiceNotification extends Notification
         return (new MailMessage)
             ->subject('Your Payment was successful!')
             ->greeting('Hello,')
-            ->line("your payment was processed successfully!")
+            ->line("Your payment was processed successfully!")
             ->line('Status: ' . $this->payment->status)
             ->line('Price: ' . $this->payment->formatToCurrency($this->payment->total_price))
             ->line('Type: ' . $this->payment->type)
