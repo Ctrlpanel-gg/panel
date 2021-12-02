@@ -43,7 +43,7 @@ class PaypalProduct extends Model
     /**
      * @param mixed $value
      * @param string $locale
-     * 
+     *
      * @return float
      */
     public function formatToCurrency($value,$locale = 'en_US')
@@ -70,7 +70,7 @@ class PaypalProduct extends Model
     */
     public function getTaxValue()
     {
-        return $this->price*$this->getTaxPercent()/100;
+        return number_format($this->price*$this->getTaxPercent()/100,2);
     }
 
     /**
@@ -78,8 +78,8 @@ class PaypalProduct extends Model
     *
     * @return float
     */
-    public function getTotalPrice() 
+    public function getTotalPrice()
     {
-        return $this->price+($this->getTaxValue());
+        return number_format($this->price+$this->getTaxValue(),2);
     }
 }
