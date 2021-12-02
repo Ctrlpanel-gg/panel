@@ -124,6 +124,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
         Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
         Route::patch('settings/update/invoice-settings', [SettingsController::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
+        Route::get('settings/download-invoices', [SettingsController::class, 'downloadAllInvoices'])->name('settings.downloadAllInvoices');;
         Route::resource('settings', SettingsController::class)->only('index');
 
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');

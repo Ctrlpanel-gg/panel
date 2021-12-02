@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use ZipArchive;
 
 class SettingsController extends Controller
 {
@@ -67,6 +68,30 @@ class SettingsController extends Controller
 
 
         return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
+    }
+
+    public function rglob($pattern, $flags = 0) {
+        $files = glob($pattern, $flags);
+        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+            $files = array_merge($files, $this::rglob($dir.'/'.basename($pattern), $flags));
+        }
+        return $files;
+    }
+
+    public function downloadAllInvoices(){
+        $zip = new ZipArchive;
+        $zip_safe_path = storage_path('invoices.zip');
+        $res = $zip->open($zip_safe_path, ZipArchive::CREATE);
+        $result = $this::rglob(storage_path('app/invoice/*'));
+        if ($res === TRUE) {
+            foreach($result as $file){
+                if (file_exists($file) && is_file($file)) {
+                    $zip->addFile($file,basename($file));
+                }
+            }
+            $zip->close();
+        }
+        return response()->download($zip_safe_path);
     }
 
 }

@@ -18,3 +18,4 @@ yarn-error.log
 .gitignore
 .env.dev
 .env.testing
+storage/invoices.zip
