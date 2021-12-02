@@ -168,7 +168,7 @@
                                         <!-- logo -->
                                         <div class="form-group">
                                             <div class="custom-file mb-3">
-                                                <input type="file" accept="image/x-icon" class="custom-file-input"
+                                                <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input"
                                                        name="logo" id="logo">
                                                 <label class="custom-file-label selected"
                                                        for="favicon">{{__('Select Invoice Logo')}}</label>

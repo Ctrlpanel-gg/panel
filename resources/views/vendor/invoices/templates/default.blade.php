@@ -125,6 +125,9 @@
             .cool-gray {
                 color: #6B7280;
             }
+            .cool-green {
+                color: #308d00;
+            }
         </style>
     </head>
 
@@ -140,12 +143,12 @@
                 <tr>
                     <td class="border-0 pl-0" width="70%">
                         <h4 class="text-uppercase">
-                            <strong>{{ $invoice->name }}</strong> {{$invoice->getSerialNumber()}}
+                            <strong>{{ $invoice->name }} {{$invoice->getSerialNumber()}}</strong>
                         </h4>
                     </td>
                     <td class="border-0 pl-0">
                         @if($invoice->status)
-                            <h4 class="text-uppercase cool-gray">
+                            <h4 class="text-uppercase cool-green">
                                 <strong>{{ $invoice->status }}</strong>
                             </h4>
                         @endif

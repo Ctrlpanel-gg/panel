@@ -57,12 +57,12 @@ class InvoiceNotification extends Notification
         return (new MailMessage)
             ->subject('Your Payment was successful!')
             ->greeting('Hello,')
-            ->line("Your payment was processes!.")
+            ->line("your payment was processed successfully!")
             ->line('Status: ' . $this->payment->status)
             ->line('Price: ' . $this->payment->formatToCurrency($this->payment->total_price))
             ->line('Type: ' . $this->payment->type)
             ->line('Amount: ' . $this->payment->amount)
-            ->line('Balance: ' . $this->user->credits)
+            ->line('Balance: ' . number_format($this->user->credits,2))
             ->line('User ID: ' . $this->payment->user_id)
             ->attach(storage_path('app/invoice/' . $this->user->id . '/' . now()->format('Y') . '/' . $this->invoice->filename));
     }
