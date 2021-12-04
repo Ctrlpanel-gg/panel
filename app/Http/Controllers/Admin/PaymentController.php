@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Configuration;
-use App\Models\invoiceSettings;
+use App\Models\InvoiceSettings;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
 use App\Models\User;
@@ -195,18 +195,18 @@ class PaymentController extends Controller
                 event(new UserUpdateCreditsEvent($user));
 
                 //create invoice
-                $lastInvoiceID = \App\Models\invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
+                $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
                 $newInvoiceID = $lastInvoiceID + 1;
-                $invoiceSettings = invoiceSettings::all()->first();
+                $InvoiceSettings = InvoiceSettings::all()->first();
 
                 $seller = new Party([
-                    'name' => $invoiceSettings->company_name,
-                    'phone' => $invoiceSettings->company_phone,
-                    'address' => $invoiceSettings->company_adress,
-                    'vat' => $invoiceSettings->company_vat,
+                    'name' => $InvoiceSettings->company_name,
+                    'phone' => $InvoiceSettings->company_phone,
+                    'address' => $InvoiceSettings->company_adress,
+                    'vat' => $InvoiceSettings->company_vat,
                     'custom_fields' => [
-                        'E-Mail' => $invoiceSettings->company_mail,
-                        "Web" => $invoiceSettings->company_web
+                        'E-Mail' => $InvoiceSettings->company_mail,
+                        "Web" => $InvoiceSettings->company_web
                     ],
                 ]);
 
