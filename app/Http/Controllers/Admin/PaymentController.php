@@ -198,6 +198,7 @@ class PaymentController extends Controller
                 $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
                 $newInvoiceID = $lastInvoiceID + 1;
                 $InvoiceSettings = InvoiceSettings::all()->first();
+                $logoPath = storage_path('app/public/logo.png');
 
                 $seller = new Party([
                     'name' => $InvoiceSettings->company_name,
@@ -231,16 +232,18 @@ class PaymentController extends Controller
                     ->series(now()->format('mY'))
                     ->delimiter("-")
                     ->sequence($newInvoiceID)
-                    ->serialNumberFormat(env("INVOICE_PREFIX", "INV") . '{DELIMITER}{SERIES}{SEQUENCE}')
-                    ->logo(storage_path('app/public/logo.png'));
+                    ->serialNumberFormat($InvoiceSettings->invoice_prefix . '{DELIMITER}{SERIES}{SEQUENCE}');
 
+                if (file_exists($logoPath)) {
+                    $invoice->logo($logoPath);
+                }
                 //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
                 $invoice->filename = $invoice->getSerialNumber() . '.pdf';
                 $invoice->render();
                 Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
 
 
-                \App\Models\invoice::create([
+                \App\Models\Invoice::create([
                     'invoice_user' => $user->id,
                     'invoice_name' => $invoice->getSerialNumber(),
                     'payment_id' => $payment->payment_id,

@@ -17,6 +17,7 @@ class InvoiceSettings extends Model
         'company_phone',
         'company_mail',
         'company_vat',
-        'company_web'
+        'company_web',
+        'invoice_prefix'
     ];
 }

@@ -27,7 +27,8 @@ class SettingsController extends Controller
                 'company_phone' => invoiceSettings::get()->first()->company_phone,
                 'company_vat' => invoiceSettings::get()->first()->company_vat,
                 'company_mail' => invoiceSettings::get()->first()->company_mail,
-                'company_web' => invoiceSettings::get()->first()->company_web
+                'company_web' => invoiceSettings::get()->first()->company_web,
+                'invoice_prefix' => invoiceSettings::get()->first()->invoice_prefix
             ]);
     }
 
@@ -61,6 +62,7 @@ class SettingsController extends Controller
         invoiceSettings::updateOrCreate(['id' => "1",], ['company_mail' => $request->get('company-mail')]);
         invoiceSettings::updateOrCreate(['id' => "1",], ['company_vat' => $request->get('company-vat')]);
         invoiceSettings::updateOrCreate(['id' => "1",], ['company_web' => $request->get('company-web')]);
+        invoiceSettings::updateOrCreate(['id' => "1",], ['invoice_prefix' => $request->get('invoice-prefix')]);
 
         if ($request->hasFile('logo')) {
             $request->file('logo')->storeAs('public', 'logo.png');

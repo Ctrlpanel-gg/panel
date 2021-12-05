@@ -19,3 +19,4 @@ yarn-error.log
 .env.dev
 .env.testing
 storage/invoices.zip
+storage/app/public/logo.png

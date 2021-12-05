@@ -165,6 +165,17 @@
                                             </div>
                                         </div>
 
+                                        <!-- website -->
+                                        <div class="form-group">
+                                            <div class="custom-control mb-3">
+                                                <label
+                                                    for="invoice-prefix">{{__('Enter your custom invoice prefix' )}}</label>
+                                                <input x-model="invoice-prefix" id="invoice-prefix" name="invoice-prefix"
+                                                       type="text" value="{{$invoice_prefix}}"
+                                                       class="form-control @error('invoice-prefix') is-invalid @enderror">
+                                            </div>
+                                        </div>
+
                                         <!-- logo -->
                                         <div class="form-group">
                                             <div class="custom-file mb-3">
