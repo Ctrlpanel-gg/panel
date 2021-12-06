@@ -1,0 +1,25 @@
+{
+
+
+    "Activity Logs": "Aktivitäts logs",
+    "No recent activity from cronjobs": "Keine neuen aktivitäten von Cronjobs",
+    "Check the docs for it here": "Zur Dokumentation",
+    "Are cronjobs running?": "Sind die Cronjobs gestartet?",
+    "Causer": "Verursacher",
+    "Description": "Beschreibung",
+    "Created at": "Erstellt am",
+
+    "Edit Configuration": "Einstellungen bearbeiten",
+    "Text Field": "Textfeld",
+    "Cancel": "Abbrechen",
+    "Save": "Speichern",
+    "true": "wahr",
+    "false": "falsch",
+
+    "Configurations": "Einstellungen",
+    "Dashboard": "Dashboard",
+    "Key": "Schlüssel",
+    "Value": "Wert",
+    "Type": "Typ"
+
+}
