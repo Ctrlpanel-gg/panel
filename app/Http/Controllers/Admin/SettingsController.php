@@ -83,7 +83,7 @@ class SettingsController extends Controller
     public function downloadAllInvoices(){
         $zip = new ZipArchive;
         $zip_safe_path = storage_path('invoices.zip');
-        $res = $zip->open($zip_safe_path, ZipArchive::CREATE);
+        $res = $zip->open($zip_safe_path, ZipArchive::CREATE|ZipArchive::OVERWRITE);
         $result = $this::rglob(storage_path('app/invoice/*'));
         if ($res === TRUE) {
             foreach($result as $file){
@@ -93,7 +93,11 @@ class SettingsController extends Controller
             }
             $zip->close();
         }
-        return response()->download($zip_safe_path);
+        if (file_exists($zip_safe_path) && is_file($zip_safe_path)) {
+            return response()->download($zip_safe_path);
+        }else{
+            $this->index()->with('failure', 'No Invoices in Storage!');
+        }
     }
 
 }
