@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\invoiceSettings;
+use App\Models\InvoiceSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -22,13 +22,13 @@ class SettingsController extends Controller
     {
         return view('admin.settings.index',
             [
-                'company_name' => invoiceSettings::get()->first()->company_name,
-                'company_adress' => invoiceSettings::get()->first()->company_adress,
-                'company_phone' => invoiceSettings::get()->first()->company_phone,
-                'company_vat' => invoiceSettings::get()->first()->company_vat,
-                'company_mail' => invoiceSettings::get()->first()->company_mail,
-                'company_web' => invoiceSettings::get()->first()->company_web,
-                'invoice_prefix' => invoiceSettings::get()->first()->invoice_prefix
+                'company_name' => InvoiceSettings::get()->first()->company_name,
+                'company_adress' => InvoiceSettings::get()->first()->company_adress,
+                'company_phone' => InvoiceSettings::get()->first()->company_phone,
+                'company_vat' => InvoiceSettings::get()->first()->company_vat,
+                'company_mail' => InvoiceSettings::get()->first()->company_mail,
+                'company_web' => InvoiceSettings::get()->first()->company_web,
+                'invoice_prefix' => InvoiceSettings::get()->first()->invoice_prefix
             ]);
     }
 
@@ -56,13 +56,13 @@ class SettingsController extends Controller
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
         ]);
 
-        invoiceSettings::updateOrCreate(['id' => "1"], ['company_name' => $request->get('company-name')]);
-        invoiceSettings::updateOrCreate(['id' => "1",], ['company_adress' => $request->get('company-adress')]);
-        invoiceSettings::updateOrCreate(['id' => "1",], ['company_phone' => $request->get('company-phone')]);
-        invoiceSettings::updateOrCreate(['id' => "1",], ['company_mail' => $request->get('company-mail')]);
-        invoiceSettings::updateOrCreate(['id' => "1",], ['company_vat' => $request->get('company-vat')]);
-        invoiceSettings::updateOrCreate(['id' => "1",], ['company_web' => $request->get('company-web')]);
-        invoiceSettings::updateOrCreate(['id' => "1",], ['invoice_prefix' => $request->get('invoice-prefix')]);
+        InvoiceSettings::updateOrCreate(['id' => "1"], ['company_name' => $request->get('company-name')]);
+        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_adress' => $request->get('company-adress')]);
+        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_phone' => $request->get('company-phone')]);
+        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_mail' => $request->get('company-mail')]);
+        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_vat' => $request->get('company-vat')]);
+        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_web' => $request->get('company-web')]);
+        InvoiceSettings::updateOrCreate(['id' => "1",], ['invoice_prefix' => $request->get('invoice-prefix')]);
 
         if ($request->hasFile('logo')) {
             $request->file('logo')->storeAs('public', 'logo.png');
