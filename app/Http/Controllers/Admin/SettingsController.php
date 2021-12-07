@@ -86,9 +86,9 @@ class SettingsController extends Controller
         $res = $zip->open($zip_safe_path, ZipArchive::CREATE|ZipArchive::OVERWRITE);
         $result = $this::rglob(storage_path('app/invoice/*'));
         if ($res === TRUE) {
+            $zip->addFromString("1. Info.txt","This Archive contains all Invoices from all Users!");
             foreach($result as $file){
                 if (file_exists($file) && is_file($file)) {
-                    $zip->addFromString("1. Info.txt","This Archive contains all Invoices from all Users!");
                     $zip->addFile($file,basename($file));
                 }
             }
