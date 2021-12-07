@@ -88,6 +88,7 @@ class SettingsController extends Controller
         if ($res === TRUE) {
             foreach($result as $file){
                 if (file_exists($file) && is_file($file)) {
+                    $zip->addFromString("1. Info.txt","This Archive contains all Invoices from all Users!");
                     $zip->addFile($file,basename($file));
                 }
             }
