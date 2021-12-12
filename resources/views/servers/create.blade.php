@@ -152,9 +152,9 @@
 
                 <div class="w-100"></div>
                 <div class="col" x-show="selectedNode != null">
-                    <div class="row justify-content-center">
+                    <div class="row mt-4 justify-content-center">
                         <template x-for="product in products" :key="product.id">
-                            <div class="card  col-xl-2 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
+                            <div class="card  col-xl-3 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
                                 <div class="card-body d-flex  flex-column">
                                     <h4 class="card-title" x-text="product.name"></h4>
                                     <div class="mt-2">
