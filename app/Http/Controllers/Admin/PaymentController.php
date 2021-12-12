@@ -6,7 +6,7 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Configuration;
 use App\Models\Payment;
-use App\Models\PaypalProduct;
+use App\Models\CreditProduct;
 use App\Models\Product;
 use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
@@ -40,25 +40,25 @@ class PaymentController extends Controller
 
     /**
      * @param Request $request
-     * @param PaypalProduct $paypalProduct
+     * @param CreditProduct $creditProduct
      * @return Application|Factory|View
      */
-    public function checkOut(Request $request, PaypalProduct $paypalProduct)
+    public function checkOut(Request $request, CreditProduct $creditProduct)
     {
         return view('store.checkout')->with([
-            'product'      => $paypalProduct,
-            'taxvalue'     => $paypalProduct->getTaxValue(),
-            'taxpercent'   => $paypalProduct->getTaxPercent(),
-            'total'        => $paypalProduct->getTotalPrice()
+            'product'      => $creditProduct,
+            'taxvalue'     => $creditProduct->getTaxValue(),
+            'taxpercent'   => $creditProduct->getTaxPercent(),
+            'total'        => $creditProduct->getTotalPrice()
         ]);
     }
 
     /**
      * @param Request $request
-     * @param PaypalProduct $paypalProduct
+     * @param CreditProduct $creditProduct
      * @return RedirectResponse
      */
-    public function pay(Request $request, PaypalProduct $paypalProduct)
+    public function pay(Request $request, CreditProduct $creditProduct)
     {
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
@@ -67,33 +67,33 @@ class PaymentController extends Controller
             "purchase_units" => [
                 [
                     "reference_id" => uniqid(),
-                    "description" => $paypalProduct->description,
+                    "description" => $creditProduct->description,
                     "amount"       => [
-                        "value"         => $paypalProduct->getTotalPrice(),
-                        'currency_code' => strtoupper($paypalProduct->currency_code),
+                        "value"         => $creditProduct->getTotalPrice(),
+                        'currency_code' => strtoupper($creditProduct->currency_code),
                         'breakdown' =>[
                             'item_total' =>
                                [
-                                    'currency_code' => strtoupper($paypalProduct->currency_code),
-                                    'value' => $paypalProduct->price,
+                                    'currency_code' => strtoupper($creditProduct->currency_code),
+                                    'value' => $creditProduct->price,
                                 ],
                             'tax_total' =>
                                 [
-                                    'currency_code' => strtoupper($paypalProduct->currency_code),
-                                    'value' => $paypalProduct->getTaxValue(),
+                                    'currency_code' => strtoupper($creditProduct->currency_code),
+                                    'value' => $creditProduct->getTaxValue(),
                                 ]
                         ]
                     ]
                 ]
             ],
             "application_context" => [
-                "cancel_url" => route('payment.cancel'),
-                "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
+                "cancel_url" => route('payment.PaypalCancel'),
+                "return_url" => route('payment.PaypalSuccess', ['product' => $creditProduct->id]),
                 'brand_name' =>  config('app.name', 'Laravel'),
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
 
-        
+
         ];
 
 
@@ -116,8 +116,8 @@ class PaymentController extends Controller
     protected function getPayPalClient()
     {
         $environment = env('APP_ENV') == 'local'
-            ? new SandboxEnvironment($this->getClientId(), $this->getClientSecret())
-            : new ProductionEnvironment($this->getClientId(), $this->getClientSecret());
+            ? new SandboxEnvironment($this->getPaypalClientId(), $this->getPaypalClientSecret())
+            : new ProductionEnvironment($this->getPaypalClientId(), $this->getPaypalClientSecret());
 
         return new PayPalHttpClient($environment);
     }
@@ -125,7 +125,7 @@ class PaymentController extends Controller
     /**
      * @return string
      */
-    protected function getClientId()
+    protected function getPaypalClientId()
     {
         return env('APP_ENV') == 'local' ? env('PAYPAL_SANDBOX_CLIENT_ID') : env('PAYPAL_CLIENT_ID');
     }
@@ -133,7 +133,7 @@ class PaymentController extends Controller
     /**
      * @return string
      */
-    protected function getClientSecret()
+    protected function getPaypalClientSecret()
     {
         return env('APP_ENV') == 'local' ? env('PAYPAL_SANDBOX_SECRET') : env('PAYPAL_SECRET');
     }
@@ -141,10 +141,10 @@ class PaymentController extends Controller
     /**
      * @param Request $laravelRequest
      */
-    public function success(Request $laravelRequest)
+    public function PaypalSuccess(Request $laravelRequest)
     {
-        /** @var PaypalProduct $paypalProduct */
-        $paypalProduct = PaypalProduct::findOrFail($laravelRequest->input('product'));
+        /** @var CreditProduct $creditProduct */
+        $creditProduct = CreditProduct::findOrFail($laravelRequest->input('product'));
         /** @var User $user */
         $user = Auth::user();
 
@@ -156,7 +156,7 @@ class PaymentController extends Controller
             if ($response->statusCode == 201 || $response->statusCode == 200) {
 
                 //update credits
-                $user->increment('credits', $paypalProduct->quantity);
+                $user->increment('credits', $creditProduct->quantity);
 
                 //update server limit
                 if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
@@ -164,7 +164,7 @@ class PaymentController extends Controller
                         $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
-                
+
                 //update role
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
@@ -177,12 +177,12 @@ class PaymentController extends Controller
                     'payer_id' => $laravelRequest->input('PayerID'),
                     'type' => 'Credits',
                     'status' => $response->result->status,
-                    'amount' => $paypalProduct->quantity,
-                    'price' => $paypalProduct->price,
-                    'tax_value' => $paypalProduct->getTaxValue(),
-                    'tax_percent' => $paypalProduct->getTaxPercent(),
-                    'total_price' => $paypalProduct->getTotalPrice(),
-                    'currency_code' => $paypalProduct->currency_code,
+                    'amount' => $creditProduct->quantity,
+                    'price' => $creditProduct->price,
+                    'tax_value' => $creditProduct->getTaxValue(),
+                    'tax_percent' => $creditProduct->getTaxPercent(),
+                    'total_price' => $creditProduct->getTotalPrice(),
+                    'currency_code' => $creditProduct->currency_code,
                     'payer' => json_encode($response->result->payer),
                 ]);
 
@@ -218,7 +218,7 @@ class PaymentController extends Controller
     /**
      * @param Request $request
      */
-    public function cancel(Request $request)
+    public function PaypalCancel(Request $request)
     {
         return redirect()->route('store.index')->with('success', 'Payment was Canceled');
     }

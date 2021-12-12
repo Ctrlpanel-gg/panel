@@ -2,10 +2,10 @@
 
 namespace Database\Seeders\Seeds;
 
-use App\Models\PaypalProduct;
+use App\Models\CreditProduct;
 use Illuminate\Database\Seeder;
 
-class PaypalProductSeeder extends Seeder
+class CreditProductSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,7 +14,7 @@ class PaypalProductSeeder extends Seeder
      */
     public function run()
     {
-        PaypalProduct::create([
+        CreditProduct::create([
             'type' => 'Credits',
             'display' => '350',
             'description' => 'Adds 350 credits to your account',
@@ -24,7 +24,7 @@ class PaypalProductSeeder extends Seeder
             'disabled' => false,
         ]);
 
-        PaypalProduct::create([
+        CreditProduct::create([
             'type' => 'Credits',
             'display' => '875 + 125',
             'description' => 'Adds 1000 credits to your account',
@@ -34,7 +34,7 @@ class PaypalProductSeeder extends Seeder
             'disabled' => false,
         ]);
 
-        PaypalProduct::create([
+        CreditProduct::create([
             'type' => 'Credits',
             'display' => '1750 + 250',
             'description' => 'Adds 2000 credits to your account',
@@ -44,7 +44,7 @@ class PaypalProductSeeder extends Seeder
             'disabled' => false,
         ]);
 
-        PaypalProduct::create([
+        CreditProduct::create([
             'type' => 'Credits',
             'display' => '3500 + 500',
             'description' => 'Adds 4000 credits to your account',

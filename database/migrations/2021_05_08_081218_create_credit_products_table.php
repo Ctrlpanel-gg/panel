@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaypalProductsTable extends Migration
+class CreateCreditProductsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatePaypalProductsTable extends Migration
      */
     public function up()
     {
-        Schema::create('paypal_products', function (Blueprint $table) {
+        Schema::create('credit_products', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('type');
             $table->decimal('price')->default(0);
@@ -32,6 +32,6 @@ class CreatePaypalProductsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('paypal_products');
+        Schema::dropIfExists('credit_products');
     }
 }

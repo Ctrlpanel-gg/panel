@@ -8,7 +8,7 @@ use NumberFormatter;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Configuration;
 
-class PaypalProduct extends Model
+class CreditProduct extends Model
 {
     use LogsActivity;
     /**
@@ -33,17 +33,17 @@ class PaypalProduct extends Model
     {
         parent::boot();
 
-        static::creating(function (PaypalProduct $paypalProduct) {
+        static::creating(function (CreditProduct $creditProduct) {
             $client = new Client();
 
-            $paypalProduct->{$paypalProduct->getKeyName()} = $client->generateId($size = 21);
+            $creditProduct->{$creditProduct->getKeyName()} = $client->generateId($size = 21);
         });
     }
 
     /**
      * @param mixed $value
      * @param string $locale
-     * 
+     *
      * @return float
      */
     public function formatToCurrency($value,$locale = 'en_US')
@@ -78,7 +78,7 @@ class PaypalProduct extends Model
     *
     * @return float
     */
-    public function getTotalPrice() 
+    public function getTotalPrice()
     {
         return $this->price+($this->getTaxValue());
     }

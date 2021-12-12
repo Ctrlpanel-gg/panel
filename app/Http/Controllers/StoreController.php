@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Configuration;
-use App\Models\PaypalProduct;
+use App\Models\CreditProduct;
 use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
@@ -27,7 +27,7 @@ class StoreController extends Controller
         }
 
         return view('store.index')->with([
-            'products' => PaypalProduct::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
+            'products' => CreditProduct::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
             'isPaypalSetup' => $isPaypalSetup
         ]);
     }
