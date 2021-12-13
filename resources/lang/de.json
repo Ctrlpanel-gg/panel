@@ -337,5 +337,17 @@
     "Enter your companys email adress":"Firmen E-Mail",
     "Enter your companys website":"Firmenwebsite",
     "Enter your custom invoice prefix":"Rechnungsprefix",
-    "Select Invoice Logo":"Firmenlogo auswählen"
+    "Select Invoice Logo":"Firmenlogo auswählen",
+
+    "Payment Confirmation": "Zahlungsbestätigung",
+    "Payment Confirmed!": "Zahlung bestätigt!",
+    "Server Creation Error": "Fehler beim erstellen des Servers",
+    "Your servers have been suspended!": "Deine Server wurden pausiert",
+    "To automatically re-enable your server/s, you need to purchase more credits.": "Um deine Server zu reaktivieren, musst du mehr Credits kaufen!",
+    "Purchase credits": "Credits kaufen",
+    "If you have any questions please let us know.": "Solltest du weiter fragen haben, melde dich gerne beim Support!",
+    "Regards": "mit freundlichen Grüßen",
+
+    "Getting started!": "Den Anfang machen!"
+
 }
