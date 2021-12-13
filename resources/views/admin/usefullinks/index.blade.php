@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Useful Links</h1>
+                    <h1>{{__('Useful Links')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.usefullinks.index')}}">Useful Links</a></li>
+                                                       href="{{route('admin.usefullinks.index')}}">{{__('Useful Links')}}</a></li>
                     </ol>
             </div>
         </div>
@@ -27,9 +27,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>Useful Links</h5>
+                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Useful Links')}}</h5>
                         <a href="{{route('admin.usefullinks.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>Create new</a>
+                                class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
                     </div>
                 </div>
 
@@ -37,11 +37,11 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>description</th>
-                            <th width="50">Icon</th>
-                            <th>Title</th>
-                            <th>Link</th>
-                            <th>Created at</th>
+                            <th>{{__('description')}}</th>
+                            <th width="50">{{__('Icon')}}</th>
+                            <th>{{__('Title')}}</th>
+                            <th>{{__('Link')}}</th>
+                            <th>{{__('Created at')}}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -61,7 +61,7 @@
 
     <script>
         function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
+            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {

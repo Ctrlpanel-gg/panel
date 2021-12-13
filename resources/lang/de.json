@@ -61,6 +61,7 @@
     "Minimum": "Mindest",
     "IO": "IO",
     "Databases": "Datenbanken",
+    "Database": "Datenbank",
     "Backups": "Backups",
     "Allocations": "Port Zuweisungen",
     "Disabled": "Deaktiviert",
@@ -97,8 +98,52 @@
 
     "Active": "Aktiv",
     "Paypal is not configured.": "Paypal ist nicht konfiguriert!",
-    "To configure PayPal, head to the .env and add your PayPal’s client id and secret.": "Um Paypal zu konfigurieren, füge deine Paypal client ID und Secretkey in deine .env-Datei hinzu"
+    "To configure PayPal, head to the .env and add your PayPal’s client id and secret.": "Um Paypal zu konfigurieren, füge deine Paypal client ID und Secretkey in deine .env-Datei hinzu",
 
+    "Useful Links": "Nützliche Links",
+    "Icon class name": "Icon Klassen-Name",
+    "You can find available free icons": "Hier gibt es kostenlose Icons",
+    "Title": "Titel",
+    "Link": "Link",
+
+    "Username": "Username",
+    "Email": "E-Mail",
+    "Pterodactly ID": "Pterodactyl ID",
+    "Server Limit": "Serverlimit",
+    "Role": "Rolle",
+    "Administrator": "Administrator",
+    "Client": "Client",
+    "Member": "Member",
+    "New Password": "Neues Passwort",
+    "Confirm Password": "Passwort bestätigen",
+    "This ID refers to the user account created on pterodactyls panel.": "Die ist die Pterodactyl-ID des Users",
+    "Only edit this if you know what youre doing :)": "Bearbeite dies nur, wenn du weißt, was du tust :)",
+
+    "Verified": "Verifiziert",
+    "Last seen": "Zuletzt online",
+    "Notify": "Benachrichtigen",
+
+    "All": "Alle",
+    "Send via": "Senden via",
+    "Content": "Inhalt",
+    "Notifications": "Benachrichtigungen",
+
+    "Usage": "Nutzung",
+
+    "Config": "Konfiguration",
+
+    "Vouchers": "Gutscheine",
+    "Voucher details": "Gutschein details",
+    "Memo": "Name",
+    "Code": "Code",
+    "Uses": "Benutzungen",
+    "Expires at": "Läuft ab am",
+    "Max": "Max",
+    "Random": "Zufällig",
+
+    "Status": "Status",
+    "Used / Uses": "Benutzungen",
+    "Expires": "Ablauf"
 
 
 }

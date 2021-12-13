@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Vouchers</h1>
+                    <h1>{{__('Vouchers')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.vouchers.index')}}">Vouchers</a></li>
+                                                       href="{{route('admin.vouchers.index')}}">{{__('Vouchers')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,9 +28,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-money-check-alt mr-2"></i>Vouchers</h5>
+                        <h5 class="card-title"><i class="fas fa-money-check-alt mr-2"></i>{{__('Vouchers')}}</h5>
                         <a href="{{route('admin.vouchers.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>Create new</a>
+                                class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
                     </div>
                 </div>
 
@@ -39,12 +39,12 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Status</th>
-                            <th>Code</th>
-                            <th>Memo</th>
+                            <th>{{__('Status')}}</th>
+                            <th>{{__('Code')}}</th>
+                            <th>{{__('Memo')}}</th>
                             <th>{{CREDITS_DISPLAY_NAME}}</th>
-                            <th>Used / Uses</th>
-                            <th>Expires</th>
+                            <th>{{__('Used / Uses')}}</th>
+                            <th>{{__('Expires')}}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -64,7 +64,7 @@
 
     <script>
         function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
+            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {

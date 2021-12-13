@@ -6,12 +6,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Users</h1>
+                    <h1>{{__('Users')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.users.index')}}">Users</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.users.index')}}">{{__('Users')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -27,9 +27,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-users mr-2"></i>Users</h5>
+                        <h5 class="card-title"><i class="fas fa-users mr-2"></i>{{__('Users')}}</h5>
                         <a href="{{route('admin.users.notifications')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-paper-plane mr-1"></i>Notify</a>
+                                class="fas fa-paper-plane mr-1"></i>{{__('Notify')}}</a>
                     </div>
                 </div>
 
@@ -41,14 +41,14 @@
                             <th>discordId</th>
                             <th>ip</th>
                             <th>pterodactyl_id</th>
-                            <th>Avatar</th>
-                            <th>Name</th>
-                            <th>Role</th>
-                            <th>Email</th>
+                            <th>{{__('Avatar')}}</th>
+                            <th>{{__('Name')}}</th>
+                            <th>{{__('Role')}}</th>
+                            <th>{{__('Email')}}</th>
                             <th>{{CREDITS_DISPLAY_NAME}}</th>
-                            <th>Servers</th>
-                            <th>Verified</th>
-                            <th>Last seen</th>
+                            <th>{{__('Servers')}}</th>
+                            <th>{{__('Verified')}}</th>
+                            <th>{{__('Last seen')}}</th>
                             <th></th>
                         </tr>
                         </thead>
