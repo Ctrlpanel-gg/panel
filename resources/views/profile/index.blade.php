@@ -6,12 +6,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Profile</h1>
+                    <h1>{{__('Profile')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('profile.index')}}">Profile</a>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('profile.index')}}">{{__('Profile')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -28,27 +28,27 @@
                 <div class="col-lg-12 px-0">
                     @if(!Auth::user()->hasVerifiedEmail() && strtolower($force_email_verification) == 'true')
                         <div class="alert alert-warning p-2 m-2">
-                            <h5><i class="icon fas fa-exclamation-circle"></i>Required Email verification!</h5>
-                            You have not yet verified your email address
-                            <a class="text-primary" href="{{route('verification.send')}}">Click here to resend
-                                verification email</a> <br>
-                            Please contact support If you didn't receive your verification email.
+                            <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Email verification!')}}</h5>
+                            {{__('You have not yet verified your email address')}}
+                            <a class="text-primary" href="{{route('verification.send')}}">{{__('Click here to resend
+                                verification email')}}</a> <br>
+                            {{__('Please contact support If you didnt receive your verification email.')}}
                         </div>
                     @endif
 
                     @if(is_null(Auth::user()->discordUser) && strtolower($force_discord_verification) == 'true')
                         @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
                             <div class="alert alert-warning p-2 m-2">
-                                <h5><i class="icon fas fa-exclamation-circle"></i>Required Discord verification!</h5>
-                                You have not yet verified your discord account
-                                <a class="text-primary" href="{{route('auth.redirect')}}">Login with discord</a> <br>
-                                Please contact support If you face any issues.
+                                <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Discord verification!')}}</h5>
+                                {{__('You have not yet verified your discord account')}}
+                                <a class="text-primary" href="{{route('auth.redirect')}}">{{__('Login with discord')}}</a> <br>
+                                {{__('Please contact support If you face any issues.')}}
                             </div>
                         @else
                             <div class="alert alert-danger p-2 m-2">
-                                <h5><i class="icon fas fa-exclamation-circle"></i>Required Discord verification!</h5>
-                                Due to system settings you are required to verify your discord account! <br>
-                                It looks like this hasn't been set-up correctly! Please contact support.
+                                <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Discord verification!')}}</h5>
+                                {{__('Due to system settings you are required to verify your discord account!')}} <br>
+                                {{__('It looks like this hasnt been set-up correctly! Please contact support.')}}'
                             </div>
                         @endif
                     @endif
@@ -100,7 +100,7 @@
                                 </div>
                             </div>
                             <ul class="nav nav-tabs">
-                                <li class="nav-item"><a href="javasript:void(0)" class="active nav-link">Settings</a>
+                                <li class="nav-item"><a href="javasript:void(0)" class="active nav-link">{{__('Settings')}}</a>
                                 </li>
                             </ul>
                             <div class="tab-content pt-3">

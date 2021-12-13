@@ -13,12 +13,12 @@
                         {{ session('status') }}
                     </div>
                 @endif
-                <p class="login-box-msg">You forgot your password? Here you can easily retrieve a new password.</p>
+                <p class="login-box-msg">{{__('You forgot your password? Here you can easily retrieve a new password.')}}</p>
                 <form method="POST" action="{{ route('password.email') }}">
                     @csrf
 
                     <div class="input-group mb-3">
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                        <input type="email" class="form-control @error('email') is-invalid @enderror" placeholder="{{__('Email')}}" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
@@ -34,13 +34,13 @@
 
                     <div class="row">
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block">Request new password</button>
+                            <button type="submit" class="btn btn-primary btn-block">{{__('Request new password')}}</button>
                         </div>
                         <!-- /.col -->
                     </div>
                 </form>
                 <p class="mt-3 mb-1">
-                    <a href="{{route('login')}}">Login</a>
+                    <a href="{{route('login')}}">{{__('Login')}}</a>
                 </p>
             </div>
             <!-- /.login-card-body -->
