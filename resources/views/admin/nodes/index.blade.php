@@ -1,3 +1,8 @@
+<!--
+THIS FILE IS DEPRECATED
+ -->
+
+
 @extends('layouts.main')
 
 @section('content')

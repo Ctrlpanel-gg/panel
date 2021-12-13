@@ -1,6 +1,4 @@
 {
-
-
     "Activity Logs": "Aktivitäts logs",
     "No recent activity from cronjobs": "Keine neuen aktivitäten von Cronjobs",
     "Check the docs for it here": "Zur Dokumentation",
@@ -20,6 +18,73 @@
     "Dashboard": "Dashboard",
     "Key": "Schlüssel",
     "Value": "Wert",
-    "Type": "Typ"
+    "Type": "Typ",
+
+    "Admin Overview": "Admin Übersicht",
+    "Support server": "Discord Server",
+    "Documentation": "Dokumentation",
+    "Github": "Github",
+    "Support ControlPanel": "Unterstütze Controlpanel.gg",
+    "Servers": "Server",
+    "Users": "Benutzer",
+    "Total": "Gesamt",
+    "Payments": "Zahlungen",
+    "Pterodactyl": "Pterodactyl",
+    "Sync": "Sync",
+    "Resources": "Ressourcen",
+    "Count": "Anzahl",
+    "Locations": "Standorte",
+    "Nodes": "Nodes",
+    "Nests": "Nests",
+    "Eggs": "Eggs",
+    "Last updated :date": "Zuletzt aktualisiert :date",
+
+    "ID": "ID",
+    "User": "Benutzer",
+    "Amount": "Anzahl",
+    "Product Price": "Produktpreis",
+    "Tax": "Steuer",
+    "Total Price": "Gesamtpreis",
+    "Payment_ID": "Zahlungs-ID",
+    "Payer_ID": "Käufer-ID",
+
+    "Products": "Produkte",
+    "Create": "Erstellen",
+    "Product Details": "Produktdetails",
+    "Product Linking": "Produktbeziehungen",
+    "Name": "Name",
+    "Price in": "Preis in ",
+    "Memory": "Arbeitsspeicher",
+    "Cpu": "Prozessorleistung",
+    "Swap": "Swap",
+    "Disk": "Festplatte",
+    "Minimum": "Mindest",
+    "IO": "IO",
+    "Databases": "Datenbanken",
+    "Backups": "Backups",
+    "Allocations": "Port Zuweisungen",
+    "Disabled": "Deaktiviert",
+    "Submit": "Abschicken",
+    "This product will only be available for these nodes": "Dieses Produkt wurd nur für die ausgewählten Nodes verfügbar sein",
+    "This product will only be available for these eggs": "Dieses Produkt wurd nur für die ausgewählten Eggs verfügbar sein",
+    "Will hide this option from being selected": "Wird dieses Produkt nicht zum Kauf zur Verfügung stellen",
+    "Link your products to nodes and eggs to create dynamic pricing for each option": "Verbinde deine Produkte mit Nodes und Eggs um ein dynamisches Preismodell zu erstellen",
+    "Setting to -1 will use the value from configuration.": "Benutzt den Standard, wenn der Wert auf -1 gesetzt wird",
+    "This is what the users sees": "Das wird der Benutzer sehen",
+    "Edit": "Bearbeiten",
+
+    "Price": "Preis",
+    "Are you sure you wish to delete?": "Sicher, dass du dies löschen möchtest?",
+    "Create new": "Neu erstellen",
+    "Show": "Zeige",
+    "Updated at": "Aktualisiert",
+    "Suspended at": "Suspendiert",
+
+    "Settings": "Einstellungen",
+    "Dashboard icons": "Dashboard Icons",
+    "Select panel icon": "Icon auswählen",
+    "Select panel favicon": "Favicon auswählen"
+
+
 
 }
