@@ -219,7 +219,9 @@ class PaymentController extends Controller
                         'Client ID' => $user->id,
                     ],
                 ]);
-                $item = (new InvoiceItem())->title($paypalProduct->description)->pricePerUnit($paypalProduct->price);
+                $item = (new InvoiceItem())
+                    ->title($paypalProduct->description)
+                    ->pricePerUnit($paypalProduct->price);
 
                 $invoice = Invoice::make()
                     ->buyer($customer)
