@@ -109,7 +109,7 @@
                                         <div class="col">
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>Name</label> <input
+                                                    <div class="form-group"><label>{{__('Name')}}</label> <input
                                                             class="form-control @error('name') is-invalid @enderror"
                                                             type="text" name="name"
                                                             placeholder="{{$user->name}}" value="{{$user->name}}">
@@ -124,7 +124,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>Email</label> <input
+                                                    <div class="form-group"><label>{{__('Email')}}</label> <input
                                                             class="form-control @error('email') is-invalid @enderror"
                                                             type="text"
                                                             placeholder="{{$user->email}}" name="email"
@@ -142,10 +142,10 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-12 col-sm-6 mb-3">
-                                            <div class="mb-3"><b>Change Password</b></div>
+                                            <div class="mb-3"><b>{{__('Change Password')}}</b></div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>Current Password</label> <input
+                                                    <div class="form-group"><label>{{__('Current Password')}}</label> <input
                                                             class="form-control @error('current_password') is-invalid @enderror"
                                                             name="current_password" type="password"
                                                             placeholder="••••••">
@@ -160,7 +160,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>New Password</label> <input
+                                                    <div class="form-group"><label>{{__('New Password')}}</label> <input
                                                             class="form-control @error('new_password') is-invalid @enderror"
                                                             name="new_password" type="password" placeholder="••••••">
 
@@ -174,8 +174,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>Confirm <span
-                                                                class="d-none d-xl-inline">Password</span></label>
+                                                    <div class="form-group"><label>{{__('Confirm Password')}}</span></label>
                                                         <input
                                                             class="form-control @error('new_password_confirmation') is-invalid @enderror"
                                                             name="new_password_confirmation" type="password"
@@ -193,28 +192,23 @@
                                         @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
                                             <div class="col-12 col-sm-5 offset-sm-1 mb-3">
                                                 @if(is_null(Auth::user()->discordUser))
-                                                    <b>Link your discord account!</b>
+                                                    <b>{{__('Link your discord account!')}}</b>
                                                     <div class="verify-discord">
                                                         <div class="mb-3">
                                                             @if($credits_reward_after_verify_discord)
-                                                                <p>By verifying your discord account, you receive an
-                                                                    extra
-                                                                    <b><i
-                                                                            class="fa fa-coins mx-1"></i>{{$credits_reward_after_verify_discord}}
-                                                                    </b> {{CREDITS_DISPLAY_NAME}} and increased server
-                                                                    limit
+                                                                <p>{{__('By verifying your discord account, you receive extra Credits and increased Server amounts')}}
                                                                 </p>
                                                             @endif
                                                         </div>
                                                     </div>
 
                                                     <a class="btn btn-light" href="{{route('auth.redirect')}}">
-                                                        <i class="fab fa-discord mr-2"></i>Login with Discord
+                                                        <i class="fab fa-discord mr-2"></i>{{__('Login with Discord')}}
                                                     </a>
                                                 @else
                                                     <div class="verified-discord">
                                                         <div class="my-3 callout callout-info">
-                                                            <p>You are verified!</p>
+                                                            <p>{{__('You are verified!')}}</p>
                                                         </div>
                                                     </div>
                                                     <div class="row pl-2">
@@ -233,7 +227,7 @@
                                                             </div>
                                                             <div class="small-box-footer">
                                                                 <a href="{{route('auth.redirect')}}">
-                                                                    <i class="fab fa-discord mr-1"></i>Re-Sync Discord
+                                                                    <i class="fab fa-discord mr-1"></i>{{__('Re-Sync Discord')}}
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -245,7 +239,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary" type="submit">Save Changes</button>
+                                            <button class="btn btn-primary" type="submit">{{__('Save Changes')}}</button>
                                         </div>
                                     </div>
 
