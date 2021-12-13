@@ -327,5 +327,15 @@
     "Notes": "Notizen",
     "Shipping": "Lieferbedingung",
     "Paid": "Bezahlt",
-    "Due:": "Fällig"
+    "Due:": "Fällig",
+    "Invoice Settings":"Rechnungsoptionen",
+    "Download all Invoices":"Alle Rechnungen runterladen",
+    "Enter your companys name":"Firmenname",
+    "Enter your companys adress":"Firmenadresse",
+    "Enter your companys phone number":"Telefonnummer",
+    "Enter your companys VAT id":"SteuerID Nummer",
+    "Enter your companys email adress":"Firmen E-Mail",
+    "Enter your companys website":"Firmenwebsite",
+    "Enter your custom invoice prefix":"Rechnungsprefix",
+    "Select Invoice Logo":"Firmenlogo auswählen"
 }
