@@ -10,8 +10,9 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class="" href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('store.index')}}">Store</a></li>
+                        <li class="breadcrumb-item"><a class="" href="{{ route('home') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{ route('store.index') }}">Store</a>
+                        </li>
                     </ol>
                 </div>
             </div>
@@ -34,7 +35,8 @@
                             <div class="col-12">
                                 <h4>
                                     <i class="fas fa-globe"></i> {{ config('app.name', 'Laravel') }}
-                                    <small class="float-right">Date: {{Carbon\Carbon::now()->isoFormat('LL')}}</small>
+                                    <small class="float-right">Date:
+                                        {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
                                 </h4>
                             </div>
                             <!-- /.col -->
@@ -44,23 +46,23 @@
                             <div class="col-sm-4 invoice-col">
                                 To
                                 <address>
-                                    <strong>{{config('app.name' , 'Laravel')}}</strong><br>
-                                    Email: {{env('PAYPAL_EMAIL' , env('MAIL_FROM_NAME'))}}
+                                    <strong>{{ config('app.name', 'Laravel') }}</strong><br>
+                                    Email: {{ env('PAYPAL_EMAIL', env('MAIL_FROM_NAME')) }}
                                 </address>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
                                 From
                                 <address>
-                                    <strong>{{Auth::user()->name}}</strong><br>
-                                    Email: {{Auth::user()->email}}
+                                    <strong>{{ Auth::user()->name }}</strong><br>
+                                    Email: {{ Auth::user()->email }}
                                 </address>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
                                 <b>Status</b><br>
                                 <span class="badge badge-warning">Pending</span><br>
-{{--                                <b>Order ID:</b> 4F3S8J<br>--}}
+                                {{-- <b>Order ID:</b> 4F3S8J<br> --}}
                             </div>
                             <!-- /.col -->
                         </div>
@@ -71,20 +73,22 @@
                             <div class="col-12 table-responsive">
                                 <table class="table table-striped">
                                     <thead>
-                                    <tr>
-                                        <th>Quantity</th>
-                                        <th>Product</th>
-                                        <th>Description</th>
-                                        <th>Subtotal</th>
-                                    </tr>
+                                        <tr>
+                                            <th>Quantity</th>
+                                            <th>Product</th>
+                                            <th>Description</th>
+                                            <th>Subtotal</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td><i class="fa fa-coins mr-2"></i>{{$product->quantity}} {{strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type}}</td>
-                                        <td>{{$product->description}}</td>
-                                        <td>{{$product->formatToCurrency($product->price)}}</td>
-                                    </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td><i class="fa fa-coins mr-2"></i>{{ $product->quantity }}
+                                                {{ strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type }}
+                                            </td>
+                                            <td>{{ $product->description }}</td>
+                                            <td>{{ $product->formatToCurrency($product->price) }}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -97,7 +101,8 @@
                             <div class="col-6">
                                 <p class="lead">Payment Methods:</p>
 
-                                <img src="https://www.paypalobjects.com/digitalassets/c/website/logo/full-text/pp_fc_hl.svg" alt="Paypal">
+                                <img src="https://www.paypalobjects.com/digitalassets/c/website/logo/full-text/pp_fc_hl.svg"
+                                    alt="Paypal">
 
                                 <p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">
                                     By purchasing this product you agree and accept our terms of service</a>
@@ -105,17 +110,17 @@
                             </div>
                             <!-- /.col -->
                             <div class="col-6">
-                                <p class="lead">Amount Due {{Carbon\Carbon::now()->isoFormat('LL')}}</p>
+                                <p class="lead">Amount Due {{ Carbon\Carbon::now()->isoFormat('LL') }}</p>
 
                                 <div class="table-responsive">
                                     <table class="table">
                                         <tr>
                                             <th style="width:50%">Subtotal:</th>
-                                            <td>{{$product->formatToCurrency($product->price)}}</td>
+                                            <td>{{ $product->formatToCurrency($product->price) }}</td>
                                         </tr>
                                         <tr>
-                                            <th>Tax ({{$taxpercent}}%)</th>
-                                            <td>{{$product->formatToCurrency($taxvalue)}}</td>
+                                            <th>Tax ({{ $taxpercent }}%)</th>
+                                            <td>{{ $product->formatToCurrency($taxvalue) }}</td>
                                         </tr>
                                         <tr>
                                             <th>Quantity:</th>
@@ -123,7 +128,7 @@
                                         </tr>
                                         <tr>
                                             <th>Total:</th>
-                                            <td>{{$product->formatToCurrency($total)}}</td>
+                                            <td>{{ $product->formatToCurrency($total) }}</td>
                                         </tr>
                                     </table>
                                 </div>
@@ -135,7 +140,14 @@
                         <!-- this row will not appear when printing -->
                         <div class="row no-print">
                             <div class="col-12">
-                                <a href="{{route('payment.pay' , $product->id)}}" type="button" class="btn btn-success float-right"><i class="far fa-credit-card mr-2"></i> Submit
+                                <a href="{{ route('payment.PaypalPay', $product->id) }}" type="button"
+                                    class="btn btn-success float-right"><i class="far fa-credit-card mr-2"></i> Submit
+                                    PayPal
+                                    Payment
+                                </a>
+                                <a href="{{ route('payment.StripePay', $product->id) }}" type="button"
+                                    class="btn btn-success float-right"><i class="far fa-credit-card mr-2"></i> Submit
+                                    Stripe
                                     Payment
                                 </a>
                             </div>

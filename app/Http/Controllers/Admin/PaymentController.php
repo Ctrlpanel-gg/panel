@@ -24,6 +24,8 @@ use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalHttp\HttpException;
+use Stripe\Stripe;
+
 
 class PaymentController extends Controller
 {
@@ -58,7 +60,7 @@ class PaymentController extends Controller
      * @param CreditProduct $creditProduct
      * @return RedirectResponse
      */
-    public function pay(Request $request, CreditProduct $creditProduct)
+    public function PaypalPay(Request $request, CreditProduct $creditProduct)
     {
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
@@ -221,6 +223,76 @@ class PaymentController extends Controller
     public function PaypalCancel(Request $request)
     {
         return redirect()->route('store.index')->with('success', 'Payment was Canceled');
+    }
+
+     /**
+     * @param Request $request
+     * @param CreditProduct $creditProduct
+     * @return RedirectResponse
+     */
+    public function StripePay(Request $request, CreditProduct $creditProduct)
+    {
+        \Stripe\Stripe::setApiKey('sk_test_51Js6U8J2KSABgZztx8QWiohacnzGyIlpOk48DfSoUWPW8mhqLzxcQ5B9a1Wiz8jCC4Xfp3QeBDTsuSU7hkXEUksW00JyN08hoU');
+
+
+
+        $request = \Stripe\Checkout\Session::create([
+            'line_items' => [
+                [
+                'price_data' => [
+                  'currency' => 'eur',
+                  'product_data' => [
+                      'name' => $creditProduct->display,
+                      'description' => $creditProduct->description,
+                  ],
+                  'unit_amount_decimal' => round($creditProduct->price*100, 2),
+                  ],
+                  'quantity' => 1,
+                ],
+                [
+                    'price_data' => [
+                        'currency' => 'eur',
+                        'product_data' => [
+                            'name' => 'Product Tax',
+                            'description' => $creditProduct->getTaxPercent() . "%",
+                        ],
+                        'unit_amount_decimal' => round($creditProduct->getTaxValue(), 2)*100,
+                        ],
+                        'quantity' => 1,
+                ]
+            ],
+            'payment_method_types' => [
+                'card',
+                'giropay',
+                'ideal',
+                'klarna',
+                'sofort',
+                'sepa_debit',
+            ],
+            'mode' => 'payment',
+              'success_url' => route('payment.PaypalCancel'),
+              'cancel_url' => route('payment.PaypalCancel'),
+          ]);
+
+
+
+          return redirect($request->url, 303);
+    }
+
+        /**
+     * @return string
+     */
+    protected function getStripeClientId()
+    {
+        return env('APP_ENV') == 'local' ? env('PAYPAL_SANDBOX_CLIENT_ID') : env('PAYPAL_CLIENT_ID');
+    }
+
+    /**
+     * @return string
+     */
+    protected function getStripeClientSecret()
+    {
+        return env('STRIPE_SECRET');
     }
 
 
