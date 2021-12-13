@@ -40,7 +40,7 @@
                             <a class="nav-link active" data-toggle="pill" href="#dashboard-icons">Dashboard icons</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#invoice-settings">Invoice Settings</a>
+                            <a class="nav-link" data-toggle="pill" href="#invoice-settings">{{__('Invoice Settings')}}</a>
                         </li>
                     </ul>
 
@@ -94,7 +94,7 @@
 
                         <div class="tab-pane mt-3" id="invoice-settings">
                             <div class="float-right">
-                                <a href="{{route('admin.settings.downloadAllInvoices')}}"><button class="btn btn-success">Download all Invoices</button></a>
+                                <a href="{{route('admin.settings.downloadAllInvoices')}}"><button class="btn btn-success">{{__('Download all Invoices')}}</button></a>
                             </div>
 
                             <form method="POST" enctype="multipart/form-data" class="mb-3"
@@ -192,7 +192,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button class="btn btn-primary">Submit</button>
+                                <button class="btn btn-primary">{{__('Submit')}}</button>
                                 <!-- end -->
 
                         </div>

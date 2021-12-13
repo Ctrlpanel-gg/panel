@@ -253,7 +253,7 @@ class PaymentController extends Controller
                 $user->notify(new InvoiceNotification($invoice, $user, $payment));
 
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
+                return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
             }
 
 
@@ -282,7 +282,7 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        return redirect()->route('store.index')->with('success', 'Payment was Canceled');
+        return redirect()->route('store.index')->with('success', __('Payment was Canceled'));
     }
 
 
