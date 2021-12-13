@@ -83,7 +83,21 @@
     "Settings": "Einstellungen",
     "Dashboard icons": "Dashboard Icons",
     "Select panel icon": "Icon auswählen",
-    "Select panel favicon": "Favicon auswählen"
+    "Select panel favicon": "Favicon auswählen",
+
+    "Store": "Laden",
+    "Currency code": "Währungscode",
+    "Checkout the paypal docs to select the appropriate code": "Siehe Paypal für die entsprechenden Codes",
+    "Quantity": "Menge",
+    "Amount given to the user after purchasing": "Anzahl, die der User nach dem Kauf bekommt",
+    "Display": "Anzeigename",
+    "This is what the user sees at store and checkout": "Dies ist die 'Anzahl' welche der User beim Kaufen sieht",
+    "This is what the user sees at checkout": "Dies ist die Beschreibung auf der Rechnung und was der Kunde beim kauf sieht",
+    "Adds 1000 credits to your account": "Fügt deinem Account 1000 Credits hinzu",
+
+    "Active": "Aktiv",
+    "Paypal is not configured.": "Paypal ist nicht konfiguriert!",
+    "To configure PayPal, head to the .env and add your PayPal’s client id and secret.": "Um Paypal zu konfigurieren, füge deine Paypal client ID und Secretkey in deine .env-Datei hinzu"
 
 
 
