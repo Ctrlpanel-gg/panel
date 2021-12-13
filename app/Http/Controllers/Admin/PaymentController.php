@@ -224,6 +224,7 @@ class PaymentController extends Controller
                     ->pricePerUnit($paypalProduct->price);
 
                 $invoice = Invoice::make()
+                    ->template('controlpanel')
                     ->buyer($customer)
                     ->seller($seller)
                     ->discountByPercent(0)
