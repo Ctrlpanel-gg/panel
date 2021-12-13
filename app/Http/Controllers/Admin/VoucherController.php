@@ -161,7 +161,7 @@ class VoucherController extends Controller
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => "{$voucher->credits} " . CREDITS_DISPLAY_NAME . " have been added to your balance!"
+            'success' => "{$voucher->credits} " . CREDITS_DISPLAY_NAME ." ". __("have been added to your balance!")
         ]);
     }
 
@@ -201,7 +201,7 @@ class VoucherController extends Controller
             })
             ->addColumn('status', function (Voucher $voucher) {
                 $color = 'success';
-                if ($voucher->getStatus() != 'VALID') $color = 'danger';
+                if ($voucher->getStatus() != __('VALID')) $color = 'danger';
                 return '<span class="badge badge-' . $color . '">' . $voucher->getStatus() . '</span>';
             })
             ->editColumn('uses', function (Voucher $voucher) {

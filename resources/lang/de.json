@@ -304,7 +304,7 @@
     "This voucher has expired": "Gutschein abgelaufen",
     "You already redeemed this voucher code": "Du hast diesen Gutschein bereits eingelöst",
     "You can't redeem this voucher because you would exceed the  limit of ": "Du kannst diesen Gutschein nicht einlösen sonst hast du zu viele ",
-    " have been added to your balance!": "Wurden deinem Konto hinzugefügt",
+    "have been added to your balance!": "wurden deinem Konto hinzugefügt",
     "Invoice": "Rechnung",
     "Serial No.": "Rechnungsnr.",
     "Invoice date": "Rechnungsdatum",
@@ -348,6 +348,8 @@
     "If you have any questions please let us know.": "Solltest du weiter fragen haben, melde dich gerne beim Support!",
     "Regards": "mit freundlichen Grüßen",
 
-    "Getting started!": "Den Anfang machen!"
+    "Getting started!": "Den Anfang machen!",
+    "EXPIRED": "ABGELAUFEN",
+    "VALID": "GÜLTIG"
 
 }
