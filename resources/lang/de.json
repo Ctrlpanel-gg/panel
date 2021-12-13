@@ -155,7 +155,6 @@
 
     "Please confirm your password before continuing.": "Bitte bestätige dein Passwort bevor du fortfährst",
     "Password": "Passwort",
-    "Confirm Password": "Passwort bestätigen",
     "Forgot Your Password?": "Passwort vergessen?",
     "Sign in to start your session": "Melde dich an um das Dashboard zu benutzen",
     "Remember Me": "Login Speichern",
@@ -264,7 +263,6 @@
     "You ran out of Credits": "Keine Credits übrig!",
 
     "Profile updated": "Profile updated",
-    "Server limit reached!": "Server limit erreicht",
 
     "You are required to verify your email address before you can create a server.": "Du musst deine E-Mail verifizieren bevor du einen Server erstellen kannst",
     "You are required to link your discord account before you can create a server.": "Du musst dein Discord verifizieren bevor du einen Server erstellen kannst",
