@@ -6,12 +6,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Application API</h1>
+                    <h1>{{__('Application API')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.api.index')}}">Application API</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.api.index')}}">{{__('Application API')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -27,9 +27,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fa fa-gamepad mr-2"></i>Application API</h5>
+                        <h5 class="card-title"><i class="fa fa-gamepad mr-2"></i>{{__('Application API')}}</h5>
                         <a href="{{route('admin.api.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>Create new</a>
+                                class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
                     </div>
                 </div>
 
@@ -38,9 +38,9 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Token</th>
-                            <th>Memo</th>
-                            <th>Last used</th>
+                            <th>{{__('Token')}}</th>
+                            <th>{{__('Memo')}}</th>
+                            <th>{{__('Last used')}}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -59,7 +59,7 @@
 
     <script>
         function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
+            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {

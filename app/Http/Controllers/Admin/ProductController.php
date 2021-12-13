@@ -84,7 +84,7 @@ class ProductController extends Controller
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
 
-        return redirect()->route('admin.products.index')->with('success', 'Product has been created!');
+        return redirect()->route('admin.products.index')->with('success', __('Product has been created!'));
     }
 
     /**
@@ -152,7 +152,7 @@ class ProductController extends Controller
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
 
-        return redirect()->route('admin.products.index')->with('success', 'Product has been updated!');
+        return redirect()->route('admin.products.index')->with('success', __('Product has been updated!'));
     }
 
     /**
@@ -181,7 +181,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
-        return redirect()->back()->with('success', 'Product has been removed!');
+        return redirect()->back()->with('success', __('Product has been removed!'));
     }
 
 

@@ -50,7 +50,7 @@ class UsefulLinkController extends Controller
         ]);
 
         UsefulLink::create($request->all());
-        return redirect()->route('admin.usefullinks.index')->with('success', 'link has been created!');
+        return redirect()->route('admin.usefullinks.index')->with('success', __('link has been created!'));
     }
 
     /**
@@ -94,7 +94,7 @@ class UsefulLinkController extends Controller
         ]);
 
         $usefullink->update($request->all());
-        return redirect()->route('admin.usefullinks.index')->with('success', 'link has been updated!');
+        return redirect()->route('admin.usefullinks.index')->with('success', __('link has been updated!'));
     }
 
     /**
@@ -106,7 +106,7 @@ class UsefulLinkController extends Controller
     public function destroy(UsefulLink $usefullink)
     {
         $usefullink->delete();
-        return redirect()->back()->with('success', 'product has been removed!');
+        return redirect()->back()->with('success', __('product has been removed!'));
     }
 
     public function dataTable()

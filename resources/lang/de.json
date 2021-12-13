@@ -91,6 +91,9 @@
     "Select panel icon": "Icon auswählen",
     "Select panel favicon": "Favicon auswählen",
 
+    "Token": "Token",
+    "Last used": "Zuletzt benutzt",
+
     "Store": "Laden",
     "Currency code": "Währungscode",
     "Checkout the paypal docs to select the appropriate code": "Siehe Paypal für die entsprechenden Codes",
@@ -254,9 +257,56 @@
     "By purchasing this product you agree and accept our terms of service": "Mit dem kauf akzeptierst du unsere TOS",
     "There are no store products!": "Es gibt keine Produkte",
     "The store is not correctly configured!": "Der Laden wurde nicht richtig konfiguriert",
-    "Out of Credits in": "Keine :credits mehr in"
+    "Out of Credits in": "Keine :credits mehr in",
 
+    "days": "Tage",
+    "hours": "Stunden",
+    "You ran out of Credits": "Keine Credits übrig!",
 
+    "Profile updated": "Profile updated",
+    "Server limit reached!": "Server limit erreicht",
+
+    "You are required to verify your email address before you can create a server.": "Du musst deine E-Mail verifizieren bevor du einen Server erstellen kannst",
+    "You are required to link your discord account before you can create a server.": "Du musst dein Discord verifizieren bevor du einen Server erstellen kannst",
+    "No allocations satisfying the requirements for automatic deployment on this node were found.": "Keine automatischen Portzuweisungen für dieses Node vorhanden",
+    "Server removed": "Server gelöscht",
+    "Server created": "Server erstellt!",
+    "An exception has occurred while trying to remove a resource \"": "Folgender Fehler ist aufgetreten: ",
+    "You are required to verify your email address before you can purchase credits.": "Vor dem Kauf musst du deine E-Mail verifizieren",
+    "You are required to link your discord account before you can purchase ": "Vor dem Kauf musst du dein Discord verlinken!",
+
+    "Warning!": "Warnung!",
+
+    "api key created!": "API Key erstellt",
+    "api key updated!": "API Key updated",
+    "api key has been removed!": "API Key gelöscht",
+    "configuration has been updated!": "Konfig updated",
+    "Pterodactyl synced": "Pterodactyl synced",
+    "Your credit balance has been increased!": "Dein Kontostand wurde updated",
+    "Payment was Canceled": "Zahlung abgebrochen",
+
+    "Store item has been created!": "Item wurde erstellt!",
+    "Store item has been updated!": "Item updated",
+    "Product has been updated!": "Product updated",
+    "Store item has been removed!":"Item gelöscht",
+    "Product has been created!": "Produkt erstellt",
+    "Product has been removed!": "Produkt gelöscht",
+    "Server has been updated!": "Server updated",
+    "Icons updated!": "Icons Updated",
+    "link has been created!": "Link erstellt!",
+    "link has been updated!": "Link updated!",
+    "user has been removed!": "User gelöscht",
+    "Notification sent!": "Nachricht gesendet",
+    "User has been updated!": "User updated!",
+    "User does not exists on pterodactyl's panel": "User existiert nicht in Pterodactyl",
+    "voucher has been created!": "Gutschein erstellt",
+    "voucher has been updated!": "Gutschein Updated",
+    "voucher has been removed!": "Gutschein gelöscht",
+    "This voucher has reached the maximum amount of uses": "Maximale Anzahl an Einlösungen erreicht",
+    "This voucher has expired": "Gutschein abgelaufen",
+    "You already redeemed this voucher code": "Du hast diesen Gutschein bereits eingelöst",
+    "You can't redeem this voucher because you would exceed the  limit of ": "Du kannst diesen Gutschein nicht einlösen sonst hast du zu viele ",
+    " have been added to your balance!": "Wurden deinem Konto hinzugefügt"
 
 
 

@@ -92,9 +92,9 @@ class ServerController extends Controller
     {
         try {
             $server->delete();
-            return redirect()->route('admin.servers.index')->with('success', 'Server removed');
+            return redirect()->route('admin.servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('admin.servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
+            return redirect()->route('admin.servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
         }
     }
 
@@ -109,7 +109,7 @@ class ServerController extends Controller
             return redirect()->back()->with('error', $exception->getMessage());
         }
 
-        return redirect()->back()->with('success', 'Server has been updated!');
+        return redirect()->back()->with('success', __('Server has been updated!'));
     }
 
     /**

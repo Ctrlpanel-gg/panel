@@ -92,7 +92,7 @@ class ConfigurationController extends Controller
 
         $configuration->update($request->all());
 
-        return redirect()->route('admin.configurations.index')->with('success', 'configuration has been updated!');
+        return redirect()->route('admin.configurations.index')->with('success', __('configuration has been updated!'));
     }
 
     /**

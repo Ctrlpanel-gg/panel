@@ -52,7 +52,7 @@ class ApplicationApiController extends Controller
             'memo' => $request->input('memo')
         ]);
 
-        return redirect()->route('admin.api.index')->with('success', 'api key created!');
+        return redirect()->route('admin.api.index')->with('success', __('api key created!'));
     }
 
     /**
@@ -94,7 +94,7 @@ class ApplicationApiController extends Controller
 
         $applicationApi->update($request->all());
 
-        return redirect()->route('admin.api.index')->with('success', 'api key updated!');
+        return redirect()->route('admin.api.index')->with('success', __('api key updated!'));
     }
 
     /**
@@ -106,7 +106,7 @@ class ApplicationApiController extends Controller
     public function destroy(ApplicationApi $applicationApi)
     {
         $applicationApi->delete();
-        return redirect()->back()->with('success', 'api key has been removed!');
+        return redirect()->back()->with('success', __('api key has been removed!'));
     }
 
     /**

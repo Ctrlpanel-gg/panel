@@ -55,7 +55,7 @@ class VoucherController extends Controller
 
         Voucher::create($request->except('_token'));
 
-        return redirect()->route('admin.vouchers.index')->with('success', 'voucher has been created!');
+        return redirect()->route('admin.vouchers.index')->with('success', __('voucher has been created!'));
     }
 
     /**
@@ -101,7 +101,7 @@ class VoucherController extends Controller
 
         $voucher->update($request->except('_token'));
 
-        return redirect()->route('admin.vouchers.index')->with('success', 'voucher has been updated!');
+        return redirect()->route('admin.vouchers.index')->with('success', __('voucher has been updated!'));
     }
 
     /**
@@ -113,7 +113,7 @@ class VoucherController extends Controller
     public function destroy(Voucher $voucher)
     {
         $voucher->delete();
-        return redirect()->back()->with('success', 'voucher has been removed!');
+        return redirect()->back()->with('success', __('voucher has been removed!'));
     }
 
     public function users(Voucher $voucher)
@@ -140,19 +140,19 @@ class VoucherController extends Controller
 
         #extra validations
         if ($voucher->getStatus() == 'USES_LIMIT_REACHED') throw ValidationException::withMessages([
-            'code' => 'This voucher has reached the maximum amount of uses'
+            'code' => __('This voucher has reached the maximum amount of uses')
         ]);
 
         if ($voucher->getStatus() == 'EXPIRED') throw ValidationException::withMessages([
-            'code' => 'This voucher has expired'
+            'code' => __('This voucher has expired')
         ]);
 
         if (!$request->user()->vouchers()->where('id', '=', $voucher->id)->get()->isEmpty()) throw ValidationException::withMessages([
-            'code' => 'You already redeemed this voucher code'
+            'code' => __('You already redeemed this voucher code')
         ]);
 
         if ($request->user()->credits + $voucher->credits >= 99999999) throw ValidationException::withMessages([
-            'code' => "You can't redeem this voucher because you would exceed the " . CREDITS_DISPLAY_NAME . " limit"
+            'code' => "You can't redeem this voucher because you would exceed the  limit of " . CREDITS_DISPLAY_NAME
         ]);
 
         #redeem voucher

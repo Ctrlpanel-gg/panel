@@ -115,7 +115,7 @@ class UserController extends Controller
 
         if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
-                'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
+                'pterodactyl_id' => [__("User does not exists on pterodactyl's panel")]
             ]);
         }
 
@@ -145,7 +145,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->back()->with('success', 'user has been removed!');
+        return redirect()->back()->with('success', __('user has been removed!'));
     }
 
     /**
@@ -218,7 +218,7 @@ class UserController extends Controller
         $all = $data["all"] ?? false;
         $users = $all ? User::all() : User::whereIn("id", $data["users"])->get();
         Notification::send($users, new DynamicNotification($data["via"], $database, $mail));
-        return redirect()->route('admin.users.notifications')->with('success', 'Notification sent!');
+        return redirect()->route('admin.users.notifications')->with('success', __('Notification sent!'));
     }
 
     /**
@@ -232,7 +232,7 @@ class UserController extends Controller
             return redirect()->back()->with('error', $exception->getMessage());
         }
 
-        return redirect()->back()->with('success', 'User has been updated!');
+        return redirect()->back()->with('success', __('User has been updated!'));
     }
 
     /**

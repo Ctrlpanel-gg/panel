@@ -30,8 +30,7 @@
                         <div class="alert alert-warning p-2 m-2">
                             <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Email verification!')}}</h5>
                             {{__('You have not yet verified your email address')}}
-                            <a class="text-primary" href="{{route('verification.send')}}">{{__('Click here to resend
-                                verification email')}}</a> <br>
+                            <a class="text-primary" href="{{route('verification.send')}}">{{__('Click here to resend verification email')}}</a> <br>
                             {{__('Please contact support If you didnt receive your verification email.')}}
                         </div>
                     @endif
