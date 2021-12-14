@@ -10,9 +10,8 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.products.index')}}">Products</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{ route('admin.products.index') }}">Products</a></li>
                     </ol>
                 </div>
             </div>
@@ -29,8 +28,7 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>Products</h5>
-                        <a href="{{route('admin.products.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>Create new</a>
+                        <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary"><i class="fas fa-plus mr-1"></i>Create new</a>
                     </div>
                 </div>
 
@@ -48,15 +46,14 @@
                             <th>Disk</th>
                             <th>Databases</th>
                             <th>Backups</th>
-                            <th>Eggs</th>
                             <th>Nodes</th>
+                            <th>Eggs</th>
                             <th>Servers</th>
                             <th>Created at</th>
                             <th></th>
                         </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
 
                 </div>
@@ -75,30 +72,32 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            $('#datatable').DataTable({
+            $("#datatable").DataTable({
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                order: [[ 2, "asc" ]],
-                ajax: "{{route('admin.products.datatable')}}",
-                columns: [
-                    {data: 'disabled'},
-                    {data: 'name'},
-                    {data: 'price'},
-                    {data: 'memory'},
-                    {data: 'cpu'},
-                    {data: 'swap'},
-                    {data: 'disk'},
-                    {data: 'databases'},
-                    {data: 'backups'},
-                    {data: 'nodes', sortable: false},
-                    {data: 'eggs', sortable: false},
-                    {data: 'servers', sortable: false},
-                    {data: 'created_at'},
-                    {data: 'actions', sortable: false},
+                order: [
+                    [ 2, "asc" ]
                 ],
-                fnDrawCallback: function( oSettings ) {
-                    $('[data-toggle="popover"]').popover();
+                ajax: "{{ route('admin.products.datatable') }}",
+                columns: [
+                    {data: "disabled"},
+                    {data: "name"},
+                    {data: "price"},
+                    {data: "memory"},
+                    {data: "cpu"},
+                    {data: "swap"},
+                    {data: "disk"},
+                    {data: "databases"},
+                    {data: "backups"},
+                    {data: "nodes", sortable: false},
+                    {data: "eggs", sortable: false},
+                    {data: "servers", sortable: false},
+                    {data: "created_at"},
+                    {data: "actions", sortable: false}
+                ],
+                fnDrawCallback: function (oSettings) {
+                    $("[data-toggle=\"popover\"]").popover();
                 }
             });
         });
