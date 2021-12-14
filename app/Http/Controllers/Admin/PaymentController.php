@@ -62,7 +62,6 @@ class PaymentController extends Controller
      */
     public function PaypalPay(Request $request, CreditProduct $creditProduct)
     {
-        echo $creditProduct->currency_code;
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -90,7 +89,7 @@ class PaymentController extends Controller
                 ]
             ],
             "application_context" => [
-                "cancel_url" => route('payment.PaypalCancel'),
+                "cancel_url" => route('payment.Cancel'),
                 "return_url" => route('payment.PaypalSuccess', ['product' => $creditProduct->id]),
                 'brand_name' =>  config('app.name', 'Laravel'),
                 'shipping_preference'  => 'NO_SHIPPING'
@@ -148,6 +147,7 @@ class PaymentController extends Controller
     {
         /** @var CreditProduct $creditProduct */
         $creditProduct = CreditProduct::findOrFail($laravelRequest->input('product'));
+
         /** @var User $user */
         $user = Auth::user();
 
@@ -221,7 +221,7 @@ class PaymentController extends Controller
     /**
      * @param Request $request
      */
-    public function PaypalCancel(Request $request)
+    public function Cancel(Request $request)
     {
         return redirect()->route('store.index')->with('success', 'Payment was Canceled');
     }
@@ -234,8 +234,6 @@ class PaymentController extends Controller
     public function StripePay(Request $request, CreditProduct $creditProduct)
     {
         \Stripe\Stripe::setApiKey('sk_test_51Js6U8J2KSABgZztx8QWiohacnzGyIlpOk48DfSoUWPW8mhqLzxcQ5B9a1Wiz8jCC4Xfp3QeBDTsuSU7hkXEUksW00JyN08hoU');
-
-
 
         $request = \Stripe\Checkout\Session::create([
             'line_items' => [
@@ -264,8 +262,8 @@ class PaymentController extends Controller
             ],
 
             'mode' => 'payment',
-              'success_url' => route('payment.PaypalCancel'),
-              'cancel_url' => route('payment.PaypalCancel'),
+              'success_url' => route('payment.StripeSuccess').'?session_id={CHECKOUT_SESSION_ID}',
+              'cancel_url' => route('payment.Cancel'),
           ]);
 
 
@@ -273,7 +271,76 @@ class PaymentController extends Controller
           return redirect($request->url, 303);
     }
 
-        /**
+    /**
+     * @param Request $request
+     */
+    public function StripeSuccess(Request $request)
+    {
+        echo $request->input('product');
+        \Stripe\Stripe::setApiKey('sk_test_51Js6U8J2KSABgZztx8QWiohacnzGyIlpOk48DfSoUWPW8mhqLzxcQ5B9a1Wiz8jCC4Xfp3QeBDTsuSU7hkXEUksW00JyN08hoU');
+        /** @var CreditProduct $creditProduct */
+        $creditProduct = CreditProduct::findOrFail($request->input('product'));
+
+        /** @var User $user */
+        $user = Auth::user();
+
+
+
+        try{
+        $response = \Stripe\Checkout\Session::retrieve($request->input('session_id'));
+
+        if ($response->payment_status == "paid") {
+
+            //update credits
+            $user->increment('credits', $creditProduct->quantity);
+
+            //update server limit
+            if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                    $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                }
+            }
+
+            //update role
+            if ($user->role == 'member') {
+                $user->update(['role' => 'client']);
+            }
+
+            //store payment
+            $payment = Payment::create([
+                'user_id' => $user->id,
+                'payment_id' => $response->result->id,
+                'payer_id' => $request->input('PayerID'),
+                'type' => 'Credits',
+                'status' => $response->payment_status,
+                'amount' => $creditProduct->quantity,
+                'price' => $creditProduct->price,
+                'tax_value' => $creditProduct->getTaxValue(),
+                'tax_percent' => $creditProduct->getTaxPercent(),
+                'total_price' => $creditProduct->getTotalPrice(),
+                'currency_code' => $creditProduct->currency_code,
+                'payer' => json_encode($response->result->payer),
+            ]);
+
+            //payment notification
+            $user->notify(new ConfirmPaymentNotification($payment));
+
+            event(new UserUpdateCreditsEvent($user));
+
+            //redirect back to home
+            return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
+        }
+        }catch (HttpException $ex) {
+            if (env('APP_ENV') == 'local') {
+                echo $ex->statusCode;
+                dd($ex->getMessage());
+            } else {
+                abort(422);
+            }
+        }
+    }
+
+    /**
      * @return string
      */
     protected function getStripeClientId()
