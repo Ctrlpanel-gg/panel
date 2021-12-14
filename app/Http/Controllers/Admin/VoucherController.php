@@ -189,13 +189,13 @@ class VoucherController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Voucher $voucher) {
                 return '
-                            <a data-content="Users" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.users', $voucher->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-users"></i></a>
-                            <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.edit', $voucher->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="'.__("Users").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.users', $voucher->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-users"></i></a>
+                            <a data-content="'.__("Edit").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.vouchers.edit', $voucher->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.vouchers.destroy', $voucher->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })

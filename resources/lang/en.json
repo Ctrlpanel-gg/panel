@@ -350,5 +350,12 @@
 
     "Getting started!": "Getting started!",
     "EXPIRED": "EXPIRED",
-    "VALID": "VALID"
+    "VALID": "VALID",
+
+    "Unsuspend": "Unsuspend",
+    "Suspend": "Suspend",
+    "Delete": "Delete",
+    "Login as User": "Login as User",
+    "Clone": "Clone"
+
 }

@@ -67,7 +67,7 @@
 
     <script>
         function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
+            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {

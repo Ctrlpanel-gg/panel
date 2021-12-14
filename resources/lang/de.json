@@ -350,6 +350,12 @@
 
     "Getting started!": "Den Anfang machen!",
     "EXPIRED": "ABGELAUFEN",
-    "VALID": "GÜLTIG"
+    "VALID": "GÜLTIG",
+    "Unsuspend": "Reaktivieren",
+    "Suspend": "Deaktivieren",
+    "Delete": "Löschen",
+    "Login as User": "Als User anmelden",
+    "Clone": "Klonen"
+
 
 }
