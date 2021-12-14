@@ -55,8 +55,7 @@
                             <th></th>
                         </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
 
                 </div>
@@ -71,37 +70,38 @@
 
     <script>
         function submitResult() {
-            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+           return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
         }
-
         document.addEventListener("DOMContentLoaded", function () {
-            $('#datatable').DataTable({
+            $("#datatable").DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
                 },
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                order: [[ 2, "asc" ]],
-                ajax: "{{route('admin.products.datatable')}}",
-                columns: [
-                    {data: 'disabled'},
-                    {data: 'name'},
-                    {data: 'price'},
-                    {data: 'memory'},
-                    {data: 'cpu'},
-                    {data: 'swap'},
-                    {data: 'disk'},
-                    {data: 'databases'},
-                    {data: 'backups'},
-                    {data: 'nodes', sortable: false},
-                    {data: 'eggs', sortable: false},
-                    {data: 'servers', sortable: false},
-                    {data: 'created_at'},
-                    {data: 'actions', sortable: false},
+                order: [
+                    [ 2, "asc" ]
                 ],
-                fnDrawCallback: function( oSettings ) {
-                    $('[data-toggle="popover"]').popover();
+                ajax: "{{ route('admin.products.datatable') }}",
+                columns: [
+                    {data: "disabled"},
+                    {data: "name"},
+                    {data: "price"},
+                    {data: "memory"},
+                    {data: "cpu"},
+                    {data: "swap"},
+                    {data: "disk"},
+                    {data: "databases"},
+                    {data: "backups"},
+                    {data: "nodes", sortable: false},
+                    {data: "eggs", sortable: false},
+                    {data: "servers", sortable: false},
+                    {data: "created_at"},
+                    {data: "actions", sortable: false}
+                ],
+                fnDrawCallback: function (oSettings) {
+                    $("[data-toggle=\"popover\"]").popover();
                 }
             });
         });
