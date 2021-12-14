@@ -62,6 +62,7 @@ class PaymentController extends Controller
      */
     public function PaypalPay(Request $request, CreditProduct $creditProduct)
     {
+        echo $creditProduct->currency_code;
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -240,7 +241,7 @@ class PaymentController extends Controller
             'line_items' => [
                 [
                 'price_data' => [
-                  'currency' => 'eur',
+                  'currency' => $creditProduct->currency_code,
                   'product_data' => [
                       'name' => $creditProduct->display,
                       'description' => $creditProduct->description,
@@ -251,7 +252,7 @@ class PaymentController extends Controller
                 ],
                 [
                     'price_data' => [
-                        'currency' => 'eur',
+                        'currency' => $creditProduct->currency_code,
                         'product_data' => [
                             'name' => 'Product Tax',
                             'description' => $creditProduct->getTaxPercent() . "%",
@@ -261,14 +262,7 @@ class PaymentController extends Controller
                         'quantity' => 1,
                 ]
             ],
-            'payment_method_types' => [
-                'card',
-                'giropay',
-                'ideal',
-                'klarna',
-                'sofort',
-                'sepa_debit',
-            ],
+
             'mode' => 'payment',
               'success_url' => route('payment.PaypalCancel'),
               'cancel_url' => route('payment.PaypalCancel'),
