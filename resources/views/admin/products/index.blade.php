@@ -28,6 +28,7 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
+
                         <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Products')}}</h5>
                         <a href="{{route('admin.products.create')}}" class="btn btn-sm btn-primary"><i
                                 class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
@@ -39,6 +40,7 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
+
                             <th>{{__('Active')}}</th>
                             <th>{{__('Name')}}</th>
                             <th>{{__('Price')}}</th>
@@ -52,6 +54,7 @@
                             <th>{{__('Eggs')}}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Created at')}}</th>
+
                             <th></th>
                         </tr>
                         </thead>
@@ -77,6 +80,7 @@
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
                 },
+
                 processing: true,
                 serverSide: true,
                 stateSave: true,
