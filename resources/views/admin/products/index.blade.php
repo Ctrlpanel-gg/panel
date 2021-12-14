@@ -48,8 +48,8 @@
                             <th>{{__('Disk')}}</th>
                             <th>{{__('Databases')}}</th>
                             <th>{{__('Backups')}}</th>
-                            <th>{{__('Eggs')}}</th>
                             <th>{{__('Nodes')}}</th>
+                            <th>{{__('Eggs')}}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Created at')}}</th>
                             <th></th>
