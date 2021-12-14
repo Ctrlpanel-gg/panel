@@ -53,7 +53,7 @@
                                     <td>{{$product->formatToCurrency($product->price)}}</td>
                                     <td>{{strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type}}</td>
                                     <td><i class="fa fa-coins mr-2"></i>{{$product->display}}</td>
-                                    <td><a href="{{route('checkout' , $product->id)}}" class="btn btn-info">Purchase</a>
+                                    <td><a href="{{route('checkout' , $product->id)}}" class="btn btn-info">{{__('Purchase')}}</a>
                                     </td>
                                 </tr>
                             @endforeach
