@@ -2,11 +2,11 @@
     <thead>
     <tr>
         <th width="20"></th>
-        <th>Name</th>
-        <th>User</th>
-        <th>Config</th>
-        <th>Suspended At</th>
-        <th>Created At</th>
+        <th>{{__('Name')}}</th>
+        <th>{{__('User')}}</th>
+        <th>{{__('Config')}}</th>
+        <th>{{__('Suspended at')}}</th>
+        <th>{{__('Created at')}}</th>
         <th></th>
     </tr>
     </thead>
@@ -16,11 +16,14 @@
 
 <script>
     function submitResult() {
-        return confirm("Are you sure you wish to delete?") !== false;
+        return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
     }
 
     document.addEventListener("DOMContentLoaded", function () {
         $('#datatable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
+            },
             processing: true,
             serverSide: true,
             stateSave: true,

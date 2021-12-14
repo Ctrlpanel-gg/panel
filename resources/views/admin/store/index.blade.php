@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Store</h1>
+                    <h1>{{__('Store')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.store.index')}}">Store</a></li>
+                                                       href="{{route('admin.store.index')}}">{{__('Store')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,8 +28,8 @@
                 <div class="col-lg-4">
                     @if($isPaypalSetup == false)
                         <div class="callout callout-danger">
-                            <h4>Paypal is not configured.</h4>
-                            <p>To configure PayPal, head to the .env and add your PayPal’s client id and secret.</p>
+                            <h4>{{__('Paypal is not configured.')}}</h4>
+                            <p>{{__('To configure PayPal, head to the .env and add your PayPal’s client id and secret.')}}</p>
                         </div>
                     @endif
                 </div>
@@ -39,9 +39,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>Store</h5>
+                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Store')}}</h5>
                         <a href="{{route('admin.store.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>Create new</a>
+                                class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
                     </div>
                 </div>
 
@@ -50,12 +50,12 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Active</th>
-                            <th>Type</th>
-                            <th>Price</th>
-                            <th>Display</th>
-                            <th>Description</th>
-                            <th>Created at</th>
+                            <th>{{__('Active')}}</th>
+                            <th>{{__('Type')}}</th>
+                            <th>{{__('Price')}}</th>
+                            <th>{{__('Display')}}</th>
+                            <th>{{__('Description')}}</th>
+                            <th>{{__('Created at')}}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -80,6 +80,9 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
+                },
                 processing: true,
                 serverSide: true,
                 stateSave: true,

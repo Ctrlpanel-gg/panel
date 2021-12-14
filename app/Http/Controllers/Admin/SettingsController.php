@@ -47,7 +47,7 @@ class SettingsController extends Controller
             $request->file('favicon')->storeAs('public', 'favicon.ico');
         }
 
-        return redirect()->route('admin.settings.index')->with('success', 'Icons updated!');
+        return redirect()->route('admin.settings.index')->with('success', __('Icons updated!'));
     }
 
     public function updateInvoiceSettings(Request $request)

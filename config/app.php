@@ -83,6 +83,21 @@ return [
 
     'locale' => env('LOCALE', 'en'),
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Datatable Language Setting
+    |--------------------------------------------------------------------------
+    |
+    | This is the Language-Code used on the Datatables.
+    | You can grab the Language-Codes from this Website
+    | https://datatables.net/plug-ins/i18n/
+    |
+    */
+
+    'datatable_locale' => env('DATATABLE_LOCALE', 'en-gb'),
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale

@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Settings</h1>
+                    <h1>{{__('Settings')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.settings.index')}}">Settings</a></li>
+                                                       href="{{route('admin.settings.index')}}">{{__('Settings')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,7 +28,7 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-tools mr-2"></i>Settings</h5>
+                        <h5 class="card-title"><i class="fas fa-tools mr-2"></i>{{__('Settings')}}</h5>
                     </div>
                 </div>
 
@@ -37,7 +37,7 @@
                     <!-- Nav pills -->
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#dashboard-icons">Dashboard icons</a>
+                            <a class="nav-link active" data-toggle="pill" href="#dashboard-icons">{{__('Dashboard icons')}}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="pill" href="#invoice-settings">{{__('Invoice Settings')}}</a>
@@ -84,7 +84,7 @@
                                     </div>
                                 </div>
 
-                                <button class="btn btn-primary">Submit</button>
+                                <button class="btn btn-primary">{{__('Submit')}}</button>
                             </form>
 
                             <p class="text-muted">Images and Icons may be cached, use <code>CNTRL + F5</code><sup>(google
