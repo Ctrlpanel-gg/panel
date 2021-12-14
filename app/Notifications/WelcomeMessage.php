@@ -66,7 +66,7 @@ class WelcomeMessage extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            'title'   => "Getting started!",
+            'title'   => __("Getting started!"),
             'content' => "
                <p>Hello <strong>{$this->user->name}</strong>, Welcome to our dashboard!</p>
                 <h5>Verification</h5>

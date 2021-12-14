@@ -93,7 +93,7 @@ class PaymentController extends Controller
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
 
-        
+
         ];
 
 
@@ -164,7 +164,7 @@ class PaymentController extends Controller
                         $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
-                
+
                 //update role
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
@@ -192,7 +192,7 @@ class PaymentController extends Controller
                 event(new UserUpdateCreditsEvent($user));
 
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
+                return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
             }
 
             // If call returns body in response, you can get the deserialized version from the result attribute of the response
@@ -220,7 +220,7 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        return redirect()->route('store.index')->with('success', 'Payment was Canceled');
+        return redirect()->route('store.index')->with('success', __('Payment was Canceled'));
     }
 
 

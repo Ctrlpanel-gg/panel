@@ -6,14 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Servers</h1>
+                    <h1>{{__('Servers')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('servers.index') }}">Servers</a>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('servers.index') }}">{{__('Servers')}}</a>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('servers.create') }}">Create</a>
+                                                       href="{{ route('servers.create') }}">{{__('Create')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -114,7 +114,7 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="egg">{{__('Specification ')}}</label>
+                                        <label for="egg">{{__('Specification')}}</label>
                                         <div>
                                             <select id="egg"
                                                     required
@@ -194,7 +194,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
-                                <i class="fas fa-list mr-2"></i>{{__('Server details')}}
+                                <i class="fas fa-list mr-2"></i>{{__('Server Details')}}
                             </div>
                         </div>
                         <div class="card-body">
@@ -233,7 +233,7 @@
                                     <template x-if="selectedProductObject?.name">
                                         <ul class="pl-0">
                                             <li class="d-flex justify-content-between">
-                                                <small class="text-muted d-inline-block">{{__('CPU')}}</small>
+                                                <small class="text-muted d-inline-block">{{__('Cpu')}}</small>
                                                 <small class="text-muted d-inline-block"
                                                        x-text="selectedProductObject.cpu + ' %'"></small>
                                             </li>
@@ -258,7 +258,7 @@
                                                        x-text="selectedProductObject.backups"></small>
                                             </div>
                                             <div class="d-flex justify-content-between">
-                                               <small class="text-muted d-inline-block">{{__('Allocations')}} ({{__('ports')}})</small>
+                                               <small class="text-muted d-inline-block">{{__('Allocations')}}</small>
                                                <small class="text-muted d-inline-block" x-text="selectedProductObject.allocations"></small>
                                            </div>
                                         </ul>

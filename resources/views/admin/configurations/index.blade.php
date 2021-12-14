@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Configurations</h1>
+                    <h1>{{__('Configurations')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}"{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.configurations.index')}}">Configurations</a></li>
+                                                       href="{{route('admin.configurations.index')}}">{{__('Configurations')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,7 +28,7 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-cog mr-2"></i>Configurations</h5>
+                        <h5 class="card-title"><i class="fas fa-cog mr-2"></i>{{__('Configurations')}}</h5>
                     </div>
                 </div>
 
@@ -37,11 +37,11 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Key</th>
-                            <th>Value</th>
-                            <th>Type</th>
-                            <th width="600">Description</th>
-                            <th>Created at</th>
+                            <th>{{__('Key')}}</th>
+                            <th>{{__('Value')}}</th>
+                            <th>{{__('Type')}}</th>
+                            <th width="600">{{__('Description')}}</th>
+                            <th>{{__('Created at')}}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -64,6 +64,9 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
+                },
                 processing: true,
                 serverSide: true,
                 stateSave: true,

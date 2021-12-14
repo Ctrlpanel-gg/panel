@@ -6,14 +6,15 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Products</h1>
+                    <h1>{{__('Products')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.products.index') }}">Products</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.products.index') }}">{{__('Products')}}</a>
+                        </li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('admin.products.create') }}">Create</a>
+                                                       href="{{ route('admin.products.create') }}">{{__('Create')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -31,7 +32,7 @@
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title">Product Details</h5>
+                                <h5 class="card-title">{{__('Product Details')}}</h5>
                             </div>
                             <div class="card-body">
 
@@ -39,9 +40,9 @@
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" name="disabled"
                                                class="custom-control-input custom-control-input-danger" id="switch1">
-                                        <label class="custom-control-label" for="switch1">Disabled <i
+                                        <label class="custom-control-label" for="switch1">{{__('Disabled')}} <i
                                                 data-toggle="popover" data-trigger="hover"
-                                                data-content="Will hide this option from being selected"
+                                                data-content="{{__('Will hide this option from being selected')}}"
                                                 class="fas fa-info-circle"></i></label>
                                     </div>
                                 </div>
@@ -49,7 +50,7 @@
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="name">Name</label>
+                                            <label for="name">{{__('Name')}}</label>
                                             <input value="{{$product->name ?? old('name')}}" id="name" name="name"
                                                    type="text"
                                                    class="form-control @error('name') is-invalid @enderror"
@@ -62,7 +63,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="price">Price in credits</label>
+                                            <label for="price">{{__('Price in')}}{{CREDITS_DISPLAY_NAME}}</label>
                                             <input value="{{$product->price ??  old('price')}}" id="price" name="price"
                                                    type="number"
                                                    class="form-control @error('price') is-invalid @enderror"
@@ -76,7 +77,7 @@
 
 
                                         <div class="form-group">
-                                            <label for="memory">Memory</label>
+                                            <label for="memory">{{__('Memory')}}</label>
                                             <input value="{{$product->memory ?? old('memory')}}" id="memory"
                                                    name="memory"
                                                    type="number"
@@ -90,7 +91,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="cpu">Cpu</label>
+                                            <label for="cpu">{{__('Cpu')}}</label>
                                             <input value="{{$product->cpu ?? old('cpu')}}" id="cpu" name="cpu"
                                                    type="number"
                                                    class="form-control @error('cpu') is-invalid @enderror"
@@ -103,7 +104,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="swap">Swap</label>
+                                            <label for="swap">{{__('Swap')}}</label>
                                             <input value="{{$product->swap ?? old('swap')}}" id="swap" name="swap"
                                                    type="number"
                                                    class="form-control @error('swap') is-invalid @enderror"
@@ -116,10 +117,10 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="description">Description <i data-toggle="popover"
-                                                                                    data-trigger="hover"
-                                                                                    data-content="This is what the users sees"
-                                                                                    class="fas fa-info-circle"></i></label>
+                                            <label for="description">{{__('Description')}} <i data-toggle="popover"
+                                                                                              data-trigger="hover"
+                                                                                              data-content="{{__('This is what the users sees')}}"
+                                                                                              class="fas fa-info-circle"></i></label>
                                             <textarea id="description" name="description"
                                                       type="text"
                                                       class="form-control @error('description') is-invalid @enderror"
@@ -134,7 +135,7 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="disk">Disk</label>
+                                            <label for="disk">{{__('Disk')}}</label>
                                             <input value="{{$product->disk ?? old('disk') ?? 1000}}" id="disk"
                                                    name="disk"
                                                    type="number"
@@ -148,14 +149,16 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="minimum_credits">Minimum {{ CREDITS_DISPLAY_NAME }} <i
+                                            <label for="minimum_credits">{{__('Minimum')}} {{ CREDITS_DISPLAY_NAME }} <i
                                                     data-toggle="popover" data-trigger="hover"
-                                                    data-content="Setting to -1 will use the value from configuration."
+                                                    data-content="{{__('Setting to -1 will use the value from configuration.')}}"
                                                     class="fas fa-info-circle"></i></label>
-                                            <input value="{{ $product->minimum_credits ?? old('minimum_credits') ?? -1 }}" id="minimum_credits"
-                                                   name="minimum_credits" type="number"
-                                                   class="form-control @error('minimum_credits') is-invalid @enderror"
-                                                   required="required">
+                                            <input
+                                                value="{{ $product->minimum_credits ?? old('minimum_credits') ?? -1 }}"
+                                                id="minimum_credits"
+                                                name="minimum_credits" type="number"
+                                                class="form-control @error('minimum_credits') is-invalid @enderror"
+                                                required="required">
                                             @error('minimum_credits')
                                             <div class="invalid-feedback">
                                                 {{ $message }}
@@ -164,7 +167,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="io">IO</label>
+                                            <label for="io">{{__('IO')}}</label>
                                             <input value="{{$product->io ?? old('io') ?? 500}}" id="io" name="io"
                                                    type="number"
                                                    class="form-control @error('io') is-invalid @enderror"
@@ -176,7 +179,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-group">
-                                            <label for="databases">Databases</label>
+                                            <label for="databases">{{__('Databases')}}</label>
                                             <input value="{{$product->databases ?? old('databases') ?? 1}}"
                                                    id="databases"
                                                    name="databases"
@@ -190,7 +193,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-group">
-                                            <label for="backups">Backups</label>
+                                            <label for="backups">{{__('Backups')}}</label>
                                             <input value="{{$product->backups ?? old('backups') ?? 1}}" id="backups"
                                                    name="backups"
                                                    type="number"
@@ -203,7 +206,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-group">
-                                            <label for="allocations">Allocations</label>
+                                            <label for="allocations">{{__('Allocations')}}</label>
                                             <input value="{{$product->allocations ?? old('allocations') ?? 0}}"
                                                    id="allocations" name="allocations"
                                                    type="number"
@@ -220,7 +223,7 @@
 
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">
-                                        Submit
+                                        {{__('Submit')}}
                                     </button>
                                 </div>
 
@@ -231,16 +234,16 @@
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="card-title">Product Linking
+                                <h5 class="card-title">{{__('Product Linking')}}
                                     <i data-toggle="popover"
                                        data-trigger="hover"
-                                       data-content="Link your products to nodes and eggs to create dynamic pricing for each option"
+                                       data-content="{{__('Link your products to nodes and eggs to create dynamic pricing for each option')}}"
                                        class="fas fa-info-circle"></i></h5>
                             </div>
                             <div class="card-body">
 
                                 <div class="form-group">
-                                    <label for="nodes">Nodes</label>
+                                    <label for="nodes">{{__('Nodes')}}</label>
                                     <select id="nodes" style="width:100%"
                                             class="custom-select @error('nodes') is-invalid @enderror"
                                             name="nodes[]" multiple="multiple" autocomplete="off">
@@ -260,13 +263,13 @@
                                     </div>
                                     @enderror
                                     <div class="text-muted">
-                                        This product will only be available for these nodes
+                                        {{__('This product will only be available for these nodes')}}
                                     </div>
                                 </div>
 
 
                                 <div class="form-group">
-                                    <label for="eggs">Eggs</label>
+                                    <label for="eggs">{{__('Eggs')}}</label>
                                     <select id="eggs" style="width:100%"
                                             class="custom-select @error('eggs') is-invalid @enderror"
                                             name="eggs[]" multiple="multiple" autocomplete="off">
@@ -286,7 +289,7 @@
                                     </div>
                                     @enderror
                                     <div class="text-muted">
-                                        This product will only be available for these eggs
+                                        {{__('This product will only be available for these eggs')}}
                                     </div>
                                 </div>
 
