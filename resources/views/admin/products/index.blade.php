@@ -12,7 +12,8 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.products.index')}}">{{__('Products')}}</a></li>
+                                                       href="{{route('admin.products.index')}}">{{__('Products')}}</a>
+                        </li>
                     </ol>
                 </div>
             </div>
@@ -40,7 +41,6 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-
                             <th>{{__('Active')}}</th>
                             <th>{{__('Name')}}</th>
                             <th>{{__('Price')}}</th>
@@ -54,7 +54,6 @@
                             <th>{{__('Eggs')}}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Created at')}}</th>
-
                             <th></th>
                         </tr>
                         </thead>
@@ -73,19 +72,19 @@
 
     <script>
         function submitResult() {
-           return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
         }
+
         document.addEventListener("DOMContentLoaded", function () {
             $("#datatable").DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
                 },
-
                 processing: true,
                 serverSide: true,
                 stateSave: true,
                 order: [
-                    [ 2, "asc" ]
+                    [2, "asc"]
                 ],
                 ajax: "{{ route('admin.products.datatable') }}",
                 columns: [
