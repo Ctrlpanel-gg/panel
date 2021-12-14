@@ -178,11 +178,14 @@
 
                                         <!-- logo -->
                                         <div class="form-group">
+                                            <div class="custom-control mb-3">
+                                                <label for="logo">{{__('Logo')}}</label>
                                             <div class="custom-file mb-3">
                                                 <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input"
                                                        name="logo" id="logo">
                                                 <label class="custom-file-label selected"
                                                        for="favicon">{{__('Select Invoice Logo')}}</label>
+                                            </div>
                                             </div>
                                             @error('logo')
                                             <span class="text-danger">
