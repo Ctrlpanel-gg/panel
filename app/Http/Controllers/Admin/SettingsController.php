@@ -20,16 +20,10 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        return view('admin.settings.index',
-            [
-                'company_name' => InvoiceSettings::get()->first()->company_name,
-                'company_adress' => InvoiceSettings::get()->first()->company_adress,
-                'company_phone' => InvoiceSettings::get()->first()->company_phone,
-                'company_vat' => InvoiceSettings::get()->first()->company_vat,
-                'company_mail' => InvoiceSettings::get()->first()->company_mail,
-                'company_web' => InvoiceSettings::get()->first()->company_web,
-                'invoice_prefix' => InvoiceSettings::get()->first()->invoice_prefix
-            ]);
+        /** @var InvoiceSettings $invoiceSettings */
+        $invoiceSettings = InvoiceSettings::first();
+
+        return view('admin.settings.index', $invoiceSettings->toArray());
     }
 
     public function updateIcons(Request $request)
@@ -56,13 +50,17 @@ class SettingsController extends Controller
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
         ]);
 
-        InvoiceSettings::updateOrCreate(['id' => "1"], ['company_name' => $request->get('company-name')]);
-        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_adress' => $request->get('company-adress')]);
-        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_phone' => $request->get('company-phone')]);
-        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_mail' => $request->get('company-mail')]);
-        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_vat' => $request->get('company-vat')]);
-        InvoiceSettings::updateOrCreate(['id' => "1",], ['company_web' => $request->get('company-web')]);
-        InvoiceSettings::updateOrCreate(['id' => "1",], ['invoice_prefix' => $request->get('invoice-prefix')]);
+        InvoiceSettings::updateOrCreate([
+            'id' => "1"
+        ], [
+            'company_name' => $request->get('company-name'),
+            'company_adress' => $request->get('company-adress'),
+            'company_phone' => $request->get('company-phone'),
+            'company_mail' => $request->get('company-mail'),
+            'company_vat' => $request->get('company-vat'),
+            'company_web' => $request->get('company-web'),
+            'invoice_prefix' => $request->get('invoice-prefix'),
+        ]);
 
         if ($request->hasFile('logo')) {
             $request->file('logo')->storeAs('public', 'logo.png');

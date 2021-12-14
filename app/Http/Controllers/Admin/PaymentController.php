@@ -197,7 +197,7 @@ class PaymentController extends Controller
                 //create invoice
                 $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
                 $newInvoiceID = $lastInvoiceID + 1;
-                $InvoiceSettings = InvoiceSettings::all()->first();
+                $InvoiceSettings = InvoiceSettings::query()->first();
                 $logoPath = storage_path('app/public/logo.png');
 
                 $seller = new Party([
