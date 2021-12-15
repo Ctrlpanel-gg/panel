@@ -13,6 +13,7 @@
 ![controlpanel](https://user-images.githubusercontent.com/45005889/123518824-06b05000-d6a8-11eb-91b9-d1ed36bd2317.png)
 
 ![](https://img.shields.io/github/stars/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/forks/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/tag/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/issues/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/license/ControlPanel-gg/dashboard) ![](https://img.shields.io/discord/787829714483019826)
+[![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg)
 
 ## About
 ControlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that credits users hourly for each server they have and suspends them if they run out of credits.
