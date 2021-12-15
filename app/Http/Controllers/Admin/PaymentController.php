@@ -179,7 +179,7 @@ class PaymentController extends Controller
                     'payment_id' => $response->result->id,
                     'payment_method' => 'paypal',
                     'type' => 'Credits',
-                    'status' => $response->result->status,
+                    'status' => 'paid',
                     'amount' => $creditProduct->quantity,
                     'price' => $creditProduct->price,
                     'tax_value' => $creditProduct->getTaxValue(),
@@ -290,7 +290,6 @@ class PaymentController extends Controller
         try{
         $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
         $capturedPaymentIntent = $stripeClient->paymentIntents->capture($paymentSession->payment_intent);
-
         if ($capturedPaymentIntent->status == "succeeded") {
 
             //update credits
@@ -314,7 +313,7 @@ class PaymentController extends Controller
                 'payment_id' => $capturedPaymentIntent->id,
                 'payment_method' => 'stripe',
                 'type' => 'Credits',
-                'status' => $capturedPaymentIntent->status,
+                'status' => 'paid',
                 'amount' => $creditProduct->quantity,
                 'price' => $creditProduct->price,
                 'tax_value' => $creditProduct->getTaxValue(),
@@ -388,9 +387,13 @@ class PaymentController extends Controller
             ->editColumn('tax_value', function (Payment $payment) {
                 return $payment->formatToCurrency($payment->tax_value);
             })
+            ->editColumn('tax_percent', function (Payment $payment) {
+                return $payment->tax_percent . ' %';
+            })
             ->editColumn('total_price', function (Payment $payment) {
                 return $payment->formatToCurrency($payment->total_price);
             })
+
             ->editColumn('created_at', function (Payment $payment) {
                 return $payment->created_at ? $payment->created_at->diffForHumans() : '';
             })

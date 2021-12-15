@@ -34,15 +34,14 @@
                         <thead>
                         <tr>
                             <th>ID</th>
-                            <th>User</th>
                             <th>Type</th>
                             <th>Amount</th>
                             <th>Product Price</th>
-                            <th>Tax</th>
-                            <th>Tax(%)</th>
+                            <th>Tax Value</th>
+                            <th>Tax Percentage</th>
                             <th>Total Price</th>
                             <th>Payment_ID</th>
-                            <th>Payer_ID</th>
+                            <th>Payment Method</th>
                             <th>Created at</th>
                         </tr>
                         </thead>
@@ -67,7 +66,6 @@
                 ajax: "{{route('admin.payments.datatable')}}",
                 columns: [
                     {data: 'id' , name : 'payments.id'},
-                    {data: 'user', sortable: false},
                     {data: 'type'},
                     {data: 'amount'},
                     {data: 'price'},
@@ -75,12 +73,12 @@
                     {data: 'tax_percent'},
                     {data: 'total_price'},
                     {data: 'payment_id'},
-                    {data: 'payer_id'},
+                    {data: 'payment_method'},
                     {data: 'created_at'},
                 ],
                 fnDrawCallback: function( oSettings ) {
                     $('[data-toggle="popover"]').popover();
-                }
+                },  
             });
         });
     </script>
