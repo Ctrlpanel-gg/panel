@@ -357,6 +357,8 @@
     "Suspend": "Suspend",
     "Delete": "Delete",
     "Login as User": "Login as User",
-    "Clone": "Clone"
+    "Clone": "Clone",
+
+    "Amount due": "Amount due"
 
 }

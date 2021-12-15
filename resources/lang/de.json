@@ -356,6 +356,8 @@
     "Suspend": "Deaktivieren",
     "Delete": "Löschen",
     "Login as User": "Als User anmelden",
-    "Clone": "Klonen"
+    "Clone": "Klonen",
+
+    "Amount due": "Zahlung fällig am"
 
 }
