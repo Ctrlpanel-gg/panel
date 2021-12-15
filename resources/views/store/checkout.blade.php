@@ -105,7 +105,7 @@
                             </div>
                             <!-- /.col -->
                             <div class="col-6">
-                                <p class="lead">{{__('Amount Due')}} {{Carbon\Carbon::now()->isoFormat('LL')}}</p>
+                                <p class="lead">{{__('Amount due')}} {{Carbon\Carbon::now()->isoFormat('LL')}}</p>
 
                                 <div class="table-responsive">
                                     <table class="table">
