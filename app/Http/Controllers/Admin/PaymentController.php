@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Configuration;
 use App\Models\Payment;
 use App\Models\CreditProduct;
-use App\Models\Product;
 use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
 use Exception;
@@ -194,7 +193,7 @@ class PaymentController extends Controller
                 event(new UserUpdateCreditsEvent($user));
 
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
+                return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
             }
 
             // If call returns body in response, you can get the deserialized version from the result attribute of the response
@@ -328,7 +327,7 @@ class PaymentController extends Controller
             event(new UserUpdateCreditsEvent($user));
 
             //redirect back to home
-            return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
+            return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
         }
         }catch (HttpException $ex) {
             if (env('APP_ENV') == 'local') {
