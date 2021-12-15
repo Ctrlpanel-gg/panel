@@ -6,12 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Store</h1>
+                    <h1>{{ _('Store') }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class="" href="{{ route('home') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{ route('store.index') }}">Store</a>
+                        <li class="breadcrumb-item"><a class=""
+                                href="{{ route('home') }}">{{ _('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                href="{{ route('store.index') }}">{{ _('Store') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -21,7 +23,7 @@
     <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
-    <section class="content">
+    <section x-data="serverApp()" x-init="$watch('paymentMethod', value => setPaymentRoute(value))" class="content">
         <div class="container-fluid">
 
             <div class="row">
@@ -35,7 +37,7 @@
                             <div class="col-12">
                                 <h4>
                                     <i class="fas fa-globe"></i> {{ config('app.name', 'Laravel') }}
-                                    <small class="float-right">Date:
+                                    <small class="float-right">{{ _('Date') }}:
                                         {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
                                 </h4>
                             </div>
@@ -44,24 +46,24 @@
                         <!-- info row -->
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col">
-                                To
+                                {{ __('To') }}
                                 <address>
                                     <strong>{{ config('app.name', 'Controlpanel.GG') }}</strong><br>
-                                    Email: {{ env('PAYPAL_EMAIL', env('MAIL_FROM_NAME')) }}
+                                    {{ _('Email') }}: {{ env('PAYPAL_EMAIL', env('MAIL_FROM_NAME')) }}
                                 </address>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                From
+                                {{ _('From') }}
                                 <address>
                                     <strong>{{ Auth::user()->name }}</strong><br>
-                                    Email: {{ Auth::user()->email }}
+                                    {{ _('Email') }}: {{ Auth::user()->email }}
                                 </address>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                <b>Status</b><br>
-                                <span class="badge badge-warning">Pending</span><br>
+                                <b>{{ _('Status') }}</b><br>
+                                <span class="badge badge-warning">{{ _('Pending') }}</span><br>
                                 {{-- <b>Order ID:</b> 4F3S8J<br> --}}
                             </div>
                             <!-- /.col -->
@@ -74,10 +76,10 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Quantity</th>
-                                            <th>Product</th>
-                                            <th>Description</th>
-                                            <th>Subtotal</th>
+                                            <th>{{ _('Quantity') }}</th>
+                                            <th>{{ _('Product') }}</th>
+                                            <th>{{ _('Description') }}</th>
+                                            <th>{{ _('Subtotal') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -99,14 +101,27 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-6">
-                                <p class="lead">Payment Methods:</p>
+                                <p class="lead">{{ __('Payment Methods') }}:</p>
 
-                                <img src="https://www.paypalobjects.com/digitalassets/c/website/logo/full-text/pp_fc_hl.svg"
-                                    alt="Paypal">
+                                <div>
+                                    <label class="text-center " for="paypal">
+                                        <img class="mb-3" height="50"
+                                            src="{{ url('/images/paypal_logo.png') }}"></br>
 
-                                <p class="text-muted well well-sm shadow-none" style="margin-top: 10px;">
-                                    By purchasing this product you agree and accept our terms of service</a>
-                                </p>
+                                        <input x-model="paymentMethod" type="radio" id="paypal" value="paypal"
+                                            name="payment_method">
+                                        </input>
+                                    </label>
+
+                                    <label class="ml-5 text-center " for="stripe">
+                                        <img class="mb-3" height="50"
+                                            src="{{ url('/images/stripe_logo.png') }}" /></br>
+                                        <input x-model="paymentMethod" type="radio" id="stripe" value="stripe"
+                                            name="payment_method">
+                                        </input>
+                                    </label>
+                                </div>
+
                             </div>
                             <!-- /.col -->
                             <div class="col-6">
@@ -140,15 +155,9 @@
                         <!-- this row will not appear when printing -->
                         <div class="row no-print">
                             <div class="col-12">
-                                <a href="{{ route('payment.PaypalPay', $product->id) }}" type="button"
-                                    class="btn btn-success float-right"><i class="far fa-credit-card mr-2"></i> Submit
-                                    PayPal
-                                    Payment
-                                </a>
-                                <a href="{{ route('payment.StripePay', $product->id) }}" type="button"
-                                    class="btn btn-success float-right"><i class="far fa-credit-card mr-2"></i> Submit
-                                    Stripe
-                                    Payment
+                                <a type="button" :href="paymentRoute" class="btn btn-success float-right"><i
+                                        class="far fa-credit-card mr-2"></i>
+                                    {{ __('Submit Payment') }}
                                 </a>
                             </div>
                         </div>
@@ -156,10 +165,35 @@
                     <!-- /.invoice -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
-
-
         </div>
     </section>
     <!-- END CONTENT -->
+
+    <script>
+        function serverApp() {
+            return {
+                //loading
+                paymentMethod: '',
+                paymentRoute: '',
+
+                setPaymentRoute(provider) {
+                    switch (provider) {
+                        case 'paypal':
+                            this.paymentRoute = '{{ route('payment.PaypalPay', $product->id) }}';
+                            break;
+                        case 'stripe':
+                            this.paymentRoute = '{{ route('payment.StripePay', $product->id) }}';
+                            break;
+                        default:
+                            this.paymentRoute = '{{ route('payment.PaypalPay', $product->id) }}';
+                    }
+                },
+
+
+
+            }
+        }
+    </script>
+
 
 @endsection
