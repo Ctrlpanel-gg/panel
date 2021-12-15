@@ -345,19 +345,7 @@ class PaymentController extends Controller
      */
     protected function getStripeClient()
     {
-        $environment = env('APP_ENV') == 'local'
-            ? $this->getStripeSecret()
-            :  $this->getStripeSecret();
-
-        return new \Stripe\StripeClient($environment);
-    }
-
-    /**
-     * @return string
-     */
-    protected function getStripeClientId()
-    {
-        return env('APP_ENV') == 'local' ? env('PAYPAL_SANDBOX_CLIENT_ID') : env('PAYPAL_CLIENT_ID');
+        return new \Stripe\StripeClient($this->getStripeClient());
     }
 
     /**
@@ -365,7 +353,9 @@ class PaymentController extends Controller
      */
     protected function getStripeSecret()
     {
-        return env('STRIPE_SECRET');
+        return env('APP_ENV') == 'local'
+            ?  env('STRIPE_TEST_SECRET')
+            : env('STRIPE_SECRET');
     }
 
 
