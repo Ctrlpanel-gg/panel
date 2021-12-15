@@ -46,7 +46,7 @@
                             <div class="col-sm-4 invoice-col">
                                 To
                                 <address>
-                                    <strong>{{ config('app.name', 'Laravel') }}</strong><br>
+                                    <strong>{{ config('app.name', 'Controlpanel.GG') }}</strong><br>
                                     Email: {{ env('PAYPAL_EMAIL', env('MAIL_FROM_NAME')) }}
                                 </address>
                             </div>
