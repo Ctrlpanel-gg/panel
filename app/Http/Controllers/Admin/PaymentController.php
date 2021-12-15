@@ -232,8 +232,8 @@ class PaymentController extends Controller
      */
     public function StripePay(Request $request, CreditProduct $creditProduct)
     {
-
         $stripeClient = $this->getStripeClient();
+
 
         $request = $stripeClient->checkout->sessions->create([
             'line_items' => [
@@ -340,12 +340,12 @@ class PaymentController extends Controller
         }
     }
 
-            /**
-     * @return StripeClient
+    /**
+     * @return \Stripe\StripeClient
      */
     protected function getStripeClient()
     {
-        return new \Stripe\StripeClient($this->getStripeClient());
+        return new \Stripe\StripeClient($this->getStripeSecret());
     }
 
     /**
@@ -355,7 +355,7 @@ class PaymentController extends Controller
     {
         return env('APP_ENV') == 'local'
             ?  env('STRIPE_TEST_SECRET')
-            : env('STRIPE_SECRET');
+            :  env('STRIPE_SECRET');
     }
 
 
