@@ -177,7 +177,7 @@ class PaymentController extends Controller
                 $payment = Payment::create([
                     'user_id' => $user->id,
                     'payment_id' => $response->result->id,
-                    'payer_id' => $laravelRequest->input('PayerID'),
+                    'payment_method' => 'paypal',
                     'type' => 'Credits',
                     'status' => $response->result->status,
                     'amount' => $creditProduct->quantity,
@@ -186,7 +186,6 @@ class PaymentController extends Controller
                     'tax_percent' => $creditProduct->getTaxPercent(),
                     'total_price' => $creditProduct->getTotalPrice(),
                     'currency_code' => $creditProduct->currency_code,
-                    'payer' => json_encode($response->result->payer),
                 ]);
 
                 //payment notification
@@ -236,7 +235,7 @@ class PaymentController extends Controller
 
         $stripeClient = $this->getStripeClient();
 
-        $request = $stripeClient->sessions->create([
+        $request = $stripeClient->checkout->sessions->create([
             'line_items' => [
                 [
                 'price_data' => [
@@ -280,7 +279,6 @@ class PaymentController extends Controller
      */
     public function StripeSuccess(Request $request)
     {
-        echo $request->input('product');
         /** @var CreditProduct $creditProduct */
         $creditProduct = CreditProduct::findOrFail($request->input('product'));
 
@@ -289,12 +287,11 @@ class PaymentController extends Controller
 
         $stripeClient = $this->getStripeClient();
 
-
         try{
-        $paymentSession = $stripeClient->sessions->retrieve($request->input('session_id'));
-        $capturedPaymentIntent = $stripeClient->paymentIntents->capture($paymentSession.payment_intent);
+        $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
+        $capturedPaymentIntent = $stripeClient->paymentIntents->capture($paymentSession->payment_intent);
 
-        if ($response->payment_status == "paid") {
+        if ($capturedPaymentIntent->status == "succeeded") {
 
             //update credits
             $user->increment('credits', $creditProduct->quantity);
@@ -314,17 +311,16 @@ class PaymentController extends Controller
             //store payment
             $payment = Payment::create([
                 'user_id' => $user->id,
-                'payment_id' => $response->result->id,
-                'payer_id' => $request->input('PayerID'),
+                'payment_id' => $capturedPaymentIntent->id,
+                'payment_method' => 'stripe',
                 'type' => 'Credits',
-                'status' => $response->payment_status,
+                'status' => $capturedPaymentIntent->status,
                 'amount' => $creditProduct->quantity,
                 'price' => $creditProduct->price,
                 'tax_value' => $creditProduct->getTaxValue(),
-                'tax_percent' => $creditProduct->getTaxPercent(),
                 'total_price' => $creditProduct->getTotalPrice(),
+                'tax_percent' => $creditProduct->getTaxPercent(),
                 'currency_code' => $creditProduct->currency_code,
-                'payer' => json_encode($response->result->payer),
             ]);
 
             //payment notification

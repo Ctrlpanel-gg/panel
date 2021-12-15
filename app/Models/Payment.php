@@ -23,8 +23,7 @@ class Payment extends Model
         'id',
         'user_id',
         'payment_id',
-        'payer_id',
-        'payer',
+        'payment_method',
         'status',
         'type',
         'amount',
@@ -57,7 +56,7 @@ class Payment extends Model
     /**
      * @param mixed $value
      * @param string $locale
-     * 
+     *
      * @return float
      */
     public function formatToCurrency($value,$locale = 'en_US')

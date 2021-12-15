@@ -17,12 +17,11 @@ class CreatePaymentsTable extends Migration
             $table->uuid('id');
             $table->foreignId('user_id')->references('id')->on('users');
             $table->string('payment_id')->nullable();
-            $table->string('payer_id')->nullable();;
+            $table->string('payment_method')->nullable();
             $table->string('type')->nullable();;
             $table->string('status')->nullable();;
             $table->string('amount')->nullable();;
             $table->string('price')->nullable();;
-            $table->text('payer')->nullable();;
             $table->timestamps();
         });
     }
