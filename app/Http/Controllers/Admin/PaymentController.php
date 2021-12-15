@@ -233,9 +233,10 @@ class PaymentController extends Controller
      */
     public function StripePay(Request $request, CreditProduct $creditProduct)
     {
-        \Stripe\Stripe::setApiKey('sk_test_51Js6U8J2KSABgZztx8QWiohacnzGyIlpOk48DfSoUWPW8mhqLzxcQ5B9a1Wiz8jCC4Xfp3QeBDTsuSU7hkXEUksW00JyN08hoU');
 
-        $request = \Stripe\Checkout\Session::create([
+        $stripeClient = $this->getStripeClient();
+
+        $request = $stripeClient->sessions->create([
             'line_items' => [
                 [
                 'price_data' => [
@@ -262,8 +263,11 @@ class PaymentController extends Controller
             ],
 
             'mode' => 'payment',
-              'success_url' => route('payment.StripeSuccess').'?session_id={CHECKOUT_SESSION_ID}',
-              'cancel_url' => route('payment.Cancel'),
+            'payment_intent_data' => [
+                'capture_method' => 'manual',
+              ],
+            'success_url' => route('payment.StripeSuccess',  ['product' => $creditProduct->id]).'&session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('payment.Cancel'),
           ]);
 
 
@@ -277,17 +281,18 @@ class PaymentController extends Controller
     public function StripeSuccess(Request $request)
     {
         echo $request->input('product');
-        \Stripe\Stripe::setApiKey('sk_test_51Js6U8J2KSABgZztx8QWiohacnzGyIlpOk48DfSoUWPW8mhqLzxcQ5B9a1Wiz8jCC4Xfp3QeBDTsuSU7hkXEUksW00JyN08hoU');
         /** @var CreditProduct $creditProduct */
         $creditProduct = CreditProduct::findOrFail($request->input('product'));
 
         /** @var User $user */
         $user = Auth::user();
 
+        $stripeClient = $this->getStripeClient();
 
 
         try{
-        $response = \Stripe\Checkout\Session::retrieve($request->input('session_id'));
+        $paymentSession = $stripeClient->sessions->retrieve($request->input('session_id'));
+        $capturedPaymentIntent = $stripeClient->paymentIntents->capture($paymentSession.payment_intent);
 
         if ($response->payment_status == "paid") {
 
@@ -340,6 +345,18 @@ class PaymentController extends Controller
         }
     }
 
+            /**
+     * @return StripeClient
+     */
+    protected function getStripeClient()
+    {
+        $environment = env('APP_ENV') == 'local'
+            ? $this->getStripeSecret()
+            :  $this->getStripeSecret();
+
+        return new \Stripe\StripeClient($environment);
+    }
+
     /**
      * @return string
      */
@@ -351,7 +368,7 @@ class PaymentController extends Controller
     /**
      * @return string
      */
-    protected function getStripeClientSecret()
+    protected function getStripeSecret()
     {
         return env('STRIPE_SECRET');
     }
