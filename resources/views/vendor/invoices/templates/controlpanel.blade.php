@@ -310,7 +310,7 @@
                 @if($invoice->hasItemOrInvoiceDiscount())
                     <tr>
                         <td colspan="{{ $invoice->table_columns - 2 }}" class="border-0"></td>
-                        <td class="text-right pl-0">{{ __('Total Discount') }}</td>
+                        <td class="text-right pl-0">{{ __('Total discount') }}</td>
                         <td class="text-right pr-0">
                             {{ $invoice->formatCurrency($invoice->total_discount) }}
                         </td>
