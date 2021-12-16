@@ -113,14 +113,14 @@
                                                        class="form-control @error('company-name') is-invalid @enderror">
                                             </div>
                                         </div>
-                                        <!-- adress -->
+                                        <!-- address -->
                                         <div class="form-group">
                                             <div class="custom-control mb-3">
                                                 <label
-                                                    for="company-adress">{{__('Enter your companys adress' )}}</label>
-                                                <input x-model="company-adress" id="company-adress"
-                                                       name="company-adress" type="text" value="{{$company_adress}}"
-                                                       class="form-control @error('company-adress') is-invalid @enderror">
+                                                    for="company-address">{{__('Enter your companys address' )}}</label>
+                                                <input x-model="company-address" id="company-address"
+                                                       name="company-address" type="text" value="{{$company_adress}}"
+                                                       class="form-control @error('company-address') is-invalid @enderror">
                                             </div>
                                         </div>
                                         <!-- Phone -->
@@ -148,7 +148,7 @@
                                         <div class="form-group">
                                             <div class="custom-control mb-3">
                                                 <label
-                                                    for="company-mail">{{__('Enter your companys email adress' )}}</label>
+                                                    for="company-mail">{{__('Enter your companys email address' )}}</label>
                                                 <input x-model="company-mail" id="company-mail" name="company-mail"
                                                        type="text" value="{{$company_mail}}"
                                                        class="form-control @error('company-mail') is-invalid @enderror">
