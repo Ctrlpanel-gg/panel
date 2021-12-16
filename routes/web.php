@@ -19,6 +19,7 @@ use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -75,6 +76,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #voucher redeem
     Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->middleware('throttle:5,1')->name('voucher.redeem');
 
+    #switch language
+    Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 

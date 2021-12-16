@@ -46,6 +46,18 @@
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link" target="__blank">{{__('Discord')}}</a>
             </li>
+<!-- Language Selection -->
+            <form method="post" action="{{route('changeLocale')}}">
+                @csrf
+                <select class="dropdown-item" id="inputLocale" name="inputLocale" onchange="this.form.submit()">
+                        <option value="de">DE</option>
+                        <option value="it">IT</option>
+                        <option value="en">EN</option>
+                        <option value="zh">ZH</option>
+                        <option value="fr">FR</option>
+                </select>
+            </form>
+            <!-- End Language Selection -->
         </ul>
 
         <!-- Right navbar links -->
