@@ -82,6 +82,7 @@ return [
     */
 
     'locale' => env('LOCALE', 'en'),
+    'available_locales' => array('en', 'de', 'it', 'zh'),
 
 
     /*
