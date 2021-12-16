@@ -72,6 +72,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Dyamic Locales
+    |--------------------------------------------------------------------------
+    |
+    | Change the Locale depending on the Users Browserlanguage
+    | Can either be true or false
+    |
+    */
+    'dynamic_locale' => env('DYNAMIC_LOCALE', 'false'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
@@ -82,7 +93,18 @@ return [
     */
 
     'locale' => env('LOCALE', 'en'),
-    'available_locales' => array('en', 'de', 'it', 'zh'),
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Available Locales
+    |--------------------------------------------------------------------------
+    |
+    | You should not change this
+    | If the dashboard is 100% translated in a certain language, it will be added here
+    |
+    */
+    'available_locales' => array('English'=>'en','German'=>'de','Italian'=>'it','Chinese'=>'zh'),
 
 
     /*

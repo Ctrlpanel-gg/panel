@@ -50,11 +50,9 @@
             <form method="post" action="{{route('changeLocale')}}">
                 @csrf
                 <select class="dropdown-item" id="inputLocale" name="inputLocale" onchange="this.form.submit()">
-                        <option value="de">DE</option>
-                        <option value="it">IT</option>
-                        <option value="en">EN</option>
-                        <option value="zh">ZH</option>
-                        <option value="fr">FR</option>
+                    @foreach (config("app.available_locales") as $key=>$value)
+                        <option @if(Session::get("locale") == $value) selected="selected" @endif value="{{$value}}">{{$key}}</option>
+                    @endforeach
                 </select>
             </form>
             <!-- End Language Selection -->
