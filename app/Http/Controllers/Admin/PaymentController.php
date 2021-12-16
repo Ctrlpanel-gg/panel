@@ -261,9 +261,7 @@ class PaymentController extends Controller
             ],
 
             'mode' => 'payment',
-            'payment_intent_data' => [
-                'capture_method' => 'manual',
-              ],
+            "payment_method_types" => str_getcsv(env('STRIPE_METHODS')),
             'success_url' => route('payment.StripeSuccess',  ['product' => $creditProduct->id]).'&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.Cancel'),
           ]);
