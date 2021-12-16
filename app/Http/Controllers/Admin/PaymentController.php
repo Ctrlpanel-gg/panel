@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
@@ -285,48 +286,67 @@ class PaymentController extends Controller
         $stripeClient = $this->getStripeClient();
 
         try{
-        $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
-        $capturedPaymentIntent = $stripeClient->paymentIntents->capture($paymentSession->payment_intent);
-        if ($capturedPaymentIntent->status == "succeeded") {
+            //get stripe data
+            $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
+            $paymentIntent = $stripeClient->paymentIntents->retrieve($paymentSession->payment_intent);
 
-            //update credits
-            $user->increment('credits', $creditProduct->quantity);
+            //get DB entry of this payment ID if existing
+            $paymentDbEntry = Payment::where('payment_id', $paymentSession->payment_intent)->count();
 
-            //update server limit
-            if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                    $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+            // check if payment is 100% completed and payment does not exist in db already
+            if ($paymentSession->status == "complete" && $paymentIntent->status == "succeeded" && $paymentDbEntry == 0) {
+
+                //update credits
+                $user->increment('credits', $creditProduct->quantity);
+
+                //update server limit
+                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                    }
+                }
+
+                //update role
+                if ($user->role == 'member') {
+                    $user->update(['role' => 'client']);
+                }
+
+                //store payment
+                $payment = Payment::create([
+                    'user_id' => $user->id,
+                    'payment_id' => $paymentSession->payment_intent,
+                    'payment_method' => 'stripe',
+                    'type' => 'Credits',
+                    'status' => 'paid',
+                    'amount' => $creditProduct->quantity,
+                    'price' => $creditProduct->price,
+                    'tax_value' => $creditProduct->getTaxValue(),
+                    'total_price' => $creditProduct->getTotalPrice(),
+                    'tax_percent' => $creditProduct->getTaxPercent(),
+                    'currency_code' => $creditProduct->currency_code,
+                ]);
+
+                //payment notification
+                $user->notify(new ConfirmPaymentNotification($payment));
+
+                event(new UserUpdateCreditsEvent($user));
+
+                //redirect back to home
+                return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
+            }else{
+                if($paymentIntent->status != "processing"){
+                    //redirect back to home
+                    return redirect()->route('home')->with('success', __('Your payment is being processed!'));
+                }
+                if($paymentDbEntry == 0){
+                    $stripeClient->paymentIntents->cancel($paymentIntent->id);
+
+                    //redirect back to home
+                    return redirect()->route('home')->with('success', __('Your payment has been canceled!'));
+                }else{
+                    abort(402);
                 }
             }
-
-            //update role
-            if ($user->role == 'member') {
-                $user->update(['role' => 'client']);
-            }
-
-            //store payment
-            $payment = Payment::create([
-                'user_id' => $user->id,
-                'payment_id' => $capturedPaymentIntent->id,
-                'payment_method' => 'stripe',
-                'type' => 'Credits',
-                'status' => 'paid',
-                'amount' => $creditProduct->quantity,
-                'price' => $creditProduct->price,
-                'tax_value' => $creditProduct->getTaxValue(),
-                'total_price' => $creditProduct->getTotalPrice(),
-                'tax_percent' => $creditProduct->getTaxPercent(),
-                'currency_code' => $creditProduct->currency_code,
-            ]);
-
-            //payment notification
-            $user->notify(new ConfirmPaymentNotification($payment));
-
-            event(new UserUpdateCreditsEvent($user));
-
-            //redirect back to home
-            return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
-        }
         }catch (HttpException $ex) {
             if (env('APP_ENV') == 'local') {
                 echo $ex->statusCode;
@@ -334,6 +354,50 @@ class PaymentController extends Controller
             } else {
                 abort(422);
             }
+        }
+    }
+
+    /**
+     * @param Request $request
+     */
+    public function StripeWebhooks(Request $request)
+    {
+
+        \Stripe\Stripe::setApiKey($this->getStripeSecret());
+
+
+
+        try {
+            $payload = @file_get_contents('php://input');
+            $sig_header = $request->header('Stripe-Signature');
+            $event = null;
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $this->getStripeEndpointSecret()
+            );
+        } catch(\UnexpectedValueException $e) {
+            // Invalid payload
+
+            abort(400);
+        } catch(\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+
+            abort(400);
+
+        }
+
+        // Handle the event
+        switch ($event->type) {
+            case 'payment_intent.succeeded':
+                $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
+                error_log($paymentIntent->status);
+                break;
+            case 'payment_method.attached':
+                $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
+                error_log($paymentMethod);
+                break;
+            // ... handle other event types
+            default:
+                echo 'Received unknown event type ' . $event->type;
         }
     }
 
@@ -354,6 +418,18 @@ class PaymentController extends Controller
             ?  env('STRIPE_TEST_SECRET')
             :  env('STRIPE_SECRET');
     }
+
+    /**
+     * @return string
+     */
+    protected function getStripeEndpointSecret()
+    {
+        return env('APP_ENV') == 'local'
+            ?  env('STRIPE_ENDPOINT_TEST_SECRET')
+            :  env('STRIPE_ENDPOINT_SECRET');
+    }
+
+
 
 
     /**

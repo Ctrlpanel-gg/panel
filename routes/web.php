@@ -40,6 +40,9 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
+# Stripe WebhookRoute -> validation in Route Handler
+Route::post('payment/StripeWebhooks', [PaymentController::class, 'StripeWebhooks'])->name('payment.StripeWebhooks');
+
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
@@ -66,7 +69,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('payment/PaypalSuccess', [PaymentController::class, 'PaypalSuccess'])->name('payment.PaypalSuccess');
     Route::get('payment/StripePay/{creditProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
     Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
-
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
 
 
