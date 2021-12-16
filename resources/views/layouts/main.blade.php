@@ -52,7 +52,7 @@
                    aria-haspopup="true"
                    aria-expanded="false">
                     <span class="mr-1 d-lg-inline text-gray-600">
-                        <small><i class="fa fa-language mr-2"></i></small>Language
+                        <small><i class="fa fa-language mr-2"></i></small>{{__("Languages"}}
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="changeLocale">
