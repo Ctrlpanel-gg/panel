@@ -41,20 +41,32 @@
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{route('home')}}" class="nav-link">{{__('Home')}}</a>
+                <a href="{{route('home')}}" class="nav-link"><i class="fas fa-home mr-2"></i>{{__('Home')}}</a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link" target="__blank">{{__('Discord')}}</a>
+                <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link" target="__blank"><i class="fab fa-discord mr-2"></i>{{__('Discord')}}</a>
             </li>
 <!-- Language Selection -->
-            <form method="post" action="{{route('changeLocale')}}">
-                @csrf
-                <select class="dropdown-item" id="inputLocale" name="inputLocale" onchange="this.form.submit()">
-                    @foreach (config("app.available_locales") as $key=>$value)
-                        <option @if(Session::get("locale") == $value) selected="selected" @endif value="{{$value}}">{{$key}}</option>
-                    @endforeach
-                </select>
-            </form>
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true"
+                   aria-expanded="false">
+                    <span class="mr-1 d-lg-inline text-gray-600">
+                        <small><i class="fa fa-language mr-2"></i></small>Language
+                    </span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="changeLocale">
+                    <form method="post" action="{{route('changeLocale')}}" class="nav-item text-center">
+                        @csrf
+                            @foreach (config("app.available_locales") as $key=>$value)
+                            <button class="dropdown-item" name="inputLocale" value="{{$value}}">
+                                {{$key}}
+                            </button>
+                            @endforeach
+
+                    </form>
+                </div>
+            </li>
             <!-- End Language Selection -->
         </ul>
 
