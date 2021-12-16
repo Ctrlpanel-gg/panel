@@ -54,7 +54,7 @@ class SettingsController extends Controller
             'id' => "1"
         ], [
             'company_name' => $request->get('company-name'),
-            'company_adress' => $request->get('company-adress'),
+            'company_adress' => $request->get('company-address'),
             'company_phone' => $request->get('company-phone'),
             'company_mail' => $request->get('company-mail'),
             'company_vat' => $request->get('company-vat'),

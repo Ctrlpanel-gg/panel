@@ -164,7 +164,7 @@
     "You forgot your password? Here you can easily retrieve a new password.": "You forgot your password? Here you can easily retrieve a new password.",
     "Request new password": "Request new password",
     "Login": "Login",
-    "You are only one step a way from your new password, recover your password now.":"Du bist nurnoch einen Schritt von deinem Passwort entfernt.",
+    "You are only one step a way from your new password, recover your password now.":"You are only one step a way from your new password, recover your password now.",
     "Retype password": "Retype password",
     "Change password": "Change password",
     "I already have a membership": "I already have a membership",
@@ -176,6 +176,7 @@
     "click here to request another": "click here to request another",
 
     "Home": "Home",
+    "Languages": "Languages",
     "See all Notifications": "See all Notifications",
     "Profile": "Profile",
     "Log back in": "Log back in",
@@ -332,10 +333,10 @@
     "Invoice Settings": "Invoice Settings",
     "Download all Invoices": "Download all Invoices",
     "Enter your companys name": "Enter your companys name",
-    "Enter your companys adress": "Enter your companys adress",
+    "Enter your companys address": "Enter your companys address",
     "Enter your companys phone number": "Enter your companys phone number",
     "Enter your companys VAT id": "Enter your companys VAT id",
-    "Enter your companys email adress": "Enter your companys email adress",
+    "Enter your companys email address": "Enter your companys email address",
     "Enter your companys website": "Enter your companys website",
     "Enter your custom invoice prefix": "Enter your custom invoice prefix",
     "Select Invoice Logo": "Select Invoice Logo",
@@ -359,6 +360,11 @@
     "Login as User": "Login as User",
     "Clone": "Clone",
 
-    "Amount due": "Amount due"
+    "Amount due": "Amount due",
+
+    "Your Payment was successful!": "Your Payment was successful!",
+    "Hello":"Hello",
+    "Your payment was processed successfully!":"Your payment was processed successfully!"
+
 
 }

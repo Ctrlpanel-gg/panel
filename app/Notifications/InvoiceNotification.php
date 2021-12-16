@@ -55,15 +55,15 @@ class InvoiceNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Your Payment was successful!')
-            ->greeting('Hello,')
-            ->line("Your payment was processed successfully!")
-            ->line('Status: ' . $this->payment->status)
-            ->line('Price: ' . $this->payment->formatToCurrency($this->payment->total_price))
-            ->line('Type: ' . $this->payment->type)
-            ->line('Amount: ' . $this->payment->amount)
-            ->line('Balance: ' . number_format($this->user->credits,2))
-            ->line('User ID: ' . $this->payment->user_id)
+            ->subject(__('Your Payment was successful!'))
+            ->greeting(__('Hello').',')
+            ->line(__("Your payment was processed successfully!"))
+            ->line(__('Status').': ' . $this->payment->status)
+            ->line(__('Price').': ' . $this->payment->formatToCurrency($this->payment->total_price))
+            ->line(__('Type').': ' . $this->payment->type)
+            ->line(__('Amount').': ' . $this->payment->amount)
+            ->line(__('Balance').': ' . number_format($this->user->credits,2))
+            ->line(__('User ID').': ' . $this->payment->user_id)
             ->attach(storage_path('app/invoice/' . $this->user->id . '/' . now()->format('Y') . '/' . $this->invoice->filename));
     }
 }
