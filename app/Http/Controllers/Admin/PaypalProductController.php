@@ -62,7 +62,7 @@ class PaypalProductController extends Controller
         $disabled = !is_null($request->input('disabled'));
         PaypalProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
 
-        return redirect()->route('admin.store.index')->with('success', 'Store item has been created!');
+        return redirect()->route('admin.store.index')->with('success', __('Store item has been created!'));
     }
 
     /**
@@ -112,7 +112,7 @@ class PaypalProductController extends Controller
         $disabled = !is_null($request->input('disabled'));
         $paypalProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
 
-        return redirect()->route('admin.store.index')->with('success', 'Store item has been updated!');
+        return redirect()->route('admin.store.index')->with('success', __('Store item has been updated!'));
     }
 
     /**
@@ -124,7 +124,7 @@ class PaypalProductController extends Controller
     {
         $paypalProduct->update(['disabled' => !$paypalProduct->disabled]);
 
-        return redirect()->route('admin.store.index')->with('success', 'Product has been updated!');
+        return redirect()->route('admin.store.index')->with('success', __('Product has been updated!'));
     }
 
     /**
@@ -136,7 +136,7 @@ class PaypalProductController extends Controller
     public function destroy(PaypalProduct $paypalProduct)
     {
         $paypalProduct->delete();
-        return redirect()->back()->with('success', 'Store item has been removed!');
+        return redirect()->back()->with('success', __('Store item has been removed!'));
     }
 
 
@@ -147,12 +147,12 @@ class PaypalProductController extends Controller
         return datatables($query)
             ->addColumn('actions', function (PaypalProduct $paypalProduct) {
                 return '
-                            <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $paypalProduct->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="'.__("Edit").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $paypalProduct->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $paypalProduct->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })

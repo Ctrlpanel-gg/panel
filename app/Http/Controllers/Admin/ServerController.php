@@ -92,9 +92,9 @@ class ServerController extends Controller
     {
         try {
             $server->delete();
-            return redirect()->route('admin.servers.index')->with('success', 'Server removed');
+            return redirect()->route('admin.servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('admin.servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
+            return redirect()->route('admin.servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
         }
     }
 
@@ -109,7 +109,7 @@ class ServerController extends Controller
             return redirect()->back()->with('error', $exception->getMessage());
         }
 
-        return redirect()->back()->with('success', 'Server has been updated!');
+        return redirect()->back()->with('success', __('Server has been updated!'));
     }
 
     /**
@@ -134,7 +134,7 @@ class ServerController extends Controller
             ->addColumn('actions', function (Server $server) {
                 $suspendColor = $server->isSuspended() ? "btn-success" : "btn-warning";
                 $suspendIcon = $server->isSuspended() ? "fa-play-circle" : "fa-pause-circle";
-                $suspendText = $server->isSuspended() ? "Unsuspend" : "Suspend";
+                $suspendText = $server->isSuspended() ? __("Unsuspend") : __("Suspend");
 
                 return '
                         <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
@@ -145,7 +145,7 @@ class ServerController extends Controller
                        <form class="d-inline" onsubmit="return confirmDeletionForm(event, this, \'server\');" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
 
                 ';

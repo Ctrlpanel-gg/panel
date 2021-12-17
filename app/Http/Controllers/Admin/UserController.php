@@ -115,7 +115,7 @@ class UserController extends Controller
 
         if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
-                'pterodactyl_id' => ["User does not exists on pterodactyl's panel"]
+                'pterodactyl_id' => [__("User does not exists on pterodactyl's panel")]
             ]);
         }
 
@@ -145,7 +145,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->back()->with('success', 'user has been removed!');
+        return redirect()->back()->with('success', __('user has been removed!'));
     }
 
     /**
@@ -218,7 +218,7 @@ class UserController extends Controller
         $all = $data["all"] ?? false;
         $users = $all ? User::all() : User::whereIn("id", $data["users"])->get();
         Notification::send($users, new DynamicNotification($data["via"], $database, $mail));
-        return redirect()->route('admin.users.notifications')->with('success', 'Notification sent!');
+        return redirect()->route('admin.users.notifications')->with('success', __('Notification sent!'));
     }
 
     /**
@@ -232,7 +232,7 @@ class UserController extends Controller
             return redirect()->back()->with('error', $exception->getMessage());
         }
 
-        return redirect()->back()->with('success', 'User has been updated!');
+        return redirect()->back()->with('success', __('User has been updated!'));
     }
 
     /**
@@ -265,11 +265,11 @@ class UserController extends Controller
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? "btn-success" : "btn-warning";
                 $suspendIcon = $user->isSuspended() ? "fa-play-circle" : "fa-pause-circle";
-                $suspendText = $user->isSuspended() ? "Unsuspend" : "Suspend";
+                $suspendText = $user->isSuspended() ? __("Unsuspend") : __("Suspend");
                 return '
-                <a data-content="Login as user" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
-                <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                <a data-content="'.__("Login as User").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="'.__("Show").'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
+                <a data-content="'.__("Edit").'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
                <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
                             ' . csrf_field() . '
                            <button data-content="'.$suspendText.'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm '.$suspendColor.' text-white mr-1"><i class="far '.$suspendIcon.'"></i></button>
@@ -277,7 +277,7 @@ class UserController extends Controller
                 <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })

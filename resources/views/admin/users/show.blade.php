@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Users</h1>
+                    <h1{{__('Users')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.users.index')}}">Users</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.users.show' , $user->id)}}">Show</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.users.index')}}">{{__('Users')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.users.show' , $user->id)}}">{{__('Show')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -47,7 +47,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-users mr-2"></i>Users</h5>
+                    <h5 class="card-title"><i class="fas fa-users mr-2"></i>{{__('Users')}}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -55,7 +55,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>ID</label>
+                                    <label>{{__('ID')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -68,7 +68,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Role</label>
+                                    <label>{{__('Role')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;"
@@ -82,7 +82,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Pterodactyl ID</label>
+                                    <label>{{__('Pterodactyl ID')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -95,7 +95,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Email</label>
+                                    <label>{{__('Email')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -109,7 +109,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Server limit</label>
+                                    <label>{{__('Server limit')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -122,7 +122,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Name</label>
+                                    <label>{{__('Name')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -135,7 +135,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Verified Email</label>
+                                    <label>{{__('Verified')}} {{__('Email')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -161,7 +161,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Verified Discord</label>
+                                    <label>{{__('Verified')}} {{__('Discord')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -174,7 +174,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Usage</label>
+                                    <label>{{__('Usage')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -188,7 +188,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>IP</label>
+                                    <label>{{__('IP')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -201,7 +201,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Created At</label>
+                                    <label>{{__('Created at')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -217,7 +217,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>Last seen</label>
+                                    <label>{{__('Last seen')}}</label>
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -237,7 +237,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-server mr-2"></i>Servers</h5>
+                    <h5 class="card-title"><i class="fas fa-server mr-2"></i>{{__('Servers')}}</h5>
                 </div>
                 <div class="card-body table-responsive">
 
