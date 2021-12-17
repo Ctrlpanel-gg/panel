@@ -73,17 +73,17 @@ class PaymentController extends Controller
                     "amount"       => [
                         "value"         => $creditProduct->getTotalPrice(),
                         'currency_code' => strtoupper($creditProduct->currency_code),
-                        'breakdown' =>[
+                        'breakdown' => [
                             'item_total' =>
-                               [
-                                    'currency_code' => strtoupper($creditProduct->currency_code),
-                                    'value' => $creditProduct->price,
-                                ],
+                            [
+                                'currency_code' => strtoupper($creditProduct->currency_code),
+                                'value' => $creditProduct->price,
+                            ],
                             'tax_total' =>
-                                [
-                                    'currency_code' => strtoupper($creditProduct->currency_code),
-                                    'value' => $creditProduct->getTaxValue(),
-                                ]
+                            [
+                                'currency_code' => strtoupper($creditProduct->currency_code),
+                                'value' => $creditProduct->getTaxValue(),
+                            ]
                         ]
                     ]
                 ]
@@ -109,7 +109,6 @@ class PaymentController extends Controller
             echo $ex->statusCode;
             dd(json_decode($ex->getMessage()));
         }
-
     }
 
     /**
@@ -203,7 +202,6 @@ class PaymentController extends Controller
             } else {
                 abort(500);
             }
-
         } catch (HttpException $ex) {
             if (env('APP_ENV') == 'local') {
                 echo $ex->statusCode;
@@ -211,9 +209,7 @@ class PaymentController extends Controller
             } else {
                 abort(422);
             }
-
         }
-
     }
 
 
@@ -225,7 +221,7 @@ class PaymentController extends Controller
         return redirect()->route('store.index')->with('success', 'Payment was Canceled');
     }
 
-     /**
+    /**
      * @param Request $request
      * @param CreditProduct $creditProduct
      * @return RedirectResponse
@@ -238,15 +234,15 @@ class PaymentController extends Controller
         $request = $stripeClient->checkout->sessions->create([
             'line_items' => [
                 [
-                'price_data' => [
-                  'currency' => $creditProduct->currency_code,
-                  'product_data' => [
-                      'name' => $creditProduct->display,
-                      'description' => $creditProduct->description,
-                  ],
-                  'unit_amount_decimal' => round($creditProduct->price*100, 2),
-                  ],
-                  'quantity' => 1,
+                    'price_data' => [
+                        'currency' => $creditProduct->currency_code,
+                        'product_data' => [
+                            'name' => $creditProduct->display,
+                            'description' => $creditProduct->description,
+                        ],
+                        'unit_amount_decimal' => round($creditProduct->price * 100, 2),
+                    ],
+                    'quantity' => 1,
                 ],
                 [
                     'price_data' => [
@@ -255,21 +251,21 @@ class PaymentController extends Controller
                             'name' => 'Product Tax',
                             'description' => $creditProduct->getTaxPercent() . "%",
                         ],
-                        'unit_amount_decimal' => round($creditProduct->getTaxValue(), 2)*100,
-                        ],
-                        'quantity' => 1,
+                        'unit_amount_decimal' => round($creditProduct->getTaxValue(), 2) * 100,
+                    ],
+                    'quantity' => 1,
                 ]
             ],
 
             'mode' => 'payment',
             "payment_method_types" => str_getcsv(env('STRIPE_METHODS')),
-            'success_url' => route('payment.StripeSuccess',  ['product' => $creditProduct->id]).'&session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('payment.StripeSuccess',  ['product' => $creditProduct->id]) . '&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.Cancel'),
-          ]);
+        ]);
 
 
 
-          return redirect($request->url, 303);
+        return redirect($request->url, 303);
     }
 
     /**
@@ -285,7 +281,7 @@ class PaymentController extends Controller
 
         $stripeClient = $this->getStripeClient();
 
-        try{
+        try {
             //get stripe data
             $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
             $paymentIntent = $stripeClient->paymentIntents->retrieve($paymentSession->payment_intent);
@@ -311,7 +307,7 @@ class PaymentController extends Controller
                     $user->update(['role' => 'client']);
                 }
 
-                //store payment
+                //store paid payment
                 $payment = Payment::create([
                     'user_id' => $user->id,
                     'payment_id' => $paymentSession->payment_intent,
@@ -333,21 +329,37 @@ class PaymentController extends Controller
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
-            }else{
-                if($paymentIntent->status != "processing"){
+            } else {
+                if ($paymentIntent->status == "processing") {
+
+                    //store processing payment
+                    $payment = Payment::create([
+                        'user_id' => $user->id,
+                        'payment_id' => $paymentSession->payment_intent,
+                        'payment_method' => 'stripe',
+                        'type' => 'Credits',
+                        'status' => 'processing',
+                        'amount' => $creditProduct->quantity,
+                        'price' => $creditProduct->price,
+                        'tax_value' => $creditProduct->getTaxValue(),
+                        'total_price' => $creditProduct->getTotalPrice(),
+                        'tax_percent' => $creditProduct->getTaxPercent(),
+                        'currency_code' => $creditProduct->currency_code,
+                    ]);
+
                     //redirect back to home
                     return redirect()->route('home')->with('success', __('Your payment is being processed!'));
                 }
-                if($paymentDbEntry == 0){
+                if ($paymentDbEntry == 0 && $paymentIntent->status != "processing") {
                     $stripeClient->paymentIntents->cancel($paymentIntent->id);
 
                     //redirect back to home
                     return redirect()->route('home')->with('success', __('Your payment has been canceled!'));
-                }else{
+                } else {
                     abort(402);
                 }
             }
-        }catch (HttpException $ex) {
+        } catch (HttpException $ex) {
             if (env('APP_ENV') == 'local') {
                 echo $ex->statusCode;
                 dd($ex->getMessage());
@@ -360,42 +372,78 @@ class PaymentController extends Controller
     /**
      * @param Request $request
      */
+    protected function handleStripePayment($paymentIntent)
+    {
+        try {
+            // Get payment db entry
+            $payment = Payment::where('payment_id', $paymentIntent->id)->first();
+            $user = User::where('id', $payment->user_id)->first();
+
+            if ($paymentIntent->status == 'succeeded' && $payment->status == 'processing') {
+                // Increment User Credits
+                $user->increment('credits', $payment->amount);
+
+                //update server limit
+                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                    }
+                }
+
+                //update role
+                if ($user->role == 'member') {
+                    $user->update(['role' => 'client']);
+                }
+
+                //update payment db entry status
+                $payment->update(['status' => 'paid']);
+
+                //payment notification
+                $user->notify(new ConfirmPaymentNotification($payment));
+                event(new UserUpdateCreditsEvent($user));
+            }
+        } catch (HttpException $ex) {
+            abort(422);
+        }
+    }
+
+    /**
+     * @param Request $request
+     */
     public function StripeWebhooks(Request $request)
     {
-
         \Stripe\Stripe::setApiKey($this->getStripeSecret());
-
-
 
         try {
             $payload = @file_get_contents('php://input');
             $sig_header = $request->header('Stripe-Signature');
             $event = null;
             $event = \Stripe\Webhook::constructEvent(
-                $payload, $sig_header, $this->getStripeEndpointSecret()
+                $payload,
+                $sig_header,
+                $this->getStripeEndpointSecret()
             );
-        } catch(\UnexpectedValueException $e) {
+        } catch (\UnexpectedValueException $e) {
             // Invalid payload
 
             abort(400);
-        } catch(\Stripe\Exception\SignatureVerificationException $e) {
+        } catch (\Stripe\Exception\SignatureVerificationException $e) {
             // Invalid signature
 
             abort(400);
-
         }
 
         // Handle the event
         switch ($event->type) {
             case 'payment_intent.succeeded':
                 $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
-                error_log($paymentIntent->status);
+                $this->handleStripePayment($paymentIntent);
                 break;
             case 'payment_method.attached':
                 $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
                 error_log($paymentMethod);
                 break;
-            // ... handle other event types
+                // ... handle other event types
             default:
                 echo 'Received unknown event type ' . $event->type;
         }
@@ -428,6 +476,8 @@ class PaymentController extends Controller
             ?  env('STRIPE_ENDPOINT_TEST_SECRET')
             :  env('STRIPE_ENDPOINT_SECRET');
     }
+
+
 
 
 
