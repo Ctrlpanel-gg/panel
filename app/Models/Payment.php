@@ -32,6 +32,7 @@ class Payment extends Model
         'total_price',
         'tax_percent',
         'currency_code',
+        'credit_product_id',
     ];
 
     public static function boot()
@@ -59,7 +60,7 @@ class Payment extends Model
      *
      * @return float
      */
-    public function formatToCurrency($value,$locale = 'en_US')
+    public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
         return $formatter->formatCurrency($value, $this->currency_code);

@@ -19,6 +19,7 @@ class UpdateToPaymentsTable extends Migration
             $table->string('payment_method');
             $table->dropColumn('payer');
             $table->dropColumn('payer_id');
+            $table->string('credit_product_id');
         });
 
         DB::statement('UPDATE payments SET payment_method="paypal"');
@@ -35,6 +36,7 @@ class UpdateToPaymentsTable extends Migration
             $table->dropColumn('payment_method');
             $table->string('payer_id')->nullable();
             $table->text('payer')->nullable();
+            $table->dropColumn('credit_product_id');
         });
     }
 }

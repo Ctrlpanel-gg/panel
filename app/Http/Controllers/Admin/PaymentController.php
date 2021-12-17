@@ -10,6 +10,7 @@ use App\Models\Payment;
 use App\Models\CreditProduct;
 use App\Models\User;
 use App\Notifications\InvoiceNotification;
+use App\Notifications\ConfirmPaymentNotification;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -190,72 +191,13 @@ class PaymentController extends Controller
                     'tax_percent' => $creditProduct->getTaxPercent(),
                     'total_price' => $creditProduct->getTotalPrice(),
                     'currency_code' => $creditProduct->currency_code,
+                    'credit_product_id' => $creditProduct->id,
                 ]);
 
 
                 event(new UserUpdateCreditsEvent($user));
 
-                //create invoice
-                $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
-                $newInvoiceID = $lastInvoiceID + 1;
-                $InvoiceSettings = InvoiceSettings::query()->first();
-                $logoPath = storage_path('app/public/logo.png');
-
-                $seller = new Party([
-                    'name' => $InvoiceSettings->company_name,
-                    'phone' => $InvoiceSettings->company_phone,
-                    'address' => $InvoiceSettings->company_adress,
-                    'vat' => $InvoiceSettings->company_vat,
-                    'custom_fields' => [
-                        'E-Mail' => $InvoiceSettings->company_mail,
-                        "Web" => $InvoiceSettings->company_web
-                    ],
-                ]);
-
-
-                $customer = new Buyer([
-                    'name' => $user->name,
-                    'custom_fields' => [
-                        'E-Mail' => $user->email,
-                        'Client ID' => $user->id,
-                    ],
-                ]);
-                $item = (new InvoiceItem())
-                    ->title($creditProduct->description)
-                    ->pricePerUnit($creditProduct->price);
-
-                $invoice = Invoice::make()
-                    ->template('controlpanel')
-                    ->name(__("Invoice"))
-                    ->buyer($customer)
-                    ->seller($seller)
-                    ->discountByPercent(0)
-                    ->taxRate(floatval($creditProduct->getTaxPercent()))
-                    ->shipping(0)
-                    ->addItem($item)
-                    ->status(__('Paid'))
-                    ->series(now()->format('mY'))
-                    ->delimiter("-")
-                    ->sequence($newInvoiceID)
-                    ->serialNumberFormat($InvoiceSettings->invoice_prefix . '{DELIMITER}{SERIES}{SEQUENCE}');
-
-                if (file_exists($logoPath)) {
-                    $invoice->logo($logoPath);
-                }
-                //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
-                $invoice->filename = $invoice->getSerialNumber() . '.pdf';
-                $invoice->render();
-                Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
-
-
-                \App\Models\Invoice::create([
-                    'invoice_user' => $user->id,
-                    'invoice_name' => $invoice->getSerialNumber(),
-                    'payment_id' => $payment->payment_id,
-                ]);
-
-                //Send Invoice per Mail
-                $user->notify(new InvoiceNotification($invoice, $user, $payment));
+                $this->createInvoice($user, $payment, 'paid');
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
@@ -386,12 +328,15 @@ class PaymentController extends Controller
                     'total_price' => $creditProduct->getTotalPrice(),
                     'tax_percent' => $creditProduct->getTaxPercent(),
                     'currency_code' => $creditProduct->currency_code,
+                    'credit_product_id' => $creditProduct->id,
                 ]);
 
                 //payment notification
                 $user->notify(new ConfirmPaymentNotification($payment));
 
                 event(new UserUpdateCreditsEvent($user));
+
+                $this->createInvoice($user, $payment, 'paid');
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
@@ -411,7 +356,10 @@ class PaymentController extends Controller
                         'total_price' => $creditProduct->getTotalPrice(),
                         'tax_percent' => $creditProduct->getTaxPercent(),
                         'currency_code' => $creditProduct->currency_code,
+                        'credit_product_id' => $creditProduct->id,
                     ]);
+
+                    $this->createInvoice($user, $payment, 'processing');
 
                     //redirect back to home
                     return redirect()->route('home')->with('success', __('Your payment is being processed!'));
@@ -438,7 +386,7 @@ class PaymentController extends Controller
     /**
      * @param Request $request
      */
-    protected function handleStripePayment($paymentIntent)
+    protected function handleStripePaymentSuccessHook($paymentIntent)
     {
         try {
             // Get payment db entry
@@ -467,6 +415,8 @@ class PaymentController extends Controller
                 //payment notification
                 $user->notify(new ConfirmPaymentNotification($payment));
                 event(new UserUpdateCreditsEvent($user));
+
+                $this->createInvoice($user, $payment, 'paid');
             }
         } catch (HttpException $ex) {
             abort(422);
@@ -503,7 +453,7 @@ class PaymentController extends Controller
         switch ($event->type) {
             case 'payment_intent.succeeded':
                 $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
-                $this->handleStripePayment($paymentIntent);
+                $this->handleStripePaymentSuccessHook($paymentIntent);
                 break;
             case 'payment_method.attached':
                 $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
@@ -544,9 +494,72 @@ class PaymentController extends Controller
     }
 
 
+    protected function createInvoice($user, $payment, $paymentStatus)
+    {
+        $creditProduct = CreditProduct::where('id', $payment->credit_product_id)->first();
+        //create invoice
+        $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
+        $newInvoiceID = $lastInvoiceID + 1;
+        $InvoiceSettings = InvoiceSettings::query()->first();
+        $logoPath = storage_path('app/public/logo.png');
+
+        $seller = new Party([
+            'name' => $InvoiceSettings->company_name,
+            'phone' => $InvoiceSettings->company_phone,
+            'address' => $InvoiceSettings->company_adress,
+            'vat' => $InvoiceSettings->company_vat,
+            'custom_fields' => [
+                'E-Mail' => $InvoiceSettings->company_mail,
+                "Web" => $InvoiceSettings->company_web
+            ],
+        ]);
 
 
+        $customer = new Buyer([
+            'name' => $user->name,
+            'custom_fields' => [
+                'E-Mail' => $user->email,
+                'Client ID' => $user->id,
+            ],
+        ]);
+        $item = (new InvoiceItem())
+            ->title($creditProduct->description)
+            ->pricePerUnit($creditProduct->price);
 
+        $invoice = Invoice::make()
+            ->template('controlpanel')
+            ->name(__("Invoice"))
+            ->buyer($customer)
+            ->seller($seller)
+            ->discountByPercent(0)
+            ->taxRate(floatval($creditProduct->getTaxPercent()))
+            ->shipping(0)
+            ->addItem($item)
+            ->status(__($paymentStatus))
+            ->series(now()->format('mY'))
+            ->delimiter("-")
+            ->sequence($newInvoiceID)
+            ->serialNumberFormat($InvoiceSettings->invoice_prefix . '{DELIMITER}{SERIES}{SEQUENCE}');
+
+        if (file_exists($logoPath)) {
+            $invoice->logo($logoPath);
+        }
+
+        //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
+        $invoice->filename = $invoice->getSerialNumber() . '.pdf';
+        $invoice->render();
+        Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
+
+
+        \App\Models\Invoice::create([
+            'invoice_user' => $user->id,
+            'invoice_name' => $invoice->getSerialNumber(),
+            'payment_id' => $payment->payment_id,
+        ]);
+
+        //Send Invoice per Mail
+        $user->notify(new InvoiceNotification($invoice, $user, $payment));
+    }
 
     /**
      * @return JsonResponse|mixed
