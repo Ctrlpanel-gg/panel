@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Admin Overview</h1>
+                    <h1>{{__('Admin Overview')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.overview.index')}}">Admin Overview</a></li>
+                                                       href="{{route('admin.overview.index')}}">{{__('Admin Overview')}}</a></li>
                     </ol>
                 </div>
             </div>

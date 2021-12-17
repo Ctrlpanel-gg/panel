@@ -24,7 +24,7 @@ class CreditProductController extends Controller
         $isPaypalSetup = false;
         if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;
 
-        return view('admin.store.index' , [
+        return view('admin.store.index', [
             'isPaypalSetup' => $isPaypalSetup
         ]);
     }
@@ -62,7 +62,7 @@ class CreditProductController extends Controller
         $disabled = !is_null($request->input('disabled'));
         CreditProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
 
-        return redirect()->route('admin.store.index')->with('success', 'Store item has been created!');
+        return redirect()->route('admin.store.index')->with('success', __('Store item has been created!'));
     }
 
     /**
@@ -112,7 +112,7 @@ class CreditProductController extends Controller
         $disabled = !is_null($request->input('disabled'));
         $creditProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
 
-        return redirect()->route('admin.store.index')->with('success', 'Store item has been updated!');
+        return redirect()->route('admin.store.index')->with('success', __('Store item has been updated!'));
     }
 
     /**
@@ -124,7 +124,7 @@ class CreditProductController extends Controller
     {
         $creditProduct->update(['disabled' => !$creditProduct->disabled]);
 
-        return redirect()->route('admin.store.index')->with('success', 'Product has been updated!');
+        return redirect()->route('admin.store.index')->with('success', __('Product has been updated!'));
     }
 
     /**
@@ -136,7 +136,7 @@ class CreditProductController extends Controller
     public function destroy(CreditProduct $creditProduct)
     {
         $creditProduct->delete();
-        return redirect()->back()->with('success', 'Store item has been removed!');
+        return redirect()->back()->with('success', __('Store item has been removed!'));
     }
 
 
@@ -147,12 +147,12 @@ class CreditProductController extends Controller
         return datatables($query)
             ->addColumn('actions', function (CreditProduct $creditProduct) {
                 return '
-                            <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $creditProduct->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $creditProduct->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $creditProduct->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="' . __("Delete") . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })

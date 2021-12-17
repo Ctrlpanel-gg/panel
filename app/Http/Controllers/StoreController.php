@@ -18,12 +18,12 @@ class StoreController extends Controller
 
         //Required Verification for creating an server
         if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', false) === 'true' && !Auth::user()->hasVerifiedEmail()) {
-            return redirect()->route('profile.index')->with('error', "You are required to verify your email address before you can purchase credits.");
+            return redirect()->route('profile.index')->with('error', __("You are required to verify your email address before you can purchase credits."));
         }
 
         //Required Verification for creating an server
         if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', false) === 'true' && !Auth::user()->discordUser) {
-            return redirect()->route('profile.index')->with('error', "You are required to link your discord account before you can purchase ".CREDITS_DISPLAY_NAME.".");
+            return redirect()->route('profile.index')->with('error', __("You are required to link your discord account before you can purchase Credits"));
         }
 
         return view('store.index')->with([

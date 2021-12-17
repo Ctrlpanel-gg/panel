@@ -9,7 +9,7 @@
                 <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'Laravel')}}</b></a>
             </div>
             <div class="card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
+                <p class="login-box-msg">{{__('Sign in to start your session')}}</p>
 
                 @if (session('message'))
                     <div class="alert alert-danger">{{ session('message') }}</div>
@@ -25,7 +25,7 @@
 
                     <div class="form-group">
                         <div class="input-group mb-3">
-                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Email">
+                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="{{__('Email')}}">
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <span class="fas fa-envelope"></span>
@@ -43,7 +43,7 @@
                     <div class="form-group">
                         <div class="input-group mb-3">
                             <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
-                                   placeholder="Password">
+                                   placeholder="{{__('Password')}}">
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <span class="fas fa-lock"></span>
@@ -72,13 +72,13 @@
                             <div class="icheck-primary">
                                 <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
                                 <label for="remember">
-                                    Remember Me
+                                    {{__('Remember Me')}}
                                 </label>
                             </div>
                         </div>
                         <!-- /.col -->
                         <div class="col-4">
-                            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                            <button type="submit" class="btn btn-primary btn-block">{{__('Sign In')}}</button>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -102,7 +102,7 @@
                     @endif
                 </p>
                 <p class="mb-0">
-                    <a href="{{route('register')}}" class="text-center">Register a new membership</a>
+                    <a href="{{route('register')}}" class="text-center">{{__('Register a new membership')}}</a>
                 </p>
             </div>
             <!-- /.card-body -->

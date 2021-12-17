@@ -125,12 +125,13 @@
                             </div>
                             <!-- /.col -->
                             <div class="col-6">
-                                <p class="lead">Amount Due {{ Carbon\Carbon::now()->isoFormat('LL') }}</p>
+                                <p class="lead">{{ __('Amount Due') }}
+                                    {{ Carbon\Carbon::now()->isoFormat('LL') }}</p>
 
                                 <div class="table-responsive">
                                     <table class="table">
                                         <tr>
-                                            <th style="width:50%">Subtotal:</th>
+                                            <th style="width:50%">{{ __('Subtotal') }}:</th>
                                             <td>{{ $product->formatToCurrency($product->price) }}</td>
                                         </tr>
                                         <tr>
@@ -138,7 +139,7 @@
                                             <td>{{ $product->formatToCurrency($taxvalue) }}</td>
                                         </tr>
                                         <tr>
-                                            <th>Quantity:</th>
+                                            <th>{{ __('Quantity') }}:</th>
                                             <td>1</td>
                                         </tr>
                                         <tr>

@@ -15,7 +15,6 @@ class HomeController extends Controller
     const TIME_LEFT_BG_SUCCESS = "bg-success";
     const TIME_LEFT_BG_WARNING = "bg-warning";
     const TIME_LEFT_BG_DANGER = "bg-danger";
-    const TIME_LEFT_OUT_OF_CREDITS_TEXT = "You ran out of Credits";
 
     public function __construct()
     {
@@ -51,8 +50,8 @@ class HomeController extends Controller
      */
     public function getTimeLeftBoxUnit(float $daysLeft, float $hoursLeft)
     {
-        if ($daysLeft > 1) return 'days';
-        return $hoursLeft < 1 ? null : "hours";
+        if ($daysLeft > 1) return __('days');
+        return $hoursLeft < 1 ? null : __("hours");
     }
 
     /**
@@ -66,7 +65,7 @@ class HomeController extends Controller
     public function getTimeLeftBoxText(float $daysLeft, float $hoursLeft)
     {
         if ($daysLeft > 1) return strval(number_format($daysLeft, 0));
-        return ($hoursLeft < 1 ? $this::TIME_LEFT_OUT_OF_CREDITS_TEXT : strval($hoursLeft));
+        return ($hoursLeft < 1 ? __("You ran out of Credits") : strval($hoursLeft));
     }
 
     /** Show the application dashboard. */
@@ -85,7 +84,7 @@ class HomeController extends Controller
 
             $bg = $this->getTimeLeftBoxBackground($daysLeft);
             $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
-            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : "hours") : "days";
+            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : __("hours")) : __("days");
         }
 
 

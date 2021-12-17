@@ -86,10 +86,10 @@ class Voucher extends Model
     {
         if ($this->users()->count() >= $this->uses) return 'USES_LIMIT_REACHED';
         if (!is_null($this->expires_at)) {
-            if ($this->expires_at->isPast()) return 'EXPIRED';
+            if ($this->expires_at->isPast()) return __('EXPIRED');
         }
 
-        return 'VALID';
+        return __('VALID');
     }
 
     /**

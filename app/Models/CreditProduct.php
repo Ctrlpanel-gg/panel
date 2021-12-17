@@ -70,7 +70,7 @@ class CreditProduct extends Model
     */
     public function getTaxValue()
     {
-        return $this->price*$this->getTaxPercent()/100;
+        return number_format($this->price*$this->getTaxPercent()/100,2);
     }
 
     /**
@@ -80,6 +80,6 @@ class CreditProduct extends Model
     */
     public function getTotalPrice()
     {
-        return $this->price+($this->getTaxValue());
+        return number_format($this->price+$this->getTaxValue(),2);
     }
 }
