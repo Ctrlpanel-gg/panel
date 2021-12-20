@@ -6,14 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>{{ _('Store') }}</h1>
+                    <h1>{{ __('Store') }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a class=""
-                                href="{{ route('home') }}">{{ _('Dashboard') }}</a></li>
+                                href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('store.index') }}">{{ _('Store') }}</a>
+                                href="{{ route('store.index') }}">{{ __('Store') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -37,7 +37,7 @@
                             <div class="col-12">
                                 <h4>
                                     <i class="fas fa-globe"></i> {{ config('app.name', 'Laravel') }}
-                                    <small class="float-right">{{ _('Date') }}:
+                                    <small class="float-right">{{ __('Date') }}:
                                         {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
                                 </h4>
                             </div>
@@ -49,21 +49,21 @@
                                 {{ __('To') }}
                                 <address>
                                     <strong>{{ config('app.name', 'Controlpanel.GG') }}</strong><br>
-                                    {{ _('Email') }}: {{ env('PAYPAL_EMAIL', env('MAIL_FROM_NAME')) }}
+                                    {{ __('Email') }}: {{ env('PAYPAL_EMAIL', env('MAIL_FROM_NAME')) }}
                                 </address>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                {{ _('From') }}
+                                {{ __('From') }}
                                 <address>
                                     <strong>{{ Auth::user()->name }}</strong><br>
-                                    {{ _('Email') }}: {{ Auth::user()->email }}
+                                    {{ __('Email') }}: {{ Auth::user()->email }}
                                 </address>
                             </div>
                             <!-- /.col -->
                             <div class="col-sm-4 invoice-col">
-                                <b>{{ _('Status') }}</b><br>
-                                <span class="badge badge-warning">{{ _('Pending') }}</span><br>
+                                <b>{{ __('Status') }}</b><br>
+                                <span class="badge badge-warning">{{ __('Pending') }}</span><br>
                                 {{-- <b>Order ID:</b> 4F3S8J<br> --}}
                             </div>
                             <!-- /.col -->
@@ -76,10 +76,10 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>{{ _('Quantity') }}</th>
-                                            <th>{{ _('Product') }}</th>
-                                            <th>{{ _('Description') }}</th>
-                                            <th>{{ _('Subtotal') }}</th>
+                                            <th>{{ __('Quantity') }}</th>
+                                            <th>{{ __('Product') }}</th>
+                                            <th>{{ __('Description') }}</th>
+                                            <th>{{ __('Subtotal') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
