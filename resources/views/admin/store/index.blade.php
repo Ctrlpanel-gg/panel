@@ -26,20 +26,14 @@
 
             <div class="row">
                 <div class="col-lg-4">
-                    @if ($isPaypalSetup == false)
+                    @if ($isPaymentSetup == false)
                         <div class="callout callout-danger">
-                            <h4>{{ __('Paypal is not configured.') }}</h4>
-                            <p>{{ __('To configure PayPal, head to the .env and add your PayPal’s client id and secret.') }}
+                            <h4>{{ __('No payment method is configured.') }}</h4>
+                            <p>{{ __('To configure your payment methods, head to the .env and add the required options for your prefered payment method.') }}
                             </p>
                         </div>
                     @endif
-                    @if ($isStripeSetup == false)
-                        <div class="callout callout-danger">
-                            <h4>{{ __('Stripe is not configured.') }}</h4>
-                            <p>{{ __('To configure Stripe, head to the .env and add your Stripüe Secret, Endpoint and supported Payment Methods.') }}
-                            </p>
-                        </div>
-                    @endif
+
                 </div>
             </div>
 

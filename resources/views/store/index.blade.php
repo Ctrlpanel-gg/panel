@@ -32,7 +32,7 @@
                 </button>
             </div>
 
-            @if ($isPaypalSetup && $products->count() > 0)
+            @if ($isPaymentSetup && $products->count() > 0)
 
                 <div class="card">
                     <div class="card-header">

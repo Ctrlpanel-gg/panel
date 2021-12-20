@@ -11,15 +11,13 @@ class StoreController extends Controller
     /** Display a listing of the resource. */
     public function index()
     {
-        $isPaypalSetup = false;
-        $isStripeSetup = false;
+        $isPaymentSetup = false;
 
-        if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;
-        if (env('APP_ENV', 'local') == 'local') {
-            $isPaypalSetup = true;
-            $isStripeSetup = true;
-        }
-        if (env('STRIPE_SECRET') && env('STRIPE_ENDPOINT_SECRET') && env('STRIPE_METHODS')) $isStripeSetup = true;
+        if (
+            env('APP_ENV') == 'local' ||
+            env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID') ||
+            env('STRIPE_SECRET') && env('STRIPE_ENDPOINT_SECRET') && env('STRIPE_METHODS')
+        ) $isPaymentSetup = true;
 
         //Required Verification for creating an server
         if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', false) === 'true' && !Auth::user()->hasVerifiedEmail()) {
@@ -33,8 +31,7 @@ class StoreController extends Controller
 
         return view('store.index')->with([
             'products' => CreditProduct::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
-            'isPaypalSetup' => $isPaypalSetup,
-            'isStripeSetup' => $isStripeSetup
+            'isPaymentSetup' => $isPaymentSetup,
         ]);
     }
 }

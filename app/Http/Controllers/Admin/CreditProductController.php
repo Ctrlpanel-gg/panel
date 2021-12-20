@@ -21,11 +21,16 @@ class CreditProductController extends Controller
      */
     public function index(Request $request)
     {
-        $isPaypalSetup = false;
-        if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;
+        $isPaymentSetup = false;
+
+        if (
+            env('APP_ENV') == 'local' ||
+            env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID') ||
+            env('STRIPE_SECRET') && env('STRIPE_ENDPOINT_SECRET') && env('STRIPE_METHODS')
+        ) $isPaymentSetup = true;
 
         return view('admin.store.index', [
-            'isPaypalSetup' => $isPaypalSetup
+            'isPaymentSetup' => $isPaymentSetup
         ]);
     }
 
