@@ -5,14 +5,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Users</h1>
+                    <h1>{{__('Users')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.users.index')}}">Users</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.users.index')}}">{{__('Users')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.users.notifications')}}">Notifications</a></li>
+                                                       href="{{route('admin.users.notifications')}}">{{__('Notifications')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -33,11 +33,11 @@
                                 @method('POST')
 
                                 <div class="form-group">
-                                    <label>Users</label><br>
+                                    <label>{{__('Users')}}</label><br>
                                     <input id="all" name="all"
                                            type="checkbox" value="1"
                                            onchange="toggleClass('users-form', 'd-none')">
-                                    <label for="all">All</label>
+                                    <label for="all">{{__('All')}}</label>
                                     <div id="users-form">
                                         <select id="users" name="users[]" class="form-control" multiple></select>
                                     </div>
@@ -54,14 +54,14 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Send via</label><br>
+                                    <label>{{__('Send via')}}</label><br>
                                     <input value="database" id="database" name="via[]"
                                            type="checkbox">
-                                    <label for="database">Database</label>
+                                    <label for="database">{{__('Database')}}</label>
                                     <br>
                                     <input value="mail" id="mail" name="via[]"
                                            type="checkbox">
-                                    <label for="mail">Mail</label>
+                                    <label for="mail">{{__('Email')}}</label>
                                     @error('via')
                                         <div class="invalid-feedback d-block">
                                             {{$message}}
@@ -70,7 +70,7 @@
                                 </div>
 
                                 <div class="form-group" >
-                                    <label for="title">Title</label>
+                                    <label for="title">{{__('Title')}}</label>
                                     <input value="{{old('title')}}" id="title" name="title"
                                         type="text"
                                         class="form-control @error('title') is-invalid @enderror">
@@ -81,7 +81,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="content">Content</label>
+                                    <label for="content">{{__('Content')}}</label>
                                     <textarea id="content"
                                             name="content"
                                             type="content"
@@ -95,7 +95,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group text-right">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                    <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
                             </form>
                         </div>
@@ -162,7 +162,7 @@
                         $container.find(".select2-result-users__username").text(data.name);
                         $container.find(".select2-result-users__email").text(data.email);
 
-                        return $container;    
+                        return $container;
                     },
                     templateSelection: function (data) {
                             $container = $('<div> \
@@ -172,7 +172,7 @@
                                             <span class="select2-selection-users__username" style="padding-left:10px;padding-right:10px;"></span> \
                                         </div>');
                             $container.find(".select2-selection-users__username").text(data.name);
-                            return $container; 
+                            return $container;
                         }
                     })
                 }

@@ -8,14 +8,14 @@
                     @method('PATCH')
                 <!-- Modal Header -->
                 <div class="modal-header">
-                    <h4 class="modal-title">Edit Configuration</h4>
+                    <h4 class="modal-title">{{__('Edit Configuration')}}</h4>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
 
                 <!-- Modal body -->
                 <div class="modal-body">
                     <div class="form-group">
-                        <label id="keyLabel" for="value">Text Field</label>
+                        <label id="keyLabel" for="value">{{__('Text Field')}}</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
@@ -32,8 +32,8 @@
 
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">{{__('Cancel')}}</button>
+                    <button type="submit" class="btn btn-primary">{{__('Save')}}</button>
                 </div>
             </form>
         </div>

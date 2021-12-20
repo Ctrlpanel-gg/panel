@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Configuration;
+use App\Models\InvoiceSettings;
 use App\Models\Payment;
 use App\Models\PaypalProduct;
-use App\Models\Product;
 use App\Models\User;
-use App\Notifications\ConfirmPaymentNotification;
+use App\Notifications\InvoiceNotification;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -18,6 +18,11 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use LaravelDaily\Invoices\Classes\Buyer;
+use LaravelDaily\Invoices\Classes\InvoiceItem;
+use LaravelDaily\Invoices\Classes\Party;
+use LaravelDaily\Invoices\Invoice;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
@@ -46,10 +51,10 @@ class PaymentController extends Controller
     public function checkOut(Request $request, PaypalProduct $paypalProduct)
     {
         return view('store.checkout')->with([
-            'product'      => $paypalProduct,
-            'taxvalue'     => $paypalProduct->getTaxValue(),
-            'taxpercent'   => $paypalProduct->getTaxPercent(),
-            'total'        => $paypalProduct->getTotalPrice()
+            'product' => $paypalProduct,
+            'taxvalue' => $paypalProduct->getTaxValue(),
+            'taxpercent' => $paypalProduct->getTaxPercent(),
+            'total' => $paypalProduct->getTotalPrice()
         ]);
     }
 
@@ -68,12 +73,12 @@ class PaymentController extends Controller
                 [
                     "reference_id" => uniqid(),
                     "description" => $paypalProduct->description,
-                    "amount"       => [
-                        "value"         => $paypalProduct->getTotalPrice(),
+                    "amount" => [
+                        "value" => $paypalProduct->getTotalPrice(),
                         'currency_code' => strtoupper($paypalProduct->currency_code),
-                        'breakdown' =>[
+                        'breakdown' => [
                             'item_total' =>
-                               [
+                                [
                                     'currency_code' => strtoupper($paypalProduct->currency_code),
                                     'value' => $paypalProduct->price,
                                 ],
@@ -89,11 +94,11 @@ class PaymentController extends Controller
             "application_context" => [
                 "cancel_url" => route('payment.cancel'),
                 "return_url" => route('payment.success', ['product' => $paypalProduct->id]),
-                'brand_name' =>  config('app.name', 'Laravel'),
-                'shipping_preference'  => 'NO_SHIPPING'
+                'brand_name' => config('app.name', 'Laravel'),
+                'shipping_preference' => 'NO_SHIPPING'
             ]
 
-        
+
         ];
 
 
@@ -164,7 +169,7 @@ class PaymentController extends Controller
                         $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
-                
+
                 //update role
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
@@ -186,14 +191,75 @@ class PaymentController extends Controller
                     'payer' => json_encode($response->result->payer),
                 ]);
 
-                //payment notification
-                $user->notify(new ConfirmPaymentNotification($payment));
 
                 event(new UserUpdateCreditsEvent($user));
 
+                //create invoice
+                $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
+                $newInvoiceID = $lastInvoiceID + 1;
+                $InvoiceSettings = InvoiceSettings::query()->first();
+                $logoPath = storage_path('app/public/logo.png');
+
+                $seller = new Party([
+                    'name' => $InvoiceSettings->company_name,
+                    'phone' => $InvoiceSettings->company_phone,
+                    'address' => $InvoiceSettings->company_adress,
+                    'vat' => $InvoiceSettings->company_vat,
+                    'custom_fields' => [
+                        'E-Mail' => $InvoiceSettings->company_mail,
+                        "Web" => $InvoiceSettings->company_web
+                    ],
+                ]);
+
+
+                $customer = new Buyer([
+                    'name' => $user->name,
+                    'custom_fields' => [
+                        'E-Mail' => $user->email,
+                        'Client ID' => $user->id,
+                    ],
+                ]);
+                $item = (new InvoiceItem())
+                    ->title($paypalProduct->description)
+                    ->pricePerUnit($paypalProduct->price);
+
+                $invoice = Invoice::make()
+                    ->template('controlpanel')
+                    ->name(__("Invoice"))
+                    ->buyer($customer)
+                    ->seller($seller)
+                    ->discountByPercent(0)
+                    ->taxRate(floatval($paypalProduct->getTaxPercent()))
+                    ->shipping(0)
+                    ->addItem($item)
+                    ->status(__('Paid'))
+                    ->series(now()->format('mY'))
+                    ->delimiter("-")
+                    ->sequence($newInvoiceID)
+                    ->serialNumberFormat($InvoiceSettings->invoice_prefix . '{DELIMITER}{SERIES}{SEQUENCE}');
+
+                if (file_exists($logoPath)) {
+                    $invoice->logo($logoPath);
+                }
+                //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
+                $invoice->filename = $invoice->getSerialNumber() . '.pdf';
+                $invoice->render();
+                Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
+
+
+                \App\Models\Invoice::create([
+                    'invoice_user' => $user->id,
+                    'invoice_name' => $invoice->getSerialNumber(),
+                    'payment_id' => $payment->payment_id,
+                ]);
+
+                //Send Invoice per Mail
+                $user->notify(new InvoiceNotification($invoice, $user, $payment));
+
                 //redirect back to home
-                return redirect()->route('home')->with('success', 'Your credit balance has been increased!');
+                return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
             }
+
 
             // If call returns body in response, you can get the deserialized version from the result attribute of the response
             if (env('APP_ENV') == 'local') {
@@ -220,7 +286,7 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request)
     {
-        return redirect()->route('store.index')->with('success', 'Payment was Canceled');
+        return redirect()->route('store.index')->with('success', __('Payment was Canceled'));
     }
 
 

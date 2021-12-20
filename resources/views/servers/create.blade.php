@@ -6,14 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Servers</h1>
+                    <h1>{{__('Servers')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('servers.index') }}">Servers</a>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('servers.index') }}">{{__('Servers')}}</a>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('servers.create') }}">Create</a>
+                                                       href="{{ route('servers.create') }}">{{__('Create')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -147,7 +147,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <div class="w-100"></div>
@@ -159,7 +158,7 @@
                                     <h4 class="card-title" x-text="product.name"></h4>
                                     <div class="mt-2">
                                         <div>
-                                            <p class="card-text text-muted mb-1">Resource Data:</p>
+                                            <p class="card-text text-muted mb-1">{{ __('Resource Data:') }}</p>
                                             <ul class="pl-0">
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-microchip"></i>
@@ -202,11 +201,10 @@
                                             </ul>
                                         </div>
                                         <div class="mt-2 mb-2">
-                                            <span class="card-text text-muted">Description</span>
+                                            <span class="card-text text-muted">{{ __('Description') }}</span>
                                             <p class="card-text" x-text="product.description"></p>
                                         </div>
                                     </div>
-
                                     <div class="mt-auto border rounded border-secondary">
                                         <div class="d-flex justify-content-between p-2">
                                             <span class="d-inline-block mr-4">
@@ -216,12 +214,11 @@
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
-
                                     <button type="submit" x-model="selectedProduct" name="product"
                                         :disabled="product.minimum_credits > user.credits"
                                         :class="product.minimum_credits > user.credits ? 'disabled' : ''"
                                         class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
-                                        x-text=" product.minimum_credits > user.credits ? 'Not enough {{ CREDITS_DISPLAY_NAME }}!' : 'Create server'">
+                                        x-text=" product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : {{ __('Create server') }}">
                                     </button>
                                 </div>
                             </div>
