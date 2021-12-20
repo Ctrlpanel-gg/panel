@@ -104,22 +104,25 @@
                                 <p class="lead">{{ __('Payment Methods') }}:</p>
 
                                 <div>
-                                    <label class="text-center " for="paypal">
-                                        <img class="mb-3" height="50"
-                                            src="{{ url('/images/paypal_logo.png') }}"></br>
+                                    @if (env('PAYPAL_SANDBOX_SECRET') || env('PAYPAL_SECRET'))
+                                        <label class="text-center " for="paypal">
+                                            <img class="mb-3" height="50"
+                                                src="{{ url('/images/paypal_logo.png') }}"></br>
 
-                                        <input x-model="paymentMethod" type="radio" id="paypal" value="paypal"
-                                            name="payment_method">
-                                        </input>
-                                    </label>
-
-                                    <label class="ml-5 text-center " for="stripe">
-                                        <img class="mb-3" height="50"
-                                            src="{{ url('/images/stripe_logo.png') }}" /></br>
-                                        <input x-model="paymentMethod" type="radio" id="stripe" value="stripe"
-                                            name="payment_method">
-                                        </input>
-                                    </label>
+                                            <input x-model="paymentMethod" type="radio" id="paypal" value="paypal"
+                                                name="payment_method">
+                                            </input>
+                                        </label>
+                                    @endif
+                                    @if (env('STRIPE_TEST_SECRET') || env('STRIPE_SECRET'))
+                                        <label class="ml-5 text-center " for="stripe">
+                                            <img class="mb-3" height="50"
+                                                src="{{ url('/images/stripe_logo.png') }}" /></br>
+                                            <input x-model="paymentMethod" type="radio" id="stripe" value="stripe"
+                                                name="payment_method">
+                                            </input>
+                                        </label>
+                                    @endif
                                 </div>
 
                             </div>
@@ -135,7 +138,7 @@
                                             <td>{{ $product->formatToCurrency($product->price) }}</td>
                                         </tr>
                                         <tr>
-                                            <th>Tax ({{ $taxpercent }}%)</th>
+                                            <th>{{ __('Tax') }} ({{ $taxpercent }}%)</th>
                                             <td>{{ $product->formatToCurrency($taxvalue) }}</td>
                                         </tr>
                                         <tr>
@@ -143,7 +146,7 @@
                                             <td>1</td>
                                         </tr>
                                         <tr>
-                                            <th>Total:</th>
+                                            <th>{{ __('Total') }}:</th>
                                             <td>{{ $product->formatToCurrency($total) }}</td>
                                         </tr>
                                     </table>
@@ -156,7 +159,8 @@
                         <!-- this row will not appear when printing -->
                         <div class="row no-print">
                             <div class="col-12">
-                                <a type="button" :href="paymentRoute" class="btn btn-success float-right"><i
+                                <a type="button" :href="paymentRoute" :disabled="!paymentRoute"
+                                    :class="!paymentRoute ? 'disabled' : ''" class="btn btn-success float-right"><i
                                         class="far fa-credit-card mr-2"></i>
                                     {{ __('Submit Payment') }}
                                 </a>
