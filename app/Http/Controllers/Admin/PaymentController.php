@@ -455,11 +455,6 @@ class PaymentController extends Controller
                 $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
                 $this->handleStripePaymentSuccessHook($paymentIntent);
                 break;
-            case 'payment_method.attached':
-                $paymentMethod = $event->data->object; // contains a \Stripe\PaymentMethod
-                error_log($paymentMethod);
-                break;
-                // ... handle other event types
             default:
                 echo 'Received unknown event type ' . $event->type;
         }
