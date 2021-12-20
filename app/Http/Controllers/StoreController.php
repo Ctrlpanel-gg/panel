@@ -12,9 +12,14 @@ class StoreController extends Controller
     public function index()
     {
         $isPaypalSetup = false;
-        if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;
-        if (env('APP_ENV', 'local') == 'local') $isPaypalSetup = true;
+        $isStripeSetup = false;
 
+        if (env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) $isPaypalSetup = true;
+        if (env('APP_ENV', 'local') == 'local') {
+            $isPaypalSetup = true;
+            $isStripeSetup = true;
+        }
+        if (env('STRIPE_SECRET') && env('STRIPE_ENDPOINT_SECRET') && env('STRIPE_METHODS')) $isStripeSetup = true;
 
         //Required Verification for creating an server
         if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', false) === 'true' && !Auth::user()->hasVerifiedEmail()) {
@@ -28,7 +33,8 @@ class StoreController extends Controller
 
         return view('store.index')->with([
             'products' => CreditProduct::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
-            'isPaypalSetup' => $isPaypalSetup
+            'isPaypalSetup' => $isPaypalSetup,
+            'isStripeSetup' => $isStripeSetup
         ]);
     }
 }
