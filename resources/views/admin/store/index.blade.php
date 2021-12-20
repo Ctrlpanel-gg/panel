@@ -29,7 +29,7 @@
                     @if ($isPaymentSetup == false)
                         <div class="callout callout-danger">
                             <h4>{{ __('No payment method is configured.') }}</h4>
-                            <p>{{ __('To configure your payment methods, head to the .env and add the required options for your prefered payment method.') }}
+                            <p>{{ __('To configure the payment methods, head to the .env and add the required options for your prefered payment method.') }}
                             </p>
                         </div>
                     @endif

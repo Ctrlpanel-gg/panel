@@ -106,8 +106,8 @@
     "Adds 1000 credits to your account": "Adds 1000 credits to your account",
 
     "Active": "Active",
-    "Paypal is not configured.": "Paypal is not configured.",
-    "To configure PayPal, head to the .env and add your PayPal’s client id and secret.": "To configure PayPal, head to the .env and add your PayPal’s client id and secret.",
+    "No payment method is configured.": "No payment method is configured.",
+    "To configure the payment methods, head to the .env and add the required options for your prefered payment method.": "To configure the payment methods, head to the .env and add the required options for your prefered payment method.",
 
     "Useful Links": "Useful Links",
     "Icon class name": "Icon class name",
@@ -164,7 +164,7 @@
     "You forgot your password? Here you can easily retrieve a new password.": "You forgot your password? Here you can easily retrieve a new password.",
     "Request new password": "Request new password",
     "Login": "Login",
-    "You are only one step a way from your new password, recover your password now.":"You are only one step a way from your new password, recover your password now.",
+    "You are only one step a way from your new password, recover your password now.": "You are only one step a way from your new password, recover your password now.",
     "Retype password": "Retype password",
     "Change password": "Change password",
     "I already have a membership": "I already have a membership",
@@ -363,8 +363,6 @@
     "Amount due": "Amount due",
 
     "Your Payment was successful!": "Your Payment was successful!",
-    "Hello":"Hello",
-    "Your payment was processed successfully!":"Your payment was processed successfully!"
-
-
+    "Hello": "Hello",
+    "Your payment was processed successfully!": "Your payment was processed successfully!"
 }
