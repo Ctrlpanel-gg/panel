@@ -234,6 +234,7 @@
     "No selection": "No selection",
     "per month": "per month",
     "Not enough credits!": "Not enough credits!",
+    "Not enough" : "Not enough",
     "Please select a configuration ...": "Please select a configuration ...",
     "No resources found matching current configuration": "No resources found matching current configuration",
     "No nodes found matching current configuration": "No nodes found matching current configuration",
