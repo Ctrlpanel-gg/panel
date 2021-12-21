@@ -18,7 +18,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request as FacadesRequest;
-use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
 {
@@ -49,7 +48,6 @@ class ServerController extends Controller
 
             $server->resourceplanName = $productName;
         }
-
 
         return view('servers.index')->with([
             'servers' => $servers
@@ -161,10 +159,11 @@ class ServerController extends Controller
         $response = Pterodactyl::createServer($server, $egg, $allocationId);
         if ($response->failed()) return $this->serverCreationFailed($response, $server);
 
+        $serverAttributes = $response->json()['attributes'];
         //update server with pterodactyl_id
         $server->update([
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-            'identifier'     => $response->json()['attributes']['identifier']
+            'pterodactyl_id' => $serverAttributes['id'],
+            'identifier'     => $serverAttributes['identifier']
         ]);
 
         if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
