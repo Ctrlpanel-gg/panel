@@ -26,10 +26,7 @@
         <div class="container-fluid">
 
             <!-- CUSTOM CONTENT -->
-            <div class="d-flex justify-content-between mb-3">
-                <p>Use your servers on our <a href="{{ env('PTERODACTYL_URL', 'http://localhost') }}">pterodactyl
-                        panel</a>
-                </p>
+            <div class="d-flex justify-content-end mb-3">
                 <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled="disabled" title="Server limit reached!" @endif href="{{ route('servers.create') }}" class="btn @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled @endif btn-primary"><i class="fa fa-plus mr-2"></i>Create
                     Server</a>
             </div>
@@ -76,8 +73,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <span class="text-muted">Server details - Resource: {{ $server->product->name }}</span>
-                            <div class="container mt-3">
+                            <div class="container mt-1">
                                 <div class="row mb-3">
                                     <div class="col my-auto">Status:</div>
                                     <div class="col-8 my-auto"><i
@@ -86,42 +82,51 @@
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
-                                        Memory:
+                                        Location:
                                     </div>
-                                    <div class="col">
-                                        <div class="text-muted">Available</div>
-                                        <div>{{ $server->product->memory }} MB</div>
+                                    <div class="col-8">
+                                        <div class="">falkenstein</div>
                                     </div>
-                                    <div class="col">
-                                        <div class="text-muted"> Usage</div>
-                                        <div>{{ $server->product->memory }} %</div>
-                                    </div>
+
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
-                                        Storage:
+                                        Software:
                                     </div>
-                                    <div class="col">
-                                        <div class="text-muted">Available</div>
-                                        <div>{{ $server->product->disk }} MB</div>
+                                    <div class="col-8">
+                                        <div class="">Minecraft</div>
                                     </div>
-                                    <div class="col">
-                                        <div class="text-muted">Usage</div>
-                                        <div>{{ $server->product->disk }} %</div>
+
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col my-auto">
+                                        Specification:
                                     </div>
+                                    <div class="col-8">
+                                        <div class="">Bungeecord</div>
+                                    </div>
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col my-auto">
+                                        Resourceplan:
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="">Gaming Server XL</div>
+                                    </div>
+
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
                                         Price:
                                     </div>
-                                    <div class="col">
+                                    <div class="col-4">
                                         <div class="text-muted">per Hour</div>
                                         <div>
                                             {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
                                             {{ CREDITS_DISPLAY_NAME }}
                                         </div>
                                     </div>
-                                    <div class="col">
+                                    <div class="col-4">
                                         <div class="text-muted">per Month
                                         </div>
                                         <div> {{ $server->product->getHourlyPrice() * 24 * 30 }}
@@ -135,10 +140,10 @@
 
                         <div class="card-footer d-flex justify-content-between">
                             <a href="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}"
-                                target="__blank" class="btn btn-info mx-3 w-100"><i class="fas fa-tasks mr-2"></i>Manage</a>
+                                target="__blank" class="btn btn-info mx-3 w-100"><i class="fas fa-tools mr-2"></i>Manage</a>
                             @if (!empty(env('PHPMYADMIN_URL')))
                                 <a href="{{ env('PHPMYADMIN_URL', 'http://localhost') }}" target="__blank"
-                                    class="btn btn-info mx-3 w-100"><i class="fas fa-database mr-2"></i>Database</a>
+                                    class="btn btn-danger mx-3 w-100"><i class="fas fa-trash mr-2"></i>Delete</a>
                             @endif
                         </div>
 
