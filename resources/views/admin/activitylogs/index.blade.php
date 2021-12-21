@@ -10,7 +10,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{ __('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.activitylogs.index')}}">{{ __('Activity Logs')}}</a>
                         </li>
                     </ol>
