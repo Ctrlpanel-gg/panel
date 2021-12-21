@@ -27,8 +27,15 @@
 
             <!-- CUSTOM CONTENT -->
             <div class="d-flex justify-content-end mb-3">
-                <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled="disabled" title="Server limit reached!" @endif href="{{ route('servers.create') }}" class="btn @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled @endif btn-primary"><i class="fa fa-plus mr-2"></i>Create
-                    Server</a>
+                <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit)
+                    disabled="disabled" title="Server limit reached!"
+                    @endif href="{{ route('servers.create') }}"
+                    class="btn
+                    @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled
+                    @endif btn-primary"><i
+                        class="fa fa-plus mr-2"></i>
+                    {{ __('Create Server') }}
+                </a>
             </div>
 
             <div class="row ml-1">
@@ -50,7 +57,7 @@
                                             @if (!empty(env('PHPMYADMIN_URL')))
                                                 <a href="{{ env('PHPMYADMIN_URL', 'http://localhost') }}"
                                                     class="dropdown-item text-info" target="__blank"><i title="manage"
-                                                        class="fas fa-database mr-2"></i><span>Database</span></a>
+                                                        class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span></a>
                                             @endif
                                             <div class="dropdown-divider"></div>
                                             <span class="dropdown-item"><i title="Created at"
@@ -63,7 +70,7 @@
                         <div class="card-body">
                             <div class="container mt-1">
                                 <div class="row mb-3">
-                                    <div class="col my-auto">Status:</div>
+                                    <div class="col my-auto">{{ __('Status') }}:</div>
                                     <div class="col-8 my-auto">
                                         <i
                                             class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>
@@ -72,7 +79,7 @@
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
-                                        Location:
+                                        {{ __('Location') }}:
                                     </div>
                                     <div class="col-8">
                                         <div class="">{{ $server->location }}</div>
@@ -81,7 +88,7 @@
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
-                                        Software:
+                                        {{ __('Software') }}:
                                     </div>
                                     <div class="col-8">
                                         <div class="">{{ $server->nest }}</div>
@@ -90,7 +97,7 @@
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
-                                        Specification:
+                                        {{ __('Specification') }}:
                                     </div>
                                     <div class="col-8">
                                         <div class="">{{ $server->egg }}</div>
@@ -98,7 +105,7 @@
                                 </div>
                                 <div class="row mb-4">
                                     <div class="col my-auto">
-                                        Resourceplan:
+                                        {{ __('Resourceplan') }}:
                                     </div>
                                     <div class="col-8">
                                         <div class="">{{ $server->resourceplanName }}</div>
@@ -107,17 +114,17 @@
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
-                                        Price:
+                                        {{ __('Price') }}:
                                     </div>
                                     <div class="col-4">
-                                        <div class="text-muted">per Hour</div>
+                                        <div class="text-muted">{{ __('per Hour') }}</div>
                                         <div>
                                             {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
                                             {{ CREDITS_DISPLAY_NAME }}
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <div class="text-muted">per Month
+                                        <div class="text-muted">{{ __('per Month') }}
                                         </div>
                                         <div> {{ $server->product->getHourlyPrice() * 24 * 30 }}
                                             {{ CREDITS_DISPLAY_NAME }}
@@ -136,7 +143,7 @@
                                     @method('DELETE')
                                     <button class="btn btn-info w-100">
                                         <i title="delete" class="fas fa-tools mr-2"></i>
-                                        Manage
+                                        {{ __('Manage') }}
                                     </button>
                                 </form>
                                 <form method="post" onsubmit="return submitResult();"
@@ -145,7 +152,7 @@
                                     @method('DELETE')
                                     <button class="btn btn-danger w-100">
                                         <i title="delete" class="fas fa-trash mr-2"></i>
-                                        Delete
+                                        {{ __('Delete') }}
                                     </button>
                                 </form>
                             </div>
