@@ -18,14 +18,41 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
 {
     /** Display a listing of the resource. */
     public function index()
     {
+        $servers = Auth::user()->servers;
+
+        //Get and set server infos each server
+        foreach ($servers as $server) {
+
+            //Get server infos from ptero
+            $serverAttributes = Pterodactyl::client()->get('/application/servers/' . $server->pterodactyl_id . '?include=egg,nest,location')->json()['attributes'];
+
+            $serverRelationships = $serverAttributes['relationships'];
+            $serverLocationAttributes = $serverRelationships['location']['attributes'];
+
+            //Set server infos
+            $server->location = $serverLocationAttributes['long'] ?
+                $serverLocationAttributes['long'] :
+                $serverLocationAttributes['short'];
+
+            $server->egg = $serverRelationships['egg']['attributes']['name'];
+            $server->nest = $serverRelationships['nest']['attributes']['name'];
+
+            //get productname by product_id for server
+            $productName = Product::find($server->product_id)->name;
+
+            $server->resourceplanName = $productName;
+        }
+
+
         return view('servers.index')->with([
-            'servers' => Auth::user()->Servers
+            'servers' => $servers
         ]);
     }
 

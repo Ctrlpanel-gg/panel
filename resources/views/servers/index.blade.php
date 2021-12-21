@@ -31,14 +31,13 @@
                     Server</a>
             </div>
 
-            <div class="row">
+            <div class="row ml-1">
                 @foreach ($servers as $server)
 
-                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card">
+                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mt-1"><i
-                                        class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>{{ $server->name }}
+                                <h5 class="card-title mt-1">{{ $server->name }}
                                 </h5>
                                 <div class="card-tools mt-1">
                                     <div class="dropdown no-arrow">
@@ -48,22 +47,11 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                                             aria-labelledby="dropdownMenuLink">
-                                            <a href="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}"
-                                                target="__blank" class="dropdown-item text-info"><i title="manage"
-                                                    class="fas fa-tasks mr-2"></i><span>Manage</span></a>
                                             @if (!empty(env('PHPMYADMIN_URL')))
                                                 <a href="{{ env('PHPMYADMIN_URL', 'http://localhost') }}"
                                                     class="dropdown-item text-info" target="__blank"><i title="manage"
                                                         class="fas fa-database mr-2"></i><span>Database</span></a>
                                             @endif
-                                            <form method="post" onsubmit="return submitResult();"
-                                                action="{{ route('servers.destroy', $server->id) }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="dropdown-item text-danger"><i title="delete"
-                                                        class="fas fa-trash mr-2"></i><span>Delete
-                                                        server</span></button>
-                                            </form>
                                             <div class="dropdown-divider"></div>
                                             <span class="dropdown-item"><i title="Created at"
                                                     class="fas fa-sync-alt mr-2"></i><span>{{ $server->created_at->isoFormat('LL') }}</span></span>
@@ -76,16 +64,18 @@
                             <div class="container mt-1">
                                 <div class="row mb-3">
                                     <div class="col my-auto">Status:</div>
-                                    <div class="col-8 my-auto"><i
-                                            class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>Running
-                                        (8d 9h 39m)</div>
+                                    <div class="col-8 my-auto">
+                                        <i
+                                            class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>
+                                        {{ $server->isSuspended() ? 'Suspended' : 'Active' }}
+                                    </div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col my-auto">
                                         Location:
                                     </div>
                                     <div class="col-8">
-                                        <div class="">falkenstein</div>
+                                        <div class="">{{ $server->location }}</div>
                                     </div>
 
                                 </div>
@@ -94,7 +84,7 @@
                                         Software:
                                     </div>
                                     <div class="col-8">
-                                        <div class="">Minecraft</div>
+                                        <div class="">{{ $server->nest }}</div>
                                     </div>
 
                                 </div>
@@ -103,7 +93,7 @@
                                         Specification:
                                     </div>
                                     <div class="col-8">
-                                        <div class="">Bungeecord</div>
+                                        <div class="">{{ $server->egg }}</div>
                                     </div>
                                 </div>
                                 <div class="row mb-4">
@@ -111,7 +101,7 @@
                                         Resourceplan:
                                     </div>
                                     <div class="col-8">
-                                        <div class="">Gaming Server XL</div>
+                                        <div class="">{{ $server->resourceplanName }}</div>
                                     </div>
 
                                 </div>
@@ -138,13 +128,27 @@
                         </div>
 
 
-                        <div class="card-footer d-flex justify-content-between">
-                            <a href="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}"
-                                target="__blank" class="btn btn-info mx-3 w-100"><i class="fas fa-tools mr-2"></i>Manage</a>
-                            @if (!empty(env('PHPMYADMIN_URL')))
-                                <a href="{{ env('PHPMYADMIN_URL', 'http://localhost') }}" target="__blank"
-                                    class="btn btn-danger mx-3 w-100"><i class="fas fa-trash mr-2"></i>Delete</a>
-                            @endif
+                        <div class="card-footer">
+                            <div class="footer btn-group d-flex justify-content-around">
+                                <form
+                                    action="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-info w-100">
+                                        <i title="delete" class="fas fa-tools mr-2"></i>
+                                        Manage
+                                    </button>
+                                </form>
+                                <form method="post" onsubmit="return submitResult();"
+                                    action="{{ route('servers.destroy', $server->id) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-danger w-100">
+                                        <i title="delete" class="fas fa-trash mr-2"></i>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
                         </div>
 
                     </div>
