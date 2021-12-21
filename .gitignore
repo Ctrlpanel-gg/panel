@@ -18,4 +18,6 @@ yarn-error.log
 .gitignore
 .env.dev
 .env.testing
-.vscode*
+storage/invoices.zip
+storage/app/public/logo.png
+*vscode

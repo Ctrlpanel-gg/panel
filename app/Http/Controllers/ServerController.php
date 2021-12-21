@@ -71,7 +71,7 @@ class ServerController extends Controller
     {
         //limit validation
         if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
-            return redirect()->route('servers.index')->with('error', 'Server limit reached!');
+            return redirect()->route('servers.index')->with('error', __('Server limit reached!'));
         }
 
         // minimum credits
@@ -89,12 +89,12 @@ class ServerController extends Controller
 
         //Required Verification for creating an server
         if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
-            return redirect()->route('profile.index')->with('error', "You are required to verify your email address before you can create a server.");
+            return redirect()->route('profile.index')->with('error', __("You are required to verify your email address before you can create a server."));
         }
 
         //Required Verification for creating an server
         if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {
-            return redirect()->route('profile.index')->with('error', "You are required to link your discord account before you can create a server.");
+            return redirect()->route('profile.index')->with('error', __("You are required to link your discord account before you can create a server."));
         }
 
         return null;
@@ -146,7 +146,7 @@ class ServerController extends Controller
             }
         }
 
-        return redirect()->route('servers.index')->with('success', 'Server created');
+        return redirect()->route('servers.index')->with('success', __('Server created'));
     }
 
     /**
@@ -159,7 +159,7 @@ class ServerController extends Controller
         $server->delete();
 
         Auth::user()->notify(new ServerCreationError($server));
-        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment on this node were found.');
+        return redirect()->route('servers.index')->with('error', __('No allocations satisfying the requirements for automatic deployment on this node were found.'));
     }
 
     /**
@@ -180,9 +180,9 @@ class ServerController extends Controller
     {
         try {
             $server->delete();
-            return redirect()->route('servers.index')->with('success', 'Server removed');
+            return redirect()->route('servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
         }
     }
 }

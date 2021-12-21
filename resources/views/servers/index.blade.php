@@ -5,14 +5,14 @@
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-md-6">
-                    <h1>Servers</h1>
+                <div class="col-sm-6">
+                    <h1>{{ __('Servers') }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('servers.index') }}">Servers</a>
+                                href="{{ route('servers.index') }}">{{ __('Servers') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -155,7 +155,7 @@
 
     <script>
         function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
+            return confirm("{{ __('Are you sure you wish to delete?') }}") !== false;
         }
     </script>
 @endsection
