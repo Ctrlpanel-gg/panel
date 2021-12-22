@@ -26,25 +26,24 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-money-bill-wave mr-2"></i>{{__('Payments')}}</h5>
+                    <h5 class="card-title"><i class="fas fa-money-bill-wave mr-2"></i>{{ __('Payments') }}</h5>
                 </div>
 
                 <div class="card-body table-responsive">
                     <table id="datatable" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th>{{__('ID')}}</th>
-                            <th>{{__('User')}}</th>
-                            <th>{{__('Type')}}</th>
-                            <th>{{__('Amount')}}</th>
-                            <th>{{__('Product Price')}}</th>
-                            <th>{{__('Tax')}}</th>
-                            <th>{{__('Tax')}}(%)</th>
-                            <th>{{__('Total Price')}}</th>
-                            <th>{{__('Payment_ID')}}</th>
-                            <th>{{__('Payer_ID')}}</th>
-                            <th>{{__('Created at')}}</th>
-                        </tr>
+                            <tr>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Amount') }}</th>
+                                <th>{{ __('Product Price') }}</th>
+                                <th>{{ __('Tax Value') }}</th>
+                                <th>{{ __('Tax Percentage') }}</th>
+                                <th>{{ __('Total Price') }}</th>
+                                <th>{{ __('Payment ID') }}</th>
+                                <th>{{ __('Payment Method') }}</th>
+                                <th>{{ __('Created at') }}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         </tbody>
@@ -59,7 +58,7 @@
     <!-- END CONTENT -->
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             $('#datatable').DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
@@ -67,10 +66,9 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                ajax: "{{route('admin.payments.datatable')}}",
+                ajax: "{{ route('admin.payments.datatable') }}",
                 columns: [
-                    {data: 'id' , name : 'payments.id'},
-                    {data: 'user', sortable: false},
+                    {data: 'id',name: 'payments.id'},
                     {data: 'type'},
                     {data: 'amount'},
                     {data: 'price'},
@@ -78,12 +76,12 @@
                     {data: 'tax_percent'},
                     {data: 'total_price'},
                     {data: 'payment_id'},
-                    {data: 'payer_id'},
+                    {data: 'payment_method'},
                     {data: 'created_at'},
                 ],
-                fnDrawCallback: function( oSettings ) {
+                fnDrawCallback: function(oSettings) {
                     $('[data-toggle="popover"]').popover();
-                }
+                },
             });
         });
     </script>

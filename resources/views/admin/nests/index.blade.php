@@ -11,13 +11,13 @@ THIS FILE IS DEPRECATED
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Nests</h1>
+                    <h1>{{__('Nests')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.nests.index')}}">Nests</a></li>
+                                                       href="{{route('admin.nests.index')}}">{{__('Nests')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -33,9 +33,9 @@ THIS FILE IS DEPRECATED
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-sitemap mr-2"></i>Nests</h5>
+                        <h5 class="card-title"><i class="fas fa-sitemap mr-2"></i>{{__('Nests')}}</h5>
                         <a href="{{route('admin.nests.sync')}}" class="btn btn-sm btn-info"><i
-                                class="fas fa-sync mr-1"></i>Sync</a>
+                                class="fas fa-sync mr-1"></i>{{__('Sync')}}</a>
                     </div>
                 </div>
 
@@ -44,12 +44,12 @@ THIS FILE IS DEPRECATED
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Active</th>
-                            <th>ID</th>
-                            <th>eggs</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Created at</th>
+                            <th>{{__('Active')}}</th>
+                            <th>{{__('ID')}}</th>
+                            <th>{{__('eggs')}}</th>
+                            <th>{{__('Name')}}</th>
+                            <th>{{__('Description')}}</th>
+                            <th>{{__('Created at')}}</th>
 
                         </tr>
                         </thead>
@@ -69,7 +69,7 @@ THIS FILE IS DEPRECATED
 
     <script>
         function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
+            return confirm({{__("Are you sure you wish to delete?")}}) !== false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {
