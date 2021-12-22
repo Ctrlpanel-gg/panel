@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "51c5797dc1629fe1f42b1fdc91c6e5d8",
+    "content-hash": "ed0357bbf827f4e6078d2ed41ce3fa17",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1532,6 +1532,67 @@
                 "source": "https://github.com/hidehalo/nanoid-php/tree/1.1.8"
             },
             "time": "2020-12-11T09:24:45+00:00"
+        },
+        {
+            "name": "kkomelin/laravel-translatable-string-exporter",
+            "version": "1.14.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kkomelin/laravel-translatable-string-exporter.git",
+                "reference": "9dce1e5f8ed59a1b58e77ec7d84f1427d5e29f0a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kkomelin/laravel-translatable-string-exporter/zipball/9dce1e5f8ed59a1b58e77ec7d84f1427d5e29f0a",
+                "reference": "9dce1e5f8ed59a1b58e77ec7d84f1427d5e29f0a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "illuminate/support": "^5.4|^6|^7|^8",
+                "illuminate/translation": "^5.4|^6|^7|^8",
+                "php": ">=5.4.0",
+                "symfony/finder": "^3.2|^4|^5"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^3.4|^4.0|^5.0|^6.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "KKomelin\\TranslatableStringExporter\\Providers\\ExporterServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "KKomelin\\TranslatableStringExporter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Konstantin Komelin",
+                    "email": "konstantin.komelin@gmail.com"
+                }
+            ],
+            "description": "Translatable String Exporter for Laravel",
+            "keywords": [
+                "export",
+                "exporter",
+                "json",
+                "laravel",
+                "translations"
+            ],
+            "support": {
+                "issues": "https://github.com/kkomelin/laravel-translatable-string-exporter/issues",
+                "source": "https://github.com/kkomelin/laravel-translatable-string-exporter/tree/1.14.0"
+            },
+            "time": "2021-08-08T06:48:21+00:00"
         },
         {
             "name": "laravel/framework",

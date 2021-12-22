@@ -193,6 +193,9 @@ return [
         App\Providers\RouteServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
 
+        KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
+
+
     ],
 
     /*
