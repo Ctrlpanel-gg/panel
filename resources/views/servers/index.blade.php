@@ -38,10 +38,10 @@
                 </a>
             </div>
 
-            <div class="row ml-1">
+            <div class="row">
                 @foreach ($servers as $server)
 
-                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0">
+                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0" style="max-width: 350px">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mt-1">{{ $server->name }}
@@ -71,79 +71,85 @@
                             <div class="container mt-1">
                                 <div class="row mb-3">
                                     <div class="col my-auto">{{ __('Status') }}:</div>
-                                    <div class="col-8 my-auto">
+                                    <div class="col-7 my-auto">
                                         <i
                                             class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>
                                         {{ $server->isSuspended() ? 'Suspended' : 'Active' }}
                                     </div>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col my-auto">
+                                    <div class="col-5">
                                         {{ __('Location') }}:
                                     </div>
-                                    <div class="col-8">
-                                        <div class="">{{ $server->location }}</div>
+                                    <div class="col-7">
+                                        <span class="">{{ $server->location }}</span>
                                     </div>
 
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col my-auto">
+                                    <div class="col-5 ">
                                         {{ __('Software') }}:
                                     </div>
-                                    <div class="col-8">
-                                        <div class="">{{ $server->nest }}</div>
+                                    <div class="col-7 text-wrap">
+                                        <span>{{ $server->nest }}</span>
                                     </div>
 
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col my-auto">
+                                    <div class="col-5 ">
                                         {{ __('Specification') }}:
                                     </div>
-                                    <div class="col-8">
-                                        <div class="">{{ $server->egg }}</div>
+                                    <div class="col-7 text-wrap">
+                                        <span>{{ $server->egg }}</span>
                                     </div>
                                 </div>
                                 <div class="row mb-4">
-                                    <div class="col my-auto">
-                                        {{ __('Resourceplan') }}:
+                                    <div class="col-5 ">
+                                        {{ __('Resource plan') }}:
                                     </div>
-                                    <div class="col-8">
-                                        <div class="">{{ $server->resourceplanName }}</div>
+                                    <div class="col-7 text-wrap">
+                                        <span>{{ $server->resourceplanName }}</span>
                                     </div>
 
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col my-auto">
-                                        {{ __('Price') }}:
-                                    </div>
                                     <div class="col-4">
-                                        <div class="text-muted">{{ __('per Hour') }}</div>
-                                        <div>
-                                            {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
-                                            {{ CREDITS_DISPLAY_NAME }}
-                                        </div>
+                                        {{ __('Price') }}: <span class="text-muted">({{ CREDITS_DISPLAY_NAME }})
+                                        </span>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="text-muted">{{ __('per Month') }}
-                                        </div>
-                                        <div> {{ $server->product->getHourlyPrice() * 24 * 30 }}
-                                            {{ CREDITS_DISPLAY_NAME }}
+                                    <div class="col-8">
+                                        <div class="row">
+                                            <div class="col-6  text-center">
+                                                <div class="text-muted">{{ __('per Hour') }}</div>
+                                                <span>
+                                                    {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
+
+                                                </span>
+                                            </div>
+                                            <div class="col-6  text-center">
+                                                <div class="text-muted">{{ __('per Month') }}
+                                                </div>
+                                                <span> 20{{ $server->product->getHourlyPrice() * 24 * 30 }}
+
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="card-footer d-flex justify-content-between">
+                        <div class="card-footer d-flex align-items-center justify-content-between">
                             <a href="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}"
-                                target="__blank" class="btn btn-info mx-3 w-100">
+                                target="__blank"
+                                class="btn btn-info mx-3 w-100 align-items-center justify-content-center d-flex">
                                 <i class="fas fa-tools mr-2"></i>
-                                {{ __('Manage') }}
+                                <span>{{ __('Manage') }}</span>
                             </a>
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
-                                class="btn btn-danger mx-3 w-100">
+                                class="btn btn-danger mx-3 w-100 align-items-center justify-content-center d-flex">
                                 <i class="fas fa-trash mr-2"></i>
-                                {{ __('Delete') }}
+                                <span>{{ __('Delete') }}</span>
                             </button>
                         </div>
                     </div>
