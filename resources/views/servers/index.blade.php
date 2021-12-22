@@ -114,7 +114,9 @@
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-4">
-                                        {{ __('Price') }}: <span class="text-muted">({{ CREDITS_DISPLAY_NAME }})
+                                        {{ __('Price') }}:
+                                        <span class="text-muted">
+                                            ({{ CREDITS_DISPLAY_NAME }})
                                         </span>
                                     </div>
                                     <div class="col-8">
@@ -123,14 +125,13 @@
                                                 <div class="text-muted">{{ __('per Hour') }}</div>
                                                 <span>
                                                     {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
-
                                                 </span>
                                             </div>
                                             <div class="col-6  text-center">
                                                 <div class="text-muted">{{ __('per Month') }}
                                                 </div>
-                                                <span> 20{{ $server->product->getHourlyPrice() * 24 * 30 }}
-
+                                                <span>
+                                                    {{ $server->product->getHourlyPrice() * 24 * 30 }}
                                                 </span>
                                             </div>
                                         </div>
