@@ -107,8 +107,12 @@
                                     <div class="col-5 ">
                                         {{ __('Resource plan') }}:
                                     </div>
-                                    <div class="col-7 text-wrap">
-                                        <span>{{ $server->resourceplanName }}</span>
+                                    <div class="col-7 text-wrap d-flex justify-content-between align-items-center">
+                                        <span>{{ $server->product->name }}
+                                        </span>
+                                        <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>"
+                                            class="fas fa-info-circle"></i>
                                     </div>
 
                                 </div>
@@ -193,5 +197,9 @@
                 window.location.reload();
             });
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            $('[data-toggle="popover"]').popover();
+        });
     </script>
 @endsection

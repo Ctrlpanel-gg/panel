@@ -44,9 +44,9 @@ class ServerController extends Controller
             $server->nest = $serverRelationships['nest']['attributes']['name'];
 
             //get productname by product_id for server
-            $productName = Product::find($server->product_id)->name;
+            $product = Product::find($server->product_id);
 
-            $server->resourceplanName = $productName;
+            $server->product = $product;
         }
 
         return view('servers.index')->with([
