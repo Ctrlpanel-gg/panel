@@ -26,7 +26,7 @@
         <div class="container-fluid">
 
             <!-- CUSTOM CONTENT -->
-            <div class="d-flex justify-content-end mb-3">
+            <div class="d-flex justify-content-md-start justify-content-center mb-3 ">
                 <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit)
                     disabled="disabled" title="Server limit reached!"
                     @endif href="{{ route('servers.create') }}"
@@ -38,7 +38,7 @@
                 </a>
             </div>
 
-            <div class="row">
+            <div class="row d-flex flex-row justify-content-center justify-content-sm-start">
                 @foreach ($servers as $server)
 
                     <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0" style="max-width: 350px">
