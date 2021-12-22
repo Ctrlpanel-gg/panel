@@ -134,44 +134,42 @@
                             </div>
                         </div>
 
-
-                        <div class="card-footer">
-                            <div class="footer btn-group d-flex justify-content-around">
-                                <form
-                                    action="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-info w-100">
-                                        <i title="delete" class="fas fa-tools mr-2"></i>
-                                        {{ __('Manage') }}
-                                    </button>
-                                </form>
-                                <form method="post" onsubmit="return submitResult();"
-                                    action="{{ route('servers.destroy', $server->id) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-danger w-100">
-                                        <i title="delete" class="fas fa-trash mr-2"></i>
-                                        {{ __('Delete') }}
-                                    </button>
-                                </form>
-                            </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}"
+                                target="__blank" class="btn btn-info mx-3 w-100">
+                                <i class="fas fa-tools mr-2"></i>
+                                {{ __('Manage') }}
+                            </a>
+                            <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
+                                class="btn btn-danger mx-3 w-100">
+                                <i class="fas fa-trash mr-2"></i>
+                                {{ __('Delete') }}
+                            </button>
                         </div>
-
                     </div>
-
                 @endforeach
             </div>
             <!-- END CUSTOM CONTENT -->
-
-
         </div>
     </section>
     <!-- END CONTENT -->
 
     <script>
-        function submitResult() {
-            return confirm("{{ __('Are you sure you wish to delete?') }}") !== false;
+        const handleSubmit = () => {
+            return confirm('Are you sure you want to delete this server?');
+        }
+
+        const handleServerDelete = (serverId) => {
+            if (handleSubmit()) {
+                fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
         }
     </script>
 @endsection
