@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\PaypalProductController;
+use App\Http\Controllers\Admin\CreditProductController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -40,6 +40,9 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
+# Stripe WebhookRoute -> validation in Route Handler
+Route::post('payment/StripeWebhooks', [PaymentController::class, 'StripeWebhooks'])->name('payment.StripeWebhooks');
+
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
@@ -61,10 +64,14 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('/products/products/{egg?}/{node?}', [FrontProductController::class, 'getProductsBasedOnNode'])->name('products.products.node');
 
     #payments
-    Route::get('checkout/{paypalProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
-    Route::get('payment/success', [PaymentController::class, 'success'])->name('payment.success');
-    Route::get('payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
-    Route::get('payment/pay/{paypalProduct}', [PaymentController::class, 'pay'])->name('payment.pay');
+    Route::get('checkout/{creditProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
+    Route::get('payment/PaypalPay/{creditProduct}', [PaymentController::class, 'PaypalPay'])->name('payment.PaypalPay');
+    Route::get('payment/PaypalSuccess', [PaymentController::class, 'PaypalSuccess'])->name('payment.PaypalSuccess');
+    Route::get('payment/StripePay/{creditProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
+    Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
+    Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
+
+
 
     Route::get('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
 
@@ -100,10 +107,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::patch('products/disable/{product}', [ProductController::class, 'disable'])->name('products.disable');
         Route::resource('products', ProductController::class);
 
-        Route::get('store/datatable', [PaypalProductController::class, 'datatable'])->name('store.datatable');
-        Route::patch('store/disable/{paypalProduct}', [PaypalProductController::class, 'disable'])->name('store.disable');
-        Route::resource('store', PaypalProductController::class)->parameters([
-            'store' => 'paypalProduct',
+        Route::get('store/datatable', [CreditProductController::class, 'datatable'])->name('store.datatable');
+        Route::patch('store/disable/{creditProduct}', [CreditProductController::class, 'disable'])->name('store.disable');
+        Route::resource('store', CreditProductController::class)->parameters([
+            'store' => 'creditProduct',
         ]);
 
         Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');

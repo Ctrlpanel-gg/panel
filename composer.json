@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "cpgg/dashboard",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "A billing and control panel made for Pterodactyl.",
     "keywords": [
         "framework",
         "laravel"
@@ -26,6 +26,7 @@
         "spatie/laravel-activitylog": "^3.16",
         "spatie/laravel-query-builder": "^3.6",
         "spatie/laravel-validation-rules": "^3.0",
+        "stripe/stripe-php": "^7.107",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
