@@ -165,21 +165,20 @@
         const confirmSubmit = (serverId, handleServerDelete) => {
             // Confirm delete submit with sweetalert
             Swal.fire({
-                title: '{{ __('Are you sure?') }}',
+                title: "{{ __('Are you sure?') }}",
                 text: "{{ __('This is an irreversible action, all files of this server will be removed.') }}",
                 icon: 'warning',
                 confirmButtonColor: '#d9534f',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'No, cancel!',
+                confirmButtonText: "{{ __('Yes, delete it!') }}",
+                cancelButtonText: "{{ __('No, cancel!') }}",
                 reverseButtons: true
             }).then((result) => {
                 if (result.value) {
-                    console.log('confirmed');
                     handleServerDelete(serverId);
                     return
                 }
-                Swal.fire('Canceled ...', `Deletion has been canceled.`, 'info');
+                Swal.fire("{{ __('Canceled ...') }}", `{{ __('Deletion has been canceled.') }}`, 'info');
             });
         }
 
