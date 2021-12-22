@@ -521,6 +521,12 @@ class PaymentController extends Controller
             ->title($creditProduct->description)
             ->pricePerUnit($creditProduct->price);
 
+        $notes = [
+            __("Payment method") .": ". $payment->payment_method,
+        ];
+        $notes = implode("<br>", $notes);
+
+
         $invoice = Invoice::make()
             ->template('controlpanel')
             ->name(__("Invoice"))
@@ -534,7 +540,8 @@ class PaymentController extends Controller
             ->series(now()->format('mY'))
             ->delimiter("-")
             ->sequence($newInvoiceID)
-            ->serialNumberFormat($InvoiceSettings->invoice_prefix . '{DELIMITER}{SERIES}{SEQUENCE}');
+            ->serialNumberFormat($InvoiceSettings->invoice_prefix . '{DELIMITER}{SERIES}{SEQUENCE}')
+            ->notes($notes);
 
         if (file_exists($logoPath)) {
             $invoice->logo($logoPath);
