@@ -364,7 +364,7 @@
 
         @if($invoice->notes)
             <p>
-                {{ trans('Notes') }}: {!! $invoice->notes !!}
+                {{ trans('Notes') }}:<br/> {!! $invoice->notes !!}
             </p>
         @endif
 
