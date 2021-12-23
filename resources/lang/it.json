@@ -155,6 +155,7 @@
     "If you did not receive the email": "Se non hai ricevuto l'email",
     "click here to request another": "clicca qui per richiederne un'altra",
     "Home": "Home",
+    "Languages": "Lingue",
     "See all Notifications": "Vedi tutte le notifiche",
     "Profile": "Profilo",
     "Log back in": "Fai il login di nuovo",
@@ -297,10 +298,10 @@
     "Invoice Settings": "Impostazioni fattura",
     "Download all Invoices": "Scarica tutte le fatture",
     "Enter your companys name": "Inserisci il nome della tua azienda",
-    "Enter your companys adress": "Inserisci l’indirzzo della tua azienda",
+    "Enter your companys address": "Inserisci l'indirizzo della tua azienda",
     "Enter your companys phone number": "Inserisci il numero di telefono dell'azienda",
     "Enter your companys VAT id": "Inserisci il numero di partita IVA della tua azienda",
-    "Enter your companys email adress": "Inserisci l’indirizzo email della tua azienda",
+    "Enter your companys email address": "Inserisci l’indirizzo email della tua azienda",
     "Enter your companys website": "Inserisci il sito della tua azienda",
     "Enter your custom invoice prefix": "Inserisci il prefisso personalizzato della fattura",
     "Select Invoice Logo": "Inserisci il logo della fattura",
@@ -320,5 +321,8 @@
     "Delete": "Elimina",
     "Login as User": "Accedi come utente",
     "Clone": "Clona",
-    "Amount due": "Importo dovuto"
+    "Amount due": "Importo dovuto",
+    "Your Payment was successful!": "Pagamento effettuato con successo!",
+    "Hello": "Ciao",
+    "Your payment was processed successfully!": "Il pagamento è stato effettuato con successo!"
 }

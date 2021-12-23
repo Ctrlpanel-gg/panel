@@ -155,6 +155,7 @@
     "If you did not receive the email": "如果您没有收到该邮件",
     "click here to request another": "请点击这里申请另一个",
     "Home": "首页",
+    "Languages": "语言",
     "See all Notifications": "查看所有通知",
     "Profile": "简介",
     "Log back in": "重新登录",
@@ -297,10 +298,10 @@
     "Invoice Settings": "发票设置",
     "Download all Invoices": "下载所有发票",
     "Enter your companys name": "输入你的公司名称",
-    "Enter your companys adress": "输入你的公司的地址",
+    "Enter your companys address": "输入你的公司的地址",
     "Enter your companys phone number": "输入你的公司的电话号码",
     "Enter your companys VAT id": "输入你的公司的增值税识别码",
-    "Enter your companys email adress": "输入公司的电子邮件地址",
+    "Enter your companys email address": "输入公司的电子邮件地址",
     "Enter your companys website": "输入你的公司网站",
     "Enter your custom invoice prefix": "输入你的自定义发票前缀",
     "Select Invoice Logo": "选择发票标志",
@@ -320,5 +321,8 @@
     "Delete": "删除",
     "Login as User": "以用户身份登录",
     "Clone": "克隆",
-    "Amount due": "应付金额"
+    "Amount due": "应付金额",
+    "Your Payment was successful!": "恭喜，您的订单支付成功 !",
+    "Hello": "您好",
+    "Your payment was processed successfully!": "您的请求已处理成功"
 }
