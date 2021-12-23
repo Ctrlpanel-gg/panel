@@ -79,7 +79,7 @@ return [
     | Can either be true or false
     |
     */
-    'dynamic_locale' => env('DYNAMIC_LOCALE', 'false'),
+    'dynamic_locale' => env('DYNAMIC_LOCALE', false),
 
     /*
     |--------------------------------------------------------------------------
