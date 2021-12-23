@@ -43,6 +43,8 @@ class ServerController extends Controller
             $server->egg = $serverRelationships['egg']['attributes']['name'];
             $server->nest = $serverRelationships['nest']['attributes']['name'];
 
+            $server->node = $serverRelationships['node']['attributes']['name'];
+
             //get productname by product_id for server
             $product = Product::find($server->product_id);
 

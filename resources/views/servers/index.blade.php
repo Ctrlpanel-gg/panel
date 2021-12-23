@@ -81,8 +81,11 @@
                                     <div class="col-5">
                                         {{ __('Location') }}:
                                     </div>
-                                    <div class="col-7">
+                                    <div class="col-7 d-flex justify-content-between align-items-center">
                                         <span class="">{{ $server->location }}</span>
+                                        <i data-toggle="popover" data-trigger="hover"
+                                            data-content="{{ __('Node') }}: {{ $server->node }}"
+                                            class="fas fa-info-circle"></i>
                                     </div>
 
                                 </div>

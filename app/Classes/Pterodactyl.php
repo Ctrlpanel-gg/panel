@@ -17,7 +17,7 @@ class Pterodactyl
     /**
      * @description per_page option to pull more than the default 50 from pterodactyl
      */
-    public CONST PER_PAGE = 200;
+    public const PER_PAGE = 200;
 
     //TODO: Extend error handling (maybe logger for more errors when debugging)
 
@@ -193,7 +193,6 @@ class Pterodactyl
                 "default" => $allocationId
             ]
         ]);
-
     }
 
     public static function suspendServer(Server $server)
@@ -245,7 +244,7 @@ class Pterodactyl
     public static function getServerAttributes(string $pterodactylId)
     {
         try {
-            $response = self::client()->get("/application/servers/{$pterodactylId}?include=egg,nest,location");
+            $response = self::client()->get("/application/servers/{$pterodactylId}?include=egg,node,nest,location");
         } catch (Exception $e) {
             throw self::getException();
         }
