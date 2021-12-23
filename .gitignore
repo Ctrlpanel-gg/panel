@@ -20,3 +20,4 @@ yarn-error.log
 .env.testing
 storage/invoices.zip
 storage/app/public/logo.png
+*vscode

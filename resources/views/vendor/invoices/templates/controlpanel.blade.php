@@ -364,15 +364,15 @@
 
         @if($invoice->notes)
             <p>
-                {{ trans('Notes') }}:<br/> {!! $invoice->notes !!}
+                {{ __('Notes') }}: {!! $invoice->notes !!}
             </p>
         @endif
 
         <p>
-            {{ trans('Amount in words') }}: {{ $invoice->getTotalAmountInWords() }}
+            {{ __('Amount in words') }}: {{ $invoice->getTotalAmountInWords() }}
         </p>
         <p>
-            {{ trans('Please pay until') }}: {{ $invoice->getPayUntilDate() }}
+            {{ __('Please pay until') }}: {{ $invoice->getPayUntilDate() }}
         </p>
 
         <script type="text/php">

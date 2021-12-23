@@ -24,8 +24,35 @@ class ServerController extends Controller
     /** Display a listing of the resource. */
     public function index()
     {
+        $servers = Auth::user()->servers;
+
+        //Get and set server infos each server
+        foreach ($servers as $server) {
+
+            //Get server infos from ptero
+            $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
+
+            $serverRelationships = $serverAttributes['relationships'];
+            $serverLocationAttributes = $serverRelationships['location']['attributes'];
+
+            //Set server infos
+            $server->location = $serverLocationAttributes['long'] ?
+                $serverLocationAttributes['long'] :
+                $serverLocationAttributes['short'];
+
+            $server->egg = $serverRelationships['egg']['attributes']['name'];
+            $server->nest = $serverRelationships['nest']['attributes']['name'];
+
+            $server->node = $serverRelationships['node']['attributes']['name'];
+
+            //get productname by product_id for server
+            $product = Product::find($server->product_id);
+
+            $server->product = $product;
+        }
+
         return view('servers.index')->with([
-            'servers' => Auth::user()->Servers
+            'servers' => $servers
         ]);
     }
 
@@ -134,10 +161,11 @@ class ServerController extends Controller
         $response = Pterodactyl::createServer($server, $egg, $allocationId);
         if ($response->failed()) return $this->serverCreationFailed($response, $server);
 
+        $serverAttributes = $response->json()['attributes'];
         //update server with pterodactyl_id
         $server->update([
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-            'identifier'     => $response->json()['attributes']['identifier']
+            'pterodactyl_id' => $serverAttributes['id'],
+            'identifier'     => $serverAttributes['identifier']
         ]);
 
         if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
