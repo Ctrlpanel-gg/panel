@@ -6,14 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>{{__('Servers')}}</h1>
+                    <h1>{{ __('Servers') }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('servers.index') }}">{{__('Servers')}}</a>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('servers.index') }}">{{ __('Servers') }}</a>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('servers.create') }}">{{__('Create')}}</a>
+                                href="{{ route('servers.create') }}">{{ __('Create') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -163,7 +163,8 @@
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-microchip"></i>
                                                         {{ __('CPU') }}</span>
-                                                    <span class=" d-inline-block" x-text="product.cpu + ' %'"></span>
+                                                    <span class=" d-inline-block"
+                                                        x-text="product.cpu + ' {{ __('vCores') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-memory"></i>
@@ -347,7 +348,12 @@
 
                     this.fetchedProducts = true;
                     // TODO: Sortable by user chosen property (cpu, ram, disk...)
-                    this.products = response.data.sort((p1, p2) => p1.price > p2.price && 1 || -1  )
+                    this.products = response.data.sort((p1, p2) => p1.price > p2.price && 1 || -1)
+
+                    //divide cpu by 100 for each product
+                    this.products.forEach(product => {
+                        product.cpu = product.cpu / 100;
+                    })
 
 
                     this.loading = false;
