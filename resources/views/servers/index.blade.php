@@ -38,10 +38,11 @@
                 </a>
             </div>
 
-            <div class="row d-flex flex-row justify-content-center justify-content-sm-start">
+            <div class="row d-flex flex-row justify-content-center justify-content-md-start">
                 @foreach ($servers as $server)
 
-                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0" style="max-width: 350px">
+                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
+                        style="max-width: 350px">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mt-1">{{ $server->name }}
