@@ -23,6 +23,12 @@
                                 <small><strong>{{ $message }}</strong></small>
                             </span>
                     @enderror
+                    @foreach ($errors->all() as $error)
+                        <span class="text-danger" role="alert">
+                                <small><strong>{!! $errors->first() !!}</strong></small>
+                            </span>
+
+                    @endforeach
 
                     @csrf
                     <div class="form-group">
