@@ -208,6 +208,8 @@ class UserController extends Controller
             'pterodactyl_id' => $response->json()['attributes']['id']
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         return $user;
     }
 
