@@ -23,12 +23,13 @@
                                 <small><strong>{{ $message }}</strong></small>
                             </span>
                     @enderror
-                    @foreach ($errors->all() as $error)
-                        <span class="text-danger" role="alert">
-                                <small><strong>{!! $errors->first() !!}</strong></small>
-                            </span>
-
-                    @endforeach
+                    @if( $errors->has('ptero') )
+                        @foreach( $errors->get('ptero') as $err )
+                            <span class="text-danger" role="alert">
+                                 <small><strong>{{ $err }}</strong></small>
+                           </span>
+                        @endforeach
+                    @endif
 
                     @csrf
                     <div class="form-group">
