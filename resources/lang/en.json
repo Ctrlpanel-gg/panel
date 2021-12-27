@@ -242,6 +242,7 @@
     "per month": "per month",
     "Out of Credits in": "Out of Credits in",
     "Home": "Home",
+    "Languages": "Languages",
     "See all Notifications": "See all Notifications",
     "Redeem code": "Redeem code",
     "Profile": "Profile",
@@ -292,6 +293,7 @@
     "Specification ": "Specification ",
     "Node": "Node",
     "Resource Data:": "Resource Data:",
+    "vCores": "vCores",
     "MB": "MB",
     "MySQL": "MySQL",
     "ports": "ports",
@@ -307,6 +309,8 @@
     "Software": "Software",
     "Specification": "Specification",
     "Resource plan": "Resource plan",
+    "RAM": "RAM",
+    "MySQL Databases": "MySQL Databases",
     "per Hour": "per Hour",
     "per Month": "per Month",
     "Manage": "Manage",
@@ -345,5 +349,6 @@
     "Total amount": "Total amount",
     "Notes": "Notes",
     "Amount in words": "Amount in words",
-    "Please pay until": "Please pay until"
+    "Please pay until": "Please pay until",
+    "Account already exists on Pterodactyl. Please contact the Support!": "Account already exists on Pterodactyl. Please contact the Support!"
 }
