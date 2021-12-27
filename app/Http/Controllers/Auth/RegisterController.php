@@ -110,7 +110,7 @@ class RegisterController extends Controller
         if ($response->failed()) {
             $user->delete();
             throw ValidationException::withMessages([
-                'ptero' => [__('Account already exists on Pterodactyl. Please contact the Support!')],
+                'ptero_registration_error' => [__('Account already exists on Pterodactyl. Please contact the Support!')],
             ]);
         }
 
