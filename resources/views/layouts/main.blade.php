@@ -41,11 +41,37 @@
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{route('home')}}" class="nav-link">{{__('Home')}}</a>
+                <a href="{{route('home')}}" class="nav-link"><i class="fas fa-home mr-2"></i>{{__('Home')}}</a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link" target="__blank">{{__('Discord')}}</a>
+                <a href="{{env('DISCORD_INVITE_URL')}}" class="nav-link" target="__blank"><i
+                        class="fab fa-discord mr-2"></i>{{__('Discord')}}</a>
             </li>
+            <!-- Language Selection -->
+            <li class="nav-item dropdown">
+                <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true"
+                   aria-expanded="false">
+                    <span class="mr-1 d-lg-inline text-gray-600">
+                        <small><i class="fa fa-language mr-2"></i></small>{{__("Languages")}}
+                    </span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="changeLocale">
+                    <form method="post" action="{{route('changeLocale')}}" class="nav-item text-center">
+                        @csrf
+                        @foreach (config("app.available_locales") as $key=>$value)
+                            @if(!in_array(strtolower($key),UNSUPPORTED_LANGS))
+                                <button class="dropdown-item" name="inputLocale" value="{{$value}}">
+                                    {{$key}}
+                                </button>
+                            @endif
+
+                        @endforeach
+
+                    </form>
+                </div>
+            </li>
+            <!-- End Language Selection -->
         </ul>
 
         <!-- Right navbar links -->
@@ -60,7 +86,8 @@
                     @endif
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                    <span class="dropdown-item dropdown-header">{{Auth::user()->unreadNotifications->count()}} {{__('Notifications')}}</span>
+                    <span
+                        class="dropdown-item dropdown-header">{{Auth::user()->unreadNotifications->count()}} {{__('Notifications')}}</span>
                     <div class="dropdown-divider"></div>
 
                     @foreach(Auth::user()->unreadNotifications->sortBy('created_at')->take(5) as $notification)
@@ -73,7 +100,8 @@
                     @endforeach
 
                     <div class="dropdown-divider"></div>
-                    <a href="{{route('notifications.index')}}" class="dropdown-item dropdown-footer">{{__('See all Notifications')}}</a>
+                    <a href="{{route('notifications.index')}}"
+                       class="dropdown-item dropdown-footer">{{__('See all Notifications')}}</a>
                 </div>
             </li>
 
@@ -263,23 +291,23 @@
                             </a>
                         </li>
 
-{{--                        <li class="nav-header">Pterodactyl</li>--}}
+                        {{--                        <li class="nav-header">Pterodactyl</li>--}}
 
-{{--                        <li class="nav-item">--}}
-{{--                            <a href="{{route('admin.nodes.index')}}"--}}
-{{--                               class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">--}}
-{{--                                <i class="nav-icon fas fa-sitemap"></i>--}}
-{{--                                <p>Nodes</p>--}}
-{{--                            </a>--}}
-{{--                        </li>--}}
+                        {{--                        <li class="nav-item">--}}
+                        {{--                            <a href="{{route('admin.nodes.index')}}"--}}
+                        {{--                               class="nav-link @if(Request::routeIs('admin.nodes.*')) active @endif">--}}
+                        {{--                                <i class="nav-icon fas fa-sitemap"></i>--}}
+                        {{--                                <p>Nodes</p>--}}
+                        {{--                            </a>--}}
+                        {{--                        </li>--}}
 
-{{--                        <li class="nav-item">--}}
-{{--                            <a href="{{route('admin.nests.index')}}"--}}
-{{--                               class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">--}}
-{{--                                <i class="nav-icon fas fa-th-large"></i>--}}
-{{--                                <p>Nests</p>--}}
-{{--                            </a>--}}
-{{--                        </li>--}}
+                        {{--                        <li class="nav-item">--}}
+                        {{--                            <a href="{{route('admin.nests.index')}}"--}}
+                        {{--                               class="nav-link @if(Request::routeIs('admin.nests.*')) active @endif">--}}
+                        {{--                                <i class="nav-icon fas fa-th-large"></i>--}}
+                        {{--                                <p>Nests</p>--}}
+                        {{--                            </a>--}}
+                        {{--                        </li>--}}
 
 
                         <li class="nav-header">{{__('Other')}}</li>
@@ -329,7 +357,9 @@
             @if(Auth::user()->created_at->diffInHours(now(), false) > 1)
                 <div class="alert alert-warning p-2 m-2">
                     <h5><i class="icon fas fa-exclamation-circle"></i> {{__('Warning!')}}</h5>
-                    {{__('You have not yet verified your email address')}} <a class="text-primary" href="{{route('verification.send')}}">{{__('Click here to resend verification email')}}</a> <br>
+                    {{__('You have not yet verified your email address')}} <a class="text-primary"
+                                                                              href="{{route('verification.send')}}">{{__('Click here to resend verification email')}}</a>
+                    <br>
                     {{__('Please contact support If you didnt receive your verification email.')}}
                 </div>
             @endif
@@ -343,7 +373,8 @@
     <footer class="main-footer">
         <strong>Copyright &copy; 2021-{{date('Y')}} <a href="{{url('/')}}">{{env('APP_NAME' , 'Laravel')}}</a>.</strong>
         All rights
-        reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. Version <b>{{config('app')['version']}}</b>
+        reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. Version
+        <b>{{config('app')['version']}}</b>
     </footer>
 
     <!-- Control Sidebar -->
@@ -376,15 +407,15 @@
 <!-- Select2 -->
 <script src={{asset('plugins/select2/js/select2.min.js')}}>
 
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
         $('[data-toggle="popover"]').popover();
 
         $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
+        headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+    });
     });
 </script>
 <script>
