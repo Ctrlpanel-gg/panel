@@ -88,9 +88,24 @@ class UserController extends Controller
             "role" => ['sometimes', Rule::in(['admin', 'mod', 'client', 'member'])],
         ]);
 
-        $user->update($request->all());
-
         event(new UserUpdateCreditsEvent($user));
+        
+        //Update Users Password on Pterodactyl
+        //Username,Mail,First and Lastname are required aswell
+        $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
+            "username" => $request->name,
+            "first_name" => $request->name,
+            "last_name" => $request->name,
+            "email" => $request->email,
+
+        ]);
+        if ($response->failed()) {
+            throw ValidationException::withMessages([
+                'pterodactyl_error_message' => $response->toException()->getMessage(),
+                'pterodactyl_error_status' => $response->toException()->getCode()
+            ]);
+        }
+        $user->update($request->all());
 
         return $user;
     }

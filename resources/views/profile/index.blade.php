@@ -11,7 +11,8 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('profile.index')}}">{{__('Profile')}}</a>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                                       href="{{route('profile.index')}}">{{__('Profile')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -28,9 +29,12 @@
                 <div class="col-lg-12 px-0">
                     @if(!Auth::user()->hasVerifiedEmail() && strtolower($force_email_verification) == 'true')
                         <div class="alert alert-warning p-2 m-2">
-                            <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Email verification!')}}</h5>
+                            <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Email verification!')}}
+                            </h5>
                             {{__('You have not yet verified your email address')}}
-                            <a class="text-primary" href="{{route('verification.send')}}">{{__('Click here to resend verification email')}}</a> <br>
+                            <a class="text-primary"
+                               href="{{route('verification.send')}}">{{__('Click here to resend verification email')}}</a>
+                            <br>
                             {{__('Please contact support If you didnt receive your verification email.')}}
                         </div>
                     @endif
@@ -38,14 +42,19 @@
                     @if(is_null(Auth::user()->discordUser) && strtolower($force_discord_verification) == 'true')
                         @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
                             <div class="alert alert-warning p-2 m-2">
-                                <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Discord verification!')}}</h5>
+                                <h5>
+                                    <i class="icon fas fa-exclamation-circle"></i>{{__('Required Discord verification!')}}
+                                </h5>
                                 {{__('You have not yet verified your discord account')}}
-                                <a class="text-primary" href="{{route('auth.redirect')}}">{{__('Login with discord')}}</a> <br>
+                                <a class="text-primary"
+                                   href="{{route('auth.redirect')}}">{{__('Login with discord')}}</a> <br>
                                 {{__('Please contact support If you face any issues.')}}
                             </div>
                         @else
                             <div class="alert alert-danger p-2 m-2">
-                                <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Discord verification!')}}</h5>
+                                <h5>
+                                    <i class="icon fas fa-exclamation-circle"></i>{{__('Required Discord verification!')}}
+                                </h5>
                                 {{__('Due to system settings you are required to verify your discord account!')}} <br>
                                 {{__('It looks like this hasnt been set-up correctly! Please contact support.')}}'
                             </div>
@@ -99,7 +108,8 @@
                                 </div>
                             </div>
                             <ul class="nav nav-tabs">
-                                <li class="nav-item"><a href="javasript:void(0)" class="active nav-link">{{__('Settings')}}</a>
+                                <li class="nav-item"><a href="javasript:void(0)"
+                                                        class="active nav-link">{{__('Settings')}}</a>
                                 </li>
                             </ul>
                             <div class="tab-content pt-3">
@@ -108,6 +118,20 @@
                                         <div class="col">
                                             <div class="row">
                                                 <div class="col">
+                                                    @if( $errors->has('pterodactyl_error_message') )
+                                                        @foreach( $errors->get('pterodactyl_error_message') as $err )
+                                                            <span class="text-danger" role="alert">
+                                                                <small><strong>{{ $err }}</strong></small>
+                                                            </span>
+                                                        @endforeach
+                                                    @endif
+                                                        @if( $errors->has('pterodactyl_error_status') )
+                                                            @foreach( $errors->get('pterodactyl_error_status') as $err )
+                                                                <span class="text-danger" role="alert">
+                                                                    <small><strong>{{ $err }}</strong></small>
+                                                                </span>
+                                                            @endforeach
+                                                        @endif
                                                     <div class="form-group"><label>{{__('Name')}}</label> <input
                                                             class="form-control @error('name') is-invalid @enderror"
                                                             type="text" name="name"
@@ -144,7 +168,8 @@
                                             <div class="mb-3"><b>{{__('Change Password')}}</b></div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>{{__('Current Password')}}</label> <input
+                                                    <div class="form-group"><label>{{__('Current Password')}}</label>
+                                                        <input
                                                             class="form-control @error('current_password') is-invalid @enderror"
                                                             name="current_password" type="password"
                                                             placeholder="••••••">
@@ -173,7 +198,8 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>{{__('Confirm Password')}}</span></label>
+                                                    <div class="form-group">
+                                                        <label>{{__('Confirm Password')}}</span></label>
                                                         <input
                                                             class="form-control @error('new_password_confirmation') is-invalid @enderror"
                                                             name="new_password_confirmation" type="password"
@@ -238,7 +264,8 @@
                                     </div>
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary" type="submit">{{__('Save Changes')}}</button>
+                                            <button class="btn btn-primary"
+                                                    type="submit">{{__('Save Changes')}}</button>
                                         </div>
                                     </div>
 
