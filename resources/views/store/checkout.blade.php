@@ -43,32 +43,6 @@
                             </div>
                             <!-- /.col -->
                         </div>
-                        <!-- info row -->
-                        <div class="row invoice-info">
-                            <div class="col-sm-4 invoice-col">
-                                {{ __('To') }}
-                                <address>
-                                    <strong>{{ config('app.name', 'Controlpanel.GG') }}</strong><br>
-                                    {{ __('Email') }}: {{ env('PAYPAL_EMAIL', env('MAIL_FROM_NAME')) }}
-                                </address>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                                {{ __('From') }}
-                                <address>
-                                    <strong>{{ Auth::user()->name }}</strong><br>
-                                    {{ __('Email') }}: {{ Auth::user()->email }}
-                                </address>
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-4 invoice-col">
-                                <b>{{ __('Status') }}</b><br>
-                                <span class="badge badge-warning">{{ __('Pending') }}</span><br>
-                                {{-- <b>Order ID:</b> 4F3S8J<br> --}}
-                            </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
 
                         <!-- Table row -->
                         <div class="row">
