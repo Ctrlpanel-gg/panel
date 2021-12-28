@@ -104,7 +104,7 @@ return [
     | If the dashboard is 100% translated in a certain language, it will be added here
     |
     */
-    'available_locales' => array('English'=>'en','German'=>'de','Italian'=>'it','Chinese'=>'zh'),
+    'available_locales' => array('English'=>'en','German'=>'de','Italian'=>'it','Chinese'=>'zh', 'Czech'=>'cs', 'Spanish'=>'es', 'Polish'=>'pl'),
 
 
     /*
