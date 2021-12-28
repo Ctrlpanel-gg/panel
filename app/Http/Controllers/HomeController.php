@@ -90,7 +90,7 @@ class HomeController extends Controller
 
         // RETURN ALL VALUES
         return view('home')->with([
-            'useage' => $usage,
+            'usage' => $usage,
             'credits' => $credits,
             'useful_links' => UsefulLink::all()->sortBy('id'),
             'bg' => $bg,
@@ -98,6 +98,4 @@ class HomeController extends Controller
             'unit' => $unit
         ]);
     }
-
 }
-
