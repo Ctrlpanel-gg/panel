@@ -266,7 +266,7 @@ class PaymentController extends Controller
             ],
 
             'mode' => 'payment',
-            "payment_method_types" => str_getcsv(env('STRIPE_METHODS')),
+            "payment_method_types" => str_getcsv(str_replace(' ', '', env('STRIPE_METHODS'))),
             'success_url' => route('payment.StripeSuccess',  ['product' => $creditProduct->id]) . '&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.Cancel'),
         ]);
@@ -522,7 +522,7 @@ class PaymentController extends Controller
             ->pricePerUnit($creditProduct->price);
 
         $notes = [
-            __("Payment method") .": ". $payment->payment_method,
+            __("Payment method") . ": " . $payment->payment_method,
         ];
         $notes = implode("<br>", $notes);
 
