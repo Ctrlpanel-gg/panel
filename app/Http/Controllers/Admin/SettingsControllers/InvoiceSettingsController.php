@@ -1,47 +1,27 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\SettingsControllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceSettings;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use ZipArchive;
 
-class SettingsController extends Controller
+class InvoiceSettingsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Application|Factory|View|Response
-     */
-    public function index()
-    {
-        /** @var InvoiceSettings $invoiceSettings */
-        $invoiceSettings = InvoiceSettings::first();
+    public $tabTitle = 'Invoice Settings';
+    public $invoiceSettings;
 
-        return view('admin.settings.index', $invoiceSettings->toArray());
+    public function __construct()
+    {
+        $this->invoiceSettings = InvoiceSettings::first();
     }
 
-    public function updateIcons(Request $request)
+    public function index()
     {
-        $request->validate([
-            'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
-            'favicon' => 'nullable|max:10000|mimes:ico',
+        return view('admin.settings.tabs.invoice', [
+            'invoiceSettings' => $this->invoiceSettings,
         ]);
-
-        if ($request->hasFile('icon')) {
-            $request->file('icon')->storeAs('public', 'icon.png');
-        }
-
-        if ($request->hasFile('favicon')) {
-            $request->file('favicon')->storeAs('public', 'favicon.ico');
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', __('Icons updated!'));
     }
 
     public function updateInvoiceSettings(Request $request)
@@ -96,5 +76,4 @@ class SettingsController extends Controller
         }
         return $files;
     }
-
 }
