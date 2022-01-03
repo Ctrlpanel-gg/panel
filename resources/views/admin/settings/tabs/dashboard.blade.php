@@ -36,8 +36,8 @@
         <button class="btn btn-primary">{{ __('Submit') }}</button>
     </form>
 
-    <p class="text-muted">Images and Icons may be cached, use <code>CNTRL +
-            F5</code><sup>(google
-            chrome hotkey)</sup> to reload without cache to see your changes appear :)</p>
+    <p class="text-muted">
+        {{ __('Images and Icons may be cached, reload without cache to see your changes appear') }}
+    </p>
 
 </div>
