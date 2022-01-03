@@ -89,7 +89,7 @@ class UserController extends Controller
         ]);
 
         event(new UserUpdateCreditsEvent($user));
-        
+
         //Update Users Password on Pterodactyl
         //Username,Mail,First and Lastname are required aswell
         $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
@@ -177,6 +177,53 @@ class UserController extends Controller
             ]);
             $user->decrement('server_limit', $request->server_limit);
         }
+
+        return $user;
+    }
+
+    /**
+     * Suspends the user
+     *
+     * @param Request $request
+     * @param int $id
+     * @return bool
+     * @throws ValidationException
+     */
+    public function suspend(Request $request, int $id)
+    {
+        $discordUser = DiscordUser::find($id);
+        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+
+        if ($user->isSuspended()) {
+                throw ValidationException::withMessages([
+                    'error' => 'The user is already suspended',
+                ]);
+        }
+        $user->suspend();
+
+        return $user;
+    }
+
+    /**
+     * Suspends the user
+     *
+     * @param Request $request
+     * @param int $id
+     * @return bool
+     * @throws ValidationException
+     */
+    public function unsuspend(Request $request, int $id)
+    {
+        $discordUser = DiscordUser::find($id);
+        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+
+        if (!$user->isSuspended()) {
+            throw ValidationException::withMessages([
+                'error' => "You cannot unsuspend an User who is not suspended."
+            ]);
+        }
+
+        $user->unSuspend();
 
         return $user;
     }
