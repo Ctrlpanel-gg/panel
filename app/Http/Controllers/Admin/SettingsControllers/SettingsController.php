@@ -26,18 +26,19 @@ class SettingsController extends Controller
             $tabs[] = 'admin.settings.tabs.' . basename($filename, '.blade.php');
         }
 
-        // <li class="nav-item">
-        //     <a class="nav-link" data-toggle="pill" href="#invoice">{{ __('Invoice Settings2') }}</a>
-        // </li>
-
-        //Generate a html list item for each tab based on tabs file basename
-        $tabsListItem = [];
+        //Generate a html list item for each tab based on tabs file basename, set first tab as active
+        $tabListItems = [];
         foreach ($tabs as $tab) {
-            $tabsListItem[] = '<li class="nav-item"><a class="nav-link" href="' . route('admin.settings.index', ['tab' => $tab]) . '">' . str_replace('_', ' ', ucfirst(basename($tab, '.blade.php'))) . '</a></li>';
+            $tabName = str_replace('admin.settings.tabs.', '', $tab);
+            $tabListItems[] = '<li class="nav-item">
+            <a class="nav-link ' . (empty($tabListItems) ? 'active' : '') . '" data-toggle="pill" href="#' . $tabName . '">
+            ' . __(ucfirst($tabName)) . '
+            </a></li>';
         }
 
         return view('admin.settings.index', [
             'tabs' => $tabs,
+            'tabListItems' => $tabListItems,
         ]);;
     }
 

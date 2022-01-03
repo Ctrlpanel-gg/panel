@@ -1,3 +1,5 @@
+@inject('Invoices', 'App\Http\Controllers\Admin\SettingsControllers\InvoiceSettingsController')
+
 <div class="tab-pane mt-3" id="invoice">
     <div class="float-right">
         <a href="{{ route('admin.settings.downloadAllInvoices') }}"><button
@@ -15,7 +17,7 @@
                     <div class="custom-control mb-3">
                         <label for="company-name">{{ __('Enter your companys name') }}</label>
                         <input x-model="company-name" id="company-name" name="company-name" type="text"
-                            value="{{ $invoiceSettings->company_name }}"
+                            value="{{ $Invoices->invoiceSettings->company_name }}"
                             class="form-control @error('company-name') is-invalid @enderror">
                     </div>
                 </div>
