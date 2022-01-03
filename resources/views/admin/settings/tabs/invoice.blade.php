@@ -1,4 +1,4 @@
-@inject('Invoices', 'App\Http\Controllers\Admin\SettingsControllers\InvoiceSettingsController')
+@inject('Invoices', 'App\Classes\Settings\InvoiceSettingsC')
 
 <div class="tab-pane mt-3" id="invoice">
     <div class="float-right">

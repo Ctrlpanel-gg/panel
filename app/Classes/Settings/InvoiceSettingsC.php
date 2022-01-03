@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Admin\SettingsControllers;
+namespace App\Classes\Settings;
 
-use App\Http\Controllers\Controller;
 use App\Models\InvoiceSettings;
 use Illuminate\Http\Request;
 use ZipArchive;
 
-class InvoiceSettingsController extends Controller
+class InvoiceSettingsC
 {
     public $tabTitle = 'Invoice Settings';
     public $invoiceSettings;
@@ -17,12 +16,6 @@ class InvoiceSettingsController extends Controller
         $this->invoiceSettings = InvoiceSettings::first();
     }
 
-    public function index()
-    {
-        return view('admin.settings.tabs.invoice', [
-            'invoiceSettings' => $this->invoiceSettings,
-        ]);
-    }
 
     public function updateInvoiceSettings(Request $request)
     {
