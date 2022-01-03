@@ -1,4 +1,4 @@
-<div class="tab-pane mt-3 active" id="dashboard">
+<div class="tab-pane mt-3" id="dashboard">
     <form method="POST" enctype="multipart/form-data" class="mb-3"
         action="{{ route('admin.settings.update.icons') }}">
         @csrf

@@ -128,8 +128,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #configuration
         Route::get('configurations/datatable', [ConfigurationController::class, 'datatable'])->name('configurations.datatable');
         Route::patch('configurations/updatevalue', [ConfigurationController::class, 'updatevalue'])->name('configurations.updatevalue');
-        Route::resource('configurations', ConfigurationController::class);
-        Route::resource('configurations', ConfigurationController::class);
 
         #settings
         Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
