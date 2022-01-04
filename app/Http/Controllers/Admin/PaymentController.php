@@ -591,6 +591,11 @@ class PaymentController extends Controller
             ->editColumn('created_at', function (Payment $payment) {
                 return $payment->created_at ? $payment->created_at->diffForHumans() : '';
             })
-            ->make();
+            ->addColumn('actions', function (Payment $payment) {
+                return ' <a data-content="'.__("Download").'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice',"id=".$payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>
+';
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\ConfigurationController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\CreditProductController;
@@ -132,8 +133,11 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #settings
         Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
         Route::patch('settings/update/invoice-settings', [SettingsController::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
-        Route::get('settings/download-invoices', [SettingsController::class, 'downloadAllInvoices'])->name('settings.downloadAllInvoices');;
         Route::resource('settings', SettingsController::class)->only('index');
+
+        #invoices
+        Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');;
+        Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');;
 
         #usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');

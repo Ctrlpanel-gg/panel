@@ -1,10 +1,6 @@
 @inject('Invoices', 'App\Classes\Settings\InvoiceSettingsC')
 
 <div class="tab-pane mt-3" id="invoice">
-    <div class="float-right">
-        <a href="{{ route('admin.settings.downloadAllInvoices') }}"><button
-                class="btn btn-success">{{ __('Download all Invoices') }}</button></a>
-    </div>
     <form method="POST" enctype="multipart/form-data" class="mb-3"
         action="{{ route('admin.settings.update.invoicesettings') }}">
         @csrf
