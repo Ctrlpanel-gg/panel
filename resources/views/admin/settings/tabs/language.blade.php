@@ -34,20 +34,21 @@
                 </div>
 
                 <div class="form-group">
-                        <input value="autotranslate" id="autotranslate" name="autotranslate"
-                               type="checkbox">
-                        <label for="autotranslate">{{__('Auto-translate')}} <i data-toggle="popover"
-                                                                         data-trigger="hover"
-                                                                         data-content="{{__('If this is checked, the Dashboard will translate itself to the Clients language, if available')}}"
-                                                                         class="fas fa-info-circle"></i></label>
+                    <input value="autotranslate" id="autotranslate" name="autotranslate"
+                           type="checkbox">
+                    <label for="autotranslate">{{__('Auto-translate')}} <i data-toggle="popover"
+                                                                           data-trigger="hover"
+                                                                           data-content="{{__('If this is checked, the Dashboard will translate itself to the Clients language, if available')}}"
+                                                                           class="fas fa-info-circle"></i></label>
 
                     <br/>
                     <input value="canClientChangeLanguage" id="canClientChangeLanguage" name="canClientChangeLanguage"
                            type="checkbox">
-                    <label for="canClientChangeLanguage">{{__('Let the Client change the Language')}} <i data-toggle="popover"
-                                                                           data-trigger="hover"
-                                                                           data-content="{{__('If this is checked, Clients will have the ability to manually change their Dashboard language')}}"
-                                                                           class="fas fa-info-circle"></i></label>
+                    <label for="canClientChangeLanguage">{{__('Let the Client change the Language')}} <i
+                            data-toggle="popover"
+                            data-trigger="hover"
+                            data-content="{{__('If this is checked, Clients will have the ability to manually change their Dashboard language')}}"
+                            class="fas fa-info-circle"></i></label>
 
                 </div>
             </div>
