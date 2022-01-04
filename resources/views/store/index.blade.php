@@ -81,4 +81,23 @@
     </section>
     <!-- END CONTENT -->
 
+    <script>
+        const getUrlParameter = (param) => {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(param);
+        }
+
+        const voucherCode = getUrlParameter('voucher');
+        //if voucherCode not empty, open the modal and fill the input
+        if (voucherCode) {
+            $(function() {
+                $('#redeemVoucherModal').modal('show');
+                $('#redeemVoucherCode').val(voucherCode);
+            });
+
+        }
+    </script>
+
+
 @endsection
