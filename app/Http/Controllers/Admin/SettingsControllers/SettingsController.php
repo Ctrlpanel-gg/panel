@@ -38,7 +38,7 @@ class SettingsController extends Controller
         return view('admin.settings.index', [
             'tabs' => $tabs,
             'tabListItems' => $tabListItems,
-        ]);;
+        ]);
     }
 
     public function updateIcons(Request $request)
@@ -83,6 +83,11 @@ class SettingsController extends Controller
 
 
         return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
+    }
+
+    public function updateLanguageSettings (Request $request){
+
+
     }
 
 }

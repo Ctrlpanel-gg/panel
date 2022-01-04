@@ -57,7 +57,7 @@
                     <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                         <span class="mr-1 d-lg-inline text-gray-600">
-                            <small><i class="fa fa-language mr-2"></i></small>{{ __('Languages') }}
+                            <small><i class="fa fa-language mr-2"></i></small>{{ __('Language') }}
                         </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
