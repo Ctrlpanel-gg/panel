@@ -7,7 +7,7 @@
         @method('PATCH')
 
         <div class="row">
-            <div class="col-md-6 col-lg-4 col-12">
+            <div class="col-md-6">
                 <!-- Name -->
                 <div class="form-group">
                     <div class="custom-control mb-3">
@@ -45,7 +45,8 @@
                             class="form-control @error('company-vat') is-invalid @enderror">
                     </div>
                 </div>
-
+            </div>
+            <div class="col-md-6">
                 <!-- email -->
                 <div class="form-group">
                     <div class="custom-control mb-3">
@@ -92,8 +93,12 @@
                         </span>
                     @enderror
                 </div>
+
             </div>
         </div>
         <button class="btn btn-primary">{{ __('Submit') }}</button>
+
         <!-- end -->
+
+    </form>
 </div>
