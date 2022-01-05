@@ -205,5 +205,46 @@ class SettingsSeeder extends Seeder
             'type'  => 'string',
             'description'  => 'The invoice prefix'
         ]);
+
+        //Locale
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::LOCALE:DEFAULT',
+        ], [
+            'value' => 'en',
+            'type'  => 'string',
+            'description'  => 'The default Language the dashboard will be shown in'
+        ]);
+        //Dynamic locale
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::LOCALE:DYNAMIC',
+        ], [
+            'value' => 'false',
+            'type'  => 'boolean',
+            'description'  => 'If this is true, the Language will change to the Clients browserlanguage or default.'
+        ]);
+        //User can change Locale
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::LOCALE:CLIENTS_CAN_CHANGE',
+        ], [
+            'value' => 'false',
+            'type'  => 'boolean',
+            'description'  => 'If this is true, the clients will be able to change their Locale.'
+        ]);
+        //Locale
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::LOCALE:AVAILABLE',
+        ], [
+            'value' => 'en,de,fr,es',
+            'type'  => 'string',
+            'description'  => 'The available languages'
+        ]);
+        //Locale
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::LOCALE:DATATABLES',
+        ], [
+            'value' => 'en-gb',
+            'type'  => 'string',
+            'description'  => 'The Language of the Datatables. Grab the Language-Codes from here https://datatables.net/plug-ins/i18n/'
+        ]);
     }
 }

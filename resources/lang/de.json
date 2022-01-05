@@ -350,5 +350,7 @@
     "Notes": "Notizen",
     "Amount in words": "Betrag in Worten",
     "Please pay until": "Zahlbar bis",
-    "Account already exists on Pterodactyl. Please contact the Support!": "Der Account existiert bereits bei Pterodactyl. Kontaktiere den Support!"
+    "Account already exists on Pterodactyl. Please contact the Support!": "Der Account existiert bereits bei Pterodactyl. Kontaktiere den Support!",
+    "de": "Deutsch",
+    "en": "Englisch"
 }

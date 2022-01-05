@@ -53,6 +53,7 @@
                             class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
                 </li>
                 <!-- Language Selection -->
+                @if (\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:CLIENTS_CAN_CHANGE")=='true')
                 <li class="nav-item dropdown">
                     <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
@@ -64,12 +65,10 @@
                         aria-labelledby="changeLocale">
                         <form method="post" action="{{ route('changeLocale') }}" class="nav-item text-center">
                             @csrf
-                            @foreach (config('app.available_locales') as $key => $value)
-                                @if (!in_array(strtolower($key), UNSUPPORTED_LANGS))
-                                    <button class="dropdown-item" name="inputLocale" value="{{ $value }}">
-                                        {{ $key }}
+                            @foreach (json_decode(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:AVAILABLE")) as $key)
+                                    <button class="dropdown-item" name="inputLocale" value="{{ $key }}">
+                                        {{ __($key) }}
                                     </button>
-                                @endif
 
                             @endforeach
 
@@ -77,6 +76,7 @@
                     </div>
                 </li>
                 <!-- End Language Selection -->
+            @endif
             </ul>
 
             <!-- Right navbar links -->

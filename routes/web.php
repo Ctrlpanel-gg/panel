@@ -23,6 +23,8 @@ use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Classes\Settings\LanguageSettingsC;
+use App\Classes\Settings\InvoiceSettingsC;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,8 +133,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
         #settings
         Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
-        Route::patch('settings/update/invoice-settings', [\App\Classes\Settings\InvoiceSettingsC::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
-        Route::patch('settings/update/lagnguage', [SettingsController::class, 'updateLanguageSettings'])->name('settings.update.languagesettings');
+        Route::patch('settings/update/invoice-settings', [InvoiceSettingsC::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
+        Route::patch('settings/update/language', [LanguageSettingsC::class, 'updateLanguageSettings'])->name('settings.update.languagesettings');
         Route::resource('settings', SettingsController::class)->only('index');
 
         #invoices
