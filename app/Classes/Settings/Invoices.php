@@ -6,7 +6,7 @@ use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
-class InvoiceSettingsC
+class Invoices
 {
     public $tabTitle = 'Invoice Settings';
     public $invoiceSettings;
@@ -23,7 +23,7 @@ class InvoiceSettingsC
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
         ]);
 
-        $values=[
+        $values = [
             //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
             "SETTINGS::INVOICE:COMPANY_NAME" => "company-name",
             "SETTINGS::INVOICE:COMPANY_ADDRESS" => "company-address",
@@ -34,9 +34,9 @@ class InvoiceSettingsC
             "SETTINGS::INVOICE:PREFIX" => "invoice-prefix"
         ];
 
-        foreach($values as $key=>$value){
+        foreach ($values as $key => $value) {
             Settings::where('key', $key)->update(['value' => $request->get($value)]);
-            Cache::forget("setting" .':'. $key);
+            Cache::forget("setting" . ':' . $key);
         }
 
 
@@ -47,5 +47,4 @@ class InvoiceSettingsC
 
         return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
     }
-
 }

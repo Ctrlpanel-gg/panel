@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 
-class LanguageSettingsC
+class Language
 {
     public $tabTitle = 'Language Settings';
     public $languageSettings;

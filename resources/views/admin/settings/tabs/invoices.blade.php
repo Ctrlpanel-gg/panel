@@ -1,4 +1,4 @@
-@inject('Invoices', 'App\Classes\Settings\InvoiceSettingsC')
+@inject('Invoices', 'App\Classes\Settings\Invoices')
 @inject('Settings', 'App\Models\Settings')
 
 <div class="tab-pane mt-3" id="invoice">
