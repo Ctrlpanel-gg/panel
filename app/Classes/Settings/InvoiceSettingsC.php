@@ -4,6 +4,7 @@ namespace App\Classes\Settings;
 
 use App\Models\Settings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class InvoiceSettingsC
 {
@@ -22,29 +23,20 @@ class InvoiceSettingsC
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
         ]);
 
-        $name = Settings::find("SETTINGS::INVOICE:COMPANY_NAME");
-        $address = Settings::find("SETTINGS::INVOICE:COMPANY_ADDRESS");
-        $phone = Settings::find("SETTINGS::INVOICE:COMPANY_PHONE");
-        $mail = Settings::find("SETTINGS::INVOICE:COMPANY_MAIL");
-        $vat = Settings::find("SETTINGS::INVOICE:COMPANY_VAT");
-        $web = Settings::find("SETTINGS::INVOICE:COMPANY_WEBSITE");
-        $prefix = Settings::find("SETTINGS::INVOICE:PREFIX");
+        $values=[
+            "SETTINGS::INVOICE:COMPANY_NAME" => "company-name",
+            "SETTINGS::INVOICE:COMPANY_ADDRESS" => "company-address",
+            "SETTINGS::INVOICE:COMPANY_PHONE" => "company-phone",
+            "SETTINGS::INVOICE:COMPANY_MAIL" => "company-mail",
+            "SETTINGS::INVOICE:COMPANY_VAT" => "company-vat",
+            "SETTINGS::INVOICE:COMPANY_WEBSITE" => "company-web",
+            "SETTINGS::INVOICE:PREFIX" => "invoice-prefix"
+        ];
 
-        $name->value=$request->get('company-name');
-        $address->value=$request->get('company-address');
-        $phone->value=$request->get('company-phone');
-        $mail->value=$request->get('company-mail');
-        $vat->value=$request->get('company-vat');
-        $web->value=$request->get('company-web');
-        $prefix->value=$request->get('invoice-prefix');
-
-        $name->save();
-        $address->save();
-        $phone->save();
-        $mail->save();
-        $vat->save();
-        $web->save();
-        $prefix->save();
+        foreach($values as $key=>$value){
+            Settings::where('key', $key)->update(['value' => $request->get($value)]);
+            Cache::forget("setting" .':'. $key);
+        }
 
 
         if ($request->hasFile('logo')) {
