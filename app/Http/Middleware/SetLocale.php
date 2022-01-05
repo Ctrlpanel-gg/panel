@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Settings;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -208,18 +209,17 @@ class SetLocale
      */
     public function handle($request, Closure $next)
     {
-
             if (Session::has('locale')) {
-                $locale = Session::get('locale', config('app.locale'));
+                $locale = Session::get('locale', Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT"));
             } else {
-                if (!config('app.dynamic_locale')) {
-                    $locale = config('app.locale');
+                if (Settings::getValueByKey("SETTINGS::LOCALE:DYNAMIC") == "false") {
+                    $locale = Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT");
                 }else{
                     $locale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
 
-                    if (!in_array($locale, config('app.available_locales'))
-                        || in_array(strtolower($this->getLocaleCodeForDisplayLanguage($locale)), UNSUPPORTED_LANGS)) {
-                        $locale = config('app.locale');
+                    if (!in_array($locale, array_flip(preg_split ("/\,/", Settings::getValueByKey("SETTINGS::LOCALE:AVAILABLE"))))
+                        || !in_array(strtolower($this->getLocaleCodeForDisplayLanguage($locale)), array_flip(preg_split ("/\,/", Settings::getValueByKey("SETTINGS::LOCALE:AVAILABLE"))))) {
+                        $locale = Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT");
                     }
 
                 }

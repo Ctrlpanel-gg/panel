@@ -33,8 +33,19 @@
                     </select>
                 </div>
 
+
+                        <label for="datatable-language">Datable Language <i data-toggle="popover"
+                                                                            data-trigger="hover"
+                                                                            data-content="{{__('The Language of the Datatables. Grab the Language-Codes from here')}} https://datatables.net/plug-ins/i18n/"
+                                                                            class="fas fa-info-circle"></i></label>
+                        <input x-model="datatable-language" id="datatable-language" name="datatable-language" type="text" required
+                               value="{{ App\Models\Settings::getValueByKey("SETTINGS::LOCALE:DATATABLES") }}"
+                               class="form-control @error('datatable-language') is-invalid @enderror">
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <input value="autotranslate" id="autotranslate" name="autotranslate"
+                    <input value="true" id="autotranslate" name="autotranslate"
                            type="checkbox">
                     <label for="autotranslate">{{__('Auto-translate')}} <i data-toggle="popover"
                                                                            data-trigger="hover"
@@ -42,7 +53,7 @@
                                                                            class="fas fa-info-circle"></i></label>
 
                     <br/>
-                    <input value="canClientChangeLanguage" id="canClientChangeLanguage" name="canClientChangeLanguage"
+                    <input value="true" id="canClientChangeLanguage" name="canClientChangeLanguage"
                            type="checkbox">
                     <label for="canClientChangeLanguage">{{__('Let the Client change the Language')}} <i
                             data-toggle="popover"

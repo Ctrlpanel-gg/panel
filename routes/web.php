@@ -132,7 +132,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #settings
         Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
         Route::patch('settings/update/invoice-settings', [\App\Classes\Settings\InvoiceSettingsC::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
-        Route::patch('settings/update/lagnguage', [SettingsController::class, 'updateLanguageSettings'])->name('settings.update.languagesettings');
+        Route::patch('settings/update/language', [\App\Classes\Settings\LanguageSettingsC::class, 'updateLanguageSettings'])->name('settings.update.languagesettings');
         Route::resource('settings', SettingsController::class)->only('index');
 
         #invoices

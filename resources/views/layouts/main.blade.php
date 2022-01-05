@@ -53,6 +53,7 @@
                             class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
                 </li>
                 <!-- Language Selection -->
+                @if(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:CAN_CLIENT_CHANGE"))
                 <li class="nav-item dropdown">
                     <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
@@ -77,6 +78,7 @@
                     </div>
                 </li>
                 <!-- End Language Selection -->
+                @endif
             </ul>
 
             <!-- Right navbar links -->
