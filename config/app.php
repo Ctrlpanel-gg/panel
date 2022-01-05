@@ -88,6 +88,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Available Languages
+    |--------------------------------------------------------------------------
+    |
+    | The application locale determines the default locale that will be used
+    | by the translation service provider. You are free to set this value
+    | to any of the locales which will be supported by the application.
+    |
+    */
+
+    'available_locales' =>["en","cs","de","es","fr","hi","it","pl","zh"],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Fallback Locale
     |--------------------------------------------------------------------------
     |

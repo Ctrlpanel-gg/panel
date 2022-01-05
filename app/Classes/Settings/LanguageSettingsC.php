@@ -20,7 +20,7 @@ class LanguageSettingsC
     public function updateLanguageSettings(Request $request)
     {
 
-        $values=[
+        $values = [
             //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
             "SETTINGS::LOCALE:DEFAULT" => "defaultLanguage",
             "SETTINGS::LOCALE:DYNAMIC" => "autotranslate",
@@ -29,9 +29,9 @@ class LanguageSettingsC
             "SETTINGS::LOCALE:DATATABLES" => "datatable-language"
         ];
 
-        foreach($values as $key=>$value){
+        foreach ($values as $key => $value) {
             Settings::where('key', $key)->update(['value' => $request->get($value)]);
-            Cache::forget("setting" .':'. $key);
+            Cache::forget("setting" . ':' . $key);
         }
 
 
