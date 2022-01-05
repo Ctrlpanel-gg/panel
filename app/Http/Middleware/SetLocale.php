@@ -24,7 +24,7 @@ class SetLocale
         if (Session::has('locale')) {
             $locale = Session::get('locale', Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT"));
         } else {
-            if (Settings::getValueByKey("SETTINGS::LOCALE:DYNAMIC") == "false") {
+            if (!Settings::getValueByKey("SETTINGS::LOCALE:DYNAMIC")=="true") {
                 $locale = Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT");
             } else {
                 $locale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);

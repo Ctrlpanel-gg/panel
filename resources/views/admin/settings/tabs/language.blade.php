@@ -7,16 +7,20 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
+                    <!-- AVAILABLE LANGUAGES -->
                     <label for="languages">{{__("Available languages")}}:</label>
 
                     <select id="languages" style="width:100%"
                             class="custom-select" name="languages[]"
+                            required
                             multiple="multiple" autocomplete="off">
                         @foreach(config("app.available_locales") as $lang)
                             <option value="{{$lang}}">{{__($lang)}}</option>
                         @endforeach
                     </select>
 
+
+                    <!-- DEFAULT LANGUAGE -->
                     <label for="defaultLanguage">{{__("Default language")}}: <i data-toggle="popover"
                                                                                 data-trigger="hover"
                                                                                 data-content="{{__('The fallback Language, if something goes wrong')}}"
@@ -24,17 +28,20 @@
 
                     <select id="defaultLanguage" style="width:100%"
                             class="custom-select" name="defaultLanguage"
+                            required
                             autocomplete="off">
-                        <option disabled
-                                selected>{{__(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT"))}}</option>
+                        <option
+                                value="{{\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT")}}"
+                                selected>
+                            {{__(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT"))}}</option>
                         @foreach(config("app.available_locales") as $lang)
                             <option value="{{$lang}}">{{__($lang)}}</option>
                         @endforeach
                     </select>
                 </div>
 
-
-                <label for="datatable-language">Datable Language <i data-toggle="popover"
+                <!--DATATABLE LANGUAGE -->
+                <label for="datatable-language">{{__('Datable language')}} <i data-toggle="popover"
                                                                     data-trigger="hover"
                                                                     data-content="{{__('The Language of the Datatables. Grab the Language-Codes from here')}} https://datatables.net/plug-ins/i18n/"
                                                                     class="fas fa-info-circle"></i></label>
@@ -45,6 +52,7 @@
             </div>
         </div>
 
+        <!-- AUTO TRANSLATE -->
         <div class="form-group">
             <input value="true" id="autotranslate" name="autotranslate"
                    {{(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:DYNAMIC")?"checked":"")}}
@@ -55,6 +63,8 @@
                                                                    class="fas fa-info-circle"></i></label>
 
             <br/>
+
+            <!-- CLIENTS CAN CHANGE -->
             <input value="true" id="canClientChangeLanguage" name="canClientChangeLanguage"
                    {{(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:CLIENTS_CAN_CHANGE")?"checked":"")}}
                    type="checkbox">
@@ -65,11 +75,13 @@
                     class="fas fa-info-circle"></i></label>
 
         </div>
-</div>
+        <button class="btn btn-primary">{{ __('Save') }}</button>
+    </form>
 </div>
 
-<button class="btn btn-primary">{{ __('Save') }}</button>
-</form>
+</div>
+
+
 
 
 </div>
