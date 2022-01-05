@@ -1,4 +1,5 @@
 @inject('Invoices', 'App\Classes\Settings\InvoiceSettingsC')
+@inject('Settings', 'App\Models\Settings')
 
 <div class="tab-pane mt-3" id="invoice">
     <form method="POST" enctype="multipart/form-data" class="mb-3"
@@ -12,8 +13,8 @@
                 <div class="form-group">
                     <div class="custom-control mb-3">
                         <label for="company-name">{{ __('Enter your companys name') }}</label>
-                        <input x-model="company-name" id="company-name" name="company-name" type="text"
-                            value="{{ $Invoices->invoiceSettings->company_name }}"
+                        <input x-model="company-name" id="company-name" name="company-name" type="text" required
+                            value="{{ App\Models\Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_NAME") }}"
                             class="form-control @error('company-name') is-invalid @enderror">
                     </div>
                 </div>
@@ -22,7 +23,7 @@
                     <div class="custom-control mb-3">
                         <label for="company-address">{{ __('Enter your companys address') }}</label>
                         <input x-model="company-address" id="company-address" name="company-address" type="text"
-                            value="{{ $Invoices->invoiceSettings->company_address }}"
+                            value="{{ App\Models\Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_ADDRESS") }}"
                             class="form-control @error('company-address') is-invalid @enderror">
                     </div>
                 </div>
@@ -31,7 +32,7 @@
                     <div class="custom-control mb-3">
                         <label for="company-phone">{{ __('Enter your companys phone number') }}</label>
                         <input x-model="company-phone" id="company-phone" name="company-phone" type="text"
-                            value="{{ $Invoices->invoiceSettings->company_phone }}"
+                            value="{{ App\Models\Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_PHONE") }}"
                             class="form-control @error('company-phone') is-invalid @enderror">
                     </div>
                 </div>
@@ -41,7 +42,7 @@
                     <div class="custom-control mb-3">
                         <label for="company-vat">{{ __('Enter your companys VAT id') }}</label>
                         <input x-model="company-vat" id="company-vat" name="company-vat" type="text"
-                            value="{{ $Invoices->invoiceSettings->company_vat }}"
+                            value="{{ App\Models\Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_VAT") }}"
                             class="form-control @error('company-vat') is-invalid @enderror">
                     </div>
                 </div>
@@ -52,7 +53,7 @@
                     <div class="custom-control mb-3">
                         <label for="company-mail">{{ __('Enter your companys email address') }}</label>
                         <input x-model="company-mail" id="company-mail" name="company-mail" type="text"
-                            value="{{ $Invoices->invoiceSettings->company_mail }}"
+                            value="{{ App\Models\Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_MAIL") }}"
                             class="form-control @error('company-mail') is-invalid @enderror">
                     </div>
                 </div>
@@ -61,17 +62,17 @@
                     <div class="custom-control mb-3">
                         <label for="company-web">{{ __('Enter your companys website') }}</label>
                         <input x-model="company-web" id="company-web" name="company-web" type="text"
-                            value="{{ $Invoices->invoiceSettings->company_web }}"
+                            value="{{ App\Models\Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_WEBSITE") }}"
                             class="form-control @error('company-web') is-invalid @enderror">
                     </div>
                 </div>
 
-                <!-- website -->
+                <!-- prefix -->
                 <div class="form-group">
                     <div class="custom-control mb-3">
                         <label for="invoice-prefix">{{ __('Enter your custom invoice prefix') }}</label>
-                        <input x-model="invoice-prefix" id="invoice-prefix" name="invoice-prefix" type="text"
-                            value="{{ $Invoices->invoiceSettings->invoice_prefix }}"
+                        <input x-model="invoice-prefix" id="invoice-prefix" name="invoice-prefix" type="text" required
+                            value="{{ App\Models\Settings::getValueByKey("SETTINGS::INVOICE:PREFIX") }}"
                             class="form-control @error('invoice-prefix') is-invalid @enderror">
                     </div>
                 </div>
@@ -89,7 +90,6 @@
                     </div>
                     @error('logo')
                         <span class="text-danger">
-                            {{ $Invoices->invoiceSettings->message }}
                         </span>
                     @enderror
                 </div>

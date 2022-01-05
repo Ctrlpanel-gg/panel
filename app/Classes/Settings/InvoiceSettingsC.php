@@ -2,9 +2,8 @@
 
 namespace App\Classes\Settings;
 
-use App\Models\InvoiceSettings;
+use App\Models\Settings;
 use Illuminate\Http\Request;
-use ZipArchive;
 
 class InvoiceSettingsC
 {
@@ -13,7 +12,7 @@ class InvoiceSettingsC
 
     public function __construct()
     {
-        $this->invoiceSettings = InvoiceSettings::first();
+        return;
     }
 
 
@@ -23,17 +22,30 @@ class InvoiceSettingsC
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
         ]);
 
-        InvoiceSettings::updateOrCreate([
-            'id' => "1"
-        ], [
-            'company_name' => $request->get('company-name'),
-            'company_adress' => $request->get('company-address'),
-            'company_phone' => $request->get('company-phone'),
-            'company_mail' => $request->get('company-mail'),
-            'company_vat' => $request->get('company-vat'),
-            'company_web' => $request->get('company-web'),
-            'invoice_prefix' => $request->get('invoice-prefix'),
-        ]);
+        $name = Settings::find("SETTINGS::INVOICE:COMPANY_NAME");
+        $address = Settings::find("SETTINGS::INVOICE:COMPANY_ADDRESS");
+        $phone = Settings::find("SETTINGS::INVOICE:COMPANY_PHONE");
+        $mail = Settings::find("SETTINGS::INVOICE:COMPANY_MAIL");
+        $vat = Settings::find("SETTINGS::INVOICE:COMPANY_VAT");
+        $web = Settings::find("SETTINGS::INVOICE:COMPANY_WEBSITE");
+        $prefix = Settings::find("SETTINGS::INVOICE:PREFIX");
+
+        $name->value=$request->get('company-name');
+        $address->value=$request->get('company-address');
+        $phone->value=$request->get('company-phone');
+        $mail->value=$request->get('company-mail');
+        $vat->value=$request->get('company-vat');
+        $web->value=$request->get('company-web');
+        $prefix->value=$request->get('invoice-prefix');
+
+        $name->save();
+        $address->save();
+        $phone->save();
+        $mail->save();
+        $vat->save();
+        $web->save();
+        $prefix->save();
+
 
         if ($request->hasFile('logo')) {
             $request->file('logo')->storeAs('public', 'logo.png');

@@ -16,7 +16,7 @@ class InvoiceController extends Controller
         $zip = new ZipArchive;
         $zip_safe_path = storage_path('invoices.zip');
         $res = $zip->open($zip_safe_path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-        $result = $this::rglob(storage_path('app/invoice/*'));
+        $result = $dthis::rglob(storage_path('app/invoice/*'));
         if ($res === TRUE) {
             $zip->addFromString("1. Info.txt", __("Created at") . " " . now()->format("d.m.Y"));
             foreach ($result as $file) {

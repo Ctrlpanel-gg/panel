@@ -10,6 +10,8 @@ class Settings extends Model
 {
     use HasFactory;
 
+    protected $table = 'settings';
+
     public const CACHE_TAG = 'setting';
 
     public $primaryKey = 'key';

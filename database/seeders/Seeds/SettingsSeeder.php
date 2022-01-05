@@ -145,5 +145,65 @@ class SettingsSeeder extends Seeder
             'description'  => 'The %-value of tax that will be added to the product price on checkout'
         ]);
 
+        //Invoice company name
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:COMPANY_NAME',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The name of the Company on the Invoices'
+        ]);
+        //Invoice company address
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:COMPANY_ADDRESS',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The address of the Company on the Invoices'
+        ]);
+        //Invoice company phone
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:COMPANY_PHONE',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The phone number of the Company on the Invoices'
+        ]);
+
+        //Invoice company mail
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:COMPANY_MAIL',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The email address of the Company on the Invoices'
+        ]);
+
+        //Invoice VAT
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:COMPANY_VAT',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The VAT-Number of the Company on the Invoices'
+        ]);
+
+        //Invoice Website
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:COMPANY_WEBSITE',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The Website of the Company on the Invoices'
+        ]);
+
+        //Invoice Website
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:PREFIX',
+        ], [
+            'value' => 'INV',
+            'type'  => 'string',
+            'description'  => 'The invoice prefix'
+        ]);
     }
 }

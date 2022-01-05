@@ -495,17 +495,16 @@ class PaymentController extends Controller
         //create invoice
         $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
         $newInvoiceID = $lastInvoiceID + 1;
-        $InvoiceSettings = InvoiceSettings::query()->first();
         $logoPath = storage_path('app/public/logo.png');
 
         $seller = new Party([
-            'name' => $InvoiceSettings->company_name,
-            'phone' => $InvoiceSettings->company_phone,
-            'address' => $InvoiceSettings->company_adress,
-            'vat' => $InvoiceSettings->company_vat,
+            'name' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_NAME"),
+            'phone' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_PHONE"),
+            'address' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_ADDRESS"),
+            'vat' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_VAT"),
             'custom_fields' => [
-                'E-Mail' => $InvoiceSettings->company_mail,
-                "Web" => $InvoiceSettings->company_web
+                'E-Mail' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_MAIL"),
+                "Web" => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_WEBSITE")
             ],
         ]);
 
@@ -540,7 +539,7 @@ class PaymentController extends Controller
             ->series(now()->format('mY'))
             ->delimiter("-")
             ->sequence($newInvoiceID)
-            ->serialNumberFormat($InvoiceSettings->invoice_prefix . '{DELIMITER}{SERIES}{SEQUENCE}')
+            ->serialNumberFormat(Settings::getValueByKey("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
             ->notes($notes);
 
         if (file_exists($logoPath)) {
