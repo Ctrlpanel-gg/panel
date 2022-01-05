@@ -113,7 +113,11 @@ class SettingsController extends Controller
 
     public function datatable()
     {
-        $query = Settings::query();
+        $query = Settings::
+            where('key', 'like', '%SYSTEM%')
+            ->orWhere('key', 'like', '%USER%')
+            ->orWhere('key', 'like', '%SERVER%')
+            ->orWhere('key', 'like', '%PAYMENTS%');
 
         return datatables($query)
             ->addColumn('actions', function (Settings $setting) {
