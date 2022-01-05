@@ -46,6 +46,7 @@
 
                 <div class="form-group">
                     <input value="true" id="autotranslate" name="autotranslate"
+                           {{(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:DYNAMIC")?"checked":"")}}
                            type="checkbox">
                     <label for="autotranslate">{{__('Auto-translate')}} <i data-toggle="popover"
                                                                            data-trigger="hover"
@@ -54,6 +55,7 @@
 
                     <br/>
                     <input value="true" id="canClientChangeLanguage" name="canClientChangeLanguage"
+                           {{(\App\Models\Settings::getValueByKey("SETTINGS::LOCALE:CLIENTS_CAN_CHANGE")?"checked":"")}}
                            type="checkbox">
                     <label for="canClientChangeLanguage">{{__('Let the Client change the Language')}} <i
                             data-toggle="popover"
