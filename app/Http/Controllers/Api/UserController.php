@@ -205,7 +205,7 @@ class UserController extends Controller
     }
 
     /**
-     * Suspends the user
+     * Unsuspend the user
      *
      * @param Request $request
      * @param int $id
