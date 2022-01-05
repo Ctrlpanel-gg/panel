@@ -22,7 +22,7 @@
     <div class="modal-dialog">
         <div class="modal-content ">
 
-            <form method="post" action="{{ route('admin.configurations.updatevalue') }}">
+            <form method="post" action="{{ route('admin.settings.updatevalue') }}">
                 @csrf
                 @method('PATCH')
                 <!-- Modal Header -->
@@ -92,7 +92,7 @@
             processing: true,
             serverSide: true,
             stateSave: true,
-            ajax: "{{ route('admin.configurations.datatable') }}",
+            ajax: "{{ route('admin.settings.datatable') }}",
             columns: [{
                     data: 'key'
                 },

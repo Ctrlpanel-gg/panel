@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
-class Configuration extends Model
+class Settings extends Model
 {
     use HasFactory;
 
-    public const CACHE_TAG = 'configuration';
+    public const CACHE_TAG = 'setting';
 
     public $primaryKey = 'key';
 
@@ -28,8 +28,8 @@ class Configuration extends Model
     {
         parent::boot();
 
-        static::updated(function (Configuration $configuration) {
-            Cache::forget(self::CACHE_TAG .':'. $configuration->key);
+        static::updated(function (Settings $settings) {
+            Cache::forget(self::CACHE_TAG .':'. $settings->key);
         });
     }
 
@@ -41,8 +41,8 @@ class Configuration extends Model
     public static function getValueByKey(string $key, $default = null)
     {
         return Cache::rememberForever(self::CACHE_TAG .':'. $key, function () use ($default, $key) {
-            $configuration = self::find($key);
-            return $configuration ? $configuration->value : $default;
+            $settings = self::find($key);
+            return $settings ? $settings->value : $default;
         });
     }
 }

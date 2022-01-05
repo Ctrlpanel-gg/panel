@@ -2,9 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Models\Configuration;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
+use App\Models\Settings;
 
 class Verified
 {
@@ -26,7 +24,7 @@ class Verified
      */
     public function handle($event)
     {
-        $event->user->increment('server_limit' , Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL'));
-        $event->user->increment('credits' , Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL'));
+        $event->user->increment('server_limit' , Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL'));
+        $event->user->increment('credits' , Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL'));
     }
 }

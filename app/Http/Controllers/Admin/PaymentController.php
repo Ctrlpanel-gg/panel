@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
-use App\Models\Configuration;
 use App\Models\InvoiceSettings;
 use App\Models\Payment;
 use App\Models\CreditProduct;
+use App\Models\Settings;
 use App\Models\User;
 use App\Notifications\InvoiceNotification;
 use App\Notifications\ConfirmPaymentNotification;
@@ -167,9 +167,9 @@ class PaymentController extends Controller
                 $user->increment('credits', $creditProduct->quantity);
 
                 //update server limit
-                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                        $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                if (Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
 
@@ -304,9 +304,9 @@ class PaymentController extends Controller
                 $user->increment('credits', $creditProduct->quantity);
 
                 //update server limit
-                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                        $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                if (Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
 
@@ -398,9 +398,9 @@ class PaymentController extends Controller
                 $user->increment('credits', $payment->amount);
 
                 //update server limit
-                if (Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                    if ($user->server_limit < Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                        $user->update(['server_limit' => Configuration::getValueByKey('SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                if (Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
 

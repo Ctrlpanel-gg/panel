@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Pterodactyl;
-use App\Models\Configuration;
 use App\Models\Egg;
 use App\Models\Location;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Product;
 use App\Models\Server;
+use App\Models\Settings;
 use App\Notifications\ServerCreationError;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -107,7 +107,7 @@ class ServerController extends Controller
             if (
                 Auth::user()->credits <
                 ($product->minimum_credits == -1
-                    ? Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
+                    ? Settings::getValueByKey('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
                     : $product->minimum_credits)
             ) {
                 return redirect()->route('servers.index')->with('error', "You do not have the required amount of " . CREDITS_DISPLAY_NAME . " to use this product!");
@@ -115,12 +115,12 @@ class ServerController extends Controller
         }
 
         //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
+        if (Settings::getValueByKey('SETTINGS::USER:FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
             return redirect()->route('profile.index')->with('error', __("You are required to verify your email address before you can create a server."));
         }
 
         //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {
+        if (Settings::getValueByKey('SETTINGS::USER:FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {
             return redirect()->route('profile.index')->with('error', __("You are required to link your discord account before you can create a server."));
         }
 
@@ -168,7 +168,7 @@ class ServerController extends Controller
             'identifier'     => $serverAttributes['identifier']
         ]);
 
-        if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
+        if (Settings::getValueByKey('SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
             if ($request->user()->credits >= $server->product->getHourlyPrice()) {
                 $request->user()->decrement('credits', $server->product->getHourlyPrice());
             }

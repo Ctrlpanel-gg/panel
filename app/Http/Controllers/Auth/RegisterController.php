@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
-use App\Models\Configuration;
+use App\Models\Settings;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -53,7 +53,7 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        if (Configuration::getValueByKey('REGISTER_IP_CHECK', 'true') == 'true') {
+        if (Settings::getValueByKey('SETTINGS::SYSTEM:REGISTER_IP_CHECK', 'true') == 'true') {
 
             //check if ip has already made an account
             $data['ip'] = session()->get('ip') ?? request()->ip();
@@ -90,8 +90,8 @@ class RegisterController extends Controller
         $user = User::create([
             'name'         => $data['name'],
             'email'        => $data['email'],
-            'credits'      => Configuration::getValueByKey('INITIAL_CREDITS', 150),
-            'server_limit' => Configuration::getValueByKey('INITIAL_SERVER_LIMIT', 1),
+            'credits'      => Settings::getValueByKey('SETTINGS::USER:INITIAL_CREDITS', 150),
+            'server_limit' => Settings::getValueByKey('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password'     => Hash::make($data['password']),
         ]);
 

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Configuration;
 use App\Models\DiscordUser;
+use App\Models\Settings;
 use App\Models\User;
 use App\Models\Voucher;
 use Illuminate\Support\Facades\Auth;
@@ -40,8 +40,8 @@ class SocialiteController extends Controller
             //create discord user in db
             DiscordUser::create(array_merge($discord->user, ['user_id' => Auth::user()->id]));
             //update user
-            Auth::user()->increment('credits', Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD'));
-            Auth::user()->increment('server_limit', Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD'));
+            Auth::user()->increment('credits', Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD'));
+            Auth::user()->increment('server_limit', Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD'));
             Auth::user()->update(['discord_verified_at' => now()]);
         } else {
             $user->discordUser->update($discord->user);

@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Configuration;
+use App\Models\Settings;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -41,18 +41,18 @@ class WelcomeMessage extends Notification implements ShouldQueue
         {
 
             $AdditionalLine = "";
-            if(Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL') != 0) {
-                $AdditionalLine .= "Verifying your e-mail address will grant you ".Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_EMAIL')." additional " . Configuration::getValueByKey('CREDITS_DISPLAY_NAME') . ". <br />";
+            if(Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL') != 0) {
+                $AdditionalLine .= "Verifying your e-mail address will grant you ".Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL')." additional " . Settings::getValueByKey('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME') . ". <br />";
             }
-            if(Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') != 0) {
-                $AdditionalLine .= "Verifying your e-mail will also increase your Server Limit by " . Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') . ". <br />";
+            if(Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') != 0) {
+                $AdditionalLine .= "Verifying your e-mail will also increase your Server Limit by " . Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') . ". <br />";
             }
             $AdditionalLine .="<br />";
-            if(Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') != 0) {
-                $AdditionalLine .=  "You can also verify your discord account to get another " . Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD') . " " . Configuration::getValueByKey('CREDITS_DISPLAY_NAME') . ". <br />";
+            if(Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD') != 0) {
+                $AdditionalLine .=  "You can also verify your discord account to get another " . Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD') . " " . Settings::getValueByKey('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME') . ". <br />";
             }
-            if(Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') != 0) {
-                $AdditionalLine .=  "Verifying your Discord account will also increase your Server Limit by " . Configuration::getValueByKey('SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') . ". <br />";
+            if(Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') != 0) {
+                $AdditionalLine .=  "Verifying your Discord account will also increase your Server Limit by " . Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') . ". <br />";
             }
 
             return $AdditionalLine;

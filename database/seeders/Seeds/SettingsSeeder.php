@@ -2,10 +2,10 @@
 
 namespace Database\Seeders\Seeds;
 
-use App\Models\Configuration;
+use App\Models\Settings;
 use Illuminate\Database\Seeder;
 
-class ConfigurationSeeder extends Seeder
+class SettingsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,16 +15,16 @@ class ConfigurationSeeder extends Seeder
     public function run()
     {
         //initials
-        Configuration::firstOrCreate([
-            'key' => 'INITIAL_CREDITS',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:INITIAL_CREDITS',
         ], [
             'value'       => '250',
             'type'        => 'integer',
             'description' => 'The initial amount of credits the user starts with.'
         ]);
 
-        Configuration::firstOrCreate([
-            'key' => 'INITIAL_SERVER_LIMIT',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:NITIAL_SERVER_LIMIT',
         ], [
             'value'       => '1',
             'type'        => 'integer',
@@ -32,16 +32,16 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //verify email event
-        Configuration::firstOrCreate([
-            'key' => 'CREDITS_REWARD_AFTER_VERIFY_EMAIL',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL',
         ], [
             'value'       => '250',
             'type'        => 'integer',
             'description' => 'Increase in credits after the user has verified their email account.'
         ]);
 
-        Configuration::firstOrCreate([
-            'key' => 'SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL',
         ], [
             'value'       => '2',
             'type'        => 'integer',
@@ -49,16 +49,16 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //verify discord event
-        Configuration::firstOrCreate([
-            'key' => 'CREDITS_REWARD_AFTER_VERIFY_DISCORD',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD',
         ], [
             'value'       => '375',
             'type'        => 'integer',
             'description' => 'Increase in credits after the user has verified their discord account.'
         ]);
 
-        Configuration::firstOrCreate([
-            'key' => 'SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD',
         ], [
             'value'       => '2',
             'type'        => 'integer',
@@ -66,8 +66,8 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //other
-        Configuration::firstOrCreate([
-            'key' => 'MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER',
         ], [
             'value'       => '50',
             'type'        => 'integer',
@@ -75,8 +75,8 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //purchasing
-        Configuration::firstOrCreate([
-            'key' => 'SERVER_LIMIT_AFTER_IRL_PURCHASE',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE',
         ], [
             'value'       => '10',
             'type'        => 'integer',
@@ -85,16 +85,16 @@ class ConfigurationSeeder extends Seeder
 
 
         //force email and discord verification
-        Configuration::firstOrCreate([
-            'key' => 'FORCE_EMAIL_VERIFICATION',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:FORCE_EMAIL_VERIFICATION',
         ], [
             'value'       => 'false',
             'type'        => 'boolean',
             'description' => 'Force an user to verify the email adress before creating a server / buying credits.'
         ]);
 
-        Configuration::firstOrCreate([
-            'key' => 'FORCE_DISCORD_VERIFICATION',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:FORCE_DISCORD_VERIFICATION',
         ], [
             'value'       => 'false',
             'type'        => 'boolean',
@@ -102,8 +102,8 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //disable ip check on register
-        Configuration::firstOrCreate([
-            'key' => 'REGISTER_IP_CHECK',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:REGISTER_IP_CHECK',
         ], [
             'value'       => 'true',
             'type'        => 'boolean',
@@ -111,8 +111,8 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //per_page on allocations request
-        Configuration::firstOrCreate([
-            'key' => 'ALLOCATION_LIMIT',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SERVER:ALLOCATION_LIMIT',
         ], [
             'value'       => '200',
             'type'        => 'integer',
@@ -120,8 +120,8 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //credits display name
-        Configuration::firstOrCreate([
-            'key' => 'CREDITS_DISPLAY_NAME',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME',
         ], [
             'value'       => 'Credits',
             'type'        => 'string',
@@ -129,16 +129,16 @@ class ConfigurationSeeder extends Seeder
         ]);
 
         //credits display name
-        Configuration::firstOrCreate([
-            'key' => 'SERVER_CREATE_CHARGE_FIRST_HOUR',
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR',
         ], [
             'value'       => 'true',
             'type'        => 'boolean',
             'description' => 'Charges the first hour worth of credits upon creating a server.'
         ]);
         //sales tax
-        Configuration::firstOrCreate([
-            'key'   => 'SALES_TAX',
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:SALES_TAX',
         ], [
             'value' => '0',
             'type'  => 'integer',

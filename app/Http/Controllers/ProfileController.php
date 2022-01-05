@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Configuration;
+use App\Models\Settings;
 use App\Models\User;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,9 +16,9 @@ class ProfileController extends Controller
     {
         return view('profile.index')->with([
             'user' => Auth::user(),
-            'credits_reward_after_verify_discord' => Configuration::getValueByKey('CREDITS_REWARD_AFTER_VERIFY_DISCORD'),
-            'force_email_verification' => Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION'),
-            'force_discord_verification' => Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION'),
+            'credits_reward_after_verify_discord' => Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD'),
+            'force_email_verification' => Settings::getValueByKey('SETTINGS::USER:FORCE_EMAIL_VERIFICATION'),
+            'force_discord_verification' => Settings::getValueByKey('SETTINGS::USER:FORCE_DISCORD_VERIFICATION'),
         ]);
     }
 

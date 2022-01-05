@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
-use App\Http\Controllers\Admin\ConfigurationController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -126,9 +125,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
-        #configuration
-        Route::get('configurations/datatable', [ConfigurationController::class, 'datatable'])->name('configurations.datatable');
-        Route::patch('configurations/updatevalue', [ConfigurationController::class, 'updatevalue'])->name('configurations.updatevalue');
+        #settings
+        Route::get('settings/datatable', [SettingsController::class, 'datatable'])->name('settings.datatable');
+        Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
 
         #settings
         Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
