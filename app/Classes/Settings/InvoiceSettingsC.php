@@ -24,6 +24,7 @@ class InvoiceSettingsC
         ]);
 
         $values=[
+            //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
             "SETTINGS::INVOICE:COMPANY_NAME" => "company-name",
             "SETTINGS::INVOICE:COMPANY_ADDRESS" => "company-address",
             "SETTINGS::INVOICE:COMPANY_PHONE" => "company-phone",
