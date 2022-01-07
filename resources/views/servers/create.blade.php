@@ -42,7 +42,9 @@
                                     @if (Auth::user()->role == 'admin')
                                         {{ __('Make sure to link your products to nodes and eggs.') }} <br>
                                         {{ __('There has to be at least 1 valid product for server creation') }}
+                                        <a href="{{route('admin.overview.sync')}}">{{ __('Sync now') }}</a>
                                     @endif
+
                                 </p>
                                 <ul>
                                     @if ($productCount === 0)
