@@ -41,25 +41,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    public function updateIcons(Request $request)
-    {
-        $request->validate([
-            'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
-            'favicon' => 'nullable|max:10000|mimes:ico',
-        ]);
-
-        if ($request->hasFile('icon')) {
-            $request->file('icon')->storeAs('public', 'icon.png');
-        }
-
-        if ($request->hasFile('favicon')) {
-            $request->file('favicon')->storeAs('public', 'favicon.ico');
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', __('Icons updated!'));
-    }
-
-
 
     public function updatevalue(Request $request)
     {
@@ -91,8 +72,7 @@ class SettingsController extends Controller
         $query = Settings::
             where('key', 'like', '%SYSTEM%')
             ->orWhere('key', 'like', '%USER%')
-            ->orWhere('key', 'like', '%SERVER%')
-            ->orWhere('key', 'like', '%PAYMENTS%');
+            ->orWhere('key', 'like', '%SERVER%');
 
         return datatables($query)
             ->addColumn('actions', function (Settings $setting) {

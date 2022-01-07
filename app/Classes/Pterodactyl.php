@@ -27,10 +27,10 @@ class Pterodactyl
     public static function client()
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('PTERODACTYL_TOKEN', false),
+            'Authorization' => 'Bearer ' . Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:TOKEN"),
             'Content-type'  => 'application/json',
             'Accept'        => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(env('PTERODACTYL_URL') . '/api');
+        ])->baseUrl(Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
     }
 
     /**
@@ -158,7 +158,7 @@ class Pterodactyl
      */
     public static function url(string $route): string
     {
-        return env('PTERODACTYL_URL') . $route;
+        return Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") . $route;
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Classes\Pterodactyl;
 use App\Classes\PterodactylWrapper;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
+use App\Models\Settings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -161,7 +162,7 @@ class ServerController extends Controller
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
             ->editColumn('name', function (Server $server) {
-                return '<a class="text-info" target="_blank" href="' . env('PTERODACTYL_URL', 'http://localhost') . '/admin/servers/view/' . $server->pterodactyl_id . '">' . $server->name . '</a>';
+                return '<a class="text-info" target="_blank" href="' . Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/servers/view/' . $server->pterodactyl_id . '">' . $server->name . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();

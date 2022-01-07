@@ -149,7 +149,7 @@
                         </div>
 
                         <div class="card-footer d-flex align-items-center justify-content-between">
-                            <a href="{{ env('PTERODACTYL_URL', 'http://localhost') }}/server/{{ $server->identifier }}"
+                            <a href="{{ \App\Models\Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") }}/server/{{ $server->identifier }}"
                                 target="__blank"
                                 class="btn btn-info mx-3 w-100 align-items-center justify-content-center d-flex">
                                 <i class="fas fa-tools mr-2"></i>

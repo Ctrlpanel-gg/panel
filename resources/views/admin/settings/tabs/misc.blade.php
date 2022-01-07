@@ -1,11 +1,25 @@
-<div class="tab-pane mt-3" id="dashboard">
+<div class="tab-pane mt-3" id="misc">
     <form method="POST" enctype="multipart/form-data" class="mb-3"
-        action="{{ route('admin.settings.update.icons') }}">
+        action="{{ route('admin.settings.update.miscsettings') }}">
         @csrf
         @method('PATCH')
 
         <div class="row">
             <div class="col-md-6 col-lg-4 col-12">
+
+                <!-- PHPMYADMIN -->
+
+                <!-- Icetoast das sieht auch kacke aus... -->
+
+                <div class="form-group">
+                    <div class="custom-control mb-3">
+                        <label for="phpmyadmin-url">{{ __('The URL to your PHPMYADMIN Panel. Must not end with a /, leave blank to remove database button') }}</label>
+                        <input x-model="phpmyadmin-url" id="phpmyadmin-url" name="phpmyadmin-url" type="text"
+                               value="{{ App\Models\Settings::getValueByKey("SETTINGS::MISC:PHPMYADMIN:URL") }}"
+                               class="form-control @error('phpmyadmin-url') is-invalid @enderror">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <div class="custom-file mb-3 mt-3">
                         <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input" name="icon"
