@@ -30,8 +30,13 @@ class Language
             "SETTINGS::LOCALE:DATATABLES" => "datatable-language"
         ];
 
+
         foreach ($values as $key => $value) {
-            Settings::where('key', $key)->update(['value' => $request->get($value)]);
+            $param = $request->get($value);
+            if (!$param) {
+                $param = "false";
+            }
+            Settings::where('key', $key)->update(['value' => $param]);
             Cache::forget("setting" . ':' . $key);
             Session::remove("locale");
         }

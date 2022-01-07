@@ -35,7 +35,11 @@ class Invoices
         ];
 
         foreach ($values as $key => $value) {
-            Settings::where('key', $key)->update(['value' => $request->get($value)]);
+            $param = $request->get($value);
+            if (!$param) {
+                $param = "";
+            }
+            Settings::where('key', $key)->update(['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
 

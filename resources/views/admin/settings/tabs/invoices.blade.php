@@ -1,7 +1,6 @@
 @inject('Invoices', 'App\Classes\Settings\Invoices')
-@inject('Settings', 'App\Models\Settings')
 
-<div class="tab-pane mt-3" id="invoice">
+<div class="tab-pane mt-3" id="invoices">
     <form method="POST" enctype="multipart/form-data" class="mb-3"
         action="{{ route('admin.settings.update.invoicesettings') }}">
         @csrf
