@@ -1,5 +1,6 @@
 <?php
 
+use App\Classes\Settings\Payments;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
@@ -135,6 +136,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
         Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
         Route::patch('settings/update/language', [Language::class, 'updateLanguageSettings'])->name('settings.update.languagesettings');
+        Route::patch('settings/update/payment', [Payments::class, 'updatePaymentSettings'])->name('settings.update.paymentsettings');
         Route::resource('settings', SettingsController::class)->only('index');
 
         #invoices

@@ -246,5 +246,137 @@ class SettingsSeeder extends Seeder
             'type'  => 'string',
             'description'  => 'The Language of the Datatables. Grab the Language-Codes from here https://datatables.net/plug-ins/i18n/'
         ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:PAYPAL:SECRET',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your PayPal Secret-Key ( https://developer.paypal.com/docs/integration/direct/rest/)'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your PayPal Client_ID'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your PayPal SANDBOX Secret-Key used for testing '
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your PayPal SANDBOX Client-ID used for testing '
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:STRIPE:SECRET',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your Stripe  Secret-Key  ( https://dashboard.stripe.com/account/apikeys )'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your Stripe endpoint secret-key'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:STRIPE:TEST_SECRET',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your Stripe test secret-key'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Your Stripe endpoint test secret-key'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::PAYMENTS:STRIPE:METHODS',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Comma seperated list of payment methods that are enabled (https://stripe.com/docs/payments/payment-methods/integration-options)'
+        ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::DISCORD:CLIENT_ID',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
+        ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::DISCORD:CLIENT_SECRET',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::DISCORD:BOT_TOKEN',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
+        ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::DISCORD:GUILD_ID',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
+        ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::DISCORD:ROLE_ID',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Discord role that will be assigned to users when they register'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::DISCORD:INVITE_URL',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The invite URL to your Discord Server'
+        ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Admin API Token from Pterodactyl Panel - necessary for the Panel to work. The Key needs all read&write permissions!'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:PTERODACTYL:URL',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The URL to your Pterodactyl Panel. Must not end with a / '
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MISC:PHPMYADMIN:URL',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'The URL to your PHPMYADMIN Panel. Must not end with a /, remove to remove database button'
+        ]);
     }
 }

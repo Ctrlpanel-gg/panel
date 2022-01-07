@@ -134,7 +134,7 @@ class PaymentController extends Controller
      */
     protected function getPaypalClientId()
     {
-        return env('APP_ENV') == 'local' ? env('PAYPAL_SANDBOX_CLIENT_ID') : env('PAYPAL_CLIENT_ID');
+        return env('APP_ENV') == 'local' ?  Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID") : Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID");
     }
 
     /**
@@ -142,7 +142,7 @@ class PaymentController extends Controller
      */
     protected function getPaypalClientSecret()
     {
-        return env('APP_ENV') == 'local' ? env('PAYPAL_SANDBOX_SECRET') : env('PAYPAL_SECRET');
+        return env('APP_ENV') == 'local' ? Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET") : Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SECRET");
     }
 
     /**
@@ -266,7 +266,7 @@ class PaymentController extends Controller
             ],
 
             'mode' => 'payment',
-            "payment_method_types" => str_getcsv(env('STRIPE_METHODS')),
+            "payment_method_types" => str_getcsv(Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:METHODS")),
             'success_url' => route('payment.StripeSuccess',  ['product' => $creditProduct->id]) . '&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.Cancel'),
         ]);
@@ -474,8 +474,8 @@ class PaymentController extends Controller
     protected function getStripeSecret()
     {
         return env('APP_ENV') == 'local'
-            ?  env('STRIPE_TEST_SECRET')
-            :  env('STRIPE_SECRET');
+            ?  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:TEST_SECRET")
+            :  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:SECRET");
     }
 
     /**
@@ -484,8 +484,8 @@ class PaymentController extends Controller
     protected function getStripeEndpointSecret()
     {
         return env('APP_ENV') == 'local'
-            ?  env('STRIPE_ENDPOINT_TEST_SECRET')
-            :  env('STRIPE_ENDPOINT_SECRET');
+            ?  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET")
+            :  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET");
     }
 
 

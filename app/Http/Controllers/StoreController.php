@@ -15,8 +15,8 @@ class StoreController extends Controller
 
         if (
             env('APP_ENV') == 'local' ||
-            env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID') ||
-            env('STRIPE_SECRET') && env('STRIPE_ENDPOINT_SECRET') && env('STRIPE_METHODS')
+            Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SECRET") && Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID") ||
+            Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:SECRET") && Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET") && Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:METHODS")
         ) $isPaymentSetup = true;
 
         //Required Verification for creating an server

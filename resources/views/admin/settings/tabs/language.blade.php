@@ -79,13 +79,6 @@
     </form>
 </div>
 
-</div>
-
-
-
-
-</div>
-
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
         $('.custom-select').select2();

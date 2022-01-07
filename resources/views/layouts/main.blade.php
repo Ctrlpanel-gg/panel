@@ -211,7 +211,7 @@
                             </a>
                         </li>
 
-                        @if ((env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) || env('APP_ENV', 'local') == 'local')
+                        @if ((\App\Models\Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SECRET") && \App\Models\Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID")) || env('APP_ENV', 'local') == 'local')
                             <li class="nav-item">
                                 <a href="{{ route('store.index') }}" class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
                                     <i class="nav-icon fa fa-coins"></i>
