@@ -55,8 +55,8 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                                             aria-labelledby="dropdownMenuLink">
-                                            @if (!empty(env('PHPMYADMIN_URL')))
-                                                <a href="{{ env('PHPMYADMIN_URL', 'http://localhost') }}"
+                                            @if (!empty(\App\Models\Settings::getValueByKey("SETTINGS::MISC:PHPMYADMIN:URL")))
+                                                <a href="{{\App\Models\Settings::getValueByKey("SETTINGS::MISC:PHPMYADMIN:URL") }}"
                                                     class="dropdown-item text-info" target="__blank"><i title="manage"
                                                         class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span></a>
                                             @endif
