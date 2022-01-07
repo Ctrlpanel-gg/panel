@@ -378,5 +378,21 @@ class SettingsSeeder extends Seeder
             'type'  => 'string',
             'description'  => 'The URL to your PHPMYADMIN Panel. Must not end with a /, remove to remove database button'
         ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:RECAPTCHA_SITE_KEY',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)'
+        ]);
+
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:RECAPTCHA_SECRET_KEY',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)'
+        ]);
     }
 }
