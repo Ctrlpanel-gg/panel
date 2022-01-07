@@ -32,7 +32,7 @@ class Payments
             "SETTINGS::PAYMENTS:STRIPE:TEST_SECRET" => "stripe-test-secret",
             "SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET" => "stripe-endpoint-test-secret",
             "SETTINGS::PAYMENTS:STRIPE:METHODS" => "stripe-methods",
-            "SETTINGS::PAYMENTS:SALES_TAX" => "salex_tax"
+            "SETTINGS::PAYMENTS:SALES_TAX" => "sales_tax"
         ];
 
 

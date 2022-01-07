@@ -122,10 +122,10 @@
                     <div class="form-group">
                         <div class="custom-control mb-3">
                             <label
-                                for="salex_tax">{{ __('The %-value of tax that will be added to the product price on checkout')}}</label>
-                            <input x-model="salex_tax" id="salex_tax" name="salex_tax" type="number"
+                                for="sales_tax">{{ __('The %-value of tax that will be added to the product price on checkout')}}</label>
+                            <input x-model="sales_tax" id="sales_tax" name="sales_tax" type="number"
                                    value="{{ App\Models\Settings::getValueByKey("SETTINGS::PAYMENTS:SALES_TAX") }}"
-                                   class="form-control @error('salex_tax') is-invalid @enderror">
+                                   class="form-control @error('sales_tax') is-invalid @enderror">
                         </div>
                     </div>
                 </div>
