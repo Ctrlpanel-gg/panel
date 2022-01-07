@@ -43,7 +43,6 @@ class Payments
             }
             Settings::where('key', $key)->update(['value' => $param]);
             Cache::forget("setting" . ':' . $key);
-            Session::remove("locale");
         }
 
 

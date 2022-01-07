@@ -36,7 +36,7 @@
                     @endif
 
                     @if(is_null(Auth::user()->discordUser) && strtolower($force_discord_verification) == 'true')
-                        @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
+                        @if(!empty(\App\Models\Settings::getValueByKey("SETTINGS::DISCORD:CLIENT_ID")) && !empty(\App\Models\Settings::getValueByKey("SETTINGS::DISCORD:CLIENT_SECRET")))
                             <div class="alert alert-warning p-2 m-2">
                                 <h5><i class="icon fas fa-exclamation-circle"></i>{{__('Required Discord verification!')}}</h5>
                                 {{__('You have not yet verified your discord account')}}
@@ -188,8 +188,8 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @if(!empty(env('DISCORD_CLIENT_ID')) && !empty(env('DISCORD_CLIENT_SECRET')))
-                                            <div class="col-12 col-sm-5 offset-sm-1 mb-3">
+                                        @if(!empty(\App\Models\Settings::getValueByKey("SETTINGS::DISCORD:CLIENT_ID")) && !empty(\App\Models\Settings::getValueByKey("SETTINGS::DISCORD:CLIENT_SECRET")))
+                                        <div class="col-12 col-sm-5 offset-sm-1 mb-3">
                                                 @if(is_null(Auth::user()->discordUser))
                                                     <b>{{__('Link your discord account!')}}</b>
                                                     <div class="verify-discord">

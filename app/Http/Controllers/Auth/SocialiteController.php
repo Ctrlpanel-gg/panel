@@ -15,7 +15,7 @@ class SocialiteController extends Controller
 {
     public function redirect()
     {
-        $scopes = !empty(env('DISCORD_BOT_TOKEN')) && !empty(env('DISCORD_GUILD_ID')) ? ['guilds.join'] : [];
+        $scopes = !empty(Settings::getValueByKey("SETTINGS::DISCORD:BOT_TOKEN")) && !empty(Settings::getValueByKey("SETTINGS::DISCORD:GUILD_ID")) ? ['guilds.join'] : [];
 
         return Socialite::driver('discord')
             ->scopes($scopes)
@@ -31,9 +31,9 @@ class SocialiteController extends Controller
         /** @var User $user */
         $user = Auth::user();
         $discord = Socialite::driver('discord')->user();
-        $botToken = env('DISCORD_BOT_TOKEN');
-        $guildId = env('DISCORD_GUILD_ID');
-        $roleId = env('DISCORD_ROLE_ID');
+        $botToken = Settings::getValueByKey("SETTINGS::DISCORD:BOT_TOKEN");
+        $guildId = Settings::getValueByKey("SETTINGS::DISCORD:GUILD_ID");
+        $roleId = Settings::getValueByKey("SETTINGS::DISCORD:ROLE_ID");
 
         //save / update discord_users
         if (is_null($user->discordUser)) {

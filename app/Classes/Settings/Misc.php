@@ -5,6 +5,7 @@ namespace App\Classes\Settings;
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Session;
 
 class Misc
@@ -46,6 +47,9 @@ class Misc
 
         ];
 
+        Config::set('services.discord.client_id', $request->get("discord-client-id"));
+        Config::set('services.discord.client_secret', $request->get("discord-client-secret"));
+
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
@@ -54,7 +58,7 @@ class Misc
             }
             Settings::where('key', $key)->update(['value' => $param]);
             Cache::forget("setting" . ':' . $key);
-            Session::remove("locale");
+
         }
 
 
