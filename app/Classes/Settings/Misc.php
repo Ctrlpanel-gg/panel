@@ -36,7 +36,14 @@ class Misc
 
         $values = [
             //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
-            "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url"
+            "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url",
+            "SETTINGS::DISCORD:BOT_TOKEN" => "discord-bot-token",
+            "SETTINGS::DISCORD:CLIENT_ID" => "discord-client-id",
+            "SETTINGS::DISCORD:CLIENT_SECRET" => "discord-client-secret",
+            "SETTINGS::DISCORD:GUILD_ID" => "discord-guild-id",
+            "SETTINGS::DISCORD:INVITE_URL" => "discord-invite-url",
+            "SETTINGS::DISCORD:ROLE_ID" => "discord-role-id"
+
         ];
 
 
