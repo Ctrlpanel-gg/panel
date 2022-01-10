@@ -67,7 +67,7 @@ class RegisterController extends Controller
                 'g-recaptcha-response' => ['recaptcha'],
                 'ip'                   => ['unique:users'],
             ], [
-                'ip.unique' => "You have already made an account with us! Please contact support if you think this is incorrect."
+                'ip.unique' => __("You have already made an account with us! Please contact support if you think this is incorrect.")
             ]);
         }
 
