@@ -234,7 +234,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::LOCALE:AVAILABLE',
         ], [
-            'value' => 'en,de,fr,es',
+            'value' => '',
             'type'  => 'string',
             'description'  => 'The available languages'
         ]);
