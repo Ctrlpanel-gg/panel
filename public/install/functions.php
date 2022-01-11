@@ -26,7 +26,7 @@ function getMySQLVersion() {
 
   $versionoutput = $version[0] ?? "0";
 
-  return ($versionoutput > $requirements["mysql"] ? "OK":"not OK");; 
+  return (intval($versionoutput) > intval($requirements["mysql"]) ? "OK":$versionoutput);; 
 }
 
 function getZipVersion() { 

@@ -20,10 +20,11 @@ if(isset($_POST['checkDB'])){
 				header("LOCATION: index.php?step=2&message=Could not connect to the Database");	
 				die();
 			}
+
 			foreach ($values as $key => $value) {
-            	$param = $_POST[$value];
-            setEnvironmentValue($key, $param);
-        }
+				$param = $_POST[$value];
+				setEnvironmentValue($key, $param);
+			}
 			header("LOCATION: index.php?step=3");	
 		
 	}
