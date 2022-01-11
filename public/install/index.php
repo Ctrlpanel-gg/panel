@@ -440,6 +440,10 @@ if (isset($_GET['step']) && $_GET['step'] == 6) {
     <?php
 }
 if (isset($_GET['step']) && $_GET['step'] == 7) {
+
+    $lockfile = fopen("install.lock", "w") or die("Unable to open file!");
+    fwrite($lockfile, "locked");
+    fclose($lockfile);
     ?>
 
     <div class="card card-outline card-primary">
