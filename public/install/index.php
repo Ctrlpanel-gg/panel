@@ -286,6 +286,62 @@ if (isset($_GET['step']) && $_GET['step']==4){
             </div>
     <?php
 }
+if (isset($_GET['step']) && $_GET['step']==5){
+      if (isset($_GET['exec'])){    
+         shell_exec('php artisan migrate --seed --force');
+        }                                                         
+
+    ?>
+
+        <div class="card card-outline card-primary">
+            <div class="card-header text-center">
+                <b class="mr-1">Controlpanel.GG</b>
+            </div>
+
+                <div class="card-body">
+                    <p class="login-box-msg">Almost done! </p>
+                    <p class="login-box-msg">Lets get some info about your Pterodactyl Installation!</p>
+                    <p class="login-box-msg">Before this Step make sure you ran <b>php artisan migrate --seed --force</b> in your Linux Terminal!</p>
+                    <a href="?step=5&exec"><button class="btn btn-success">You can also try to click here</button></a>
+                  <?php if(isset($_GET['message'])){
+                        echo "<p class='notok'>".$_GET['message']."</p>";
+                    }
+                    ?>
+
+               <form method="POST" enctype="multipart/form-data" class="mb-3"
+                          action="/install/forms.php" name="checkPtero">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="custom-control mb-3">
+                                        <label for="url">Pterodactyl URL</label>
+                                        <input id="url" name="url"
+                                               type="text" required
+                                               value="" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control mb-3">
+                                        <label for="key">Pterodactyl API-Key</label>
+                                        <input id="key" name="key" type="text"
+                                               required
+                                               value="" class="form-control" placeholder="The Key needs ALL read&write Permissions!">
+                                    </div>
+                                </div>
+
+
+                                </div>
+ 
+                                <button class="btn btn-primary" name="checkPtero">Submit</button>
+                            </div>
+                        </div>
+
+
+                </div>
+            </div>
+    <?php
+}
 ?>
 
 
