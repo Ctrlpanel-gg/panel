@@ -1,5 +1,9 @@
 <?php
 include ("functions.php");
+
+if (file_exists("install.lock")){
+    die("The installation has been completed already. Please delete the File 'install.lock' to re-run");
+  }
 ?>
 
 <html>
@@ -10,11 +14,11 @@ include ("functions.php");
 		body {background-color: powderblue;}
 
 		.card {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%);
 		}
 		.ok{
 			color: green;
