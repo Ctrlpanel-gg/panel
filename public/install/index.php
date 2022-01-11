@@ -160,7 +160,7 @@ if (isset($_GET['step']) && $_GET['step'] == 2) {
 
 
     </div>
-    </div>
+
     <?php
 }
 
@@ -212,7 +212,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3) {
 
 
     </div>
-    </div>
+
     <?php
 }
 if (isset($_GET['step']) && $_GET['step'] == 4) {
@@ -299,7 +299,7 @@ if (isset($_GET['step']) && $_GET['step'] == 4) {
 
 
     </div>
-    </div>
+
     <?php
 }
 if (isset($_GET['step']) && $_GET['step'] == 5) {
@@ -359,7 +359,7 @@ if (isset($_GET['step']) && $_GET['step'] == 5) {
 
 
     </div>
-    </div>
+
     <?php
 }
 
@@ -436,11 +436,10 @@ if (isset($_GET['step']) && $_GET['step'] == 6) {
 
 
     </div>
-    </div>
+
     <?php
 }
 if (isset($_GET['step']) && $_GET['step'] == 7) {
-
     $lockfile = fopen("install.lock", "w") or die("Unable to open file!");
     fwrite($lockfile, "locked");
     fclose($lockfile);
@@ -460,7 +459,6 @@ if (isset($_GET['step']) && $_GET['step'] == 7) {
         </div>
 
 
-    </div>
     </div>
     <?php
 }
