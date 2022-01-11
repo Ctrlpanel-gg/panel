@@ -415,7 +415,7 @@ if (isset($_GET['step']) && $_GET['step'] == 6) {
                                 <label for="repass">Retype Pass</label>
                                 <input id="repass" name="repass" type="password"
                                        required
-                                       value="" class="form-control">
+                                       value="" minlength="8" class="form-control">
                             </div>
                         </div>
 
@@ -424,7 +424,7 @@ if (isset($_GET['step']) && $_GET['step'] == 6) {
                                 <label for="repass">Your Pterodactyl User-ID</label>
                                 <input id="pteroID" name="pteroID" type="text"
                                        required
-                                       value="" class="form-control">
+                                       value="" minlength="8" class="form-control">
                             </div>
                         </div>
 
