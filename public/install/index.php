@@ -43,13 +43,20 @@ if (file_exists("install.lock")) {
 </head>
 <body>
 
-<?php if (!isset($_GET['step'])) { ?>
-    <div class="card card-outline card-primary">
+<?php
+$cardheader = '
+        <div class="card card-outline-success bg-dark">
         <div class="card-header text-center">
-            <b class="mr-1">Controlpanel.GG</b>
+            <b class="mr-1 text-light">Controlpanel.GG</b>
         </div>
+        <div class="card-body bg-light">';
 
-        <div class="card-body">
+
+if (!isset($_GET['step'])) {
+
+
+    echo $cardheader;
+    ?>
             <p class="login-box-msg">This installer will lead you through the most crucial Steps of Controlpanel.gg`s
                 setup</p>
 
@@ -64,8 +71,8 @@ if (file_exists("install.lock")) {
                     echo $ext . ", ";
                 } ?> (try to install anyway)</p>
 
-            <p class="<?php print(getZipVersion() === "OK" ? "ok" : "notok"); ?>"> Zip
-                version: <?php echo getZipVersion(); ?> </p>
+            <!-- <p class="<?php print(getZipVersion() === "OK" ? "ok" : "notok"); ?>"> Zip
+                version: <?php echo getZipVersion(); ?> </p> -->
 
             <p class="<?php print(getGitVersion() === "OK" ? "ok" : "notok"); ?>"> Git
                 version: <?php echo getGitVersion(); ?> </p>
@@ -83,15 +90,8 @@ if (file_exists("install.lock")) {
     <?php
 }
 if (isset($_GET['step']) && $_GET['step'] == 2) {
-
+    echo $cardheader;
     ?>
-
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <b class="mr-1">Controlpanel.GG</b>
-        </div>
-
-        <div class="card-body">
             <p class="login-box-msg">Lets start with your Database</p>
             <?php if (isset($_GET['message'])) {
                 echo "<p class='notok'>" . $_GET['message'] . "</p>";
@@ -166,15 +166,8 @@ if (isset($_GET['step']) && $_GET['step'] == 2) {
 
 
 if (isset($_GET['step']) && $_GET['step'] == 3) {
-
+    echo $cardheader;
     ?>
-
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <b class="mr-1">Controlpanel.GG</b>
-        </div>
-
-        <div class="card-body">
             <p class="login-box-msg">Tell us something about your Host</p>
             <?php if (isset($_GET['message'])) {
                 echo "<p class='notok'>" . $_GET['message'] . "</p>";
@@ -216,15 +209,8 @@ if (isset($_GET['step']) && $_GET['step'] == 3) {
     <?php
 }
 if (isset($_GET['step']) && $_GET['step'] == 4) {
-
+    echo $cardheader;
     ?>
-
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <b class="mr-1">Controlpanel.GG</b>
-        </div>
-
-        <div class="card-body">
             <p class="login-box-msg">Lets get your E-Mails going! </p>
             <p class="login-box-msg">This might take a few seconds when submitted! </p>
             <?php if (isset($_GET['message'])) {
@@ -304,24 +290,32 @@ if (isset($_GET['step']) && $_GET['step'] == 4) {
 }
 if (isset($_GET['step']) && $_GET['step'] == 5) {
     if (isset($_GET['exec'])) {
+        $path = dirname(__FILE__, 3);
+        $cmd = "cd '$path' && bash -c 'exec -a ServerCPP php artisan migrate --seed --force' 2>&1";
+        $resp = shell_exec($cmd);
         shell_exec('php artisan migrate --seed --force');
     }
-
+    echo $cardheader;
     ?>
 
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <b class="mr-1">Controlpanel.GG</b>
-        </div>
-
-        <div class="card-body">
             <p class="login-box-msg">Almost done! </p>
             <p class="login-box-msg">Lets get some info about your Pterodactyl Installation!</p>
-            <p class="login-box-msg">Before this Step make sure you ran <b>php artisan migrate --seed --force</b> in
+            <p class="alert alert-warning" role="alert">Before this Step make sure you ran <b>php artisan migrate --seed --force</b> in
                 your Linux Terminal!</p>
+            <?php if(!isset($resp)){ ?>
             <a href="?step=5&exec">
                 <button class="btn btn-success">You can also try to click here</button>
+
             </a>
+                <?php }else{
+                echo
+                "<div class='alert alert-info'>";
+                print_r($resp);
+                echo "</div>";
+                }
+            ?>
+
+
             <?php if (isset($_GET['message'])) {
                 echo "<p class='notok'>" . $_GET['message'] . "</p>";
             }
@@ -364,14 +358,8 @@ if (isset($_GET['step']) && $_GET['step'] == 5) {
 }
 
 if (isset($_GET['step']) && $_GET['step'] == 6) {
+    echo $cardheader;
     ?>
-
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <b class="mr-1">Controlpanel.GG</b>
-        </div>
-
-        <div class="card-body">
             <p class="login-box-msg">Lets create yourself!</p>
             <p class="login-box-msg">We're making the first Admin user</p>
             <?php if (isset($_GET['message'])) {
@@ -443,14 +431,10 @@ if (isset($_GET['step']) && $_GET['step'] == 7) {
     $lockfile = fopen("install.lock", "w") or die("Unable to open file!");
     fwrite($lockfile, "locked");
     fclose($lockfile);
+
+    echo $cardheader;
+
     ?>
-
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <b class="mr-1">Controlpanel.GG</b>
-        </div>
-
-        <div class="card-body">
             <p class="login-box-msg">All done!</p>
             <p class="login-box-msg">You may navigate to your Dashboard now and log in!</p>
             <a href="<?php echo "https://" . $_SERVER['SERVER_NAME']; ?>">
