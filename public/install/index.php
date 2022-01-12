@@ -66,10 +66,11 @@ if (!isset($_GET['step'])) {
         version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements["mysql"]; ?>)</p>
 
     <p class="<?php print(sizeof(checkExtensions()) == 0 ? "ok" : "notok"); ?>"> Missing
-        extentions: <?php print(sizeof(checkExtensions()) == 0 ? "None" : "");
+        php-extentions: <?php print(sizeof(checkExtensions()) == 0 ? "none" : "");
         foreach (checkExtensions() as $ext) {
             echo $ext . ", ";
-        } ?> (try to install anyway)</p>
+        }
+        print(sizeof(checkExtensions()) == 0 ? "" : "(Proceed anyway)");?></p>
 
     <!-- <p class="<?php print(getZipVersion() === "OK" ? "ok" : "notok"); ?>"> Zip
                 version: <?php echo getZipVersion(); ?> </p> -->

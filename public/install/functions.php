@@ -6,8 +6,6 @@ $required_extentions = array("openssl", "gd", "mysql", "PDO", "mbstring", "token
 $requirements = [
     "php" => "7.4",
     "mysql" => "5.7.22",
-
-
 ];
 
 function checkPhpVersion()
@@ -33,7 +31,6 @@ function getMySQLVersion()
 
 function getZipVersion()
 {
-    global $requirements;
 
     $output = shell_exec('zip  -v');
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
@@ -45,7 +42,6 @@ function getZipVersion()
 
 function getGitVersion()
 {
-    global $requirements;
 
     $output = shell_exec('git  --version');
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
@@ -57,7 +53,6 @@ function getGitVersion()
 
 function getTarVersion()
 {
-    global $requirements;
 
     $output = shell_exec('tar  --version');
     preg_match('@[0-9]+\.[0-9]+@', $output, $version);
@@ -75,9 +70,8 @@ function checkExtensions()
     $extentions = get_loaded_extensions();
 
     foreach ($required_extentions as $ext) {
-        if (!in_array($ext, $extentions)) {
+        if(!preg_grep("/^(?=.*".$ext.").*$/", $extentions))
             array_push($not_ok, $ext);
-        }
     }
     return $not_ok;
 
