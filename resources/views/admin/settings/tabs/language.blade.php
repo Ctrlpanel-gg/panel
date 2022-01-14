@@ -5,7 +5,7 @@
         @method('PATCH')
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <div class="form-group">
                     <!-- AVAILABLE LANGUAGES -->
                     <label for="languages">{{ __('Available languages') }}:</label>
