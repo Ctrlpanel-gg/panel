@@ -5,48 +5,26 @@
         @method('PATCH')
 
         <div class="row">
-            <div class="col-md-6 col-lg-4 col-12">
-                <div class="form-group">
-                    <div class="custom-file mb-3 mt-3">
-                        <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input" name="icon"
-                            id="icon">
-                        <label class="custom-file-label selected" for="icon">{{ __('Select panel icon') }}</label>
-                    </div>
-                    @error('icon')
-                        <span class="text-danger">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-                <div class="form-group">
-                    <div class="custom-file mb-3">
-                        <input type="file" accept="image/x-icon" class="custom-file-input" name="favicon" id="favicon">
-                        <label class="custom-file-label selected"
-                            for="favicon">{{ __('Select panel favicon') }}</label>
-                    </div>
-                    @error('favicon')
-                        <span class="text-danger">
-                            {{ $message }}
-                        </span>
-                    @enderror
-                </div>
-            </div>
+            <!-- DISCORD -->
             <div class="col-md-3">
-                <img class="mb-3" height="50" src="{{ url('/images/discord_logo.png') }}">
-
-                <!-- DISCORD -->
+                <div class="row mb-3">
+                    <div class="col  text-center">
+                        <img height="50" src="{{ url('/images/discord_logo.png') }}"></br>
+                        <span class=" mt-0 text-muted">({{ __('optional') }})</span>
+                    </div>
+                </div>
                 <div class="form-group">
                     <div class="custom-control mb-3">
-                        <label for="discord-client-id">{{ __('Your Discord client-id') }} ( Discord API Credentials -
-                            https://discordapp.com/developers/applications/ ) </label>
+                        <label for="discord-client-id">{{ __('Discord Client-ID') }}</label>
                         <input x-model="discord-client-id" id="discord-client-id" name="discord-client-id" type="text"
                             value="{{ config('SETTINGS::DISCORD:CLIENT_ID') }}"
                             class="form-control @error('discord-client-id') is-invalid @enderror">
                     </div>
                 </div>
+
                 <div class="form-group">
                     <div class="custom-control mb-3">
-                        <label for="discord-client-secret">{{ __('Your Discord client-secret') }} </label>
+                        <label for="discord-client-secret">{{ __('Discord Client-Secret') }} </label>
                         <input x-model="discord-client-secret" id="discord-client-secret" name="discord-client-secret"
                             type="text" value="{{ config('SETTINGS::DISCORD:CLIENT_SECRET') }}"
                             class="form-control @error('discord-client-secret') is-invalid @enderror">
@@ -55,7 +33,7 @@
 
                 <div class="form-group">
                     <div class="custom-control mb-3">
-                        <label for="discord-client-secret">{{ __('Your Discord Bot-token') }} </label>
+                        <label for="discord-client-secret">{{ __('Discord Bot-Token') }} </label>
                         <input x-model="discord-bot-token" id="discord-bot-token" name="discord-bot-token" type="text"
                             value="{{ config('SETTINGS::DISCORD:BOT_TOKEN') }}"
                             class="form-control @error('discord-bot-token') is-invalid @enderror">
@@ -64,7 +42,7 @@
 
                 <div class="form-group">
                     <div class="custom-control mb-3">
-                        <label for="discord-client-secret">{{ __('Your Discord Guild-ID') }} </label>
+                        <label for="discord-client-secret">{{ __('Discord Guild-ID') }} </label>
                         <input x-model="discord-guild-id" id="discord-guild-id" name="discord-guild-id" type="number"
                             value="{{ config('SETTINGS::DISCORD:GUILD_ID') }}"
                             class="form-control @error('discord-guild-id') is-invalid @enderror">
@@ -73,7 +51,7 @@
 
                 <div class="form-group">
                     <div class="custom-control mb-3">
-                        <label for="discord-invite-url">{{ __('Your Discord Server iniviation url') }} </label>
+                        <label for="discord-invite-url">{{ __('Discord Invite-URL') }} </label>
                         <input x-model="discord-invite-url" id="discord-invite-url" name="discord-invite-url"
                             type="text" value="{{ config('SETTINGS::DISCORD:INVITE_URL') }}"
                             class="form-control @error('discord-invite-url') is-invalid @enderror">
@@ -82,8 +60,7 @@
 
                 <div class="form-group">
                     <div class="custom-control mb-3">
-                        <label
-                            for="discord-role-id">{{ __('Discord role that will be assigned to users when they register (optional)') }}
+                        <label for="discord-role-id">{{ __('Discord Role-ID') }}
                         </label>
                         <input x-model="discord-role-id" id="discord-role-id" name="discord-role-id" type="number"
                             value="{{ config('SETTINGS::DISCORD:ROLE_ID') }}"
@@ -92,14 +69,13 @@
                 </div>
 
             </div>
-
         </div>
 
-        <button class="btn btn-primary">{{ __('Submit') }}</button>
+
+
+        <button class="btn btn-primary mt-3">{{ __('Submit') }}</button>
     </form>
 
-    <p class="text-muted">
-        {{ __('Images and Icons may be cached, reload without cache to see your changes appear') }}
-    </p>
+
 
 </div>
