@@ -2,11 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Settings;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
-use Spatie\QueryBuilder\QueryBuilderRequest;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,14 +32,11 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         Validator::extend('multiple_date_format', function ($attribute, $value, $parameters, $validator) {
-
             $ok = true;
-
             $result = [];
 
             // iterate through all formats
             foreach ($parameters as $parameter) {
-
                 //validate with laravels standard date format validation
                 $result[] = $validator->validateDateFormat($attribute, $value, [$parameter]);
             }
@@ -51,5 +49,13 @@ class AppServiceProvider extends ServiceProvider
 
             return $ok;
         });
+
+        // Set Discord-API Config
+        config(['services.discord.client_id' => Settings::getValueByKey('SETTINGS::DISCORD:CLIENT_ID')]);
+        config(['services.discord.client_secret' => Settings::getValueByKey('SETTINGS::DISCORD:CLIENT_SECRET')]);
+
+        //// Set Recaptcha API Config
+        config(['recaptcha.api_site_key' => Settings::getValueByKey('SETTINGS::RECAPTCHA:SITE_KEY')]);
+        config(['recaptcha.api_secret_key' => Settings::getValueByKey('SETTINGS::RECAPTCHA:SECRET_KEY')]);
     }
 }
