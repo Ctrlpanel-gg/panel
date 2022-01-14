@@ -68,8 +68,8 @@
                     <input value="true" id="canClientChangeLanguage" name="canClientChangeLanguage"
                         {{ config('SETTINGS::LOCALE:CLIENTS_CAN_CHANGE') == 'true' ? 'checked' : '' }}
                         type="checkbox">
-                    <label for="canClientChangeLanguage">{{ __('Let the Client change the Language') }} <i
-                            data-toggle="popover" data-trigger="hover"
+                    <label for="canClientChangeLanguage">{{ __('Client Language-Switch') }} <i data-toggle="popover"
+                            data-trigger="hover"
                             data-content="{{ __('If this is checked, Clients will have the ability to manually change their Dashboard language') }}"
                             class="fas fa-info-circle"></i></label>
 
