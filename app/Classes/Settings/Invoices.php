@@ -8,16 +8,13 @@ use Illuminate\Support\Facades\Cache;
 
 class Invoices
 {
-    public $tabTitle = 'Invoice Settings';
-    public $invoiceSettings;
-
     public function __construct()
     {
         return;
     }
 
 
-    public function updateInvoiceSettings(Request $request)
+    public function updateSettings(Request $request)
     {
         $request->validate([
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
@@ -49,6 +46,6 @@ class Invoices
         }
 
 
-        return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
+        return redirect(route('admin.settings.index') . '#invoices')->with('success', 'Invoice settings updated!');
     }
 }

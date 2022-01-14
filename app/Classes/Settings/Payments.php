@@ -9,16 +9,13 @@ use Illuminate\Support\Facades\Session;
 
 class Payments
 {
-    public $tabTitle = 'Payment Settings';
-    public $paymentSettings;
-
     public function __construct()
     {
         return;
     }
 
 
-    public function updatePaymentSettings(Request $request)
+    public function updateSettings(Request $request)
     {
 
         $values = [
@@ -46,6 +43,6 @@ class Payments
         }
 
 
-        return redirect()->route('admin.settings.index')->with('success', 'Payment settings updated!');
+        return redirect(route('admin.settings.index') . '#payment')->with('success', 'Payment settings updated!');
     }
 }

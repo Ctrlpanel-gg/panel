@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Session;
 
 class Misc
 {
-    public $tabTitle = 'Misc Settings';
-    public $miscSettings;
-
     public function __construct()
     {
         return;
@@ -20,7 +17,7 @@ class Misc
 
 
 
-    public function updateMiscSettings(Request $request)
+    public function updateSettings(Request $request)
     {
         $request->validate([
             'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
@@ -61,6 +58,6 @@ class Misc
         }
 
 
-        return redirect()->route('admin.settings.index')->with('success', 'Misc settings updated!');
+        return redirect(route('admin.settings.index') . '#misc')->with('success', 'Misc settings updated!');
     }
 }
