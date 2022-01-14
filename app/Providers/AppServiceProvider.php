@@ -53,7 +53,6 @@ class AppServiceProvider extends ServiceProvider
         // Set Discord-API Config
         config(['services.discord.client_id' => Settings::getValueByKey('SETTINGS::DISCORD:CLIENT_ID')]);
         config(['services.discord.client_secret' => Settings::getValueByKey('SETTINGS::DISCORD:CLIENT_SECRET')]);
-        config(['services.discord.SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR' => 'test']);
 
         // Set Recaptcha API Config
         config(['recaptcha.api_site_key' => Settings::getValueByKey('SETTINGS::RECAPTCHA:SITE_KEY')]);
