@@ -380,7 +380,7 @@ class SettingsSeeder extends Seeder
         ]);
 
         Settings::firstOrCreate([
-            'key'   => 'SETTINGS::SYSTEM:RECAPTCHA_SITE_KEY',
+            'key'   => 'SETTINGS::RECAPTCHA:SITE_KEY',
         ], [
             'value' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
             'type'  => 'string',
@@ -388,11 +388,17 @@ class SettingsSeeder extends Seeder
         ]);
 
         Settings::firstOrCreate([
-            'key'   => 'SETTINGS::SYSTEM:RECAPTCHA_SECRET_KEY',
+            'key'   => 'SETTINGS::RECAPTCHA:SECRET_KEY',
         ], [
             'value' => '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
             'type'  => 'string',
             'description'  => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::RECAPTCHA:ENABLED',
+        ], [
+            'value' => 'true',
+            'type'  => 'boolean',
         ]);
     }
 }
