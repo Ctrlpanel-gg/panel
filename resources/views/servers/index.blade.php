@@ -55,8 +55,8 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                                             aria-labelledby="dropdownMenuLink">
-                                            @if (!empty(\App\Models\Settings::getValueByKey("SETTINGS::MISC:PHPMYADMIN:URL")))
-                                                <a href="{{\App\Models\Settings::getValueByKey("SETTINGS::MISC:PHPMYADMIN:URL") }}"
+                                            @if (!empty(config('SETTINGS::MISC:PHPMYADMIN:URL')))
+                                                <a href="{{ config('SETTINGS::MISC:PHPMYADMIN:URL') }}"
                                                     class="dropdown-item text-info" target="__blank"><i title="manage"
                                                         class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span></a>
                                             @endif
@@ -149,7 +149,7 @@
                         </div>
 
                         <div class="card-footer d-flex align-items-center justify-content-between">
-                            <a href="{{ \App\Models\Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") }}/server/{{ $server->identifier }}"
+                            <a href="{{ config('SETTINGS::SYSTEM:PTERODACTYL:URL') }}/server/{{ $server->identifier }}"
                                 target="__blank"
                                 class="btn btn-info mx-3 w-100 align-items-center justify-content-center d-flex">
                                 <i class="fas fa-tools mr-2"></i>
