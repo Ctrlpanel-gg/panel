@@ -5,12 +5,11 @@
         @method('PATCH')
 
         <div class="row">
-
             {{-- System --}}
             <div class="col-md-3 px-3">
                 <div class="row mb-2">
                     <div class="col text-center">
-                        <h1>{{ __('Server') }}</h1>
+                        <h1>{{ __('System') }}</h1>
                     </div>
                 </div>
                 <div class="form-group">
@@ -45,8 +44,8 @@
                     <div class="custom-control mb-3 p-0">
                         <label for="credits-display-name">{{ __('Credits Display Name') }}</label>
                         <input x-model="credits-display-name" id="credits-display-name" name="credits-display-name"
-                            type="number" value="{{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }}"
-                            class="form-control @error('credits-display-name') is-invalid @enderror">
+                            type="text" value="{{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }}"
+                            class="form-control @error('credits-display-name') is-invalid @enderror" required>
                     </div>
                 </div>
 
@@ -78,13 +77,13 @@
                         <label for="initial-credits">{{ __('Initial Credits') }}</label>
                         <input x-model="initial-credits" id="initial-credits" name="initial-credits" type="number"
                             value="{{ config('SETTINGS::USER:INITIAL_CREDITS') }}"
-                            class="form-control @error('initial-credits') is-invalid @enderror">
+                            class="form-control @error('initial-credits') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="initial-server-limit">{{ __('Initial Server Limit') }}</label>
                         <input x-model="initial-server-limit" id="initial-server-limit" name="initial-server-limit"
                             type="number" value="{{ config('SETTINGS::USER:INITIAL_SERVER_LIMIT') }}"
-                            class="form-control @error('initial-server-limit') is-invalid @enderror">
+                            class="form-control @error('initial-server-limit') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label
@@ -92,7 +91,7 @@
                         <input x-model="credits-reward-amount-discord" id="credits-reward-amount-discord"
                             name="credits-reward-amount-discord" type="number"
                             value="{{ config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD') }}"
-                            class="form-control @error('credits-reward-amount-discord') is-invalid @enderror">
+                            class="form-control @error('credits-reward-amount-discord') is-invalid @enderror" required>
                     </div>
 
                     <div class="custom-control mb-3 p-0">
@@ -100,21 +99,21 @@
                         <input x-model="credits-reward-amount-email" id="credits-reward-amount-email"
                             name="credits-reward-amount-email" type="number"
                             value="{{ config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL') }}"
-                            class="form-control @error('credits-reward-amount-email') is-invalid @enderror">
+                            class="form-control @error('credits-reward-amount-email') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-discord">{{ __('Server Limit Increase - Discord') }}</label>
                         <input x-model="server-limit-discord" id="server-limit-discord" name="crserver-limit-discord"
                             type="number"
                             value="{{ config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') }}"
-                            class="form-control @error('server-limit-discord') is-invalid @enderror">
+                            class="form-control @error('server-limit-discord') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-email">{{ __('Server Limit Increase - E-Mail') }}</label>
                         <input x-model="server-limit-email" id="server-limit-email" name="crserver-limit-email"
                             type="number"
                             value="{{ config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') }}"
-                            class="form-control @error('server-limit-email') is-invalid @enderror">
+                            class="form-control @error('server-limit-email') is-invalid @enderror" required>
                     </div>
                 </div>
             </div>
@@ -135,7 +134,7 @@
                         </div>
                         <input x-model="allocation-limit" id="allocation-limit" name="allocation-limit" type="number"
                             value="{{ config('SETTINGS::SERVER:ALLOCATION_LIMIT') }}"
-                            class="form-control @error('allocation-limit') is-invalid @enderror">
+                            class="form-control @error('allocation-limit') is-invalid @enderror" required>
                     </div>
 
 
