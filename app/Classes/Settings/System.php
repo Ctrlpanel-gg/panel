@@ -5,6 +5,7 @@ namespace App\Classes\Settings;
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 
 class System
 {
@@ -19,6 +20,28 @@ class System
 
     public function updateSettings(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            "register-ip-check" => "boolean",
+            "server-create-charge-first-hour" => "boolean",
+            "credits-display-name" => "required|string",
+            "allocation-limit" => "required|min:0|integer",
+            "force-email-verification" => "boolean",
+            "force-discord-verification" => "boolean",
+            "initial-credits" => "required|min:0|integer",
+            "initial-server-limit" => "required|min:0|integer",
+            "credits-reward-amount-discord" => "required|min:0|integer",
+            "credits-reward-amount-email" => "required|min:0|integer",
+            "server-limit-discord" => "required|min:0|integer",
+            "server-limit-email" => "required|min:0|integer",
+
+        ]);
+
+        if ($validator->fails()) {
+            return redirect(route('admin.settings.index') . '#system')->with('error', __('System settings not updated!'))->withErrors($validator)
+                ->withInput();
+        }
+
+
         $values = [
             "SETTINGS::SYSTEM:REGISTER_IP_CHECK" => "register-ip-check",
             "SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR" => "server-create-charge-first-hour",
@@ -33,21 +56,15 @@ class System
             "SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD" => "server-limit-discord",
             "SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL" => "server-limit-email",
             "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url",
-            "SETTINGS::RECAPTCHA:SITE_KEY" => "recaptcha-site-key",
-            "SETTINGS::RECAPTCHA:SECRET_KEY" => "recaptcha-secret-key",
-            "SETTINGS::RECAPTCHA:ENABLED" => "recaptcha-enabled",
         ];
 
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
-            if (!$param) {
-                $param = "";
-            }
+
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
-
-        return redirect(route('admin.settings.index') . '#system')->with('success', 'System settings updated!');
+        return redirect(route('admin.settings.index') . '#system')->with('success', __('System settings updated!'));
     }
 }
