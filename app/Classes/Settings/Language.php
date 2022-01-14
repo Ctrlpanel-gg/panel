@@ -30,15 +30,13 @@ class Language
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
-            if (!$param) {
-                $param = "false";
-            }
+
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
             Session::remove("locale");
         }
 
 
-        return redirect(route('admin.settings.index') . '#language')->with('success', 'Language settings updated!');
+        return redirect(route('admin.settings.index') . '#language')->with('success', __('Language settings updated!'));
     }
 }

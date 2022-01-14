@@ -88,20 +88,19 @@
 
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
-                        <label for="discord-client-id">{{ __('ReCaptcha Site-Key') }}:</label>
-                        <input x-model="ReCaptcha-client-id" id="ReCaptcha-client-id" name="ReCaptcha-client-id"
+                        <label for="recaptcha-site-key">{{ __('ReCaptcha Site-Key') }}:</label>
+                        <input x-model="recaptcha-site-key" id="recaptcha-site-key" name="recaptcha-site-key"
                             type="text" value="{{ config('SETTINGS::RECAPTCHA:SITE_KEY') }}"
-                            class="form-control @error('ReCaptcha-client-id') is-invalid @enderror">
+                            class="form-control @error('recaptcha-site-key') is-invalid @enderror">
                     </div>
                 </div>
 
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
-                        <label for="ReCaptcha-client-secret">{{ __('ReCaptcha Secret-Key') }}:</label>
-                        <input x-model="ReCaptcha-client-secret" id="recaptcha-client-secret"
-                            name="ReCaptcha-client-secret" type="text"
-                            value="{{ config('SETTINGS::RECAPTCHA:SECRET_KEY') }}"
-                            class="form-control @error('ReCaptcha-client-secret') is-invalid @enderror">
+                        <label for="recaptcha-secret-key">{{ __('ReCaptcha Secret-Key') }}:</label>
+                        <input x-model="recaptcha-secret-key" id="recaptcha-secret-key" name="recaptcha-secret-key"
+                            type="text" value="{{ config('SETTINGS::RECAPTCHA:SECRET_KEY') }}"
+                            class="form-control @error('recaptcha-secret-key') is-invalid @enderror">
                     </div>
                 </div>
             </div>

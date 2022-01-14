@@ -73,20 +73,19 @@
                 var fileName = $(this).val().split("\\").pop();
                 $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
             });
-
-            const tabPaneHash = window.location.hash;
-            if (tabPaneHash) {
-                $('.nav-tabs a[href="' + tabPaneHash + '"]').tab('show');
-            }
-
-            $('.nav-tabs a').click(function(e) {
-                $(this).tab('show');
-                const scrollmem = $('body').scrollTop();
-                window.location.hash = this.hash;
-                $('html,body').scrollTop(scrollmem);
-            });
-
         })
+
+        const tabPaneHash = window.location.hash;
+        if (tabPaneHash) {
+            $('.nav-tabs a[href="' + tabPaneHash + '"]').tab('show');
+        }
+
+        $('.nav-tabs a').click(function(e) {
+            $(this).tab('show');
+            const scrollmem = $('body').scrollTop();
+            window.location.hash = this.hash;
+            $('html,body').scrollTop(scrollmem);
+        });
     </script>
 
 

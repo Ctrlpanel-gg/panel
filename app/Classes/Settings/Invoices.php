@@ -33,9 +33,7 @@ class Invoices
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
-            if (!$param) {
-                $param = "";
-            }
+
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
@@ -46,6 +44,6 @@ class Invoices
         }
 
 
-        return redirect(route('admin.settings.index') . '#invoices')->with('success', 'Invoice settings updated!');
+        return redirect(route('admin.settings.index') . '#invoices')->with('success', __('Invoice settings updated!'));
     }
 }

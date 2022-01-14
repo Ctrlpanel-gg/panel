@@ -35,14 +35,12 @@ class Payments
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
-            if (!$param) {
-                $param = "";
-            }
+
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
 
 
-        return redirect(route('admin.settings.index') . '#payment')->with('success', 'Payment settings updated!');
+        return redirect(route('admin.settings.index') . '#payment')->with('success', __('Payment settings updated!'));
     }
 }

@@ -32,6 +32,7 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
+    <script src="{{ asset('js/app.js') }}"></script>
 </head>
 
 <body class="sidebar-mini layout-fixed dark-mode" style="height: auto;">
@@ -49,8 +50,8 @@
                             class="fas fa-home mr-2"></i>{{ __('Home') }}</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ config('SETTINGS::DISCORD:INVITE_URL') }}" class="nav-link"
-                        target="__blank"><i class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
+                    <a href="{{ config('SETTINGS::DISCORD:INVITE_URL') }}" class="nav-link" target="__blank"><i
+                            class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
                 </li>
                 <!-- Language Selection -->
                 @if (config('SETTINGS::LOCALE:CLIENTS_CAN_CHANGE') == 'true')
@@ -390,7 +391,7 @@
     {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> --}}
     {{-- <script src="{{ asset('js/adminlte.min.js') }}"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
     <!-- Summernote -->
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
@@ -404,17 +405,17 @@
     <script src="{{ asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
 
     <!-- Select2 -->
-    <script src={{ asset('plugins/select2/js/select2.min.js') }}>
-        < script >
-            $(document).ready(function() {
-                $('[data-toggle="popover"]').popover();
+    <script src={{ asset('plugins/select2/js/select2.min.js') }}></script>
+    <script>
+        $(document).ready(function() {
+            $('[data-toggle="popover"]').popover();
 
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
             });
+        });
     </script>
     <script>
         @if (Session::has('error'))

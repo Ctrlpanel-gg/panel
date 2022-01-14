@@ -103,14 +103,14 @@
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-discord">{{ __('Server Limit Increase - Discord') }}</label>
-                        <input x-model="server-limit-discord" id="server-limit-discord" name="crserver-limit-discord"
+                        <input x-model="server-limit-discord" id="server-limit-discord" name="server-limit-discord"
                             type="number"
                             value="{{ config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') }}"
                             class="form-control @error('server-limit-discord') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-email">{{ __('Server Limit Increase - E-Mail') }}</label>
-                        <input x-model="server-limit-email" id="server-limit-email" name="crserver-limit-email"
+                        <input x-model="server-limit-email" id="server-limit-email" name="server-limit-email"
                             type="number"
                             value="{{ config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') }}"
                             class="form-control @error('server-limit-email') is-invalid @enderror" required>
