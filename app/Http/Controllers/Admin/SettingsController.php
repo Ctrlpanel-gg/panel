@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\SettingsControllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Settings;
@@ -69,8 +69,7 @@ class SettingsController extends Controller
 
     public function datatable()
     {
-        $query = Settings::
-            where('key', 'like', '%SYSTEM%')
+        $query = Settings::where('key', 'like', '%SYSTEM%')
             ->orWhere('key', 'like', '%USER%')
             ->orWhere('key', 'like', '%SERVER%');
 
@@ -84,5 +83,4 @@ class SettingsController extends Controller
             ->rawColumns(['actions'])
             ->make();
     }
-
 }

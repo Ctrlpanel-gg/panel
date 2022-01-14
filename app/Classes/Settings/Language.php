@@ -36,7 +36,7 @@ class Language
             if (!$param) {
                 $param = "false";
             }
-            Settings::where('key', $key)->update(['value' => $param]);
+            Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
             Session::remove("locale");
         }
@@ -44,5 +44,4 @@ class Language
 
         return redirect()->route('admin.settings.index')->with('success', 'Language settings updated!');
     }
-
 }

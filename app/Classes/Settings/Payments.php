@@ -41,12 +41,11 @@ class Payments
             if (!$param) {
                 $param = "";
             }
-            Settings::where('key', $key)->update(['value' => $param]);
+            Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
 
 
         return redirect()->route('admin.settings.index')->with('success', 'Payment settings updated!');
     }
-
 }
