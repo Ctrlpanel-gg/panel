@@ -6,14 +6,15 @@
 
         <div class="row">
             <!-- DISCORD -->
-            <div class="col-md-3 p-3">
-                <div class="row mb-3">
+            <div class="col-md-3 px-3">
+                <div class="row mb-2">
                     <div class="col text-center">
                         <h1>Discord</h1>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="discord-client-id">{{ __('Discord Client-ID') }}:</label>
                         <input x-model="discord-client-id" id="discord-client-id" name="discord-client-id" type="text"
                             value="{{ config('SETTINGS::DISCORD:CLIENT_ID') }}"
@@ -21,8 +22,8 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="discord-client-secret">{{ __('Discord Client-Secret') }}:</label>
                         <input x-model="discord-client-secret" id="discord-client-secret" name="discord-client-secret"
                             type="text" value="{{ config('SETTINGS::DISCORD:CLIENT_SECRET') }}"
@@ -30,8 +31,8 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="discord-client-secret">{{ __('Discord Bot-Token') }}:</label>
                         <input x-model="discord-bot-token" id="discord-bot-token" name="discord-bot-token" type="text"
                             value="{{ config('SETTINGS::DISCORD:BOT_TOKEN') }}"
@@ -39,8 +40,8 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="discord-client-secret">{{ __('Discord Guild-ID') }}:</label>
                         <input x-model="discord-guild-id" id="discord-guild-id" name="discord-guild-id" type="number"
                             value="{{ config('SETTINGS::DISCORD:GUILD_ID') }}"
@@ -48,8 +49,8 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="discord-invite-url">{{ __('Discord Invite-URL') }}:</label>
                         <input x-model="discord-invite-url" id="discord-invite-url" name="discord-invite-url"
                             type="text" value="{{ config('SETTINGS::DISCORD:INVITE_URL') }}"
@@ -57,8 +58,8 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="discord-role-id">{{ __('Discord Role-ID') }}:</label>
                         <input x-model="discord-role-id" id="discord-role-id" name="discord-role-id" type="number"
                             value="{{ config('SETTINGS::DISCORD:ROLE_ID') }}"
@@ -68,11 +69,8 @@
 
             </div>
         </div>
-
-
         <div class="row">
             <button class="btn btn-primary mt-3 ml-3">{{ __('Submit') }}</button>
-
         </div>
     </form>
 </div>

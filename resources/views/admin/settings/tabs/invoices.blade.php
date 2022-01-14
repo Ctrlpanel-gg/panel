@@ -7,8 +7,8 @@
         <div class="row">
             <div class="col-md-3 p-3">
                 <!-- Name -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="company-name">{{ __('Company Name') }}:</label>
                         <input x-model="company-name" id="company-name" name="company-name" type="text" required
                             value="{{ config('SETTINGS::INVOICE:COMPANY_NAME') }}"
@@ -16,8 +16,8 @@
                     </div>
                 </div>
                 <!-- address -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control  p-0">
                         <label for="company-address">{{ __('Company Adress') }}:</label>
                         <input x-model="company-address" id="company-address" name="company-address" type="text"
                             value="{{ config('SETTINGS::INVOICE:COMPANY_ADDRESS') }}"
@@ -25,8 +25,8 @@
                     </div>
                 </div>
                 <!-- Phone -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="company-phone">{{ __('Company Phonenumber') }}:</label>
                         <input x-model="company-phone" id="company-phone" name="company-phone" type="text"
                             value="{{ config('SETTINGS::INVOICE:COMPANY_PHONE') }}"
@@ -35,8 +35,8 @@
                 </div>
 
                 <!-- VAT -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="company-vat">{{ __('VAT ID') }}:</label>
                         <input x-model="company-vat" id="company-vat" name="company-vat" type="text"
                             value="{{ config('SETTINGS::INVOICE:COMPANY_VAT') }}"
@@ -47,8 +47,8 @@
 
             <div class="col-md-3 p-3">
                 <!-- email -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="company-mail">{{ __('Company E-Mail Adress') }}:</label>
                         <input x-model="company-mail" id="company-mail" name="company-mail" type="text"
                             value="{{ config('SETTINGS::INVOICE:COMPANY_MAIL') }}"
@@ -56,8 +56,8 @@
                     </div>
                 </div>
                 <!-- website -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="company-web">{{ __('Company Website') }}:</label>
                         <input x-model="company-web" id="company-web" name="company-web" type="text"
                             value="{{ config('SETTINGS::INVOICE:COMPANY_WEBSITE') }}"
@@ -66,8 +66,8 @@
                 </div>
 
                 <!-- prefix -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="invoice-prefix">{{ __('Invoice Prefix') }}:</label>
                         <input x-model="invoice-prefix" id="invoice-prefix" name="invoice-prefix" type="text" required
                             value="{{ config('SETTINGS::INVOICE:PREFIX') }}"
@@ -77,8 +77,8 @@
             </div>
             <div class="col-md-3 p-3">
                 <!-- logo -->
-                <div class="form-group">
-                    <div class="custom-control mb-3 p-0">
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
                         <label for="logo">{{ __('Logo') }}:</label>
                         <div class="custom-file mb-3">
                             <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input"
