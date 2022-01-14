@@ -1,4 +1,4 @@
-<div class="tab-pane mt-3" id="invoices">
+<div class="tab-pane mt-3 active" id="invoices">
     <form method="POST" enctype="multipart/form-data" class="mb-3"
         action="{{ route('admin.settings.update.invoicesettings') }}">
         @csrf

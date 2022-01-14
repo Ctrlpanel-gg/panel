@@ -39,8 +39,10 @@ class Misc
             "SETTINGS::DISCORD:CLIENT_SECRET" => "discord-client-secret",
             "SETTINGS::DISCORD:GUILD_ID" => "discord-guild-id",
             "SETTINGS::DISCORD:INVITE_URL" => "discord-invite-url",
-            "SETTINGS::DISCORD:ROLE_ID" => "discord-role-id"
-
+            "SETTINGS::DISCORD:ROLE_ID" => "discord-role-id",
+            "SETTINGS::RECAPTCHA:SITE_KEY" => "recaptcha-site-key",
+            "SETTINGS::RECAPTCHA:SECRET_KEY" => "recaptcha-secret-key",
+            "SETTINGS::RECAPTCHA:ENABLED" => "enable-recaptcha",
         ];
 
         Config::set('services.discord.client_id', $request->get("discord-client-id"));
@@ -49,14 +51,12 @@ class Misc
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
-            if (!$param) {
-                $param = "";
-            }
+
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
 
 
-        return redirect(route('admin.settings.index') . '#misc')->with('success', 'Misc settings updated!');
+        return redirect(route('admin.settings.index') . '#misc')->with('success', __('Misc settings updated!'));
     }
 }

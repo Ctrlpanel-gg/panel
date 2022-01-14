@@ -53,30 +53,28 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        $validationRules = [
+            'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
+            'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
+            'password'             => ['required', 'string', 'min:8', 'confirmed'],
+        ];
+        if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
+            $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+        }
+
         if (Settings::getValueByKey('SETTINGS::SYSTEM:REGISTER_IP_CHECK', 'true') == 'true') {
 
             //check if ip has already made an account
             $data['ip'] = session()->get('ip') ?? request()->ip();
             if (User::where('ip', '=', request()->ip())->exists()) session()->put('ip', request()->ip());
+            $validationRules['ip']  = ['unique:users'];
 
-            return Validator::make($data, [
-                'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
-                'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
-                'password'             => ['required', 'string', 'min:8', 'confirmed'],
-                'g-recaptcha-response' => ['recaptcha'],
-                'ip'                   => ['unique:users'],
-            ], [
-                'ip.unique' => "You have already made an account with us! Please contact support if you think this is incorrect."
+            return Validator::make($data, $validationRules, [
+                'ip.unique' => "You have already made an account! Please contact support if you think this is incorrect."
             ]);
         }
 
-        return Validator::make($data, [
-            'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
-            'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
-            'password'             => ['required', 'string', 'min:8', 'confirmed'],
-            'g-recaptcha-response' => ['recaptcha'],
-        ]);
-
+        return Validator::make($data, $validationRules);
     }
 
     /**
