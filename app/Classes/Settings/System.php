@@ -21,12 +21,12 @@ class System
     public function updateSettings(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "register-ip-check" => "boolean",
-            "server-create-charge-first-hour" => "boolean",
+            "register-ip-check" => "string",
+            "server-create-charge-first-hour" => "string",
             "credits-display-name" => "required|string",
             "allocation-limit" => "required|min:0|integer",
-            "force-email-verification" => "boolean",
-            "force-discord-verification" => "boolean",
+            "force-email-verification" => "string",
+            "force-discord-verification" => "string",
             "initial-credits" => "required|min:0|integer",
             "initial-server-limit" => "required|min:0|integer",
             "credits-reward-amount-discord" => "required|min:0|integer",
@@ -35,7 +35,6 @@ class System
             "server-limit-email" => "required|min:0|integer",
 
         ]);
-
         if ($validator->fails()) {
             return redirect(route('admin.settings.index') . '#system')->with('error', __('System settings have not been updated!'))->withErrors($validator)
                 ->withInput();

@@ -21,7 +21,7 @@ class Language
     {
         $validator = Validator::make($request->all(), [
             'autotranslate' => 'string',
-            'canClientChangeLanguage' => 'boolean',
+            'canClientChangeLanguage' => 'string',
             'defaultLanguage' => 'required|string',
             'languages' => 'required|array',
             'languages.*' => 'required|string',

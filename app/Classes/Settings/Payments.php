@@ -29,7 +29,6 @@ class Payments
             "stripe-methods" => "nullable|string",
             "sales-tax" => "nullable|numeric",
         ]);
-
         if ($validator->fails()) {
             return redirect(route('admin.settings.index') . '#payment')->with('error', __('Payment settings have not been updated!'))->withErrors($validator)
                 ->withInput();
@@ -46,7 +45,7 @@ class Payments
             "SETTINGS::PAYMENTS:STRIPE:TEST_SECRET" => "stripe-test-secret",
             "SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET" => "stripe-endpoint-test-secret",
             "SETTINGS::PAYMENTS:STRIPE:METHODS" => "stripe-methods",
-            "SETTINGS::PAYMENTS:SALES_TAX" => "sales_tax"
+            "SETTINGS::PAYMENTS:SALES_TAX" => "sales-tax"
         ];
 
 
@@ -56,7 +55,6 @@ class Payments
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
-
 
         return redirect(route('admin.settings.index') . '#payment')->with('success', __('Payment settings updated!'));
     }
