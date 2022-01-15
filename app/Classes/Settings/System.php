@@ -33,6 +33,8 @@ class System
             "credits-reward-amount-email" => "required|min:0|integer",
             "server-limit-discord" => "required|min:0|integer",
             "server-limit-email" => "required|min:0|integer",
+            "pterodactyl-api-key" => "required|string",
+            "pterodactyl-url" => "required|string",
 
         ]);
         if ($validator->fails()) {
@@ -55,6 +57,8 @@ class System
             "SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD" => "server-limit-discord",
             "SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL" => "server-limit-email",
             "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url",
+            "SETTINGS::SYSTEM:PTERODACTYL:URL" => "pterodactyl-url",
+            "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
         ];
 
 

@@ -47,11 +47,45 @@
                             type="text" value="{{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }}"
                             class="form-control @error('credits-display-name') is-invalid @enderror" required>
                     </div>
+                    <div class="custom-control p-0 mb-3">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="phpmyadmin-url">{{ __('PHPMyAdmin URL') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('Enter the URL to your PHPMyAdmin installation. <strong>Without a trailing slash!</strong>') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="phpmyadmin-url" id="phpmyadmin-url" name="phpmyadmin-url" type="text"
+                            value="{{ config('SETTINGS::MISC:PHPMYADMIN:URL') }}"
+                            class="form-control @error('phpmyadmin-url') is-invalid @enderror">
+                    </div>
+                    <div class="custom-control p-0 mb-3">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="pterodactyl-url">{{ __('Pterodactyl URL') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('Enter the URL to your Pterodactyl installation. <strong>Without a trailing slash!</strong>') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="pterodactyl-url" id="pterodactyl-url" name="pterodactyl-url" type="text"
+                            value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:URL') }}"
+                            class="form-control @error('pterodactyl-url') is-invalid @enderror" required>
+                    </div>
+                    <div class="custom-control p-0 mb-3">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="pterodactyl-api-key">{{ __('Pterodactyl API Key') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('Enter the API Key to your Pterodactyl installation.') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="pterodactyl-api-key" id="pterodactyl-api-key" name="pterodactyl-api-key"
+                            type="text" value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:TOKEN') }}"
+                            class="form-control @error('pterodactyl-api-key') is-invalid @enderror" required>
+                    </div>
+
                 </div>
 
             </div>
 
-
+            {{-- User --}}
             <div class="col-md-3 px-3">
                 <div class="row mb-2">
                     <div class="col text-center">
@@ -118,6 +152,7 @@
                 </div>
             </div>
 
+            {{-- Server --}}
             <div class="col-md-3 px-3">
                 <div class="row mb-2">
                     <div class="col text-center">
@@ -135,19 +170,6 @@
                         <input x-model="allocation-limit" id="allocation-limit" name="allocation-limit" type="number"
                             value="{{ config('SETTINGS::SERVER:ALLOCATION_LIMIT') }}"
                             class="form-control @error('allocation-limit') is-invalid @enderror" required>
-                    </div>
-
-
-                    <div class="custom-control p-0 mb-3">
-                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
-                            <label for="phpmyadmin-url">{{ __('PHPMyAdmin URL') }}</label>
-                            <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Enter the URL to your PHPMyAdmin installation. <strong>Without a trailing slash!</strong>') }}"
-                                class="fas fa-info-circle"></i>
-                        </div>
-                        <input x-model="phpmyadmin-url" id="phpmyadmin-url" name="phpmyadmin-url" type="text"
-                            value="{{ config('SETTINGS::MISC:PHPMYADMIN:URL') }}"
-                            class="form-control @error('phpmyadmin-url') is-invalid @enderror">
                     </div>
                 </div>
                 <div class="form-group">
