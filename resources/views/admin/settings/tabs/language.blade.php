@@ -11,9 +11,12 @@
                     <div class="custom-control mb-3 p-0">
                         <label for="languages">{{ __('Available languages') }}:</label>
                         <select id="languages" style="width:100%" class="custom-select" name="languages[]" required
-                            multiple="multiple" autocomplete="off">
+                            multiple="multiple" autocomplete="off" @error('defaultLanguage') is-invalid @enderror>
+
                             @foreach (config('app.available_locales') as $lang)
-                                <option value="{{ $lang }}">{{ __($lang) }}</option>
+                                <option value="{{ $lang }}" @if (str_contains(config('SETTINGS::LOCALE:AVAILABLE'), $lang))  selected @endif>
+                                    {{ __($lang) }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -28,11 +31,10 @@
                         </label>
 
                         <select id="defaultLanguage" style="width:100%" class="custom-select" name="defaultLanguage"
-                            required autocomplete="off">
-                            <option value="{{ config('SETTINGS::LOCALE:DEFAULT') }}" selected>
-                                {{ __(config('SETTINGS::LOCALE:DEFAULT')) }}</option>
+                            required autocomplete="off" @error('defaultLanguage') is-invalid @enderror>
                             @foreach (config('app.available_locales') as $lang)
-                                <option value="{{ $lang }}">{{ __($lang) }}</option>
+                                <option value="{{ $lang }}" @if (config('SETTINGS::LOCALE:DEFAULT') == $lang) selected
+                            @endif>{{ __($lang) }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -40,8 +42,8 @@
                     <div class="custom-control mb-3 p-0">
                         <!--DATATABLE LANGUAGE -->
                         <label for="datatable-language">{{ __('Datable language') }} <i data-toggle="popover"
-                                data-trigger="hover"
-                                data-content="{{ __('The Language of the Datatables. Grab the Language-Codes from here') }} https://datatables.net/plug-ins/i18n/"
+                                data-trigger="hover" data-html="true"
+                                data-content="{{ __('The datatables lang-code. <br><strong>Example:</strong> en-gb, fr_fr, de_de<br>More Information: ') }} https://datatables.net/plug-ins/i18n/"
                                 class="fas fa-info-circle"></i></label>
                         <input x-model="datatable-language" id="datatable-language" name="datatable-language"
                             type="text" required value="{{ config('SETTINGS::LOCALE:DATATABLES') }}"

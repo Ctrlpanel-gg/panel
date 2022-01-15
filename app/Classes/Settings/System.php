@@ -37,7 +37,7 @@ class System
         ]);
 
         if ($validator->fails()) {
-            return redirect(route('admin.settings.index') . '#system')->with('error', __('System settings not updated!'))->withErrors($validator)
+            return redirect(route('admin.settings.index') . '#system')->with('error', __('System settings have not been updated!'))->withErrors($validator)
                 ->withInput();
         }
 

@@ -5,7 +5,8 @@ namespace App\Classes\Settings;
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+
 
 class Payments
 {
@@ -17,6 +18,22 @@ class Payments
 
     public function updateSettings(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            "paypal-client_id" => "nullable|string",
+            "paypal-client-secret" => "nullable|string",
+            "paypal-sandbox-secret" => "nullable|string",
+            "stripe-secret-key" => "nullable|string",
+            "stripe-endpoint-secret" => "nullable|string",
+            "stripe-test-secret-key" => "nullable|string",
+            "stripe-test-endpoint-secret" => "nullable|string",
+            "stripe-methods" => "nullable|string",
+            "sales-tax" => "nullable|numeric",
+        ]);
+
+        if ($validator->fails()) {
+            return redirect(route('admin.settings.index') . '#payment')->with('error', __('Payment settings have not been updated!'))->withErrors($validator)
+                ->withInput();
+        }
 
         $values = [
             //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)

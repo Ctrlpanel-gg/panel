@@ -125,14 +125,14 @@
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
-                            <label for="sales_tax">{{ __('Tax Value in %') }}:</label>
+                            <label for="sales-tax">{{ __('Tax Value in %') }}:</label>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
                                 data-content="Tax Value that will be added to the total price of the order. <br><br> Example: 19 results in (19%)"
                                 class="fas fa-info-circle"></i>
                         </div>
-                        <input x-model="sales_tax" id="sales_tax" name="sales_tax" type="number"
+                        <input x-model="sales-tax" id="sales-tax" name="sales-tax" type="number"
                             value="{{ config('SETTINGS::PAYMENTS:SALES_TAX') }}"
-                            class="form-control @error('sales_tax') is-invalid @enderror">
+                            class="form-control @error('sales-tax') is-invalid @enderror">
                     </div>
                 </div>
             </div>
