@@ -66,7 +66,7 @@
                             aria-labelledby="changeLocale">
                             <form method="post" action="{{ route('changeLocale') }}" class="nav-item text-center">
                                 @csrf
-                                @foreach (json_decode(config('SETTINGS::LOCALE:AVAILABLE')) as $key)
+                                @foreach (explode(',', config('SETTINGS::LOCALE:AVAILABLE')) as $key)
                                     <button class="dropdown-item" name="inputLocale" value="{{ $key }}">
                                         {{ __($key) }}
                                     </button>
