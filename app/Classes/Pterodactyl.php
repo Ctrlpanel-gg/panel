@@ -27,10 +27,10 @@ class Pterodactyl
     public static function client()
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:TOKEN"),
+            'Authorization' => 'Bearer ' . config("SETTINGS::SYSTEM:PTERODACTYL:TOKEN"),
             'Content-type'  => 'application/json',
             'Accept'        => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
+        ])->baseUrl(config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
     }
 
     /**
@@ -141,7 +141,7 @@ class Pterodactyl
      */
     public static function getAllocations(Node $node)
     {
-        $per_page = Settings::getValueByKey('SETTINGS::SERVER:ALLOCATION_LIMIT', 200);
+        $per_page = config('SETTINGS::SERVER:ALLOCATION_LIMIT', 200);
         try {
             $response = self::client()->get("/application/nodes/{$node->id}/allocations?per_page={$per_page}");
         } catch (Exception $e) {
@@ -158,7 +158,7 @@ class Pterodactyl
      */
     public static function url(string $route): string
     {
-        return Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") . $route;
+        return config("SETTINGS::SYSTEM:PTERODACTYL:URL") . $route;
     }
 
     /**

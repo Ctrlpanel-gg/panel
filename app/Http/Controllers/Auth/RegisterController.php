@@ -62,7 +62,7 @@ class RegisterController extends Controller
             $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
         }
 
-        if (Settings::getValueByKey('SETTINGS::SYSTEM:REGISTER_IP_CHECK', 'true') == 'true') {
+        if (config('SETTINGS::SYSTEM:REGISTER_IP_CHECK', 'true') == 'true') {
 
             //check if ip has already made an account
             $data['ip'] = session()->get('ip') ?? request()->ip();
@@ -88,8 +88,8 @@ class RegisterController extends Controller
         $user = User::create([
             'name'         => $data['name'],
             'email'        => $data['email'],
-            'credits'      => Settings::getValueByKey('SETTINGS::USER:INITIAL_CREDITS', 150),
-            'server_limit' => Settings::getValueByKey('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
+            'credits'      => config('SETTINGS::USER:INITIAL_CREDITS', 150),
+            'server_limit' => config('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password'     => Hash::make($data['password']),
         ]);
 
