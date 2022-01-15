@@ -197,8 +197,8 @@ class PaymentController extends Controller
 
                 event(new UserUpdateCreditsEvent($user));
 
-                //only create invoice if SETTINGS::INVOICE:ENABLE is true
-                if (config('SETTINGS::INVOICE:ENABLE') == 'true') {
+                //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
                     $this->createInvoice($user, $payment, 'paid');
                 }
 
@@ -340,8 +340,8 @@ class PaymentController extends Controller
 
                 event(new UserUpdateCreditsEvent($user));
 
-                //only create invoice if SETTINGS::INVOICE:ENABLE is true
-                if (config('SETTINGS::INVOICE:ENABLE') == 'true') {
+                //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
                     $this->createInvoice($user, $payment, 'paid');
                 }
 
@@ -366,8 +366,8 @@ class PaymentController extends Controller
                         'credit_product_id' => $creditProduct->id,
                     ]);
 
-                    //only create invoice if SETTINGS::INVOICE:ENABLE is true
-                    if (config('SETTINGS::INVOICE:ENABLE') == 'true') {
+                    //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                    if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
                         $this->createInvoice($user, $payment, 'paid');
                     }
 
@@ -426,8 +426,8 @@ class PaymentController extends Controller
                 $user->notify(new ConfirmPaymentNotification($payment));
                 event(new UserUpdateCreditsEvent($user));
 
-                //only create invoice if SETTINGS::INVOICE:ENABLE is true
-                if (config('SETTINGS::INVOICE:ENABLE') == 'true') {
+                //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
                     $this->createInvoice($user, $payment, 'paid');
                 }
             }
