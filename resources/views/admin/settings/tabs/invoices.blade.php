@@ -76,6 +76,15 @@
                 </div>
             </div>
             <div class="col-md-3 p-3">
+                <div class="custom-control mb-3 p-0">
+                    <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <input value="true" id="enable-invoices" name="enable-invoices"
+                                {{ config('SETTINGS::INVOICE:ENABLED') == 'true' ? 'checked' : '' }} type="checkbox">
+                            <label for="enable-invoices">{{ __('Enable Invoices') }} </label>
+                        </div>
+                    </div>
+                </div>
                 <!-- logo -->
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">

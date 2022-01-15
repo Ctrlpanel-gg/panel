@@ -28,7 +28,8 @@ class Invoices
             "SETTINGS::INVOICE:COMPANY_MAIL" => "company-mail",
             "SETTINGS::INVOICE:COMPANY_VAT" => "company-vat",
             "SETTINGS::INVOICE:COMPANY_WEBSITE" => "company-web",
-            "SETTINGS::INVOICE:PREFIX" => "invoice-prefix"
+            "SETTINGS::INVOICE:PREFIX" => "invoice-prefix",
+            "SETTINGS::INVOICE:ENABLED" => "enable-invoices",
         ];
 
         foreach ($values as $key => $value) {

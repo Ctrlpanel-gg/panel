@@ -144,7 +144,13 @@ class SettingsSeeder extends Seeder
             'type'  => 'integer',
             'description'  => 'The %-value of tax that will be added to the product price on checkout'
         ]);
-
+        //Invoices enabled
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:ENABLED',
+        ], [
+            'value' => 'false',
+            'type'  => 'boolean',
+        ]);
         //Invoice company name
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::INVOICE:COMPANY_NAME',
