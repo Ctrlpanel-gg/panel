@@ -295,6 +295,7 @@ echo $cardheader;
                 $cmd = "cd '$path' && bash -c 'exec -a ServerCPP php artisan migrate --seed --force' 2>&1";
                 $resp = shell_exec($cmd);
                 shell_exec('php artisan migrate --seed --force');
+                shell_exec('php artisan db:seed --class=ExampleItemsSeeder --force');
             }
             echo $cardheader;
             ?>
