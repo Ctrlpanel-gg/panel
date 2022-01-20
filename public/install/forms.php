@@ -35,9 +35,15 @@ if (isset($_POST['checkDB'])) {
 
     foreach ($values as $key => $value) {
         $param = $_POST[$value];
+        if ($key=="DB_PASSWORD"){
+           $param ='"' . $_POST[$value] . '"';
+        }
         setEnvironmentValue($key, $param);
     }
-    header("LOCATION: index.php?step=3");
+
+
+
+    header("LOCATION: index.php?step=2.5");
 
 }
 
@@ -57,6 +63,25 @@ if (isset($_POST['checkGeneral'])) {
     setEnvironmentValue("APP_URL", $url);
 
     header("LOCATION: index.php?step=4");
+
+}
+
+if (isset($_POST['installComposer'])) {
+    $logs = "";
+       $logs .= run_console(putenv('COMPOSER_HOME=' . dirname(__FILE__, 3) . '/vendor/bin/composer'));
+        $logs .= run_console('composer install --no-dev --optimize-autoloader');
+        $logs .= run_console('php artisan key:generate --force');
+        $logs .= run_console('php artisan storage:link');
+
+        $logsfile = fopen("logs.txt", "w") or die("Unable to open file!");
+        fwrite($logsfile, $logs);
+        fclose($logsfile);
+
+        if(str_contains(getEnvironmentValue("APP_KEY"), "base64")){
+                  header("LOCATION: index.php?step=3");
+        }else{
+                header("LOCATION: index.php?step=2.5&message=There was an error. Please check install/logs.txt !");
+              }
 
 }
 
@@ -140,7 +165,7 @@ if (isset($_POST['checkPtero'])) {
         $query1 = "UPDATE `dashboard`.`settings` SET `value` = '$url' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL')";
         $query2 = "UPDATE `dashboard`.`settings` SET `value` = '$key' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN')";
 
-        $db = new mysqli(getenv("DB_HOST"), getenv("DB_USERNAME"), getenv("DB_PASSWORD"), getenv("DB_DATABASE"), getenv("DB_PORT"));
+        $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
         if ($db->connect_error) {
             header("LOCATION: index.php?step=5&message=Could not connect to the Database");
             die();
@@ -157,7 +182,7 @@ if (isset($_POST['checkPtero'])) {
 }
 
 if (isset($_POST['createUser'])) {
-    $db = new mysqli(getenv("DB_HOST"), getenv("DB_USERNAME"), getenv("DB_PASSWORD"), getenv("DB_DATABASE"), getenv("DB_PORT"));
+    $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
     if ($db->connect_error) {
         header("LOCATION: index.php?step=6&message=Could not connect to the Database");
         die();

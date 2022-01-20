@@ -95,5 +95,25 @@ function setEnvironmentValue($envKey, $envValue)
     fclose($fp);
 }
 
+function getEnvironmentValue($envKey){
+    $envFile = dirname(__FILE__, 3) . "/.env";
+    $str = file_get_contents($envFile);
+
+    $str .= "\n"; // In case the searched variable is in the last line without \n
+    $keyPosition = strpos($str, "{$envKey}=");
+    $endOfLinePosition = strpos($str, PHP_EOL, $keyPosition);
+    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
+    $value = substr($oldLine, strpos($oldLine, "=") + 1);    
+
+
+    return $value;
+
+}
+
+function run_console($command){
+                $path = dirname(__FILE__, 3);
+                $cmd = "cd '$path' && bash -c 'exec -a ServerCPP $command' 2>&1";
+                return shell_exec($cmd);
+            }
 
 ?>

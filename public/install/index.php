@@ -53,8 +53,10 @@ $cardheader = '
 
 
 if (!isset($_GET['step'])) {
-
-
+    
+    if(!file_exists("../../.env")){
+    echo run_console('cp .env.example .env');
+    }
     echo $cardheader;
     ?>
     <p class="login-box-msg">This installer will lead you through the most crucial Steps of Controlpanel.gg`s
@@ -164,7 +166,30 @@ echo $cardheader;
 
     <?php
     }
+    if (isset($_GET['step']) && $_GET['step'] == 2.5) {
+    echo $cardheader;
+    ?>
+    <p class="login-box-msg">Lets install Composer!</p>
+    <p> This process might take a while. Please do not refresh or close this page!</p>
+    <?php if (isset($_GET['message'])) {
+        echo "<p class='notok'>" . $_GET['message'] . "</p>";
+    }
 
+    ?>
+
+    <form method="POST" enctype="multipart/form-data" class="mb-3"
+          action="/install/forms.php" name="installComposer">
+
+
+            <button class="btn btn-primary" name="installComposer">Submit</button>
+        </div>
+        </div>
+
+
+        </div>
+
+        <?php
+        }
 
     if (isset($_GET['step']) && $_GET['step'] == 3) {
     echo $cardheader;
@@ -291,29 +316,35 @@ echo $cardheader;
             }
             if (isset($_GET['step']) && $_GET['step'] == 5) {
             if (isset($_GET['exec'])) {
-                $path = dirname(__FILE__, 3);
-                $cmd = "cd '$path' && bash -c 'exec -a ServerCPP php artisan migrate --seed --force' 2>&1";
-                $resp = shell_exec($cmd);
-                shell_exec('php artisan migrate --seed --force');
-                shell_exec('php artisan db:seed --class=ExampleItemsSeeder --force');
+                $resp = "";
+                $resp = run_console('php artisan migrate --seed --force');
+                $resp .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
+                $logsfile = fopen("logs.txt", "w") or die("Unable to open file!");
+                fwrite($logsfile, $resp);
+                fclose($logsfile);
             }
             echo $cardheader;
             ?>
 
             <p class="login-box-msg">Almost done! </p>
             <p class="login-box-msg">Lets get some info about your Pterodactyl Installation!</p>
-            <p class="alert alert-warning" role="alert">Before this Step make sure you ran <b>php artisan migrate --seed
-                    --force</b> in
-                your Linux Terminal!</p>
-            <?php if (!isset($resp)) { ?>
+            <p class="alert alert-warning" role="alert">Before filling these information, make sure to click the button below</p>
+            <?php 
+            if (!isset($resp)) { ?>
+
                 <a href="?step=5&exec">
-                    <button class="btn btn-success">You can also try to click here</button>
+                    <button class="btn btn-success">Run DB-Seeding!</button>
 
                 </a>
             <?php } else {
                 echo
                 "<div class='alert alert-info'>";
-                print_r($resp);
+                if(str_contains($resp,"Database seeding completed successfully.")){
+                   echo "All done!";
+                }else{
+
+                      "There was an error. Check /install/logs.txt";
+                  }
                 echo "</div>";
             }
             ?>
@@ -350,7 +381,7 @@ echo $cardheader;
 
                     </div>
 
-                    <button class="btn btn-primary" name="checkPtero">Submit</button>
+                    <button <?php if(!isset($_GET['exec'])){echo "disabled";} ?> class="btn btn-primary" name="checkPtero">Submit</button>
                 </div>
                 </div>
 
@@ -398,7 +429,7 @@ echo $cardheader;
                                     <label for="pass">Password</label>
                                     <input id="pass" name="pass" type="password"
                                            required
-                                           value="" class="form-control">
+                                           value="" minlength="8" class="form-control">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -412,10 +443,10 @@ echo $cardheader;
 
                             <div class="form-group">
                                 <div class="custom-control mb-3">
-                                    <label for="repass">Your Pterodactyl User-ID</label>
+                                    <label for="pteroID">Your Pterodactyl User-ID</label>
                                     <input id="pteroID" name="pteroID" type="text"
                                            required
-                                           value="" minlength="8" class="form-control">
+                                           value="" class="form-control">
                                 </div>
                             </div>
 
