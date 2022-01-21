@@ -405,6 +405,64 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'true',
             'type'  => 'boolean',
+            'description'  => 'Enables or disables the ReCaptcha feature on the registration/login page'
+
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:MAILER',
+        ], [
+            'value' => 'smtp',
+            'type'  => 'string',
+            'description'  => 'Selected Mailer (smtp, mailgun, sendgrid, mailtrap)'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:HOST',
+        ], [
+            'value' => 'localhost',
+            'type'  => 'string',
+            'description'  => 'Mailer Host Adress'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:PORT',
+        ], [
+            'value' => '1025',
+            'type'  => 'string',
+            'description'  => 'Mailer Server Port'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:USERNAME',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Mailer Username'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:PASSWORD',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Mailer Password'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:ENCRYPTION',
+        ], [
+            'value' => 'tls',
+            'type'  => 'string',
+            'description'  => 'Mailer Encryption (tls, ssl)'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:FROM_ADDRESS',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Mailer From Address'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:FROM_NAME',
+        ], [
+            'value' => env('APP_NAME', 'Controlpanel'),
+            'type'  => 'string',
+            'description'  => 'Mailer From Name'
         ]);
     }
 }

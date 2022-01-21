@@ -5,8 +5,8 @@ namespace App\Classes\Settings;
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
+
 
 class Misc
 {
@@ -14,8 +14,6 @@ class Misc
     {
         return;
     }
-
-
 
     public function updateSettings(Request $request)
     {
@@ -31,6 +29,14 @@ class Misc
             'recaptcha-site-key' => 'nullable|string',
             'recaptcha-secret-key' => 'nullable|string',
             'enable-recaptcha' => 'nullable|string',
+            'mailservice' => 'nullable|string',
+            'mailhost' => 'nullable|string',
+            'mailport' => 'nullable|string',
+            'mailusername' => 'nullable|string',
+            'mailpassword' => 'nullable|string',
+            'mailencryption' => 'nullable|string',
+            'mailfromadress' => 'nullable|string',
+            'mailfromname' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -55,11 +61,16 @@ class Misc
             "SETTINGS::RECAPTCHA:SITE_KEY" => "recaptcha-site-key",
             "SETTINGS::RECAPTCHA:SECRET_KEY" => "recaptcha-secret-key",
             "SETTINGS::RECAPTCHA:ENABLED" => "enable-recaptcha",
+            "SETTINGS::MAIL:MAILER" => "mailservice",
+            "SETTINGS::MAIL:HOST" => "mailhost",
+            "SETTINGS::MAIL:PORT" => "mailport",
+            "SETTINGS::MAIL:USERNAME" => "mailusername",
+            "SETTINGS::MAIL:PASSWORD" => "mailpassword",
+            "SETTINGS::MAIL:ENCRYPTION" => "mailencryption",
+            "SETTINGS::MAIL:FROM_ADDRESS" => "mailfromadress",
+            "SETTINGS::MAIL:FROM_NAME" => "mailfromname",
+
         ];
-
-        Config::set('services.discord.client_id', $request->get("discord-client-id"));
-        Config::set('services.discord.client_secret', $request->get("discord-client-secret"));
-
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);

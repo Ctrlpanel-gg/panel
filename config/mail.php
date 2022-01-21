@@ -45,31 +45,22 @@ return [
             'auth_mode' => null,
         ],
 
-        'ses' => [
-            'transport' => 'ses',
-        ],
-
-        'mailgun' => [
-            'transport' => 'mailgun',
-        ],
-
-        'postmark' => [
-            'transport' => 'postmark',
-        ],
-
-        'sendmail' => [
-            'transport' => 'sendmail',
-            'path' => '/usr/sbin/sendmail -bs',
-        ],
-
-        'log' => [
-            'transport' => 'log',
-            'channel' => env('MAIL_LOG_CHANNEL'),
-        ],
-
-        'array' => [
-            'transport' => 'array',
-        ],
+        // 'ses' => [
+        // 'transport' => 'ses',
+        // ],
+        //
+        // 'mailgun' => [
+        // 'transport' => 'mailgun',
+        // ],
+        //
+        // 'postmark' => [
+        // 'transport' => 'postmark',
+        // ],
+        //
+        // 'sendmail' => [
+        // 'transport' => 'sendmail',
+        // 'path' => '/usr/sbin/sendmail -bs',
+        // ],
     ],
 
     /*
