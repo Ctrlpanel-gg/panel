@@ -30,7 +30,7 @@ class Misc
             'discord-role-id' => 'nullable|string',
             'recaptcha-site-key' => 'nullable|string',
             'recaptcha-secret-key' => 'nullable|string',
-            'enable-recaptcha' => 'nullable|boolean',
+            'enable-recaptcha' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
