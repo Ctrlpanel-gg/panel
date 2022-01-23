@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCreditProductsTable extends Migration
+class CreatePaypalProductsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateCreditProductsTable extends Migration
      */
     public function up()
     {
-        Schema::create('credit_products', function (Blueprint $table) {
+        Schema::create('paypal_products', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('type');
             $table->decimal('price')->default(0);
             $table->unsignedInteger('quantity');
             $table->string('description');
-            $table->string('currency_code' , 3);
+            $table->string('currency_code', 3);
             $table->boolean('disabled')->default(true);
             $table->timestamps();
         });
@@ -32,6 +32,6 @@ class CreateCreditProductsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('credit_products');
+        Schema::dropIfExists('paypal_products');
     }
 }

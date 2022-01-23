@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Settings;
+
+use App\Classes\Pterodactyl;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
 {
@@ -50,10 +52,27 @@ class ProfileController extends Controller
                 'new_password_confirmation' => 'required|same:new_password'
             ]);
 
+            //Update Users Password on Pterodactyl
+            //Username,Mail,First and Lastname are required aswell
+            $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
+                "password" => $request->input('new_password'),
+                "username" => $request->input('name'),
+                "first_name" => $request->input('name'),
+                "last_name" => $request->input('name'),
+                "email" => $request->input('email'),
+
+            ]);
+            if ($response->failed()) {
+                throw ValidationException::withMessages([
+                    'pterodactyl_error_message' => $response->toException()->getMessage(),
+                    'pterodactyl_error_status' => $response->toException()->getCode()
+                ]);
+            }
             //update password
             $user->update([
                 'password' => Hash::make($request->input('new_password')),
             ]);
+
         }
 
         //validate request
@@ -77,11 +96,27 @@ class ProfileController extends Controller
             ]);
         }
 
+        //update name and email on Pterodactyl
+        $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
+            "username" => $request->input('name'),
+            "first_name" => $request->input('name'),
+            "last_name" => $request->input('name'),
+            "email" => $request->input('email'),
+        ]);
+
+        if ($response->failed()) {
+            throw ValidationException::withMessages([
+                'pterodactyl_error_message' => $response->toException()->getMessage(),
+                'pterodactyl_error_status' => $response->toException()->getCode()
+            ]);
+        }
+
         //update name and email
         $user->update([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
         ]);
+        $user->sendEmailVerificationNotification();
 
         return redirect()->route('profile.index')->with('success', __('Profile updated'));
     }

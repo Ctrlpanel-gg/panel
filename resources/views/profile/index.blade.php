@@ -36,14 +36,14 @@
                                 href="{{ route('verification.send') }}">{{ __('Click here to resend verification email') }}</a>
                             <br>
                             {{ __('Please contact support If you didnt receive your verification email.') }}
+
                         </div>
                     @endif
 
                     @if (is_null(Auth::user()->discordUser) && strtolower($force_discord_verification) == 'true')
                         @if (!empty(config('SETTINGS::DISCORD:CLIENT_ID')) && !empty(config('SETTINGS::DISCORD:CLIENT_SECRET')))
                             <div class="alert alert-warning p-2 m-2">
-                                <h5><i
-                                        class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
+                                <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
                                 {{ __('You have not yet verified your discord account') }}
                                 <a class="text-primary"
@@ -52,8 +52,7 @@
                             </div>
                         @else
                             <div class="alert alert-danger p-2 m-2">
-                                <h5><i
-                                        class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
+                                <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
                                 {{ __('Due to system settings you are required to verify your discord account!') }} <br>
                                 {{ __('It looks like this hasnt been set-up correctly! Please contact support.') }}'
@@ -117,7 +116,21 @@
                                         <div class="col">
                                             <div class="row">
                                                 <div class="col">
-                                                    <div class="form-group"><label>{{ __('Name') }}</label> <input
+                                                    @if( $errors->has('pterodactyl_error_message') )
+                                                        @foreach( $errors->get('pterodactyl_error_message') as $err )
+                                                            <span class="text-danger" role="alert">
+                                                                <small><strong>{{ $err }}</strong></small>
+                                                            </span>
+                                                        @endforeach
+                                                    @endif
+                                                        @if( $errors->has('pterodactyl_error_status') )
+                                                            @foreach( $errors->get('pterodactyl_error_status') as $err )
+                                                                <span class="text-danger" role="alert">
+                                                                    <small><strong>{{ $err }}</strong></small>
+                                                                </span>
+                                                            @endforeach
+                                                        @endif
+                                                    <div class="form-group"><label>{{__('Name')}}</label> <input
                                                             class="form-control @error('name') is-invalid @enderror"
                                                             type="text" name="name" placeholder="{{ $user->name }}"
                                                             value="{{ $user->name }}">

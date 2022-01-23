@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
@@ -68,9 +69,9 @@ class RegisterController extends Controller
             $data['ip'] = session()->get('ip') ?? request()->ip();
             if (User::where('ip', '=', request()->ip())->exists()) session()->put('ip', request()->ip());
             $validationRules['ip']  = ['unique:users'];
-
             return Validator::make($data, $validationRules, [
                 'ip.unique' => "You have already made an account! Please contact support if you think this is incorrect."
+
             ]);
         }
 
@@ -106,12 +107,16 @@ class RegisterController extends Controller
 
         if ($response->failed()) {
             $user->delete();
-            return $user;
+            throw ValidationException::withMessages([
+                'ptero_registration_error' => [__('Account already exists on Pterodactyl. Please contact the Support!')],
+            ]);
         }
 
         $user->update([
             'pterodactyl_id' => $response->json()['attributes']['id']
         ]);
+
+
 
         return $user;
     }
