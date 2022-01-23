@@ -150,6 +150,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'false',
             'type'  => 'boolean',
+            'description'  => 'Enables or disables the invoice feature for payments'
         ]);
         //Invoice company name
         Settings::firstOrCreate([
