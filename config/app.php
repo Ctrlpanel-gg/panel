@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Settings;
+
 return [
 
     'version' => '0.6.2',
@@ -70,16 +72,6 @@ return [
 
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Dyamic Locales
-    |--------------------------------------------------------------------------
-    |
-    | Change the Locale depending on the Users Browserlanguage
-    | Can either be true or false
-    |
-    */
-    'dynamic_locale' => env('DYNAMIC_LOCALE', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -92,47 +84,20 @@ return [
     |
     */
 
-    'locale' => env('LOCALE', 'en'),
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Available Locales
-    |--------------------------------------------------------------------------
-    |
-    | You should not change this
-    | If the dashboard is 100% translated in a certain language, it will be added here
-    |
-    */
-    'available_locales' => array('English'=>'en','German'=>'de','Italian'=>'it','Chinese'=>'zh', 'Czech'=>'cs', 'Spanish'=>'es', 'Polish'=>'pl'),
-
+    'locale' =>"en",
 
     /*
     |--------------------------------------------------------------------------
-    | Unsupported Locales
+    | Available Languages
     |--------------------------------------------------------------------------
     |
-    | Locales the Owner of the Dashboard does not want to support
-    |
+    | The application locale determines the default locale that will be used
+    | by the translation service provider. You are free to set this value
+    | to any of the locales which will be supported by the application.
     |
     */
 
-    'unsupported_locales' => env("UNSUPPORTED_LOCALES", ""),
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Datatable Language Setting
-    |--------------------------------------------------------------------------
-    |
-    | This is the Language-Code used on the Datatables.
-    | You can grab the Language-Codes from this Website
-    | https://datatables.net/plug-ins/i18n/
-    |
-    */
-
-    'datatable_locale' => env('DATATABLE_LOCALE', 'en-gb'),
-
+    'available_locales' =>["en","cs","de","es","fr","hi","it","pl","zh"],
 
     /*
     |--------------------------------------------------------------------------

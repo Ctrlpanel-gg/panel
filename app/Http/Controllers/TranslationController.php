@@ -18,4 +18,6 @@ class TranslationController extends Controller
         Session::put('locale', $request->inputLocale);
         return redirect()->back();
     }
+
+
 }

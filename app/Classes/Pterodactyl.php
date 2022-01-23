@@ -2,11 +2,11 @@
 
 namespace App\Classes;
 
-use App\Models\Configuration;
 use App\Models\Egg;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Server;
+use App\Models\Settings;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -27,10 +27,10 @@ class Pterodactyl
     public static function client()
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('PTERODACTYL_TOKEN', false),
+            'Authorization' => 'Bearer ' . config("SETTINGS::SYSTEM:PTERODACTYL:TOKEN"),
             'Content-type'  => 'application/json',
             'Accept'        => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(env('PTERODACTYL_URL') . '/api');
+        ])->baseUrl(config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
     }
 
     /**
@@ -141,7 +141,7 @@ class Pterodactyl
      */
     public static function getAllocations(Node $node)
     {
-        $per_page = Configuration::getValueByKey('ALLOCATION_LIMIT', 200);
+        $per_page = config('SETTINGS::SERVER:ALLOCATION_LIMIT', 200);
         try {
             $response = self::client()->get("/application/nodes/{$node->id}/allocations?per_page={$per_page}");
         } catch (Exception $e) {
@@ -158,7 +158,7 @@ class Pterodactyl
      */
     public static function url(string $route): string
     {
-        return env('PTERODACTYL_URL') . $route;
+        return config("SETTINGS::SYSTEM:PTERODACTYL:URL") . $route;
     }
 
     /**

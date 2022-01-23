@@ -1,8 +1,10 @@
 <?php
 
+use App\Classes\Settings\Misc;
+use App\Classes\Settings\Payments;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
-use App\Http\Controllers\Admin\ConfigurationController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\CreditProductController;
@@ -23,6 +25,9 @@ use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Classes\Settings\Language;
+use App\Classes\Settings\Invoices;
+use App\Classes\Settings\System;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,8 +77,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
 
-
-
     Route::get('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
 
     #discord
@@ -85,14 +88,18 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     #switch language
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
+
+
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
+        #overview
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
         Route::resource('activitylogs', ActivityLogController::class);
 
+        #users
         Route::get("users.json", [UserController::class, "json"])->name('users.json');
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
@@ -101,50 +108,55 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
         Route::resource('users', UserController::class);
 
+        #servers
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
         Route::post('servers/togglesuspend/{server}', [AdminServerController::class, 'toggleSuspended'])->name('servers.togglesuspend');
         Route::resource('servers', AdminServerController::class);
 
+        #products
         Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
         Route::get('products/clone/{product}', [ProductController::class, 'clone'])->name('products.clone');
         Route::patch('products/disable/{product}', [ProductController::class, 'disable'])->name('products.disable');
         Route::resource('products', ProductController::class);
 
+        #store
         Route::get('store/datatable', [CreditProductController::class, 'datatable'])->name('store.datatable');
         Route::patch('store/disable/{creditProduct}', [CreditProductController::class, 'disable'])->name('store.disable');
         Route::resource('store', CreditProductController::class)->parameters([
             'store' => 'creditProduct',
         ]);
 
+        #payments
         Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
-//        Route::get('nodes/datatable', [NodeController::class, 'datatable'])->name('nodes.datatable');
-//        Route::get('nodes/sync', [NodeController::class, 'sync'])->name('nodes.sync');
-//        Route::resource('nodes', NodeController::class);
-//
-//        Route::get('nests/datatable', [NestsController::class, 'datatable'])->name('nests.datatable');
-//        Route::get('nests/sync', [NestsController::class, 'sync'])->name('nests.sync');
-//        Route::resource('nests', NestsController::class);
+        #settings
+        Route::get('settings/datatable', [SettingsController::class, 'datatable'])->name('settings.datatable');
+        Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
 
-        Route::get('configurations/datatable', [ConfigurationController::class, 'datatable'])->name('configurations.datatable');
-        Route::patch('configurations/updatevalue', [ConfigurationController::class, 'updatevalue'])->name('configurations.updatevalue');
-        Route::resource('configurations', ConfigurationController::class);
-        Route::resource('configurations', ConfigurationController::class);
-
-        Route::patch('settings/update/icons', [SettingsController::class, 'updateIcons'])->name('settings.update.icons');
-        Route::patch('settings/update/invoice-settings', [SettingsController::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
-        Route::get('settings/download-invoices', [SettingsController::class, 'downloadAllInvoices'])->name('settings.downloadAllInvoices');;
+        #settings
+        Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateSettings'])->name('settings.update.invoicesettings');
+        Route::patch('settings/update/language', [Language::class, 'updateSettings'])->name('settings.update.languagesettings');
+        Route::patch('settings/update/payment', [Payments::class, 'updateSettings'])->name('settings.update.paymentsettings');
+        Route::patch('settings/update/misc', [Misc::class, 'updateSettings'])->name('settings.update.miscsettings');
+        Route::patch('settings/update/system', [System::class, 'updateSettings'])->name('settings.update.systemsettings');
         Route::resource('settings', SettingsController::class)->only('index');
 
+        #invoices
+        Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');;
+        Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');;
+
+        #usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
 
+        #vouchers
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
         Route::get('vouchers/{voucher}/usersdatatable', [VoucherController::class, 'usersdatatable'])->name('vouchers.usersdatatable');
         Route::get('vouchers/{voucher}/users', [VoucherController::class, 'users'])->name('vouchers.users');
         Route::resource('vouchers', VoucherController::class);
 
+        #api-keys
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
         Route::resource('api', ApplicationApiController::class)->parameters([
             'api' => 'applicationApi',

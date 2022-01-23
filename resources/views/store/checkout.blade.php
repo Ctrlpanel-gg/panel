@@ -78,7 +78,7 @@
                                 <p class="lead">{{ __('Payment Methods') }}:</p>
 
                                 <div>
-                                    @if (env('PAYPAL_SANDBOX_SECRET') || env('PAYPAL_SECRET'))
+                                    @if (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') || config('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET'))
                                         <label class="text-center " for="paypal">
                                             <img class="mb-3" height="50"
                                                 src="{{ url('/images/paypal_logo.png') }}"></br>
@@ -88,7 +88,7 @@
                                             </input>
                                         </label>
                                     @endif
-                                    @if (env('STRIPE_TEST_SECRET') || env('STRIPE_SECRET'))
+                                    @if (config('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET') || config('SETTINGS::PAYMENTS:STRIPE:SECRET'))
                                         <label class="ml-5 text-center " for="stripe">
                                             <img class="mb-3" height="50"
                                                 src="{{ url('/images/stripe_logo.png') }}" /></br>

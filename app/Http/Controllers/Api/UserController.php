@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Classes\Pterodactyl;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
-use App\Models\Configuration;
 use App\Models\DiscordUser;
+use App\Models\Settings;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -242,8 +242,8 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'credits' => Configuration::getValueByKey('INITIAL_CREDITS', 150),
-            'server_limit' => Configuration::getValueByKey('INITIAL_SERVER_LIMIT', 1),
+            'credits' => Settings::getValueByKey('SETTINGS::USER:INITIAL_CREDITS', 150),
+            'server_limit' => Settings::getValueByKey('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password' => Hash::make($request->input('password')),
         ]);
 

@@ -32,6 +32,7 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
+    <script src="{{ asset('js/app.js') }}"></script>
 </head>
 
 <body class="sidebar-mini layout-fixed dark-mode" style="height: auto;">
@@ -53,7 +54,6 @@
 
     <!-- Select2 -->
     <script src={{ asset('plugins/select2/js/select2.min.js') }}></script>
-
     <div class="wrapper">
         <!-- Navbar -->
         <nav class="main-header sticky-top navbar navbar-expand navbar-dark navbar-light">
@@ -68,34 +68,34 @@
                             class="fas fa-home mr-2"></i>{{ __('Home') }}</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ env('DISCORD_INVITE_URL') }}" class="nav-link" target="__blank"><i
+                    <a href="{{ config('SETTINGS::DISCORD:INVITE_URL') }}" class="nav-link" target="__blank"><i
                             class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
                 </li>
                 <!-- Language Selection -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
-                        <span class="mr-1 d-lg-inline text-gray-600">
-                            <small><i class="fa fa-language mr-2"></i></small>{{ __('Languages') }}
-                        </span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                        aria-labelledby="changeLocale">
-                        <form method="post" action="{{ route('changeLocale') }}" class="nav-item text-center">
-                            @csrf
-                            @foreach (config('app.available_locales') as $key => $value)
-                                @if (!in_array(strtolower($key), UNSUPPORTED_LANGS))
-                                    <button class="dropdown-item" name="inputLocale" value="{{ $value }}">
-                                        {{ $key }}
+                @if (config('SETTINGS::LOCALE:CLIENTS_CAN_CHANGE') == 'true')
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <span class="mr-1 d-lg-inline text-gray-600">
+                                <small><i class="fa fa-language mr-2"></i></small>{{ __('Language') }}
+                            </span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                            aria-labelledby="changeLocale">
+                            <form method="post" action="{{ route('changeLocale') }}" class="nav-item text-center">
+                                @csrf
+                                @foreach (explode(',', config('SETTINGS::LOCALE:AVAILABLE')) as $key)
+                                    <button class="dropdown-item" name="inputLocale" value="{{ $key }}">
+                                        {{ __($key) }}
                                     </button>
-                                @endif
 
-                            @endforeach
+                                @endforeach
 
-                        </form>
-                    </div>
-                </li>
-                <!-- End Language Selection -->
+                            </form>
+                        </div>
+                    </li>
+                    <!-- End Language Selection -->
+                @endif
             </ul>
 
             <!-- Right navbar links -->
@@ -230,7 +230,7 @@
                             </a>
                         </li>
 
-                        @if ((env('PAYPAL_SECRET') && env('PAYPAL_CLIENT_ID')) || env('APP_ENV', 'local') == 'local')
+                        @if ((config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) || env('APP_ENV', 'local') == 'local')
                             <li class="nav-item">
                                 <a href="{{ route('store.index') }}" class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
                                     <i class="nav-icon fa fa-coins"></i>
@@ -251,13 +251,6 @@
                                 </a>
                             </li>
 
-                            <li class="nav-item">
-                                <a href="{{ route('admin.configurations.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.configurations.*')) active @endif">
-                                    <i class="nav-icon fas fa-cogs"></i>
-                                    <p>{{ __('Configurations') }}</p>
-                                </a>
-                            </li>
 
                             <li class="nav-item">
                                 <a href="{{ route('admin.settings.index') }}"
@@ -300,8 +293,7 @@
                             </li>
 
                             <li class="nav-item">
-                                <a href="{{ route('admin.store.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
+                                <a href="{{ route('admin.store.index') }}" class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
                                     <i class="nav-icon fas fa-shopping-basket"></i>
                                     <p>{{ __('Store') }}</p>
                                 </a>
@@ -411,6 +403,27 @@
     </div>
     <!-- ./wrapper -->
 
+    <!-- Scripts -->
+    {{-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> --}}
+    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> --}}
+    {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script> --}}
+    {{-- <script src="{{ asset('js/adminlte.min.js') }}"></script> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
+    <!-- Summernote -->
+    <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
+    <!-- select2 -->
+    <script src="{{ asset('plugins/select2/js/select2.min.js') }}"></script>
+
+    <!-- Moment.js -->
+    <script src="{{ asset('plugins/moment/moment.min.js') }}"></script>
+
+    <!-- Datetimepicker -->
+    <script src="{{ asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+
+    <!-- Select2 -->
+    <script src={{ asset('plugins/select2/js/select2.min.js') }}></script>
     <script>
         $(document).ready(function() {
             $('[data-toggle="popover"]').popover();
@@ -430,7 +443,6 @@
             html: '{{ Session::get('error') }}',
             })
         @endif
-
         @if (Session::has('success'))
             Swal.fire({
             icon: 'success',

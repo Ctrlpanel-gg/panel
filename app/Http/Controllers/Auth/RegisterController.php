@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
-use App\Models\Configuration;
+use App\Models\Settings;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -54,30 +54,28 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        if (Configuration::getValueByKey('REGISTER_IP_CHECK', 'true') == 'true') {
+        $validationRules = [
+            'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
+            'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
+            'password'             => ['required', 'string', 'min:8', 'confirmed'],
+        ];
+        if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
+            $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+        }
+
+        if (config('SETTINGS::SYSTEM:REGISTER_IP_CHECK', 'true') == 'true') {
 
             //check if ip has already made an account
             $data['ip'] = session()->get('ip') ?? request()->ip();
             if (User::where('ip', '=', request()->ip())->exists()) session()->put('ip', request()->ip());
+            $validationRules['ip']  = ['unique:users'];
+            return Validator::make($data, $validationRules, [
+                'ip.unique' => "You have already made an account! Please contact support if you think this is incorrect."
 
-            return Validator::make($data, [
-                'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
-                'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
-                'password'             => ['required', 'string', 'min:8', 'confirmed'],
-                'g-recaptcha-response' => ['recaptcha'],
-                'ip'                   => ['unique:users'],
-            ], [
-                'ip.unique' => __("You have already made an account with us! Please contact support if you think this is incorrect.")
             ]);
         }
 
-        return Validator::make($data, [
-            'name'                 => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
-            'email'                => ['required', 'string', 'email', 'max:64', 'unique:users'],
-            'password'             => ['required', 'string', 'min:8', 'confirmed'],
-            'g-recaptcha-response' => ['recaptcha'],
-        ]);
-
+        return Validator::make($data, $validationRules);
     }
 
     /**
@@ -91,8 +89,8 @@ class RegisterController extends Controller
         $user = User::create([
             'name'         => $data['name'],
             'email'        => $data['email'],
-            'credits'      => Configuration::getValueByKey('INITIAL_CREDITS', 150),
-            'server_limit' => Configuration::getValueByKey('INITIAL_SERVER_LIMIT', 1),
+            'credits'      => config('SETTINGS::USER:INITIAL_CREDITS', 150),
+            'server_limit' => config('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password'     => Hash::make($data['password']),
         ]);
 

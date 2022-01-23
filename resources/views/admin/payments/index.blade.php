@@ -27,6 +27,10 @@
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title"><i class="fas fa-money-bill-wave mr-2"></i>{{ __('Payments') }}</h5>
+                    <div class="float-right">
+                        <a href="{{ route('admin.invoices.downloadAllInvoices') }}"><button
+                                class="btn btn-info">{{ __('Download all Invoices') }}</button></a>
+                    </div>
                 </div>
 
                 <div class="card-body table-responsive">
@@ -43,6 +47,7 @@
                                 <th>{{ __('Payment ID') }}</th>
                                 <th>{{ __('Payment Method') }}</th>
                                 <th>{{ __('Created at') }}</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,6 +83,7 @@
                     {data: 'payment_id'},
                     {data: 'payment_method'},
                     {data: 'created_at'},
+                    {data: 'actions' , sortable : false},
                 ],
                 fnDrawCallback: function(oSettings) {
                     $('[data-toggle="popover"]').popover();

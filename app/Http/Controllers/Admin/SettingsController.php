@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\InvoiceSettings;
+use App\Models\Settings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use ZipArchive;
 
 class SettingsController extends Controller
 {
@@ -20,81 +19,68 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        /** @var InvoiceSettings $invoiceSettings */
-        $invoiceSettings = InvoiceSettings::first();
+        //Get all tabs as laravel view paths
+        $tabs = [];
+        foreach (glob(resource_path('views/admin/settings/tabs/*.blade.php')) as $filename) {
+            $tabs[] = 'admin.settings.tabs.' . basename($filename, '.blade.php');
+        }
 
-        return view('admin.settings.index', $invoiceSettings->toArray());
+        //Generate a html list item for each tab based on tabs file basename, set first tab as active
+        $tabListItems = [];
+        foreach ($tabs as $tab) {
+            $tabName = str_replace('admin.settings.tabs.', '', $tab);
+            $tabListItems[] = '<li class="nav-item">
+            <a class="nav-link ' . (empty($tabListItems) ? 'active' : '') . '" data-toggle="pill" href="#' . $tabName . '">
+            ' . __(ucfirst($tabName)) . '
+            </a></li>';
+        }
+
+        return view('admin.settings.index', [
+            'tabs' => $tabs,
+            'tabListItems' => $tabListItems,
+        ]);
     }
 
-    public function updateIcons(Request $request)
+
+    public function updatevalue(Request $request)
     {
+        $setting = Settings::findOrFail($request->input('key'));
+
         $request->validate([
-            'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
-            'favicon' => 'nullable|max:10000|mimes:ico',
+            'key'   => 'required|string|max:191',
+            'value' => 'required|string|max:191',
         ]);
 
-        if ($request->hasFile('icon')) {
-            $request->file('icon')->storeAs('public', 'icon.png');
-        }
+        $setting->update($request->all());
 
-        if ($request->hasFile('favicon')) {
-            $request->file('favicon')->storeAs('public', 'favicon.ico');
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', __('Icons updated!'));
+        return redirect()->route('admin.settings.index')->with('success', __('configuration has been updated!'));
     }
 
-    public function updateInvoiceSettings(Request $request)
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param Settings $setting
+     * @return Response
+     */
+    public function destroy(Settings $setting)
     {
-        $request->validate([
-            'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
-        ]);
-
-        InvoiceSettings::updateOrCreate([
-            'id' => "1"
-        ], [
-            'company_name' => $request->get('company-name'),
-            'company_adress' => $request->get('company-address'),
-            'company_phone' => $request->get('company-phone'),
-            'company_mail' => $request->get('company-mail'),
-            'company_vat' => $request->get('company-vat'),
-            'company_web' => $request->get('company-web'),
-            'invoice_prefix' => $request->get('invoice-prefix'),
-        ]);
-
-        if ($request->hasFile('logo')) {
-            $request->file('logo')->storeAs('public', 'logo.png');
-        }
-
-
-        return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
+        //
     }
 
-    public function downloadAllInvoices()
+    public function datatable()
     {
-        $zip = new ZipArchive;
-        $zip_safe_path = storage_path('invoices.zip');
-        $res = $zip->open($zip_safe_path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-        $result = $this::rglob(storage_path('app/invoice/*'));
-        if ($res === TRUE) {
-            $zip->addFromString("1. Info.txt", "This Archive contains all Invoices from all Users!\nIf there are no Invoices here, no Invoices have ever been created!");
-            foreach ($result as $file) {
-                if (file_exists($file) && is_file($file)) {
-                    $zip->addFile($file, basename($file));
-                }
-            }
-            $zip->close();
-        }
-        return response()->download($zip_safe_path);
-    }
+        $query = Settings::where('key', 'like', '%SYSTEM%')
+            ->orWhere('key', 'like', '%USER%')
+            ->orWhere('key', 'like', '%SERVER%');
 
-    public function rglob($pattern, $flags = 0)
-    {
-        $files = glob($pattern, $flags);
-        foreach (glob(dirname($pattern) . '/*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
-            $files = array_merge($files, $this::rglob($dir . '/' . basename($pattern), $flags));
-        }
-        return $files;
+        return datatables($query)
+            ->addColumn('actions', function (Settings $setting) {
+                return '<button data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top" onclick="configuration.parse(\'' . $setting->key . '\',\'' . $setting->value . '\',\'' . $setting->type . '\')" data-content="Edit" data-trigger="hover" data-toggle="tooltip" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></button> ';
+            })
+            ->editColumn('created_at', function (Settings $setting) {
+                return $setting->created_at ? $setting->created_at->diffForHumans() : '';
+            })
+            ->rawColumns(['actions'])
+            ->make();
     }
-
 }

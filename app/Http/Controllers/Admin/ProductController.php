@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Egg;
 use App\Models\Location;
 use App\Models\Nest;
-use App\Models\Node;
-use App\Models\Configuration;
 use App\Models\Product;
+use App\Models\Settings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -16,7 +14,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
@@ -97,7 +94,7 @@ class ProductController extends Controller
     {
         return view('admin.products.show', [
             'product' => $product,
-            'minimum_credits' => Configuration::getValueByKey("MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER"),
+            'minimum_credits' => Settings::getValueByKey("SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER"),
         ]);
     }
 

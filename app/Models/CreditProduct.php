@@ -59,7 +59,7 @@ class CreditProduct extends Model
     */
     public function getTaxPercent()
     {
-        $tax = Configuration::getValueByKey("SALES_TAX");
+        $tax = Settings::getValueByKey("SETTINGS::PAYMENTS:SALES_TAX");
         return $tax < 0 ? 0 : $tax;
     }
 
