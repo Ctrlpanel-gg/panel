@@ -182,10 +182,10 @@ echo $cardheader;
     ?>
 
     <form method="POST" enctype="multipart/form-data" class="mb-3"
-          action="/install/forms.php" name="installComposer">
+          action="/install/forms.php" name="feedDB">
 
 
-        <button class="btn btn-primary" name="installComposer">Submit</button>
+        <button class="btn btn-primary" name="feedDB">Submit</button>
         </div>
         </div>
 

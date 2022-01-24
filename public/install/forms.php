@@ -64,7 +64,7 @@ if (isset($_POST['checkGeneral'])) {
 
 }
 
-if (isset($_POST['installComposer'])) {
+if (isset($_POST['feedDB'])) {
     $logs = "";
 
     #$logs .= run_console(putenv('COMPOSER_HOME=' . dirname(__FILE__, 3) . '/vendor/bin/composer'));
