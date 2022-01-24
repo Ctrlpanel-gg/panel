@@ -35,13 +35,11 @@ if (isset($_POST['checkDB'])) {
 
     foreach ($values as $key => $value) {
         $param = $_POST[$value];
-        if ($key=="DB_PASSWORD"){
-           $param ='"' . $_POST[$value] . '"';
-        }
+       # if ($key == "DB_PASSWORD") {
+        #    $param = '"' . $_POST[$value] . '"';
+       # }
         setEnvironmentValue($key, $param);
     }
-
-
 
     header("LOCATION: index.php?step=2.5");
 
@@ -68,24 +66,29 @@ if (isset($_POST['checkGeneral'])) {
 
 if (isset($_POST['installComposer'])) {
     $logs = "";
-       $logs .= run_console(putenv('COMPOSER_HOME=' . dirname(__FILE__, 3) . '/vendor/bin/composer'));
-        $logs .= run_console('composer install --no-dev --optimize-autoloader');
-        $logs .= run_console('php artisan key:generate --force');
-        $logs .= run_console('php artisan storage:link');
 
-        $logsfile = fopen("logs.txt", "w") or die("Unable to open file!");
-        fwrite($logsfile, $logs);
-        fclose($logsfile);
+    #$logs .= run_console(putenv('COMPOSER_HOME=' . dirname(__FILE__, 3) . '/vendor/bin/composer'));
+    #$logs .= run_console('composer install --no-dev --optimize-autoloader');
+    $logs .= run_console('php artisan migrate --seed --force');
+    $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
+    $logs .= run_console('php artisan key:generate --force');
+    $logs .= run_console('php artisan storage:link');
 
-        if(str_contains(getEnvironmentValue("APP_KEY"), "base64")){
-                  header("LOCATION: index.php?step=3");
-        }else{
-                header("LOCATION: index.php?step=2.5&message=There was an error. Please check install/logs.txt !");
-              }
+    $logsfile = fopen("logs.txt", "w") or die("Unable to open file!");
+    fwrite($logsfile, $logs);
+    fclose($logsfile);
+
+    if (str_contains(getEnvironmentValue("APP_KEY"), "base64")) {
+        header("LOCATION: index.php?step=3");
+    } else {
+        header("LOCATION: index.php?step=2.5&message=There was an error. Please check install/logs.txt !");
+    }
+
 
 }
 
 if (isset($_POST['checkSMTP'])) {
+
     try {
         $mail = new PHPMailer(true);
 
@@ -114,21 +117,26 @@ if (isset($_POST['checkSMTP'])) {
         die();
     }
 
+    $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
+    if ($db->connect_error) {
+        header("LOCATION: index.php?step=4&message=Could not connect to the Database");
+    die();
+    }
     $values = [
-        //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
-        "MAIL_MAILER" => "method",
-        "MAIL_HOST" => "host",
-        "MAIL_PORT" => "port",
-        "MAIL_USERNAME" => "user",
-        "MAIL_PASSWORD" => "pass",
-        "MAIL_ENCRYPTION" => "encryption",
-        "MAIL_FROM_ADDRESS" => "user"
+        "SETTINGS::MAIL:MAILER" => $_POST["method"],
+        "SETTINGS::MAIL:HOST" => $_POST["host"],
+        "SETTINGS::MAIL:PORT" => $_POST["port"],
+        "SETTINGS::MAIL:USERNAME" => $_POST["user"],
+        "SETTINGS::MAIL:PASSWORD" => $_POST["pass"],
+        "SETTINGS::MAIL:ENCRYPTION" => $_POST["encryption"],
+        "SETTINGS::MAIL:FROM_ADDRESS" => $_POST["user"]
     ];
 
     foreach ($values as $key => $value) {
-        $param = $_POST[$value];
-        setEnvironmentValue($key, $param);
+        $query = "UPDATE `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` SET `value` = '$value' WHERE (`key` = '$key')";
+        $db->query($query);
     }
+
     header("LOCATION: index.php?step=5");
 
 
@@ -162,8 +170,10 @@ if (isset($_POST['checkPtero'])) {
         header("LOCATION: index.php?step=5&message=Couldnt connect to Pterodactyl. Make sure your API key has all read and write permissions!");
         die();
     } else {
-        $query1 = "UPDATE `dashboard`.`settings` SET `value` = '$url' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL')";
-        $query2 = "UPDATE `dashboard`.`settings` SET `value` = '$key' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN')";
+
+        $query1 = "UPDATE `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` SET `value` = '$url' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL')";
+        $query2 = "UPDATE `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` SET `value` = '$key' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN')";
+
 
         $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
         if ($db->connect_error) {
@@ -194,8 +204,10 @@ if (isset($_POST['createUser'])) {
     $pteroID = $_POST['pteroID'];
     $pass = $_POST['pass'];
     $repass = $_POST['repass'];
-    $key = $db->query("SELECT `value` FROM dashboard.settings WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN'")->fetch_assoc();
-    $pterobaseurl = $db->query("SELECT `value` FROM dashboard.settings WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL'")->fetch_assoc();
+
+    $key = $db->query("SELECT `value` FROM `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN'")->fetch_assoc();
+    $pterobaseurl = $db->query("SELECT `value` FROM `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL'")->fetch_assoc();
+
 
 
     $pteroURL = $pterobaseurl["value"] . "/api/application/users/" . $pteroID;
@@ -250,14 +262,16 @@ if (isset($_POST['createUser'])) {
         die();
     }
 
+    $query1 = "INSERT INTO `" . getEnvironmentValue("DB_DATABASE") . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP)";
 
-    $query1 = "INSERT INTO `dashboard`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass')";
 
 
     if ($db->query($query1)) {
         header("LOCATION: index.php?step=7");
     } else {
+
         header("LOCATION: index.php?step=6&message=Something went wrong when communicating with the Database!");
+
     }
 
 

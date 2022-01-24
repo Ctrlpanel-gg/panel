@@ -53,9 +53,11 @@ $cardheader = '
 
 
 if (!isset($_GET['step'])) {
-    
-    if(!file_exists("../../.env")){
-    echo run_console('cp .env.example .env');
+
+
+    if (!file_exists("../../.env")) {
+        echo run_console('cp .env.example .env');
+
     }
     echo $cardheader;
     ?>
@@ -72,7 +74,9 @@ if (!isset($_GET['step'])) {
         foreach (checkExtensions() as $ext) {
             echo $ext . ", ";
         }
-        print(sizeof(checkExtensions()) == 0 ? "" : "(Proceed anyway)");?></p>
+
+        print(sizeof(checkExtensions()) == 0 ? "" : "(Proceed anyway)"); ?></p>
+
 
     <!-- <p class="<?php print(getZipVersion() === "OK" ? "ok" : "notok"); ?>"> Zip
                 version: <?php echo getZipVersion(); ?> </p> -->
@@ -169,7 +173,7 @@ echo $cardheader;
     if (isset($_GET['step']) && $_GET['step'] == 2.5) {
     echo $cardheader;
     ?>
-    <p class="login-box-msg">Lets install Composer!</p>
+    <p class="login-box-msg">Lets install Composer and generate some security keys!</p>
     <p> This process might take a while. Please do not refresh or close this page!</p>
     <?php if (isset($_GET['message'])) {
         echo "<p class='notok'>" . $_GET['message'] . "</p>";
@@ -181,7 +185,7 @@ echo $cardheader;
           action="/install/forms.php" name="installComposer">
 
 
-            <button class="btn btn-primary" name="installComposer">Submit</button>
+        <button class="btn btn-primary" name="installComposer">Submit</button>
         </div>
         </div>
 
@@ -191,121 +195,43 @@ echo $cardheader;
         <?php
         }
 
-    if (isset($_GET['step']) && $_GET['step'] == 3) {
-    echo $cardheader;
-    ?>
-    <p class="login-box-msg">Tell us something about your Host</p>
-    <?php if (isset($_GET['message'])) {
-        echo "<p class='notok'>" . $_GET['message'] . "</p>";
-    }
-    ?>
 
-    <form method="POST" enctype="multipart/form-data" class="mb-3"
-          action="/install/forms.php" name="checkGeneral">
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <div class="custom-control mb-3">
-                        <label for="database">Your Dashboard URL</label>
-                        <input id="url" name="url"
-                               type="text" required
-                               value="https://dash.example.com" class="form-control">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="custom-control mb-3">
-                        <label for="name">Your Host-Name</label>
-                        <input id="name" name="name" type="text"
-                               required
-                               value="Controlpanel.gg" class="form-control">
-                    </div>
-                </div>
-
-
-            </div>
-
-            <button class="btn btn-primary" name="checkGeneral">Submit</button>
-        </div>
-        </div>
-
-
-        </div>
-
-        <?php
-        }
-        if (isset($_GET['step']) && $_GET['step'] == 4) {
+        if (isset($_GET['step']) && $_GET['step'] == 3) {
         echo $cardheader;
         ?>
-        <p class="login-box-msg">Lets get your E-Mails going! </p>
-        <p class="login-box-msg">This might take a few seconds when submitted! </p>
+        <p class="login-box-msg">Tell us something about your Host</p>
+
         <?php if (isset($_GET['message'])) {
             echo "<p class='notok'>" . $_GET['message'] . "</p>";
         }
         ?>
 
         <form method="POST" enctype="multipart/form-data" class="mb-3"
-              action="/install/forms.php" name="checkSMTP">
+              action="/install/forms.php" name="checkGeneral">
+
 
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
                         <div class="custom-control mb-3">
-                            <label for="method">Your E-Mail method</label>
-                            <input id="method" name="method"
+                            <label for="database">Your Dashboard URL</label>
+                            <input id="url" name="url"
                                    type="text" required
-                                   value="smtp" class="form-control">
+                                   value="https://dash.example.com" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="custom-control mb-3">
-                            <label for="host">Your Mailer-Host</label>
-                            <input id="host" name="host" type="text"
+                            <label for="name">Your Host-Name</label>
+                            <input id="name" name="name" type="text"
                                    required
-                                   value="smtp.google.com" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="custom-control mb-3">
-                            <label for="port">Your Mail Port</label>
-                            <input id="port" name="port" type="port"
-                                   required
-                                   value="567" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="custom-control mb-3">
-                            <label for="user">Your Mail User</label>
-                            <input id="user" name="user" type="text"
-                                   required
-                                   value="info@mydomain.com" class="form-control">
-                        </div>
-                    </div>
-
-
-                    <div class="form-group">
-                        <div class="custom-control mb-3">
-                            <label for="pass">Your Mail-User Password</label>
-                            <input id="pass" name="pass" type="password"
-                                   required
-                                   value="" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="custom-control mb-3">
-                            <label for="encryption">Your Mail encryption method</label>
-                            <input id="encryption" name="encryption" type="text"
-                                   required
-                                   value="tls" class="form-control">
+                                   value="Controlpanel.gg" class="form-control">
                         </div>
                     </div>
 
                 </div>
 
-                <button class="btn btn-primary" name="checkSMTP">Submit</button>
+                <button class="btn btn-primary" name="checkGeneral">Submit</button>
             </div>
             </div>
 
@@ -314,41 +240,11 @@ echo $cardheader;
 
             <?php
             }
-            if (isset($_GET['step']) && $_GET['step'] == 5) {
-            if (isset($_GET['exec'])) {
-                $resp = "";
-                $resp = run_console('php artisan migrate --seed --force');
-                $resp .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
-                $logsfile = fopen("logs.txt", "w") or die("Unable to open file!");
-                fwrite($logsfile, $resp);
-                fclose($logsfile);
-            }
+            if (isset($_GET['step']) && $_GET['step'] == 4) {
             echo $cardheader;
             ?>
-
-            <p class="login-box-msg">Almost done! </p>
-            <p class="login-box-msg">Lets get some info about your Pterodactyl Installation!</p>
-            <p class="alert alert-warning" role="alert">Before filling these information, make sure to click the button below</p>
-            <?php 
-            if (!isset($resp)) { ?>
-
-                <a href="?step=5&exec">
-                    <button class="btn btn-success">Run DB-Seeding!</button>
-
-                </a>
-            <?php } else {
-                echo
-                "<div class='alert alert-info'>";
-                if(str_contains($resp,"Database seeding completed successfully.")){
-                   echo "All done!";
-                }else{
-
-                      "There was an error. Check /install/logs.txt";
-                  }
-                echo "</div>";
-            }
-            ?>
-
+            <p class="login-box-msg">Lets get your E-Mails going! </p>
+            <p class="login-box-msg">This might take a few seconds when submitted! </p>
 
             <?php if (isset($_GET['message'])) {
                 echo "<p class='notok'>" . $_GET['message'] . "</p>";
@@ -356,32 +252,72 @@ echo $cardheader;
             ?>
 
             <form method="POST" enctype="multipart/form-data" class="mb-3"
-                  action="/install/forms.php" name="checkPtero">
+
+                  action="/install/forms.php" name="checkSMTP">
+
 
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
                             <div class="custom-control mb-3">
-                                <label for="url">Pterodactyl URL</label>
-                                <input id="url" name="url"
+                                <label for="method">Your E-Mail method</label>
+                                <input id="method" name="method"
                                        type="text" required
-                                       value="https://ptero.example.com" class="form-control">
+                                       value="smtp" class="form-control">
+
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="custom-control mb-3">
-                                <label for="key">Pterodactyl API-Key</label>
-                                <input id="key" name="key" type="text"
+                                <label for="host">Your Mailer-Host</label>
+                                <input id="host" name="host" type="text"
                                        required
-                                       value="" class="form-control"
-                                       placeholder="The Key needs ALL read&write Permissions!">
+                                       value="smtp.google.com" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="custom-control mb-3">
+                                <label for="port">Your Mail Port</label>
+                                <input id="port" name="port" type="port"
+                                       required
+                                       value="567" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="custom-control mb-3">
+                                <label for="user">Your Mail User</label>
+                                <input id="user" name="user" type="text"
+                                       required
+                                       value="info@mydomain.com" class="form-control">
                             </div>
                         </div>
 
 
+                        <div class="form-group">
+                            <div class="custom-control mb-3">
+                                <label for="pass">Your Mail-User Password</label>
+                                <input id="pass" name="pass" type="password"
+                                       required
+                                       value="" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="custom-control mb-3">
+                                <label for="encryption">Your Mail encryption method</label>
+                                <input id="encryption" name="encryption" type="text"
+                                       required
+                                       value="tls" class="form-control">
+                            </div>
+                        </div>
+
                     </div>
 
-                    <button <?php if(!isset($_GET['exec'])){echo "disabled";} ?> class="btn btn-primary" name="checkPtero">Submit</button>
+                    <button class="btn btn-primary" name="checkSMTP">Submit</button>
+                    <a href="?step=5"><button class="btn btn-warning">Skip this step</button></a>
+
                 </div>
                 </div>
 
@@ -391,68 +327,53 @@ echo $cardheader;
                 <?php
                 }
 
-                if (isset($_GET['step']) && $_GET['step'] == 6) {
+                if (isset($_GET['step']) && $_GET['step'] == 5) {
+
                 echo $cardheader;
                 ?>
-                <p class="login-box-msg">Lets create yourself!</p>
-                <p class="login-box-msg">We're making the first Admin user</p>
+
+                <p class="login-box-msg">Almost done! </p>
+                <p class="login-box-msg">Lets get some info about your Pterodactyl Installation!</p>
+
+
                 <?php if (isset($_GET['message'])) {
                     echo "<p class='notok'>" . $_GET['message'] . "</p>";
                 }
                 ?>
 
                 <form method="POST" enctype="multipart/form-data" class="mb-3"
-                      action="/install/forms.php" name="createUser">
+
+                      action="/install/forms.php" name="checkPtero">
+
 
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <div class="custom-control mb-3">
-                                    <label for="user">Your Username</label>
-                                    <input id="user" name="user"
+
+                                    <label for="url">Pterodactyl URL</label>
+                                    <input id="url" name="url"
                                            type="text" required
-                                           value="" class="form-control">
+                                           value="https://ptero.example.com" class="form-control">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="custom-control mb-3">
-                                    <label for="email">Your Email Adress (used to Login)</label>
-                                    <input id="email" name="email"
-                                           type="text" required
-                                           value="" class="form-control">
+                                    <label for="key">Pterodactyl API-Key</label>
+                                    <input id="key" name="key" type="text"
+                                           required
+                                           value="" class="form-control"
+                                           placeholder="The Key needs ALL read&write Permissions!">
                                 </div>
                             </div>
 
-
-                            <div class="form-group">
-                                <div class="custom-control mb-3">
-                                    <label for="pass">Password</label>
-                                    <input id="pass" name="pass" type="password"
-                                           required
-                                           value="" minlength="8" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="custom-control mb-3">
-                                    <label for="repass">Retype Pass</label>
-                                    <input id="repass" name="repass" type="password"
-                                           required
-                                           value="" minlength="8" class="form-control">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="custom-control mb-3">
-                                    <label for="pteroID">Your Pterodactyl User-ID</label>
-                                    <input id="pteroID" name="pteroID" type="text"
-                                           required
-                                           value="" class="form-control">
-                                </div>
-                            </div>
 
                         </div>
 
-                        <button class="btn btn-primary" name="createUser">Submit</button>
+                        <button <?php if (!isset($_GET['exec'])) {
+                            echo "disabled";
+                        } ?> class="btn btn-primary" name="checkPtero">Submit
+                        </button>
                     </div>
                     </div>
 
@@ -461,30 +382,101 @@ echo $cardheader;
 
                     <?php
                     }
-                    if (isset($_GET['step']) && $_GET['step'] == 7) {
-                        $lockfile = fopen("install.lock", "w") or die("Unable to open file!");
-                        fwrite($lockfile, "locked");
-                        fclose($lockfile);
 
-                        echo $cardheader;
-
-                        ?>
-                        <p class="login-box-msg">All done!</p>
-                        <p class="login-box-msg">You may navigate to your Dashboard now and log in!</p>
-                        <a href="<?php echo "https://" . $_SERVER['SERVER_NAME']; ?>">
-                            <button class="btn btn-success">Lets go!</button>
-                        </a>
-                        </div>
-
-
-                        </div>
-                        <?php
+                    if (isset($_GET['step']) && $_GET['step'] == 6) {
+                    echo $cardheader;
+                    ?>
+                    <p class="login-box-msg">Lets create yourself!</p>
+                    <p class="login-box-msg">We're making the first Admin user</p>
+                    <?php if (isset($_GET['message'])) {
+                        echo "<p class='notok'>" . $_GET['message'] . "</p>";
                     }
                     ?>
 
+                    <form method="POST" enctype="multipart/form-data" class="mb-3"
+                          action="/install/forms.php" name="createUser">
 
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-                            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-                            crossorigin="anonymous"></script>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="custom-control mb-3">
+                                        <label for="user">Your Username</label>
+                                        <input id="user" name="user"
+                                               type="text" required
+                                               value="" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control mb-3">
+                                        <label for="email">Your Email Adress (used to Login)</label>
+                                        <input id="email" name="email"
+                                               type="text" required
+                                               value="" class="form-control">
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="custom-control mb-3">
+                                        <label for="pass">Password</label>
+                                        <input id="pass" name="pass" type="password"
+                                               required
+                                               value="" minlength="8" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="custom-control mb-3">
+                                        <label for="repass">Retype Pass</label>
+                                        <input id="repass" name="repass" type="password"
+                                               required
+                                               value="" minlength="8" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="custom-control mb-3">
+                                        <label for="pteroID">Your Pterodactyl User-ID</label>
+                                        <input id="pteroID" name="pteroID" type="text"
+                                               required
+                                               value="" class="form-control">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <button class="btn btn-primary" name="createUser">Submit</button>
+                        </div>
+                        </div>
+
+
+                        </div>
+
+                        <?php
+                        }
+                        if (isset($_GET['step']) && $_GET['step'] == 7) {
+                            $lockfile = fopen("install.lock", "w") or die("Unable to open file!");
+                            fwrite($lockfile, "locked");
+                            fclose($lockfile);
+
+                            echo $cardheader;
+
+                            ?>
+                            <p class="login-box-msg">All done!</p>
+                            <p class="login-box-msg">You may navigate to your Dashboard now and log in!</p>
+                            <a href="<?php echo "https://" . $_SERVER['SERVER_NAME']; ?>">
+                                <button class="btn btn-success">Lets go!</button>
+                            </a>
+                            </div>
+
+
+                            </div>
+                            <?php
+                        }
+                        ?>
+
+
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+                                integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+                                crossorigin="anonymous"></script>
 </body>
 </html>

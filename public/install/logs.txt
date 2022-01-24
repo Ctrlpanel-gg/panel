@@ -1,0 +1,16 @@
+Nothing to migrate.
+Seeding: Database\Seeders\Seeds\SettingsSeeder
+Seeded:  Database\Seeders\Seeds\SettingsSeeder (38.00ms)
+Database seeding completed successfully.
+Seeding: Database\Seeders\Seeds\ProductSeeder
+Seeded:  Database\Seeders\Seeds\ProductSeeder (100.42ms)
+Seeding: Database\Seeders\Seeds\CreditProductSeeder
+Seeded:  Database\Seeders\Seeds\CreditProductSeeder (18.76ms)
+Seeding: Database\Seeders\Seeds\ApplicationApiSeeder
+Seeded:  Database\Seeders\Seeds\ApplicationApiSeeder (3.40ms)
+Seeding: Database\Seeders\Seeds\UsefulLinksSeeder
+Seeded:  Database\Seeders\Seeds\UsefulLinksSeeder (7.57ms)
+Database seeding completed successfully.
+Application key set successfully.
+The [/windir/c/Users/leipe/Desktop/dashboard/public/storage] link already exists.
+The links have been created.
