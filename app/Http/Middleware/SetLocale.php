@@ -22,17 +22,16 @@ class SetLocale
     public function handle($request, Closure $next)
     {
         if (Session::has('locale')) {
-            $locale = Session::get('locale', Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT"));
+            $locale = Session::get('locale', config("SETTINGS::LOCALE:DEFAULT"));
         } else {
-            if (Settings::getValueByKey("SETTINGS::LOCALE:DYNAMIC")!=="true") {
-                $locale = Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT");
+            if (config("SETTINGS::LOCALE:DYNAMIC") !== "true") {
+                $locale = config("SETTINGS::LOCALE:DEFAULT");
             } else {
                 $locale = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
 
-                if (!in_array($locale, json_decode(Settings::getValueByKey("SETTINGS::LOCALE:AVAILABLE")))) {
-                    $locale = Settings::getValueByKey("SETTINGS::LOCALE:DEFAULT");
+                if (!in_array($locale, explode(',', config("SETTINGS::LOCALE:AVAILABLE")))) {
+                    $locale = config("SETTINGS::LOCALE:DEFAULT");
                 }
-
             }
         }
         App::setLocale($locale);

@@ -8,16 +8,13 @@ use Illuminate\Support\Facades\Cache;
 
 class Invoices
 {
-    public $tabTitle = 'Invoice Settings';
-    public $invoiceSettings;
-
     public function __construct()
     {
         return;
     }
 
 
-    public function updateInvoiceSettings(Request $request)
+    public function updateSettings(Request $request)
     {
         $request->validate([
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
@@ -31,15 +28,14 @@ class Invoices
             "SETTINGS::INVOICE:COMPANY_MAIL" => "company-mail",
             "SETTINGS::INVOICE:COMPANY_VAT" => "company-vat",
             "SETTINGS::INVOICE:COMPANY_WEBSITE" => "company-web",
-            "SETTINGS::INVOICE:PREFIX" => "invoice-prefix"
+            "SETTINGS::INVOICE:PREFIX" => "invoice-prefix",
+            "SETTINGS::INVOICE:ENABLED" => "enable-invoices",
         ];
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
-            if (!$param) {
-                $param = "";
-            }
-            Settings::where('key', $key)->update(['value' => $param]);
+
+            Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget("setting" . ':' . $key);
         }
 
@@ -49,6 +45,6 @@ class Invoices
         }
 
 
-        return redirect()->route('admin.settings.index')->with('success', 'Invoice settings updated!');
+        return redirect(route('admin.settings.index') . '#invoices')->with('success', __('Invoice settings updated!'));
     }
 }

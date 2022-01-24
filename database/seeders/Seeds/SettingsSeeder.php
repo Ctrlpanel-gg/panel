@@ -144,7 +144,14 @@ class SettingsSeeder extends Seeder
             'type'  => 'integer',
             'description'  => 'The %-value of tax that will be added to the product price on checkout'
         ]);
-
+        //Invoices enabled
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::INVOICE:ENABLED',
+        ], [
+            'value' => 'false',
+            'type'  => 'boolean',
+            'description'  => 'Enables or disables the invoice feature for payments'
+        ]);
         //Invoice company name
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::INVOICE:COMPANY_NAME',
@@ -380,7 +387,7 @@ class SettingsSeeder extends Seeder
         ]);
 
         Settings::firstOrCreate([
-            'key'   => 'SETTINGS::SYSTEM:RECAPTCHA_SITE_KEY',
+            'key'   => 'SETTINGS::RECAPTCHA:SITE_KEY',
         ], [
             'value' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
             'type'  => 'string',
@@ -388,11 +395,75 @@ class SettingsSeeder extends Seeder
         ]);
 
         Settings::firstOrCreate([
-            'key'   => 'SETTINGS::SYSTEM:RECAPTCHA_SECRET_KEY',
+            'key'   => 'SETTINGS::RECAPTCHA:SECRET_KEY',
         ], [
             'value' => '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
             'type'  => 'string',
             'description'  => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::RECAPTCHA:ENABLED',
+        ], [
+            'value' => 'true',
+            'type'  => 'boolean',
+            'description'  => 'Enables or disables the ReCaptcha feature on the registration/login page'
+
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:MAILER',
+        ], [
+            'value' => 'smtp',
+            'type'  => 'string',
+            'description'  => 'Selected Mailer (smtp, mailgun, sendgrid, mailtrap)'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:HOST',
+        ], [
+            'value' => 'localhost',
+            'type'  => 'string',
+            'description'  => 'Mailer Host Adress'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:PORT',
+        ], [
+            'value' => '1025',
+            'type'  => 'string',
+            'description'  => 'Mailer Server Port'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:USERNAME',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Mailer Username'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:PASSWORD',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Mailer Password'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:ENCRYPTION',
+        ], [
+            'value' => 'tls',
+            'type'  => 'string',
+            'description'  => 'Mailer Encryption (tls, ssl)'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:FROM_ADDRESS',
+        ], [
+            'value' => '',
+            'type'  => 'string',
+            'description'  => 'Mailer From Address'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::MAIL:FROM_NAME',
+        ], [
+            'value' => env('APP_NAME', 'Controlpanel'),
+            'type'  => 'string',
+            'description'  => 'Mailer From Name'
         ]);
     }
 }

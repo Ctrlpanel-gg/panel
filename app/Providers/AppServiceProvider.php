@@ -32,14 +32,11 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         Validator::extend('multiple_date_format', function ($attribute, $value, $parameters, $validator) {
-
             $ok = true;
-
             $result = [];
 
             // iterate through all formats
             foreach ($parameters as $parameter) {
-
                 //validate with laravels standard date format validation
                 $result[] = $validator->validateDateFormat($attribute, $value, [$parameter]);
             }

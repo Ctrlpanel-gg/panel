@@ -5,64 +5,81 @@ namespace App\Classes\Settings;
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+
 
 class Misc
 {
-    public $tabTitle = 'Misc Settings';
-    public $miscSettings;
-
     public function __construct()
     {
         return;
     }
 
-
-
-    public function updateMiscSettings(Request $request)
+    public function updateSettings(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
             'favicon' => 'nullable|max:10000|mimes:ico',
+            'discord-bot-token' => 'nullable|string',
+            'discord-client-id' => 'nullable|string',
+            'discord-client-secret' => 'nullable|string',
+            'discord-guild-id' => 'nullable|string',
+            'discord-invite-url' => 'nullable|string',
+            'discord-role-id' => 'nullable|string',
+            'recaptcha-site-key' => 'nullable|string',
+            'recaptcha-secret-key' => 'nullable|string',
+            'enable-recaptcha' => 'nullable|string',
+            'mailservice' => 'nullable|string',
+            'mailhost' => 'nullable|string',
+            'mailport' => 'nullable|string',
+            'mailusername' => 'nullable|string',
+            'mailpassword' => 'nullable|string',
+            'mailencryption' => 'nullable|string',
+            'mailfromadress' => 'nullable|string',
+            'mailfromname' => 'nullable|string',
         ]);
+
+        if ($validator->fails()) {
+            return redirect(route('admin.settings.index') . '#misc')->with('error', __('Misc settings have not been updated!'))->withErrors($validator)
+                ->withInput();
+        }
 
         if ($request->hasFile('icon')) {
             $request->file('icon')->storeAs('public', 'icon.png');
         }
-
         if ($request->hasFile('favicon')) {
             $request->file('favicon')->storeAs('public', 'favicon.ico');
         }
 
         $values = [
-            //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
-            "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url",
             "SETTINGS::DISCORD:BOT_TOKEN" => "discord-bot-token",
             "SETTINGS::DISCORD:CLIENT_ID" => "discord-client-id",
             "SETTINGS::DISCORD:CLIENT_SECRET" => "discord-client-secret",
             "SETTINGS::DISCORD:GUILD_ID" => "discord-guild-id",
             "SETTINGS::DISCORD:INVITE_URL" => "discord-invite-url",
-            "SETTINGS::DISCORD:ROLE_ID" => "discord-role-id"
+            "SETTINGS::DISCORD:ROLE_ID" => "discord-role-id",
+            "SETTINGS::RECAPTCHA:SITE_KEY" => "recaptcha-site-key",
+            "SETTINGS::RECAPTCHA:SECRET_KEY" => "recaptcha-secret-key",
+            "SETTINGS::RECAPTCHA:ENABLED" => "enable-recaptcha",
+            "SETTINGS::MAIL:MAILER" => "mailservice",
+            "SETTINGS::MAIL:HOST" => "mailhost",
+            "SETTINGS::MAIL:PORT" => "mailport",
+            "SETTINGS::MAIL:USERNAME" => "mailusername",
+            "SETTINGS::MAIL:PASSWORD" => "mailpassword",
+            "SETTINGS::MAIL:ENCRYPTION" => "mailencryption",
+            "SETTINGS::MAIL:FROM_ADDRESS" => "mailfromadress",
+            "SETTINGS::MAIL:FROM_NAME" => "mailfromname",
 
         ];
 
-        Config::set('services.discord.client_id', $request->get("discord-client-id"));
-        Config::set('services.discord.client_secret', $request->get("discord-client-secret"));
-
-
         foreach ($values as $key => $value) {
             $param = $request->get($value);
-            if (!$param) {
-                $param = "";
-            }
-            Settings::where('key', $key)->update(['value' => $param]);
-            Cache::forget("setting" . ':' . $key);
 
+            Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
+            Cache::forget("setting" . ':' . $key);
         }
 
 
-        return redirect()->route('admin.settings.index')->with('success', 'Misc settings updated!');
+        return redirect(route('admin.settings.index') . '#misc')->with('success', __('Misc settings updated!'));
     }
-
 }

@@ -197,7 +197,11 @@ class PaymentController extends Controller
 
                 event(new UserUpdateCreditsEvent($user));
 
-                $this->createInvoice($user, $payment, 'paid');
+                //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
+                    $this->createInvoice($user, $payment, 'paid');
+                }
+
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
@@ -266,7 +270,7 @@ class PaymentController extends Controller
             ],
 
             'mode' => 'payment',
-            "payment_method_types" => str_getcsv(Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:METHODS")),
+            "payment_method_types" => str_getcsv(config("SETTINGS::PAYMENTS:STRIPE:METHODS")),
             'success_url' => route('payment.StripeSuccess',  ['product' => $creditProduct->id]) . '&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.Cancel'),
         ]);
@@ -336,7 +340,10 @@ class PaymentController extends Controller
 
                 event(new UserUpdateCreditsEvent($user));
 
-                $this->createInvoice($user, $payment, 'paid');
+                //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
+                    $this->createInvoice($user, $payment, 'paid');
+                }
 
                 //redirect back to home
                 return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
@@ -359,7 +366,10 @@ class PaymentController extends Controller
                         'credit_product_id' => $creditProduct->id,
                     ]);
 
-                    $this->createInvoice($user, $payment, 'processing');
+                    //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                    if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
+                        $this->createInvoice($user, $payment, 'paid');
+                    }
 
                     //redirect back to home
                     return redirect()->route('home')->with('success', __('Your payment is being processed!'));
@@ -416,7 +426,10 @@ class PaymentController extends Controller
                 $user->notify(new ConfirmPaymentNotification($payment));
                 event(new UserUpdateCreditsEvent($user));
 
-                $this->createInvoice($user, $payment, 'paid');
+                //only create invoice if SETTINGS::INVOICE:ENABLED is true
+                if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
+                    $this->createInvoice($user, $payment, 'paid');
+                }
             }
         } catch (HttpException $ex) {
             abort(422);
@@ -521,7 +534,7 @@ class PaymentController extends Controller
             ->pricePerUnit($creditProduct->price);
 
         $notes = [
-            __("Payment method") .": ". $payment->payment_method,
+            __("Payment method") . ": " . $payment->payment_method,
         ];
         $notes = implode("<br>", $notes);
 
@@ -591,7 +604,7 @@ class PaymentController extends Controller
                 return $payment->created_at ? $payment->created_at->diffForHumans() : '';
             })
             ->addColumn('actions', function (Payment $payment) {
-                return ' <a data-content="'.__("Download").'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice',"id=".$payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>
+                return ' <a data-content="' . __("Download") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', "id=" . $payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>
 ';
             })
             ->rawColumns(['actions'])

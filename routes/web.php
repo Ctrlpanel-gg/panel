@@ -10,7 +10,7 @@ use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\CreditProductController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
-use App\Http\Controllers\Admin\SettingsControllers\SettingsController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Classes\Settings\Language;
 use App\Classes\Settings\Invoices;
+use App\Classes\Settings\System;
 
 /*
 |--------------------------------------------------------------------------
@@ -134,10 +135,11 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
 
         #settings
-        Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateInvoiceSettings'])->name('settings.update.invoicesettings');
-        Route::patch('settings/update/language', [Language::class, 'updateLanguageSettings'])->name('settings.update.languagesettings');
-        Route::patch('settings/update/payment', [Payments::class, 'updatePaymentSettings'])->name('settings.update.paymentsettings');
-        Route::patch('settings/update/misc', [Misc::class, 'updateMiscSettings'])->name('settings.update.miscsettings');
+        Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateSettings'])->name('settings.update.invoicesettings');
+        Route::patch('settings/update/language', [Language::class, 'updateSettings'])->name('settings.update.languagesettings');
+        Route::patch('settings/update/payment', [Payments::class, 'updateSettings'])->name('settings.update.paymentsettings');
+        Route::patch('settings/update/misc', [Misc::class, 'updateSettings'])->name('settings.update.miscsettings');
+        Route::patch('settings/update/system', [System::class, 'updateSettings'])->name('settings.update.systemsettings');
         Route::resource('settings', SettingsController::class)->only('index');
 
         #invoices

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDisplayToCreditProductsTable extends Migration
+class AddDisplayToPayPalProductsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class AddDisplayToCreditProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('credit_products', function (Blueprint $table) {
+        Schema::table('paypal_products', function (Blueprint $table) {
             $table->string('display');
         });
     }
@@ -25,7 +25,7 @@ class AddDisplayToCreditProductsTable extends Migration
      */
     public function down()
     {
-        Schema::table('credit_products', function (Blueprint $table) {
+        Schema::table('paypal_products', function (Blueprint $table) {
             $table->dropColumn('display');
         });
     }

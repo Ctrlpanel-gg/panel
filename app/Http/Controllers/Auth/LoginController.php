@@ -41,17 +41,25 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+
+        $validationRules = [
             $this->username()      => 'required|string',
             'password'             => 'required|string',
-            'g-recaptcha-response' => ['required','recaptcha'],
-        ]);
+        ];
+        if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
+            $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+        }
+        $request->validate($validationRules);
+
+
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
-        if (method_exists($this, 'hasTooManyLoginAttempts') &&
-            $this->hasTooManyLoginAttempts($request)) {
+        if (
+            method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)
+        ) {
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
