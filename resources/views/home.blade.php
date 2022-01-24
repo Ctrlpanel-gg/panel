@@ -18,6 +18,13 @@
     </section>
     <!-- END CONTENT HEADER -->
 
+    @if(!file_exists(public_path()."/install/install.lock") && Auth::User()->role == "admin")
+        <div class="callout callout-danger">
+            <h4>{{ __('The installer is not locked!') }}</h4>
+            <p>{{ __('please create a file called "installer.lock" in your "dashboard/public/installer" directory!') }}
+            </p>
+        </div>
+    @endif
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
