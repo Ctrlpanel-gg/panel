@@ -173,7 +173,7 @@ echo $cardheader;
     if (isset($_GET['step']) && $_GET['step'] == 2.5) {
     echo $cardheader;
     ?>
-    <p class="login-box-msg">Lets install Composer and generate some security keys!</p>
+    <p class="login-box-msg">Lets feed your Database and generate some security keys!</p>
     <p> This process might take a while. Please do not refresh or close this page!</p>
     <?php if (isset($_GET['message'])) {
         echo "<p class='notok'>" . $_GET['message'] . "</p>";
@@ -316,8 +316,6 @@ echo $cardheader;
                     </div>
 
                     <button class="btn btn-primary" name="checkSMTP">Submit</button>
-                    <a href="?step=5"><button class="btn btn-warning">Skip this step</button></a>
-
                 </div>
                 </div>
 
@@ -370,10 +368,7 @@ echo $cardheader;
 
                         </div>
 
-                        <button <?php if (!isset($_GET['exec'])) {
-                            echo "disabled";
-                        } ?> class="btn btn-primary" name="checkPtero">Submit
-                        </button>
+                        <button  class="btn btn-primary" name="checkPtero">Submit</button>
                     </div>
                     </div>
 
