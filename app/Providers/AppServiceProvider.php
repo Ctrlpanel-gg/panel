@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
-
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -51,10 +50,8 @@ class AppServiceProvider extends ServiceProvider
             return $ok;
         });
 
-
-        //only run if app is not run in command line
-        if (!$this->app->runningInConsole()) {
-            // TODO: Check if Installer Lockfile exists instead of "running in console"
+        //only run if the installer has been executed
+        if (file_exists(public_path()."/install/install.lock")) {
             $settings = Settings::all();
             // Set all configs from database
             foreach ($settings as $setting) {
