@@ -54,7 +54,7 @@
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
                         <label for="mailpassword">{{ __('Mail Password') }}:</label>
-                        <input x-model="mailpassword" id="mailpassword" name="mailpassword" type="text"
+                        <input x-model="mailpassword" id="mailpassword" name="mailpassword" type="password"
                             value="{{ config('SETTINGS::MAIL:PASSWORD') }}"
                             class="form-control @error('mailpassword') is-invalid @enderror">
                     </div>
