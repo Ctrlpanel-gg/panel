@@ -134,7 +134,7 @@ class PaymentController extends Controller
      */
     protected function getPaypalClientId()
     {
-        return env('APP_ENV') == 'local' ?  Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID") : Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID");
+        return env('APP_ENV') == 'local' ?  config("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID") : config("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID");
     }
 
     /**
@@ -142,7 +142,7 @@ class PaymentController extends Controller
      */
     protected function getPaypalClientSecret()
     {
-        return env('APP_ENV') == 'local' ? Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET") : Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SECRET");
+        return env('APP_ENV') == 'local' ? config("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET") : config("SETTINGS::PAYMENTS:PAYPAL:SECRET");
     }
 
     /**
@@ -167,9 +167,9 @@ class PaymentController extends Controller
                 $user->increment('credits', $creditProduct->quantity);
 
                 //update server limit
-                if (Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                    if ($user->server_limit < Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                        $user->update(['server_limit' => Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                if (config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
 
@@ -308,9 +308,9 @@ class PaymentController extends Controller
                 $user->increment('credits', $creditProduct->quantity);
 
                 //update server limit
-                if (Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                    if ($user->server_limit < Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                        $user->update(['server_limit' => Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                if (config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
 
@@ -408,9 +408,9 @@ class PaymentController extends Controller
                 $user->increment('credits', $payment->amount);
 
                 //update server limit
-                if (Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
-                    if ($user->server_limit < Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
-                        $user->update(['server_limit' => Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
+                if (config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
+                    if ($user->server_limit < config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
+                        $user->update(['server_limit' => config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
 
@@ -487,8 +487,8 @@ class PaymentController extends Controller
     protected function getStripeSecret()
     {
         return env('APP_ENV') == 'local'
-            ?  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:TEST_SECRET")
-            :  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:SECRET");
+            ?  config("SETTINGS::PAYMENTS:STRIPE:TEST_SECRET")
+            :  config("SETTINGS::PAYMENTS:STRIPE:SECRET");
     }
 
     /**
@@ -497,8 +497,8 @@ class PaymentController extends Controller
     protected function getStripeEndpointSecret()
     {
         return env('APP_ENV') == 'local'
-            ?  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET")
-            :  Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET");
+            ?  config("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET")
+            :  config("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET");
     }
 
 
@@ -511,13 +511,13 @@ class PaymentController extends Controller
         $logoPath = storage_path('app/public/logo.png');
 
         $seller = new Party([
-            'name' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_NAME"),
-            'phone' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_PHONE"),
-            'address' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_ADDRESS"),
-            'vat' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_VAT"),
+            'name' => config("SETTINGS::INVOICE:COMPANY_NAME"),
+            'phone' => config("SETTINGS::INVOICE:COMPANY_PHONE"),
+            'address' => config("SETTINGS::INVOICE:COMPANY_ADDRESS"),
+            'vat' => config("SETTINGS::INVOICE:COMPANY_VAT"),
             'custom_fields' => [
-                'E-Mail' => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_MAIL"),
-                "Web" => Settings::getValueByKey("SETTINGS::INVOICE:COMPANY_WEBSITE")
+                'E-Mail' => config("SETTINGS::INVOICE:COMPANY_MAIL"),
+                "Web" => config("SETTINGS::INVOICE:COMPANY_WEBSITE")
             ],
         ]);
 
@@ -552,7 +552,7 @@ class PaymentController extends Controller
             ->series(now()->format('mY'))
             ->delimiter("-")
             ->sequence($newInvoiceID)
-            ->serialNumberFormat(Settings::getValueByKey("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
+            ->serialNumberFormat(config("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
             ->notes($notes);
 
         if (file_exists($logoPath)) {

@@ -103,7 +103,8 @@ class ServerController extends Controller
      * @param Server $server
      * @return RedirectResponse
      */
-    public function toggleSuspended(Server $server){
+    public function toggleSuspended(Server $server)
+    {
         try {
             $server->isSuspended() ?  $server->unSuspend() :  $server->suspend();
         } catch (Exception $exception) {
@@ -140,13 +141,13 @@ class ServerController extends Controller
                 return '
                         <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
                             ' . csrf_field() . '
-                           <button data-content="'.$suspendText.'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm '.$suspendColor.' text-white mr-1"><i class="far '.$suspendIcon.'"></i></button>
+                           <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
                        </form>
 
                        <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="' . __("Delete") . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
 
                 ';
@@ -162,7 +163,7 @@ class ServerController extends Controller
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
             ->editColumn('name', function (Server $server) {
-                return '<a class="text-info" target="_blank" href="' . Settings::getValueByKey("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/servers/view/' . $server->pterodactyl_id . '">' . $server->name . '</a>';
+                return '<a class="text-info" target="_blank" href="' . config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/servers/view/' . $server->pterodactyl_id . '">' . $server->name . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();

@@ -24,7 +24,7 @@ class Verified
      */
     public function handle($event)
     {
-        $event->user->increment('server_limit' , Settings::getValueByKey('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL'));
-        $event->user->increment('credits' , Settings::getValueByKey('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL'));
+        $event->user->increment('server_limit', config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL'));
+        $event->user->increment('credits', config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL'));
     }
 }
