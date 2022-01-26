@@ -97,7 +97,7 @@ return [
     |
     */
 
-    'available_locales' =>["en","cs","de","es","fr","hi","it","pl","zh"],
+    'available_locales' =>["en","cs","de","es","fr","hi","it","nl","pl","zh"],
 
     /*
     |--------------------------------------------------------------------------
