@@ -1,7 +1,7 @@
 <?php
 include("functions.php");
 
-if (file_exists("install.lock")) {
+if (file_exists("../../install.lock")) {
     die("The installation has been completed already. Please delete the File 'install.lock' to re-run");
 }
 ?>
@@ -449,7 +449,7 @@ echo $cardheader;
                         <?php
                         }
                         if (isset($_GET['step']) && $_GET['step'] == 7) {
-                            $lockfile = fopen("install.lock", "w") or die("Unable to open file!");
+                            $lockfile = fopen("../../install.lock", "w") or die("Unable to open file!");
                             fwrite($lockfile, "locked");
                             fclose($lockfile);
 

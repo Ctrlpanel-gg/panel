@@ -19,11 +19,12 @@
         </div>
     </section>
     <!-- END CONTENT HEADER -->
-    @if(!file_exists(public_path()."/install/install.lock"))
+    @if(!file_exists(base_path()."/install.lock"))
         <div class="callout callout-danger">
             <h4>{{ __('The installer is not locked!') }}</h4>
-            <p>{{ __('please create a file called "install.lock" in your "dashboard/public/installer" directory!') }}</p>
-            <p>{{ __('otherwise no settings will be loaded!') }}</p>
+            <p>{{ __('please create a file called "install.lock" in your dashboard Root directory. Otherwise no settings will be loaded!') }}</p>
+            <a href="/install?step=7"><button class="btn btn-outline-danger">{{__('or click here')}}</button></a>
+
         </div>
     @endif
     <!-- MAIN CONTENT -->
