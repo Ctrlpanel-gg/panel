@@ -14,7 +14,7 @@
                             multiple="multiple" autocomplete="off" @error('defaultLanguage') is-invalid @enderror>
 
                             @foreach (config('app.available_locales') as $lang)
-                                <option value="{{ $lang }}" @if (str_contains(config('SETTINGS::LOCALE:AVAILABLE'), $lang))  selected @endif>
+                                <option value="{{ $lang }}" @if (strpos(config('SETTINGS::LOCALE:AVAILABLE'), $lang) !== false)  selected @endif>
                                     {{ __($lang) }}
                                 </option>
                             @endforeach
