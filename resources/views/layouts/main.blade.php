@@ -36,24 +36,6 @@
 </head>
 
 <body class="sidebar-mini layout-fixed dark-mode" style="height: auto;">
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
-    <!-- Summernote -->
-    <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
-    <!-- select2 -->
-    <script src="{{ asset('plugins/select2/js/select2.min.js') }}"></script>
-
-    <!-- Moment.js -->
-    <script src="{{ asset('plugins/moment/moment.min.js') }}"></script>
-
-    <!-- Datetimepicker -->
-    <script src="{{ asset('plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-
-    <!-- Select2 -->
-    <script src={{ asset('plugins/select2/js/select2.min.js') }}></script>
     <div class="wrapper">
         <!-- Navbar -->
         <nav class="main-header sticky-top navbar navbar-expand navbar-dark navbar-light">
