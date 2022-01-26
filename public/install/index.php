@@ -65,6 +65,8 @@ if (!isset($_GET['step'])) {
         setup</p>
     <p class="<?php print(checkHTTPS() == true ? "ok" : "notok"); ?>">HTTPS is required</p>
 
+    <p class="<?php print(checkWriteable() == true ? "ok" : "notok"); ?>">Write-permissions on .env-file</p>
+
     <p class="<?php print(checkPhpVersion() === "OK" ? "ok" : "notok"); ?>"> php
         version: <?php echo phpversion(); ?> (required <?php echo $requirements["php"]; ?>)</p>
     <p class="<?php print(getMySQLVersion() === "OK" ? "ok" : "notok"); ?>"> mysql
