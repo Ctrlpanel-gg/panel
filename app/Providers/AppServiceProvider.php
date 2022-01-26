@@ -51,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         //only run if the installer has been executed
-        if (file_exists(public_path()."/install/install.lock")) {
+        if (file_exists(base_path()."/install.lock")) {
             $settings = Settings::all();
             // Set all configs from database
             foreach ($settings as $setting) {
