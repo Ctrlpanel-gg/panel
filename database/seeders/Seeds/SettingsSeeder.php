@@ -257,63 +257,63 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:PAYPAL:SECRET',
         ], [
-            'value' => '',
+            'value' => env('PAYPAL_SECRET', ''),
             'type'  => 'string',
             'description'  => 'Your PayPal Secret-Key ( https://developer.paypal.com/docs/integration/direct/rest/)'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID',
         ], [
-            'value' => '',
+            'value' => env('PAYPAL_CLIENT_ID', ''),
             'type'  => 'string',
             'description'  => 'Your PayPal Client_ID'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET',
         ], [
-            'value' => '',
+            'value' => env('PAYPAL_SANDBOX_SECRET', ''),
             'type'  => 'string',
             'description'  => 'Your PayPal SANDBOX Secret-Key used for testing '
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID',
         ], [
-            'value' => '',
+            'value' => env('PAYPAL_SANDBOX_CLIENT_ID', ''),
             'type'  => 'string',
             'description'  => 'Your PayPal SANDBOX Client-ID used for testing '
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:STRIPE:SECRET',
         ], [
-            'value' => '',
+            'value' => env('STRIPE_SECRET', ''),
             'type'  => 'string',
             'description'  => 'Your Stripe  Secret-Key  ( https://dashboard.stripe.com/account/apikeys )'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET',
         ], [
-            'value' => '',
+            'value' => env('STRIPE_ENDPOINT_SECRET', ''),
             'type'  => 'string',
             'description'  => 'Your Stripe endpoint secret-key'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:STRIPE:TEST_SECRET',
         ], [
-            'value' => '',
+            'value' => env('STRIPE_TEST_SECRET', ''),
             'type'  => 'string',
             'description'  => 'Your Stripe test secret-key'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET',
         ], [
-            'value' => '',
+            'value' => env('STRIPE_ENDPOINT_TEST_SECRET', ''),
             'type'  => 'string',
             'description'  => 'Your Stripe endpoint test secret-key'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:STRIPE:METHODS',
         ], [
-            'value' => '',
+            'value' => env('STRIPE_METHODS', '[\'card\', \'ideal\']'),
             'type'  => 'string',
             'description'  => 'Comma seperated list of payment methods that are enabled (https://stripe.com/docs/payments/payment-methods/integration-options)'
         ]);
@@ -321,7 +321,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::DISCORD:CLIENT_ID',
         ], [
-            'value' => '',
+            'value' => env('DISCORD_CLIENT_ID', ''),
             'type'  => 'string',
             'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
         ]);
@@ -329,14 +329,14 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::DISCORD:CLIENT_SECRET',
         ], [
-            'value' => '',
+            'value' => env('DISCORD_CLIENT_SECRET', ''),
             'type'  => 'string',
             'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::DISCORD:BOT_TOKEN',
         ], [
-            'value' => '',
+            'value' =>  env('DISCORD_BOT_TOKEN', ''),
             'type'  => 'string',
             'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
         ]);
@@ -344,7 +344,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::DISCORD:GUILD_ID',
         ], [
-            'value' => '',
+            'value' =>  env('DISCORD_GUILD_ID', ''),
             'type'  => 'string',
             'description'  => 'Discord API Credentials - https://discordapp.com/developers/applications/'
         ]);
@@ -352,14 +352,14 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::DISCORD:ROLE_ID',
         ], [
-            'value' => '',
+            'value' => env('DISCORD_ROLE_ID', ''),
             'type'  => 'string',
             'description'  => 'Discord role that will be assigned to users when they register'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::DISCORD:INVITE_URL',
         ], [
-            'value' => '',
+            'value' => env('DISCORD_INVITE_URL', ''),
             'type'  => 'string',
             'description'  => 'The invite URL to your Discord Server'
         ]);
@@ -367,21 +367,21 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN',
         ], [
-            'value' => '',
+            'value' => env('PTERODACTYL_TOKEN', ''),
             'type'  => 'string',
             'description'  => 'Admin API Token from Pterodactyl Panel - necessary for the Panel to work. The Key needs all read&write permissions!'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::SYSTEM:PTERODACTYL:URL',
         ], [
-            'value' => '',
+            'value' => env('PTERODACTYL_URL', ''),
             'type'  => 'string',
             'description'  => 'The URL to your Pterodactyl Panel. Must not end with a / '
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MISC:PHPMYADMIN:URL',
         ], [
-            'value' => '',
+            'value' => env('PHPMYADMIN_URL', ''),
             'type'  => 'string',
             'description'  => 'The URL to your PHPMYADMIN Panel. Must not end with a /, remove to remove database button'
         ]);
@@ -389,7 +389,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::RECAPTCHA:SITE_KEY',
         ], [
-            'value' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+            'value' => env('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'),
             'type'  => 'string',
             'description'  => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)'
         ]);
@@ -397,7 +397,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::RECAPTCHA:SECRET_KEY',
         ], [
-            'value' => '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
+            'value' => env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'),
             'type'  => 'string',
             'description'  => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)'
         ]);
@@ -412,56 +412,56 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:MAILER',
         ], [
-            'value' => 'smtp',
+            'value' => env('MAIL_MAILER', 'smtp'),
             'type'  => 'string',
             'description'  => 'Selected Mailer (smtp, mailgun, sendgrid, mailtrap)'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:HOST',
         ], [
-            'value' => 'localhost',
+            'value' => env('MAIL_HOST', 'localhost'),
             'type'  => 'string',
             'description'  => 'Mailer Host Adress'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:PORT',
         ], [
-            'value' => '1025',
+            'value' =>  env('MAIL_PORT', '25'),
             'type'  => 'string',
             'description'  => 'Mailer Server Port'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:USERNAME',
         ], [
-            'value' => '',
+            'value' =>  env('MAIL_USERNAME', ''),
             'type'  => 'string',
             'description'  => 'Mailer Username'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:PASSWORD',
         ], [
-            'value' => '',
+            'value' =>  env('MAIL_PASSWORD', ''),
             'type'  => 'string',
             'description'  => 'Mailer Password'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:ENCRYPTION',
         ], [
-            'value' => 'tls',
+            'value' =>  env('MAIL_ENCRYPTION', 'tls'),
             'type'  => 'string',
             'description'  => 'Mailer Encryption (tls, ssl)'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:FROM_ADDRESS',
         ], [
-            'value' => '',
+            'value' =>  env('MAIL_FROM_ADDRESS', ''),
             'type'  => 'string',
             'description'  => 'Mailer From Address'
         ]);
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:FROM_NAME',
         ], [
-            'value' => env('APP_NAME', 'Controlpanel'),
+            'value' => env('MAIL_FROM_NAME', 'Controlpanel'),
             'type'  => 'string',
             'description'  => 'Mailer From Name'
         ]);
