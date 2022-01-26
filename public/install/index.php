@@ -217,7 +217,7 @@ echo $cardheader;
                             <label for="database">Your Dashboard URL</label>
                             <input id="url" name="url"
                                    type="text" required
-                                   value="https://dash.example.com" class="form-control">
+                                   value="<?php echo "https://" . $_SERVER['SERVER_NAME']; ?>" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">
@@ -421,7 +421,7 @@ echo $cardheader;
                                 </div>
                                 <div class="form-group">
                                     <div class="custom-control mb-3">
-                                        <label for="repass">Retype Pass</label>
+                                        <label for="repass">Retype Password</label>
                                         <input id="repass" name="repass" type="password"
                                                required
                                                value="" minlength="8" class="form-control">
