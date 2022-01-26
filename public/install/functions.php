@@ -16,7 +16,10 @@ function checkPhpVersion()
     }
     return "not OK";
 }
-
+function checkWriteable()
+{
+    return is_writable("../../.env");
+}
 function checkHTTPS()
 {
     return
