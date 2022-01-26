@@ -34,14 +34,15 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create' , [
+        return view('admin.products.create', [
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
         ]);
     }
 
-    public function clone(Request $request , Product $product){
-        return view('admin.products.create' , [
+    public function clone(Request $request, Product $product)
+    {
+        return view('admin.products.create', [
             'product' => $product,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
@@ -94,7 +95,7 @@ class ProductController extends Controller
     {
         return view('admin.products.show', [
             'product' => $product,
-            'minimum_credits' => Settings::getValueByKey("SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER"),
+            'minimum_credits' => config("SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER"),
         ]);
     }
 
@@ -193,14 +194,14 @@ class ProductController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
                 return '
-                            <a data-content="'.__("Show").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.show', $product->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
-                            <a data-content="'.__("Clone").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.clone', $product->id) . '" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
-                            <a data-content="'.__("Edit").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.edit', $product->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="' . __("Show") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.show', $product->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
+                            <a data-content="' . __("Clone") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.clone', $product->id) . '" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
+                            <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.edit', $product->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.products.destroy', $product->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="' . __("Delete") . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })

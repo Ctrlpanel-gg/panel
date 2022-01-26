@@ -19,11 +19,11 @@ class UnsuspendServers implements ShouldQueue
      */
     public function handle(UserUpdateCreditsEvent $event)
     {
-       if ($event->user->credits > Settings::getValueByKey('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER' , 50)){
-           /** @var Server $server */
-           foreach ($event->user->servers as $server){
-               if ($server->isSuspended()) $server->unSuspend();
-           }
-       }
+        if ($event->user->credits > config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)) {
+            /** @var Server $server */
+            foreach ($event->user->servers as $server) {
+                if ($server->isSuspended()) $server->unSuspend();
+            }
+        }
     }
 }

@@ -46,40 +46,40 @@ class CreditProduct extends Model
      *
      * @return float
      */
-    public function formatToCurrency($value,$locale = 'en_US')
+    public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 
     /**
-    * @description Returns the tax in % taken from the Configuration
-    *
-    * @return int
-    */
+     * @description Returns the tax in % taken from the Configuration
+     *
+     * @return int
+     */
     public function getTaxPercent()
     {
-        $tax = Settings::getValueByKey("SETTINGS::PAYMENTS:SALES_TAX");
+        $tax = config("SETTINGS::PAYMENTS:SALES_TAX");
         return $tax < 0 ? 0 : $tax;
     }
 
     /**
-    * @description Returns the tax as Number
-    *
-    * @return float
-    */
+     * @description Returns the tax as Number
+     *
+     * @return float
+     */
     public function getTaxValue()
     {
-        return number_format($this->price*$this->getTaxPercent()/100,2);
+        return number_format($this->price * $this->getTaxPercent() / 100, 2);
     }
 
     /**
-    * @description Returns the full price of a Product including tax
-    *
-    * @return float
-    */
+     * @description Returns the full price of a Product including tax
+     *
+     * @return float
+     */
     public function getTotalPrice()
     {
-        return number_format($this->price+$this->getTaxValue(),2);
+        return number_format($this->price + $this->getTaxValue(), 2);
     }
 }

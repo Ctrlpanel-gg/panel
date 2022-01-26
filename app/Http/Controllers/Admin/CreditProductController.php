@@ -26,8 +26,8 @@ class CreditProductController extends Controller
 
         if (
             env('APP_ENV') == 'local' ||
-            Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:SECRET") && Settings::getValueByKey("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID") ||
-            Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:SECRET") && Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET") && Settings::getValueByKey("SETTINGS::PAYMENTS:STRIPE:METHODS")
+            config("SETTINGS::PAYMENTS:PAYPAL:SECRET") && config("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID") ||
+            config("SETTINGS::PAYMENTS:STRIPE:SECRET") && config("SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET") && config("SETTINGS::PAYMENTS:STRIPE:METHODS")
         ) $isPaymentSetup = true;
 
         return view('admin.store.index', [

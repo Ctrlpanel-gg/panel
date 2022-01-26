@@ -92,7 +92,7 @@ class UserController extends Controller
 
         //Update Users Password on Pterodactyl
         //Username,Mail,First and Lastname are required aswell
-        $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
+        $response = Pterodactyl::client()->patch('/application/users/' . $user->pterodactyl_id, [
             "username" => $request->name,
             "first_name" => $request->name,
             "last_name" => $request->name,
@@ -195,9 +195,9 @@ class UserController extends Controller
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
 
         if ($user->isSuspended()) {
-                throw ValidationException::withMessages([
-                    'error' => 'The user is already suspended',
-                ]);
+            throw ValidationException::withMessages([
+                'error' => 'The user is already suspended',
+            ]);
         }
         $user->suspend();
 
@@ -242,8 +242,8 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'credits' => Settings::getValueByKey('SETTINGS::USER:INITIAL_CREDITS', 150),
-            'server_limit' => Settings::getValueByKey('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
+            'credits' => config('SETTINGS::USER:INITIAL_CREDITS', 150),
+            'server_limit' => config('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password' => Hash::make($request->input('password')),
         ]);
 
