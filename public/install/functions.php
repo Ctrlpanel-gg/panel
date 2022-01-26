@@ -17,6 +17,13 @@ function checkPhpVersion()
     return "not OK";
 }
 
+function checkHTTPS()
+{
+    return
+        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || $_SERVER['SERVER_PORT'] == 443;
+}
+
 function getMySQLVersion()
 {
     global $requirements;

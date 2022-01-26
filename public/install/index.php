@@ -63,6 +63,7 @@ if (!isset($_GET['step'])) {
     ?>
     <p class="login-box-msg">This installer will lead you through the most crucial Steps of Controlpanel.gg`s
         setup</p>
+    <p class="<?php print(checkHTTPS() == true ? "ok" : "notok"); ?>">HTTPS is required</p>
 
     <p class="<?php print(checkPhpVersion() === "OK" ? "ok" : "notok"); ?>"> php
         version: <?php echo phpversion(); ?> (required <?php echo $requirements["php"]; ?>)</p>
