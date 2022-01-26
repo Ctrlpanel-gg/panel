@@ -78,7 +78,7 @@ if (isset($_POST['feedDB'])) {
     fwrite($logsfile, $logs);
     fclose($logsfile);
 
-    if (str_contains(getEnvironmentValue("APP_KEY"), "base64")) {
+    if (strpos(getEnvironmentValue("APP_KEY"), 'base64') !== false) {
         header("LOCATION: index.php?step=3");
     } else {
         header("LOCATION: index.php?step=2.5&message=There was an error. Please check install/logs.txt !");
