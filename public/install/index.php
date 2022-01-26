@@ -166,6 +166,7 @@ echo $cardheader;
 
         <button class="btn btn-primary" name="checkDB">Submit</button>
     </div>
+</form>
     </div>
 
 
@@ -236,6 +237,7 @@ echo $cardheader;
 
                 <button class="btn btn-primary" name="checkGeneral">Submit</button>
             </div>
+        </form>
             </div>
 
 
@@ -319,12 +321,14 @@ echo $cardheader;
                     </div>
 
                     <button class="btn btn-primary" name="checkSMTP">Submit</button>
-                </div>
-                </div>
-
+            </form>
 
                 </div>
 
+                <a href="?step=5"><button class="btn btn-warning">Skip this step for now</button></a>
+                </div>
+
+                </div>
                 <?php
                 }
 
@@ -373,6 +377,7 @@ echo $cardheader;
 
                         <button  class="btn btn-primary" name="checkPtero">Submit</button>
                     </div>
+                </form>
                     </div>
 
 
@@ -444,6 +449,7 @@ echo $cardheader;
 
                             <button class="btn btn-primary" name="createUser">Submit</button>
                         </div>
+                    </form>
                         </div>
 
 
