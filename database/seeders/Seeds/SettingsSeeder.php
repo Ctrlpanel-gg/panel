@@ -313,7 +313,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::PAYMENTS:STRIPE:METHODS',
         ], [
-            'value' => env('STRIPE_METHODS', '[\'card\', \'ideal\']'),
+            'value' => env('STRIPE_METHODS', 'card,sepa_debit'),
             'type'  => 'string',
             'description'  => 'Comma seperated list of payment methods that are enabled (https://stripe.com/docs/payments/payment-methods/integration-options)'
         ]);
