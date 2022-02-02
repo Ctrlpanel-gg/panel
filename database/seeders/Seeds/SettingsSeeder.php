@@ -461,7 +461,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::MAIL:FROM_NAME',
         ], [
-            'value' => env('MAIL_FROM_NAME', 'Controlpanel'),
+            'value' => env('APP_NAME', 'Controlpanel'),
             'type'  => 'string',
             'description'  => 'Mailer From Name'
         ]);
