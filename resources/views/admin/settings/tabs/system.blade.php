@@ -29,10 +29,11 @@
                     <div class="custom-control mb-3 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <div>
-                                <input value="true" id="server-create-charge-first" name="server-create-charge-first"
+                                <input value="true" id="server-create-charge-first-hour"
+                                    name="server-create-charge-first-hour"
                                     {{ config('SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR') == 'true' ? 'checked' : '' }}
                                     type="checkbox">
-                                <label for="server-create-charge-first">{{ __('Charge first hour at creation') }}
+                                <label for="server-create-charge-first-hour">{{ __('Charge first hour at creation') }}
                                 </label>
                             </div>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
