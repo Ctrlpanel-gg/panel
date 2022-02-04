@@ -97,7 +97,8 @@ return [
     |
     */
 
-    'available_locales' =>["en","cs","de","es","fr","hi","it","nl","pl","zh"],
+    'available_locales' => array_map('basename', preg_replace('/\\.[^.\\s]{3,4}$/', '', glob(resource_path()."/lang/*.json", GLOB_BRACE))),
+
 
     /*
     |--------------------------------------------------------------------------
