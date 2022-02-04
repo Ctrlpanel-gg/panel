@@ -242,7 +242,7 @@
     "Adds 1000 credits to your account": "Adds 1000 credits to your account",
     "This is what the user sees at checkout": "This is what the user sees at checkout",
     "No payment method is configured.": "No payment method is configured.",
-    "To configure the payment methods, head to the .env and add the required options for your prefered payment method.": "To configure the payment methods, head to the .env and add the required options for your prefered payment method.",
+    "To configure the payment methods, head to the settings-page and add the required options for your prefered payment method.": "To configure the payment methods, head to the settings-page and add the required options for your prefered payment method.",
     "Useful Links": "Useful Links",
     "Icon class name": "Icon class name",
     "You can find available free icons": "You can find available free icons",
