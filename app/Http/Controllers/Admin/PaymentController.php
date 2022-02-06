@@ -31,6 +31,7 @@ use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalHttp\HttpException;
 use Stripe\Stripe;
+use Symfony\Component\Intl\Currencies;
 
 
 class PaymentController extends Controller
@@ -199,7 +200,7 @@ class PaymentController extends Controller
 
                 //only create invoice if SETTINGS::INVOICE:ENABLED is true
                 if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
-                    $this->createInvoice($user, $payment, 'paid');
+                    $this->createInvoice($user, $payment, 'paid', $creditProduct->currency_code);
                 }
 
 
@@ -342,7 +343,7 @@ class PaymentController extends Controller
 
                 //only create invoice if SETTINGS::INVOICE:ENABLED is true
                 if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
-                    $this->createInvoice($user, $payment, 'paid');
+                    $this->createInvoice($user, $payment, 'paid', $creditProduct->currency_code);
                 }
 
                 //redirect back to home
@@ -368,7 +369,7 @@ class PaymentController extends Controller
 
                     //only create invoice if SETTINGS::INVOICE:ENABLED is true
                     if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
-                        $this->createInvoice($user, $payment, 'paid');
+                        $this->createInvoice($user, $payment, 'paid', $creditProduct->currency_code);
                     }
 
                     //redirect back to home
@@ -428,7 +429,7 @@ class PaymentController extends Controller
 
                 //only create invoice if SETTINGS::INVOICE:ENABLED is true
                 if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
-                    $this->createInvoice($user, $payment, 'paid');
+                    $this->createInvoice($user, $payment, 'paid', strtoupper($paymentIntent->currency));
                 }
             }
         } catch (HttpException $ex) {
@@ -502,7 +503,7 @@ class PaymentController extends Controller
     }
 
 
-    protected function createInvoice($user, $payment, $paymentStatus)
+    protected function createInvoice($user, $payment, $paymentStatus, $currencyCode)
     {
         $creditProduct = CreditProduct::where('id', $payment->credit_product_id)->first();
         //create invoice
@@ -553,6 +554,8 @@ class PaymentController extends Controller
             ->delimiter("-")
             ->sequence($newInvoiceID)
             ->serialNumberFormat(config("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
+            ->currencyCode($currencyCode)
+            ->currencySymbol(Currencies::getSymbol($currencyCode))
             ->notes($notes);
 
         if (file_exists($logoPath)) {
