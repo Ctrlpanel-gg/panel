@@ -8,7 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
-        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
+        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico')? asset('storage/favicon.ico'): asset('favicon.ico') }}"
         type="image/x-icon">
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -180,7 +180,7 @@
             <!-- Brand Logo -->
             <a href="{{ route('home') }}" class="brand-link">
                 <img width="64" height="64"
-                    src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/bitsec.png') }}"
+                    src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png')? asset('storage/icon.png'): asset('images/bitsec.png') }}"
                     alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                     style="opacity: .8">
                 <span class="brand-text font-weight-light">{{ config('app.name', 'Laravel') }}</span>
@@ -212,7 +212,7 @@
                             </a>
                         </li>
 
-                        @if ((config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) || env('APP_ENV', 'local') == 'local')
+                        @if (env('APP_ENV') == 'local' || (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) || (config('SETTINGS::PAYMENTS:STRIPE:SECRET') && config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') && config('SETTINGS::PAYMENTS:STRIPE:METHODS')))
                             <li class="nav-item">
                                 <a href="{{ route('store.index') }}" class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
                                     <i class="nav-icon fa fa-coins"></i>
