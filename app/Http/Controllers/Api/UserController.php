@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Classes\Pterodactyl;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
-use App\Models\Configuration;
 use App\Models\DiscordUser;
+use App\Models\Settings;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -88,9 +88,24 @@ class UserController extends Controller
             "role" => ['sometimes', Rule::in(['admin', 'mod', 'client', 'member'])],
         ]);
 
-        $user->update($request->all());
-
         event(new UserUpdateCreditsEvent($user));
+
+        //Update Users Password on Pterodactyl
+        //Username,Mail,First and Lastname are required aswell
+        $response = Pterodactyl::client()->patch('/application/users/' . $user->pterodactyl_id, [
+            "username" => $request->name,
+            "first_name" => $request->name,
+            "last_name" => $request->name,
+            "email" => $request->email,
+
+        ]);
+        if ($response->failed()) {
+            throw ValidationException::withMessages([
+                'pterodactyl_error_message' => $response->toException()->getMessage(),
+                'pterodactyl_error_status' => $response->toException()->getCode()
+            ]);
+        }
+        $user->update($request->all());
 
         return $user;
     }
@@ -167,6 +182,53 @@ class UserController extends Controller
     }
 
     /**
+     * Suspends the user
+     *
+     * @param Request $request
+     * @param int $id
+     * @return bool
+     * @throws ValidationException
+     */
+    public function suspend(Request $request, int $id)
+    {
+        $discordUser = DiscordUser::find($id);
+        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+
+        if ($user->isSuspended()) {
+            throw ValidationException::withMessages([
+                'error' => 'The user is already suspended',
+            ]);
+        }
+        $user->suspend();
+
+        return $user;
+    }
+
+    /**
+     * Unsuspend the user
+     *
+     * @param Request $request
+     * @param int $id
+     * @return bool
+     * @throws ValidationException
+     */
+    public function unsuspend(Request $request, int $id)
+    {
+        $discordUser = DiscordUser::find($id);
+        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+
+        if (!$user->isSuspended()) {
+            throw ValidationException::withMessages([
+                'error' => "You cannot unsuspend an User who is not suspended."
+            ]);
+        }
+
+        $user->unSuspend();
+
+        return $user;
+    }
+
+    /**
      * @throws ValidationException
      */
     public function store(Request $request)
@@ -180,8 +242,8 @@ class UserController extends Controller
         $user = User::create([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'credits' => Configuration::getValueByKey('INITIAL_CREDITS', 150),
-            'server_limit' => Configuration::getValueByKey('INITIAL_SERVER_LIMIT', 1),
+            'credits' => config('SETTINGS::USER:INITIAL_CREDITS', 150),
+            'server_limit' => config('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password' => Hash::make($request->input('password')),
         ]);
 
@@ -207,6 +269,8 @@ class UserController extends Controller
         $user->update([
             'pterodactyl_id' => $response->json()['attributes']['id']
         ]);
+
+        $user->sendEmailVerificationNotification();
 
         return $user;
     }

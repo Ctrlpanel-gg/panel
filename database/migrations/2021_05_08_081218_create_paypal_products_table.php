@@ -19,7 +19,7 @@ class CreatePaypalProductsTable extends Migration
             $table->decimal('price')->default(0);
             $table->unsignedInteger('quantity');
             $table->string('description');
-            $table->string('currency_code' , 3);
+            $table->string('currency_code', 3);
             $table->boolean('disabled')->default(true);
             $table->timestamps();
         });

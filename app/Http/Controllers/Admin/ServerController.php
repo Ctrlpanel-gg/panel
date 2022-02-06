@@ -6,6 +6,7 @@ use App\Classes\Pterodactyl;
 use App\Classes\PterodactylWrapper;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
+use App\Models\Settings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -92,9 +93,9 @@ class ServerController extends Controller
     {
         try {
             $server->delete();
-            return redirect()->route('admin.servers.index')->with('success', 'Server removed');
+            return redirect()->route('admin.servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('admin.servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
+            return redirect()->route('admin.servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
         }
     }
 
@@ -102,14 +103,15 @@ class ServerController extends Controller
      * @param Server $server
      * @return RedirectResponse
      */
-    public function toggleSuspended(Server $server){
+    public function toggleSuspended(Server $server)
+    {
         try {
             $server->isSuspended() ?  $server->unSuspend() :  $server->suspend();
         } catch (Exception $exception) {
             return redirect()->back()->with('error', $exception->getMessage());
         }
 
-        return redirect()->back()->with('success', 'Server has been updated!');
+        return redirect()->back()->with('success', __('Server has been updated!'));
     }
 
     /**
@@ -134,18 +136,18 @@ class ServerController extends Controller
             ->addColumn('actions', function (Server $server) {
                 $suspendColor = $server->isSuspended() ? "btn-success" : "btn-warning";
                 $suspendIcon = $server->isSuspended() ? "fa-play-circle" : "fa-pause-circle";
-                $suspendText = $server->isSuspended() ? "Unsuspend" : "Suspend";
+                $suspendText = $server->isSuspended() ? __("Unsuspend") : __("Suspend");
 
                 return '
                         <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
                             ' . csrf_field() . '
-                           <button data-content="'.$suspendText.'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm '.$suspendColor.' text-white mr-1"><i class="far '.$suspendIcon.'"></i></button>
+                           <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
                        </form>
 
                        <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="' . __("Delete") . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
 
                 ';
@@ -161,7 +163,7 @@ class ServerController extends Controller
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
             ->editColumn('name', function (Server $server) {
-                return '<a class="text-info" target="_blank" href="' . env('PTERODACTYL_URL', 'http://localhost') . '/admin/servers/view/' . $server->pterodactyl_id . '">' . $server->name . '</a>';
+                return '<a class="text-info" target="_blank" href="' . config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/servers/view/' . $server->pterodactyl_id . '">' . $server->name . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();

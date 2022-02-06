@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Pterodactyl;
-use App\Models\Configuration;
 use App\Models\Egg;
 use App\Models\Location;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Product;
 use App\Models\Server;
+use App\Models\Settings;
 use App\Notifications\ServerCreationError;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,8 +24,35 @@ class ServerController extends Controller
     /** Display a listing of the resource. */
     public function index()
     {
+        $servers = Auth::user()->servers;
+
+        //Get and set server infos each server
+        foreach ($servers as $server) {
+
+            //Get server infos from ptero
+            $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
+
+            $serverRelationships = $serverAttributes['relationships'];
+            $serverLocationAttributes = $serverRelationships['location']['attributes'];
+
+            //Set server infos
+            $server->location = $serverLocationAttributes['long'] ?
+                $serverLocationAttributes['long'] :
+                $serverLocationAttributes['short'];
+
+            $server->egg = $serverRelationships['egg']['attributes']['name'];
+            $server->nest = $serverRelationships['nest']['attributes']['name'];
+
+            $server->node = $serverRelationships['node']['attributes']['name'];
+
+            //get productname by product_id for server
+            $product = Product::find($server->product_id);
+
+            $server->product = $product;
+        }
+
         return view('servers.index')->with([
-            'servers' => Auth::user()->Servers
+            'servers' => $servers
         ]);
     }
 
@@ -71,7 +98,7 @@ class ServerController extends Controller
     {
         //limit validation
         if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
-            return redirect()->route('servers.index')->with('error', 'Server limit reached!');
+            return redirect()->route('servers.index')->with('error', __('Server limit reached!'));
         }
 
         // minimum credits
@@ -80,7 +107,7 @@ class ServerController extends Controller
             if (
                 Auth::user()->credits <
                 ($product->minimum_credits == -1
-                    ? Configuration::getValueByKey('MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
+                    ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
                     : $product->minimum_credits)
             ) {
                 return redirect()->route('servers.index')->with('error', "You do not have the required amount of " . CREDITS_DISPLAY_NAME . " to use this product!");
@@ -88,13 +115,13 @@ class ServerController extends Controller
         }
 
         //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
-            return redirect()->route('profile.index')->with('error', "You are required to verify your email address before you can create a server.");
+        if (config('SETTINGS::USER:FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('profile.index')->with('error', __("You are required to verify your email address before you can create a server."));
         }
 
         //Required Verification for creating an server
-        if (Configuration::getValueByKey('FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {
-            return redirect()->route('profile.index')->with('error', "You are required to link your discord account before you can create a server.");
+        if (config('SETTINGS::USER:FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {
+            return redirect()->route('profile.index')->with('error', __("You are required to link your discord account before you can create a server."));
         }
 
         return null;
@@ -134,19 +161,20 @@ class ServerController extends Controller
         $response = Pterodactyl::createServer($server, $egg, $allocationId);
         if ($response->failed()) return $this->serverCreationFailed($response, $server);
 
+        $serverAttributes = $response->json()['attributes'];
         //update server with pterodactyl_id
         $server->update([
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-            'identifier'     => $response->json()['attributes']['identifier']
+            'pterodactyl_id' => $serverAttributes['id'],
+            'identifier'     => $serverAttributes['identifier']
         ]);
 
-        if (Configuration::getValueByKey('SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
+        if (config('SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
             if ($request->user()->credits >= $server->product->getHourlyPrice()) {
                 $request->user()->decrement('credits', $server->product->getHourlyPrice());
             }
         }
 
-        return redirect()->route('servers.index')->with('success', 'Server created');
+        return redirect()->route('servers.index')->with('success', __('Server created'));
     }
 
     /**
@@ -159,7 +187,7 @@ class ServerController extends Controller
         $server->delete();
 
         Auth::user()->notify(new ServerCreationError($server));
-        return redirect()->route('servers.index')->with('error', 'No allocations satisfying the requirements for automatic deployment on this node were found.');
+        return redirect()->route('servers.index')->with('error', __('No allocations satisfying the requirements for automatic deployment on this node were found.'));
     }
 
     /**
@@ -180,9 +208,9 @@ class ServerController extends Controller
     {
         try {
             $server->delete();
-            return redirect()->route('servers.index')->with('success', 'Server removed');
+            return redirect()->route('servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', 'An exception has occurred while trying to remove a resource "' . $e->getMessage() . '"');
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
         }
     }
 }

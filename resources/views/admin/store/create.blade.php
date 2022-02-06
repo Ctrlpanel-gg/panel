@@ -6,13 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Store</h1>
+                    <h1>{{__('Store')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.store.index')}}">Store</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.store.create')}}">Create</a>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.store.index')}}">{{__('Store')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                                       href="{{route('admin.store.create')}}">{{__('Create')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -33,19 +34,22 @@
                                 @csrf
                                 <div class="d-flex flex-row-reverse">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" name="disabled" class="custom-control-input custom-control-input-danger"
+                                        <input type="checkbox" name="disabled"
+                                               class="custom-control-input custom-control-input-danger"
                                                id="switch1">
-                                        <label class="custom-control-label" for="switch1">Disabled <i data-toggle="popover"
-                                                                                                      data-trigger="hover"
-                                                                                                      data-content="Will hide this option from being selected"
-                                                                                                      class="fas fa-info-circle"></i></label>
+                                        <label class="custom-control-label" for="switch1">{{__('Disabled')}} <i
+                                                data-toggle="popover"
+                                                data-trigger="hover"
+                                                data-content="{{__('Will hide this option from being selected')}}"
+                                                class="fas fa-info-circle"></i></label>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="type">Type</label>
-                                    <select required name="type" id="type" class="custom-select  @error('name') is-invalid @enderror">
-                                        <option selected value="Credits">Credits</option>
+                                    <label for="type">{{__('Type')}}</label>
+                                    <select required name="type" id="type"
+                                            class="custom-select  @error('name') is-invalid @enderror">
+                                        <option selected value="Credits">{{CREDITS_DISPLAY_NAME}}</option>
                                     </select>
                                     @error('name')
                                     <div class="text-danger">
@@ -55,10 +59,12 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="currency_code">Currency code</label>
-                                    <select required name="currency_code" id="currency_code" class="custom-select  @error('name') is-invalid @enderror">
+                                    <label for="currency_code">{{__('Currency code')}}</label>
+                                    <select required name="currency_code" id="currency_code"
+                                            class="custom-select  @error('name') is-invalid @enderror">
                                         @foreach($currencyCodes as $code)
-                                            <option @if($code == 'EUR') selected @endif value="{{$code}}">{{$code}}</option>
+                                            <option @if($code == 'EUR') selected
+                                                    @endif value="{{$code}}">{{$code}}</option>
                                         @endforeach
                                     </select>
                                     @error('currency_code')
@@ -67,12 +73,14 @@
                                     </div>
                                     @enderror
                                     <div class="text-muted">
-                                        Checkout the paypal docs to select the appropriate code <a target="_blank" href="https://developer.paypal.com/docs/api/reference/currency-codes/">link</a>
+                                        {{__('Checkout the paypal docs to select the appropriate code')}} <a
+                                            target="_blank"
+                                            href="https://developer.paypal.com/docs/api/reference/currency-codes/">link</a>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="price">Price</label>
+                                    <label for="price">{{__('Price')}}</label>
                                     <input value="{{old('price')}}" id="price" name="price"
                                            type="number"
                                            placeholder="10.00"
@@ -87,7 +95,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="quantity">Quantity</label>
+                                    <label for="quantity">{{__('Quantity')}}</label>
                                     <input value="{{old('quantity')}}" id="quantity" name="quantity"
                                            type="number"
                                            placeholder="1000"
@@ -99,12 +107,12 @@
                                     </div>
                                     @enderror
                                     <div class="text-muted">
-                                        Amount given to the user after purchasing
+                                        {{__('Amount given to the user after purchasing')}}
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="display">Display</label>
+                                    <label for="display">{{__('Display')}}</label>
                                     <input value="{{old('display')}}" id="display" name="display"
                                            type="text"
                                            placeholder="750 + 250"
@@ -116,15 +124,15 @@
                                     </div>
                                     @enderror
                                     <div class="text-muted">
-                                        This is what the user sees at store and checkout
+                                        {{__('This is what the user sees at store and checkout')}}
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="description">Description</label>
+                                    <label for="description">{{__('Description')}}</label>
                                     <input value="{{old('description')}}" id="description" name="description"
                                            type="text"
-                                           placeholder="Adds 1000 credits to your account"
+                                           placeholder="{{__('Adds 1000 credits to your account')}}"
                                            class="form-control @error('description') is-invalid @enderror"
                                            required="required">
                                     @error('description')
@@ -133,15 +141,14 @@
                                     </div>
                                     @enderror
                                     <div class="text-muted">
-                                        This is what the user sees at checkout
+                                        {{__('This is what the user sees at checkout')}}
                                     </div>
                                 </div>
 
 
-
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">
-                                        Submit
+                                        {{__('Submit')}}
                                     </button>
                                 </div>
                             </form>

@@ -5,7 +5,8 @@
 
             <!-- Modal Header -->
             <div class="modal-header">
-                <h4 class="modal-title">Redeem voucher code</h4>
+                <h4 class="modal-title">{{__('Redeem voucher code')}}</h4>
+
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
 
@@ -13,7 +14,7 @@
             <div class="modal-body">
                 <form id="redeemVoucherForm" onsubmit="return false" method="post" action="{{route('voucher.redeem')}}">
                     <div class="form-group">
-                        <label for="redeemVoucherCode">Code</label>
+                        <label for="redeemVoucherCode">{{__('Code')}}</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <div class="input-group-text">
@@ -31,9 +32,9 @@
 
             <!-- Modal footer -->
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">{{__('Close')}}</button>
                 <button name="submit" id="redeemVoucherSubmit" onclick="redeemVoucherCode()" type="button"
-                        class="btn btn-primary">Redeem
+                        class="btn btn-primary">{{__('Redeem')}}
                 </button>
             </div>
 

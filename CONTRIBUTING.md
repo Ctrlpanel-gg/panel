@@ -4,6 +4,12 @@ When contributing to this repository, please go through the open issues to see i
 
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
+If you added any Strings which are displayed at the frontend please localize them (e.g. "New String" -> {{ __('New String') }}) and run the localization string generation:
+
+```cmd
+php artisan translatable:export en
+```
+
 ## Pull request process
 
 1. Give your PR a good descriptive title, so we can view immediately what the PR is about.

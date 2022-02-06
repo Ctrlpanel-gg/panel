@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Egg;
 use App\Models\Location;
 use App\Models\Nest;
-use App\Models\Node;
-use App\Models\Configuration;
 use App\Models\Product;
+use App\Models\Settings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -16,7 +14,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
@@ -37,14 +34,15 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('admin.products.create' , [
+        return view('admin.products.create', [
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
         ]);
     }
 
-    public function clone(Request $request , Product $product){
-        return view('admin.products.create' , [
+    public function clone(Request $request, Product $product)
+    {
+        return view('admin.products.create', [
             'product' => $product,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
@@ -84,7 +82,7 @@ class ProductController extends Controller
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
 
-        return redirect()->route('admin.products.index')->with('success', 'Product has been created!');
+        return redirect()->route('admin.products.index')->with('success', __('Product has been created!'));
     }
 
     /**
@@ -97,7 +95,7 @@ class ProductController extends Controller
     {
         return view('admin.products.show', [
             'product' => $product,
-            'minimum_credits' => Configuration::getValueByKey("MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER"),
+            'minimum_credits' => config("SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER"),
         ]);
     }
 
@@ -152,7 +150,7 @@ class ProductController extends Controller
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
 
-        return redirect()->route('admin.products.index')->with('success', 'Product has been updated!');
+        return redirect()->route('admin.products.index')->with('success', __('Product has been updated!'));
     }
 
     /**
@@ -181,7 +179,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
-        return redirect()->back()->with('success', 'Product has been removed!');
+        return redirect()->back()->with('success', __('Product has been removed!'));
     }
 
 
@@ -196,14 +194,14 @@ class ProductController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
                 return '
-                            <a data-content="Show" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.show', $product->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
-                            <a data-content="Clone" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.clone', $product->id) . '" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
-                            <a data-content="Edit" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.edit', $product->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="' . __("Show") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.show', $product->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
+                            <a data-content="' . __("Clone") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.clone', $product->id) . '" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
+                            <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.edit', $product->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.products.destroy', $product->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
-                           <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="' . __("Delete") . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })

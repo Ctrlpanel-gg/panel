@@ -1,3 +1,8 @@
+<!--
+THIS FILE IS DEPRECATED
+ -->
+
+
 @extends('layouts.main')
 
 @section('content')
@@ -6,13 +11,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Nodes</h1>
+                    <h1>{{__('Nodes')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.nodes.index')}}">Nodes</a></li>
+                                                       href="{{route('admin.nodes.index')}}">{{__('Nodes')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,9 +33,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-sitemap mr-2"></i>Nodes</h5>
+                        <h5 class="card-title"><i class="fas fa-sitemap mr-2"></i>{{__('Nodes')}}</h5>
                         <a href="{{route('admin.nodes.sync')}}" class="btn btn-sm btn-info"><i
-                                class="fas fa-sync mr-1"></i>Sync</a>
+                                class="fas fa-sync mr-1"></i>{{__('Sync')}}</a>
                     </div>
                 </div>
 
@@ -39,12 +44,12 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Active</th>
-                            <th>ID</th>
-                            <th>Location</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Created at</th>
+                            <th>{{__('Active')}}</th>
+                            <th>{{__('ID')}}</th>
+                            <th>{{__('Location')}}</th>
+                            <th>{{__('Name')}}</th>
+                            <th>{{__('Description')}}</th>
+                            <th>{{__('Created at')}}</th>
 
                         </tr>
                         </thead>
@@ -64,11 +69,14 @@
 
     <script>
         function submitResult() {
-            return confirm("Are you sure you wish to delete?") !== false;
+            return confirm({{__("Are you sure you wish to delete?")}}) !== false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
+                },
                 processing: true,
                 serverSide: true,
                 stateSave: true,

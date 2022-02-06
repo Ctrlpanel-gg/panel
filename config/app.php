@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\Settings;
+
 return [
 
-    'version' => '0.6.2',
+    'version' => '0.7',
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -70,6 +72,7 @@ return [
 
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
@@ -81,7 +84,21 @@ return [
     |
     */
 
-    'locale' => 'en',
+    'locale' =>"en",
+
+    /*
+    |--------------------------------------------------------------------------
+    | Available Languages
+    |--------------------------------------------------------------------------
+    |
+    | The application locale determines the default locale that will be used
+    | by the translation service provider. You are free to set this value
+    | to any of the locales which will be supported by the application.
+    |
+    */
+
+    'available_locales' => array_map('basename', preg_replace('/\\.[^.\\s]{3,4}$/', '', glob(resource_path()."/lang/*.json", GLOB_BRACE))),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -177,6 +194,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
+
+        KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
+
 
     ],
 

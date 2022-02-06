@@ -6,12 +6,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Activity Logs</h1>
+                    <h1>{{ __('Activity Logs')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.activitylogs.index')}}">Activity Logs</a>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{ __('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.activitylogs.index')}}">{{ __('Activity Logs')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -32,8 +32,8 @@
                         </div>
                     @else
                         <div class="callout callout-danger">
-                            <h4>No recent activity from cronjobs</h4>
-                            <p>Are cronjobs running? <a class="text-primary" target="_blank" href="https://github.com/ControlPanel-gg/dashboard/wiki/Installation#crontab-configuration">Check the docs for it here</a></p>
+                            <h4>{{ __('No recent activity from cronjobs')}}</h4>
+                            <p>{{ __('Are cronjobs running?')}} <a class="text-primary" target="_blank" href="https://github.com/ControlPanel-gg/dashboard/wiki/Installation#crontab-configuration">{{ __('Check the docs for it here')}}</a></p>
                         </div>
                     @endif
 
@@ -42,7 +42,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-history mr-2"></i>Activity Logs</h5>
+                    <h5 class="card-title"><i class="fas fa-history mr-2"></i>{{ __('Activity Logs')}}</h5>
                 </div>
                 <div class="card-body table-responsive">
 
@@ -63,16 +63,16 @@
                     <table class="table table-sm table-striped">
                         <thead>
                         <tr>
-                            <th>Causer</th>
-                            <th>Description</th>
-                            <th>Created At</th>
+                            <th>{{ __('Causer') }}</th>
+                            <th>{{ __('Description') }}</th>
+                            <th>{{ __('Created at') }}</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($logs as $log)
                             <tr>
-        <td> @if($log->causer) <a href='/admin/users/{{$log->causer_id}}'> {{json_decode($log->causer)->name}} 
-		@else 
+        <td> @if($log->causer) <a href='/admin/users/{{$log->causer_id}}'> {{json_decode($log->causer)->name}}
+		@else
 			System
 		@endif</td>
                                 <td>

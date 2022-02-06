@@ -8,7 +8,7 @@ use NumberFormatter;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Configuration;
 
-class PaypalProduct extends Model
+class CreditProduct extends Model
 {
     use LogsActivity;
     /**
@@ -33,53 +33,53 @@ class PaypalProduct extends Model
     {
         parent::boot();
 
-        static::creating(function (PaypalProduct $paypalProduct) {
+        static::creating(function (CreditProduct $creditProduct) {
             $client = new Client();
 
-            $paypalProduct->{$paypalProduct->getKeyName()} = $client->generateId($size = 21);
+            $creditProduct->{$creditProduct->getKeyName()} = $client->generateId($size = 21);
         });
     }
 
     /**
      * @param mixed $value
      * @param string $locale
-     * 
+     *
      * @return float
      */
-    public function formatToCurrency($value,$locale = 'en_US')
+    public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 
     /**
-    * @description Returns the tax in % taken from the Configuration
-    *
-    * @return int
-    */
+     * @description Returns the tax in % taken from the Configuration
+     *
+     * @return int
+     */
     public function getTaxPercent()
     {
-        $tax = Configuration::getValueByKey("SALES_TAX");
+        $tax = config("SETTINGS::PAYMENTS:SALES_TAX");
         return $tax < 0 ? 0 : $tax;
     }
 
     /**
-    * @description Returns the tax as Number
-    *
-    * @return float
-    */
+     * @description Returns the tax as Number
+     *
+     * @return float
+     */
     public function getTaxValue()
     {
-        return $this->price*$this->getTaxPercent()/100;
+        return number_format($this->price * $this->getTaxPercent() / 100, 2);
     }
 
     /**
-    * @description Returns the full price of a Product including tax
-    *
-    * @return float
-    */
-    public function getTotalPrice() 
+     * @description Returns the full price of a Product including tax
+     *
+     * @return float
+     */
+    public function getTotalPrice()
     {
-        return $this->price+($this->getTaxValue());
+        return number_format($this->price + $this->getTaxValue(), 2);
     }
 }

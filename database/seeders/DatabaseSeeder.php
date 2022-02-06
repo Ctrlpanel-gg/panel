@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Seeds\ConfigurationSeeder;
+use Database\Seeders\Seeds\SettingsSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            ConfigurationSeeder::class,
+            SettingsSeeder::class,
         ]);
 
     }

@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "cpgg/dashboard",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "A billing and control panel made for Pterodactyl.",
     "keywords": [
         "framework",
         "laravel"
@@ -16,15 +16,19 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "hidehalo/nanoid-php": "^1.1",
+        "kkomelin/laravel-translatable-string-exporter": "^1.14",
         "laravel/framework": "^8.12",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.2",
+        "laraveldaily/laravel-invoices": "^2.0",
         "paypal/paypal-checkout-sdk": "^1.0",
         "paypal/rest-api-sdk-php": "^1.14",
         "socialiteproviders/discord": "^4.1",
         "spatie/laravel-activitylog": "^3.16",
         "spatie/laravel-query-builder": "^3.6",
         "spatie/laravel-validation-rules": "^3.0",
+        "stripe/stripe-php": "^7.107",
+        "symfony/intl": "^6.0",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
