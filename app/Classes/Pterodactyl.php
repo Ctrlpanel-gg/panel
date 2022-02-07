@@ -241,7 +241,7 @@ class Pterodactyl
      * @param int $pterodactylId
      * @return mixed
      */
-    public static function getServerAttributes(string $pterodactylId)
+    public static function getServerAttributes(int $pterodactylId)
     {
         try {
             $response = self::client()->get("/application/servers/{$pterodactylId}?include=egg,node,nest,location");

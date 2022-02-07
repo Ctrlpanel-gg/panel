@@ -42,6 +42,9 @@ class System
                 ->withInput();
         }
 
+        // update Icons from request
+        $this->updateIcons($request);
+
 
         $values = [
             "SETTINGS::SYSTEM:REGISTER_IP_CHECK" => "register-ip-check",
@@ -69,5 +72,21 @@ class System
             Cache::forget("setting" . ':' . $key);
         }
         return redirect(route('admin.settings.index') . '#system')->with('success', __('System settings updated!'));
+    }
+
+    private function updateIcons(Request $request)
+    {
+        $request->validate([
+            'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
+            'favicon' => 'nullable|max:10000|mimes:ico',
+        ]);
+
+        if ($request->hasFile('icon')) {
+            $request->file('icon')->storeAs('public', 'icon.png');
+        }
+
+        if ($request->hasFile('favicon')) {
+            $request->file('favicon')->storeAs('public', 'favicon.ico');
+        }
     }
 }

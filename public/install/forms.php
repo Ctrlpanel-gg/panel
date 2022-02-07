@@ -71,7 +71,11 @@ if (isset($_POST['feedDB'])) {
     #$logs .= run_console('composer install --no-dev --optimize-autoloader');
     $logs .= run_console('php artisan migrate --seed --force');
     $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
-    $logs .= run_console('php artisan key:generate --force');
+    if (strpos(getEnvironmentValue("APP_KEY"), 'base64') === false) {
+        $logs .= run_console('php artisan key:generate --force');
+    }else{
+          $logs .= "Key already exists. Skipping\n";
+    }
     $logs .= run_console('php artisan storage:link');
 
     $logsfile = fopen("logs.txt", "w") or die("Unable to open file!");

@@ -40,47 +40,4 @@ class SettingsController extends Controller
             'tabListItems' => $tabListItems,
         ]);
     }
-
-
-    public function updatevalue(Request $request)
-    {
-        $setting = Settings::findOrFail($request->input('key'));
-
-        $request->validate([
-            'key'   => 'required|string|max:191',
-            'value' => 'required|string|max:191',
-        ]);
-
-        $setting->update($request->all());
-
-        return redirect()->route('admin.settings.index')->with('success', __('configuration has been updated!'));
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Settings $setting
-     * @return Response
-     */
-    public function destroy(Settings $setting)
-    {
-        //
-    }
-
-    public function datatable()
-    {
-        $query = Settings::where('key', 'like', '%SYSTEM%')
-            ->orWhere('key', 'like', '%USER%')
-            ->orWhere('key', 'like', '%SERVER%');
-
-        return datatables($query)
-            ->addColumn('actions', function (Settings $setting) {
-                return '<button data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top" onclick="configuration.parse(\'' . $setting->key . '\',\'' . $setting->value . '\',\'' . $setting->type . '\')" data-content="Edit" data-trigger="hover" data-toggle="tooltip" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></button> ';
-            })
-            ->editColumn('created_at', function (Settings $setting) {
-                return $setting->created_at ? $setting->created_at->diffForHumans() : '';
-            })
-            ->rawColumns(['actions'])
-            ->make();
-    }
 }
