@@ -6,7 +6,6 @@ use App\Models\Egg;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Server;
-use App\Models\Settings;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -36,9 +35,25 @@ class Pterodactyl
     /**
      * @return Exception
      */
-    private static function getException(): Exception
+    private static function getException(string $message = "", int $status = 0): Exception
     {
-        return new Exception('Request Failed, is pterodactyl set-up correctly?');
+        if ($status == 404) {
+            return new Exception("Ressource does not exist on pterodactyl - " . $message, 404);
+        }
+
+        if ($status == 403) {
+            return new Exception("No permission on pterodactyl, check pterodactyl token and permissions - " . $message, 403);
+        }
+
+        if ($status == 401) {
+            return new Exception("No pterodactyl token set - " . $message, 401);
+        }
+
+        if ($status == 500) {
+            return new Exception("Pterodactyl server error - " . $message, 500);
+        }
+
+        return new Exception('Request Failed, is pterodactyl set-up correctly? - ' . $message);
     }
 
     /**
@@ -51,9 +66,9 @@ class Pterodactyl
         try {
             $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . self::PER_PAGE);
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to get eggs from pterodactyl - ", $response->status());
         return $response->json()['data'];
     }
 
@@ -66,9 +81,9 @@ class Pterodactyl
         try {
             $response = self::client()->get('/application/nodes?per_page=' . self::PER_PAGE);
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to get nodes from pterodactyl - ", $response->status());
         return $response->json()['data'];
     }
 
@@ -81,9 +96,9 @@ class Pterodactyl
         try {
             $response = self::client()->get('/application/nests?per_page=' . self::PER_PAGE);
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to get nests from pterodactyl", $response->status());
         return $response->json()['data'];
     }
 
@@ -96,9 +111,9 @@ class Pterodactyl
         try {
             $response = self::client()->get('/application/locations?per_page=' . self::PER_PAGE);
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to get locations from pterodactyl - ", $response->status());
 
         return $response->json()['data'];
     }
@@ -145,9 +160,9 @@ class Pterodactyl
         try {
             $response = self::client()->get("/application/nodes/{$node->id}/allocations?per_page={$per_page}");
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to get allocations from pterodactyl - ", $response->status());
 
         return $response->json();
     }
@@ -200,9 +215,9 @@ class Pterodactyl
         try {
             $response = self::client()->post("/application/servers/$server->pterodactyl_id/suspend");
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to suspend server from pterodactyl - ", $response->status());
 
         return $response;
     }
@@ -212,9 +227,9 @@ class Pterodactyl
         try {
             $response = self::client()->post("/application/servers/$server->pterodactyl_id/unsuspend");
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to unsuspend server from pterodactyl - ", $response->status());
 
         return $response;
     }
@@ -229,9 +244,9 @@ class Pterodactyl
         try {
             $response = self::client()->get("/application/users/{$pterodactylId}");
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+        if ($response->failed()) throw self::getException("Failed to get user from pterodactyl - ", $response->status());
 
         return $response->json()['attributes'];
     }
@@ -246,9 +261,14 @@ class Pterodactyl
         try {
             $response = self::client()->get("/application/servers/{$pterodactylId}?include=egg,node,nest,location");
         } catch (Exception $e) {
-            throw self::getException();
+            throw self::getException($e->getMessage());
         }
-        if ($response->failed()) throw self::getException();
+
+        //print response body
+
+
+
+        if ($response->failed()) throw self::getException("Failed to get server attributes from pterodactyl - ", $response->status());
         return $response->json()['attributes'];
     }
 }

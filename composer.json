@@ -28,7 +28,7 @@
         "spatie/laravel-query-builder": "^3.6",
         "spatie/laravel-validation-rules": "^3.0",
         "stripe/stripe-php": "^7.107",
-        "symfony/intl": "^6.0",
+        "symfony/intl": "^5.4",
         "yajra/laravel-datatables-oracle": "~9.0"
     },
     "require-dev": {
