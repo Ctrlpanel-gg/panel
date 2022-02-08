@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Exception;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         //only run if the installer has been executed
-        if (file_exists(base_path()."/install.lock")) {
+        try {
             $settings = Settings::all();
             // Set all configs from database
             foreach ($settings as $setting) {
@@ -103,6 +104,8 @@ class AppServiceProvider extends ServiceProvider
             // Set Discord-API Config
             config(['services.discord.client_id' => config('SETTINGS::DISCORD:CLIENT_ID')]);
             config(['services.discord.client_secret' => config('SETTINGS::DISCORD:CLIENT_SECRET')]);
+        } catch (Exception $e) {
+            error_log("Settings Error: Could not load settings from database");
         }
     }
 }
