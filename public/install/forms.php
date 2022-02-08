@@ -29,6 +29,7 @@ if (isset($_POST['checkDB'])) {
 
     $db = new mysqli($_POST["databasehost"], $_POST["databaseuser"], $_POST["databaseuserpass"], $_POST["database"], $_POST["databaseport"]);
     if ($db->connect_error) {
+        wh_log($db->connect_error);
         header("LOCATION: index.php?step=2&message=Could not connect to the Database");
         die();
     }
@@ -78,14 +79,12 @@ if (isset($_POST['feedDB'])) {
     }
     $logs .= run_console('php artisan storage:link');
 
-    $logsfile = fopen("logs.txt", "w") or die("Unable to open file!");
-    fwrite($logsfile, $logs);
-    fclose($logsfile);
+    wh_log($logs);
 
     if (strpos(getEnvironmentValue("APP_KEY"), 'base64') !== false) {
         header("LOCATION: index.php?step=3");
     } else {
-        header("LOCATION: index.php?step=2.5&message=There was an error. Please check install/logs.txt !");
+        header("LOCATION: index.php?step=2.5&message=There was an error. Please check the .txt file in install/log !");
     }
 
 
@@ -123,7 +122,8 @@ if (isset($_POST['checkSMTP'])) {
 
     $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
     if ($db->connect_error) {
-        header("LOCATION: index.php?step=4&message=Could not connect to the Database");
+        wh_log($db->connect_error);
+        header("LOCATION: index.php?step=4&message=Could not connect to the Database: ");
     die();
     }
     $values = [
@@ -181,6 +181,7 @@ if (isset($_POST['checkPtero'])) {
 
         $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
         if ($db->connect_error) {
+            wh_log($db->connect_error);
             header("LOCATION: index.php?step=5&message=Could not connect to the Database");
             die();
         }
@@ -188,6 +189,7 @@ if (isset($_POST['checkPtero'])) {
         if ($db->query($query1) && $db->query($query2)) {
             header("LOCATION: index.php?step=6");
         } else {
+            wh_log($db->error);
             header("LOCATION: index.php?step=5&message=Something went wrong when communicating with the Database!");
         }
     }
@@ -198,6 +200,7 @@ if (isset($_POST['checkPtero'])) {
 if (isset($_POST['createUser'])) {
     $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
     if ($db->connect_error) {
+        wh_log($db->connect_error);
         header("LOCATION: index.php?step=6&message=Could not connect to the Database");
         die();
     }
@@ -273,8 +276,8 @@ if (isset($_POST['createUser'])) {
     if ($db->query($query1)) {
         header("LOCATION: index.php?step=7");
     } else {
-
-        header("LOCATION: index.php?step=6&message=Something went wrong when communicating with the Database!");
+        wh_log($db->error);
+        header("LOCATION: index.php?step=6&message=Something went wrong when communicating with the Database");
 
     }
 
