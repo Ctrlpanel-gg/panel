@@ -4,7 +4,7 @@ use App\Models\Settings;
 
 return [
 
-    'version' => '0.7',
+    'version' => '0.7.2',
     /*
     |--------------------------------------------------------------------------
     | Application Name
