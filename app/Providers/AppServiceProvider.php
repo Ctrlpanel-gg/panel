@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Settings;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
@@ -106,6 +107,7 @@ class AppServiceProvider extends ServiceProvider
             config(['services.discord.client_secret' => config('SETTINGS::DISCORD:CLIENT_SECRET')]);
         } catch (Exception $e) {
             error_log("Settings Error: Could not load settings from database");
+            Log::error("Settings Error: Could not load settings from database");
         }
     }
 }
