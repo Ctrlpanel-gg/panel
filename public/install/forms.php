@@ -206,8 +206,6 @@ if (isset($_POST['createUser'])) {
     }
 
 
-    $name = $_POST['user'];
-    $mail = $_POST['email'];
     $pteroID = $_POST['pteroID'];
     $pass = $_POST['pass'];
     $repass = $_POST['repass'];
@@ -231,9 +229,8 @@ if (isset($_POST['createUser'])) {
     $result = json_decode($response, true);
     curl_close($ch); // Close the connection
 
-
-    if ($result["attributes"]["email"] !== $mail) {
-        header("LOCATION: index.php?step=6&message=The Email is not the same as the one used on Pterodactyl");
+    if (!$result["attributes"]["email"]) {
+        header("LOCATION: index.php?step=6&message=Could not find the user with pterodactyl ID ".$pteroID);
         die();
     }
     if ($pass !== $repass) {
@@ -241,6 +238,8 @@ if (isset($_POST['createUser'])) {
         die();
     }
 
+    $mail = $result["attributes"]["email"];
+    $name = $result["attributes"]["username"];
     $pass = password_hash($pass, PASSWORD_DEFAULT);
 
     $pteroURL = $pterobaseurl["value"] . "/api/application/users/" . $pteroID;
@@ -269,11 +268,14 @@ if (isset($_POST['createUser'])) {
         die();
     }
 
+
+
     $query1 = "INSERT INTO `" . getEnvironmentValue("DB_DATABASE") . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP)";
 
 
 
     if ($db->query($query1)) {
+        wh_log("[USER MAKER] Created user with Email ".$mail. " and pterodactyl ID ". $pteroID);
         header("LOCATION: index.php?step=7");
     } else {
         wh_log($db->error);
