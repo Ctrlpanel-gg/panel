@@ -22,6 +22,7 @@ if (file_exists("../../install.lock")) {
             left: 50%;
             margin-right: -50%;
             transform: translate(-50%, -50%);
+            width: 30%;
         }
 
         .ok {
@@ -399,29 +400,18 @@ echo $cardheader;
                     <form method="POST" enctype="multipart/form-data" class="mb-3"
                           action="/install/forms.php" name="createUser">
 
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="custom-control mb-3">
-                                        <label for="user">Your Username</label>
-                                        <input id="user" name="user"
-                                               type="text" required
-                                               value="" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="custom-control mb-3">
-                                        <label for="email">Your Email Adress (used to Login)</label>
-                                        <input id="email" name="email"
-                                               type="text" required
-                                               value="" class="form-control">
-                                    </div>
-                                </div>
-
+                        <div class="form-group">
+                            <div class="custom-control mb-3">
+                                <label for="pteroID">Your Pterodactyl User-ID (found in the users-list on your pterodactyl dashboard)</label>
+                                <input id="pteroID" name="pteroID" type="text"
+                                       required
+                                       value="1" class="form-control">
+                            </div>
+                        </div>
 
                                 <div class="form-group">
                                     <div class="custom-control mb-3">
-                                        <label for="pass">Password</label>
+                                        <label for="pass">Password (this will be your new pterodactyl password aswell!)</label>
                                         <input id="pass" name="pass" type="password"
                                                required
                                                value="" minlength="8" class="form-control">
@@ -433,15 +423,6 @@ echo $cardheader;
                                         <input id="repass" name="repass" type="password"
                                                required
                                                value="" minlength="8" class="form-control">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="custom-control mb-3">
-                                        <label for="pteroID">Your Pterodactyl User-ID</label>
-                                        <input id="pteroID" name="pteroID" type="text"
-                                               required
-                                               value="" class="form-control">
                                     </div>
                                 </div>
 
