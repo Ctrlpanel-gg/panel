@@ -69,7 +69,7 @@ if (!isset($_GET['step'])) {
     <p class="<?php print(checkWriteable() == true ? "ok" : "notok"); ?>">Write-permissions on .env-file</p>
 
     <p class="<?php print(checkPhpVersion() === "OK" ? "ok" : "notok"); ?>"> php
-        version: <?php echo phpversion(); ?> (required <?php echo $requirements["php"]; ?>)</p>
+        version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements["minPhp"]; ?>)</p>
     <p class="<?php print(getMySQLVersion() === "OK" ? "ok" : "notok"); ?>"> mysql
         version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements["mysql"]; ?>)</p>
 

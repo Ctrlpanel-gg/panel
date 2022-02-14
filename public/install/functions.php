@@ -1,17 +1,18 @@
 <?php
 
 
-$required_extentions = array("openssl", "gd", "mysql", "PDO", "mbstring", "tokenizer", "bcmath", "xml", "curl", "zip", "fpm");
+$required_extentions = array("openssl", "gd", "mysql", "PDO", "mbstring", "tokenizer", "bcmath", "xml", "curl", "zip", "intl");
 
 $requirements = [
-    "php" => "7.4",
+    "minPhp" => "7.4",
+    "maxPhp" => "8.1", // This version is not supported
     "mysql" => "5.7.22",
 ];
 
 function checkPhpVersion()
 {
     global $requirements;
-    if (version_compare(phpversion(), $requirements["php"], '>=')) {
+    if (version_compare(phpversion(), $requirements["minPhp"], '>=') && version_compare(phpversion(), $requirements["maxPhp"], '<')) {
         return "OK";
     }
     return "not OK";
@@ -22,8 +23,7 @@ function checkWriteable()
 }
 function checkHTTPS()
 {
-    return
-        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || $_SERVER['SERVER_PORT'] == 443;
 }
 
@@ -84,7 +84,6 @@ function checkExtensions()
             array_push($not_ok, $ext);
     }
     return $not_ok;
-
 }
 
 function setEnvironmentValue($envKey, $envValue)
@@ -119,7 +118,6 @@ function getEnvironmentValue($envKey)
 
 
     return $value;
-
 }
 
 
@@ -133,14 +131,11 @@ function run_console($command)
 function wh_log($log_msg)
 {
     $log_filename = "log";
-    if (!file_exists($log_filename))
-    {
+    if (!file_exists($log_filename)) {
         // create directory/folder uploads.
         mkdir($log_filename, 0777, true);
     }
-    $log_file_data = $log_filename.'/log_' . date('d-M-Y') . '.log';
+    $log_file_data = $log_filename . '/log_' . date('d-M-Y') . '.log';
     // if you don't add `FILE_APPEND`, the file will be erased each time you add a log
-    file_put_contents($log_file_data, "[".date('h:i:s')."] " . $log_msg . "\n", FILE_APPEND);
+    file_put_contents($log_file_data, "[" . date('h:i:s') . "] " . $log_msg . "\n", FILE_APPEND);
 }
-
-?>
