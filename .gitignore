@@ -24,3 +24,4 @@ storage/app/public/logo.png
  - Kopie.env
 public/install/logs.txt
 install.lock
+public/install/logs/installer.log
