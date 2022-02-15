@@ -607,8 +607,7 @@ class PaymentController extends Controller
                 return $payment->created_at ? $payment->created_at->diffForHumans() : '';
             })
             ->addColumn('actions', function (Payment $payment) {
-                return ' <a data-content="' . __("Download") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', "id=" . $payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>
-';
+                return '<a data-content="' . __("Download") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', "id=" . $payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>';
             })
             ->rawColumns(['actions'])
             ->make(true);

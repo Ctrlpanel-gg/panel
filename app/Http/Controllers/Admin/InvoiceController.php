@@ -59,12 +59,10 @@ class InvoiceController extends Controller
         $invoice_path = storage_path('app/invoice/' . $query->invoice_user . '/' . $query->created_at->format("Y") . '/' . $query->invoice_name . '.pdf');
 
         if (!file_exists($invoice_path)) {
-            return redirect()->back()->with("error", __("Error!"));
+            return redirect()->back()->with("error", __("Invoice does not exist on filesystem!"));
         }
 
 
         return response()->download($invoice_path);
-
     }
-
 }

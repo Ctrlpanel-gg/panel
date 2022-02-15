@@ -273,6 +273,7 @@
     "You can't redeem this voucher because you would exceed the  limit of ": "你不能兑换此优惠券，因为你会超过此优惠券的使用限额。 ",
     "have been added to your balance!": "已被添加到您的余额中!",
     "Invoice": "发票",
+    "Invoice does not exist on filesystem!": "发票不存在于文件系统!",
     "Serial No.": "序号",
     "Invoice date": "发票日期",
     "Seller": "卖家",
