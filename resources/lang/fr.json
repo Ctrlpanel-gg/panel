@@ -273,6 +273,7 @@
     "You can't redeem this voucher because you would exceed the  limit of ": "Vous ne pouvez pas utiliser ce bon car vous dépasseriez la limite de ",
     "have been added to your balance!": "ont été ajoutés à votre solde !",
     "Invoice": "Facture",
+    "Invoice does not exist on filesystem!": "La facture n'existe pas sur le système de fichiers !",
     "Serial No.": "N° de série",
     "Invoice date": "Date de la facture",
     "Seller": "Vendeur",
