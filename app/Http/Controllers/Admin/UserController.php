@@ -302,7 +302,7 @@ class UserController extends Controller
                 return '<span class="badge ' . $badgeColor . '">' . $user->role . '</span>';
             })
             ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="' . config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/users/view/' . $user->pterodactyl_id . '">' . $user->name . '</a>';
+                return '<a class="text-info" target="_blank" href="' . config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
             ->orderColumn('last_seen', function ($query, $order) {
                 $query->orderBy('last_seen', $order);
