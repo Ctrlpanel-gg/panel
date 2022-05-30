@@ -72,6 +72,7 @@
                 serverSide: true,
                 stateSave: true,
                 ajax: "{{ route('admin.payments.datatable') }}",
+                order: [[ 9, "asc" ]],
                 columns: [
                     {data: 'id',name: 'payments.id'},
                     {data: 'type'},

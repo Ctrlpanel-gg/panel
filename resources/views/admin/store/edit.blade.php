@@ -13,7 +13,7 @@
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('admin.store.index') }}">{{ __('Store') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('admin.store.edit', $creditProduct->id) }}">{{ __('Edit') }}</a>
+                                href="{{ route('admin.store.edit', $shopProduct->id) }}">{{ __('Edit') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -30,12 +30,12 @@
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{ route('admin.store.update', $creditProduct->id) }}" method="POST">
+                            <form action="{{ route('admin.store.update', $shopProduct->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <div class="d-flex flex-row-reverse">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" @if ($creditProduct->disabled) checked @endif name="disabled"
+                                        <input type="checkbox" @if ($shopProduct->disabled) checked @endif name="disabled"
                                             class="custom-control-input custom-control-input-danger" id="switch1">
                                         <label class="custom-control-label" for="switch1">{{ __('Disabled') }} <i
                                                 data-toggle="popover" data-trigger="hover"
@@ -62,7 +62,7 @@
                                     <select required name="currency_code" id="currency_code"
                                         class="custom-select  @error('name') is-invalid @enderror">
                                         @foreach ($currencyCodes as $code)
-                                            <option @if ($creditProduct->currency_code == $code) selected @endif value="{{ $code }}">
+                                            <option @if ($shopProduct->currency_code == $code) selected @endif value="{{ $code }}">
                                                 {{ $code }}</option>
                                         @endforeach
                                     </select>
@@ -80,7 +80,7 @@
 
                                 <div class="form-group">
                                     <label for="price">Price</label>
-                                    <input value="{{ $creditProduct->price }}" id="price" name="price" type="number"
+                                    <input value="{{ $shopProduct->price }}" id="price" name="price" type="number"
                                         placeholder="10.00" step="any"
                                         class="form-control @error('price') is-invalid @enderror" required="required">
                                     @error('price')
@@ -92,7 +92,7 @@
 
                                 <div class="form-group">
                                     <label for="quantity">Quantity</label>
-                                    <input value="{{ $creditProduct->quantity }}" id="quantity" name="quantity"
+                                    <input value="{{ $shopProduct->quantity }}" id="quantity" name="quantity"
                                         type="number" placeholder="1000"
                                         class="form-control @error('quantity') is-invalid @enderror" required="required">
                                     @error('quantity')
@@ -107,7 +107,7 @@
 
                                 <div class="form-group">
                                     <label for="display">Display</label>
-                                    <input value="{{ $creditProduct->display }}" id="display" name="display" type="text"
+                                    <input value="{{ $shopProduct->display }}" id="display" name="display" type="text"
                                         placeholder="750 + 250" class="form-control @error('display') is-invalid @enderror"
                                         required="required">
                                     @error('display')
@@ -122,7 +122,7 @@
 
                                 <div class="form-group">
                                     <label for="description">Description</label>
-                                    <input value="{{ $creditProduct->description }}" id="description" name="description"
+                                    <input value="{{ $shopProduct->description }}" id="description" name="description"
                                         type="text" placeholder="{{ __('Adds 1000 credits to your account') }}"
                                         class="form-control @error('description') is-invalid @enderror" required="required">
                                     @error('description')

@@ -32,7 +32,7 @@ class Payment extends Model
         'total_price',
         'tax_percent',
         'currency_code',
-        'credit_product_id',
+        'shop_item_product_id',
     ];
 
     public static function boot()
