@@ -164,15 +164,20 @@ class PaymentController extends Controller
             $response = $this->getPayPalClient()->execute($request);
             if ($response->statusCode == 201 || $response->statusCode == 200) {
 
-                //update credits
-                $user->increment('credits', $creditProduct->quantity);
-
                 //update server limit
                 if (config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
                     if ($user->server_limit < config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
                         $user->update(['server_limit' => config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
                 }
+
+                //update User with bought item
+                if ($creditProduct->type=="Credits") {
+                    $user->increment('credits', $creditProduct->quantity);
+                }elseif ($creditProduct->type=="Server slots"){
+                    $user->increment('server_limit', $creditProduct->quantity);
+                }
+
 
                 //update role
                 if ($user->role == 'member') {
@@ -184,7 +189,7 @@ class PaymentController extends Controller
                     'user_id' => $user->id,
                     'payment_id' => $response->result->id,
                     'payment_method' => 'paypal',
-                    'type' => 'Credits',
+                    'type' => $creditProduct->type,
                     'status' => 'paid',
                     'amount' => $creditProduct->quantity,
                     'price' => $creditProduct->price,
@@ -305,14 +310,20 @@ class PaymentController extends Controller
             // check if payment is 100% completed and payment does not exist in db already
             if ($paymentSession->status == "complete" && $paymentIntent->status == "succeeded" && $paymentDbEntry == 0) {
 
-                //update credits
-                $user->increment('credits', $creditProduct->quantity);
+
 
                 //update server limit
                 if (config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
                     if ($user->server_limit < config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
                         $user->update(['server_limit' => config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
+                }
+
+                //update User with bought item
+                if ($creditProduct->type=="Credits") {
+                    $user->increment('credits', $creditProduct->quantity);
+                }elseif ($creditProduct->type=="Server slots"){
+                    $user->increment('server_limit', $creditProduct->quantity);
                 }
 
                 //update role
@@ -325,7 +336,7 @@ class PaymentController extends Controller
                     'user_id' => $user->id,
                     'payment_id' => $paymentSession->payment_intent,
                     'payment_method' => 'stripe',
-                    'type' => 'Credits',
+                    'type' => $creditProduct->type,
                     'status' => 'paid',
                     'amount' => $creditProduct->quantity,
                     'price' => $creditProduct->price,
@@ -356,7 +367,7 @@ class PaymentController extends Controller
                         'user_id' => $user->id,
                         'payment_id' => $paymentSession->payment_intent,
                         'payment_method' => 'stripe',
-                        'type' => 'Credits',
+                        'type' => $creditProduct->type,
                         'status' => 'processing',
                         'amount' => $creditProduct->quantity,
                         'price' => $creditProduct->price,
@@ -405,14 +416,19 @@ class PaymentController extends Controller
             $user = User::where('id', $payment->user_id)->first();
 
             if ($paymentIntent->status == 'succeeded' && $payment->status == 'processing') {
-                // Increment User Credits
-                $user->increment('credits', $payment->amount);
+
 
                 //update server limit
                 if (config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') !== 0) {
                     if ($user->server_limit < config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')) {
                         $user->update(['server_limit' => config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE')]);
                     }
+                }
+                //update User with bought item
+                if ($creditProduct->type=="Credits") {
+                    $user->increment('credits', $creditProduct->quantity);
+                }elseif ($creditProduct->type=="Server slots"){
+                    $user->increment('server_limit', $creditProduct->quantity);
                 }
 
                 //update role
