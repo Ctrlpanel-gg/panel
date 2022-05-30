@@ -53,5 +53,15 @@ class ShopProductSeeder extends Seeder
             'price' => 20.00,
             'disabled' => false,
         ]);
+
+        ShopProduct::create([
+            'type' => 'Server slots',
+            'display' => '+2 Server slots',
+            'description' => 'You will be able to create 2 more servers',
+            'quantity' => '2',
+            'currency_code' => 'EUR',
+            'price' => 5.00,
+            'disabled' => false,
+        ]);
     }
 }
