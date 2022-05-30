@@ -23,7 +23,7 @@ class OverViewController extends Controller
         });
 
         $creditCount = Cache::remember('credit:count', self::TTL, function () {
-            return User::query()->sum('credits');
+            return User::query()->where("role","!=","admin")->sum('credits');
         });
 
         $paymentCount = Cache::remember('payment:count', self::TTL, function () {
