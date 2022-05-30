@@ -30,7 +30,7 @@ class StoreController extends Controller
         }
 
         return view('store.index')->with([
-            'products' => CreditProduct::where('disabled', '=', false)->orderBy('price', 'asc')->get(),
+            'products' => CreditProduct::where('disabled', '=', false)->orderBy('type', 'asc')->orderBy('price', 'asc')->get(),
             'isPaymentSetup' => $isPaymentSetup,
         ]);
     }
