@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CreditProduct;
+use App\Models\ShopProduct;
 use App\Models\Settings;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,7 +30,7 @@ class StoreController extends Controller
         }
 
         return view('store.index')->with([
-            'products' => CreditProduct::where('disabled', '=', false)->orderBy('type', 'asc')->orderBy('price', 'asc')->get(),
+            'products' => ShopProduct::where('disabled', '=', false)->orderBy('type', 'asc')->orderBy('price', 'asc')->get(),
             'isPaymentSetup' => $isPaymentSetup,
         ]);
     }

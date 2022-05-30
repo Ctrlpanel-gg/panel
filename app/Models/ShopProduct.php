@@ -8,7 +8,7 @@ use NumberFormatter;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Configuration;
 
-class CreditProduct extends Model
+class ShopProduct extends Model
 {
     use LogsActivity;
     /**
@@ -33,10 +33,10 @@ class CreditProduct extends Model
     {
         parent::boot();
 
-        static::creating(function (CreditProduct $creditProduct) {
+        static::creating(function (ShopProduct $shopProduct) {
             $client = new Client();
 
-            $creditProduct->{$creditProduct->getKeyName()} = $client->generateId($size = 21);
+            $shopProduct->{$shopProduct->getKeyName()} = $client->generateId($size = 21);
         });
     }
 
