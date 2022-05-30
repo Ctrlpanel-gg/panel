@@ -1,5 +1,5 @@
 @extends('layouts.main')
-<?php use App\Models\CreditProduct; ?>
+<?php use App\Models\ShopProduct; ?>
 
 @section('content')
     <!-- CONTENT HEADER -->
@@ -49,7 +49,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <?php /** @var $product CreditProduct */
+                            <?php /** @var $product ShopProduct */
                             ?>
                             @foreach ($products as $product)
                                 <tr>

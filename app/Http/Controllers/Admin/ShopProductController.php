@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\CreditProduct;
+use App\Models\ShopProduct;
 use App\Models\Settings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -13,7 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Validation\Rule;
 
-class CreditProductController extends Controller
+class ShopProductController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -66,7 +66,7 @@ class CreditProductController extends Controller
         ]);
 
         $disabled = !is_null($request->input('disabled'));
-        CreditProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
+        ShopProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been created!'));
     }
@@ -74,10 +74,10 @@ class CreditProductController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param CreditProduct $creditProduct
+     * @param ShopProduct $shopProduct
      * @return Response
      */
-    public function show(CreditProduct $creditProduct)
+    public function show(ShopProduct $shopProduct)
     {
         //
     }
@@ -85,14 +85,14 @@ class CreditProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param CreditProduct $creditProduct
+     * @param ShopProduct $shopProduct
      * @return Application|Factory|View|Response
      */
-    public function edit(CreditProduct $creditProduct)
+    public function edit(ShopProduct $shopProduct)
     {
         return view('admin.store.edit', [
             'currencyCodes' => config('currency_codes'),
-            'creditProduct' => $creditProduct
+            'shopProduct' => $shopProduct
         ]);
     }
 
@@ -100,10 +100,10 @@ class CreditProductController extends Controller
      * Update the specified resource in storage.
      *
      * @param Request $request
-     * @param CreditProduct $creditProduct
+     * @param ShopProduct $shopProduct
      * @return RedirectResponse
      */
-    public function update(Request $request, CreditProduct $creditProduct)
+    public function update(Request $request, ShopProduct $shopProduct)
     {
         $request->validate([
             "disabled"      => "nullable",
@@ -116,19 +116,19 @@ class CreditProductController extends Controller
         ]);
 
         $disabled = !is_null($request->input('disabled'));
-        $creditProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
+        $shopProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been updated!'));
     }
 
     /**
      * @param Request $request
-     * @param CreditProduct $creditProduct
+     * @param ShopProduct $shopProduct
      * @return RedirectResponse
      */
-    public function disable(Request $request, CreditProduct $creditProduct)
+    public function disable(Request $request, ShopProduct $shopProduct)
     {
-        $creditProduct->update(['disabled' => !$creditProduct->disabled]);
+        $shopProduct->update(['disabled' => !$shopProduct->disabled]);
 
         return redirect()->route('admin.store.index')->with('success', __('Product has been updated!'));
     }
@@ -136,50 +136,50 @@ class CreditProductController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param CreditProduct $creditProduct
+     * @param ShopProduct $shopProduct
      * @return RedirectResponse
      */
-    public function destroy(CreditProduct $creditProduct)
+    public function destroy(ShopProduct $shopProduct)
     {
-        $creditProduct->delete();
+        $shopProduct->delete();
         return redirect()->back()->with('success', __('Store item has been removed!'));
     }
 
 
     public function dataTable()
     {
-        $query = CreditProduct::query();
+        $query = ShopProduct::query();
 
         return datatables($query)
-            ->addColumn('actions', function (CreditProduct $creditProduct) {
+            ->addColumn('actions', function (ShopProduct $shopProduct) {
                 return '
-                            <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $creditProduct->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $shopProduct->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $creditProduct->id) . '">
+                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("DELETE") . '
                            <button data-content="' . __("Delete") . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })
-            ->addColumn('disabled', function (CreditProduct $creditProduct) {
-                $checked = $creditProduct->disabled == false ? "checked" : "";
+            ->addColumn('disabled', function (ShopProduct $shopProduct) {
+                $checked = $shopProduct->disabled == false ? "checked" : "";
                 return '
-                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.disable', $creditProduct->id) . '">
+                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.disable', $shopProduct->id) . '">
                             ' . csrf_field() . '
                             ' . method_field("PATCH") . '
                             <div class="custom-control custom-switch">
-                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $creditProduct->id . '">
-                            <label class="custom-control-label" for="switch' . $creditProduct->id . '"></label>
+                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $shopProduct->id . '">
+                            <label class="custom-control-label" for="switch' . $shopProduct->id . '"></label>
                           </div>
                        </form>
                 ';
             })
-            ->editColumn('created_at', function (CreditProduct $creditProduct) {
-                return $creditProduct->created_at ? $creditProduct->created_at->diffForHumans() : '';
+            ->editColumn('created_at', function (ShopProduct $shopProduct) {
+                return $shopProduct->created_at ? $shopProduct->created_at->diffForHumans() : '';
             })
-            ->editColumn('price', function (CreditProduct $creditProduct) {
-                return $creditProduct->formatToCurrency($creditProduct->price);
+            ->editColumn('price', function (ShopProduct $shopProduct) {
+                return $shopProduct->formatToCurrency($shopProduct->price);
             })
             ->rawColumns(['actions', 'disabled'])
             ->make();

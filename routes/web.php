@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\CreditProductController;
+use App\Http\Controllers\Admin\ShopProductController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -70,10 +70,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('/products/products/{egg?}/{node?}', [FrontProductController::class, 'getProductsBasedOnNode'])->name('products.products.node');
 
     #payments
-    Route::get('checkout/{creditProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
-    Route::get('payment/PaypalPay/{creditProduct}', [PaymentController::class, 'PaypalPay'])->name('payment.PaypalPay');
+    Route::get('checkout/{shopProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
+    Route::get('payment/PaypalPay/{shopProduct}', [PaymentController::class, 'PaypalPay'])->name('payment.PaypalPay');
     Route::get('payment/PaypalSuccess', [PaymentController::class, 'PaypalSuccess'])->name('payment.PaypalSuccess');
-    Route::get('payment/StripePay/{creditProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
+    Route::get('payment/StripePay/{shopProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
     Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
 
@@ -120,10 +120,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::resource('products', ProductController::class);
 
         #store
-        Route::get('store/datatable', [CreditProductController::class, 'datatable'])->name('store.datatable');
-        Route::patch('store/disable/{creditProduct}', [CreditProductController::class, 'disable'])->name('store.disable');
-        Route::resource('store', CreditProductController::class)->parameters([
-            'store' => 'creditProduct',
+        Route::get('store/datatable', [ShopProductController::class, 'datatable'])->name('store.datatable');
+        Route::patch('store/disable/{shopProduct}', [ShopProductController::class, 'disable'])->name('store.disable');
+        Route::resource('store', ShopProductController::class)->parameters([
+            'store' => 'shopProduct',
         ]);
 
         #payments
