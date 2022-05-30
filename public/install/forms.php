@@ -59,7 +59,7 @@ if (isset($_POST['checkGeneral'])) {
 
 
     setEnvironmentValue("APP_NAME", $appname);
-    setEnvironmentValue("APP_URL", $url);
+    setEnvironmentValue("APP_URL", $appurl);
 
     header("LOCATION: index.php?step=4");
 
