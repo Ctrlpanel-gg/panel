@@ -304,8 +304,8 @@ class UserController extends Controller
             ->editColumn('name', function (User $user) {
                 return '<a class="text-info" target="_blank" href="' . config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
-            ->orderColumn('last_seen', function ($query, $order) {
-                $query->orderBy('last_seen', $order);
+            ->orderColumn('last_seen', function ($query) {
+                $query->orderBy('last_seen', "desc");
             })
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'actions', 'last_seen'])
             ->make(true);
