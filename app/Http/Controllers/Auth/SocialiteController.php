@@ -7,6 +7,7 @@ use App\Models\DiscordUser;
 use App\Models\Settings;
 use App\Models\User;
 use App\Models\Voucher;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
@@ -35,17 +36,29 @@ class SocialiteController extends Controller
         $guildId = config("SETTINGS::DISCORD:GUILD_ID");
         $roleId = config("SETTINGS::DISCORD:ROLE_ID");
 
-        //save / update discord_users
-        if (is_null($user->discordUser)) {
-            //create discord user in db
-            DiscordUser::create(array_merge($discord->user, ['user_id' => Auth::user()->id]));
-            //update user
-            Auth::user()->increment('credits', config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD'));
-            Auth::user()->increment('server_limit', config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD'));
-            Auth::user()->update(['discord_verified_at' => now()]);
-        } else {
-            $user->discordUser->update($discord->user);
-        }
+            //save / update discord_users
+
+            //check if discord account is already linked to an cpgg account
+            if (is_null($user->discordUser)) {
+                $discordLinked = DiscordUser::where('id', '=', $discord->id)->first();
+                if ($discordLinked !== null) {
+                    return redirect()->route('profile.index')->with(
+                        'error',
+                        'Discord account already linked!'
+                    );
+                }
+
+                //create discord user in db
+                DiscordUser::create(array_merge($discord->user, ['user_id' => Auth::user()->id]));
+
+                //update user
+                Auth::user()->increment('credits', config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD'));
+                Auth::user()->increment('server_limit', config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD'));
+                Auth::user()->update(['discord_verified_at' => now()]);
+
+            } else {
+                $user->discordUser->update($discord->user);
+            }
 
         //force user into discord server
         //TODO Add event on failure, to notify ppl involved
