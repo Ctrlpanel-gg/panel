@@ -58,6 +58,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
 
     #normal routes
+    Route::get('notifications/readAll',[NotificationController::class,'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
     Route::resource('servers', ServerController::class);
     Route::resource('profile', ProfileController::class);

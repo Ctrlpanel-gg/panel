@@ -29,6 +29,10 @@
                 <div class="col-md-8">
                     <p>{{__('All notifications')}}</p>
                 </div>
+                    <a class="float-right">
+                        <a href="{{route('notifications.readAll')}}"><button class="btn btn-info btn-xs">{{__('mark all as read')}}</button></a>
+
+
                 @foreach($notifications as $notification)
                     <div class="col-md-8">
                         <div class="card">
