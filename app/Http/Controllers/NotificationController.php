@@ -31,7 +31,7 @@ class NotificationController extends Controller
         foreach($notifications as $notification){
             $notification->markAsRead();
         }
-        return $this->index();
+        return redirect()->back();
 
     }
 }

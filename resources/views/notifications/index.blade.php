@@ -30,7 +30,7 @@
                     <p>{{__('All notifications')}}</p>
                 </div>
                     <a class="float-right">
-                        <a href="{{route('notifications.readAll')}}"><button class="btn btn-info btn-xs">{{__('mark all as read')}}</button></a>
+                        <a href="{{route('notifications.readAll')}}"><button class="btn btn-info btn-xs">{{__('Mark all as read')}}</button></a>
 
 
                 @foreach($notifications as $notification)
