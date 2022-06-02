@@ -210,6 +210,19 @@
                                class="form-control @error('referral_reward') is-invalid @enderror">
                     </div>
                 </div>
+                <div class="custom-control mb-3 p-0">
+                    <label for="mailservice">{{ __('Allowed') }}:
+                        <i data-toggle="popover" data-trigger="hover"
+                           data-content="{{ __('Who is allowed to see their referral-URL') }}" class="fas fa-info-circle"></i>
+                    </label>
+                    <select id="referral_allowed" style="width:100%" class="custom-select" name="referral_allowed" required
+                            autocomplete="off" @error('referral_allowed') is-invalid @enderror>
+                            <option value="everyone" @if (config('SETTINGS::REFERRAL::ALLOWED') == "everyone") selected
+                                @endif>{{ __("Everyone") }}</option>
+                        <option value="client" @if (config('SETTINGS::REFERRAL::ALLOWED') == "client") selected
+                            @endif>{{ __("Clients") }}</option>
+                    </select>
+                </div>
             </div>
 
         </div>

@@ -479,5 +479,12 @@ class SettingsSeeder extends Seeder
             'type'  => 'integer',
             'description'  => 'Credit reward a user should receive when a user registers with his referral code'
         ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL::ALLOWED',
+        ], [
+            'value' =>"client",
+            'type'  => 'string',
+            'description'  => 'Who should be allowed to to use the referral code. all/client'
+        ]);
     }
 }
