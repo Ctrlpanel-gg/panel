@@ -37,6 +37,8 @@ class Misc
             'mailencryption' => 'nullable|string',
             'mailfromadress' => 'nullable|string',
             'mailfromname' => 'nullable|string',
+            'enable_referral' => 'nullable|string',
+            'referral_reward' => 'nullable|numeric',
         ]);
 
         if ($validator->fails()) {
@@ -69,6 +71,9 @@ class Misc
             "SETTINGS::MAIL:ENCRYPTION" => "mailencryption",
             "SETTINGS::MAIL:FROM_ADDRESS" => "mailfromadress",
             "SETTINGS::MAIL:FROM_NAME" => "mailfromname",
+            "SETTINGS::REFERRAL::ENABLED" => "enable_referral",
+            "SETTINGS::REFERRAL::REWARD" => "referral_reward"
+
 
         ];
 

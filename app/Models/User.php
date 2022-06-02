@@ -60,7 +60,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'pterodactyl_id',
         'discord_verified_at',
         'avatar',
-        'suspended'
+        'suspended',
+        'referral_code'
     ];
 
     /**

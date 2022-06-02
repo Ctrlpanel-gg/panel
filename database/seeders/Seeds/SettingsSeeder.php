@@ -465,5 +465,19 @@ class SettingsSeeder extends Seeder
             'type'  => 'string',
             'description'  => 'Mailer From Name'
         ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL::ENABLED',
+        ], [
+            'value' =>"true",
+            'type'  => 'string',
+            'description'  => 'Enable or disable the referral system'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL::REWARD',
+        ], [
+            'value' =>100,
+            'type'  => 'integer',
+            'description'  => 'Credit reward a user should receive when a user registers with his referral code'
+        ]);
     }
 }

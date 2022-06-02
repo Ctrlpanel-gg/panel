@@ -184,7 +184,33 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-3 px-3">
+                <div class="row mb-2">
+                    <div class="col text-center">
+                        <h1>Referral</h1>
+                    </div>
+                </div>
 
+                <div class="custom-control mb-3 p-0">
+                    <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <input value="true" id="enable_referral" name="enable_referral"
+                                   {{ config('SETTINGS::REFERRAL::ENABLED') == 'true' ? 'checked' : '' }}
+                                   type="checkbox">
+                            <label for="enable_referral">{{ __('Enable Referral') }} </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
+                        <label for="referral_reward">{{ __('Referral reward in') }} {{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }}:</label>
+                        <input x-model="referral_reward" id="referral_reward" name="referral_reward"
+                               type="number" value="{{ config('SETTINGS::REFERRAL::REWARD') }}"
+                               class="form-control @error('referral_reward') is-invalid @enderror">
+                    </div>
+                </div>
+            </div>
 
         </div>
         <div class="row">

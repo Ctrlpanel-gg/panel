@@ -6,9 +6,13 @@ use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
 use App\Models\Settings;
 use App\Models\User;
+use App\Notifications\ReferralNotification;
 use App\Providers\RouteServiceProvider;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -79,6 +83,18 @@ class RegisterController extends Controller
     }
 
     /**
+     * Create a unique Referral Code for User
+     * @return string
+     */
+    protected function createReferralCode(){
+        $referralcode = STR::random(8);
+        if (User::where('referral_code', '=', $referralcode)->exists()) {
+            $this->createReferralCode();
+        }
+        return $referralcode;
+    }
+
+    /**
      * Create a new user instance after a valid registration.
      *
      * @param array $data
@@ -92,6 +108,8 @@ class RegisterController extends Controller
             'credits'      => config('SETTINGS::USER:INITIAL_CREDITS', 150),
             'server_limit' => config('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password'     => Hash::make($data['password']),
+            'referral_code' => $this->createReferralCode(),
+
         ]);
 
         $response = Pterodactyl::client()->post('/application/users', [
@@ -116,7 +134,24 @@ class RegisterController extends Controller
             'pterodactyl_id' => $response->json()['attributes']['id']
         ]);
 
+        //INCREMENT REFERRAL-USER CREDITS
+        if(!empty($data['referral_code'])){
+            $ref_code = $data['referral_code'];
+            $new_user = $user->id;
+            if($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
+                $ref_user->increment('credits', config("SETTINGS::REFERRAL::REWARD"));
+                $ref_user->notify(new ReferralNotification($ref_user->id,$new_user));
 
+                //INSERT INTO USER_REFERRALS TABLE
+                DB::table('user_referrals')->insert([
+                    'referral_id' => $ref_user->id,
+                    'registered_user_id' => $user->id,
+                    'created_at' =>  Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+            }
+
+        }
 
         return $user;
     }
