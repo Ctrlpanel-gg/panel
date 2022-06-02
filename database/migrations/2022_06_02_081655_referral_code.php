@@ -20,7 +20,7 @@ class ReferralCode extends Migration
             $table->string('referral_code')->lenght(8)->nullable();
         });
 
-        $existing_user = User::where('referral_code', '')->get();
+        $existing_user = User::where('referral_code', '')->orWhere('referral_code', NULL)->get();
 
         foreach ($existing_user as $user) {
             $random = STR::random(8);
