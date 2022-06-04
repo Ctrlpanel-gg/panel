@@ -112,6 +112,9 @@
                         <div class="dropdown-divider"></div>
                         <a href="{{ route('notifications.index') }}"
                             class="dropdown-item dropdown-footer">{{ __('See all Notifications') }}</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ route('notifications.readAll') }}"
+                           class="dropdown-item dropdown-footer">{{ __('Mark all as read') }}</a>
                     </div>
                 </li>
 
