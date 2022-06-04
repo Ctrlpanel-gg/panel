@@ -233,14 +233,18 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function creditUsage()
     {
-        $usage = 0;
+        $servers = Server::query()
+        ->where('user_id', '=', $this->id)
+        ->with('product')
+        ->get();
 
-        foreach ($this->Servers as $server) {
+        $usage = 0;
+        foreach ($servers as $server) {
             $usage += $server->product->price;
         }
 
         return number_format($usage, 2, '.', '');
-    }
+    }    
 
     /**
      * @return array|string|string[]
