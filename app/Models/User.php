@@ -179,7 +179,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function suspend()
     {
-        foreach ($this->servers() as $server) {
+        foreach ($this->servers as $server) {
             $server->suspend();
         }
 
