@@ -284,7 +284,7 @@ class UserController extends Controller
             'pterodactyl_id' => $response->json()['attributes']['id']
         ]);
         //INCREMENT REFERRAL-USER CREDITS
-        if(!empty($request->input("referral_code")){
+        if(!empty($request->input("referral_code"))){
             $ref_code = $request->input("referral_code");
             $new_user = $user->id;
             if($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
