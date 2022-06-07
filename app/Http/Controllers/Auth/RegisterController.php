@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -139,7 +140,7 @@ class RegisterController extends Controller
             $ref_code = $data['referral_code'];
             $new_user = $user->id;
             if($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
-                if(config("SETTINGS::REFERRAL:MODE" == "sign-up") || config("SETTINGS::REFERRAL:MODE" == "both")) {
+                if(config("SETTINGS::REFERRAL:MODE") == "sign-up" || config("SETTINGS::REFERRAL:MODE") == "both") {
                     $ref_user->increment('credits', config("SETTINGS::REFERRAL::REWARD"));
                     $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
                 }

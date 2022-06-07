@@ -24,7 +24,7 @@ class SettingsSeeder extends Seeder
         ]);
 
         Settings::firstOrCreate([
-            'key' => 'SETTINGS::USER:NITIAL_SERVER_LIMIT',
+            'key' => 'SETTINGS::USER:INITIAL_SERVER_LIMIT',
         ], [
             'value'       => '1',
             'type'        => 'integer',
