@@ -9,6 +9,18 @@ use Illuminate\Support\Str;
 
 class ReferralCode extends Migration
 {
+    
+    public function generateCode($userid){
+        
+            $random = STR::random(8);
+            if (User::where('referral_code', '=', $random)->doesntExist()) {
+                DB::table("users")
+                    ->where("id", "=", $userid)
+                    ->update(['referral_code' => $random]);
+            }else{
+                $this->generateCode($userid);
+            }
+    }
     /**
      * Run the migrations.
      *
@@ -23,19 +35,10 @@ class ReferralCode extends Migration
         $existing_user = User::where('referral_code', '')->orWhere('referral_code', NULL)->get();
 
         foreach ($existing_user as $user) {
-            $random = STR::random(8);
-            if (User::where('referral_code', '=', $random)->doesntExist()) {
-                DB::table("users")
-                    ->where("id", "=", $user->id)
-                    ->update(['referral_code' => $random]);
-            }else{
-                $random = STR::random(8);
-                DB::table("users")
-                    ->where("id", "=", $user->id)
-                    ->update(['referral_code' => $random]);
+            $this->generateCode($user->id);
             }
         }
-    }
+    
 
 
     /**
