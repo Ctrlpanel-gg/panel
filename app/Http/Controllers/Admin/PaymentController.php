@@ -185,7 +185,7 @@ class PaymentController extends Controller
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
 
-                    if((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE" == "both")) && $shopProduct->type=="Credits"){
+                    if((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits"){
                         if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
                             $ref_user = User::findOrFail($ref_user->referral_id);
                             $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
@@ -342,7 +342,7 @@ class PaymentController extends Controller
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
 
-                    if((config("SETTINGS::REFERRAL:MODE") == "commission"  || config("SETTINGS::REFERRAL:MODE" == "both")) && $shopProduct->type=="Credits"){
+                    if((config("SETTINGS::REFERRAL:MODE") == "commission"  || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits"){
                         if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
                             $ref_user = User::findOrFail($ref_user->referral_id);
                             $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
@@ -457,7 +457,7 @@ class PaymentController extends Controller
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
 
-                    if((config("SETTINGS::REFERRAL:MODE") == "commission"  || config("SETTINGS::REFERRAL:MODE" == "both"))&& $shopProduct->type=="Credits"){
+                    if((config("SETTINGS::REFERRAL:MODE") == "commission"  || config("SETTINGS::REFERRAL:MODE") == "both")&& $shopProduct->type=="Credits"){
                         if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
                             $ref_user = User::findOrFail($ref_user->referral_id);
                             $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");

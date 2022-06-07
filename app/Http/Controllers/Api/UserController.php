@@ -288,7 +288,7 @@ class UserController extends Controller
             $ref_code = $request->input("referral_code");
             $new_user = $user->id;
             if($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
-                if(config("SETTINGS::REFERRAL:MODE" == "sign-up") || config("SETTINGS::REFERRAL:MODE" == "both")) {
+                if(config("SETTINGS::REFERRAL:MODE") == "register" || config("SETTINGS::REFERRAL:MODE") == "both") {
                     $ref_user->increment('credits', config("SETTINGS::REFERRAL::REWARD"));
                     $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
                 }
