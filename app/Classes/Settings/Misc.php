@@ -40,6 +40,8 @@ class Misc
             'enable_referral' => 'nullable|string',
             'referral_reward' => 'nullable|numeric',
             'referral_allowed' => 'nullable|string',
+            'referral_percentage' => 'nullable|numeric',
+            'referral_mode' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -74,7 +76,9 @@ class Misc
             "SETTINGS::MAIL:FROM_NAME" => "mailfromname",
             "SETTINGS::REFERRAL::ENABLED" => "enable_referral",
             "SETTINGS::REFERRAL::REWARD" => "referral_reward",
-            "SETTINGS::REFERRAL::ALLOWED" => "referral_allowed"
+            "SETTINGS::REFERRAL::ALLOWED" => "referral_allowed",
+            "SETTINGS::REFERRAL:MODE" => "referral_mode",
+            "SETTINGS::REFERRAL:PERCENTAGE" => "referral_percentage"
 
 
         ];

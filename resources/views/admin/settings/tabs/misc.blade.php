@@ -202,16 +202,40 @@
                     </div>
                 </div>
 
+                <div class="custom-control mb-3 p-0">
+                    <label for="referral_mode">{{ __('Mode') }}:
+                        <i data-toggle="popover" data-trigger="hover"
+                           data-content="{{ __('Should a reward be given if a new User registers or if a new user buys credits') }}" class="fas fa-info-circle"></i>
+                    </label>
+                    <select id="referral_mode" style="width:100%" class="custom-select" name="referral_mode" required
+                            autocomplete="off" @error('referral_mode') is-invalid @enderror>
+                        <option value="commission" @if (config('SETTINGS::REFERRAL:MODE') == "commission") selected
+                            @endif>{{ __("Commission") }}</option>
+                        <option value="sign-up" @if (config('SETTINGS::REFERRAL:MODE') == "sign-up") selected
+                            @endif>{{ __("Sign-Up") }}</option>
+                    </select>
+                </div>
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
-                        <label for="referral_reward">{{ __('Referral reward in') }} {{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }}:</label>
+                        <label for="referral_percentage">{{ __('Referral reward in percent') }} {{__("(only for commission-mode)")}}:
+                            <i data-toggle="popover" data-trigger="hover"
+                               data-content="{{ __('If a referred user buys credits, the referral-user will get x% of the Credits the referred user bought') }}" class="fas fa-info-circle"></i>
+                        </label>
+                        <input x-model="referral_percentage" id="referral_percentage" name="referral_percentage"
+                               type="number" value="{{ config('SETTINGS::REFERRAL:PERCENTAGE') }}"
+                               class="form-control @error('referral_percentage') is-invalid @enderror">
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
+                        <label for="referral_reward">{{ __('Referral reward in') }} {{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }} {{__("(only for sign-up-mode)")}}:</label>
                         <input x-model="referral_reward" id="referral_reward" name="referral_reward"
                                type="number" value="{{ config('SETTINGS::REFERRAL::REWARD') }}"
                                class="form-control @error('referral_reward') is-invalid @enderror">
                     </div>
                 </div>
                 <div class="custom-control mb-3 p-0">
-                    <label for="mailservice">{{ __('Allowed') }}:
+                    <label for="referral_allowed">{{ __('Allowed') }}:
                         <i data-toggle="popover" data-trigger="hover"
                            data-content="{{ __('Who is allowed to see their referral-URL') }}" class="fas fa-info-circle"></i>
                     </label>

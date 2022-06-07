@@ -486,5 +486,19 @@ class SettingsSeeder extends Seeder
             'type'  => 'string',
             'description'  => 'Who should be allowed to to use the referral code. all/client'
         ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL:MODE',
+        ], [
+            'value' =>"sign-up",
+            'type'  => 'string',
+            'description'  => 'Whether referrals get Credits on User-Registration or if a User buys credits'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL:PERCENTAGE',
+        ], [
+            'value' =>100,
+            'type'  => 'integer',
+            'description'  => 'The Percentage Value a referred user gets'
+        ]);
     }
 }
