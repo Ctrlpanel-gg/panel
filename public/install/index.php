@@ -143,7 +143,7 @@ echo $cardheader;
                     <label for="databaseuser">Database User</label>
                     <input x-model="databaseuser" id="databaseuser" name="databaseuser" type="text"
                            required
-                           value="dashboarduser" class="form-control">
+                           value="controlpaneluser" class="form-control">
                 </div>
             </div>
             <div class="form-group">
@@ -159,7 +159,7 @@ echo $cardheader;
                 <div class="custom-control mb-3">
                     <label for="database">Database</label>
                     <input x-model="database" id="database" name="database" type="text" required
-                           value="dashboard" class="form-control">
+                           value="controlpanel" class="form-control">
                 </div>
             </div>
 
