@@ -213,6 +213,8 @@
                             @endif>{{ __("Commission") }}</option>
                         <option value="sign-up" @if (config('SETTINGS::REFERRAL:MODE') == "sign-up") selected
                             @endif>{{ __("Sign-Up") }}</option>
+                        <option value="both" @if (config('SETTINGS::REFERRAL:MODE') == "both") selected
+                            @endif>{{ __("Both") }}</option>
                     </select>
                 </div>
                 <div class="form-group mb-3">
