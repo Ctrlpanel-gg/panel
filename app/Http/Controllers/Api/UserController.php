@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
 use App\Models\Settings;
 use App\Models\User;
+use App\Notifications\ReferralNotification;
+use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -17,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -227,7 +230,17 @@ class UserController extends Controller
 
         return $user;
     }
-
+    /**
+     * Create a unique Referral Code for User
+     * @return string
+     */
+    protected function createReferralCode(){
+        $referralcode = STR::random(8);
+        if (User::where('referral_code', '=', $referralcode)->exists()) {
+            $this->createReferralCode();
+        }
+        return $referralcode;
+    }
     /**
      * @throws ValidationException
      */
@@ -245,6 +258,7 @@ class UserController extends Controller
             'credits' => config('SETTINGS::USER:INITIAL_CREDITS', 150),
             'server_limit' => config('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
             'password' => Hash::make($request->input('password')),
+            'referral_code' => $this->createReferralCode(),
         ]);
 
         $response = Pterodactyl::client()->post('/application/users', [
@@ -269,7 +283,25 @@ class UserController extends Controller
         $user->update([
             'pterodactyl_id' => $response->json()['attributes']['id']
         ]);
+        //INCREMENT REFERRAL-USER CREDITS
+        if(!empty($request->input("referral_code")){
+            $ref_code = $request->input("referral_code");
+            $new_user = $user->id;
+            if($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
+                if(config("SETTINGS::REFERRAL:MODE" == "sign-up") || config("SETTINGS::REFERRAL:MODE" == "both")) {
+                    $ref_user->increment('credits', config("SETTINGS::REFERRAL::REWARD"));
+                    $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
+                }
+                //INSERT INTO USER_REFERRALS TABLE
+                DB::table('user_referrals')->insert([
+                    'referral_id' => $ref_user->id,
+                    'registered_user_id' => $user->id,
+                    'created_at' =>  Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+            }
 
+        }
         $user->sendEmailVerificationNotification();
 
         return $user;
