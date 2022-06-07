@@ -248,7 +248,7 @@
             </div>
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fas fa-user-check mr-2"></i>{{__('Referals')}}</h5>
+                        <h5 class="card-title"><i class="fas fa-user-check mr-2"></i>{{__('Referals')}} ({{__("referral-code")}} : {{$user->referral_code}})</h5>
                     </div>
                     <div class="card-body table-responsive">
 
