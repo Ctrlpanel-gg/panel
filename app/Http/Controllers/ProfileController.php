@@ -16,11 +16,26 @@ class ProfileController extends Controller
     /** Display a listing of the resource. */
     public function index()
     {
+        switch (Auth::user()->role) {
+            case 'admin':
+                $badgeColor = 'badge-danger';
+                break;
+            case 'mod':
+                $badgeColor = 'badge-info';
+                break;
+            case 'client':
+                $badgeColor = 'badge-success';
+                break;
+            default:
+                $badgeColor = 'badge-secondary';
+                break;
+        }
         return view('profile.index')->with([
             'user' => Auth::user(),
             'credits_reward_after_verify_discord' => config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD'),
             'force_email_verification' => config('SETTINGS::USER:FORCE_EMAIL_VERIFICATION'),
             'force_discord_verification' => config('SETTINGS::USER:FORCE_DISCORD_VERIFICATION'),
+            'badgeColor' => $badgeColor,
         ]);
     }
 
