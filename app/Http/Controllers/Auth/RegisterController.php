@@ -143,6 +143,12 @@ class RegisterController extends Controller
                 if(config("SETTINGS::REFERRAL:MODE") == "sign-up" || config("SETTINGS::REFERRAL:MODE") == "both") {
                     $ref_user->increment('credits', config("SETTINGS::REFERRAL::REWARD"));
                     $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
+
+                    //LOGS REFERRALS IN THE ACTIVITY LOG
+                    activity()
+                        ->performedOn($user)
+                        ->causedBy($ref_user)
+                        ->log('gained '. config("SETTINGS::REFERRAL::REWARD").' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for sign-up-referral of '.$user->name.' (ID:'.$user->id.')');
                 }
                 //INSERT INTO USER_REFERRALS TABLE
                 DB::table('user_referrals')->insert([
