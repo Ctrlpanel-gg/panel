@@ -190,6 +190,12 @@ class PaymentController extends Controller
                             $ref_user = User::findOrFail($ref_user->referral_id);
                             $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
                             $ref_user->increment('credits', $increment);
+
+                            //LOGS REFERRALS IN THE ACTIVITY LOG
+                            activity()
+                                ->performedOn($user)
+                                ->causedBy($ref_user)
+                                ->log('gained '. $increment.' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for commission-referral of '.$user->name.' (ID:'.$user->id.')');
                         }
 
                     }
@@ -347,6 +353,12 @@ class PaymentController extends Controller
                             $ref_user = User::findOrFail($ref_user->referral_id);
                             $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
                             $ref_user->increment('credits', $increment);
+
+                            //LOGS REFERRALS IN THE ACTIVITY LOG
+                            activity()
+                                ->performedOn($user)
+                                ->causedBy($ref_user)
+                                ->log('gained '. $increment.' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for commission-referral of '.$user->name.' (ID:'.$user->id.')');
                         }
 
                     }
@@ -462,6 +474,12 @@ class PaymentController extends Controller
                             $ref_user = User::findOrFail($ref_user->referral_id);
                             $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
                             $ref_user->increment('credits', $increment);
+
+                            //LOGS REFERRALS IN THE ACTIVITY LOG
+                            activity()
+                                ->performedOn($user)
+                                ->causedBy($ref_user)
+                                ->log('gained '. $increment.' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for commission-referral of '.$user->name.' (ID:'.$user->id.')');
                         }
 
                     }
