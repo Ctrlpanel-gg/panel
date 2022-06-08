@@ -115,6 +115,9 @@
                                                         {{_("Make a purchase to reveal your referral-URL")}}</span>
                                         @endif
                                             </div>
+                                            <div class="mt-1">
+                                                <span class="badge badge-info">{{_("Number of referred users:")}} {{$numberOfReferrals}}</span>
+                                            </div>
                                         @endif
                                         </div>
 

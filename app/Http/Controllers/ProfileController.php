@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -36,6 +37,7 @@ class ProfileController extends Controller
             'force_email_verification' => config('SETTINGS::USER:FORCE_EMAIL_VERIFICATION'),
             'force_discord_verification' => config('SETTINGS::USER:FORCE_DISCORD_VERIFICATION'),
             'badgeColor' => $badgeColor,
+            'numberOfReferrals' => DB::table('user_referrals')->where("referral_id","=",Auth::user()->id)->count(),
         ]);
     }
 
