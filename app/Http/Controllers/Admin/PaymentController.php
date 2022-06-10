@@ -98,7 +98,7 @@ class PaymentController extends Controller
             "application_context" => [
                 "cancel_url" => route('payment.Cancel'),
                 "return_url" => route('payment.PaypalSuccess', ['product' => $shopProduct->id]),
-                'brand_name' =>  config('app.name', 'controlpanel.gg'),
+                'brand_name' =>  config('app.name', 'Controlpanel.gg'),
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
 

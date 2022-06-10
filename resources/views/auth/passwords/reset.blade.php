@@ -5,7 +5,7 @@
     <div class="login-box">
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'controlpanel.gg')}}</b></a>
+                <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'Controlpanel.gg')}}</b></a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg">{{__('You are only one step a way from your new password, recover your password now.')}}</p>

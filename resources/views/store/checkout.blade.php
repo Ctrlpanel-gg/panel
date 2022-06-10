@@ -36,7 +36,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <h4>
-                                    <i class="fas fa-globe"></i> {{ config('app.name', 'controlpanel.gg') }}
+                                    <i class="fas fa-globe"></i> {{ config('app.name', 'Controlpanel.gg') }}
                                     <small class="float-right">{{ __('Date') }}:
                                         {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
                                 </h4>

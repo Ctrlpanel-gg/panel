@@ -5,7 +5,7 @@
     <div class="register-box">
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'controlpanel.gg')}}</b></a>
+                <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'Controlpanel.gg')}}</b></a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg">{{__('Register a new membership')}}</p>

@@ -128,7 +128,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'controlpanel.gg'), '_').'_session'
+        Str::slug(env('APP_NAME', 'Controlpanel.gg'), '_').'_session'
     ),
 
     /*

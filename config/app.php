@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'controlpanel.gg'),
+    'name' => env('APP_NAME', 'Controlpanel.gg'),
 
     /*
     |--------------------------------------------------------------------------
