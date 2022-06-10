@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'controlpanel.gg') }}</title>
     <link rel="icon"
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico')? asset('storage/favicon.ico'): asset('favicon.ico') }}"
         type="image/x-icon">
@@ -185,7 +185,7 @@
                     src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png')? asset('storage/icon.png'): asset('images/controlpanel_logo.png') }}"
                     alt="{{ config('app.name', 'Controlpanel.gg') }} Logo" class="brand-image img-circle"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">{{ config('app.name', 'Laravel') }}</span>
+                <span class="brand-text font-weight-light">{{ config('app.name', 'controlpanel.gg') }}</span>
             </a>
 
             <!-- Sidebar -->
@@ -373,7 +373,7 @@
         <!-- /.content-wrapper -->
         <footer class="main-footer">
             <strong>Copyright &copy; 2021-{{ date('Y') }} <a
-                    href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
+                    href="{{ url('/') }}">{{ env('APP_NAME', 'controlpanel.gg') }}</a>.</strong>
             All rights
             reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. Version
             <b>{{ config('app')['version'] }}</b>

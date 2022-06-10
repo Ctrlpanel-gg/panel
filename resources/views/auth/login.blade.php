@@ -6,7 +6,7 @@
         <!-- /.login-logo -->
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
-                <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'Laravel')}}</b></a>
+                <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'controlpanel.gg')}}</b></a>
             </div>
             <div class="card-body">
                 <p class="login-box-msg">{{__('Sign in to start your session')}}</p>

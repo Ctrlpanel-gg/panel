@@ -78,7 +78,7 @@ class WelcomeMessage extends Notification implements ShouldQueue
                 <h5>".__("Information")."</h5>
                 <p>".__("This dashboard can be used to create and delete servers").".<br /> ".__("These servers can be used and managed on our pterodactyl panel").".<br /> ".__("If you have any questions, please join our Discord server and #create-a-ticket").".</p>
                 <p>".__("We hope you can enjoy this hosting experience and if you have any suggestions please let us know")."!</p>
-                <p>".__("Regards").",<br />" . config('app.name', 'Laravel') . "</p>
+                <p>".__("Regards").",<br />" . config('app.name', 'controlpanel.gg') . "</p>
             ",
         ];
     }

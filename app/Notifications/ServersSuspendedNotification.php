@@ -62,7 +62,7 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
                 <h5>". __('Your servers have been suspended!')."</h5>
                 <p>". __("To automatically re-enable your server/s, you need to purchase more credits.")."</p>
                 <p>". __('If you have any questions please let us know.')."</p>
-                <p>". __('Regards').",<br />" . config('app.name', 'Laravel') . "</p>
+                <p>". __('Regards').",<br />" . config('app.name', 'controlpanel.gg') . "</p>
             ",
         ];
     }
