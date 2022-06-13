@@ -2,6 +2,7 @@
 
 -   PayPal Integration
 -   Stripe Integration
+-   Referral System
 -   Email Verification
 -   Audit Log
 -   Admin Dashboard
