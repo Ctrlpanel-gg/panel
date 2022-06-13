@@ -48,7 +48,8 @@
                                     <label for="type">{{ __('Type') }}</label>
                                     <select required name="type" id="type"
                                         class="custom-select  @error('name') is-invalid @enderror">
-                                        <option selected value="Credits">{{ CREDITS_DISPLAY_NAME }}</option>
+                                        <option @if ($shopProduct->type == 'credits') selected @endif value="Credits">{{ CREDITS_DISPLAY_NAME }}</option>
+                                        <option @if ($shopProduct->type == 'Server slots') selected @endif value="Server slots">{{__("Server Slots")}}</option>
                                     </select>
                                     @error('name')
                                         <div class="text-danger">
