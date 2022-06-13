@@ -77,27 +77,25 @@
 		@endif</td>
                                 <td>
                                         <span>
-                                            @switch($log->description)
-                                                @case('created')
+                                                @if(str_starts_with($log->description,"created"))
                                                 <small><i class="fas text-success fa-plus mr-2"></i></small>
-                                                @break
-                                                @case('redeemed')
+                                                @elseif(str_starts_with($log->description,"redeemed"))
                                                 <small><i class="fas text-success fa-money-check-alt mr-2"></i></small>
-                                                @break
-                                                @case('deleted')
+                                                 @elseif(str_starts_with($log->description,"deleted"))
                                                 <small><i class="fas text-danger fa-times mr-2"></i></small>
-                                                @break
-                                                @case('updated')
+                                                 @elseif(str_starts_with($log->description,"gained"))
+                                                <small><i class="fas text-success fa-money-bill mr-2"></i></small>
+                                                 @elseif(str_starts_with($log->description,"updated"))
                                                 <small><i class="fas text-info fa-pen mr-2"></i></small>
-                                                @break
-                                            @endswitch
-                                            {{ucfirst($log->description)}}
+                                                @endif
                                             {{ explode("\\" , $log->subject_type)[2]}}
+                                            {{$log->description}}
+
 				            @php $first=true @endphp
 					    @foreach(json_decode($log->properties, true) as $properties)
 						@if($first)
 						    @if(isset($properties['name']))
-					    	       " {{$properties['name']}} "
+					    	       "{{$properties['name']}}"
 						    @endif
 						    @if(isset($properties['email']))
 						       < {{$properties['email']}} >

@@ -144,22 +144,19 @@
         as $log)
                                 <li class="list-group-item d-flex justify-content-between text-muted">
                                     <span>
-                                        @switch($log->description)
-                                            @case('created')
-                                                <small><i class="fas text-success fa-plus mr-2"></i></small>
-                                            @break
-                                            @case('redeemed')
-                                                <small><i class="fas text-success fa-money-check-alt mr-2"></i></small>
-                                            @break
-                                            @case('deleted')
-                                                <small><i class="fas text-danger fa-times mr-2"></i></small>
-                                            @break
-                                            @case('updated')
-                                                <small><i class="fas text-info fa-pen mr-2"></i></small>
-                                            @break
-                                        @endswitch
-                                        {{ ucfirst($log->description) }}
+                                        @if(str_starts_with($log->description,"created"))
+                                            <small><i class="fas text-success fa-plus mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description,"redeemed"))
+                                            <small><i class="fas text-success fa-money-check-alt mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description,"deleted"))
+                                            <small><i class="fas text-danger fa-times mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description,"gained"))
+                                            <small><i class="fas text-success fa-money-bill mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description,"updated"))
+                                            <small><i class="fas text-info fa-pen mr-2"></i></small>
+                                        @endif
                                         {{ explode('\\', $log->subject_type)[2] }}
+                                        {{ ucfirst($log->description) }}
                                     </span>
                                     <small>
                                         {{ $log->created_at->diffForHumans() }}

@@ -19,6 +19,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Buyer;
 use LaravelDaily\Invoices\Classes\InvoiceItem;
@@ -179,9 +181,25 @@ class PaymentController extends Controller
                 }
 
 
-                //update role
+                //update role give Referral-reward
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
+
+                    if((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits"){
+                        if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
+                            $ref_user = User::findOrFail($ref_user->referral_id);
+                            $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
+                            $ref_user->increment('credits', $increment);
+
+                            //LOGS REFERRALS IN THE ACTIVITY LOG
+                            activity()
+                                ->performedOn($user)
+                                ->causedBy($ref_user)
+                                ->log('gained '. $increment.' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for commission-referral of '.$user->name.' (ID:'.$user->id.')');
+                        }
+
+                    }
+
                 }
 
                 //store payment
@@ -326,9 +344,25 @@ class PaymentController extends Controller
                     $user->increment('server_limit', $shopProduct->quantity);
                 }
 
-                //update role
+                //update role give Referral-reward
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
+
+                    if((config("SETTINGS::REFERRAL:MODE") == "commission"  || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits"){
+                        if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
+                            $ref_user = User::findOrFail($ref_user->referral_id);
+                            $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
+                            $ref_user->increment('credits', $increment);
+
+                            //LOGS REFERRALS IN THE ACTIVITY LOG
+                            activity()
+                                ->performedOn($user)
+                                ->causedBy($ref_user)
+                                ->log('gained '. $increment.' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for commission-referral of '.$user->name.' (ID:'.$user->id.')');
+                        }
+
+                    }
+
                 }
 
                 //store paid payment
@@ -431,9 +465,25 @@ class PaymentController extends Controller
                     $user->increment('server_limit', $shopProduct->quantity);
                 }
 
-                //update role
+                //update role give Referral-reward
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
+
+                    if((config("SETTINGS::REFERRAL:MODE") == "commission"  || config("SETTINGS::REFERRAL:MODE") == "both")&& $shopProduct->type=="Credits"){
+                        if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
+                            $ref_user = User::findOrFail($ref_user->referral_id);
+                            $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
+                            $ref_user->increment('credits', $increment);
+
+                            //LOGS REFERRALS IN THE ACTIVITY LOG
+                            activity()
+                                ->performedOn($user)
+                                ->causedBy($ref_user)
+                                ->log('gained '. $increment.' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for commission-referral of '.$user->name.' (ID:'.$user->id.')');
+                        }
+
+                    }
+
                 }
 
                 //update payment db entry status

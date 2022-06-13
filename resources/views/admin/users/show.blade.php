@@ -244,8 +244,37 @@
                     @include('admin.servers.table' , ['filter' => '?user=' . $user->id])
 
                 </div>
-            </div>
 
+            </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title"><i class="fas fa-user-check mr-2"></i>{{__('Referals')}} ({{__("referral-code")}} : {{$user->referral_code}})</h5>
+                    </div>
+                    <div class="card-body table-responsive">
+
+
+                        @foreach($referrals as $referral)
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <label>User ID: {{$referral->id}}</label>
+                                </div>
+                                <div class="col-lg-4">
+                                       <span style="max-width: 250px;" class="d-inline-block text-truncate">
+                                           <i class="fas fa-user-check mr-2"></i><a href="{{route("admin.users.show",$referral->id)}}">{{$referral->name}}</a>
+                                       </span>
+                                </div>
+                                <div class="col-lg-4">
+                                       <span style="max-width: 250px;" class="d-inline-block text-truncate">
+                                           <i class="fas fa-clock mr-2"></i>{{$referral->created_at->diffForHumans()}}
+                                       </span>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                </div>
 
         </div>
         <!-- END CUSTOM CONTENT -->

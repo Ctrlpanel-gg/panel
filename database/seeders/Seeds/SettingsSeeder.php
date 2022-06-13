@@ -24,7 +24,7 @@ class SettingsSeeder extends Seeder
         ]);
 
         Settings::firstOrCreate([
-            'key' => 'SETTINGS::USER:NITIAL_SERVER_LIMIT',
+            'key' => 'SETTINGS::USER:INITIAL_SERVER_LIMIT',
         ], [
             'value'       => '1',
             'type'        => 'integer',
@@ -464,6 +464,41 @@ class SettingsSeeder extends Seeder
             'value' => env('APP_NAME', 'Controlpanel'),
             'type'  => 'string',
             'description'  => 'Mailer From Name'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL::ENABLED',
+        ], [
+            'value' =>"true",
+            'type'  => 'string',
+            'description'  => 'Enable or disable the referral system'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL::REWARD',
+        ], [
+            'value' =>100,
+            'type'  => 'integer',
+            'description'  => 'Credit reward a user should receive when a user registers with his referral code'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL::ALLOWED',
+        ], [
+            'value' =>"client",
+            'type'  => 'string',
+            'description'  => 'Who should be allowed to to use the referral code. all/client'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL:MODE',
+        ], [
+            'value' =>"sign-up",
+            'type'  => 'string',
+            'description'  => 'Whether referrals get Credits on User-Registration or if a User buys credits'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL:PERCENTAGE',
+        ], [
+            'value' =>100,
+            'type'  => 'integer',
+            'description'  => 'The Percentage Value a referred user gets'
         ]);
     }
 }
