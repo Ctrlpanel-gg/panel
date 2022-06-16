@@ -19,6 +19,14 @@ class AddBillingPeriodToProducts extends Migration
         });
 
         DB::statement('UPDATE products SET billing_period="hourly"');
+
+        $products = DB::table('products')->get();
+        foreach ($products as $product) {
+            $price = $product->price;
+            $price = $price / 30 / 24;
+            DB::table('products')->where('id', $product->id)->update(['price' => $price]);
+        }
+
     }
 
     /**
