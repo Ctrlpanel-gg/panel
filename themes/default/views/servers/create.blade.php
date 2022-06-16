@@ -208,9 +208,14 @@
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
+                                                    <span class="d-inline-block"><i class="fas fa-clock"></i>
+                                                        {{ __('Billing Period') }}</span>
+
+                                                    <span class="d-inline-block" x-text="product.billing_period"></span>
+                                                </li>
+                                                <li>
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
-                                                        {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }}
-                                                        {{ __('to create this server') }}</span>
+                                                        {{ __('Minimum') }} {{ CREDITS_DISPLAY_NAME }}</span>
                                                     <span class="d-inline-block"
                                                         x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credits"></span>
                                                 </li>
@@ -224,8 +229,7 @@
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
                                         <div class="d-flex justify-content-between p-2">
-                                            <span class="d-inline-block mr-4">
-                                                {{ __('Price') }}:
+                                            <span class="d-inline-block mr-4" x-text="'{{ __('Price') }}' + ' (' + product.billing_period + ')'">
                                             </span>
                                             <span class="d-inline-block"
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
