@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateUserPriceDatatype extends Migration
+class UpdateUserCreditsDatatype extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class UpdateUserPriceDatatype extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->decimal('credits', 20, 10)->default(0)->change();
+            $table->decimal('credits', 15, 4)->default(0)->change();
         });
     }
 
@@ -27,6 +27,7 @@ class UpdateUserPriceDatatype extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->unsignedFloat('credits')->default(250)->change();
+
         });
     }
 }
