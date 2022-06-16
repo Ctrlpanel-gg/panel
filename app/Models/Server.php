@@ -47,12 +47,13 @@ class Server extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name',
-        'description',
-        'suspended',
-        'identifier',
-        'product_id',
-        'pterodactyl_id',
+        "name",
+        "description",
+        "suspended",
+        "identifier",
+        "product_id",
+        "pterodactyl_id",
+        "last_billed"
     ];
 
     /**

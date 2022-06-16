@@ -10,6 +10,7 @@ use App\Models\Node;
 use App\Models\Product;
 use App\Models\Server;
 use App\Notifications\ServerCreationError;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
@@ -180,6 +181,7 @@ class ServerController extends Controller
         $server = $request->user()->servers()->create([
             'name' => $request->input('name'),
             'product_id' => $request->input('product'),
+            'last_billed' => Carbon::now()->toDateTimeString(),
         ]);
 
         //get free allocation ID
@@ -201,11 +203,8 @@ class ServerController extends Controller
             'identifier' => $serverAttributes['identifier'],
         ]);
 
-        if (config('SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
-            if ($request->user()->credits >= $server->product->getHourlyPrice()) {
-                $request->user()->decrement('credits', $server->product->getHourlyPrice());
-            }
-        }
+        // Charge first billing cycle
+        $request->user()->decrement('credits', $server->product->price);
 
         return redirect()->route('servers.index')->with('success', __('Server created'));
     }
