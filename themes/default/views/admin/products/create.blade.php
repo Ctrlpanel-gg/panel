@@ -66,6 +66,7 @@
                                             <label for="price">{{__('Price in')}} {{CREDITS_DISPLAY_NAME}}</label>
                                             <input value="{{$product->price ??  old('price')}}" id="price" name="price" step=".01"
                                                    type="number"
+                                                   step="0.0001"
                                                    class="form-control @error('price') is-invalid @enderror"
                                                    required="required">
                                             @error('price')
