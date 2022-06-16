@@ -65,7 +65,7 @@ class ChargeServers extends Command
                         $newBillingDate = Carbon::parse($server->last_billed)->addMonth();
                         break;
                     case 'weekly':
-                        $newBillingDate = Carbon::parse($server->last_billed)->addYear();
+                        $newBillingDate = Carbon::parse($server->last_billed)->addWeek();
                         break;
                     case 'daily':
                         $newBillingDate = Carbon::parse($server->last_billed)->addDay();
