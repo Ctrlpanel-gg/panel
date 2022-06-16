@@ -73,6 +73,7 @@ class ProductController extends Controller
             "nodes.*" => "required|exists:nodes,id",
             "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
+            "billing_period" => "required|in:hourly,daily,monthly",
         ]);
 
         $disabled = !is_null($request->input('disabled'));
@@ -139,6 +140,7 @@ class ProductController extends Controller
             "nodes.*" => "required|exists:nodes,id",
             "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
+            "billing_period" => "required|in:hourly,daily,monthly",
         ]);
 
         $disabled = !is_null($request->input('disabled'));
