@@ -4,7 +4,9 @@ namespace App\Console\Commands;
 
 use App\Models\Server;
 use App\Notifications\ServersSuspendedNotification;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class ChargeServers extends Command
 {
@@ -45,7 +47,7 @@ class ChargeServers extends Command
      */
     public function handle()
     {
-        Server::whereNull('suspended')->with('users', 'products')->chunk(10, function ($servers) {
+        Server::whereNull('suspended')->with('user', 'product')->chunk(10, function ($servers) {
             /** @var Server $server */
             foreach ($servers as $server) {
                 /** @var Product $product */
@@ -55,23 +57,29 @@ class ChargeServers extends Command
 
                 $billing_period = $product->billing_period;
 
+
                 // check if server is due to be charged by comparing its last_billed date with the current date and the billing period
                 $newBillingDate = null;
                 switch($billing_period) {
                     case 'monthly':
-                        $newBillingDate = $server->last_billed->addMonth();
+                        $newBillingDate = Carbon::parse($server->last_billed)->addMonth();
                         break;
                     case 'weekly':
-                        $newBillingDate = $server->last_billed->addYear();
+                        $newBillingDate = Carbon::parse($server->last_billed)->addYear();
                         break;
                     case 'daily':
-                        $newBillingDate = $server->last_billed->addDay();
+                        $newBillingDate = Carbon::parse($server->last_billed)->addDay();
                         break;
+                    case 'hourly':
+                        $newBillingDate = Carbon::parse($server->last_billed)->addHour();
                     default:
-                        $newBillingDate = $server->last_billed->addHour();
+                        $newBillingDate = Carbon::parse($server->last_billed)->addHour();
                         break;
                 };
-                if (!($newBillingDate <= now())) return;
+
+                if (!($newBillingDate->isPast())) {
+                    continue;
+                }
 
                 // check if user has enough credits to charge the server
                 if ($user->credits < $product->price) {
@@ -94,8 +102,8 @@ class ChargeServers extends Command
                 $this->line("<fg=blue>{$user->name}</> Current credits: <fg=green>{$user->credits}</> Credits to be removed: <fg=red>{$product->price}</>");
                 $user->decrement('credits', $product->price);
 
-                // update server last_billed date
-                $server->last_billed = $newBillingDate;
+                // update server last_billed date in db
+                DB::table('servers')->where('id', $server->id)->update(['last_billed' => $newBillingDate]);
             }
 
             return $this->notifyUsers();

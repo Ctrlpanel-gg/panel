@@ -47,6 +47,7 @@ class Server extends Model
         "identifier",
         "product_id",
         "pterodactyl_id",
+        "last_billed"
     ];
 
     /**
