@@ -16,6 +16,9 @@ class AddBillingPeriodToProducts extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->string('billing_period')->default("hourly");
+            $table->decimal('price', 15, 4)->change();
+            $table->decimal('minimum_credits', 15, 4)->change();
+
         });
 
         DB::statement('UPDATE products SET billing_period="hourly"');
@@ -38,6 +41,8 @@ class AddBillingPeriodToProducts extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->dropColumn('billing_period');
+            $table->decimal('price', 10, 0)->change();
+            $table->float('minimum_credits')->change();
         });
     }
 }
