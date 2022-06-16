@@ -14,7 +14,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\ChargeCreditsCommand::class,
+        Commands\ChargeServers::class,
     ];
 
     /**
@@ -25,7 +26,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('credits:charge')->hourly();
+        $schedule->command('servers:charge')->everyMinute();
 
         //log cronjob activity
         $schedule->call(function () {
