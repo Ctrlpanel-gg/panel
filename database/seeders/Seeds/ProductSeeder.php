@@ -16,7 +16,7 @@ class ProductSeeder extends Seeder
     {
         Product::create([
             'name' => 'Starter',
-            'description' => '64MB Ram, 1GB Disk, 1 Database, 140 credits monthly',
+            'description' => '64MB Ram, 1GB Disk, 1 Database, 140 credits hourly',
             'price' => 140,
             'memory' => 64,
             'disk' => 1000,
@@ -25,7 +25,7 @@ class ProductSeeder extends Seeder
 
         Product::create([
             'name' => 'Standard',
-            'description' => '128MB Ram, 2GB Disk, 2 Database,  210 credits monthly',
+            'description' => '128MB Ram, 2GB Disk, 2 Database,  210 credits hourly',
             'price' => 210,
             'memory' => 128,
             'disk' => 2000,
@@ -34,7 +34,7 @@ class ProductSeeder extends Seeder
 
         Product::create([
             'name' => 'Advanced',
-            'description' => '256MB Ram, 5GB Disk, 5 Database,  280 credits monthly',
+            'description' => '256MB Ram, 5GB Disk, 5 Database,  280 credits hourly',
             'price' => 280,
             'memory' => 256,
             'disk' => 5000,
