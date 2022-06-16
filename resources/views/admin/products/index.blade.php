@@ -44,6 +44,7 @@
                             <th>{{__('Active')}}</th>
                             <th>{{__('Name')}}</th>
                             <th>{{__('Price')}}</th>
+                            <th>{{__('Billing period')}}</th>
                             <th>{{__('Memory')}}</th>
                             <th>{{__('Cpu')}}</th>
                             <th>{{__('Swap')}}</th>
@@ -91,6 +92,7 @@
                     {data: "disabled"},
                     {data: "name"},
                     {data: "price"},
+                    {data: "billing_period"},
                     {data: "memory"},
                     {data: "cpu"},
                     {data: "swap"},
