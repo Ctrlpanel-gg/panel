@@ -180,6 +180,10 @@
                                                     @endif>
                                                         {{__('Daily')}}
                                                     </option>
+                                                    <option value="weekly" @if ($product->billing_period  == 'weekly') selected
+                                                    @endif>
+                                                        {{__('Weekly')}}
+                                                    </option>
                                                      <option value="monthly" @if ($product->billing_period  == 'monthly') selected
                                                      @endif>
                                                         {{__('Monthly')}}
