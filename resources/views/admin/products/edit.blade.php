@@ -75,8 +75,10 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="price">{{__('Price in')}} {{ CREDITS_DISPLAY_NAME }}</label>
-                                            <input value="{{ $product->price }}" id="price" name="price" type="number"
+                                            <label for="price">{{__('Price in')}} {{CREDITS_DISPLAY_NAME}}</label>
+                                            <input value="{{$product->price}}" id="price" name="price"
+                                                   type="number"
+                                                   step="0.0001"
                                                    class="form-control @error('price') is-invalid @enderror"
                                                    required="required">
                                             @error('price')
