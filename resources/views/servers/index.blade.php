@@ -127,22 +127,21 @@
                                             ({{ CREDITS_DISPLAY_NAME }})
                                         </span>
                                     </div>
-                                    <div class="col-8">
-                                        <div class="row">
-                                            <div class="col-6  text-center">
-                                                <div class="text-muted">{{ __('per Hour') }}</div>
-                                                <span>
-                                                    {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
-                                                </span>
+                                    <div class="col-8 text-center">
+                                        <div class="text-muted">
+                                        @if($server->product->billing_period == 'monthly')
+                                            {{ __('per Month') }}
+                                        @elseif($server->product->billing_period == 'weekly')
+                                            {{ __('per Week') }}
+                                        @elseif($server->product->billing_period == 'daily')
+                                            {{ __('per Day') }}
+                                        @elseif($server->product->billing_period == 'hourly')
+                                            {{ __('per Hour') }}
+                                        @endif
                                             </div>
-                                            <div class="col-6  text-center">
-                                                <div class="text-muted">{{ __('per Month') }}
-                                                </div>
-                                                <span>
-                                                    {{ $server->product->getHourlyPrice() * 24 * 30 }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                        <span>
+                                            {{ $server->product->price }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
