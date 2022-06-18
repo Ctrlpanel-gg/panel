@@ -1,3 +1,3 @@
 Export diff files:
 
-cp -pv --parents $(git diff <commit> --name-only) "..\controllpanelgg-monthly-addon\files-git-diff\"
+git diff -r --no-commit-id --name-only --diff-filter=ACMR <commit> | tar -czf file.tgz -T -
