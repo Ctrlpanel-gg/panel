@@ -171,20 +171,16 @@
 
                                             <select id="billing_period" style="width:100%" class="custom-select" name="billing_period" required
                                                 autocomplete="off" @error('billing_period') is-invalid @enderror>
-                                                    <option value="hourly" @if ($product->billing_period == 'hourly') selected
-                                                    @endif>
+                                                    <option value="hourly" selected>
                                                         {{__('Hourly')}}
                                                     </option>
-                                                    <option value="daily" @if ($product->billing_period  == 'daily') selected
-                                                    @endif>
+                                                    <option value="daily">
                                                         {{__('Daily')}}
                                                     </option>
-                                                    <option value="weekly" @if ($product->billing_period  == 'weekly') selected
-                                                    @endif>
+                                                    <option value="weekly">
                                                         {{__('Weekly')}}
                                                     </option>
-                                                     <option value="monthly" @if ($product->billing_period  == 'monthly') selected
-                                                     @endif>
+                                                     <option value="monthly">
                                                         {{__('Monthly')}}
                                                     </option>
                                             </select>
