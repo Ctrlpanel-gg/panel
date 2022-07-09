@@ -225,7 +225,6 @@
                                     </button>
                                 </div>
                             </div>
-                    </div>
                     </template>
                 </div>
         </div>
