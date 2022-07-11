@@ -102,27 +102,28 @@
                                                 required="required">
                                             <option @if($user->role == 'admin') selected @endif class="text-danger"
                                                     value="admin">
-                                        {{__(' Administrator')}}
-                                     </option>
-                                     <option @if($user->role == 'client') selected @endif class="text-success"
-                                             value="client">
-                                        {{__('Client')}}
-                                    </option>
-                                    <option @if($user->role == 'member') selected @endif class="text-secondary"
-                                            value="member">
-                                        {{__('Member')}}
-                                    </option>
-                                </select>
-                            </div>
-                            @error('role')
-                            <div class="text-danger">
-                                {{$message}}
+                                                {{__(' Administrator')}}
+                                            </option>
+                                            <option @if($user->role == 'client') selected @endif class="text-success"
+                                                    value="client">
+                                                {{__('Client')}}
+                                            </option>
+                                            <option @if($user->role == 'member') selected @endif class="text-secondary"
+                                                    value="member">
+                                                {{__('Member')}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                    @error('role')
+                                    <div class="text-danger">
+                                        {{$message}}
                                     </div>
                                     @enderror
                                 </div>
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -155,7 +156,6 @@
                                     @enderror
                                 </div>
                             </div>
-                            </form>
                         </div>
                     </div>
                 </div>
