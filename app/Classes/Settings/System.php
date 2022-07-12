@@ -64,6 +64,7 @@ class System
             "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url",
             "SETTINGS::SYSTEM:PTERODACTYL:URL" => "pterodactyl-url",
             "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
+            "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
         ];
 
 
@@ -80,13 +81,16 @@ class System
     {
         $request->validate([
             'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
+            'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
             'favicon' => 'nullable|max:10000|mimes:ico',
         ]);
 
         if ($request->hasFile('icon')) {
             $request->file('icon')->storeAs('public', 'icon.png');
         }
-
+        if ($request->hasFile('logo')) {
+            $request->file('logo')->storeAs('public', 'logo.png');
+        }
         if ($request->hasFile('favicon')) {
             $request->file('favicon')->storeAs('public', 'favicon.ico');
         }

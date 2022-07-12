@@ -188,7 +188,7 @@
                     src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png')? asset('storage/icon.png'): asset('images/controlpanel_logo.png') }}"
                     alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">{{ config('app.name', 'Laravel') }}</span>
+                <span class="brand-text font-weight-light">{{ config('app.name', 'Controlpanel.gg') }}</span>
             </a>
 
             <!-- Sidebar -->
