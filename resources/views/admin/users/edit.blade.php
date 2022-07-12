@@ -114,12 +114,23 @@
                                     </option>
                                 </select>
                             </div>
+                                </div>
+                                    <div class="form-group">
+                                        <label for="name">{{__('Referral-Code')}}</label>
+                                        <input value="{{$user->referral_code}}" id="referral_code" name="referral_code" type="text"
+                                               class="form-control @error('referral_code') is-invalid @enderror" required="required">
+                                        @error('referral_code')
+                                        <div class="invalid-feedback">
+                                            {{$message}}
+                                        </div>
+                                        @enderror
+                                    </div>
                             @error('role')
                             <div class="text-danger">
                                 {{$message}}
                                     </div>
                                     @enderror
-                                </div>
+
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
