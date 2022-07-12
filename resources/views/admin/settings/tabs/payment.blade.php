@@ -130,7 +130,7 @@
                                 data-content="Tax Value that will be added to the total price of the order. <br><br> Example: 19 results in (19%)"
                                 class="fas fa-info-circle"></i>
                         </div>
-                        <input x-model="sales-tax" id="sales-tax" name="sales-tax" type="number"
+                        <input x-model="sales-tax" id="sales-tax" name="sales-tax" type="number" step=".01"
                             value="{{ config('SETTINGS::PAYMENTS:SALES_TAX') }}"
                             class="form-control @error('sales-tax') is-invalid @enderror">
                     </div>
