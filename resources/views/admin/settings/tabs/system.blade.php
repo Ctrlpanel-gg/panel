@@ -151,8 +151,8 @@
                             class="form-control @error('server-limit-email') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
-                        <label for="server-limit-email">{{ __('Server Limit after Credits Purchase') }}</label>
-                        <input x-model="server-limit-email" id="server-limit-email" name="server-limit-purchase"
+                        <label for="server-limit-purchase">{{ __('Server Limit after Credits Purchase') }}</label>
+                        <input x-model="server-limit-purchase" id="server-limit-purchase" name="server-limit-purchase"
                                type="number"
                                value="{{ config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') }}"
                                class="form-control @error('server-limit-purchase') is-invalid @enderror" required>
