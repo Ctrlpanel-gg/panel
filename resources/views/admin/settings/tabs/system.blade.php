@@ -173,6 +173,21 @@
                             class="form-control @error('allocation-limit') is-invalid @enderror" required>
                     </div>
                 </div>
+            </div>
+
+                {{-- Design --}}
+                <div class="col-md-3 px-3">
+                    <div class="row mb-2">
+                        <div class="col text-center">
+                            <h1>{{ __('Design') }}</h1>
+                        </div>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <input value="true" id="enable-login-logo" name="enable-login-logo"
+                               {{ config('SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO') == 'true' ? 'checked' : '' }}
+                               type="checkbox">
+                        <label for="enable-login-logo">{{ __('Enable Logo on Loginpage') }} </label>
+                    </div>
                 <div class="form-group">
                     <div class="custom-file mb-3 mt-3">
                         <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input" name="icon"
@@ -185,7 +200,19 @@
                         </span>
                     @enderror
 
+                    <div class="form-group">
+                        <div class="custom-file mb-3 mt-3">
+                            <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input" name="logo"
+                                   id="logo">
+                            <label class="custom-file-label selected" for="logo">{{ __('Select Login-page Logo') }}</label>
+                        </div>
+                        @error('logo')
+                        <span class="text-danger">
+                            {{ $message }}
+                        </span>
+                        @enderror
 
+                    </div>
                     <div class="form-group">
                         <div class="custom-file mb-3">
                             <input type="file" accept="image/x-icon" class="custom-file-input" name="favicon"
@@ -200,7 +227,6 @@
                         @enderror
                     </div>
                 </div>
-            </div>
         </div>
         <div class="row">
             <button class="btn btn-primary ml-3 mt-3">{{ __('Submit') }}</button>

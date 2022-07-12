@@ -7,6 +7,12 @@
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
                 <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'Laravel')}}</b></a>
+                @if(config("SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO"))
+                <img
+                     src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png')? asset('storage/logo.png'): asset('images/controlpanel_logo.png') }}"
+                     alt="{{ config('app.name', 'Controlpanel.gg') }} Logo"
+                     style="opacity: .8;max-width:100%">
+                @endif
             </div>
             <div class="card-body">
                 <p class="login-box-msg">{{__('Sign in to start your session')}}</p>
