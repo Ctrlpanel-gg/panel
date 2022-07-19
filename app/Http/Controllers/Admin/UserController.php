@@ -123,14 +123,8 @@ class UserController extends Controller
             "credits" => "required|numeric|min:0|max:99999999",
             "server_limit" => "required|numeric|min:0|max:1000000",
             "role" => Rule::in(['admin', 'mod', 'client', 'member']),
-            "referral_code" => "required|string|min:2|max:32",
+            "referral_code" => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
-
-        if (User::where('referral_code', '=', $request->input('referral_code'))->exists()) {
-            throw ValidationException::withMessages([
-                'referral_code' => [__("Another User with this Referral-Code already exists!")]
-            ]);
-        }
 
         if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
