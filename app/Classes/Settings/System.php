@@ -33,6 +33,7 @@ class System
             "credits-reward-amount-email" => "required|min:0|integer",
             "server-limit-discord" => "required|min:0|integer",
             "server-limit-email" => "required|min:0|integer",
+            "server-limit-purchase" => "required|min:0|integer",
             "pterodactyl-api-key" => "required|string",
             "pterodactyl-url" => "required|string",
 
@@ -59,9 +60,11 @@ class System
             "SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL" => "credits-reward-amount-email",
             "SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD" => "server-limit-discord",
             "SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL" => "server-limit-email",
+            "SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE" => "server-limit-purchase",
             "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url",
             "SETTINGS::SYSTEM:PTERODACTYL:URL" => "pterodactyl-url",
             "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
+            "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
         ];
 
 
@@ -78,13 +81,16 @@ class System
     {
         $request->validate([
             'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
+            'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
             'favicon' => 'nullable|max:10000|mimes:ico',
         ]);
 
         if ($request->hasFile('icon')) {
             $request->file('icon')->storeAs('public', 'icon.png');
         }
-
+        if ($request->hasFile('logo')) {
+            $request->file('logo')->storeAs('public', 'logo.png');
+        }
         if ($request->hasFile('favicon')) {
             $request->file('favicon')->storeAs('public', 'favicon.ico');
         }

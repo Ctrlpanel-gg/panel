@@ -80,7 +80,7 @@
                 serverSide: true,
                 stateSave: true,
                 ajax: "{{route('admin.users.datatable')}}",
-                order: [[ 10, "asc" ]],
+                order: [[ 11, "asc" ]],
                 columns: [
                     {data: 'discordId', visible: false, name: 'discordUser.id'},
                     {data: 'pterodactyl_id', visible: false},

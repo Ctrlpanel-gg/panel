@@ -4,6 +4,7 @@
         <th width="20"></th>
         <th>{{__('Name')}}</th>
         <th>{{__('User')}}</th>
+        <th>{{__('Server id')}}</th>
         <th>{{__('Config')}}</th>
         <th>{{__('Suspended at')}}</th>
         <th>{{__('Created at')}}</th>
@@ -33,6 +34,7 @@
                 {data: 'status' , name : 'servers.suspended'},
                 {data: 'name'},
                 {data: 'user' , name : 'user.name'},
+                {data: 'identifier'},
                 {data: 'resources' , name : 'product.name'},
                 {data: 'suspended'},
                 {data: 'created_at'},
