@@ -66,9 +66,12 @@ class ServerController extends Controller
      * @param Server $server
      * @return Response
      */
+
     public function edit(Server $server)
     {
-        //
+        return view('admin.servers.edit')->with([
+            'server' => $server
+        ]);
     }
 
     /**
@@ -80,7 +83,13 @@ class ServerController extends Controller
      */
     public function update(Request $request, Server $server)
     {
-        //
+        $request->validate([
+            "identifier" => "required|string",
+        ]);
+
+        $server->update($request->all());
+
+        return redirect()->route('admin.servers.index')->with('success', 'Server updated!');
     }
 
     /**
@@ -139,6 +148,7 @@ class ServerController extends Controller
                 $suspendText = $server->isSuspended() ? __("Unsuspend") : __("Suspend");
 
                 return '
+                         <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.servers.edit', $server->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
                         <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
                             ' . csrf_field() . '
                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
