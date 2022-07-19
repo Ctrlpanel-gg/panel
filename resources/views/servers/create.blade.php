@@ -205,7 +205,7 @@
                                         </div>
                                         <div class="mt-2 mb-2">
                                             <span class="card-text text-muted">{{ __('Description') }}</span>
-                                            <p class="card-text" x-text="product.description"></p>
+                                            <p class="card-text" style="white-space:pre" x-text="product.description"></p>
                                         </div>
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
