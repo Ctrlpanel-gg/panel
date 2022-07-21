@@ -105,18 +105,18 @@
                                             <div class="mt-1">
                                                     <span class="badge badge-success"><i
                                                             class="fa fa-user-check mr-2"></i>
-                                                        {{_("Referral URL")}} :
+                                                        {{__("Referral URL")}} :
                                                         <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
                                                             {{route("register")}}?ref={{$user->referral_code}}</span>
                                                     </span>
                                                 @else
                                                     <span class="badge badge-warning"><i
                                                             class="fa fa-user-check mr-2"></i>
-                                                        {{_("Make a purchase to reveal your referral-URL")}}</span>
+                                                        {{__("Make a purchase to reveal your referral-URL")}}</span>
                                         @endif
                                             </div>
                                             <div class="mt-1">
-                                                <span class="badge badge-info">{{_("Number of referred users:")}} {{$numberOfReferrals}}</span>
+                                                <span class="badge badge-info">{{__("Number of referred users")}}: {{$numberOfReferrals}}</span>
                                             </div>
                                         @endif
                                         </div>
