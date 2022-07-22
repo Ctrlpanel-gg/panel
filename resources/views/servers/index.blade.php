@@ -162,6 +162,10 @@
                                         <div class="text-muted">
                                         @if($server->product->billing_period == 'monthly')
                                             {{ __('per Month') }}
+                                        @elseif($server->product->billing_period == 'half-yearly')
+                                            {{ __('per 6 Months') }}
+                                        @elseif($server->product->billing_period == 'yearly')
+                                            {{ __('per Year') }}
                                         @elseif($server->product->billing_period == 'weekly')
                                             {{ __('per Week') }}
                                         @elseif($server->product->billing_period == 'daily')
