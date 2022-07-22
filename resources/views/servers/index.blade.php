@@ -129,7 +129,7 @@
                                     </div>
                                     <div class="col-7 d-flex text-wrap align-items-center">
                                         <span>
-                                        @if ($server->cancelled)
+                                        @if ($server->suspended)
                                             -
                                         @else
                                             @switch($server->product->billing_period)
