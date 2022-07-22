@@ -72,6 +72,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //normal routes
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
+    Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
     Route::resource('servers', ServerController::class);
     if (config('SETTINGS::SYSTEM:ENABLE_UPGRADE')) {
         Route::post('servers/{server}/upgrade', [ServerController::class, 'upgrade'])->name('servers.upgrade');
@@ -140,6 +141,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         //servers
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
         Route::post('servers/togglesuspend/{server}', [AdminServerController::class, 'toggleSuspended'])->name('servers.togglesuspend');
+        Route::patch('/servers/cancel/{server}', [AdminServerController::class, 'cancel'])->name('servers.cancel');
         Route::get('servers/sync', [AdminServerController::class, 'syncServers'])->name('servers.sync');
         Route::resource('servers', AdminServerController::class);
 
