@@ -72,7 +72,7 @@
                                 <div class="row mb-3">
                                     <div class="col my-auto">{{ __('Status') }}:</div>
                                     <div class="col-7 my-auto">
-                                        @if($server->suspennded)
+                                        @if($server->suspended)
                                             <span class="badge badge-danger">{{ __('Suspended') }}</span>
                                         @elseif($server->cancelled)
                                             <span class="badge badge-warning">{{ __('Cancelled') }}</span>
@@ -199,6 +199,7 @@
                             </a>
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="btn btn-warning  text-center"
+                                disabled="{{ $server->suspended }}"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
                                 <i class="fas fa-ban mx-4"></i>
                             </button>

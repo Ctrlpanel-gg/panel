@@ -450,6 +450,7 @@
     "weekly": "Wöchentlich",
     "half-annually": "Halbjährlich",
     "annually": "Jährlich",
+    "Suspended": "Gesperrt",
     "Cancelled": "Gekündigt",
     "An exception has occurred while trying to cancel the server": "Ein Fehler ist aufgetreten beim Versuch, den Server zu kündigen",
     "This will cancel your current server to the next billing period. It will get suspended when the current period runs out.": "Dies wird Ihren aktuellen Server zur nächsten Abrechnungsperiode kündigen. Er wird beim Ablauf der aktuellen Periode gesperrt.",

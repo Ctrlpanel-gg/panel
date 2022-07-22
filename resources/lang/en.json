@@ -452,6 +452,7 @@
     "weekly": "Weekly",
     "half-annually": "Half-annually",
     "annually": "Annually",
+    "Suspended": "Suspended",
     "Cancelled": "Cancelled",
     "An exception has occurred while trying to cancel the server": "An exception has occurred while trying to cancel the server",
     "This will cancel your current server to the next billing period. It will get suspended when the current period runs out.": "This will cancel your current server to the next billing period. It will get suspended when the current period runs out.",
