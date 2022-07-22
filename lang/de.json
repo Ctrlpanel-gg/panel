@@ -470,7 +470,7 @@
     "Cancelled": "Gekündigt",
     "An exception has occurred while trying to cancel the server": "Ein Fehler ist aufgetreten beim Versuch, den Server zu kündigen",
     "This will cancel your current server to the next billing period. It will get suspended when the current period runs out.": "Dies wird Ihren aktuellen Server zur nächsten Abrechnungsperiode kündigen. Er wird beim Ablauf der aktuellen Periode gesperrt.",
-    "This is an irreversible action, all files of this server will be removed. No funds will get refunded. We recommend deleting the server when server is suspended.": "Dies ist eine irreversibel Aktion, alle Dateien dieses Servers werden gelöscht. Keine Gelder werden zurückgezahlt. Wir empfehlen, den Server zu löschen, wenn er gesperrt ist.",
+    "This is an irreversible action, all files of this server will be removed. <strong>No funds will get refunded</strong>. We recommend deleting the server when server is suspended.": "Dies ist eine irreversiblen Aktion, alle Dateien dieses Servers werden gelöscht. <strong>Keine Rückerstattung!</strong>. Wir empfehlen, den Server zu löschen, wenn er gesperrt ist.",
     "Cancel Server?": "Server kündigen?",
     "Delete Server?": "Server löschen?",
     "Billing Period": "Abrechnungsperiode",

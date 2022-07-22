@@ -455,7 +455,7 @@
     "This will cancel your current server to the next billing period. It will get suspended when the current period runs out.": "This will cancel your current server to the next billing period. It will get suspended when the current period runs out.",
     "Cancel Server?": "Cancel Server?",
     "Delete Server?": "Delete Server?",
-    "This is an irreversible action, all files of this server will be removed. No funds will get refunded. We recommend deleting the server when server is suspended.": "This is an irreversible action, all files of this server will be removed. No funds will get refunded. We recommend deleting the server when server is suspended.",
+    "This is an irreversible action, all files of this server will be removed. <strong>No funds will get refunded</strong>. We recommend deleting the server when server is suspended.": "This is an irreversible action, all files of this server will be removed. <strong>No funds will get refunded</strong>. We recommend deleting the server when server is suspended.",
     "Billing Period": "Billing Period",
     "Next Billing Cycle": "Next Billing Cycle",
     "Manage Server": "Manage Server",
