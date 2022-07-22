@@ -43,7 +43,21 @@ class Product extends Model
 
     public function getHourlyPrice()
     {
-        return ($this->price / 30) / 24;
+        // calculate the hourly price with the billing period
+        switch($this->billing_period) {
+            case 'daily':
+                return $this->price / 24;
+            case 'weekly':
+                return $this->price / 24 / 7;
+            case 'monthly':
+                return $this->price / 24 / 30;
+            case 'half-annually':
+                return $this->price / 24 / 30 / 6;
+            case 'annually':
+                return $this->price / 24 / 365;
+            default:
+                return $this->price;
+        }
     }
 
     public function getDailyPrice()

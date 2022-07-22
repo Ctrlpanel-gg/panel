@@ -251,10 +251,18 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $usage = 0;
         foreach ($this->getServersWithProduct() as $server) {
-            $usage += $server->product->price;
+            $usage += $server->product->getHourlyPrice() * 24 * 30;
         }
 
         return number_format($usage, 2, '.', '');
+    }
+
+    private function getServersWithProduct() {
+        return $this->servers()
+            ->whereNull('suspended')
+            ->whereNull('cancelled')
+            ->with('product')
+            ->get();
     }
 
     /**
