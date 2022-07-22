@@ -246,7 +246,7 @@ class ServerController extends Controller
 
             return redirect()->route('servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to delete the server"') . $e->getMessage() . '"');
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource"') . $e->getMessage() . '"');
         }
     }
 
