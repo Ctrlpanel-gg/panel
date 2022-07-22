@@ -219,8 +219,8 @@
             }).then((result) => {
                 if (result.value) {
                     // Delete server
-                    fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
-                        method: 'DELETE',
+                    fetch("{{ route('servers.cancel', '') }}" + '/' + serverId, {
+                        method: 'PATCH',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
