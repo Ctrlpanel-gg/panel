@@ -67,6 +67,9 @@ class ChargeServers extends Command
                     case 'half-annually':
                         $newBillingDate = Carbon::parse($server->last_billed)->addMonths(6);
                         break;
+                    case 'quarterly':
+                        $newBillingDate = Carbon::parse($server->last_billed)->addMonths(3);
+                        break;
                     case 'monthly':
                         $newBillingDate = Carbon::parse($server->last_billed)->addMonth();
                         break;
