@@ -124,7 +124,7 @@
                                 </div>
 
                                 <div class="row mb-4 ">
-                                    <div class="col-5 ">
+                                    <div class="col-5 word-break" style="hyphens: auto">
                                         {{ __('Next Billing Cycle') }}:
                                     </div>
                                     <div class="col-7 d-flex text-wrap align-items-center">
