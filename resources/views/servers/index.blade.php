@@ -199,7 +199,7 @@
                             </a>
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="btn btn-warning  text-center"
-                                {{ $server->suspended? "disabled" : "" }}
+                                {{ $server->suspended || $server->cancelled ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
                                 <i class="fas fa-ban mx-4"></i>
                             </button>
