@@ -72,9 +72,13 @@
                                 <div class="row mb-3">
                                     <div class="col my-auto">{{ __('Status') }}:</div>
                                     <div class="col-7 my-auto">
-                                        <i
-                                            class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>
-                                        {{ $server->isSuspended() ? 'Suspended' : 'Active' }}
+                                        @if($server->suspennded)
+                                            <span class="badge badge-danger">{{ __('Suspended') }}</span>
+                                        @elseif($server->cancelled)
+                                            <span class="badge badge-warning">{{ __('Cancelled') }}</span>
+                                        @else
+                                            <span class="badge badge-success">{{ __('Active') }}</span>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="row mb-2">
@@ -125,28 +129,32 @@
                                     </div>
                                     <div class="col-7 d-flex text-wrap align-items-center">
                                         <span>
-                                        @switch($server->product->billing_period)
-                                            @case('monthly')
-                                                {{ \Carbon\Carbon::parse($server->last_billed)->addMonth()->toDayDateTimeString(); }}
-                                                @break
-                                            @case('weekly')
-                                                {{ \Carbon\Carbon::parse($server->last_billed)->addWeek()->toDayDateTimeString(); }}
-                                                @break
-                                            @case('daily')
-                                                {{ \Carbon\Carbon::parse($server->last_billed)->addDay()->toDayDateTimeString(); }}
-                                                @break
-                                            @case('hourly')
-                                                {{ \Carbon\Carbon::parse($server->last_billed)->addHour()->toDayDateTimeString(); }}
-                                                @break
-                                            @case('half-yearly')
-                                                {{ \Carbon\Carbon::parse($server->last_billed)->addMonths(6)->toDayDateTimeString(); }}
-                                                @break
-                                            @case('yearly')
-                                                {{ \Carbon\Carbon::parse($server->last_billed)->addYear()->toDayDateTimeString(); }}
-                                                @break
-                                            @default
-                                                {{ \Carbon\Carbon::parse($server->last_billed)->addHour()->toDayDateTimeString(); }}
-                                        @endswitch
+                                        @if ($server->cancelled)
+                                            -
+                                        @else
+                                            @switch($server->product->billing_period)
+                                                @case('monthly')
+                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addMonth()->toDayDateTimeString(); }}
+                                                    @break
+                                                @case('weekly')
+                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addWeek()->toDayDateTimeString(); }}
+                                                    @break
+                                                @case('daily')
+                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addDay()->toDayDateTimeString(); }}
+                                                    @break
+                                                @case('hourly')
+                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addHour()->toDayDateTimeString(); }}
+                                                    @break
+                                                @case('half-annually')
+                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addMonths(6)->toDayDateTimeString(); }}
+                                                    @break
+                                                @case('annually')
+                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addYear()->toDayDateTimeString(); }}
+                                                    @break
+                                                @default
+                                                    {{ __('Unknown') }}
+                                            @endswitch
+                                        @endif
                                         </span>
                                     </div>
                                 </div>
@@ -162,9 +170,9 @@
                                         <div class="text-muted">
                                         @if($server->product->billing_period == 'monthly')
                                             {{ __('per Month') }}
-                                        @elseif($server->product->billing_period == 'half-yearly')
+                                        @elseif($server->product->billing_period == 'half-annually')
                                             {{ __('per 6 Months') }}
-                                        @elseif($server->product->billing_period == 'yearly')
+                                        @elseif($server->product->billing_period == 'annually')
                                             {{ __('per Year') }}
                                         @elseif($server->product->billing_period == 'weekly')
                                             {{ __('per Week') }}

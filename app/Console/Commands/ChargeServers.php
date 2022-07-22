@@ -61,10 +61,10 @@ class ChargeServers extends Command
                 // check if server is due to be charged by comparing its last_billed date with the current date and the billing period
                 $newBillingDate = null;
                 switch($billing_period) {
-                    case 'yearly':
+                    case 'annually':
                         $newBillingDate = Carbon::parse($server->last_billed)->addYear();
                         break;
-                    case 'half-yearly':
+                    case 'half-annually':
                         $newBillingDate = Carbon::parse($server->last_billed)->addMonths(6);
                         break;
                     case 'monthly':
