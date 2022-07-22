@@ -190,13 +190,13 @@
                                                      @endif>
                                                         {{__('Monthly')}}
                                                     </option>
-                                                    <option value="half-yearly" @if ($product->billing_period  == 'half-yearly') selected
+                                                    <option value="half-annually" @if ($product->billing_period  == 'half-annually') selected
                                                     @endif>
-                                                        {{__('Half Yearly')}}
+                                                        {{__('Half Annually')}}
                                                     </option>
-                                                    <option value="yearly" @if ($product->billing_period  == 'yearly') selected
+                                                    <option value="annually" @if ($product->billing_period  == 'annually') selected
                                                     @endif>
-                                                        {{__('Yearly')}}
+                                                        {{__('Annually')}}
                                                     </option>
                                             </select>
                                             @error('billing_period')

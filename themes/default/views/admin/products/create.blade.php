@@ -183,11 +183,11 @@
                                                      <option value="monthly">
                                                         {{__('Monthly')}}
                                                     </option>
-                                                    <option value="half-yearly">
-                                                        {{__('Half Yearly')}}
+                                                    <option value="half-annually">
+                                                        {{__('Half Annually')}}
                                                     </option>
-                                                    <option value="yearly">
-                                                        {{__('Yearly')}}
+                                                    <option value="annually">
+                                                        {{__('Annually')}}
                                                     </option>
                                             </select>
                                             @error('billing_period')
