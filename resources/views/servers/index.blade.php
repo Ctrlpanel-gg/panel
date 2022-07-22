@@ -40,7 +40,6 @@
 
             <div class="row d-flex flex-row justify-content-center justify-content-md-start">
                 @foreach ($servers as $server)
-
                     <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
                         style="max-width: 350px">
                         <div class="card-header">
@@ -107,7 +106,7 @@
                                         <span>{{ $server->egg }}</span>
                                     </div>
                                 </div>
-                                <div class="row mb-4">
+                                <div class="row mb-2">
                                     <div class="col-5 ">
                                         {{ __('Resource plan') }}:
                                     </div>
@@ -115,11 +114,43 @@
                                         <span>{{ $server->product->name }}
                                         </span>
                                         <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>"
+                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/> {{ __('Billing Period') }}: {{$server->product->billing_period}}"
                                             class="fas fa-info-circle"></i>
                                     </div>
-
                                 </div>
+
+                                <div class="row mb-4 ">
+                                    <div class="col-5 ">
+                                        {{ __('Next Billing Cycle') }}:
+                                    </div>
+                                    <div class="col-7 d-flex text-wrap align-items-center">
+                                        <span>
+                                        @switch($server->product->billing_period)
+                                            @case('monthly')
+                                                {{ \Carbon\Carbon::parse($server->last_billed)->addMonth()->toDayDateTimeString(); }}
+                                                @break
+                                            @case('weekly')
+                                                {{ \Carbon\Carbon::parse($server->last_billed)->addWeek()->toDayDateTimeString(); }}
+                                                @break
+                                            @case('daily')
+                                                {{ \Carbon\Carbon::parse($server->last_billed)->addDay()->toDayDateTimeString(); }}
+                                                @break
+                                            @case('hourly')
+                                                {{ \Carbon\Carbon::parse($server->last_billed)->addHour()->toDayDateTimeString(); }}
+                                                @break
+                                            @case('half-yearly')
+                                                {{ \Carbon\Carbon::parse($server->last_billed)->addMonths(6)->toDayDateTimeString(); }}
+                                                @break
+                                            @case('yearly')
+                                                {{ \Carbon\Carbon::parse($server->last_billed)->addYear()->toDayDateTimeString(); }}
+                                                @break
+                                            @default
+                                                {{ \Carbon\Carbon::parse($server->last_billed)->addHour()->toDayDateTimeString(); }}
+                                        @endswitch
+                                        </span>
+                                    </div>
+                                </div>
+
                                 <div class="row mb-2">
                                     <div class="col-4">
                                         {{ __('Price') }}:
@@ -147,17 +178,22 @@
                             </div>
                         </div>
 
-                        <div class="card-footer d-flex align-items-center justify-content-between">
+                        <div class="card-footer text-center">
                             <a href="{{ config('SETTINGS::SYSTEM:PTERODACTYL:URL') }}/server/{{ $server->identifier }}"
                                 target="__blank"
-                                class="btn btn-info mx-3 w-100 align-items-center justify-content-center d-flex">
-                                <i class="fas fa-tools mr-2"></i>
-                                <span>{{ __('Manage') }}</span>
+                                class="btn btn-info text-center float-left ml-2"
+                                data-toggle="tooltip" data-placement="bottom" title="Manage Server">
+                                <i class="fas fa-tools mx-4"></i>
                             </a>
-                            <button onclick="confirmSubmit('{{ $server->id }}', handleServerDelete);" target="__blank"
-                                class="btn btn-danger mx-3 w-100 align-items-center justify-content-center d-flex">
-                                <i class="fas fa-trash mr-2"></i>
-                                <span>{{ __('Delete') }}</span>
+                            <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
+                                class="btn btn-warning  text-center"
+                                data-toggle="tooltip" data-placement="bottom" title="Cancel Server">
+                                <i class="fas fa-ban mx-4"></i>
+                            </button>
+                            <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
+                                class="btn btn-danger  text-center float-right mr-2"
+                                data-toggle="tooltip" data-placement="bottom" title="Delete Server">
+                                <i class="fas fa-trash mx-4"></i>
                             </button>
                         </div>
                     </div>
@@ -169,40 +205,66 @@
     <!-- END CONTENT -->
 
     <script>
-        const confirmSubmit = (serverId, handleServerDelete) => {
-            // Confirm delete submit with sweetalert
+        const handleServerCancel = (serverId) => {
+            // Handle server cancel with sweetalert
             Swal.fire({
-                title: "{{ __('Are you sure?') }}",
-                text: "{{ __('This is an irreversible action, all files of this server will be removed.') }}",
+                title: "{{ __('Cancel Server?') }}",
+                text: "{{ __('This will cancel your current server to the next billing period. It will get suspended when the current period runs out.') }}",
+                icon: 'warning',
+                confirmButtonColor: '#d9534f',
+                showCancelButton: true,
+                confirmButtonText: "{{ __('Yes, cancel it!') }}",
+                cancelButtonText: "{{ __('No, abort!') }}",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    // Delete server
+                    fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                    return
+                }
+            })
+        }
+
+        const handleServerDelete = (serverId) => {
+            Swal.fire({
+                title: "{{ __('Delete Server?') }}",
+                text: "{{ __('This is an irreversible action, all files of this server will be removed. No funds will get refunded. We recommend deleting the server when server is suspended.') }}",
                 icon: 'warning',
                 confirmButtonColor: '#d9534f',
                 showCancelButton: true,
                 confirmButtonText: "{{ __('Yes, delete it!') }}",
-                cancelButtonText: "{{ __('No, cancel!') }}",
+                cancelButtonText: "{{ __('No, abort!') }}",
                 reverseButtons: true
             }).then((result) => {
                 if (result.value) {
-                    handleServerDelete(serverId);
+                    // Delete server
+                    fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    });
                     return
                 }
-                Swal.fire("{{ __('Canceled ...') }}", `{{ __('Deletion has been canceled.') }}`, 'info');
             });
-        }
 
-        const handleServerDelete = (serverId) => {
-            // Delete server
-            fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            }).then(() => {
-                window.location.reload();
-            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             $('[data-toggle="popover"]').popover();
         });
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
     </script>
 @endsection
