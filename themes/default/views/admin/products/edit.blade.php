@@ -190,6 +190,14 @@
                                                      @endif>
                                                         {{__('Monthly')}}
                                                     </option>
+                                                    <option value="half-yearly" @if ($product->billing_period  == 'half-yearly') selected
+                                                    @endif>
+                                                        {{__('Half Yearly')}}
+                                                    </option>
+                                                    <option value="yearly" @if ($product->billing_period  == 'yearly') selected
+                                                    @endif>
+                                                        {{__('Yearly')}}
+                                                    </option>
                                             </select>
                                             @error('billing_period')
                                             <div class="invalid-feedback">

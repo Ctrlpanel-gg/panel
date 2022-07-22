@@ -183,6 +183,12 @@
                                                      <option value="monthly">
                                                         {{__('Monthly')}}
                                                     </option>
+                                                    <option value="half-yearly">
+                                                        {{__('Half Yearly')}}
+                                                    </option>
+                                                    <option value="yearly">
+                                                        {{__('Yearly')}}
+                                                    </option>
                                             </select>
                                             @error('billing_period')
                                             <div class="invalid-feedback">
