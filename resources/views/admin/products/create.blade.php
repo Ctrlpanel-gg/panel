@@ -183,6 +183,9 @@
                                                      <option value="monthly">
                                                         {{__('Monthly')}}
                                                     </option>
+                                                    <option value="quarterly">
+                                                        {{__('Quarterly')}}
+                                                    </option>
                                                     <option value="half-annually">
                                                         {{__('Half Annually')}}
                                                     </option>

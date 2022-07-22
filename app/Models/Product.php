@@ -45,6 +45,8 @@ class Product extends Model
                 return $this->price / 24 / 7;
             case 'monthly':
                 return $this->price / 24 / 30;
+            case 'quarterly':
+                return $this->price / 24 / 30 / 3;
             case 'half-annually':
                 return $this->price / 24 / 30 / 6;
             case 'annually':

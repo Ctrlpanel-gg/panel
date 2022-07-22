@@ -145,6 +145,9 @@
                                                 @case('hourly')
                                                     {{ \Carbon\Carbon::parse($server->last_billed)->addHour()->toDayDateTimeString(); }}
                                                     @break
+                                                @case('quarterly')
+                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addMonths(3)->toDayDateTimeString(); }}
+                                                    @break
                                                 @case('half-annually')
                                                     {{ \Carbon\Carbon::parse($server->last_billed)->addMonths(6)->toDayDateTimeString(); }}
                                                     @break
@@ -172,6 +175,8 @@
                                             {{ __('per Month') }}
                                         @elseif($server->product->billing_period == 'half-annually')
                                             {{ __('per 6 Months') }}
+                                        @elseif($server->product->billing_period == 'quarterly')
+                                            {{ __('per 3 Months') }}
                                         @elseif($server->product->billing_period == 'annually')
                                             {{ __('per Year') }}
                                         @elseif($server->product->billing_period == 'weekly')
