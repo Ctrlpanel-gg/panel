@@ -194,17 +194,17 @@
                             <a href="{{ config('SETTINGS::SYSTEM:PTERODACTYL:URL') }}/server/{{ $server->identifier }}"
                                 target="__blank"
                                 class="btn btn-info text-center float-left ml-2"
-                                data-toggle="tooltip" data-placement="bottom" title="Manage Server">
+                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
                                 <i class="fas fa-tools mx-4"></i>
                             </a>
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="btn btn-warning  text-center"
-                                data-toggle="tooltip" data-placement="bottom" title="Cancel Server">
+                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
                                 <i class="fas fa-ban mx-4"></i>
                             </button>
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
                                 class="btn btn-danger  text-center float-right mr-2"
-                                data-toggle="tooltip" data-placement="bottom" title="Delete Server">
+                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
                                 <i class="fas fa-trash mx-4"></i>
                             </button>
                         </div>
