@@ -223,10 +223,10 @@
                                         </div>
                                     </div>
                                     <button type="submit" x-model="selectedProduct" name="product"
-                                        :disabled="product.minimum_credits > user.credits"
-                                        :class="product.minimum_credits > user.credits ? 'disabled' : ''"
+                                        :disabled="product.minimum_credits > user.credits || product.price > user.credits"
+                                        :class="product.minimum_credits > user.credits || product.price > user.credits ? 'disabled' : ''"
                                         class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
-                                        x-text=" product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}'">
+                                        x-text="product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}'">
                                     </button>
                                 </div>
                             </div>
@@ -354,6 +354,7 @@
                         .catch(console.error)
 
                     this.fetchedProducts = true;
+
                     // TODO: Sortable by user chosen property (cpu, ram, disk...)
                     this.products = response.data.sort((p1, p2) => p1.price > p2.price && 1 || -1)
 
@@ -362,10 +363,18 @@
                         product.cpu = product.cpu / 100;
                     })
 
+                    //format price to have no decimals if it is a whole number
+                    this.products.forEach(product => {
+                        if (product.price % 1 === 0) {
+                            product.price = Math.round(product.price);
+                        }
+                    })
+
 
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
+
 
                 /**
                  * @description map selected id's to selected objects
