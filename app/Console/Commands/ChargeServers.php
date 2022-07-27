@@ -91,7 +91,7 @@ class ChargeServers extends Command
                 }
 
                 // check if the server is canceled or if user has enough credits to charge the server or
-                if ( $server->cancelled || $user->credits < $product->price) {
+                if ( $server->cancelled || $user->credits <= $product->price) {
                     try {
                         // suspend server
                         $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> has been <fg=red>suspended!</>");

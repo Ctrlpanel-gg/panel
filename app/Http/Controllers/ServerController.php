@@ -131,7 +131,8 @@ class ServerController extends Controller
                 Auth::user()->credits <
                 ($product->minimum_credits == -1
                     ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
-                    : $product->minimum_credits)
+                    : $product->minimum_credits) ||
+                Auth::user()->credits <= $product->price
             ) {
                 return redirect()->route('servers.index')->with('error', 'You do not have the required amount of '.CREDITS_DISPLAY_NAME.' to use this product!');
             }

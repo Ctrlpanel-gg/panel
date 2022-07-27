@@ -188,7 +188,7 @@
                                         @endif
                                             </div>
                                         <span>
-                                            {{ $server->product->price }}
+                                            {{ number_format($server->product->price) }}
                                         </span>
                                     </div>
                                 </div>
