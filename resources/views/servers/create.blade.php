@@ -350,7 +350,7 @@
 
                     this.fetchedProducts = true;
                     // TODO: Sortable by user chosen property (cpu, ram, disk...)
-                    this.products = response.data.sort((p1, p2) => p1.price > p2.price && 1 || -1)
+                    this.products = response.data.sort((p1, p2) => parseInt(p1.price,10) > parseInt(p2.price,10) && 1 || -1)
 
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
