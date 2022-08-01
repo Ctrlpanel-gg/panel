@@ -104,6 +104,9 @@
                                                     value="admin">
                                         {{__(' Administrator')}}
                                      </option>
+                                     <option @if($user->role == 'mod') selected @endif class="text-info" value="mod">
+                                        {{__(' Moderator')}}
+                                     </option>
                                      <option @if($user->role == 'client') selected @endif class="text-success"
                                              value="client">
                                         {{__('Client')}}
