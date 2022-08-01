@@ -6,6 +6,7 @@ use App\Http\Middleware\ApiAuthToken;
 use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\GlobalNames;
 use App\Http\Middleware\isAdmin;
+use App\Http\Middleware\isMod;
 use App\Http\Middleware\LastSeen;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -72,6 +73,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'admin' => isAdmin::class,
+        'mod' => isMod::class,
         'api.token' => ApiAuthToken::class,
         'checkSuspended' => CheckSuspended::class
     ];

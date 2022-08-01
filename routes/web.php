@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
+use App\Http\Controllers\Mod\TicketsController as ModTicketsController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\TicketsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -89,7 +91,13 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     #switch language
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
-
+    
+    #ticket user
+    Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
+    Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
+    Route::post('ticket/new', [TicketsController::class, 'store'])->name('ticket.new.store');
+    Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
+    Route::post('ticket/reply', [TicketsController::class, 'reply'])->name('ticket.reply');
 
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
@@ -164,5 +172,15 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         ]);
     });
 
+    #mod
+    Route::prefix('mod')->name('mod.')->middleware('mod')->group(function () {
+        #ticket moderation
+        Route::get('ticket', [ModTicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/show/{ticket_id}', [ModTicketsController::class, 'show'])->name('ticket.show');
+        Route::post('ticket/reply', [ModTicketsController::class, 'reply'])->name('ticket.reply');
+        Route::post('ticket/close/{ticket_id}', [ModTicketsController::class, 'close'])->name('ticket.close');
+        Route::post('ticket/delete/{ticket_id}', [ModTicketsController::class, 'delete'])->name('ticket.delete');
+    });
+    
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });

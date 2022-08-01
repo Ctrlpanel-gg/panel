@@ -72,7 +72,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;"
-                                             class="d-inline-block text-truncate badge {{$user->role == 'admin' ? 'badge-info' : 'badge-secondary'}}">
+                                             class="d-inline-block text-truncate badge {{$user->role == 'admin' || $user->role == 'mod' ? 'badge-info' : 'badge-secondary'}}">
                                            {{$user->role}}
                                        </span>
                                 </div>
