@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Mod;
+namespace App\Http\Controllers\Moderation;
 
 use App\Models\User;
 use App\Models\Ticket;
@@ -19,14 +19,14 @@ class TicketsController extends Controller
     public function index() {
         $tickets = Ticket::paginate(10);
         $ticketcategories = TicketCategory::all();
-        return view("admin.ticket.index", compact("tickets", "ticketcategories"));
+        return view("moderator.ticket.index", compact("tickets", "ticketcategories"));
     }
     public function show($ticket_id) {
         $ticket = Ticket::where("ticket_id", $ticket_id)->firstOrFail();
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
-        return view("admin.ticket.show", compact("ticket", "ticketcategory", "ticketcomments", "server"));
+        return view("moderator.ticket.show", compact("ticket", "ticketcategory", "ticketcomments", "server"));
     }
 
     public function close($ticket_id) {
@@ -42,7 +42,7 @@ class TicketsController extends Controller
         TicketComment::where("ticket_id", $ticket->id)->delete();
         $ticket->delete();
         return redirect()->back()->with('success', __('A ticket has been deleted, ID: #') . $ticket_id);
-        
+
     }
     public function reply(Request $request) {
         $this->validate($request, array("ticketcomment" => "required"));
@@ -50,13 +50,13 @@ class TicketsController extends Controller
         $ticket->status = "Answered";
         $ticket->update();
         $ticketcomment = TicketComment::create(array(
-        	"ticket_id" => $request->input("ticket_id"), 
-        	"user_id" => Auth::user()->id, 
-        	"ticketcomment" => $request->input("ticketcomment"), 
+        	"ticket_id" => $request->input("ticket_id"),
+        	"user_id" => Auth::user()->id,
+        	"ticketcomment" => $request->input("ticketcomment"),
         ));
         $user = User::where('id', $ticket->user_id)->firstOrFail();
         $newmessage = $request->input("ticketcomment");
-        $user->notify(new ReplyNotification($ticket, $user, $newmessage)); 
+        $user->notify(new ReplyNotification($ticket, $user, $newmessage));
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 }
