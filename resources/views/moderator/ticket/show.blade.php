@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('mod.ticket.index') }}">{{ __('Ticket') }}</a>
+                                                       href="{{ route('moderator.ticket.index') }}">{{ __('Ticket') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -61,7 +61,7 @@
                             <div class="d-flex justify-content-between">
                                 <h5 class="card-title"><i class="fas fa-cloud mr-2"></i>{{__('Comment')}}</h5>
                             </div>
-                        </div> 
+                        </div>
                         <div class="card-body">
                             <div class="card">
                                 <div class="card-header">
@@ -74,7 +74,7 @@
                                             <span class="badge badge-secondary"> Member </span>
                                         @elseif ($ticket->user->role === "client")
                                             <span class="badge badge-success"> Client </span>
-                                        @elseif ($ticket->user->role === "mod")
+                                        @elseif ($ticket->user->role === "moderator")
                                             <span class="badge badge-info"> Moderator </span>
                                         @elseif ($ticket->user->role === "admin")
                                             <span class="badge badge-danger"> Admin </span>
@@ -99,7 +99,7 @@
                                             <span class="badge badge-secondary"> Member </span>
                                         @elseif ($ticketcomment->user->role === "client")
                                             <span class="badge badge-success"> Client </span>
-                                        @elseif ($ticketcomment->user->role === "mod")
+                                        @elseif ($ticketcomment->user->role === "moderator")
                                             <span class="badge badge-info"> Moderator </span>
                                         @elseif ($ticketcomment->user->role === "admin")
                                             <span class="badge badge-danger"> Admin </span>
@@ -114,7 +114,7 @@
                             </div>
                             @endforeach
                             <div class="comment-form">
-                                <form action="{{ route('mod.ticket.reply')}}" method="POST" class="form">
+                                <form action="{{ route('moderator.ticket.reply')}}" method="POST" class="form">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
                                     <div class="form-group{{ $errors->has('ticketcomment') ? ' has-error' : '' }}">

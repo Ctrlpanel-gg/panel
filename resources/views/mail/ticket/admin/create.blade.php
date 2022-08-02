@@ -17,7 +17,7 @@ ___
 You can respond to this ticket by simply replying to this email or through the admin area at the url below.
 <br>
 
-{{ route('mod.ticket.show', ['ticket_id' => $ticket->ticket_id]) }}
+{{ route('moderator.ticket.show', ['ticket_id' => $ticket->ticket_id]) }}
 
 <br>
 {{__('Thanks')}},<br>

@@ -14,7 +14,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
-use App\Http\Controllers\Mod\TicketsController as ModTicketsController;
+use App\Http\Controllers\Moderation\TicketsController as ModTicketsController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
@@ -91,7 +91,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     #switch language
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
-    
+
     #ticket user
     Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
     Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
@@ -173,7 +173,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     });
 
     #mod
-    Route::prefix('mod')->name('mod.')->middleware('mod')->group(function () {
+    Route::prefix('moderator')->name('moderator.')->middleware('moderator')->group(function () {
         #ticket moderation
         Route::get('ticket', [ModTicketsController::class, 'index'])->name('ticket.index');
         Route::get('ticket/show/{ticket_id}', [ModTicketsController::class, 'show'])->name('ticket.show');
@@ -181,6 +181,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::post('ticket/close/{ticket_id}', [ModTicketsController::class, 'close'])->name('ticket.close');
         Route::post('ticket/delete/{ticket_id}', [ModTicketsController::class, 'delete'])->name('ticket.delete');
     });
-    
+
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });

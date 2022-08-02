@@ -12,13 +12,13 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('mod.ticket.index')}}">{{__('Ticket List')}}</a></li>
+                                                       href="{{route('moderator.ticket.index')}}">{{__('Ticket List')}}</a></li>
                     </ol>
                 </div>
             </div>
         </div>
     </section>
-    <!-- END CONTENT HEADER --> 
+    <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
     <section class="content">
@@ -52,7 +52,7 @@
                                         {{ $ticket->ticketcategory->name }}
                                     </td>
                                     <td>
-                                        <a href="{{ route('mod.ticket.show', ['ticket_id' => $ticket->ticket_id]) }}">
+                                        <a href="{{ route('moderator.ticket.show', ['ticket_id' => $ticket->ticket_id]) }}">
                                             #{{ $ticket->ticket_id }} - {{ $ticket->title }}
                                         </a>
                                     </td>
@@ -74,12 +74,12 @@
                                     </td>
                                     <td>{{ $ticket->updated_at }}</td>
                                     <td>
-                                        <a data-content="View" data-toggle="popover" data-trigger="hover" data-placement="top" href="{{ route('mod.ticket.show', ['ticket_id' => $ticket->ticket_id]) }}" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
-                                        <form class="d-inline" action="{{ route('mod.ticket.close', ['ticket_id' => $ticket->ticket_id ]) }}" method="POST">
+                                        <a data-content="View" data-toggle="popover" data-trigger="hover" data-placement="top" href="{{ route('moderator.ticket.show', ['ticket_id' => $ticket->ticket_id]) }}" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
+                                        <form class="d-inline" action="{{ route('moderator.ticket.close', ['ticket_id' => $ticket->ticket_id ]) }}" method="POST">
                                         @csrf
                                         <button data-content="Close" data-toggle="popover" data-trigger="hover" data-placement="top" type="submit" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-times"></i></button>
                                         </form>
-                                        <form class="d-inline" action="{{ route('mod.ticket.delete', ['ticket_id' => $ticket->ticket_id ]) }}" method="POST">
+                                        <form class="d-inline" action="{{ route('moderator.ticket.delete', ['ticket_id' => $ticket->ticket_id ]) }}" method="POST">
                                             @csrf
                                             <button data-content="Delete" data-toggle="popover" data-trigger="hover" data-placement="top" type="submit" class="btn btn-sm text-white btn-danger mr-1"><i class="fas fa-trash"></i></button>
                                         </form>

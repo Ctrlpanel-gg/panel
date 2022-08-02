@@ -228,21 +228,21 @@
                         <li class="nav-item">
                             <a href="{{ route('ticket.index') }}" class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
                                 <i class="nav-icon fas fas fa-ticket-alt"></i>
-                                <p>{{ __('Support Ticket') }}</p> 
+                                <p>{{ __('Support Ticket') }}</p>
                             </a>
                         </li>
 
-                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'mod')
+                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'moderator')
                             <li class="nav-header">{{ __('Moderation') }}</li>
 
                             <li class="nav-item">
-                                <a href="{{ route('mod.ticket.index') }}" class="nav-link @if (Request::routeIs('mod.ticket.*')) active @endif">
+                                <a href="{{ route('moderator.ticket.index') }}" class="nav-link @if (Request::routeIs('mod.ticket.*')) active @endif">
                                     <i class="nav-icon fas fa-ticket-alt"></i>
-                                    <p>{{ __('Ticket List') }}</p> 
+                                    <p>{{ __('Ticket List') }}</p>
                                 </a>
                             </li>
                         @endif
-                        
+
                         @if (Auth::user()->role == 'admin')
 
                             <li class="nav-header">{{ __('Administration') }}</li>
