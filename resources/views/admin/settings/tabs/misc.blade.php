@@ -187,7 +187,7 @@
             <div class="col-md-3 px-3">
                 <div class="row mb-2">
                     <div class="col text-center">
-                        <h1>Referral</h1>
+                        <h1>Referral System</h1>
                     </div>
                 </div>
 
@@ -248,6 +248,21 @@
                         <option value="client" @if (config('SETTINGS::REFERRAL::ALLOWED') == "client") selected
                             @endif>{{ __("Clients") }}</option>
                     </select>
+                </div>
+                <div class="row mb-2">
+                    <div class="col text-center">
+                        <h1>Ticket System</h1>
+                    </div>
+                </div>
+                <div class="custom-control mb-3 p-0">
+                    <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <input value="true" id="ticket_enabled" name="ticket_enabled"
+                                   {{ config('SETTINGS::TICKET:ENABLED') == 'true' ? 'checked' : '' }}
+                                   type="checkbox">
+                            <label for="ticket_enabled">{{ __('Enable Ticketsystem') }} </label>
+                        </div>
+                    </div>
                 </div>
             </div>
 

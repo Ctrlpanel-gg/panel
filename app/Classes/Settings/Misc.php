@@ -42,6 +42,7 @@ class Misc
             'referral_allowed' => 'nullable|string',
             'referral_percentage' => 'nullable|numeric',
             'referral_mode' => 'nullable|string',
+            'ticket_enabled' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -78,7 +79,8 @@ class Misc
             "SETTINGS::REFERRAL::REWARD" => "referral_reward",
             "SETTINGS::REFERRAL::ALLOWED" => "referral_allowed",
             "SETTINGS::REFERRAL:MODE" => "referral_mode",
-            "SETTINGS::REFERRAL:PERCENTAGE" => "referral_percentage"
+            "SETTINGS::REFERRAL:PERCENTAGE" => "referral_percentage",
+            "SETTINGS::TICKET:ENABLED" => "ticket_enabled"
 
 
         ];
