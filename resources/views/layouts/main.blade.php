@@ -225,14 +225,16 @@
                                 </a>
                             </li>
                         @endif
+                       @if(config("SETTINGS::TICKET:ENABLED"))
                         <li class="nav-item">
                             <a href="{{ route('ticket.index') }}" class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
                                 <i class="nav-icon fas fas fa-ticket-alt"></i>
                                 <p>{{ __('Support Ticket') }}</p>
                             </a>
                         </li>
+                        @endif
 
-                        @if (Auth::user()->role == 'admin' || Auth::user()->role == 'moderator')
+                        @if ((Auth::user()->role == 'admin' || Auth::user()->role == 'moderator') && config("SETTINGS::TICKET:ENABLED"))
                             <li class="nav-header">{{ __('Moderation') }}</li>
 
                             <li class="nav-item">

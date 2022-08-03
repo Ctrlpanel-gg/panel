@@ -93,11 +93,13 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
     #ticket user
-    Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
-    Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
-    Route::post('ticket/new', [TicketsController::class, 'store'])->name('ticket.new.store');
-    Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
-    Route::post('ticket/reply', [TicketsController::class, 'reply'])->name('ticket.reply');
+    if(config("SETTINGS::TICKET:ENABLED")) {
+        Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
+        Route::post('ticket/new', [TicketsController::class, 'store'])->name('ticket.new.store');
+        Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
+        Route::post('ticket/reply', [TicketsController::class, 'reply'])->name('ticket.reply');
+    }
 
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
