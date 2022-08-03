@@ -21,7 +21,7 @@
         </div>
 
     </section>
-    <!-- END CONTENT HEADER --> 
+    <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
     <section class="content">
@@ -104,7 +104,7 @@
                         </div>
                         <div class="col-4 text-end">
                           <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                            <i class='bx bxs-hdd' style="color: white;"></i>                
+                            <i class='bx bxs-hdd' style="color: white;"></i>
                           </div>
                         </div>
                       </div>
@@ -247,15 +247,12 @@
                                     @csrf
                                         <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
                                           <option value="">Select the product</option>
-                                            @foreach($product as $product)
-                                                @if($product->eggs[0]->nest->id == $server->product->eggs[0]->id)
-                                                  @if ($product->id != $server->product->id)
+                                            @foreach($products as $product)
+                                                @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id)
                                                   <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
-
-                                                  @endif
                                                 @endif
                                             @endforeach
-                                        </select> 
+                                        </select>
                                         <br> Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits. <br>
                                     </div>
                                     <div class="modal-footer card-body">

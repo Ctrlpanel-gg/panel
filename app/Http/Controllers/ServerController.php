@@ -228,10 +228,17 @@ class ServerController extends Controller
 
         $server->node = $serverRelationships['node']['attributes']['name'];
         $server->name = $serverAttributes['name'];
-        $product = Product::orderBy("created_at")->get();
-        return view('servers.settings')->with([ 
+        $server->egg = $serverRelationships['egg']['attributes']['name'];
+        $products = Product::orderBy("created_at")->get();
+
+        // Set the each product eggs array to just contain the eggs name
+        foreach ($products as $product) {
+            $product->eggs = $product->eggs->pluck('name')->toArray();
+        }
+
+        return view('servers.settings')->with([
             'server' => $server,
-            'product' => $product
+            'products' => $products
         ]);
     }
 
