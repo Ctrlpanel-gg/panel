@@ -63,7 +63,7 @@
                             </span>
                         @enderror
                     </div>
-
+                    @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
                     <div class="input-group mb-3">
                         {!! htmlFormSnippet() !!}
                         @error('g-recaptcha-response')
@@ -72,6 +72,7 @@
                             </span>
                         @enderror
                     </div>
+                    @endif
 
                     <div class="row">
                         <div class="col-8">
