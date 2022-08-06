@@ -172,6 +172,11 @@
                         <input x-model="recaptcha-site-key" id="recaptcha-site-key" name="recaptcha-site-key"
                             type="text" value="{{ config('SETTINGS::RECAPTCHA:SITE_KEY') }}"
                             class="form-control @error('recaptcha-site-key') is-invalid @enderror">
+                        @error('recaptcha-site-key')
+                                <div class="text-danger">
+                                    {{$message}}
+                                </div>
+                        @enderror
                     </div>
                 </div>
 
@@ -181,6 +186,11 @@
                         <input x-model="recaptcha-secret-key" id="recaptcha-secret-key" name="recaptcha-secret-key"
                             type="text" value="{{ config('SETTINGS::RECAPTCHA:SECRET_KEY') }}"
                             class="form-control @error('recaptcha-secret-key') is-invalid @enderror">
+                        @error('recaptcha-secret-key')
+                            <div class="text-danger">
+                                {{$message}}
+                            </div>
+                         @enderror
                     </div>
                 </div>
             </div>

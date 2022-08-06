@@ -45,6 +45,14 @@ class Misc
             'ticket_enabled' => 'nullable|string',
         ]);
 
+        $validator->after(function ($validator) use ($request) {
+            // if enable-recaptcha is true then recaptcha-site-key and recaptcha-secret-key must be set
+            if ($request->get('enable-recaptcha') == 'true' && (!$request->get('recaptcha-site-key') || !$request->get('recaptcha-secret-key'))) {
+                $validator->errors()->add('recaptcha-site-key', 'The site key is required if recaptcha is enabled.');
+                $validator->errors()->add('recaptcha-secret-key', 'The secret key is required if recaptcha is enabled.');
+            }
+        });
+
         if ($validator->fails()) {
             return redirect(route('admin.settings.index') . '#misc')->with('error', __('Misc settings have not been updated!'))->withErrors($validator)
                 ->withInput();
