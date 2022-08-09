@@ -83,7 +83,7 @@
                                         <span class="badge badge-primary">{{ $ticket->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>
-                                <div class="card-body" tyle="white-space:pre-wrap">{{ $ticket->message }}</div>
+                                <div class="card-body" style="white-space:pre-wrap">{{ $ticket->message }}</div>
                             </div>
                             @foreach ($ticketcomments as $ticketcomment)
                             <div class="card">
