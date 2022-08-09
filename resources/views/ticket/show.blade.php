@@ -83,9 +83,7 @@
                                         <span class="badge badge-primary">{{ $ticket->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    {{ $ticket->message }}
-                                </div>
+                                <div class="card-body" tyle="white-space:pre-wrap">{{ $ticket->message }}</div>
                             </div>
                             @foreach ($ticketcomments as $ticketcomment)
                             <div class="card">
@@ -108,9 +106,7 @@
                                         <span class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    {{ $ticketcomment->ticketcomment }}
-                                </div>
+                                <div class="card-body" style="white-space:pre-wrap">{{ $ticketcomment->ticketcomment }}</div>
                             </div>
                             @endforeach
                             <div class="comment-form">
