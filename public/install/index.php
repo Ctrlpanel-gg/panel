@@ -448,7 +448,7 @@ echo $cardheader;
                             ?>
                             <p class="login-box-msg">All done!</p>
                             <p class="login-box-msg">You may navigate to your Dashboard now and log in!</p>
-                            <a href="<?php echo "https://" . $_SERVER['SERVER_NAME']; ?>">
+                            <a href="<?php echo getEnvironmentValue("APP_URL"); ?>">
                                 <button class="btn btn-success">Lets go!</button>
                             </a>
                             </div>
