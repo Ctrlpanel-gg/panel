@@ -160,6 +160,17 @@ class UserController extends Controller
         $user->delete();
         return redirect()->back()->with('success', __('user has been removed!'));
     }
+    /**
+     * Verifys the users email
+     *
+     * @param User $user
+     * @return RedirectResponse
+     */
+    public function verifyEmail(Request $request, User $user)
+    {
+        $user->verifyEmail();
+        return redirect()->back()->with('success', __('Email has been verified!'));
+    }
 
     /**
      * @param Request $request
@@ -285,6 +296,7 @@ class UserController extends Controller
                 $suspendText = $user->isSuspended() ? __("Unsuspend") : __("Suspend");
                 return '
                 <a data-content="' . __("Login as User") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="' . __("Verify") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
                 <a data-content="' . __("Show") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
                 <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
                <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
