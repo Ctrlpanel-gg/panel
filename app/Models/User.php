@@ -260,10 +260,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $status;
     }
 
-        public function verifyEmail()
-        {
-            $this->forceFill([
-                'email_verified_at' => now(),
-            ])->save();
-        }
+    public function verifyEmail()
+    {
+        $this->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
+    }
 }
