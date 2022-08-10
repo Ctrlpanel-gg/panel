@@ -81,4 +81,40 @@ class TicketsController extends Controller
         Notification::send($admin, new AdminReplyNotification($ticket, $user, $newmessage));
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
+
+    public function dataTable()
+    {
+        $query = Ticket::where("user_id", Auth::user()->id)->get();
+
+        return datatables($query)
+            ->addColumn('category', function (Ticket $tickets) {
+                return $tickets->ticketcategory->name;
+            })
+            ->editColumn('title', function (Ticket $tickets) {
+                return '<a class="text-info" target="_blank" href="' . route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]) . '">' . "#" . $tickets->ticket_id . " - " . $tickets->title . '</a>';
+            })
+            ->editColumn('status', function (Ticket $tickets) {
+                switch ($tickets->status) {
+                    case 'Open':
+                        $badgeColor = 'badge-success';
+                        break; 
+                    case 'Closed':
+                        $badgeColor = 'badge-danger';
+                        break;
+                    case 'Answered':
+                        $badgeColor = 'badge-info';
+                        break;
+                    default:
+                        $badgeColor = 'badge-warning';
+                        break;
+                }
+
+                return '<span class="badge ' . $badgeColor . '">' . $tickets->status . '</span>';
+            })
+            ->editColumn('updated_at', function (Ticket $tickets) {
+                return $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '';
+            })
+            ->rawColumns(['category', 'title', 'status', 'updated_at'])
+            ->make(true);
+    }
 }

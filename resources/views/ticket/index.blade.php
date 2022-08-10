@@ -39,45 +39,16 @@
                             <table id="datatable" class="table table-striped">
                                 <thead>
                                 <tr>
-                                    <th>Category</th>
-                                    <th>Title</th>
-                                    <th>Status</th>
-                                    <th>Last Updated</th>
+                                    <th>{{__('Category')}}</th>
+                                    <th>{{__('Title')}}</th>
+                                    <th>{{__('Status')}}</th>
+                                    <th>{{__('Last Updated')}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($tickets as $ticket)
-                                    <tr>
-                                        <td>
-                                            {{ $ticket->ticketcategory->name }}
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('ticket.show', ['ticket_id' => $ticket->ticket_id]) }}">
-                                                #{{ $ticket->ticket_id }} - {{ $ticket->title }}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            @if ($ticket->status === 'Open')
-                                            <span class="badge badge-success">Open</span>
-                                            @elseif ($ticket->status === 'Closed')
-                                            <span class="badge badge-danger">Closed</span>
-                                            @elseif ($ticket->status === 'Answered')
-                                            <span class="badge badge-info">Answered</span>
-                                            @elseif ($ticket->status === 'Client Reply')
-                                            <span class="badge badge-warning">Client Reply</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $ticket->updated_at }}</td>
-                                    </tr>
-                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
-                        @if($tickets->hasPages())
-                        <div class="card-footer">
-                            {{ $tickets->links() }}
-                        </div>
-                        @endif
                     </div>
                 </div>
                 <div class="col-lg-4">
@@ -100,5 +71,27 @@
         </div>
     </section>
     <!-- END CONTENT -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            $('#datatable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("app.datatable_locale")}}.json'
+                },
+                processing: true,
+                serverSide: true,
+                stateSave: true,
+                ajax: "{{route('ticket.datatable')}}",
+                columns: [
+                    {data: 'category'},
+                    {data: 'title'},
+                    {data: 'status'},
+                    {data: 'updated_at', sortable: false},
+                ],
+                fnDrawCallback: function( oSettings ) {
+                    $('[data-toggle="popover"]').popover();
+                }
+            });
+        });
+    </script>
 @endsection
 
