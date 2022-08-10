@@ -24,7 +24,7 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
-            <form action="{{route('ticket.new.store')}}" method="POST">
+            <form action="{{route('ticket.new.store')}}" method="POST" class="ticket-form">
                 @csrf
                 <div class="row">
                     <div class="col-lg-6">
@@ -92,7 +92,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary ticket-once">
                                     {{__('Open Ticket')}}
                                 </button>
                             </div>
@@ -123,5 +123,13 @@
         </div>
     </section>
     <!-- END CONTENT -->
+    <script type="text/javascript">
+     $(".ticket-form").submit(function (e) {        
+         
+         $(".ticket-once").attr("disabled", true);     
+         return true;
+     })
+        
+    </script>
 @endsection
 
