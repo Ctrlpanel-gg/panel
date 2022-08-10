@@ -238,7 +238,7 @@
                             <li class="nav-header">{{ __('Moderation') }}</li>
 
                             <li class="nav-item">
-                                <a href="{{ route('moderator.ticket.index') }}" class="nav-link @if (Request::routeIs('mod.ticket.*')) active @endif">
+                                <a href="{{ route('moderator.ticket.index') }}" class="nav-link @if (Request::routeIs('moderator.ticket.*')) active @endif">
                                     <i class="nav-icon fas fa-ticket-alt"></i>
                                     <p>{{ __('Ticket List') }}</p>
                                 </a>

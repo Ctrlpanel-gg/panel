@@ -95,6 +95,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #ticket user
     if(config("SETTINGS::TICKET:ENABLED")) {
         Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
         Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
         Route::post('ticket/new', [TicketsController::class, 'store'])->name('ticket.new.store');
         Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
@@ -178,6 +179,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::prefix('moderator')->name('moderator.')->middleware('moderator')->group(function () {
         #ticket moderation
         Route::get('ticket', [ModTicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/datatable', [ModTicketsController::class, 'datatable'])->name('ticket.datatable');
         Route::get('ticket/show/{ticket_id}', [ModTicketsController::class, 'show'])->name('ticket.show');
         Route::post('ticket/reply', [ModTicketsController::class, 'reply'])->name('ticket.reply');
         Route::post('ticket/close/{ticket_id}', [ModTicketsController::class, 'close'])->name('ticket.close');

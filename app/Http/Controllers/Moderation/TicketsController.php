@@ -59,4 +59,58 @@ class TicketsController extends Controller
         $user->notify(new ReplyNotification($ticket, $user, $newmessage));
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
-}
+    
+    public function dataTable()
+    {
+        $query = Ticket::query();
+
+        return datatables($query)
+            ->addColumn('category', function (Ticket $tickets) {
+                return $tickets->ticketcategory->name;
+            })
+            ->editColumn('title', function (Ticket $tickets) {
+                return '<a class="text-info"  href="' . route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]) . '">' . "#" . $tickets->ticket_id . " - " . $tickets->title . '</a>';
+            })
+            ->editColumn('user_id', function (Ticket $tickets) {
+                return '<a href="' . route('admin.users.show', $tickets->user->id) . '">' . $tickets->user->name . '</a>';
+            })
+            ->addColumn('actions', function (Ticket $tickets) {
+                return '
+                            <a data-content="'.__("View").'" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
+                            <form class="d-inline"  method="post" action="' . route('moderator.ticket.close', ['ticket_id' => $tickets->ticket_id ]) . '">
+                                ' . csrf_field() . '
+                                ' . method_field("POST") . '
+                            <button data-content="'.__("Close").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-times"></i></button>
+                            </form>
+                            <form class="d-inline"  method="post" action="' . route('moderator.ticket.delete', ['ticket_id' => $tickets->ticket_id ]) . '">
+                                ' . csrf_field() . '
+                                ' . method_field("POST") . '
+                            <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                            </form>
+                ';
+            })
+            ->editColumn('status', function (Ticket $tickets) {
+                switch ($tickets->status) {
+                    case 'Open':
+                        $badgeColor = 'badge-success';
+                        break; 
+                    case 'Closed':
+                        $badgeColor = 'badge-danger';
+                        break;
+                    case 'Answered':
+                        $badgeColor = 'badge-info';
+                        break;
+                    default:
+                        $badgeColor = 'badge-warning';
+                        break;
+                }
+
+                return '<span class="badge ' . $badgeColor . '">' . $tickets->status . '</span>';
+            })
+            ->editColumn('updated_at', function (Ticket $tickets) {
+                return $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '';
+            })
+            ->rawColumns(['category', 'title', 'user_id', 'status', 'updated_at', 'actions'])
+            ->make(true);
+    }
+} 
