@@ -110,7 +110,7 @@
                             </div>
                             @endforeach
                             <div class="comment-form">
-                                <form action="{{ route('ticket.reply')}}" method="POST" class="form">
+                                <form action="{{ route('ticket.reply')}}" method="POST" class="form reply-form">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
                                     <div class="form-group{{ $errors->has('ticketcomment') ? ' has-error' : '' }}">
@@ -122,7 +122,7 @@
                                         @endif
                                     </div>
                                     <div class="form-group">
-                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                        <button type="submit" class="btn btn-primary reply-once">Submit</button>
                                     </div>
                                 </form>
                             </div>
@@ -133,5 +133,13 @@
         </div>
     </section>
     <!-- END CONTENT -->
+    <script type="text/javascript">
+        $(".reply-form").submit(function (e) {        
+            
+            $(".reply-once").attr("disabled", true);     
+            return true;
+        })
+           
+    </script>
 @endsection
 

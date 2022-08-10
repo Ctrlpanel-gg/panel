@@ -88,11 +88,13 @@
                             @endforeach
                         </tbody>
                     </table>
-
                 </div>
+                @if($tickets->hasPages())
+                <div class="card-footer">
+                    {{ $tickets->links() }}
+                </div>
+                @endif
             </div>
-
-
         </div>
         <!-- END CUSTOM CONTENT -->
 
