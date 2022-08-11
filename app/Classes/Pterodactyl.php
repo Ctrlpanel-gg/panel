@@ -33,6 +33,14 @@ class Pterodactyl
         ])->baseUrl(config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
     }
 
+    public static function clientadmin()
+    {
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN"),
+            'Content-type'  => 'application/json',
+            'Accept'        => 'Application/vnd.pterodactyl.v1+json',
+        ])->baseUrl(config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
+    }
     /**
      * @return Exception
      */
@@ -315,6 +323,13 @@ class Pterodactyl
                 "backups"     => $product->backups,
                 "allocations" => $product->allocations,
             ]
+        ]);
+    }
+
+    public static function powerAction(Server $server, $action)
+    {
+        return self::clientadmin()->post("/client/servers/{$server->identifier}/power", [
+            "signal"      => $action
         ]);
     }
 }
