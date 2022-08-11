@@ -308,6 +308,12 @@ class Pterodactyl
         return $response->json()['attributes'];
     }
 
+    /**
+     * Update Server Resources
+     * @param Server $server
+     * @param Product $product
+     * @return boolean
+     */
     public static function updateServer(Server $server, Product $product)
     {
         return self::client()->patch("/application/servers/{$server->pterodactyl_id}/build", [
@@ -325,11 +331,42 @@ class Pterodactyl
             ]
         ]);
     }
-
+    /**
+     * Power Action Specific Server
+     * @param Server $server
+     * @param string $action
+     * @return boolean
+     */
     public static function powerAction(Server $server, $action)
     {
         return self::clientadmin()->post("/client/servers/{$server->identifier}/power", [
             "signal"      => $action
         ]);
+    }
+
+    /**
+     * Check if node has enough free resources to allocate the given resources
+     * @param Node $node
+     * @param int $requireMemory
+     * @param int $requireDisk
+     * @return boolean
+     */
+    public static function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
+    {
+        try {
+            $response = self::client()->get("/application/nodes/{$node->id}");
+        } catch (Exception $e) {
+            throw self::getException($e->getMessage());
+        }
+        $node = $response['attributes'];
+        $freeMemory = $node['memory'] - $node['allocated_resources']['memory'];
+        $freeDisk = $node['disk'] - $node['allocated_resources']['disk'];
+        if ($freeMemory < $requireMemory) {
+            return false;
+          }
+          if ($freeDisk < $requireDisk) {
+            return false;
+          }
+          return true;
     }
 }
