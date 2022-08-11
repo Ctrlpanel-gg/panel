@@ -289,6 +289,9 @@ class ServerController extends Controller
             if ($response->failed()) return $this->serverCreationFailed($response, $server);
             //update user balance
             $user->decrement('credits', $priceupgrade);
+            //restart the server
+            $response = Pterodactyl::powerAction($server, "restart");
+            if ($response->failed()) return $this->serverCreationFailed($response, $server);
             return redirect()->route('servers.show', ['server' => $server->id])->with('success', __('Server Successfully Upgraded'));
         }
         else
