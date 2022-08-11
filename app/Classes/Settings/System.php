@@ -36,6 +36,7 @@ class System
             "server-limit-purchase" => "required|min:0|integer",
             "pterodactyl-api-key" => "required|string",
             "pterodactyl-url" => "required|string",
+            "pterodactyl-admin-api-key" => "required|string",
 
         ]);
         if ($validator->fails()) {
@@ -65,6 +66,7 @@ class System
             "SETTINGS::SYSTEM:PTERODACTYL:URL" => "pterodactyl-url",
             "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
             "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
+            "SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN" => "pterodactyl-admin-api-key",
         ];
 
 
