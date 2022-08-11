@@ -101,9 +101,31 @@ class ServerController extends Controller
             return redirect()->route('servers.index')->with('error', __('Server limit reached!'));
         }
 
-        // minimum credits
+        // minimum credits && Check for Allocation
         if (FacadesRequest::has("product")) {
             $product = Product::findOrFail(FacadesRequest::input("product"));
+            // Can we allocate the node? If not then error lol(I don't like overallocation)
+            $node = Pterodactyl::getNode(FacadesRequest::input('node'));
+            $nodeMem  = $node['memory'];
+            $nodeDisk = $node['disk'];
+            $nodeName = $node['name'];
+            $currServers = Auth::user()->servers();
+            $currMem  = 0;
+            $currDisk = 0;
+            foreach($currServers as $currServer) {
+                $pteroServer = $currServer->getPterodactylServer();
+                $psvAttr     = $pteroServer['attributes'];
+                if($psvAttr['node'] != $node['id'])
+                    continue;
+                $currMem    += $psvAttr['limits']['memory'];
+                $currDisk   += $psvAttr['limits']['disk'];
+            }
+            $currMem  += $product->memory;
+            $currDisk += $product->disk;
+            if($currMem > $nodeMem || $currDisk > $nodeDisk)
+                 return redirect()->route('servers.index')->with('error', "The node '" . $nodeName . "' doesn't have the required memory or disk left to allocate this product.");
+          
+            // Min. Credits
             if (
                 Auth::user()->credits <
                 ($product->minimum_credits == -1
