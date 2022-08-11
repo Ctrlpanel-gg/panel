@@ -115,6 +115,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #users
         Route::get("users.json", [UserController::class, "json"])->name('users.json');
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
+        Route::get('users/verifyEmail/{user}', [UserController::class, 'verifyEmail'])->name('users.verifyEmail');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
         Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
         Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');

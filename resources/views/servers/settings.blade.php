@@ -224,39 +224,39 @@
                         <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
                             class="btn btn-info btn-md">
                             <i class="fas fa-upload mr-2"></i>
-                            <span>{{ __('Upgrade') }}</span>
+                            <span>{{ __('Upgrade / Downgrade') }}</span>
                         </button>
                         <!-- Upgrade Modal -->
                         <div style="width: 100%; margin-block-start: 100px;" class="modal fade" id="UpgradeModal{{ $server->id }}" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header card-header">
-                                        <h5 class="modal-title">UPGRADE SERVER</h5>
+                                        <h5 class="modal-title">{{__("Upgrade/Downgrade Server")}}</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div class="modal-body card-body">
-                                        <strong>FOR DOWNGRADE PLEASE CHOOSE A PLAN BELOW YOUR PLAN</strong>
+                                        <strong>{{__("FOR DOWNGRADE PLEASE CHOOSE A PLAN BELOW YOUR PLAN")}}</strong>
                                         <br>
                                         <br>
-                                        <strong>YOUR PRODUCT : </strong> {{ $server->product->name }}
+                                        <strong>{{__("YOUR PRODUCT")}} : </strong> {{ $server->product->name }}
                                         <br>
                                         <br>
                                     <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST">
                                       @csrf
                                           <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
-                                            <option value="">Select the product</option>
+                                            <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
                                                   @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id)
                                                     <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
                                                   @endif
                                               @endforeach
                                           </select> 
-                                          <br> Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits. <br>
+                                          <br> {{__("Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits")}}. <br>
                                     </div>
                                     <div class="modal-footer card-body">
-                                        <button type="submit" class="btn btn-primary" style="width: 100%"><strong>Upgrade</strong></button>
+                                        <button type="submit" class="btn btn-primary" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
                                     </div>
                                     </form>
                                 </div>
@@ -273,20 +273,20 @@
                           <div class="modal-dialog" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title" id="DeleteModalLabel">Delete Server</h5>
+                                <h5 class="modal-title" id="DeleteModalLabel">{{__("Delete Server")}}</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
                               <div class="modal-body">
-                                This is an irreversible action, all files of this server will be removed.!!!
+                                {{__("This is an irreversible action, all files of this server will be removed!")}}
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                                 <form class="d-inline" method="post" action="{{ route('servers.destroy', ['server' => $server->id]) }}">
                                   @csrf
                                   @method('DELETE')
-                                  <button data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-danger mr-1">Delete</button>
+                                  <button data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-danger mr-1">{{__("Delete")}}</button>
                                 </form>
                               </div>
                             </div>
