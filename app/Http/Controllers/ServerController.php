@@ -204,7 +204,7 @@ class ServerController extends Controller
     }
 
     /** Remove the specified resource from storage. */
-    public function delete(Server $server)
+    public function destroy(Server $server)
     {
         try {
             $server->delete();

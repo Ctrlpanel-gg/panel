@@ -21,7 +21,7 @@
         </div>
 
     </section>
-    <!-- END CONTENT HEADER -->
+    <!-- END CONTENT HEADER --> 
 
     <!-- MAIN CONTENT -->
     <section class="content">
@@ -104,7 +104,7 @@
                         </div>
                         <div class="col-4 text-end">
                           <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                            <i class='bx bxs-hdd' style="color: white;"></i>
+                            <i class='bx bxs-hdd' style="color: white;"></i>                
                           </div>
                         </div>
                       </div>
@@ -244,20 +244,21 @@
                                         <br>
                                         <br>
                                     <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST">
-                                    @csrf
-                                        <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
-                                          <option value="">Select the product</option>
-                                            @foreach($products as $product)
-                                                @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id)
-                                                  <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
-                                                @endif
-                                            @endforeach
-                                        </select>
-                                        <br> Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits. <br>
+                                      @csrf
+                                          <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
+                                            <option value="">Select the product</option>
+                                              @foreach($products as $product)
+                                                  @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id)
+                                                    <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
+                                                  @endif
+                                              @endforeach
+                                          </select> 
+                                          <br> Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits. <br>
                                     </div>
                                     <div class="modal-footer card-body">
                                         <button type="submit" class="btn btn-primary" style="width: 100%"><strong>Upgrade</strong></button>
                                     </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -282,7 +283,11 @@
                               </div>
                               <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <a href="{{ route('servers.delete', ['server' => $server->id]) }}" type="button" class="btn btn-danger">Remove</a>
+                                <form class="d-inline" method="post" action="{{ route('servers.destroy', ['server' => $server->id]) }}">
+                                  @csrf
+                                  @method('DELETE')
+                                  <button data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-danger mr-1">Delete</button>
+                                </form>
                               </div>
                             </div>
                           </div>
