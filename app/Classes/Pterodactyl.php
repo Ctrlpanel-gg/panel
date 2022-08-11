@@ -6,6 +6,7 @@ use App\Models\Egg;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Server;
+use App\Models\Product;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -297,5 +298,23 @@ class Pterodactyl
 
         if ($response->failed()) throw self::getException("Failed to get server attributes from pterodactyl - ", $response->status());
         return $response->json()['attributes'];
+    }
+
+    public static function updateServer(Server $server, Product $product)
+    {
+        return self::client()->patch("/application/servers/{$server->pterodactyl_id}/build", [
+            "allocation"      => $server->allocation,
+            "memory"          => $product->memory,
+            "swap"            => $product->swap,
+            "disk"            => $product->disk,
+            "io"              => $product->io,
+            "cpu"             => $product->cpu,
+            "threads"         => null,
+            "feature_limits"  => [
+                "databases"   => $product->databases,
+                "backups"     => $product->backups,
+                "allocations" => $product->allocations,
+            ]
+        ]);
     }
 }

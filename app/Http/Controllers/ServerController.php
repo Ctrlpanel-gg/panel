@@ -235,4 +235,65 @@ class ServerController extends Controller
             return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
         }
     }
+
+    /** Show Server Settings */
+    public function show(Server $server)
+    {
+        $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
+        $serverRelationships = $serverAttributes['relationships'];
+        $serverLocationAttributes = $serverRelationships['location']['attributes'];
+
+        //Set server infos
+        $server->location = $serverLocationAttributes['long'] ?
+            $serverLocationAttributes['long'] :
+            $serverLocationAttributes['short'];
+
+        $server->node = $serverRelationships['node']['attributes']['name'];
+        $server->name = $serverAttributes['name'];
+        $server->egg = $serverRelationships['egg']['attributes']['name'];
+        $products = Product::orderBy("created_at")->get();
+
+        // Set the each product eggs array to just contain the eggs name
+        foreach ($products as $product) {
+            $product->eggs = $product->eggs->pluck('name')->toArray();
+        }
+
+        return view('servers.settings')->with([
+            'server' => $server,
+            'products' => $products
+        ]);
+    }
+
+    public function upgrade(Server $server, Request $request)
+    {
+        if(!isset($request->product_upgrade))
+        {
+            return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('this product is the only one'));
+        }
+        $user = Auth::user();
+        $oldProduct = Product::where('id', $server->product->id)->first();
+        $newProduct = Product::where('id', $request->product_upgrade)->first();
+        $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
+        $priceupgrade = $newProduct->getHourlyPrice();
+
+        if ($priceupgrade < $oldProduct->getHourlyPrice()) {
+        $priceupgrade = 0;
+        }
+        if ($user->credits >= $priceupgrade)
+        {
+
+            $server->product_id = $request->product_upgrade;
+            $server->update();
+            $server->allocation = $serverAttributes['allocation'];
+            $response = Pterodactyl::updateServer($server, $newProduct);
+            if ($response->failed()) return $this->serverCreationFailed($response, $server);
+            //update user balance
+            $user->decrement('credits', $priceupgrade);
+            return redirect()->route('servers.show', ['server' => $server->id])->with('success', __('Server Successfully Upgraded'));
+        }
+        else
+        {
+            return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('Not Enough Balance for Upgrade'));
+        }
+    }
 }

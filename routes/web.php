@@ -63,6 +63,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('notifications/readAll',[NotificationController::class,'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
     Route::resource('servers', ServerController::class);
+    Route::post('servers/{server}/upgrade', [ServerController::class,'upgrade'])->name('servers.upgrade');
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
 
