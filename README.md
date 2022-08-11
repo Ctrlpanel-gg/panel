@@ -3,11 +3,13 @@
 -   PayPal Integration
 -   Stripe Integration
 -   Referral System
+-   Ticket System
+-   Upgrade/Downgrade Server Ressources
+-   Store (credit system with hourly billing and invoices)
 -   Email Verification
 -   Audit Log
 -   Admin Dashboard
 -   User/Server Management
--   Store (credit system with hourly billing and invoices)
 -   Customizable server plans
 -   Vouchers
 -   and so much more!
@@ -46,5 +48,8 @@ This dashboard offers an easy to use and free billing solution for all starting 
 
 ### Example server products
 ![image](https://user-images.githubusercontent.com/8725848/171575987-c1398ff6-83fa-4cb8-bd1f-986cee4da565.png)
+
+### Ticket System
+![image](https://user-images.githubusercontent.com/8725848/184131270-9d997ebf-8965-4910-90d2-b410ae37f201.png)
 
 
