@@ -33,7 +33,7 @@ class Pterodactyl
         ])->baseUrl(config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
     }
 
-    public static function clientadmin()
+    public static function clientAdmin()
     {
         return Http::withHeaders([
             'Authorization' => 'Bearer ' . config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN"),
@@ -95,7 +95,7 @@ class Pterodactyl
         if ($response->failed()) throw self::getException("Failed to get nodes from pterodactyl - ", $response->status());
         return $response->json()['data'];
     }
-    
+
     /**
      * @return mixed
      * @throws Exception
@@ -110,8 +110,8 @@ class Pterodactyl
         if($response->failed()) throw self::getException("Failed to get node id " . $id . " - " . $response->status());
         return $response->json()['attributes'];
     }
-    
-    
+
+
 
     public static function getServers() {
         try {
@@ -328,7 +328,7 @@ class Pterodactyl
 
     public static function powerAction(Server $server, $action)
     {
-        return self::clientadmin()->post("/client/servers/{$server->identifier}/power", [
+        return self::clientAdmin()->post("/client/servers/{$server->identifier}/power", [
             "signal"      => $action
         ]);
     }
