@@ -91,7 +91,7 @@ class TicketsController extends Controller
                 return $tickets->ticketcategory->name;
             })
             ->editColumn('title', function (Ticket $tickets) {
-                return '<a class="text-info" target="_blank" href="' . route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]) . '">' . "#" . $tickets->ticket_id . " - " . $tickets->title . '</a>';
+                return '<a class="text-info"  href="' . route('ticket.show', ['ticket_id' => $tickets->ticket_id]) . '">' . "#" . $tickets->ticket_id . " - " . $tickets->title . '</a>';
             })
             ->editColumn('status', function (Ticket $tickets) {
                 switch ($tickets->status) {
