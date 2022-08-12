@@ -13,6 +13,7 @@ use App\Models\Ticket;
 use App\Models\Server;
 use App\Models\TicketComment;
 use App\Models\TicketCategory;
+use App\Models\TicketBlacklist;
 use App\Notifications\Ticket\User\CreateNotification;
 use App\Notifications\Ticket\Admin\AdminCreateNotification;
 use App\Notifications\Ticket\Admin\AdminReplyNotification;
@@ -28,6 +29,11 @@ class TicketsController extends Controller
         return view("ticket.index", compact("tickets", "ticketcategories"));
     }
     public function create() {
+        #check in blacklist
+        $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
+        if($check->status == "True"){
+            return redirect()->route('ticket.index')->with('error', __("You can't make a ticket because you're on the blacklist for a reason: '" . $check->reason . "', please contact the administrator"));
+        }
         $ticketcategories = TicketCategory::all();
         $servers = Auth::user()->servers;
         return view("ticket.create", compact("ticketcategories", "servers"));
@@ -65,6 +71,11 @@ class TicketsController extends Controller
         return view("ticket.show", compact("ticket", "ticketcategory", "ticketcomments", "server"));
     }
     public function reply(Request $request) {
+        #check in blacklist
+        $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
+        if($check->status == "True"){
+            return redirect()->route('ticket.index')->with('error', __("You can't reply a ticket because you're on the blacklist for a reason: '" . $check->reason . "', please contact the administrator"));
+        }
         $this->validate($request, array("ticketcomment" => "required"));
         $ticket = Ticket::where('id', $request->input("ticket_id"))->firstOrFail();
         $ticket->status = "Client Reply";
