@@ -148,7 +148,7 @@
                         <span class="username"> \
                             <a href="#">' + escapeHtml(data.name) +'</a> \
                         </span> \
-                        <span class="description"><strong>' + escapeHtml(data.email) + '</strong> - ' + escapeHtml(data.username) + '</span> \
+                        <span class="description"><strong>' + escapeHtml(data.email) + '</strong>' + '</span> \
                     </div>';
                 },
                 templateSelection: function (data) {
