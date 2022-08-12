@@ -221,7 +221,7 @@
                 <div class="card-footer">
                     <div class="col-md-12 text-center">
                         <!-- Upgrade Button trigger modal -->
-                        @if(config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN") and Auth::user()->role=="admin")
+                        @if(!config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN") and Auth::user()->role=="admin")
                             <i data-toggle="popover" data-trigger="hover"
                                data-content="{{ __('To enable the upgrade/downgrade system, please set your Ptero Admin-User API Key in the Settings!') }}"
                                class="fas fa-info-circle"></i>
@@ -265,7 +265,7 @@
                                           <br> {{_("Server will be automatically restarted once upgraded")}}
                                     </div>
                                     <div class="modal-footer card-body">
-                                        <button type="submit" class="btn btn-primary" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
+                                        <button onclick="this.disabled='true';" type="submit" class="btn btn-primary" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
                                     </div>
                                     </form>
                                 </div>
