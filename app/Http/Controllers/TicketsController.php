@@ -31,7 +31,7 @@ class TicketsController extends Controller
     public function create() {
         #check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
-        if($check->status == "True"){
+        if($check && $check->status == "True"){
             return redirect()->route('ticket.index')->with('error', __("You can't make a ticket because you're on the blacklist for a reason: '" . $check->reason . "', please contact the administrator"));
         }
         $ticketcategories = TicketCategory::all();
@@ -73,7 +73,7 @@ class TicketsController extends Controller
     public function reply(Request $request) {
         #check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
-        if($check->status == "True"){
+        if($check && $check->status == "True"){
             return redirect()->route('ticket.index')->with('error', __("You can't reply a ticket because you're on the blacklist for a reason: '" . $check->reason . "', please contact the administrator"));
         }
         $this->validate($request, array("ticketcomment" => "required"));
