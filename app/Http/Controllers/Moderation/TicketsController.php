@@ -95,7 +95,7 @@ class TicketsController extends Controller
                 switch ($tickets->status) {
                     case 'Open':
                         $badgeColor = 'badge-success';
-                        break; 
+                        break;
                     case 'Closed':
                         $badgeColor = 'badge-danger';
                         break;
@@ -126,7 +126,11 @@ class TicketsController extends Controller
         $user = User::where('id', $request->user_id)->first();
         $check = TicketBlacklist::where('user_id', $user->id)->first();
         if($check){
-            return redirect()->back()->with('error', __('Target User already in blacklist'));
+            $check->reason = $request->reason;
+            $check->status = "True";
+            $check->save();
+
+            return redirect()->back()->with('info', __('Target User already in blacklist. Reason updated'));
         }
         TicketBlacklist::create(array(
             "user_id" => $user->id,
@@ -135,6 +139,7 @@ class TicketsController extends Controller
         ));
         return redirect()->back()->with('success', __('Successfully add User to blacklist, User name: ' . $user->name));
     }
+
 
     public function blacklistDelete($id) {
         $blacklist = TicketBlacklist::where('id', $id)->first();
@@ -166,14 +171,16 @@ class TicketsController extends Controller
             ->editColumn('status', function (TicketBlacklist $blacklist) {
                 switch ($blacklist->status) {
                     case 'True':
-                        $badgeColor = 'badge-success';
-                        break; 
-                    default:
+                        $text = "Blocked";
                         $badgeColor = 'badge-danger';
+                        break;
+                    default:
+                        $text = "Unblocked";
+                        $badgeColor = 'badge-success';
                         break;
                 }
 
-                return '<span class="badge ' . $badgeColor . '">' . $blacklist->status . '</span>';
+                return '<span class="badge ' . $badgeColor . '">' . $text . '</span>';
             })
             ->editColumn('reason', function (TicketBlacklist $blacklist) {
                 return $blacklist->reason;
@@ -198,5 +205,5 @@ class TicketsController extends Controller
             ->rawColumns(['user', 'status', 'reason', 'created_at', 'actions'])
             ->make(true);
     }
-    
-} 
+
+}

@@ -75,8 +75,8 @@
                                     </select>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="reason" class="control-label">Reason</label>
-                                    <input id="reason" type="text" class="form-control" name="reason" placeholder="Input Some Reason">
+                                    <label for="reason" class="control-label">{{__("Reason")}}</label>
+                                    <input id="reason" type="text" class="form-control" name="reason" placeholder="Input Some Reason" required>
                                 </div>
                                 <button type="submit" class="btn btn-primary ticket-once">
                                     {{__('Submit')}}

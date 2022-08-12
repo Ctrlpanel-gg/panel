@@ -245,8 +245,8 @@
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('moderator.ticket.blacklist') }}" class="nav-link @if (Request::routeIs('moderator.ticket.blacklist')) active @endif">
-                                    <i class="nav-icon fas fa-user"></i>
-                                    <p>{{ __('Black List') }}</p>
+                                    <i class="nav-icon fas fa-user-times"></i>
+                                    <p>{{ __('Ticket Blacklist') }}</p>
                                 </a>
                             </li>
                         @endif
@@ -466,6 +466,22 @@
             toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
             })
+        @endif
+        @if (Session::has('info'))
+        Swal.fire({
+            icon: 'info',
+            title: '{{ Session::get('info') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
         @endif
     </script>
 </body>
