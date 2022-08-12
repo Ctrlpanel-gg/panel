@@ -147,7 +147,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #settings
         Route::get('settings/datatable', [SettingsController::class, 'datatable'])->name('settings.datatable');
         Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
-
+        Route::get("settings/checkPteroClientkey", [System::class, 'checkPteroClientkey'])->name('settings.checkPteroClientkey');
         #settings
         Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateSettings'])->name('settings.update.invoicesettings');
         Route::patch('settings/update/language', [Language::class, 'updateSettings'])->name('settings.update.languagesettings');
@@ -158,7 +158,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
         #invoices
         Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');;
-        Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');;
+        Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');
 
         #usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
