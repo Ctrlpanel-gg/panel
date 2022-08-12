@@ -21,7 +21,7 @@
         </div>
 
     </section>
-    <!-- END CONTENT HEADER --> 
+    <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
     <section class="content">
@@ -104,7 +104,7 @@
                         </div>
                         <div class="col-4 text-end">
                           <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
-                            <i class='bx bxs-hdd' style="color: white;"></i>                
+                            <i class='bx bxs-hdd' style="color: white;"></i>
                           </div>
                         </div>
                       </div>
@@ -221,11 +221,18 @@
                 <div class="card-footer">
                     <div class="col-md-12 text-center">
                         <!-- Upgrade Button trigger modal -->
-                        <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
+                        @if(config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN") and Auth::user()->role=="admin")
+                            <i data-toggle="popover" data-trigger="hover"
+                               data-content="{{ __('To enable the upgrade/downgrade system, please set your Ptero Admin-User API Key in the Settings!') }}"
+                               class="fas fa-info-circle"></i>
+                        @endif
+                        <button type="button" data-toggle="modal" @if(!config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN")) disabled @endif data-target="#UpgradeModal{{ $server->id }}" target="__blank"
                             class="btn btn-info btn-md">
                             <i class="fas fa-upload mr-2"></i>
                             <span>{{ __('Upgrade / Downgrade') }}</span>
                         </button>
+
+
                         <!-- Upgrade Modal -->
                         <div style="width: 100%; margin-block-start: 100px;" class="modal fade" id="UpgradeModal{{ $server->id }}" tabindex="-1">
                             <div class="modal-dialog">
@@ -243,6 +250,7 @@
                                         <strong>{{__("YOUR PRODUCT")}} : </strong> {{ $server->product->name }}
                                         <br>
                                         <br>
+
                                     <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST">
                                       @csrf
                                           <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
@@ -252,7 +260,7 @@
                                                     <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
                                                   @endif
                                               @endforeach
-                                          </select> 
+                                          </select>
                                           <br> {{__("Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits")}}. <br>
                                           <br> {{_("Server will be automatically restarted once upgraded")}}
                                     </div>
