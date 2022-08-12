@@ -163,7 +163,7 @@ class TicketsController extends Controller
     public function dataTableBlacklist()
     {
         $query = TicketBlacklist::with(['user']);
-
+        $query->select('ticket_blacklists.*');
         return datatables($query)
             ->editColumn('user', function (TicketBlacklist $blacklist) {
                 return '<a href="' . route('admin.users.show', $blacklist->user->id) . '">' . $blacklist->user->name . '</a>';
