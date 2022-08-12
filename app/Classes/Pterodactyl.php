@@ -345,6 +345,15 @@ class Pterodactyl
     }
 
     /**
+     * Get info about user
+     */
+    public static function getClientUser()
+    {
+        return self::clientAdmin()->get("/client/account");
+    }
+
+
+    /**
      * Check if node has enough free resources to allocate the given resources
      * @param Node $node
      * @param int $requireMemory
