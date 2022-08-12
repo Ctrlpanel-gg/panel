@@ -238,9 +238,15 @@
                             <li class="nav-header">{{ __('Moderation') }}</li>
 
                             <li class="nav-item">
-                                <a href="{{ route('moderator.ticket.index') }}" class="nav-link @if (Request::routeIs('moderator.ticket.*')) active @endif">
+                                <a href="{{ route('moderator.ticket.index') }}" class="nav-link @if (Request::routeIs('moderator.ticket.index')) active @endif">
                                     <i class="nav-icon fas fa-ticket-alt"></i>
                                     <p>{{ __('Ticket List') }}</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('moderator.ticket.blacklist') }}" class="nav-link @if (Request::routeIs('moderator.ticket.blacklist')) active @endif">
+                                    <i class="nav-icon fas fa-user"></i>
+                                    <p>{{ __('Black List') }}</p>
                                 </a>
                             </li>
                         @endif

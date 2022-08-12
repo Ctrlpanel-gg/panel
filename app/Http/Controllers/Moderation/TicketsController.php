@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use App\Models\Server;
 use App\Models\TicketCategory;
 use App\Models\TicketComment;
+use App\Models\TicketBlacklist;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
@@ -44,12 +45,13 @@ class TicketsController extends Controller
         return redirect()->back()->with('success', __('A ticket has been deleted, ID: #') . $ticket_id);
 
     }
+
     public function reply(Request $request) {
         $this->validate($request, array("ticketcomment" => "required"));
         $ticket = Ticket::where('id', $request->input("ticket_id"))->firstOrFail();
         $ticket->status = "Answered";
         $ticket->update();
-        $ticketcomment = TicketComment::create(array(
+        TicketComment::create(array(
         	"ticket_id" => $request->input("ticket_id"),
         	"user_id" => Auth::user()->id,
         	"ticketcomment" => $request->input("ticketcomment"),
@@ -59,7 +61,7 @@ class TicketsController extends Controller
         $user->notify(new ReplyNotification($ticket, $user, $newmessage));
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
-    
+
     public function dataTable()
     {
         $query = Ticket::query();
@@ -113,4 +115,88 @@ class TicketsController extends Controller
             ->rawColumns(['category', 'title', 'user_id', 'status', 'updated_at', 'actions'])
             ->make(true);
     }
+
+    public function blacklist() {
+        $users = User::get();
+        $ticketcategories = TicketCategory::all();
+        return view("moderator.ticket.blacklist", compact("users", "ticketcategories"));
+    }
+
+    public function blacklistAdd(Request $request) {
+        $user = User::where('id', $request->user_id)->first();
+        $check = TicketBlacklist::where('user_id', $user->id)->first();
+        if($check){
+            return redirect()->back()->with('error', __('Target User already in blacklist'));
+        }
+        TicketBlacklist::create(array(
+            "user_id" => $user->id,
+            "status"  => "True",
+            "reason"  => $request->reason,
+        ));
+        return redirect()->back()->with('success', __('Successfully add User to blacklist, User name: ' . $user->name));
+    }
+
+    public function blacklistDelete($id) {
+        $blacklist = TicketBlacklist::where('id', $id)->first();
+        $blacklist->delete();
+        return redirect()->back()->with('success', __('Successfully remove User from blacklist, User name: ' . $blacklist->user->name));
+    }
+
+    public function blacklistChange($id) {
+        $blacklist = TicketBlacklist::where('id', $id)->first();
+        if($blacklist->status == "True")
+        {
+            $blacklist->status = "False";
+
+        } else {
+            $blacklist->status = "True";
+        }
+        $blacklist->update();
+        return redirect()->back()->with('success', __('Successfully change status blacklist from, User name: ' . $blacklist->user->name));
+
+    }
+    public function dataTableBlacklist()
+    {
+        $query = TicketBlacklist::with(['user']);
+
+        return datatables($query)
+            ->editColumn('user', function (TicketBlacklist $blacklist) {
+                return '<a href="' . route('admin.users.show', $blacklist->user->id) . '">' . $blacklist->user->name . '</a>';
+            })
+            ->editColumn('status', function (TicketBlacklist $blacklist) {
+                switch ($blacklist->status) {
+                    case 'True':
+                        $badgeColor = 'badge-success';
+                        break; 
+                    default:
+                        $badgeColor = 'badge-danger';
+                        break;
+                }
+
+                return '<span class="badge ' . $badgeColor . '">' . $blacklist->status . '</span>';
+            })
+            ->editColumn('reason', function (TicketBlacklist $blacklist) {
+                return $blacklist->reason;
+            })
+            ->addColumn('actions', function (TicketBlacklist $blacklist) {
+                return '
+                            <form class="d-inline"  method="post" action="' . route('moderator.ticket.blacklist.change', ['id' => $blacklist->id ]) . '">
+                                ' . csrf_field() . '
+                                ' . method_field("POST") . '
+                            <button data-content="'.__("Change Status").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-sync-alt"></i></button>
+                            </form>
+                            <form class="d-inline"  method="post" action="' . route('moderator.ticket.blacklist.delete', ['id' => $blacklist->id ]) . '">
+                                ' . csrf_field() . '
+                                ' . method_field("POST") . '
+                            <button data-content="'.__("Delete").'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                            </form>
+                ';
+            })
+            ->editColumn('created_at', function (TicketBlacklist $blacklist) {
+                return $blacklist->created_at ? $blacklist->created_at->diffForHumans() : '';
+            })
+            ->rawColumns(['user', 'status', 'reason', 'created_at', 'actions'])
+            ->make(true);
+    }
+    
 } 
