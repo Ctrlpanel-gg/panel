@@ -105,14 +105,14 @@ class ServerController extends Controller
         if (FacadesRequest::has("product")) {
             $product = Product::findOrFail(FacadesRequest::input("product"));
 
-            // Get node resource allocation info 
+            // Get node resource allocation info
             $node = $product->nodes()->findOrFail(FacadesRequest::input('node'));
             $nodeName = $node->name;
 
             // Check if node has enough memory and disk space
             $checkResponse = Pterodactyl::checkNodeResources($node, $product->memory, $product->disk);
             if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to allocate this product."));
-            
+
             // Min. Credits
             if (
                 Auth::user()->credits <
@@ -227,7 +227,9 @@ class ServerController extends Controller
     /** Show Server Settings */
     public function show(Server $server)
     {
-        if($server->user_id != Auth::user()->id) return redirect()->route('servers.index');
+
+
+        if($server->user_id != Auth::user()->id){ return back()->with('error', __('´This is not your Server!'));}
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
         $serverRelationships = $serverAttributes['relationships'];
         $serverLocationAttributes = $serverRelationships['location']['attributes'];

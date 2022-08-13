@@ -42,6 +42,7 @@ use App\Classes\Settings\System;
 |
 */
 
+
 Route::middleware('guest')->get('/', function () {
     return redirect('login');
 })->name('welcome');
