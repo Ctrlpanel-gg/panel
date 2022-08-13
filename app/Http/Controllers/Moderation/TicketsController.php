@@ -117,9 +117,7 @@ class TicketsController extends Controller
     }
 
     public function blacklist() {
-        $users = User::paginate();
-        $ticketcategories = TicketCategory::all();
-        return view("moderator.ticket.blacklist", compact("users", "ticketcategories"));
+        return view("moderator.ticket.blacklist");
     }
 
     public function blacklistAdd(Request $request) {
