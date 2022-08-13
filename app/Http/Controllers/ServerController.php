@@ -227,8 +227,9 @@ class ServerController extends Controller
     /** Show Server Settings */
     public function show(Server $server)
     {
-        if($server->user_id != Auth::user()->id){ return back()->with('error', __('´This is not your Server!'));
-        }
+
+
+        if($server->user_id != Auth::user()->id){ return back()->with('error', __('´This is not your Server!'));}
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
         $serverRelationships = $serverAttributes['relationships'];
         $serverLocationAttributes = $serverRelationships['location']['attributes'];
