@@ -251,7 +251,7 @@
                                         <br>
                                         <br>
 
-                                    <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST">
+                                    <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST" class="upgrade-form">
                                       @csrf
                                           <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
                                             <option value="">{{__("Select the product")}}</option>
@@ -265,7 +265,7 @@
                                           <br> {{_("Server will be automatically restarted once upgraded")}}
                                     </div>
                                     <div class="modal-footer card-body">
-                                        <button onclick="this.disabled='true';" type="submit" class="btn btn-primary" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
+                                        <button type="submit" class="btn btn-primary upgrade-once" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
                                     </div>
                                     </form>
                                 </div>
@@ -312,6 +312,13 @@
         </div>
     </section>
     <!-- END CONTENT -->
-
+    <script type="text/javascript">
+      $(".upgrade-form").submit(function (e) {        
+          
+          $(".upgrade-once").attr("disabled", true);     
+          return true;
+      })
+         
+     </script>
 
 @endsection

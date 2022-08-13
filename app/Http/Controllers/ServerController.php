@@ -227,6 +227,7 @@ class ServerController extends Controller
     /** Show Server Settings */
     public function show(Server $server)
     {
+        if($server->user_id != Auth::user()->id) return redirect()->route('servers.index');
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
         $serverRelationships = $serverAttributes['relationships'];
         $serverLocationAttributes = $serverRelationships['location']['attributes'];
@@ -254,6 +255,7 @@ class ServerController extends Controller
 
     public function upgrade(Server $server, Request $request)
     {
+        if($server->user_id != Auth::user()->id) return redirect()->route('servers.index');
         if(!isset($request->product_upgrade))
         {
             return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('this product is the only one'));
