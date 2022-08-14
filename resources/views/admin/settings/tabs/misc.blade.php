@@ -193,11 +193,19 @@
                          @enderror
                     </div>
                 </div>
+                <div class="form-group mb-3">
+                    <div class="custom-control p-0">
+                        <label>{{ __('Your Recaptcha') }}:</label>
+                        {!! htmlScriptTagJsApi() !!}
+                        {!! htmlFormSnippet() !!}
+                    </div>
+                </div>
+
             </div>
             <div class="col-md-3 px-3">
                 <div class="row mb-2">
                     <div class="col text-center">
-                        <h1>Referral System</h1>
+                        <h1>{{__("Referral System")}}</h1>
                     </div>
                 </div>
 
