@@ -65,7 +65,18 @@
                             type="text" value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:TOKEN') }}"
                             class="form-control @error('pterodactyl-api-key') is-invalid @enderror" required>
                     </div>
-
+                    <div class="custom-control p-0 mb-3">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="pterodactyl-admin-api-key">{{ __('Pterodactyl Admin-Account API Key') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                               data-content="{{ __('Enter the Client-API Key to a Pterodactyl-Admin-User here.') }}"
+                               class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="pterodactyl-admin-api-key" id="pterodactyl-admin-api-key" name="pterodactyl-admin-api-key"
+                               type="text" value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN') }}"
+                               class="form-control @error('pterodactyl-admin-api-key') is-invalid @enderror" required>
+                    </div>
+                    <a href="{{route('admin.settings.checkPteroClientkey')}}"> <button type="button" class="btn btn-secondary">{{__("Test API")}}</button></a>
                 </div>
 
             </div>

@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
+use App\Http\Controllers\Moderation\TicketsController as ModTicketsController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TranslationController;
+use App\Http\Controllers\TicketsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +41,7 @@ use App\Classes\Settings\System;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
 
 Route::middleware('guest')->get('/', function () {
     return redirect('login');
@@ -62,6 +65,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::resource('notifications', NotificationController::class);
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
     Route::resource('servers', ServerController::class);
+    Route::post('servers/{server}/upgrade', [ServerController::class,'upgrade'])->name('servers.upgrade');
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
 
@@ -91,6 +95,15 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #switch language
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
+    #ticket user
+    if(config("SETTINGS::TICKET:ENABLED")) {
+        Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
+        Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
+        Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:ticket-new'])->name('ticket.new.store');
+        Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
+        Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:ticket-reply'])->name('ticket.reply');
+    }
 
     #admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
@@ -104,6 +117,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #users
         Route::get("users.json", [UserController::class, "json"])->name('users.json');
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
+        Route::get('users/verifyEmail/{user}', [UserController::class, 'verifyEmail'])->name('users.verifyEmail');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
         Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
         Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');
@@ -136,7 +150,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #settings
         Route::get('settings/datatable', [SettingsController::class, 'datatable'])->name('settings.datatable');
         Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
-
+        Route::get("settings/checkPteroClientkey", [System::class, 'checkPteroClientkey'])->name('settings.checkPteroClientkey');
         #settings
         Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateSettings'])->name('settings.update.invoicesettings');
         Route::patch('settings/update/language', [Language::class, 'updateSettings'])->name('settings.update.languagesettings');
@@ -147,7 +161,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
         #invoices
         Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');;
-        Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');;
+        Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');
 
         #usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
@@ -164,6 +178,23 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::resource('api', ApplicationApiController::class)->parameters([
             'api' => 'applicationApi',
         ]);
+    });
+
+    #mod
+    Route::prefix('moderator')->name('moderator.')->middleware('moderator')->group(function () {
+        #ticket moderation
+        Route::get('ticket', [ModTicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/datatable', [ModTicketsController::class, 'datatable'])->name('ticket.datatable');
+        Route::get('ticket/show/{ticket_id}', [ModTicketsController::class, 'show'])->name('ticket.show');
+        Route::post('ticket/reply', [ModTicketsController::class, 'reply'])->name('ticket.reply');
+        Route::post('ticket/close/{ticket_id}', [ModTicketsController::class, 'close'])->name('ticket.close');
+        Route::post('ticket/delete/{ticket_id}', [ModTicketsController::class, 'delete'])->name('ticket.delete');
+        #ticket moderation blacklist
+        Route::get('ticket/blacklist', [ModTicketsController::class, 'blacklist'])->name('ticket.blacklist');
+        Route::post('ticket/blacklist', [ModTicketsController::class, 'blacklistAdd'])->name('ticket.blacklist.add');
+        Route::post('ticket/blacklist/delete/{id}', [ModTicketsController::class, 'blacklistDelete'])->name('ticket.blacklist.delete');
+        Route::post('ticket/blacklist/change/{id}', [ModTicketsController::class, 'blacklistChange'])->name('ticket.blacklist.change');
+        Route::get('ticket/blacklist/datatable', [ModTicketsController::class, 'dataTableBlacklist'])->name('ticket.blacklist.datatable');
     });
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');

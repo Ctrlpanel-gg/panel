@@ -202,6 +202,11 @@
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
                                 <i class="fas fa-tools mx-4"></i>
                             </a>
+                            <a href="{{ route('servers.show', ['server' => $server->id])}}" 
+                            	class="btn btn-info mx-3 w-100 align-items-center justify-content-center d-flex"
+                            	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
+                                <i class="fas fa-cog mr-2"></i>
+                            </a>
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="btn btn-warning  text-center"
                                 {{ $server->suspended || $server->cancelled ? "disabled" : "" }}
