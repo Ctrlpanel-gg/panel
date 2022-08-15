@@ -312,7 +312,7 @@ class Pterodactyl
      * Update Server Resources
      * @param Server $server
      * @param Product $product
-     * @return boolean
+     * @return Response
      */
     public static function updateServer(Server $server, Product $product)
     {
@@ -335,7 +335,7 @@ class Pterodactyl
      * Power Action Specific Server
      * @param Server $server
      * @param string $action
-     * @return boolean
+     * @return Response
      */
     public static function powerAction(Server $server, $action)
     {
