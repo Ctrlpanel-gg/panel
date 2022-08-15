@@ -200,18 +200,25 @@
                                 target="__blank"
                                 class="btn btn-info text-center float-left ml-2"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
-                                <i class="fas fa-tools mx-4"></i>
+                                <i class="fas fa-tools mx-2"></i>
                             </a>
+                            @if(config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN"))
+                            <a href="{{ route('servers.show', ['server' => $server->id])}}"
+                            	class="btn btn-info text-center mr-3"
+                            	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
+                                <i class="fas fa-cog mx-2"></i>
+                            </a>
+                            @endif
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="btn btn-warning  text-center"
                                 {{ $server->suspended || $server->cancelled ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
-                                <i class="fas fa-ban mx-4"></i>
+                                <i class="fas fa-ban mx-2"></i>
                             </button>
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
                                 class="btn btn-danger  text-center float-right mr-2"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
-                                <i class="fas fa-trash mx-4"></i>
+                                <i class="fas fa-trash mx-2"></i>
                             </button>
                         </div>
                     </div>
