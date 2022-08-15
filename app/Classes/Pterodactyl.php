@@ -11,7 +11,6 @@ use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class Pterodactyl
 {
@@ -370,9 +369,7 @@ class Pterodactyl
         }
         $node = $response['attributes'];
         $freeMemory = $node['memory'] - $node['allocated_resources']['memory'];
-        Log::debug("Free Memory:".$freeMemory);
         $freeDisk = $node['disk'] - $node['allocated_resources']['disk'];
-        Log::debug("Free Memory:".$freeDisk);
         if ($freeMemory < $requireMemory) {
             return false;
           }

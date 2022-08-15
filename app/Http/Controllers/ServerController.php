@@ -277,7 +277,7 @@ class ServerController extends Controller
         $requireMemory = $newProduct->memory - $oldProduct->memory;
         $requiredisk   = $newProduct->disk - $oldProduct->disk;
         $checkResponse = Pterodactyl::checkNodeResources($node, $requireMemory, $requiredisk);
-        if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server."));
+        if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server.". $requiredisk. "disk, ".$requireMemory));
 
         $priceupgrade = $newProduct->getHourlyPrice();
 
