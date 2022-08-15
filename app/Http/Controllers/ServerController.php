@@ -266,6 +266,19 @@ class ServerController extends Controller
         $oldProduct = Product::where('id', $server->product->id)->first();
         $newProduct = Product::where('id', $request->product_upgrade)->first();
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
+        $serverRelationships = $serverAttributes['relationships'];
+
+        // Get node resource allocation info 
+        $nodeId = $serverRelationships['node']['attributes']['id'];
+        $node = Node::where('id', $nodeId)->firstOrFail();
+        $nodeName = $node->name;
+
+        // Check if node has enough memory and disk space
+        $requireMemory = $newProduct->memory - $oldProduct->memory;
+        $requiredisk   = $newProduct->disk - $oldProduct->disk;
+        $checkResponse = Pterodactyl::checkNodeResources($node, $requireMemory, $requiredisk);
+        if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server."));
+
         $priceupgrade = $newProduct->getHourlyPrice();
 
         if ($priceupgrade < $oldProduct->getHourlyPrice()) {
@@ -283,7 +296,7 @@ class ServerController extends Controller
             $user->decrement('credits', $priceupgrade);
             //restart the server
             $response = Pterodactyl::powerAction($server, "restart");
-            if ($response->failed()) return $this->serverCreationFailed($response, $server);
+            if ($response->failed()) return redirect()->route('servers.index')->with('error', $response->json()['errors'][0]['detail']);
             return redirect()->route('servers.show', ['server' => $server->id])->with('success', __('Server Successfully Upgraded'));
         }
         else
