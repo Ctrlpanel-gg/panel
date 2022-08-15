@@ -256,7 +256,7 @@
                                           <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
-                                                  @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && !$server->product->disabled)
+                                                  @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && $server->product->disabled == false)
                                                     <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
                                                   @endif
                                               @endforeach
