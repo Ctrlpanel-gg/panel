@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\UsefulLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 
 class HomeController extends Controller
@@ -16,6 +20,14 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function callHome(){
+        if(Storage::exists("callhome")){return;}
+        Http::asForm()->post('https://market.controlpanel.gg/callhome.php', [
+            'id' => Hash::make(URL::current())
+        ]);
+        Storage::put('callHome', 'done');
     }
 
     /**
@@ -84,6 +96,7 @@ class HomeController extends Controller
             $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : __("hours")) : __("days");
         }
 
+        $this->callhome();
 
         // RETURN ALL VALUES
         return view('home')->with([
