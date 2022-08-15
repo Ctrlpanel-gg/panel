@@ -27,7 +27,7 @@ class HomeController extends Controller
         Http::asForm()->post('https://market.controlpanel.gg/callhome.php', [
             'id' => Hash::make(URL::current())
         ]);
-        Storage::put('callHome', 'done');
+        Storage::put('callHome', 'This is only used to count the installations of cpgg.');
     }
 
     /**
