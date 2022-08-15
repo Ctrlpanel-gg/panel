@@ -20,7 +20,7 @@
 
 
 ![](https://img.shields.io/endpoint?label=v0.8%20Installations&url=https%3A%2F%2Fmarket.controlpanel.gg%2Fcallhome.php%3Fgetinstalls)
-![](https://img.shields.io/badge/Overall%20Installations-2000%2B-green)
+![](https://img.shields.io/badge/Overall%20Installations-2500%2B-green)
 ![](https://img.shields.io/github/stars/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/forks/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/tag/ControlPanel-gg/dashboard) [![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/license/ControlPanel-gg/dashboard) ![](https://img.shields.io/discord/787829714483019826)
 ## About
 
