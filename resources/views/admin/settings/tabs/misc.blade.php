@@ -193,6 +193,7 @@
                          @enderror
                     </div>
                 </div>
+                @if(config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
                         <label>{{ __('Your Recaptcha') }}:</label>
@@ -200,6 +201,7 @@
                         {!! htmlFormSnippet() !!}
                     </div>
                 </div>
+                    @endif
 
             </div>
             <div class="col-md-3 px-3">
