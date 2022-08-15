@@ -268,7 +268,7 @@ class ServerController extends Controller
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
         $serverRelationships = $serverAttributes['relationships'];
 
-        // Get node resource allocation info 
+        // Get node resource allocation info
         $nodeId = $serverRelationships['node']['attributes']['id'];
         $node = Node::where('id', $nodeId)->firstOrFail();
         $nodeName = $node->name;
@@ -277,7 +277,7 @@ class ServerController extends Controller
         $requireMemory = $newProduct->memory - $oldProduct->memory;
         $requiredisk   = $newProduct->disk - $oldProduct->disk;
         $checkResponse = Pterodactyl::checkNodeResources($node, $requireMemory, $requiredisk);
-        if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server."));
+        if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server.". $requiredisk. "disk, ".$requireMemory));
 
         $priceupgrade = $newProduct->getHourlyPrice();
 
