@@ -23,7 +23,7 @@ class HomeController extends Controller
     }
 
     public function callHome(){
-        if(Storage::exists("callhome")){return;}
+        if(Storage::exists("callHome")){return;}
         Http::asForm()->post('https://market.controlpanel.gg/callhome.php', [
             'id' => Hash::make(URL::current())
         ]);
