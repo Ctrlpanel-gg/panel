@@ -292,7 +292,9 @@
                                         {{__('This product will only be available for these eggs')}}
                                     </div>
                                 </div>
-
+                                <div class="text-muted">
+                                    {{__('No Eggs or Nodes shown?')}} <a href="{{route('admin.overview.sync')}}">{{__("Sync now")}}</a>
+                                </div>
                             </div>
                         </div>
                     </div>

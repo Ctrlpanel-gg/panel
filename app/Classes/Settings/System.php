@@ -2,6 +2,7 @@
 
 namespace App\Classes\Settings;
 
+use App\Classes\Pterodactyl;
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -16,7 +17,12 @@ class System
         return;
     }
 
+public function checkPteroClientkey(){
+    $response = Pterodactyl::getClientUser();
 
+    if ($response->failed()){ return redirect()->back()->with('error', __('Your Key or URL is not correct')); }
+    return redirect()->back()->with('success', __('Everything is good!'));
+}
 
     public function updateSettings(Request $request)
     {
@@ -36,6 +42,7 @@ class System
             "server-limit-purchase" => "required|min:0|integer",
             "pterodactyl-api-key" => "required|string",
             "pterodactyl-url" => "required|string",
+            "pterodactyl-admin-api-key" => "required|string",
 
         ]);
         if ($validator->fails()) {
@@ -65,6 +72,7 @@ class System
             "SETTINGS::SYSTEM:PTERODACTYL:URL" => "pterodactyl-url",
             "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
             "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
+            "SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN" => "pterodactyl-admin-api-key",
         ];
 
 
@@ -76,6 +84,7 @@ class System
         }
         return redirect(route('admin.settings.index') . '#system')->with('success', __('System settings updated!'));
     }
+
 
     private function updateIcons(Request $request)
     {

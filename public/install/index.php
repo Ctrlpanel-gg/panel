@@ -365,11 +365,20 @@ echo $cardheader;
                             </div>
                             <div class="form-group">
                                 <div class="custom-control mb-3">
-                                    <label for="key">Pterodactyl API-Key</label>
+                                    <label for="key">Pterodactyl API-Key (found here: https://your.ptero.com/admin/api)</label>
                                     <input id="key" name="key" type="text"
                                            required
                                            value="" class="form-control"
                                            placeholder="The Key needs ALL read&write Permissions!">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-control mb-3">
+                                    <label for="clientkey">Pterodactyl Admin-User API-Key (https://your.ptero.com/account/api)</label>
+                                    <input id="clientkey" name="clientkey" type="text"
+                                           required
+                                           value="" class="form-control"
+                                           placeholder="Your Account needs to be an Admin!">
                                 </div>
                             </div>
 
@@ -448,7 +457,7 @@ echo $cardheader;
                             ?>
                             <p class="login-box-msg">All done!</p>
                             <p class="login-box-msg">You may navigate to your Dashboard now and log in!</p>
-                            <a href="<?php echo "https://" . $_SERVER['SERVER_NAME']; ?>">
+                            <a href="<?php echo getEnvironmentValue("APP_URL"); ?>">
                                 <button class="btn btn-success">Lets go!</button>
                             </a>
                             </div>

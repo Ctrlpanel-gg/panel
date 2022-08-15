@@ -205,7 +205,7 @@
                                         </div>
                                         <div class="mt-2 mb-2">
                                             <span class="card-text text-muted">{{ __('Description') }}</span>
-                                            <p class="card-text" style="white-space:pre" x-text="product.description"></p>
+                                            <p class="card-text" style="white-space:pre-wrap" x-text="product.description"></p>
                                         </div>
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
@@ -350,7 +350,7 @@
 
                     this.fetchedProducts = true;
                     // TODO: Sortable by user chosen property (cpu, ram, disk...)
-                    this.products = response.data.sort((p1, p2) => p1.price > p2.price && 1 || -1)
+                    this.products = response.data.sort((p1, p2) => parseInt(p1.price,10) > parseInt(p2.price,10) && 1 || -1)
 
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {

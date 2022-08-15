@@ -90,6 +90,11 @@ class AppServiceProvider extends ServiceProvider
 
 
             // Set Recaptcha API Config
+            // Load recaptcha package if recaptcha is enabled
+            if(config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
+                $this->app->register(\Biscolab\ReCaptcha\ReCaptchaServiceProvider::class);
+            }
+
             //only update config if recaptcha settings have changed in DB
             if (
                 config('recaptcha.api_site_key') != config('SETTINGS::RECAPTCHA:SITE_KEY') ||
