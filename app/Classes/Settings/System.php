@@ -43,6 +43,7 @@ public function checkPteroClientkey(){
             "pterodactyl-api-key" => "required|string",
             "pterodactyl-url" => "required|string",
             "pterodactyl-admin-api-key" => "required|string",
+            "enable-upgrades" => "string",
 
         ]);
         if ($validator->fails()) {
@@ -73,6 +74,7 @@ public function checkPteroClientkey(){
             "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
             "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
             "SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN" => "pterodactyl-admin-api-key",
+            "SETTINGS::SYSTEM:ENABLE_UPGRADE" => "enable-upgrade",
         ];
 
 

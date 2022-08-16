@@ -221,12 +221,7 @@
                 <div class="card-footer">
                     <div class="col-md-12 text-center">
                         <!-- Upgrade Button trigger modal -->
-                        @if(!config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN") and Auth::user()->role=="admin")
-                            <i data-toggle="popover" data-trigger="hover"
-                               data-content="{{ __('To enable the upgrade/downgrade system, please set your Ptero Admin-User API Key in the Settings!') }}"
-                               class="fas fa-info-circle"></i>
-                        @endif
-                        @if(config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN") || Auth::user()->role=="admin")
+                        @if(config("SETTINGS::SYSTEM:ENABLE_UPGRADE"))
                             <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
                                 class="btn btn-info btn-md">
                                 <i class="fas fa-upload mr-2"></i>

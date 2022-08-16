@@ -257,7 +257,7 @@ class ServerController extends Controller
 
     public function upgrade(Server $server, Request $request)
     {
-        if($server->user_id != Auth::user()->id) return redirect()->route('servers.index');
+        if($server->user_id != Auth::user()->id || !config("SETTINGS::SYSTEM:ENABLE_UPGRADE")) return redirect()->route('servers.index');
         if(!isset($request->product_upgrade))
         {
             return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('this product is the only one'));
@@ -268,7 +268,7 @@ class ServerController extends Controller
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
         $serverRelationships = $serverAttributes['relationships'];
 
-        // Get node resource allocation info 
+        // Get node resource allocation info
         $nodeId = $serverRelationships['node']['attributes']['id'];
         $node = Node::where('id', $nodeId)->firstOrFail();
         $nodeName = $node->name;
