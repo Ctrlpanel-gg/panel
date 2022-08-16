@@ -10,7 +10,7 @@
     "require": {
         "php": "^8.0|^7.4",
         "ext-intl": "*",
-        "biscolab/laravel-recaptcha": "^5.0",
+        "biscolab/laravel-recaptcha": "^5.4",
         "doctrine/dbal": "^3.1",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
@@ -47,7 +47,9 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "biscolab/laravel-recaptcha"
+            ]
         }
     },
     "autoload": {

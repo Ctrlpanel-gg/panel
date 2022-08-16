@@ -6,6 +6,7 @@ use App\Models\Egg;
 use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Server;
+use App\Models\Product;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -32,6 +33,14 @@ class Pterodactyl
         ])->baseUrl(config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
     }
 
+    public static function clientAdmin()
+    {
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN"),
+            'Content-type'  => 'application/json',
+            'Accept'        => 'Application/vnd.pterodactyl.v1+json',
+        ])->baseUrl(config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/api');
+    }
     /**
      * @return Exception
      */
@@ -84,6 +93,33 @@ class Pterodactyl
             throw self::getException($e->getMessage());
         }
         if ($response->failed()) throw self::getException("Failed to get nodes from pterodactyl - ", $response->status());
+        return $response->json()['data'];
+    }
+
+    /**
+     * @return mixed
+     * @throws Exception
+     * @description Returns the infos of a single node
+     */
+        public static function getNode($id) {
+        try {
+            $response = self::client()->get('/application/nodes/' . $id);
+        } catch(Exception $e) {
+            throw self::getException($e->getMessage());
+        }
+        if($response->failed()) throw self::getException("Failed to get node id " . $id . " - " . $response->status());
+        return $response->json()['attributes'];
+    }
+
+
+
+    public static function getServers() {
+        try {
+            $response = self::client()->get('/application/servers');
+        } catch (Exception $e) {
+            throw self::getException($e->getMessage());
+        }
+        if($response->failed()) throw self::getException("Failed to get list of servers - ", $response->status());
         return $response->json()['data'];
     }
 
@@ -270,5 +306,76 @@ class Pterodactyl
 
         if ($response->failed()) throw self::getException("Failed to get server attributes from pterodactyl - ", $response->status());
         return $response->json()['attributes'];
+    }
+
+    /**
+     * Update Server Resources
+     * @param Server $server
+     * @param Product $product
+     * @return Response
+     */
+    public static function updateServer(Server $server, Product $product)
+    {
+        return self::client()->patch("/application/servers/{$server->pterodactyl_id}/build", [
+            "allocation"      => $server->allocation,
+            "memory"          => $product->memory,
+            "swap"            => $product->swap,
+            "disk"            => $product->disk,
+            "io"              => $product->io,
+            "cpu"             => $product->cpu,
+            "threads"         => null,
+            "feature_limits"  => [
+                "databases"   => $product->databases,
+                "backups"     => $product->backups,
+                "allocations" => $product->allocations,
+            ]
+        ]);
+    }
+    /**
+     * Power Action Specific Server
+     * @param Server $server
+     * @param string $action
+     * @return Response
+     */
+    public static function powerAction(Server $server, $action)
+    {
+        return self::clientAdmin()->post("/client/servers/{$server->identifier}/power", [
+            "signal"      => $action
+        ]);
+    }
+
+    /**
+     * Get info about user
+     */
+    public static function getClientUser()
+    {
+        return self::clientAdmin()->get("/client/account");
+    }
+
+
+    /**
+     * Check if node has enough free resources to allocate the given resources
+     * @param Node $node
+     * @param int $requireMemory
+     * @param int $requireDisk
+     * @return boolean
+     */
+    public static function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
+    {
+        try {
+            $response = self::client()->get("/application/nodes/{$node->id}");
+        } catch (Exception $e) {
+            throw self::getException($e->getMessage());
+        }
+        $node = $response['attributes'];
+        $freeMemory = $node['memory'] - $node['allocated_resources']['memory'];
+        $freeDisk = $node['disk'] - $node['allocated_resources']['disk'];
+        if ($freeMemory < $requireMemory) {
+            return false;
+          }
+          if ($freeDisk < $requireDisk) {
+            return false;
+          }
+          return true;
     }
 }

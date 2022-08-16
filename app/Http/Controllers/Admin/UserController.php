@@ -122,7 +122,7 @@ class UserController extends Controller
             "email" => "required|string|email",
             "credits" => "required|numeric|min:0|max:99999999",
             "server_limit" => "required|numeric|min:0|max:1000000",
-            "role" => Rule::in(['admin', 'mod', 'client', 'member']),
+            "role" => Rule::in(['admin', 'moderator', 'client', 'member']),
             "referral_code" => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
 
@@ -159,6 +159,17 @@ class UserController extends Controller
     {
         $user->delete();
         return redirect()->back()->with('success', __('user has been removed!'));
+    }
+    /**
+     * Verifys the users email
+     *
+     * @param User $user
+     * @return RedirectResponse
+     */
+    public function verifyEmail(Request $request, User $user)
+    {
+        $user->verifyEmail();
+        return redirect()->back()->with('success', __('Email has been verified!'));
     }
 
     /**
@@ -285,6 +296,7 @@ class UserController extends Controller
                 $suspendText = $user->isSuspended() ? __("Unsuspend") : __("Suspend");
                 return '
                 <a data-content="' . __("Login as User") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="' . __("Verify") . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-envelope"></i></a>
                 <a data-content="' . __("Show") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
                 <a data-content="' . __("Edit") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
                <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
@@ -303,7 +315,7 @@ class UserController extends Controller
                     case 'admin':
                         $badgeColor = 'badge-danger';
                         break;
-                    case 'mod':
+                    case 'moderator':
                         $badgeColor = 'badge-info';
                         break;
                     case 'client':

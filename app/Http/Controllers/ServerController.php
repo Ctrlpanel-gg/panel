@@ -101,9 +101,19 @@ class ServerController extends Controller
             return redirect()->route('servers.index')->with('error', __('Server limit reached!'));
         }
 
-        // minimum credits
+        // minimum credits && Check for Allocation
         if (FacadesRequest::has("product")) {
             $product = Product::findOrFail(FacadesRequest::input("product"));
+
+            // Get node resource allocation info
+            $node = $product->nodes()->findOrFail(FacadesRequest::input('node'));
+            $nodeName = $node->name;
+
+            // Check if node has enough memory and disk space
+            $checkResponse = Pterodactyl::checkNodeResources($node, $product->memory, $product->disk);
+            if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to allocate this product."));
+
+            // Min. Credits
             if (
                 Auth::user()->credits <
                 ($product->minimum_credits == -1
@@ -211,6 +221,87 @@ class ServerController extends Controller
             return redirect()->route('servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
+        }
+    }
+
+    /** Show Server Settings */
+    public function show(Server $server)
+    {
+
+
+        if($server->user_id != Auth::user()->id){ return back()->with('error', __('´This is not your Server!'));}
+        $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
+        $serverRelationships = $serverAttributes['relationships'];
+        $serverLocationAttributes = $serverRelationships['location']['attributes'];
+
+        //Set server infos
+        $server->location = $serverLocationAttributes['long'] ?
+            $serverLocationAttributes['long'] :
+            $serverLocationAttributes['short'];
+
+        $server->node = $serverRelationships['node']['attributes']['name'];
+        $server->name = $serverAttributes['name'];
+        $server->egg = $serverRelationships['egg']['attributes']['name'];
+        $products = Product::orderBy("created_at")->get();
+
+        // Set the each product eggs array to just contain the eggs name
+        foreach ($products as $product) {
+            $product->eggs = $product->eggs->pluck('name')->toArray();
+        }
+
+        return view('servers.settings')->with([
+            'server' => $server,
+            'products' => $products
+        ]);
+    }
+
+    public function upgrade(Server $server, Request $request)
+    {
+        if($server->user_id != Auth::user()->id) return redirect()->route('servers.index');
+        if(!isset($request->product_upgrade))
+        {
+            return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('this product is the only one'));
+        }
+        $user = Auth::user();
+        $oldProduct = Product::where('id', $server->product->id)->first();
+        $newProduct = Product::where('id', $request->product_upgrade)->first();
+        $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
+        $serverRelationships = $serverAttributes['relationships'];
+
+        // Get node resource allocation info 
+        $nodeId = $serverRelationships['node']['attributes']['id'];
+        $node = Node::where('id', $nodeId)->firstOrFail();
+        $nodeName = $node->name;
+
+        // Check if node has enough memory and disk space
+        $requireMemory = $newProduct->memory - $oldProduct->memory;
+        $requiredisk   = $newProduct->disk - $oldProduct->disk;
+        $checkResponse = Pterodactyl::checkNodeResources($node, $requireMemory, $requiredisk);
+        if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server."));
+
+        $priceupgrade = $newProduct->getHourlyPrice();
+
+        if ($priceupgrade < $oldProduct->getHourlyPrice()) {
+        $priceupgrade = 0;
+        }
+        if ($user->credits >= $priceupgrade)
+        {
+
+            $server->product_id = $request->product_upgrade;
+            $server->update();
+            $server->allocation = $serverAttributes['allocation'];
+            $response = Pterodactyl::updateServer($server, $newProduct);
+            if ($response->failed()) return $this->serverCreationFailed($response, $server);
+            //update user balance
+            $user->decrement('credits', $priceupgrade);
+            //restart the server
+            $response = Pterodactyl::powerAction($server, "restart");
+            if ($response->failed()) return redirect()->route('servers.index')->with('error', $response->json()['errors'][0]['detail']);
+            return redirect()->route('servers.show', ['server' => $server->id])->with('success', __('Server Successfully Upgraded'));
+        }
+        else
+        {
+            return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('Not Enough Balance for Upgrade'));
         }
     }
 }

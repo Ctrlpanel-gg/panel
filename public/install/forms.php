@@ -149,10 +149,27 @@ if (isset($_POST['checkSMTP'])) {
 if (isset($_POST['checkPtero'])) {
     $url = $_POST['url'];
     $key = $_POST['key'];
+    $clientkey = $_POST['clientkey'];
 
     if (substr($url, -1) === "/") {
         $url = substr_replace($url, "", -1);
     }
+
+    $callpteroURL = $url . "/api/client/account";
+    $call = curl_init();
+
+    curl_setopt($call, CURLOPT_URL, $callpteroURL);
+    curl_setopt($call, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($call, CURLOPT_HTTPHEADER, array(
+        "Accept: application/json",
+        "Content-Type: application/json",
+        "Authorization: Bearer " . $clientkey
+    ));
+    $callresponse = curl_exec($call);
+    $callresult = json_decode($callresponse, true);
+    curl_close($call); // Close the connection
+
+
 
 
     $pteroURL = $url . "/api/application/users";
@@ -172,11 +189,17 @@ if (isset($_POST['checkPtero'])) {
 
     if (!is_array($result) or in_array($result["errors"][0]["code"], $result)) {
         header("LOCATION: index.php?step=5&message=Couldnt connect to Pterodactyl. Make sure your API key has all read and write permissions!");
+        wh_log("API CALL ERROR: ".$result["errors"][0]["code"]);
+        die();
+    }elseif (!is_array($callresult) or in_array($result["errors"][0]["code"], $result) or $callresult["attributes"]["admin"] == false) {
+        header("LOCATION: index.php?step=5&message=Your ClientAPI Key is wrong or the account is not an admin!");
+        wh_log("API CALL ERROR: ".$result["errors"][0]["code"]);
         die();
     } else {
 
         $query1 = "UPDATE `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` SET `value` = '$url' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL')";
         $query2 = "UPDATE `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` SET `value` = '$key' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN')";
+        $query3 = "UPDATE `" . getEnvironmentValue("DB_DATABASE") . "`.`settings` SET `value` = '$clientkey' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN')";
 
 
         $db = new mysqli(getEnvironmentValue("DB_HOST"), getEnvironmentValue("DB_USERNAME"), getEnvironmentValue("DB_PASSWORD"), getEnvironmentValue("DB_DATABASE"), getEnvironmentValue("DB_PORT"));
@@ -186,7 +209,7 @@ if (isset($_POST['checkPtero'])) {
             die();
         }
 
-        if ($db->query($query1) && $db->query($query2)) {
+        if ($db->query($query1) && $db->query($query2) && $db->query($query3)) {
             header("LOCATION: index.php?step=6");
         } else {
             wh_log($db->error);

@@ -14,3 +14,8 @@
     border-radius: 10px;
     box-shadow: inset 7px 10px 12px #343a40;
 }
+.nav-link>span,
+.nav-link {
+    display: flex;
+    align-items: center;
+}
