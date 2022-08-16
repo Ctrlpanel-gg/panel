@@ -91,6 +91,11 @@
                         <input x-model="pterodactyl-admin-api-key" id="pterodactyl-admin-api-key" name="pterodactyl-admin-api-key"
                                type="text" value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN') }}"
                                class="form-control @error('pterodactyl-admin-api-key') is-invalid @enderror" required>
+                        @error('pterodactyl-admin-api-key')
+                                <div class="text-danger">
+                                    {{$message}}
+                                </div>
+                        @enderror
                     </div>
                     <a href="{{route('admin.settings.checkPteroClientkey')}}"> <button type="button" class="btn btn-secondary">{{__("Test API")}}</button></a>
                 </div>

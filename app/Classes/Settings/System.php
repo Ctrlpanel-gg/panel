@@ -46,6 +46,14 @@ public function checkPteroClientkey(){
             "enable-upgrades" => "string",
 
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            // if enable-recaptcha is true then recaptcha-site-key and recaptcha-secret-key must be set
+            if ($request->get('enable-upgrades') == 'true' && (!$request->get('pterodactyl-admin-api-key'))) {
+                $validator->errors()->add('pterodactyl-admin-api-key', 'The admin api key is required when upgrades are enabled.');
+            }
+        });
+
         if ($validator->fails()) {
             return redirect(route('admin.settings.index') . '#system')->with('error', __('System settings have not been updated!'))->withErrors($validator)
                 ->withInput();
