@@ -404,7 +404,7 @@
                     href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
             All rights
             reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. Version
-            <b>{{ config('app')['version'] }}</b>
+            <b>{{ config('app')['version'] }} - {{config("BranchName")}}</b>
         </footer>
 
         <!-- Control Sidebar -->
