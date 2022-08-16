@@ -109,10 +109,7 @@ class AppServiceProvider extends ServiceProvider
 
 
             try {
-                Artisan::call('config:clear');
-                Artisan::call('cache:clear');
                 $stringfromfile = file(base_path().'/.git/HEAD');
-                Log::debug(base_path().'/.git/HEAD');
 
                 $firstLine = $stringfromfile[0]; //get the string from the array
 
