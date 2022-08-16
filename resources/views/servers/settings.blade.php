@@ -226,11 +226,14 @@
                                data-content="{{ __('To enable the upgrade/downgrade system, please set your Ptero Admin-User API Key in the Settings!') }}"
                                class="fas fa-info-circle"></i>
                         @endif
-                        <button type="button" data-toggle="modal" @if(!config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN")) disabled @endif data-target="#UpgradeModal{{ $server->id }}" target="__blank"
-                            class="btn btn-info btn-md">
-                            <i class="fas fa-upload mr-2"></i>
-                            <span>{{ __('Upgrade / Downgrade') }}</span>
-                        </button>
+                        @if(config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN") || Auth::user()->role!="admin")
+                            <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
+                                class="btn btn-info btn-md">
+                                <i class="fas fa-upload mr-2"></i>
+                                <span>{{ __('Upgrade / Downgrade') }}</span>
+                            </button>
+                        @endif
+
 
 
                         <!-- Upgrade Modal -->
