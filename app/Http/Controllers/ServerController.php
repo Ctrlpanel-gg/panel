@@ -284,7 +284,7 @@ class ServerController extends Controller
         if ($priceupgrade < $oldProduct->getHourlyPrice()) {
         $priceupgrade = 0;
         }
-        if ($user->credits >= $priceupgrade)
+        if ($user->credits >= $priceupgrade && $user->credits >= $newProduct->minimum_credits)
         {
 
             $server->product_id = $request->product_upgrade;

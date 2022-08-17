@@ -227,7 +227,7 @@
                                 <i class="fas fa-upload mr-2"></i>
                                 <span>{{ __('Upgrade / Downgrade') }}</span>
                             </button>
-                        @endif
+
 
 
 
@@ -255,7 +255,8 @@
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
                                                   @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && $product->disabled == false)
-                                                    <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
+                                                    <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} @if($product->minimum_credits!=-1) /
+                                                        {{__("Required")}}: {{$product->minimum_credits}} {{ CREDITS_DISPLAY_NAME }}@endif ]</option>
                                                   @endif
                                               @endforeach
                                           </select>
@@ -269,6 +270,7 @@
                                 </div>
                             </div>
                         </div>
+                    @endif
                         <!-- Delete Button trigger modal -->
                         <button type="button" data-toggle="modal" data-target="#DeleteModal" target="__blank"
                             class="btn btn-danger btn-md">
