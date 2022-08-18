@@ -120,7 +120,7 @@ class AppServiceProvider extends ServiceProvider
                 $branchname = "unknown";
                 Log::error($e);
             }
-            config(['BranchName' => $branchname]);
+            config(['BRANCHNAME' => $branchname]);
 
 
             // Set Discord-API Config
