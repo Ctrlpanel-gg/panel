@@ -403,9 +403,9 @@
             <strong>Copyright &copy; 2021-{{ date('Y') }} <a
                     href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
             All rights
-            reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. Version
-            @if(config("BRANCHNAME") != "main")
-                <b>{{ config('app')['version'] }} - {{config("BRANCHNAME")}}</b>
+            reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>.
+            @if(!str_contains(config("BRANCHNAME"),"main"))
+                 Version <b>{{ config('app')['version'] }} - {{config("BRANCHNAME")}}</b>
             @endif
         </footer>
 
