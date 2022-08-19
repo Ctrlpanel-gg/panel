@@ -42,6 +42,7 @@ public function checkPteroClientkey(){
             "server-limit-purchase" => "required|min:0|integer",
             "pterodactyl-api-key" => "required|string",
             "pterodactyl-url" => "required|string",
+            "per-page-limit" => "required|min:0|integer",
             "pterodactyl-admin-api-key" => "required|string",
 
         ]);
@@ -70,6 +71,7 @@ public function checkPteroClientkey(){
             "SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE" => "server-limit-purchase",
             "SETTINGS::MISC:PHPMYADMIN:URL" => "phpmyadmin-url",
             "SETTINGS::SYSTEM:PTERODACTYL:URL" => "pterodactyl-url",
+            'SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT' => "per-page-limit",
             "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
             "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
             "SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN" => "pterodactyl-admin-api-key",
