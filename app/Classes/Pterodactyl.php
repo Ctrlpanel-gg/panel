@@ -368,8 +368,8 @@ class Pterodactyl
             throw self::getException($e->getMessage());
         }
         $node = $response['attributes'];
-        $freeMemory = $node['memory'] - $node['allocated_resources']['memory'];
-        $freeDisk = $node['disk'] - $node['allocated_resources']['disk'];
+        $freeMemory = ($node['memory']*($node['memory_overallocate']+100)/100) - $node['allocated_resources']['memory'];
+        $freeDisk = ($node['disk']*($node['disk_overallocate']+100)/100) - $node['allocated_resources']['disk'];
         if ($freeMemory < $requireMemory) {
             return false;
           }
