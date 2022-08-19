@@ -45,6 +45,13 @@ class ServerController extends Controller
 
             $server->node = $serverRelationships['node']['attributes']['name'];
 
+            //Check if a server got renamed on Pterodactyl
+            $savedServer = Server::query()->where('id', $server->id)->first();
+            if($savedServer->name != $serverAttributes['name']){
+                $savedServer->name = $serverAttributes['name'];
+                $server->name = $serverAttributes['name'];
+                $savedServer->save();
+            }
             //get productname by product_id for server
             $product = Product::find($server->product_id);
 
