@@ -142,6 +142,21 @@
                             <span><i class="fas fa-sync mr-2"></i>{{__('Last updated :date', ['date' => $syncLastUpdate])}}</span>
                         </div>
                     </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <div class="card-title ">
+                                    <span><i class="fas fa-server mr-2"></i>{{__('Controlpanel.gg')}}</span>
+                                </div>
+                            </div>
+                            <div class="card-body py-1">
+
+                            </div>
+                            <div class="card-footer">
+                                <span><i class="fas fa-info mr-2"></i>{{__("Version")}} {{config("app.version")}} - {{config("BRANCHNAME")}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card">

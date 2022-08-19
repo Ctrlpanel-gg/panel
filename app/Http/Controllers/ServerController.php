@@ -268,7 +268,7 @@ class ServerController extends Controller
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
         $serverRelationships = $serverAttributes['relationships'];
 
-        // Get node resource allocation info 
+        // Get node resource allocation info
         $nodeId = $serverRelationships['node']['attributes']['id'];
         $node = Node::where('id', $nodeId)->firstOrFail();
         $nodeName = $node->name;
@@ -284,7 +284,7 @@ class ServerController extends Controller
         if ($priceupgrade < $oldProduct->getHourlyPrice()) {
         $priceupgrade = 0;
         }
-        if ($user->credits >= $priceupgrade)
+        if ($user->credits >= $priceupgrade && $user->credits >= $newProduct->minimum_credits)
         {
 
             $server->product_id = $request->product_upgrade;

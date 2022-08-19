@@ -221,16 +221,14 @@
                 <div class="card-footer">
                     <div class="col-md-12 text-center">
                         <!-- Upgrade Button trigger modal -->
-                        @if(!config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN") and Auth::user()->role=="admin")
-                            <i data-toggle="popover" data-trigger="hover"
-                               data-content="{{ __('To enable the upgrade/downgrade system, please set your Ptero Admin-User API Key in the Settings!') }}"
-                               class="fas fa-info-circle"></i>
-                        @endif
-                        <button type="button" data-toggle="modal" @if(!config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN")) disabled @endif data-target="#UpgradeModal{{ $server->id }}" target="__blank"
-                            class="btn btn-info btn-md">
-                            <i class="fas fa-upload mr-2"></i>
-                            <span>{{ __('Upgrade / Downgrade') }}</span>
-                        </button>
+                        @if(config("SETTINGS::SYSTEM:ENABLE_UPGRADE"))
+                            <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
+                                class="btn btn-info btn-md">
+                                <i class="fas fa-upload mr-2"></i>
+                                <span>{{ __('Upgrade / Downgrade') }}</span>
+                            </button>
+
+
 
 
                         <!-- Upgrade Modal -->
@@ -256,8 +254,9 @@
                                           <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
-                                                  @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id)
-                                                    <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} ]</option>
+                                                  @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && $product->disabled == false)
+                                                    <option value="{{ $product->id }}">{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} @if($product->minimum_credits!=-1) /
+                                                        {{__("Required")}}: {{$product->minimum_credits}} {{ CREDITS_DISPLAY_NAME }}@endif ]</option>
                                                   @endif
                                               @endforeach
                                           </select>
@@ -271,6 +270,7 @@
                                 </div>
                             </div>
                         </div>
+                    @endif
                         <!-- Delete Button trigger modal -->
                         <button type="button" data-toggle="modal" data-target="#DeleteModal" target="__blank"
                             class="btn btn-danger btn-md">
@@ -313,12 +313,12 @@
     </section>
     <!-- END CONTENT -->
     <script type="text/javascript">
-      $(".upgrade-form").submit(function (e) {        
-          
-          $(".upgrade-once").attr("disabled", true);     
+      $(".upgrade-form").submit(function (e) {
+
+          $(".upgrade-once").attr("disabled", true);
           return true;
       })
-         
+
      </script>
 
 @endsection

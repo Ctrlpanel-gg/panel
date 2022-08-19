@@ -44,8 +44,17 @@ public function checkPteroClientkey(){
             "pterodactyl-url" => "required|string",
             "per-page-limit" => "required|min:0|integer",
             "pterodactyl-admin-api-key" => "required|string",
+            "enable-upgrades" => "string",
 
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            // if enable-recaptcha is true then recaptcha-site-key and recaptcha-secret-key must be set
+            if ($request->get('enable-upgrades') == 'true' && (!$request->get('pterodactyl-admin-api-key'))) {
+                $validator->errors()->add('pterodactyl-admin-api-key', 'The admin api key is required when upgrades are enabled.');
+            }
+        });
+
         if ($validator->fails()) {
             return redirect(route('admin.settings.index') . '#system')->with('error', __('System settings have not been updated!'))->withErrors($validator)
                 ->withInput();
@@ -75,6 +84,7 @@ public function checkPteroClientkey(){
             "SETTINGS::SYSTEM:PTERODACTYL:TOKEN" => "pterodactyl-api-key",
             "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
             "SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN" => "pterodactyl-admin-api-key",
+            "SETTINGS::SYSTEM:ENABLE_UPGRADE" => "enable-upgrade",
         ];
 
 
