@@ -14,11 +14,6 @@ use Illuminate\Support\Facades\Http;
 
 class Pterodactyl
 {
-    /**
-     * @description per_page option to pull more than the default 50 from pterodactyl
-     */
-    public const PER_PAGE = 200;
-
     //TODO: Extend error handling (maybe logger for more errors when debugging)
 
     /**
@@ -73,7 +68,7 @@ class Pterodactyl
     public static function getEggs(Nest $nest)
     {
         try {
-            $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . self::PER_PAGE);
+            $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -88,7 +83,7 @@ class Pterodactyl
     public static function getNodes()
     {
         try {
-            $response = self::client()->get('/application/nodes?per_page=' . self::PER_PAGE);
+            $response = self::client()->get('/application/nodes?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -115,7 +110,7 @@ class Pterodactyl
 
     public static function getServers() {
         try {
-            $response = self::client()->get('/application/servers');
+            $response = self::client()->get('/application/servers?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -130,7 +125,7 @@ class Pterodactyl
     public static function getNests()
     {
         try {
-            $response = self::client()->get('/application/nests?per_page=' . self::PER_PAGE);
+            $response = self::client()->get('/application/nests?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -145,7 +140,7 @@ class Pterodactyl
     public static function getLocations()
     {
         try {
-            $response = self::client()->get('/application/locations?per_page=' . self::PER_PAGE);
+            $response = self::client()->get('/application/locations?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }

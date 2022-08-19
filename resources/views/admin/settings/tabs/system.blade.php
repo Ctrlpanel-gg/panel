@@ -70,6 +70,17 @@
                             value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:URL') }}"
                             class="form-control @error('pterodactyl-url') is-invalid @enderror" required>
                     </div>
+                    <div class="custom-control mb-3 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="per-page-limit">{{ __('Pterodactyl API perPage limit') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('The Pterodactyl API perPage limit. It is necessary to set it higher than your server count.') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="per-page-limit" id="per-page-limit" name="per-page-limit" type="number"
+                            value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT') }}"
+                            class="form-control @error('per-page-limit') is-invalid @enderror" required>
+                    </div>
                     <div class="custom-control p-0 mb-3">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <label for="pterodactyl-api-key">{{ __('Pterodactyl API Key') }}</label>
