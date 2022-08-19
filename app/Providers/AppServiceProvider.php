@@ -107,12 +107,30 @@ class AppServiceProvider extends ServiceProvider
                 Artisan::call('cache:clear');
             }
 
+
+            try {
+                $stringfromfile = file(base_path().'/.git/HEAD');
+
+                $firstLine = $stringfromfile[0]; //get the string from the array
+
+                $explodedstring = explode("/", $firstLine, 3); //seperate out by the "/" in the string
+
+                $branchname = $explodedstring[2]; //get the one that is always the branch name
+            } catch (Exception $e) {
+                $branchname = "unknown";
+                Log::error($e);
+            }
+            config(['BRANCHNAME' => $branchname]);
+
+
             // Set Discord-API Config
             config(['services.discord.client_id' => config('SETTINGS::DISCORD:CLIENT_ID')]);
             config(['services.discord.client_secret' => config('SETTINGS::DISCORD:CLIENT_SECRET')]);
         } catch (Exception $e) {
-            error_log("Settings Error: Could not load settings from database");
-            Log::error("Settings Error: Could not load settings from database");
+            error_log("Settings Error: Could not load settings from database. The Installation probably is not done yet.");
+            error_log($e);
+            Log::error("Settings Error: Could not load settings from database. The Installation probably is not done yet.");
+            Log::error($e);
         }
     }
 }
