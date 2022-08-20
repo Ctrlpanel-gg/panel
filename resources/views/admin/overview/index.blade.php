@@ -146,6 +146,42 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
                                 <div class="card-title ">
+                                    <span><i class="fas fa-ticket-alt mr-2"></i>{{__('Latest tickets')}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body py-1">
+                            @if(!$tickets->count())<span style="font-size: 16px; font-weight:700">{{__('There are no tickets')}}.</span>
+                            @else
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>{{__('Title')}}</th>
+                                        <th>{{__('User')}}</th>
+                                        <th>{{__('Status')}}</th>
+                                        <th>{{__('Last updated')}}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                        @foreach($tickets as $ticket_id => $ticket)
+                                            <tr>
+                                                <td><a class="text-info"  href="{{route('moderator.ticket.show', ['ticket_id' => $ticket_id])}}">#{{$ticket_id}} - {{$ticket->title}}</td>
+                                                <td><a href="{{route('admin.users.show', $ticket->user_id)}}">{{$ticket->user}}</a></td>
+                                                <td><span class="badge {{$ticket->statusBadgeColor}}">{{$ticket->status}}</span></td>
+                                                <td>{{$ticket->last_updated}}</td>
+                                            </tr>
+                                        @endforeach
+                                        
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <div class="card-title ">
                                     <span><i class="fas fa-server mr-2"></i>{{__('Controlpanel.gg')}}</span>
                                 </div>
                             </div>

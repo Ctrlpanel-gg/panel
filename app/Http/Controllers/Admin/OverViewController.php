@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use App\Classes\Pterodactyl;
 use App\Models\Product;
+use App\Models\Ticket;
 use Carbon\Carbon;
 
 class OverViewController extends Controller
@@ -117,12 +118,41 @@ class OverViewController extends Controller
             }
             return $output;
         });
+
+        $tickets = Cache::remember('tickets', self::TTL, function(){
+            $output = collect();
+            foreach(Ticket::query()->latest()->take(3)->get() as $ticket){
+                $output->put($ticket->ticket_id, collect());
+                $output[$ticket->ticket_id]->title = $ticket->title;
+                $user = User::query()->where('id', $ticket->user_id)->first();
+                $output[$ticket->ticket_id]->user_id = $user->id;
+                $output[$ticket->ticket_id]->user = $user->name;
+                $output[$ticket->ticket_id]->status = $ticket->status;
+                $output[$ticket->ticket_id]->last_updated = $ticket->updated_at->diffForHumans();
+                switch ($ticket->status) {
+                    case 'Open':
+                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-success';
+                        break;
+                    case 'Closed':
+                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-danger';
+                        break;
+                    case 'Answered':
+                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-info';
+                        break;
+                    default:
+                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-warning';
+                        break;
+                }
+            }
+            return $output;
+        });
         //dd($counters);
         return view('admin.overview.index', [
             'counters'       => $counters,
             'nodes'          => $nodes,
             'syncLastUpdate' => $syncLastUpdate,
-            'perPageLimit'   => ($counters['servers']->total != Server::query()->count())?true:false
+            'perPageLimit'   => ($counters['servers']->total != Server::query()->count())?true:false,
+            'tickets'        => $tickets
         ]);
     }   
 
