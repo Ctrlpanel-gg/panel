@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use App\Classes\Pterodactyl;
 use App\Models\Product;
+use Carbon\Carbon;
 
 class OverViewController extends Controller
 {
@@ -22,6 +23,7 @@ class OverViewController extends Controller
     {
         $counters = Cache::remember('counters', self::TTL, function () {
             $output = collect();
+            //Set basic variables in the collection
             $output->put('users', User::query()->count());
             $output->put('credits', number_format(User::query()->where("role","!=","admin")->sum('credits'), 2, '.', ''));
             $output->put('payments', Payment::query()->count());
@@ -29,6 +31,7 @@ class OverViewController extends Controller
             $output->put('nests', Nest::query()->count());
             $output->put('locations', Location::query()->count());
 
+            //Prepare for counting
             $output->put('servers', collect());
             $output['servers']->active = 0;
             $output['servers']->total = 0;
@@ -36,6 +39,41 @@ class OverViewController extends Controller
             $output['earnings']->active = 0;
             $output['earnings']->total = 0;
             $output->put('totalUsagePercent', 0);
+
+            //Prepare subCollection 'payments'
+            $output->put('payments', collect());
+            //Get and save payments from last 2 months for later filtering and looping
+            $payments = Payment::query()->where('created_at', '>=', Carbon::today()->startOfMonth()->subMonth())->where('status', 'paid')->get();
+            //Prepare collections and set a few variables
+            $output['payments']->put('thisMonth', collect());
+            $output['payments']->put('lastMonth', collect());
+            $output['payments']['thisMonth']->timeStart = Carbon::today()->startOfMonth()->toDateString();
+            $output['payments']['thisMonth']->timeEnd = Carbon::today()->toDateString();
+            $output['payments']['lastMonth']->timeStart = Carbon::today()->startOfMonth()->subMonth()->toDateString();
+            $output['payments']['lastMonth']->timeEnd = Carbon::today()->endOfMonth()->subMonth()->toDateString();
+            
+            //Fill out variables for each currency separately
+            foreach($payments->where('created_at', '>=', Carbon::today()->startOfMonth()) as $payment){
+                $paymentCurrency = $payment->currency_code;
+                if(!isset($output['payments']['thisMonth'][$paymentCurrency])){
+                    $output['payments']['thisMonth']->put($paymentCurrency, collect());
+                    $output['payments']['thisMonth'][$paymentCurrency]->total = 0;
+                    $output['payments']['thisMonth'][$paymentCurrency]->count = 0;
+                }
+                $output['payments']['thisMonth'][$paymentCurrency]->total += $payment->total_price;
+                $output['payments']['thisMonth'][$paymentCurrency]->count ++;
+            }
+            foreach($payments->where('created_at', '<', Carbon::today()->startOfMonth()) as $payment){
+                $paymentCurrency = $payment->currency_code;
+                if(!isset($output['payments']['lastMonth'][$paymentCurrency])){
+                    $output['payments']['lastMonth']->put($paymentCurrency, collect());
+                    $output['payments']['lastMonth'][$paymentCurrency]->total = 0;
+                    $output['payments']['lastMonth'][$paymentCurrency]->count = 0;
+                }
+                $output['payments']['lastMonth'][$paymentCurrency]->total += $payment->total_price;
+                $output['payments']['lastMonth'][$paymentCurrency]->count ++;
+            }
+            $output['payments']->total = Payment::query()->count();
             
             return $output;
         });
@@ -79,7 +117,7 @@ class OverViewController extends Controller
             }
             return $output;
         });
-
+        //dd($counters);
         return view('admin.overview.index', [
             'counters'       => $counters,
             'nodes'          => $nodes,
