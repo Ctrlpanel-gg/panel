@@ -51,11 +51,13 @@
                                     @endif
                                 </p>
                                 <p><b>Created on:</b> {{ $ticket->created_at->diffForHumans() }}</p>
+                                @if($ticket->status!='Closed')
                                     <form class="d-inline"  method="post" action="{{route('moderator.ticket.close', ['ticket_id' => $ticket->ticket_id ])}}">
                                         {{csrf_field()}}
                                         {{method_field("POST") }}
                                         <button data-content="{{__("Close")}}" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-times"></i>{{__("Close")}}</button>
                                     </form>
+                                @endif
                             </div>
                         </div>
                     </div>

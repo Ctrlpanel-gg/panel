@@ -90,7 +90,7 @@
 
                         <div class="info-box-content">
                             <span class="info-box-text">{{__('Payments')}}</span>
-                            <span class="info-box-number">{{$counters['payments']}}</span>
+                            <span class="info-box-number">{{$counters['payments']->total}}</span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>
@@ -146,6 +146,42 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
                                 <div class="card-title ">
+                                    <span><i class="fas fa-ticket-alt mr-2"></i>{{__('Latest tickets')}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body py-1">
+                            @if(!$tickets->count())<span style="font-size: 16px; font-weight:700">{{__('There are no tickets')}}.</span>
+                            @else
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>{{__('Title')}}</th>
+                                        <th>{{__('User')}}</th>
+                                        <th>{{__('Status')}}</th>
+                                        <th>{{__('Last updated')}}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                        @foreach($tickets as $ticket_id => $ticket)
+                                            <tr>
+                                                <td><a class="text-info"  href="{{route('moderator.ticket.show', ['ticket_id' => $ticket_id])}}">#{{$ticket_id}} - {{$ticket->title}}</td>
+                                                <td><a href="{{route('admin.users.show', $ticket->user_id)}}">{{$ticket->user}}</a></td>
+                                                <td><span class="badge {{$ticket->statusBadgeColor}}">{{$ticket->status}}</span></td>
+                                                <td>{{$ticket->last_updated}}</td>
+                                            </tr>
+                                        @endforeach
+                                        
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <div class="card-title ">
                                     <span><i class="fas fa-server mr-2"></i>{{__('Controlpanel.gg')}}</span>
                                 </div>
                             </div>
@@ -163,7 +199,7 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
                                 <div class="card-title ">
-                                    <span><i class="fas fa-file-invoice-dollar mr-2"></i>{{__('Individual nodes')}}</span>
+                                    <span><i class="fas fa-server mr-2"></i>{{__('Individual nodes')}}</span>
                                 </div>
                             </div>
                         </div>
@@ -207,6 +243,71 @@
                                     </tr>
                                 </tfoot>
                             </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <div class="card-title ">
+                                    <span><i class="fas fa-file-invoice-dollar mr-2"></i>{{__('Latest payments')}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body py-1">
+                            <div class="row">
+                                <div class="col-md-6" style="border-right:1px solid #6c757d">
+                                    <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('Last month')}}:
+                                        <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                        data-content="{{ __('Payments in this time window') }}:<br>{{$counters['payments']['lastMonth']->timeStart}} - {{$counters['payments']['lastMonth']->timeEnd}}"
+                                        class="fas fa-info-circle"></i>
+                                    </span>
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th><b>{{__('Currency')}}</b></th>
+                                            <th>{{__('Number of payments')}}</th>
+                                            <th>{{__('Total income')}}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($counters['payments']['lastMonth'] as $currency => $income)
+                                                <tr>
+                                                    <td>{{$currency}}</td>
+                                                    <td>{{$income->count}}</td>
+                                                    <td>{{$income->total}}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                    <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: -16px">
+                                </div><div class="col-md-6">
+                                    <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('This month')}}:
+                                        <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                        data-content="{{ __('Payments in this time window') }}:<br>{{$counters['payments']['thisMonth']->timeStart}} - {{$counters['payments']['thisMonth']->timeEnd}}"
+                                        class="fas fa-info-circle"></i>
+                                    </span>
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th><b>{{__('Currency')}}</b></th>
+                                            <th>{{__('Number of payments')}}</th>
+                                            <th>{{__('Total income')}}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($counters['payments']['thisMonth'] as $currency => $income)
+                                                <tr>
+                                                    <td>{{$currency}}</td>
+                                                    <td>{{$income->count}}</td>
+                                                    <td>{{$income->total}}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                    <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: -16px">
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
