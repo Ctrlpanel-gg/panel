@@ -287,7 +287,7 @@ class Pterodactyl
      * @param int $pterodactylId
      * @return mixed
      */
-    public static function getServerAttributes(int $pterodactylId)
+    public static function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
     {
         try {
             $response = self::client()->get("/application/servers/{$pterodactylId}?include=egg,node,nest,location");
@@ -299,7 +299,13 @@ class Pterodactyl
 
 
 
-        if ($response->failed()) throw self::getException("Failed to get server attributes from pterodactyl - ", $response->status());
+        if ($response->failed()){
+            if($deleteOn404){  //Delete the server if it does not exist (server deleted on pterodactyl)
+                Server::where('pterodactyl_id', $pterodactylId)->first()->delete();
+                return;
+            }
+            else throw self::getException("Failed to get server attributes from pterodactyl - ", $response->status());
+        }
         return $response->json()['attributes'];
     }
 

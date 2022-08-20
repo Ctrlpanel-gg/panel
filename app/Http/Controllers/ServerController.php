@@ -30,8 +30,8 @@ class ServerController extends Controller
         foreach ($servers as $server) {
 
             //Get server infos from ptero
-            $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
-
+            $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id, true);
+            if(!$serverAttributes) continue;
             $serverRelationships = $serverAttributes['relationships'];
             $serverLocationAttributes = $serverRelationships['location']['attributes'];
 
