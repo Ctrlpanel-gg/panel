@@ -65,7 +65,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::resource('notifications', NotificationController::class);
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
     Route::resource('servers', ServerController::class);
-    Route::post('servers/{server}/upgrade', [ServerController::class,'upgrade'])->name('servers.upgrade');
+    if(config('SETTINGS::SYSTEM:ENABLE_UPGRADE')){
+        Route::post('servers/{server}/upgrade', [ServerController::class,'upgrade'])->name('servers.upgrade');
+    }
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
 
