@@ -173,7 +173,8 @@
                                     <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Error!') }}</h5>
                                     <p class="">
                                         {{ __('You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.') }}<br>
-                                        {{ __('You can do that in settings.') }}
+                                        {{ __('You can do that in settings.') }}<br>
+                                        {{ __('Note') }}: {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on ControlPanel.') }}
                                     </p>
                                 </div>
                             @endif
