@@ -97,7 +97,7 @@ class OverViewController extends Controller
                 $output[$nodeId]->totalEarnings = 0;
                 $output[$nodeId]->activeEarnings = 0;
             }
-            $counters['totalUsagePercent'] = round($counters['totalUsagePercent']/$nodes->count(), 2);
+            $counters['totalUsagePercent'] = ($nodes->count())?round($counters['totalUsagePercent']/$nodes->count(), 2):0;
 
             foreach(Pterodactyl::getServers() as $server){ //gets all servers from Pterodactyl and calculates total of credit usage for each node separately + total
                 $nodeId = $server['attributes']['node'];
