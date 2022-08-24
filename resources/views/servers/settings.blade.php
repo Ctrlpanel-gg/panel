@@ -261,7 +261,7 @@
                                               @endforeach
                                           </select>
                                           <br> {{__("Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits")}}. <br>
-                                          <br> {{_("Server will be automatically restarted once upgraded")}}
+                                          <br> {{__("Server will be automatically restarted once upgraded")}}
                                     </div>
                                     <div class="modal-footer card-body">
                                         <button type="submit" class="btn btn-primary upgrade-once" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
