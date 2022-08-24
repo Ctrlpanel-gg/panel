@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Pterodactyl;
 use App\Models\Egg;
 use App\Models\Location;
 use App\Models\Node;
@@ -55,6 +56,10 @@ class ProductController extends Controller
     public function getLocationsBasedOnEgg(Request $request, Egg $egg)
     {
         $nodes = $this->getNodesBasedOnEgg($request, $egg);
+        foreach($nodes as $key => $node){
+            $pteroNode = Pterodactyl::getNode($node->id);
+            if($pteroNode['allocated_resources']['memory']>=($pteroNode['memory']*($pteroNode['memory_overallocate']+100)/100)||$pteroNode['allocated_resources']['disk']>=($pteroNode['disk']*($pteroNode['disk_overallocate']+100)/100)) $nodes->forget($key);
+        }
         $locations = collect();
 
         //locations
@@ -87,7 +92,7 @@ class ProductController extends Controller
     {
         if (is_null($egg->id) || is_null($node->id)) return response()->json('node and egg id is required', '400');
 
-        return Product::query()
+        $products = Product::query()
             ->where('disabled', '=', false)
             ->whereHas('nodes', function (Builder $builder) use ($node) {
                 $builder->where('id', '=', $node->id);
@@ -96,5 +101,12 @@ class ProductController extends Controller
                 $builder->where('id', '=', $egg->id);
             })
             ->get();
+
+        $pteroNode = Pterodactyl::getNode($node->id);
+        foreach($products as $key => $product){
+            if($product->memory>($pteroNode['memory']*($pteroNode['memory_overallocate']+100)/100)-$pteroNode['allocated_resources']['memory']||$product->disk>($pteroNode['disk']*($pteroNode['disk_overallocate']+100)/100)-$pteroNode['allocated_resources']['disk']) $product->doesNotFit = true;
+        }
+
+        return $products;
     }
 }
