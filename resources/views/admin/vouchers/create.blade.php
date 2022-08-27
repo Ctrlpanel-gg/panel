@@ -14,7 +14,7 @@
                         <li class="breadcrumb-item"><a href="{{route('admin.vouchers.index')}}">{{__('Vouchers')}}</a>
                         </li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.products.create')}}">{{__('Create')}}</a>
+                                                       href="{{route('admin.vouchers.create')}}">{{__('Create')}}</a>
                         </li>
                     </ol>
                 </div>
