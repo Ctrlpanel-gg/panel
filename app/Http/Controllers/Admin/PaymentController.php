@@ -615,7 +615,7 @@ class PaymentController extends Controller
             ->name(__("Invoice"))
             ->buyer($customer)
             ->seller($seller)
-            ->discountByPercent(0)
+            ->discountByPercent(PartnerDiscount::getDiscount())
             ->taxRate(floatval($shopProduct->getTaxPercent()))
             ->shipping(0)
             ->addItem($item)
