@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceSettings;
+use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\Settings;
@@ -57,10 +58,13 @@ class PaymentController extends Controller
     public function checkOut(Request $request, ShopProduct $shopProduct)
     {
         return view('store.checkout')->with([
-            'product'      => $shopProduct,
-            'taxvalue'     => $shopProduct->getTaxValue(),
-            'taxpercent'   => $shopProduct->getTaxPercent(),
-            'total'        => $shopProduct->getTotalPrice()
+            'product'           => $shopProduct,
+            'discountpercent'   => PartnerDiscount::getDiscount(),
+            'discountvalue'     => PartnerDiscount::getDiscount() * $shopProduct->price/100,
+            'discountedprice'   => $shopProduct->getPriceAfterDiscount(),
+            'taxvalue'          => $shopProduct->getTaxValue(),
+            'taxpercent'        => $shopProduct->getTaxPercent(),
+            'total'             => $shopProduct->getTotalPrice()
         ]);
     }
 
@@ -78,7 +82,7 @@ class PaymentController extends Controller
             "purchase_units" => [
                 [
                     "reference_id" => uniqid(),
-                    "description" => $shopProduct->description,
+                    "description" => $shopProduct->display . (PartnerDiscount::getDiscount()?(" (" . __('Discount') . " " . PartnerDiscount::getDiscount() . '%)'):""),
                     "amount"       => [
                         "value"         => $shopProduct->getTotalPrice(),
                         'currency_code' => strtoupper($shopProduct->currency_code),
@@ -86,7 +90,7 @@ class PaymentController extends Controller
                             'item_total' =>
                             [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $shopProduct->price,
+                                'value' => $shopProduct->getPriceAfterDiscount(),
                             ],
                             'tax_total' =>
                             [
@@ -188,7 +192,7 @@ class PaymentController extends Controller
                     if((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits"){
                         if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
                             $ref_user = User::findOrFail($ref_user->referral_id);
-                            $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
+                            $increment = number_format($shopProduct->quantity*(PartnerDiscount::getCommission($ref_user->id))/100,0,"","");
                             $ref_user->increment('credits', $increment);
 
                             //LOGS REFERRALS IN THE ACTIVITY LOG
@@ -273,10 +277,10 @@ class PaymentController extends Controller
                     'price_data' => [
                         'currency' => $shopProduct->currency_code,
                         'product_data' => [
-                            'name' => $shopProduct->display,
+                            'name' => $shopProduct->display . (PartnerDiscount::getDiscount()?(" (" . __('Discount') . " " . PartnerDiscount::getDiscount() . '%)'):""),
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => round($shopProduct->price * 100, 2),
+                        'unit_amount_decimal' => round($shopProduct->getPriceAfterDiscount() * 100, 2),
                     ],
                     'quantity' => 1,
                 ],
@@ -284,7 +288,7 @@ class PaymentController extends Controller
                     'price_data' => [
                         'currency' => $shopProduct->currency_code,
                         'product_data' => [
-                            'name' => 'Product Tax',
+                            'name' => __('Tax'),
                             'description' => $shopProduct->getTaxPercent() . "%",
                         ],
                         'unit_amount_decimal' => round($shopProduct->getTaxValue(), 2) * 100,
