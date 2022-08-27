@@ -288,7 +288,8 @@ class UserController extends Controller
                 return $user->discordUser ? $user->discordUser->id : '';
             })
             ->addColumn('last_seen', function (User $user) {
-                return $user->last_seen ? $user->last_seen->diffForHumans() : '';
+                return ['display' => $user->last_seen ? $user->last_seen->diffForHumans() : '',
+                        'raw' => $user->last_seen ? strtotime($user->last_seen) : ''];
             })
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? "btn-success" : "btn-warning";
@@ -331,9 +332,9 @@ class UserController extends Controller
             ->editColumn('name', function (User $user) {
                 return '<a class="text-info" target="_blank" href="' . config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
-            ->orderColumn('last_seen', function ($query) {
+            /*->orderColumn('last_seen', function ($query) {
                 $query->orderBy('last_seen', "desc");
-            })
+            })*/
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'referrals', 'actions', 'last_seen'])
             ->make(true);
     }

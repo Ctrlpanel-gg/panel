@@ -90,10 +90,10 @@
                     {data: 'role'},
                     {data: 'email', name: 'users.email'},
                     {data: 'credits' , name : 'users.credits'},
-                    {data: 'servers' , sortable : false},
+                    {data: 'servers'},
                     {data: 'referrals'},
                     {data: 'verified' , sortable : false},
-                    {data: 'last_seen'},
+                    {data: 'last_seen', type: 'num', render: {_: 'display', sort: 'raw'}},
                     {data: 'actions' , sortable : false},
                 ],
                 fnDrawCallback: function( oSettings ) {
