@@ -42,6 +42,7 @@
                             <th>{{__('User')}}</th>
                             <th>{{__('Partner discount')}}</th>
                             <th>{{__('Registered user discount')}}</th>
+                            <th>{{__('Referral system commission')}}</th>
                             <th>{{__('Created')}}</th>
                             <th>{{__('Actions')}}</th>
                         </tr>
@@ -77,6 +78,7 @@
                     {data: 'user'},
                     {data: 'partner_discount'},
                     {data: 'registered_user_discount'},
+                    {data: 'referral_system_commission'},
                     {data: 'created_at'},
                     {data: 'actions', sortable: false}
                 ],
