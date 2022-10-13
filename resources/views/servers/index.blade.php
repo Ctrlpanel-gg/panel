@@ -40,6 +40,7 @@
 
             <div class="row d-flex flex-row justify-content-center justify-content-md-start">
                 @foreach ($servers as $server)
+                    @if($server->location&&$server->node&&$server->nest&&$server->egg)
                     <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
                         style="max-width: 350px">
                         <div class="card-header">
@@ -92,14 +93,14 @@
                                             class="fas fa-info-circle"></i>
                                     </div>
 
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-5 ">
-                                        {{ __('Software') }}:
                                     </div>
-                                    <div class="col-7 text-wrap">
-                                        <span>{{ $server->nest }}</span>
-                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-5 ">
+                                            {{ __('Software') }}:
+                                        </div>
+                                        <div class="col-7 text-wrap">
+                                            <span>{{ $server->nest }}</span>
+                                        </div>
 
                                 </div>
                                 <div class="row mb-2">
@@ -222,6 +223,7 @@
                             </button>
                         </div>
                     </div>
+                    @endif
                 @endforeach
             </div>
             <!-- END CUSTOM CONTENT -->

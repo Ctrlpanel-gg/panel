@@ -14,11 +14,6 @@ use Illuminate\Support\Facades\Http;
 
 class Pterodactyl
 {
-    /**
-     * @description per_page option to pull more than the default 50 from pterodactyl
-     */
-    public const PER_PAGE = 200;
-
     //TODO: Extend error handling (maybe logger for more errors when debugging)
 
     /**
@@ -73,7 +68,7 @@ class Pterodactyl
     public static function getEggs(Nest $nest)
     {
         try {
-            $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . self::PER_PAGE);
+            $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -88,7 +83,7 @@ class Pterodactyl
     public static function getNodes()
     {
         try {
-            $response = self::client()->get('/application/nodes?per_page=' . self::PER_PAGE);
+            $response = self::client()->get('/application/nodes?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -115,7 +110,7 @@ class Pterodactyl
 
     public static function getServers() {
         try {
-            $response = self::client()->get('/application/servers');
+            $response = self::client()->get('/application/servers?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -130,7 +125,7 @@ class Pterodactyl
     public static function getNests()
     {
         try {
-            $response = self::client()->get('/application/nests?per_page=' . self::PER_PAGE);
+            $response = self::client()->get('/application/nests?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -145,7 +140,7 @@ class Pterodactyl
     public static function getLocations()
     {
         try {
-            $response = self::client()->get('/application/locations?per_page=' . self::PER_PAGE);
+            $response = self::client()->get('/application/locations?per_page=' . config("SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT"));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -292,7 +287,7 @@ class Pterodactyl
      * @param int $pterodactylId
      * @return mixed
      */
-    public static function getServerAttributes(int $pterodactylId)
+    public static function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
     {
         try {
             $response = self::client()->get("/application/servers/{$pterodactylId}?include=egg,node,nest,location");
@@ -304,7 +299,13 @@ class Pterodactyl
 
 
 
-        if ($response->failed()) throw self::getException("Failed to get server attributes from pterodactyl - ", $response->status());
+        if ($response->failed()){
+            if($deleteOn404){  //Delete the server if it does not exist (server deleted on pterodactyl)
+                Server::where('pterodactyl_id', $pterodactylId)->first()->delete();
+                return;
+            }
+            else throw self::getException("Failed to get server attributes from pterodactyl - ", $response->status());
+        }
         return $response->json()['attributes'];
     }
 
@@ -368,8 +369,8 @@ class Pterodactyl
             throw self::getException($e->getMessage());
         }
         $node = $response['attributes'];
-        $freeMemory = $node['memory'] - $node['allocated_resources']['memory'];
-        $freeDisk = $node['disk'] - $node['allocated_resources']['disk'];
+        $freeMemory = ($node['memory']*($node['memory_overallocate']+100)/100) - $node['allocated_resources']['memory'];
+        $freeDisk = ($node['disk']*($node['disk_overallocate']+100)/100) - $node['allocated_resources']['disk'];
         if ($freeMemory < $requireMemory) {
             return false;
           }

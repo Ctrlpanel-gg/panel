@@ -223,10 +223,10 @@
                                         </div>
                                     </div>
                                     <button type="submit" x-model="selectedProduct" name="product"
-                                        :disabled="product.minimum_credits > user.credits || product.price > user.credits"
+                                        :disabled="product.minimum_credits > user.credits || product.price > user.credits || product.doesNotFit"
                                         :class="product.minimum_credits > user.credits || product.price > user.credits ? 'disabled' : ''"
                                         class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
-                                        x-text="product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}'">
+                                        x-text="product.doesNotFit ?  '{{ __('Server cannot fit on this node') }}' :  product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}'">
                                     </button>
                                 </div>
                             </div>
