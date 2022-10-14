@@ -256,32 +256,36 @@
                         </div>
                         <div class="card-body py-1">
                             <div class="row">
-                                <div class="col-md-6" style="border-right:1px solid #6c757d">
-                                    <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('Last month')}}:
-                                        <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                        data-content="{{ __('Payments in this time window') }}:<br>{{$counters['payments']['lastMonth']->timeStart}} - {{$counters['payments']['lastMonth']->timeEnd}}"
-                                        class="fas fa-info-circle"></i>
-                                    </span>
-                                    <table class="table">
-                                        <thead>
-                                        <tr>
-                                            <th><b>{{__('Currency')}}</b></th>
-                                            <th>{{__('Number of payments')}}</th>
-                                            <th>{{__('Total amount')}}</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($counters['payments']['lastMonth'] as $currency => $income)
-                                                <tr>
-                                                    <td>{{$currency}}</td>
-                                                    <td>{{$income->count}}</td>
-                                                    <td>{{$income->total}}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: -16px">
-                                </div><div class="col-md-6">
+                                @if($counters['payments']['lastMonth']->count())
+                                    <div class="col-md-6" style="border-right:1px solid #6c757d">
+                                        <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('Last month')}}:
+                                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                            data-content="{{ __('Payments in this time window') }}:<br>{{$counters['payments']['lastMonth']->timeStart}} - {{$counters['payments']['lastMonth']->timeEnd}}"
+                                            class="fas fa-info-circle"></i>
+                                        </span>
+                                        <table class="table">
+                                            <thead>
+                                            <tr>
+                                                <th><b>{{__('Currency')}}</b></th>
+                                                <th>{{__('Number of payments')}}</th>
+                                                <th>{{__('Total amount')}}</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($counters['payments']['lastMonth'] as $currency => $income)
+                                                    <tr>
+                                                        <td>{{$currency}}</td>
+                                                        <td>{{$income->count}}</td>
+                                                        <td>{{$income->total}}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                        <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: -16px">
+                                    </div>
+                                @endif
+                                @if($counters['payments']['lastMonth']->count()) <div class="col-md-6">
+                                @else <div class="col-md-12"> @endif
                                     <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('This month')}}:
                                         <i data-toggle="popover" data-trigger="hover" data-html="true"
                                         data-content="{{ __('Payments in this time window') }}:<br>{{$counters['payments']['thisMonth']->timeStart}} - {{$counters['payments']['thisMonth']->timeEnd}}"
@@ -320,34 +324,36 @@
                             </div>
                         </div>
                         <div class="card-body py-1">
-                            <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('Last year')}}:
-                                <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Payments in this time window') }}:<br>{{$counters['taxPayments']['lastYear']->timeStart}} - {{$counters['taxPayments']['lastYear']->timeEnd}}"
-                                class="fas fa-info-circle"></i>
-                            </span>
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th><b>{{__('Currency')}}</b></th>
-                                    <th>{{__('Number of payments')}}</th>
-                                    <th><b>{{__('Base amount')}}</b></th>
-                                    <th><b>{{__('Total taxes')}}</b></th>
-                                    <th>{{__('Total amount')}}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($counters['taxPayments']['lastYear'] as $currency => $income)
-                                        <tr>
-                                            <td>{{$currency}}</td>
-                                            <td>{{$income->count}}</td>
-                                            <td>{{$income->price}}</td>
-                                            <td>{{$income->taxes}}</td>
-                                            <td>{{$income->total}}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                            <hr style="width: 100%; height:2px; border-width:0; background-color:#6c757d; margin-top: 0px; margin-bottom: 8px">
+                            @if($counters['taxPayments']['lastYear']->count())
+                                <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('Last year')}}:
+                                    <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                    data-content="{{ __('Payments in this time window') }}:<br>{{$counters['taxPayments']['lastYear']->timeStart}} - {{$counters['taxPayments']['lastYear']->timeEnd}}"
+                                    class="fas fa-info-circle"></i>
+                                </span>
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th><b>{{__('Currency')}}</b></th>
+                                        <th>{{__('Number of payments')}}</th>
+                                        <th><b>{{__('Base amount')}}</b></th>
+                                        <th><b>{{__('Total taxes')}}</b></th>
+                                        <th>{{__('Total amount')}}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($counters['taxPayments']['lastYear'] as $currency => $income)
+                                            <tr>
+                                                <td>{{$currency}}</td>
+                                                <td>{{$income->count}}</td>
+                                                <td>{{$income->price}}</td>
+                                                <td>{{$income->taxes}}</td>
+                                                <td>{{$income->total}}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                <hr style="width: 100%; height:2px; border-width:0; background-color:#6c757d; margin-top: 0px; margin-bottom: 8px">
+                            @endif
                             <span style="margin:auto; display:table; font-size: 18px; font-weight:700">{{__('This year')}}:
                                 <i data-toggle="popover" data-trigger="hover" data-html="true"
                                 data-content="{{ __('Payments in this time window') }}:<br>{{$counters['taxPayments']['thisYear']->timeStart}} - {{$counters['taxPayments']['thisYear']->timeEnd}}"
