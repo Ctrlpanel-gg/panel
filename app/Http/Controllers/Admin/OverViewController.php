@@ -52,6 +52,19 @@ class OverViewController extends Controller
         $counters['payments']['thisMonth']->timeEnd = Carbon::today()->toDateString();
         $counters['payments']['lastMonth']->timeStart = Carbon::today()->startOfMonth()->subMonth()->toDateString();
         $counters['payments']['lastMonth']->timeEnd = Carbon::today()->endOfMonth()->subMonth()->toDateString();
+
+
+        //Prepare subCollection 'taxPayments'
+        $counters->put('taxPayments', collect());
+        //Get and save taxPayments from last 2 years for later filtering and looping
+        $taxPayments = Payment::query()->where('created_at', '>=', Carbon::today()->startOfYear()->subYear())->where('status', 'paid')->get();
+        //Prepare collections and set a few variables
+        $counters['taxPayments']->put('thisYear', collect());
+        $counters['taxPayments']->put('lastYear', collect());
+        $counters['taxPayments']['thisYear']->timeStart = Carbon::today()->startOfYear()->toDateString();
+        $counters['taxPayments']['thisYear']->timeEnd = Carbon::today()->toDateString();
+        $counters['taxPayments']['lastYear']->timeStart = Carbon::today()->startOfYear()->subYear()->toDateString();
+        $counters['taxPayments']['lastYear']->timeEnd = Carbon::today()->endOfYear()->subYear()->toDateString();
         
         //Fill out variables for each currency separately
         foreach($payments->where('created_at', '>=', Carbon::today()->startOfMonth()) as $payment){
@@ -75,6 +88,35 @@ class OverViewController extends Controller
             $counters['payments']['lastMonth'][$paymentCurrency]->count ++;
         }
         $counters['payments']->total = Payment::query()->count();
+
+        foreach($taxPayments->where('created_at', '>=', Carbon::today()->startOfYear()->subYear()) as $taxPayment){
+            $paymentCurrency = $payment->currency_code;
+            if(!isset($counters['taxPayments']['thisYear'][$paymentCurrency])){
+                $counters['taxPayments']['thisYear']->put($paymentCurrency, collect());
+                $counters['taxPayments']['thisYear'][$paymentCurrency]->total = 0;
+                $counters['taxPayments']['thisYear'][$paymentCurrency]->count = 0;
+                $counters['taxPayments']['thisYear'][$paymentCurrency]->price = 0;
+                $counters['taxPayments']['thisYear'][$paymentCurrency]->taxes = 0;
+            }
+            $counters['taxPayments']['thisYear'][$paymentCurrency]->total += $taxPayment->total_price;
+            $counters['taxPayments']['thisYear'][$paymentCurrency]->count ++;
+            $counters['taxPayments']['thisYear'][$paymentCurrency]->price += $taxPayment->price;
+            $counters['taxPayments']['thisYear'][$paymentCurrency]->taxes += $taxPayment->tax_value;
+        }
+        foreach($taxPayments->where('created_at', '<', Carbon::today()->startOfYear()) as $taxPayment){
+            $paymentCurrency = $payment->currency_code;
+            if(!isset($counters['taxPayments']['lastYear'][$paymentCurrency])){
+                $counters['taxPayments']['lastYear']->put($paymentCurrency, collect());
+                $counters['taxPayments']['lastYear'][$paymentCurrency]->total = 0;
+                $counters['taxPayments']['lastYear'][$paymentCurrency]->count = 0;
+                $counters['taxPayments']['lastYear'][$paymentCurrency]->price = 0;
+                $counters['taxPayments']['lastYear'][$paymentCurrency]->taxes = 0;
+            }
+            $counters['taxPayments']['lastYear'][$paymentCurrency]->total += $taxPayment->total_price;
+            $counters['taxPayments']['lastYear'][$paymentCurrency]->count ++;
+            $counters['taxPayments']['lastYear'][$paymentCurrency]->price += $taxPayment->price;
+            $counters['taxPayments']['lastYear'][$paymentCurrency]->taxes += $taxPayment->tax_value;
+        }
 
         $lastEgg = Egg::query()->latest('updated_at')->first();
         $syncLastUpdate = $lastEgg ? $lastEgg->updated_at->isoFormat('LLL') : __('unknown');
@@ -119,33 +161,30 @@ class OverViewController extends Controller
 
 
         //Get latest tickets
-        $tickets = Cache::remember('tickets', self::TTL, function(){
-            $output = collect();
-            foreach(Ticket::query()->latest()->take(3)->get() as $ticket){
-                $output->put($ticket->ticket_id, collect());
-                $output[$ticket->ticket_id]->title = $ticket->title;
-                $user = User::query()->where('id', $ticket->user_id)->first();
-                $output[$ticket->ticket_id]->user_id = $user->id;
-                $output[$ticket->ticket_id]->user = $user->name;
-                $output[$ticket->ticket_id]->status = $ticket->status;
-                $output[$ticket->ticket_id]->last_updated = $ticket->updated_at->diffForHumans();
-                switch ($ticket->status) {
-                    case 'Open':
-                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-success';
-                        break;
-                    case 'Closed':
-                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-danger';
-                        break;
-                    case 'Answered':
-                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-info';
-                        break;
-                    default:
-                        $output[$ticket->ticket_id]->statusBadgeColor = 'badge-warning';
-                        break;
-                }
+        $tickets = collect();
+        foreach(Ticket::query()->latest()->take(5)->get() as $ticket){
+            $tickets->put($ticket->ticket_id, collect());
+            $tickets[$ticket->ticket_id]->title = $ticket->title;
+            $user = User::query()->where('id', $ticket->user_id)->first();
+            $tickets[$ticket->ticket_id]->user_id = $user->id;
+            $tickets[$ticket->ticket_id]->user = $user->name;
+            $tickets[$ticket->ticket_id]->status = $ticket->status;
+            $tickets[$ticket->ticket_id]->last_updated = $ticket->updated_at->diffForHumans();
+            switch ($ticket->status) {
+                case 'Open':
+                    $tickets[$ticket->ticket_id]->statusBadgeColor = 'badge-success';
+                    break;
+                case 'Closed':
+                    $tickets[$ticket->ticket_id]->statusBadgeColor = 'badge-danger';
+                    break;
+                case 'Answered':
+                    $tickets[$ticket->ticket_id]->statusBadgeColor = 'badge-info';
+                    break;
+                default:
+                    $tickets[$ticket->ticket_id]->statusBadgeColor = 'badge-warning';
+                    break;
             }
-            return $output;
-        });
+        }
 
         return view('admin.overview.index', [
             'counters'       => $counters,
