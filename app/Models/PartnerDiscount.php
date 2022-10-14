@@ -29,6 +29,7 @@ class PartnerDiscount extends Model
             }
             return 0;
         }
+        return 0;
     }
     public static function getCommission($user_id)
     {
