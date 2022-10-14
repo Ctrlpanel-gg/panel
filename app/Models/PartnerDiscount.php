@@ -27,7 +27,7 @@ class PartnerDiscount extends Model
             if($partnerDiscount = PartnerDiscount::where('user_id', $ref_user->referral_id)->first()){
                 return $partnerDiscount->registered_user_discount;
             }
-            return $discountPercent = 0;
+            return 0;
         }
     }
     public static function getCommission($user_id)
