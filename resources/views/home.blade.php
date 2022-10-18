@@ -218,14 +218,12 @@
                                     <table class="table">
                                         <thead>
                                         <tr>
-                                            <th>{{__('Your discount')}}</th>
                                             <th>{{__('Reward per registered user')}}</th>
                                             <th>{{__('New user payment commision')}}</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{{$myDiscount}}%</td>
                                                 <td>{{config('SETTINGS::REFERRAL::REWARD')}} {{config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME')}}</td>
                                                 <td>{{config('SETTINGS::REFERRAL:PERCENTAGE')}}%</td>
                                             </tr>
