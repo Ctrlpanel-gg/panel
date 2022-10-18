@@ -140,8 +140,7 @@
                     <!-- /.card-header -->
                     <div class="card-body py-0 pb-2">
                         <ul class="list-group list-group-flush">
-                            @foreach (Auth::user()->actions()->take(8)->orderBy('created_at', 'desc')->get()
-        as $log)
+                            @foreach (Auth::user()->actions()->take(8)->orderBy('created_at', 'desc')->get() as $log)
                                 <li class="list-group-item d-flex justify-content-between text-muted">
                                     <span>
                                         @if(str_starts_with($log->description,"created"))
@@ -168,6 +167,82 @@
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
+                @if((config('SETTINGS::REFERRAL::ENABLED') ==true))<!--PartnerDiscount::getDiscount()--->
+                    <div class="card card-default">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-handshake mr-2"></i>
+                                {{ __('Partner program') }}
+                            </h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body py-0 pb-2">
+                            @if((config('SETTINGS::REFERRAL::ALLOWED') == "client" && Auth::user()->role != "member") || config('SETTINGS::REFERRAL::ALLOWED') == "everyone")
+                                <div class="row">
+                                    <div class="mt-3 col-md-8">
+                                        <span class="badge badge-success" style="font-size: 14px">
+                                            <i class="fa fa-user-check mr-2"></i>
+                                            {{_("Your referral URL")}}:
+                                            <span onmouseover="hoverIn()" onmouseout="hoverOut()" onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
+                                                {{__('Click to copy')}}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="mt-3 col-md-4">
+                                        <span class="badge badge-info" style="font-size: 14px">{{__("Number of referred users:")}} {{$numberOfReferrals}}</span>
+                                    </div>
+                                </div>
+                                @if($partnerDiscount)
+                                    <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-bottom: 0px">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>{{__('Your discount')}}</th>
+                                            <th>{{__('Discount for your new users')}}</th>
+                                            <th>{{__('Reward per registered user')}}</th>
+                                            <th>{{__('New user payment commision')}}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{$partnerDiscount->partner_discount}}%</td>
+                                                <td>{{$partnerDiscount->registered_user_discount}}%</td>
+                                                <td>{{config('SETTINGS::REFERRAL::REWARD')}} {{config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME')}}</td>
+                                                <td>{{($partnerDiscount->referral_system_commission==-1)?config('SETTINGS::REFERRAL:PERCENTAGE'):($partnerDiscount->referral_system_commission)}}%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: 0px">
+                                @else
+                                    <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-bottom: 0px">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>{{__('Your discount')}}</th>
+                                            <th>{{__('Reward per registered user')}}</th>
+                                            <th>{{__('New user payment commision')}}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{$myDiscount}}%</td>
+                                                <td>{{config('SETTINGS::REFERRAL::REWARD')}} {{config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME')}}</td>
+                                                <td>{{config('SETTINGS::REFERRAL:PERCENTAGE')}}%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: 0px">
+                                @endif
+                            @else
+                                <span class="badge badge-warning"><i
+                                        class="fa fa-user-check mr-2"></i>
+                                    {{_("Make a purchase to reveal your referral-URL")}}</span>
+                            @endif
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                @endif
+                <!-- /.card -->
             </div>
             <!-- /.col -->
 
@@ -176,5 +251,41 @@
         </div>
     </section>
     <!-- END CONTENT -->
-
+    <script>
+        var originalText = document.getElementById('RefLink').innerText;
+        var link = "<?php echo ((route("register")) . '?ref=' . (Auth::user()->referral_code));?>";
+        var timeoutID;
+        function hoverIn() {
+            document.getElementById('RefLink').innerText = link;
+            timeoutID = setTimeout(function() {
+                document.getElementById('RefLink').innerText = originalText;
+            }, 2000);
+        }
+        function hoverOut() {
+            document.getElementById('RefLink').innerText = originalText;
+            clearTimeout(timeoutID);
+        }
+        function onClickCopy() {
+            if(navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '{{ __("URL copied to clipboard")}}',
+                        position: 'top-middle',
+                        showConfirmButton: false,
+                        background: '#343a40',
+                        toast: false,
+                        timer: 1000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    })
+                })
+            } else {
+                console.log('Browser Not compatible')
+            }
+        }
+    </script>
 @endsection

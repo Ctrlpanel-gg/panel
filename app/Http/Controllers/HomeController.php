@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartnerDiscount;
 use App\Models\UsefulLink;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -105,7 +107,10 @@ class HomeController extends Controller
             'useful_links' => UsefulLink::all()->sortBy('id'),
             'bg' => $bg,
             'boxText' => $boxText,
-            'unit' => $unit
+            'unit' => $unit,
+            'numberOfReferrals' => DB::table('user_referrals')->where("referral_id","=",Auth::user()->id)->count(),
+            'partnerDiscount' => PartnerDiscount::where('user_id', Auth::user()->id)->first(),
+            'myDiscount' => PartnerDiscount::getDiscount()
         ]);
     }
 }
