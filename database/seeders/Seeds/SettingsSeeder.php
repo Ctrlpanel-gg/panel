@@ -480,6 +480,13 @@ class SettingsSeeder extends Seeder
             'description'  => 'Enable or disable the referral system'
         ]);
         Settings::firstOrCreate([
+            'key'   => 'SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION',
+        ], [
+            'value' =>"false",
+            'type'  => 'string',
+            'description'  => 'Whether referrals get percentage commission only on first purchase or on every purchase'
+        ]);
+        Settings::firstOrCreate([
             'key'   => 'SETTINGS::REFERRAL::REWARD',
         ], [
             'value' =>100,
