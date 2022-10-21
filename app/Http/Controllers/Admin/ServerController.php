@@ -123,6 +123,44 @@ class ServerController extends Controller
         return redirect()->back()->with('success', __('Server has been updated!'));
     }
 
+    public function syncServers()
+    {
+        $pteroServers = Pterodactyl::getServers();
+        $CPServers = Server::get();
+
+        $CPIDArray = [];
+        $renameCount = 0;
+        foreach($CPServers as $CPServer)//go thru all CP servers and make array with IDs as keys. All values are false.
+        {
+            if($CPServer->pterodactyl_id) $CPIDArray[$CPServer->pterodactyl_id] = false;
+        }
+
+        foreach($pteroServers as $server)//go thru all ptero servers, if server exists, change value to true in array.
+        {
+            if(isset($CPIDArray[$server['attributes']['id']])){
+                $CPIDArray[$server['attributes']['id']]=true;
+
+                if(isset($server['attributes']['name'])){//failsafe
+                    //Check if a server got renamed
+                    $savedServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first();
+                    if($savedServer->name != $server['attributes']['name']){
+                        $savedServer->name = $server['attributes']['name'];
+                        $savedServer->save();
+                        $renameCount++;
+                    }
+                }
+            }
+        }
+        $filteredArray = array_filter($CPIDArray, function($v, $k) { return $v == false; }, ARRAY_FILTER_USE_BOTH); //Array of servers, that dont exist on ptero (value == false)
+        $deleteCount = 0;
+        foreach($filteredArray as $key => $CPID)//delete servers that dont exist on ptero anymore
+        {
+            if(!Pterodactyl::getServerAttributes($key, true)) $deleteCount++;
+        }
+
+        return redirect()->back()->with('success', __('Servers synced successfully' . (($renameCount)?(',\n' . __('renamed') . ' ' . $renameCount . ' ' . __('servers')):'') . ((count($filteredArray))?(',\n' . __('deleted') . ' ' . $deleteCount . '/' . count($filteredArray) . ' ' . __('old servers')):''))) . '.';
+    }
+
     /**
      * @return JsonResponse|mixed
      * @throws Exception

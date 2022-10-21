@@ -25,7 +25,13 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-server mr-2"></i>{{__('Servers')}}</h5>
+                    <div class="d-flex justify-content-between">
+                        <div class="card-title ">
+                            <span><i class="fas fa-server mr-2"></i>{{__('Servers')}}</span>
+                        </div>
+                        <a href="{{route('admin.servers.sync')}}" class="btn btn-primary btn-sm"><i
+                                class="fas fa-sync mr-2"></i>{{__('Sync')}}</a>
+                    </div>
                 </div>
                 <div class="card-body table-responsive">
 
