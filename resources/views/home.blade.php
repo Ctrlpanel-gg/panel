@@ -182,7 +182,7 @@
                                     <div class="mt-3 col-md-8">
                                         <span class="badge badge-success" style="font-size: 14px">
                                             <i class="fa fa-user-check mr-2"></i>
-                                            {{_("Your referral URL")}}:
+                                            {{__("Your referral URL")}}:
                                             <span onmouseover="hoverIn()" onmouseout="hoverOut()" onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
                                                 {{__('Click to copy')}}
                                             </span>
