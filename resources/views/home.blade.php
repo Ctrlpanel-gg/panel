@@ -234,7 +234,7 @@
                             @else
                                 <span class="badge badge-warning"><i
                                         class="fa fa-user-check mr-2"></i>
-                                    {{_("Make a purchase to reveal your referral-URL")}}</span>
+                                    {{__("Make a purchase to reveal your referral-URL")}}</span>
                             @endif
                         </div>
                         <!-- /.card-body -->
