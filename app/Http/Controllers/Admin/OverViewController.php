@@ -102,16 +102,16 @@ class OverViewController extends Controller
             $nodeId = $server['attributes']['node'];
             
             if($CPServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first()){
-                $prize = Product::query()->where('id', $CPServer->product_id)->first()->price;
+                $price = Product::query()->where('id', $CPServer->product_id)->first()->price;
                 if (!$CPServer->suspended){
-                    $counters['earnings']->active += $prize;
+                    $counters['earnings']->active += $price;
                     $counters['servers']->active ++;
-                    $nodes[$nodeId]->activeEarnings += $prize;
+                    $nodes[$nodeId]->activeEarnings += $price;
                     $nodes[$nodeId]->activeServers ++;
                 }
-                $counters['earnings']->total += $prize;
+                $counters['earnings']->total += $price;
                 $counters['servers']->total ++;
-                $nodes[$nodeId]->totalEarnings += $prize;
+                $nodes[$nodeId]->totalEarnings += $price;
                 $nodes[$nodeId]->totalServers ++;
             }
         }
