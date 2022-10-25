@@ -128,6 +128,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #servers
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
         Route::post('servers/togglesuspend/{server}', [AdminServerController::class, 'toggleSuspended'])->name('servers.togglesuspend');
+        Route::get('servers/sync', [AdminServerController::class, 'syncServers'])->name('servers.sync');
         Route::resource('servers', AdminServerController::class);
 
         #products
