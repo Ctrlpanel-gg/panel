@@ -111,6 +111,14 @@
                             </div>
                         </div>
                         <div class="card-body py-1">
+                            @if ($deletedNodesPresent)
+                                <div class="alert alert-danger m-2">
+                                    <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Warning!') }}</h5>
+                                    <p class="mb-2">
+                                        {{ __('Some nodes got deleted on pterodactyl only. Please click the sync button above.') }}
+                                    </p>
+                                </div>
+                            @endif
                             <table class="table">
                                 <thead>
                                 <tr>

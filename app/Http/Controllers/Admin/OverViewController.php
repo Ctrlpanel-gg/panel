@@ -81,10 +81,15 @@ class OverViewController extends Controller
         
 
 
-        //Get node information
+        //Get node information and prepare collection
+        $pteroNodeIds = [];
+        foreach(Pterodactyl::getNodes() as $pteroNode){
+            array_push($pteroNodeIds, $pteroNode['attributes']['id']);
+        }
         $nodes = collect();
         foreach($DBnodes = Node::query()->get() as $DBnode){ //gets all node information and prepares the structure
             $nodeId = $DBnode['id'];
+            if(!in_array($nodeId, $pteroNodeIds)) continue; //Check if node exists on pterodactyl too, if not, skip
             $nodes->put($nodeId, collect());
             $nodes[$nodeId]->name = $DBnode['name'];
             $pteroNode = Pterodactyl::getNode($nodeId);
@@ -151,6 +156,7 @@ class OverViewController extends Controller
             'counters'       => $counters,
             'nodes'          => $nodes,
             'syncLastUpdate' => $syncLastUpdate,
+            'deletedNodesPresent'=> ($DBnodes->count() != count($pteroNodeIds))?true:false,
             'perPageLimit'   => ($counters['servers']->total != Server::query()->count())?true:false,
             'tickets'        => $tickets
         ]);
