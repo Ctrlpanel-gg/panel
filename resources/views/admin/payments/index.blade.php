@@ -44,6 +44,7 @@
                                 <th>{{ __('Tax Value') }}</th>
                                 <th>{{ __('Tax Percentage') }}</th>
                                 <th>{{ __('Total Price') }}</th>
+                                <th>{{ __('User') }}</th>
                                 <th>{{ __('Payment ID') }}</th>
                                 <th>{{ __('Payment Method') }}</th>
                                 <th>{{ __('Created at') }}</th>
@@ -81,6 +82,7 @@
                     {data: 'tax_value'},
                     {data: 'tax_percent'},
                     {data: 'total_price'},
+                    {data: 'user'},
                     {data: 'payment_id'},
                     {data: 'payment_method'},
                     {data: 'created_at'},
