@@ -88,7 +88,7 @@ class UserController extends Controller
             "email" => "sometimes|string|email",
             "credits" => "sometimes|numeric|min:0|max:1000000",
             "server_limit" => "sometimes|numeric|min:0|max:1000000",
-            "role" => ['sometimes', Rule::in(['admin', 'mod', 'client', 'member'])],
+            "role" => ['sometimes', Rule::in(['admin', 'moderator', 'client', 'member'])],
         ]);
 
         event(new UserUpdateCreditsEvent($user));
