@@ -30,8 +30,8 @@ class ServerController extends Controller
         foreach ($servers as $server) {
 
             //Get server infos from ptero
-            $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
-
+            $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id, true);
+            if(!$serverAttributes) continue;
             $serverRelationships = $serverAttributes['relationships'];
             $serverLocationAttributes = $serverRelationships['location']['attributes'];
 
@@ -45,6 +45,13 @@ class ServerController extends Controller
 
             $server->node = $serverRelationships['node']['attributes']['name'];
 
+            //Check if a server got renamed on Pterodactyl
+            $savedServer = Server::query()->where('id', $server->id)->first();
+            if($savedServer->name != $serverAttributes['name']){
+                $savedServer->name = $serverAttributes['name'];
+                $server->name = $serverAttributes['name'];
+                $savedServer->save();
+            }
             //get productname by product_id for server
             $product = Product::find($server->product_id);
 
@@ -234,6 +241,9 @@ class ServerController extends Controller
         $serverRelationships = $serverAttributes['relationships'];
         $serverLocationAttributes = $serverRelationships['location']['attributes'];
 
+        //Get current product
+        $currentProduct = Product::where('id', $server->product_id)->first();
+
         //Set server infos
         $server->location = $serverLocationAttributes['long'] ?
             $serverLocationAttributes['long'] :
@@ -242,11 +252,19 @@ class ServerController extends Controller
         $server->node = $serverRelationships['node']['attributes']['name'];
         $server->name = $serverAttributes['name'];
         $server->egg = $serverRelationships['egg']['attributes']['name'];
-        $products = Product::orderBy("created_at")->get();
+
+        $pteroNode = Pterodactyl::getNode($serverRelationships['node']['attributes']['id']);
+
+        $products = Product::orderBy("created_at")
+        ->whereHas('nodes', function (Builder $builder) use ($serverRelationships) { //Only show products for that node
+            $builder->where('id', '=', $serverRelationships['node']['attributes']['id']);
+        })
+        ->get();
 
         // Set the each product eggs array to just contain the eggs name
         foreach ($products as $product) {
             $product->eggs = $product->eggs->pluck('name')->toArray();
+            if($product->memory-$currentProduct->memory>($pteroNode['memory']*($pteroNode['memory_overallocate']+100)/100)-$pteroNode['allocated_resources']['memory']||$product->disk-$currentProduct->disk>($pteroNode['disk']*($pteroNode['disk_overallocate']+100)/100)-$pteroNode['allocated_resources']['disk']) $product->doesNotFit = true;
         }
 
         return view('servers.settings')->with([

@@ -379,6 +379,13 @@ class SettingsSeeder extends Seeder
             'description'  => 'The URL to your Pterodactyl Panel. Must not end with a / '
         ]);
         Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT',
+        ], [
+            'value' => 200,
+            'type'  => 'integer',
+            'description'  => 'The Pterodactyl API perPage limit. It is necessary to set it higher than your server count.'
+        ]);
+        Settings::firstOrCreate([
             'key'   => 'SETTINGS::MISC:PHPMYADMIN:URL',
         ], [
             'value' => env('PHPMYADMIN_URL', ''),
