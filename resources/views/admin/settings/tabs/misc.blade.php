@@ -195,8 +195,8 @@
                 </div>
                 @if(config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
                 <div class="form-group mb-3">
-                    <div class="custom-control p-0">
-                        <label>{{ __('Your Recaptcha') }}:</label>
+                    <div class="custom-control p-0" style="transform:scale(0.77); transform-origin:0 0;">
+                        <label style="font-size: 1.3rem;">{{ __('Your Recaptcha') }}:</label>
                         {!! htmlScriptTagJsApi() !!}
                         {!! htmlFormSnippet() !!}
                     </div>
