@@ -131,8 +131,9 @@ class ProfileController extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
         ]);
+        $user->reVerifyEmail();
         $user->sendEmailVerificationNotification();
-
+        
         return redirect()->route('profile.index')->with('success', __('Profile updated'));
     }
 }
