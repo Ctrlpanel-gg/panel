@@ -136,7 +136,7 @@ class ProfileController extends Controller
             $user->reVerifyEmail();
         };
         $user->sendEmailVerificationNotification();
-        
+
         return redirect()->route('profile.index')->with('success', __('Profile updated'));
     }
 }
