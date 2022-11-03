@@ -522,5 +522,19 @@ class SettingsSeeder extends Seeder
             'type'  => 'string',
             'description'  => 'Enables the updgrade/downgrade feature for servers'
         ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:DISABLE_NEW_SERVERS',
+        ], [
+            'value' => "",
+            'type'  => 'boolean',
+            'description'  => 'Enable/disable the creation of new servers'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:DISABLE_NEW_USERS',
+        ], [
+            'value' => "",
+            'type'  => 'boolean',
+            'description'  => 'Enable/disable the creation of new users'
+        ]);
     }
 }

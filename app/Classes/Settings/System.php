@@ -45,7 +45,7 @@ public function checkPteroClientkey(){
             "per-page-limit" => "required|min:0|integer",
             "pterodactyl-admin-api-key" => "required|string",
             "enable-upgrades" => "string",
-
+            "enable-disable-servers" => "string",
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -85,6 +85,8 @@ public function checkPteroClientkey(){
             "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
             "SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN" => "pterodactyl-admin-api-key",
             "SETTINGS::SYSTEM:ENABLE_UPGRADE" => "enable-upgrade",
+            "SETTINGS::SYSTEM:DISABLE_NEW_SERVERS" => "enable-disable-servers",
+            "SETTINGS::SYSTEM:DISABLE_NEW_USERS" => "enable-disable-new-users",
         ];
 
 

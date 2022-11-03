@@ -128,11 +128,17 @@
                         <label for="force-discord-verification">{{ __('Force Discord verification') }}
                         </label>
                     </div>
-                    <div class="custom-control mb-3 p-0">
+                    <div class="custom-control mb-1 p-0">
                         <input value="true" id="force-email-verification" name="force-email-verification"
                             {{ config('SETTINGS::USER:FORCE_EMAIL_VERIFICATION') == 'true' ? 'checked' : '' }}
                             type="checkbox">
                         <label for="force-email-verification">{{ __('Force E-Mail verification') }} </label>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <input value="true" id="enable-disable-new-users" name="enable-disable-new-users"
+                            {{ config('SETTINGS::SYSTEM:DISABLE_NEW_USERS') == 'true' ? 'checked' : '' }}
+                            type="checkbox">
+                        <label for="enable-disable-new-users">{{ __('Enable/disable nem users') }} </label>
                     </div>
 
                     <div class="custom-control mb-3 p-0">
@@ -210,6 +216,21 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <div class="custom-control mb-1 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <input value="true" id="enable-disable-servers" name="enable-disable-servers"
+                                    {{ config('SETTINGS::SYSTEM:DISABLE_NEW_SERVERS') == 'true' ? 'checked' : '' }}
+                                    type="checkbox">
+                                <label for="enable-disable-servers">{{ __('Enable/disable new servers') }} </label>
+                            </div>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('Enable/disable the creation of new servers.') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <div class="custom-control mb-3 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <label for="initial-credits">{{ __('Server Allocation Limit') }}</label>
@@ -222,8 +243,6 @@
                             class="form-control @error('allocation-limit') is-invalid @enderror" required>
                     </div>
                 </div>
-
-
             </div>
 
                 {{-- Design --}}
