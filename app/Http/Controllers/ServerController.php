@@ -136,10 +136,8 @@ class ServerController extends Controller
             return redirect()->route('profile.index')->with('error', __("You are required to verify your email address before you can create a server."));
         }
         
-        /** 
-         * Required Verification for creating an server
-         * Todo: Tell the administrator that server creation has been disabled?
-        */
+        //Required Verification for creating an server
+
         if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS', 'true') && Auth::user()->role != "admin") {
             return redirect()->route('servers.index')->with('error', __("The system administrator has blocked the creation of new servers."));
         }
