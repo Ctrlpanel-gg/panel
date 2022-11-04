@@ -139,6 +139,9 @@
                             {{ config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS') == 'true' ? 'checked' : '' }}
                             type="checkbox">
                         <label for="enable-disable-new-users">{{ __('Creation of new users') }} </label>
+                        <i data-toggle="popover" data-trigger="hover" data-html="true" class="fas fa-info-circle"
+                            data-content="{{ __('If unchecked, it will disable the registration of new users in the system, and this will also apply to the API.') }}">
+                        </i>
                     </div>
 
                     <div class="custom-control mb-3 p-0">
