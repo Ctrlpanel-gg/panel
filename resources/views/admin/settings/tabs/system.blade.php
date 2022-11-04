@@ -136,9 +136,9 @@
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <input value="true" id="enable-disable-new-users" name="enable-disable-new-users"
-                            {{ config('SETTINGS::SYSTEM:DISABLE_NEW_USERS') == 'true' ? 'checked' : '' }}
+                            {{ config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS') == 'true' ? 'checked' : '' }}
                             type="checkbox">
-                        <label for="enable-disable-new-users">{{ __('Enable/disable nem users') }} </label>
+                        <label for="enable-disable-new-users">{{ __('Creation of new users') }} </label>
                     </div>
 
                     <div class="custom-control mb-3 p-0">
@@ -220,12 +220,12 @@
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <div>
                                 <input value="true" id="enable-disable-servers" name="enable-disable-servers"
-                                    {{ config('SETTINGS::SYSTEM:DISABLE_NEW_SERVERS') == 'true' ? 'checked' : '' }}
+                                    {{ config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS') == 'true' ? 'checked' : '' }}
                                     type="checkbox">
-                                <label for="enable-disable-servers">{{ __('Enable/disable new servers') }} </label>
+                                <label for="enable-disable-servers">{{ __('Creation of new servers') }} </label>
                             </div>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Enable/disable the creation of new servers.') }}"
+                                data-content="{{ __('If unchecked, it will disable the creation of new servers for regular users and system moderators, this has no effect for administrators.') }}"
                                 class="fas fa-info-circle"></i>
                         </div>
                     </div>

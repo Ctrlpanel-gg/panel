@@ -8,7 +8,7 @@
                         <a href="{{route('welcome')}}" class="h1"><b class="mr-1">{{config('app.name', 'Laravel')}}</b></a>
                     </div>
                     <div class="card-body">
-                        @if(config('SETTINGS::SYSTEM:DISABLE_NEW_USERS'))
+                        @if(!config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS'))
                         <div class="alert alert-warning p-2 m-2">
                             <h5><i class="icon fas fa-exclamation-circle"></i> {{ __('Warning!') }}</h5>
                             {{ __('The system administrator has blocked the registration of new users') }}

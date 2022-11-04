@@ -85,8 +85,8 @@ public function checkPteroClientkey(){
             "SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO" => "enable-login-logo",
             "SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN" => "pterodactyl-admin-api-key",
             "SETTINGS::SYSTEM:ENABLE_UPGRADE" => "enable-upgrade",
-            "SETTINGS::SYSTEM:DISABLE_NEW_SERVERS" => "enable-disable-servers",
-            "SETTINGS::SYSTEM:DISABLE_NEW_USERS" => "enable-disable-new-users",
+            "SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS" => "enable-disable-servers",
+            "SETTINGS::SYSTEM:CREATION_OF_NEW_USERS" => "enable-disable-new-users",
         ];
 
 

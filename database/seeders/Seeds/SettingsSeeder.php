@@ -518,21 +518,21 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::SYSTEM:ENABLE_UPGRADE',
         ], [
-            'value' =>"",
-            'type'  => 'string',
+            'value' =>  "false",
+            'type'  => 'boolean',
             'description'  => 'Enables the updgrade/downgrade feature for servers'
         ]);
         Settings::firstOrCreate([
-            'key'   => 'SETTINGS::SYSTEM:DISABLE_NEW_SERVERS',
+            'key'   => 'SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS',
         ], [
-            'value' => "",
+            'value' => "true",
             'type'  => 'boolean',
             'description'  => 'Enable/disable the creation of new servers'
         ]);
         Settings::firstOrCreate([
-            'key'   => 'SETTINGS::SYSTEM:DISABLE_NEW_USERS',
+            'key'   => 'SETTINGS::SYSTEM:CREATION_OF_NEW_USERS',
         ], [
-            'value' => "",
+            'value' => "true",
             'type'  => 'boolean',
             'description'  => 'Enable/disable the creation of new users'
         ]);
