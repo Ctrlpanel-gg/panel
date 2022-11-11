@@ -111,6 +111,14 @@
                             </div>
                         </div>
                         <div class="card-body py-1">
+                            @if ($deletedNodesPresent)
+                                <div class="alert alert-danger m-2">
+                                    <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Warning!') }}</h5>
+                                    <p class="mb-2">
+                                        {{ __('Some nodes got deleted on pterodactyl only. Please click the sync button above.') }}
+                                    </p>
+                                </div>
+                            @endif
                             <table class="table">
                                 <thead>
                                 <tr>
@@ -207,11 +215,13 @@
                             @if ($perPageLimit)
                                 <div class="alert alert-danger m-2">
                                     <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Error!') }}</h5>
-                                    <p class="">
+                                    <p class="mb-2">
                                         {{ __('You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.') }}<br>
-                                        {{ __('You can do that in settings.') }}<br>
-                                        {{ __('Note') }}: {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on ControlPanel.') }}
+                                        {{ __('You can do that in settings.') }}<br><br>
+                                        {{ __('Note') }}: {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on ControlPanel. Try clicking the button below.') }}
                                     </p>
+                                    <a href="{{route('admin.servers.sync')}}" class="btn btn-primary btn-md"><i
+                                        class="fas fa-sync mr-2"></i>{{__('Sync servers')}}</a>
                                 </div>
                             @endif
                             <table class="table">

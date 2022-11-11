@@ -34,7 +34,12 @@
                             <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{ __('Server configuration') }}
                             </div>
                         </div>
-
+                        @if (!config("SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS"))
+                            <div class="alert alert-warning p-2 m-2">
+                                The creation of new servers has been disabled for regular users, enable it again
+                                <a href="{{route('admin.settings.system')}}">{{ __('here') }}</a>.
+                            </div>
+                        @endif
                         @if ($productCount === 0 || $nodeCount === 0 || count($nests) === 0 || count($eggs) === 0)
                             <div class="alert alert-danger p-2 m-2">
                                 <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Error!') }}</h5>

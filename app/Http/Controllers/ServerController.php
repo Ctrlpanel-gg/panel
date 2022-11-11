@@ -134,6 +134,12 @@ class ServerController extends Controller
         if (config('SETTINGS::USER:FORCE_EMAIL_VERIFICATION', 'false') === 'true' && !Auth::user()->hasVerifiedEmail()) {
             return redirect()->route('profile.index')->with('error', __("You are required to verify your email address before you can create a server."));
         }
+        
+        //Required Verification for creating an server
+
+        if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS', 'true') && Auth::user()->role != "admin") {
+            return redirect()->route('servers.index')->with('error', __("The system administrator has blocked the creation of new servers."));
+        }
 
         //Required Verification for creating an server
         if (config('SETTINGS::USER:FORCE_DISCORD_VERIFICATION', 'false') === 'true' && !Auth::user()->discordUser) {

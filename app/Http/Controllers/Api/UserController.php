@@ -88,7 +88,7 @@ class UserController extends Controller
             "email" => "sometimes|string|email",
             "credits" => "sometimes|numeric|min:0|max:1000000",
             "server_limit" => "sometimes|numeric|min:0|max:1000000",
-            "role" => ['sometimes', Rule::in(['admin', 'mod', 'client', 'member'])],
+            "role" => ['sometimes', Rule::in(['admin', 'moderator', 'client', 'member'])],
         ]);
 
         event(new UserUpdateCreditsEvent($user));
@@ -251,6 +251,13 @@ class UserController extends Controller
             'email' => ['required', 'string', 'email', 'max:64', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'max:191'],
         ]);
+        
+        // Prevent the creation of new users via API if this is enabled.
+        if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS', 'true')) {
+            throw ValidationException::withMessages([
+                'error' => "The creation of new users has been blocked by the system administrator."
+            ]);
+        } 
 
         $user = User::create([
             'name' => $request->input('name'),
