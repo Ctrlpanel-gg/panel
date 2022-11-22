@@ -188,7 +188,7 @@
                                         @endif
                                             </div>
                                         <span>
-                                            {{ number_format($server->product->price) }}
+                                            {{ $server->product->price == round($server->product->price) ? round($server->product->price) : $server->product->price }}
                                         </span>
                                     </div>
                                 </div>
