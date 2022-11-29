@@ -12,7 +12,9 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a href="{{route('admin.users.index')}}">{{__('Users')}}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.users.show' , $user->id)}}">{{__('Show')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                                       href="{{route('admin.users.show' , $user->id)}}">{{__('Show')}}</a>
+                        </li>
                     </ol>
                 </div>
             </div>
@@ -30,11 +32,12 @@
                         <div class="small-box bg-dark">
                             <div class="d-flex justify-content-between">
                                 <div class="p-3">
-                                    <h3>{{$user->discordUser->username}} <sup>{{$user->discordUser->locale}}</sup> </h3>
+                                    <h3>{{$user->discordUser->username}} <sup>{{$user->discordUser->locale}}</sup></h3>
                                     <p>{{$user->discordUser->id}}
                                     </p>
                                 </div>
-                                <div class="p-3"><img width="100px" height="100px" class="rounded-circle" src="{{$user->discordUser->getAvatar()}}" alt="avatar"></div>
+                                <div class="p-3"><img width="100px" height="100px" class="rounded-circle"
+                                                      src="{{$user->discordUser->getAvatar()}}" alt="avatar"></div>
                             </div>
                             <div class="small-box-footer">
                                 <i class="fab fa-discord mr-1"></i>Discord
@@ -221,13 +224,16 @@
                                 </div>
                                 <div class="col-lg-8">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                           @if($user->last_seen) {{$user->last_seen->diffForHumans()}} @else <small
-                                               class="text-muted">Null</small> @endif
+                                           @if($user->last_seen)
+                                               {{$user->last_seen->diffForHumans()}}
+                                           @else
+                                               <small
+                                                   class="text-muted">Null</small>
+                                           @endif
                                        </span>
                                 </div>
                             </div>
                         </div>
-
 
 
                     </div>
@@ -246,14 +252,15 @@
                 </div>
 
             </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title"><i class="fas fa-user-check mr-2"></i>{{__('Referals')}} ({{__("referral-code")}}: {{$user->referral_code}})</h5>
-                    </div>
-                    <div class="card-body table-responsive">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-user-check mr-2"></i>{{__('Referals')}}
+                        ({{__("referral-code")}}: {{$user->referral_code}})</h5>
+                </div>
+                <div class="card-body table-responsive">
 
 
-                        @foreach($referrals as $referral)
+                    @foreach($referrals as $referral)
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
@@ -261,7 +268,8 @@
                                 </div>
                                 <div class="col-lg-4">
                                        <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                           <i class="fas fa-user-check mr-2"></i><a href="{{route("admin.users.show",$referral->id)}}">{{$referral->name}}</a>
+                                           <i class="fas fa-user-check mr-2"></i><a
+                                               href="{{route("admin.users.show",$referral->id)}}">{{$referral->name}}</a>
                                        </span>
                                 </div>
                                 <div class="col-lg-4">
@@ -271,17 +279,15 @@
                                 </div>
                             </div>
                         </div>
-                        @endforeach
-                    </div>
-
+                    @endforeach
                 </div>
+
+            </div>
 
         </div>
         <!-- END CUSTOM CONTENT -->
         </div>
     </section>
     <!-- END CONTENT -->
-
-
 
 @endsection
