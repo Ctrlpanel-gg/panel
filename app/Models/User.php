@@ -266,4 +266,11 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => now(),
         ])->save();
     }
+    
+    public function reVerifyEmail()
+    {
+        $this->forceFill([
+            'email_verified_at' => null,
+        ])->save();
+    }
 }

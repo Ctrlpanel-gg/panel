@@ -128,6 +128,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         #servers
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
         Route::post('servers/togglesuspend/{server}', [AdminServerController::class, 'toggleSuspended'])->name('servers.togglesuspend');
+        Route::get('servers/sync', [AdminServerController::class, 'syncServers'])->name('servers.sync');
         Route::resource('servers', AdminServerController::class);
 
         #products
@@ -151,6 +152,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('settings/datatable', [SettingsController::class, 'datatable'])->name('settings.datatable');
         Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
         Route::get("settings/checkPteroClientkey", [System::class, 'checkPteroClientkey'])->name('settings.checkPteroClientkey');
+        Route::redirect("settings#system", "system")->name('settings.system');
+
         #settings
         Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateSettings'])->name('settings.update.invoicesettings');
         Route::patch('settings/update/language', [Language::class, 'updateSettings'])->name('settings.update.languagesettings');

@@ -128,11 +128,20 @@
                         <label for="force-discord-verification">{{ __('Force Discord verification') }}
                         </label>
                     </div>
-                    <div class="custom-control mb-3 p-0">
+                    <div class="custom-control mb-1 p-0">
                         <input value="true" id="force-email-verification" name="force-email-verification"
                             {{ config('SETTINGS::USER:FORCE_EMAIL_VERIFICATION') == 'true' ? 'checked' : '' }}
                             type="checkbox">
                         <label for="force-email-verification">{{ __('Force E-Mail verification') }} </label>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <input value="true" id="enable-disable-new-users" name="enable-disable-new-users"
+                            {{ config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS') == 'true' ? 'checked' : '' }}
+                            type="checkbox">
+                        <label for="enable-disable-new-users">{{ __('Creation of new users') }} </label>
+                        <i data-toggle="popover" data-trigger="hover" data-html="true" class="fas fa-info-circle"
+                            data-content="{{ __('If unchecked, it will disable the registration of new users in the system, and this will also apply to the API.') }}">
+                        </i>
                     </div>
 
                     <div class="custom-control mb-3 p-0">
@@ -210,6 +219,21 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <div class="custom-control mb-1 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <input value="true" id="enable-disable-servers" name="enable-disable-servers"
+                                    {{ config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS') == 'true' ? 'checked' : '' }}
+                                    type="checkbox">
+                                <label for="enable-disable-servers">{{ __('Creation of new servers') }} </label>
+                            </div>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('If unchecked, it will disable the creation of new servers for regular users and system moderators, this has no effect for administrators.') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <div class="custom-control mb-3 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <label for="initial-credits">{{ __('Server Allocation Limit') }}</label>
@@ -222,8 +246,6 @@
                             class="form-control @error('allocation-limit') is-invalid @enderror" required>
                     </div>
                 </div>
-
-
             </div>
 
                 {{-- Design --}}
