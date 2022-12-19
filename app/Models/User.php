@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Classes\Pterodactyl;
-use App\Events\UserUpdateCreditsEvent;
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -110,7 +109,16 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
             });
 
+            $user->tickets()->chunk(10, function ($tickets) {
+                foreach ($tickets as $ticket) {
+                    $ticket->delete();
+                }
+            });
+
+            $user->ticketBlackList()->delete();
+
             $user->vouchers()->detach();
+
 
             $user->discordUser()->delete();
 
@@ -132,6 +140,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function ticketBlackList()
+    {
+        return $this->hasMany(TicketBlacklist::class);
     }
 
     /**
@@ -209,6 +233,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this;
     }
 
+    private function getServersWithProduct()
+    {
+        return $this->servers()
+            ->whereNull('suspended')
+            ->whereNull('cancelled')
+            ->with('product')
+            ->get();
+    }
+
     /**
      * @return string
      */
@@ -242,14 +275,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return number_format($usage, 2, '.', '');
     }
 
-    private function getServersWithProduct() {
-        return $this->servers()
-            ->whereNull('suspended')
-            ->whereNull('cancelled')
-            ->with('product')
-            ->get();
-    }
-
     /**
      * @return array|string|string[]
      */
@@ -268,7 +293,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => now(),
         ])->save();
     }
-    
+
     public function reVerifyEmail()
     {
         $this->forceFill([
