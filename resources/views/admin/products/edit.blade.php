@@ -214,6 +214,25 @@
                                             </div>
                                             @enderror
                                         </div>
+                                        <div class="form-group">
+                                            <label for="discount">
+                                                {{__('Discount')}} 
+                                                <i data-toggle="popover"
+                                                    data-trigger="hover"
+                                                    data-content="{{__('Discount in percentage for the first bill')}}"
+                                                    class="fas fa-info-circle"></i>
+                                            </label>
+                                            <input value="{{$product->discount ?? old('discount') ?? 0}}" id="discount"
+                                                   name="discount"
+                                                   type="number"
+                                                   class="form-control @error('discount') is-invalid @enderror"
+                                                   required="required">
+                                            @error('discount')
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
 

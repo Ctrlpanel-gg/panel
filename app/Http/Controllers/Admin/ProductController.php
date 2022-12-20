@@ -73,6 +73,7 @@ class ProductController extends Controller
             "nodes.*" => "required|exists:nodes,id",
             "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
+            "discount" => "nullable|numeric|max:100|min:0"
         ]);
 
         $disabled = !is_null($request->input('disabled'));
@@ -139,6 +140,7 @@ class ProductController extends Controller
             "nodes.*" => "required|exists:nodes,id",
             "eggs.*" => "required|exists:eggs,id",
             "disabled" => "nullable",
+            "discount" => "nullable|numeric|max:100|min:0"
         ]);
 
         $disabled = !is_null($request->input('disabled'));
