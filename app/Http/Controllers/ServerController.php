@@ -193,8 +193,9 @@ class ServerController extends Controller
 
         ]);
 
-        // Charge first billing cycle
-        $request->user()->decrement('credits', $server->product->price);
+        // Charge first billing cycle with discount
+        $price = $product->price - ($product->price * ($product->discount / 100));
+        $request->user()->decrement('credits', $price);
 
         return redirect()->route('servers.index')->with('success', __('Server created'));
     }
