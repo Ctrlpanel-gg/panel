@@ -9,8 +9,10 @@ use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Product;
 use App\Models\Server;
+use App\Models\User;
 use App\Models\Settings;
 use App\Notifications\ServerCreationError;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
@@ -122,10 +124,8 @@ class ServerController extends Controller
 
             // Min. Credits
             if (
-                Auth::user()->credits <
-                ($product->minimum_credits == -1
-                    ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER', 50)
-                    : $product->minimum_credits)
+                Auth::user()->credits < $product->minimum_credits ||
+                Auth::user()->credits < $product->price
             ) {
                 return redirect()->route('servers.index')->with('error', "You do not have the required amount of " . CREDITS_DISPLAY_NAME . " to use this product!");
             }
@@ -174,6 +174,7 @@ class ServerController extends Controller
         $server = $request->user()->servers()->create([
             'name'       => $request->input('name'),
             'product_id' => $request->input('product'),
+            'last_billed' => Carbon::now()->toDateTimeString(),
         ]);
 
         //get free allocation ID
@@ -188,14 +189,12 @@ class ServerController extends Controller
         //update server with pterodactyl_id
         $server->update([
             'pterodactyl_id' => $serverAttributes['id'],
-            'identifier'     => $serverAttributes['identifier']
+            'identifier'     => $serverAttributes['identifier'],
+
         ]);
 
-        if (config('SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR', 'true') == 'true') {
-            if ($request->user()->credits >= $server->product->getHourlyPrice()) {
-                $request->user()->decrement('credits', $server->product->getHourlyPrice());
-            }
-        }
+        // Charge first billing cycle
+        $request->user()->decrement('credits', $server->product->price);
 
         return redirect()->route('servers.index')->with('success', __('Server created'));
     }
@@ -221,8 +220,6 @@ class ServerController extends Controller
      */
     private function serverCreationFailed(Response $response, Server $server)
     {
-        $server->delete();
-
         return redirect()->route('servers.index')->with('error', json_encode($response->json()));
     }
 
@@ -233,7 +230,21 @@ class ServerController extends Controller
             $server->delete();
             return redirect()->route('servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource"') . $e->getMessage() . '"');
+        }
+    }
+
+    /** Cancel Server */
+    public function cancel (Server $server)
+    {
+        try {
+            error_log($server->update([
+                'cancelled' => now(),
+            ]));
+
+            return redirect()->route('servers.index')->with('success', __('Server cancelled'));
+        } catch (Exception $e) {
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
         }
     }
 
@@ -242,7 +253,7 @@ class ServerController extends Controller
     {
 
 
-        if($server->user_id != Auth::user()->id){ return back()->with('error', __('´This is not your Server!'));}
+        if($server->user_id != Auth::user()->id){ return back()->with('error', __('This is not your Server!'));}
         $serverAttributes = Pterodactyl::getServerAttributes($server->pterodactyl_id);
         $serverRelationships = $serverAttributes['relationships'];
         $serverLocationAttributes = $serverRelationships['location']['attributes'];
@@ -281,7 +292,7 @@ class ServerController extends Controller
 
     public function upgrade(Server $server, Request $request)
     {
-        if($server->user_id != Auth::user()->id) return redirect()->route('servers.index');
+        if($server->user_id != Auth::user()->id || $server->suspended) return redirect()->route('servers.index');
         if(!isset($request->product_upgrade))
         {
             return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('this product is the only one'));
@@ -303,24 +314,54 @@ class ServerController extends Controller
         $checkResponse = Pterodactyl::checkNodeResources($node, $requireMemory, $requiredisk);
         if ($checkResponse == False) return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server."));
 
-        $priceupgrade = $newProduct->getHourlyPrice();
+        // calculate the amount of credits that the user overpayed for the old product when canceling the server right now
+        // billing periods are hourly, daily, weekly, monthly, quarterly, half-annually, annually
+        $billingPeriod = $oldProduct->billing_period;
+        // seconds
+        $billingPeriods = [
+            'hourly' => 3600,
+            'daily' => 86400,
+            'weekly' => 604800,
+            'monthly' => 2592000,
+            'quarterly' => 7776000,
+            'half-annually' => 15552000,
+            'annually' => 31104000
+        ];
+        // Get the amount of hours the user has been using the server
+        $billingPeriodMultiplier = $billingPeriods[$billingPeriod];
+        $timeDifference = now()->diffInSeconds($server->last_billed);
 
-        if ($priceupgrade < $oldProduct->getHourlyPrice()) {
-        $priceupgrade = 0;
-        }
-        if ($user->credits >= $priceupgrade && $user->credits >= $newProduct->minimum_credits)
+        error_log("Time DIFFERENCE!!!! ",$timeDifference);
+        // Calculate the price for the time the user has been using the server
+        $overpayedCredits = $oldProduct->price - $oldProduct->price * ($timeDifference / $billingPeriodMultiplier);
+
+
+        if ($user->credits >= $newProduct->price && $user->credits >= $newProduct->minimum_credits)
         {
-
-            $server->product_id = $request->product_upgrade;
-            $server->update();
             $server->allocation = $serverAttributes['allocation'];
+            // Update the server on the panel
             $response = Pterodactyl::updateServer($server, $newProduct);
             if ($response->failed()) return $this->serverCreationFailed($response, $server);
-            //update user balance
-            $user->decrement('credits', $priceupgrade);
+
+            // Remove the allocation property from the server object as it is not a column in the database
+            unset($server->allocation);
+            // Update the server on controlpanel
+            $server->update([
+                'product_id' => $newProduct->id,
+                'updated_at' => now(),
+                'last_billed' => now(),
+                'cancelled' => null,
+            ]);
+
+            // Refund the user the overpayed credits
+            if ($overpayedCredits > 0) $user->increment('credits', $overpayedCredits);
+
+            // Withdraw the credits for the new product
+            $user->decrement('credits', $newProduct->price); 
+
             //restart the server
             $response = Pterodactyl::powerAction($server, "restart");
-            if ($response->failed()) return redirect()->route('servers.index')->with('error', $response->json()['errors'][0]['detail']);
+            if ($response->failed()) return redirect()->route('servers.index')->with('error', 'Server upgraded successfully! Could not restart the server:   '.$response->json()['errors'][0]['detail']);
             return redirect()->route('servers.show', ['server' => $server->id])->with('success', __('Server Successfully Upgraded'));
         }
         else
