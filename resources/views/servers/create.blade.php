@@ -162,11 +162,10 @@
                         <template x-for="product in products" :key="product.id">
                             <div class="card  col-xl-3 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
                                 <div class="card-body d-flex  flex-column">
-                                    <div class="d-flex justify-content-between mb-2">
+                                    <div class="d-flex justify-content-between mb-2" x-show="product.discount > 0">
                                         <span class="badge badge-success" x-show="product.discount > 0">
-                                            <i class="fas fa-percent"></i>
-                                            <span x-text="product.discount"></span> - off the first cycle
-                                        </span>
+                                            <span x-text="'-' + product.discount + '% - {{_('off the first charge')}}'"></span>
+                                        </span> 
                                     </div>
                                     <h4 class="card-title" x-text="product.name"></h4>
                                     <div class="mt-2">

@@ -462,5 +462,6 @@
     "sv": "Swedish",
     "sk": "Slovakish",
     "Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed": "Актуализирането / надграждането на сървъра ви ще нулира вашата билнгова цикъл до сега. Вашите превишени кредити ще бъдат възстановени. Цената за новия билнгов цикъл ще бъде извлечена",
-    "Caution": "Внимание"
+    "Caution": "Внимание",
+    "off the first charge": "от първата такса"
 }

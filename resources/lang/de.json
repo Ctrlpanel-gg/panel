@@ -485,5 +485,6 @@
     "No, abort!": "Abbrechen",
     "Billing period": "Abrechnungsperiode",
     "Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed": "Das Upgrade/Downgrade Ihres Servers wird Ihre Abrechnungsperiode auf \"jetzt\" zurücksetzen. Ihre überzahlten Credits werden erstattet. Der Preis für die neue Abrechnungsperiode wird abgebucht.",
-    "Caution": "Achtung"
+    "Caution": "Achtung",
+    "off the first charge": "auf die erste Abrechnung"
 }

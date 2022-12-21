@@ -462,5 +462,7 @@
     "sv": "Švédština",
     "sk": "Slovensky",
     "Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed": "Aktualizace/snížení vašeho serveru resetuje váš fakturační cyklus na aktuální. Vaše přeplacené kredity budou vráceny. Cena za nový fakturační cyklus bude odečtena",
-    "Caution": "Upozornění"
+    "Caution": "Upozornění",
+    "Discount": "Sleva",
+    "off the first charge": "od prvního poplatku"
 }
