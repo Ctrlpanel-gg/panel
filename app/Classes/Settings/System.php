@@ -46,6 +46,8 @@ public function checkPteroClientkey(){
             "pterodactyl-admin-api-key" => "required|string",
             "enable-upgrades" => "string",
             "enable-disable-servers" => "string",
+            "show-imprint" => "string",
+            "show-privacy" => "string",
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -87,6 +89,8 @@ public function checkPteroClientkey(){
             "SETTINGS::SYSTEM:ENABLE_UPGRADE" => "enable-upgrade",
             "SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS" => "enable-disable-servers",
             "SETTINGS::SYSTEM:CREATION_OF_NEW_USERS" => "enable-disable-new-users",
+            "SETTINGS::SYSTEM:SHOW_IMPRINT" => "show-imprint",
+            "SETTINGS::SYSTEM:SHOW_PRIVACY" => "show-privacy",
         ];
 
 

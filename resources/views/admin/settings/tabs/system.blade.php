@@ -16,6 +16,32 @@
                     <div class="custom-control mb-1 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <div>
+                                <input value="true" id="show-imprint" name="show-imprint"
+                                    {{ config('SETTINGS::SYSTEM:SHOW_IMPRINT') == 'true' ? 'checked' : '' }}
+                                    type="checkbox">
+                                <label for="show-imprint">{{ __('Show imprint') }} </label>
+                            </div>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('Show the imprint link in the footer of every page.') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                    <div class="custom-control mb-1 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <input value="true" id="show-privacy" name="show-privacy"
+                                    {{ config('SETTINGS::SYSTEM:SHOW_PRIVACY') == 'true' ? 'checked' : '' }}
+                                    type="checkbox">
+                                <label for="show-privacy">{{ __('Show Privacy Policy') }} </label>
+                            </div>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('Show the privacy policy link in the footer of every page.') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                    <div class="custom-control mb-1 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <div>
                                 <input value="true" id="register-ip-check" name="register-ip-check"
                                     {{ config('SETTINGS::SYSTEM:REGISTER_IP_CHECK') == 'true' ? 'checked' : '' }}
                                     type="checkbox">
@@ -26,6 +52,7 @@
                                 class="fas fa-info-circle"></i>
                         </div>
                     </div>
+
                     <div class="custom-control mb-3 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <div>
@@ -94,21 +121,24 @@
                     </div>
                     <div class="custom-control p-0 mb-3">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
-                            <label for="pterodactyl-admin-api-key">{{ __('Pterodactyl Admin-Account API Key') }}</label>
+                            <label
+                                for="pterodactyl-admin-api-key">{{ __('Pterodactyl Admin-Account API Key') }}</label>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
-                               data-content="{{ __('Enter the Client-API Key to a Pterodactyl-Admin-User here.') }}"
-                               class="fas fa-info-circle"></i>
+                                data-content="{{ __('Enter the Client-API Key to a Pterodactyl-Admin-User here.') }}"
+                                class="fas fa-info-circle"></i>
                         </div>
-                        <input x-model="pterodactyl-admin-api-key" id="pterodactyl-admin-api-key" name="pterodactyl-admin-api-key"
-                               type="text" value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN') }}"
-                               class="form-control @error('pterodactyl-admin-api-key') is-invalid @enderror" required>
+                        <input x-model="pterodactyl-admin-api-key" id="pterodactyl-admin-api-key"
+                            name="pterodactyl-admin-api-key" type="text"
+                            value="{{ config('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN') }}"
+                            class="form-control @error('pterodactyl-admin-api-key') is-invalid @enderror" required>
                         @error('pterodactyl-admin-api-key')
-                                <div class="text-danger">
-                                    {{$message}}
-                                </div>
+                            <div class="text-danger">
+                                {{ $message }}
+                            </div>
                         @enderror
                     </div>
-                    <a href="{{route('admin.settings.checkPteroClientkey')}}"> <button type="button" class="btn btn-secondary">{{__("Test API")}}</button></a>
+                    <a href="{{ route('admin.settings.checkPteroClientkey') }}"> <button type="button"
+                            class="btn btn-secondary">{{ __('Test API') }}</button></a>
                 </div>
 
             </div>
@@ -157,8 +187,7 @@
                             class="form-control @error('initial-server-limit') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
-                        <label
-                            for="credits-reward-amount-discord">{{ __('Credits Reward Amount - Discord') }}</label>
+                        <label for="credits-reward-amount-discord">{{ __('Credits Reward Amount - Discord') }}</label>
                         <input x-model="credits-reward-amount-discord" id="credits-reward-amount-discord"
                             name="credits-reward-amount-discord" type="number"
                             value="{{ config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD') }}"
@@ -188,10 +217,10 @@
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-purchase">{{ __('Server Limit after Credits Purchase') }}</label>
-                        <input x-model="server-limit-purchase" id="server-limit-purchase" name="server-limit-purchase"
-                               type="number"
-                               value="{{ config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') }}"
-                               class="form-control @error('server-limit-purchase') is-invalid @enderror" required>
+                        <input x-model="server-limit-purchase" id="server-limit-purchase"
+                            name="server-limit-purchase" type="number"
+                            value="{{ config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') }}"
+                            class="form-control @error('server-limit-purchase') is-invalid @enderror" required>
                     </div>
                 </div>
             </div>
@@ -241,31 +270,31 @@
                                 data-content="{{ __('The maximum amount of allocations to pull per node for automatic deployment, if more allocations are being used than this limit is set to, no new servers can be created!') }}"
                                 class="fas fa-info-circle"></i>
                         </div>
-                        <input x-model="allocation-limit" id="allocation-limit" name="allocation-limit" type="number"
-                            value="{{ config('SETTINGS::SERVER:ALLOCATION_LIMIT') }}"
+                        <input x-model="allocation-limit" id="allocation-limit" name="allocation-limit"
+                            type="number" value="{{ config('SETTINGS::SERVER:ALLOCATION_LIMIT') }}"
                             class="form-control @error('allocation-limit') is-invalid @enderror" required>
                     </div>
                 </div>
             </div>
 
-                {{-- Design --}}
-                <div class="col-md-3 px-3">
-                    <div class="row mb-2">
-                        <div class="col text-center">
-                            <h1>{{ __('Design') }}</h1>
-                        </div>
+            {{-- Design --}}
+            <div class="col-md-3 px-3">
+                <div class="row mb-2">
+                    <div class="col text-center">
+                        <h1>{{ __('Design') }}</h1>
                     </div>
-                    <div class="custom-control mb-3 p-0">
-                        <input value="true" id="enable-login-logo" name="enable-login-logo"
-                               {{ config('SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO') == 'true' ? 'checked' : '' }}
-                               type="checkbox">
-                        <label for="enable-login-logo">{{ __('Enable Logo on Loginpage') }} </label>
-                    </div>
+                </div>
+                <div class="custom-control mb-3 p-0">
+                    <input value="true" id="enable-login-logo" name="enable-login-logo"
+                        {{ config('SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO') == 'true' ? 'checked' : '' }} type="checkbox">
+                    <label for="enable-login-logo">{{ __('Enable Logo on Loginpage') }} </label>
+                </div>
                 <div class="form-group">
                     <div class="custom-file mb-3 mt-3">
-                        <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input" name="icon"
-                            id="icon">
-                        <label class="custom-file-label selected" for="icon">{{ __('Select panel icon') }}</label>
+                        <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input"
+                            name="icon" id="icon">
+                        <label class="custom-file-label selected"
+                            for="icon">{{ __('Select panel icon') }}</label>
                     </div>
                     @error('icon')
                         <span class="text-danger">
@@ -275,14 +304,15 @@
 
                     <div class="form-group">
                         <div class="custom-file mb-3 mt-3">
-                            <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input" name="logo"
-                                   id="logo">
-                            <label class="custom-file-label selected" for="logo">{{ __('Select Login-page Logo') }}</label>
+                            <input type="file" accept="image/png,image/jpeg,image/jpg" class="custom-file-input"
+                                name="logo" id="logo">
+                            <label class="custom-file-label selected"
+                                for="logo">{{ __('Select Login-page Logo') }}</label>
                         </div>
                         @error('logo')
-                        <span class="text-danger">
-                            {{ $message }}
-                        </span>
+                            <span class="text-danger">
+                                {{ $message }}
+                            </span>
                         @enderror
 
                     </div>
@@ -300,9 +330,9 @@
                         @enderror
                     </div>
                 </div>
-        </div>
-        <div class="row">
-            <button class="btn btn-primary ml-3 mt-3">{{ __('Submit') }}</button>
-        </div>
+            </div>
+            <div class="row">
+                <button class="btn btn-primary ml-3 mt-3">{{ __('Submit') }}</button>
+            </div>
     </form>
 </div>

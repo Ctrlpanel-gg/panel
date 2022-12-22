@@ -532,9 +532,23 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key'   => 'SETTINGS::SYSTEM:CREATION_OF_NEW_USERS',
         ], [
-            'value' => "true",
+            'value' => "false",
             'type'  => 'boolean',
             'description'  => 'Enable/disable the creation of new users'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:SHOW_IMPRINT',
+        ], [
+            'value' => "true",
+            'type'  => 'boolean',
+            'description'  => 'Enable/disable imprint in footer'
+        ]);
+        Settings::firstOrCreate([
+            'key'   => 'SETTINGS::SYSTEM:SHOW_PRIVACY',
+        ], [
+            'value' => "true",
+            'type'  => 'boolean',
+            'description'  => 'Enable/disable privacy policy in footer'
         ]);
     }
 }
