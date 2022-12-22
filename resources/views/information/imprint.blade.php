@@ -13,7 +13,7 @@
                     <div class="card">
                         <div class="card-header">{{ __('Imprint') }}</div>
                         <div class="card-body">
-                            @include('imprint-content')
+                            @include('information.imprint-content')
                         </div>
                     </div>
                 </div>

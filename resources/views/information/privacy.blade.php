@@ -12,7 +12,7 @@
                     <div class="card">
                         <div class="card-header">{{ __('Privacy Policy') }}</div>
                         <div class="card-body">
-                            @include('privacy-content')
+                            @include('information.privacy-content')
                         </div>
                     </div>
                 </div>

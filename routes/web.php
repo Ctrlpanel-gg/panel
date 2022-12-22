@@ -53,10 +53,10 @@ Auth::routes(['verify' => true]);
 Route::post('payment/StripeWebhooks', [PaymentController::class, 'StripeWebhooks'])->name('payment.StripeWebhooks');
 
 Route::get('/privacy', function () {
-    return view('privacy');
+    return view('information.privacy');
 })->name('privacy');
 Route::get('/imprint', function () {
-    return view('imprint');
+    return view('information.imprint');
 })->name('imprint');
 
 
