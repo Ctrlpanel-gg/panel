@@ -8,7 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
-        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico')? asset('storage/favicon.ico'): asset('favicon.ico') }}"
+        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -49,11 +49,11 @@
                     <a href="{{ route('home') }}" class="nav-link"><i
                             class="fas fa-home mr-2"></i>{{ __('Home') }}</a>
                 </li>
-                @if(config('SETTINGS::DISCORD:INVITE_URL'))
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ config('SETTINGS::DISCORD:INVITE_URL') }}" class="nav-link" target="__blank"><i
-                            class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
-                </li>
+                @if (config('SETTINGS::DISCORD:INVITE_URL'))
+                    <li class="nav-item d-none d-sm-inline-block">
+                        <a href="{{ config('SETTINGS::DISCORD:INVITE_URL') }}" class="nav-link" target="__blank"><i
+                                class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
+                    </li>
                 @endif
                 <!-- Language Selection -->
                 @if (config('SETTINGS::LOCALE:CLIENTS_CAN_CHANGE') == 'true')
@@ -72,7 +72,6 @@
                                     <button class="dropdown-item" name="inputLocale" value="{{ $key }}">
                                         {{ __($key) }}
                                     </button>
-
                                 @endforeach
 
                             </form>
@@ -98,8 +97,7 @@
                             {{ __('Notifications') }}</span>
                         <div class="dropdown-divider"></div>
 
-                        @foreach (Auth::user()->unreadNotifications->sortBy('created_at')->take(5)
-    as $notification)
+                        @foreach (Auth::user()->unreadNotifications->sortBy('created_at')->take(5) as $notification)
                             <a href="{{ route('notifications.show', $notification->id) }}" class="dropdown-item">
                                 <span class="d-inline-block text-truncate" style="max-width: 150px;"><i
                                         class="fas fa-envelope mr-2"></i>{{ $notification->data['title'] }}</span>
@@ -114,7 +112,7 @@
                             class="dropdown-item dropdown-footer">{{ __('See all Notifications') }}</a>
                         <div class="dropdown-divider"></div>
                         <a href="{{ route('notifications.readAll') }}"
-                           class="dropdown-item dropdown-footer">{{ __('Mark all as read') }}</a>
+                            class="dropdown-item dropdown-footer">{{ __('Mark all as read') }}</a>
                     </div>
                 </li>
 
@@ -141,8 +139,8 @@
                 </li>
 
                 <li class="nav-item dropdown no-arrow">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="mr-1 d-lg-inline text-gray-600 small">
                             {{ Auth::user()->name }}
                             <img width="28px" height="28px" class="rounded-circle ml-1"
@@ -170,7 +168,8 @@
                         <div class="dropdown-divider"></div>
                         <form method="post" action="{{ route('logout') }}">
                             @csrf
-                            <button class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                            <button class="dropdown-item" href="#" data-toggle="modal"
+                                data-target="#logoutModal">
                                 <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                 {{ __('Logout') }}
                             </button>
@@ -185,7 +184,7 @@
             <!-- Brand Logo -->
             <a href="{{ route('home') }}" class="brand-link">
                 <img width="64" height="64"
-                    src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png')? asset('storage/icon.png'): asset('images/controlpanel_logo.png') }}"
+                    src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
                     alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                     style="opacity: .8">
                 <span class="brand-text font-weight-light">{{ config('app.name', 'Controlpanel.gg') }}</span>
@@ -201,14 +200,16 @@
                         <!-- Add icons to the links using the .nav-icon class
                          with font-awesome or any other icon font library -->
                         <li class="nav-item">
-                            <a href="{{ route('home') }}" class="nav-link @if (Request::routeIs('home')) active @endif">
+                            <a href="{{ route('home') }}"
+                                class="nav-link @if (Request::routeIs('home')) active @endif">
                                 <i class="nav-icon fa fa-home"></i>
                                 <p>{{ __('Dashboard') }}</p>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a href="{{ route('servers.index') }}" class="nav-link @if (Request::routeIs('servers.*')) active @endif">
+                            <a href="{{ route('servers.index') }}"
+                                class="nav-link @if (Request::routeIs('servers.*')) active @endif">
                                 <i class="nav-icon fa fa-server"></i>
                                 <p>{{ __('Servers') }}
                                     <span class="badge badge-info right">{{ Auth::user()->servers()->count() }} /
@@ -217,34 +218,42 @@
                             </a>
                         </li>
 
-                        @if (env('APP_ENV') == 'local' || (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) || (config('SETTINGS::PAYMENTS:STRIPE:SECRET') && config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') && config('SETTINGS::PAYMENTS:STRIPE:METHODS')))
+                        @if (env('APP_ENV') == 'local' ||
+                            (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) ||
+                            (config('SETTINGS::PAYMENTS:STRIPE:SECRET') &&
+                                config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') &&
+                                config('SETTINGS::PAYMENTS:STRIPE:METHODS')))
                             <li class="nav-item">
-                                <a href="{{ route('store.index') }}" class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
+                                <a href="{{ route('store.index') }}"
+                                    class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
                                     <i class="nav-icon fa fa-coins"></i>
                                     <p>{{ __('Store') }}</p>
                                 </a>
                             </li>
                         @endif
-                       @if(config("SETTINGS::TICKET:ENABLED"))
-                        <li class="nav-item">
-                            <a href="{{ route('ticket.index') }}" class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
-                                <i class="nav-icon fas fas fa-ticket-alt"></i>
-                                <p>{{ __('Support Ticket') }}</p>
-                            </a>
-                        </li>
+                        @if (config('SETTINGS::TICKET:ENABLED'))
+                            <li class="nav-item">
+                                <a href="{{ route('ticket.index') }}"
+                                    class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
+                                    <i class="nav-icon fas fas fa-ticket-alt"></i>
+                                    <p>{{ __('Support Ticket') }}</p>
+                                </a>
+                            </li>
                         @endif
 
-                        @if ((Auth::user()->role == 'admin' || Auth::user()->role == 'moderator') && config("SETTINGS::TICKET:ENABLED"))
+                        @if ((Auth::user()->role == 'admin' || Auth::user()->role == 'moderator') && config('SETTINGS::TICKET:ENABLED'))
                             <li class="nav-header">{{ __('Moderation') }}</li>
 
                             <li class="nav-item">
-                                <a href="{{ route('moderator.ticket.index') }}" class="nav-link @if (Request::routeIs('moderator.ticket.index')) active @endif">
+                                <a href="{{ route('moderator.ticket.index') }}"
+                                    class="nav-link @if (Request::routeIs('moderator.ticket.index')) active @endif">
                                     <i class="nav-icon fas fa-ticket-alt"></i>
                                     <p>{{ __('Ticket List') }}</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('moderator.ticket.blacklist') }}" class="nav-link @if (Request::routeIs('moderator.ticket.blacklist')) active @endif">
+                                <a href="{{ route('moderator.ticket.blacklist') }}"
+                                    class="nav-link @if (Request::routeIs('moderator.ticket.blacklist')) active @endif">
                                     <i class="nav-icon fas fa-user-times"></i>
                                     <p>{{ __('Ticket Blacklist') }}</p>
                                 </a>
@@ -252,7 +261,6 @@
                         @endif
 
                         @if (Auth::user()->role == 'admin')
-
                             <li class="nav-header">{{ __('Administration') }}</li>
 
                             <li class="nav-item">
@@ -273,7 +281,8 @@
                             </li>
 
                             <li class="nav-item">
-                                <a href="{{ route('admin.api.index') }}" class="nav-link @if (Request::routeIs('admin.api.*')) active @endif">
+                                <a href="{{ route('admin.api.index') }}"
+                                    class="nav-link @if (Request::routeIs('admin.api.*')) active @endif">
                                     <i class="nav-icon fa fa-gamepad"></i>
                                     <p>{{ __('Application API') }}</p>
                                 </a>
@@ -282,7 +291,8 @@
                             <li class="nav-header">{{ __('Management') }}</li>
 
                             <li class="nav-item">
-                                <a href="{{ route('admin.users.index') }}" class="nav-link @if (Request::routeIs('admin.users.*')) active @endif">
+                                <a href="{{ route('admin.users.index') }}"
+                                    class="nav-link @if (Request::routeIs('admin.users.*')) active @endif">
                                     <i class="nav-icon fas fa-users"></i>
                                     <p>{{ __('Users') }}</p>
                                 </a>
@@ -305,7 +315,8 @@
                             </li>
 
                             <li class="nav-item">
-                                <a href="{{ route('admin.store.index') }}" class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
+                                <a href="{{ route('admin.store.index') }}"
+                                    class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
                                     <i class="nav-icon fas fa-shopping-basket"></i>
                                     <p>{{ __('Store') }}</p>
                                 </a>
@@ -368,7 +379,6 @@
                                     <p>{{ __('Activity Logs') }}</p>
                                 </a>
                             </li>
-
                         @endif
 
                     </ul>
@@ -404,9 +414,19 @@
                     href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
             All rights
             reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>.
-            @if(!str_contains(config("BRANCHNAME"),"main"))
-                 Version <b>{{ config('app')['version'] }} - {{config("BRANCHNAME")}}</b>
+            @if (!str_contains(config('BRANCHNAME'), 'main'))
+                Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
             @endif
+
+            {{-- Show imprint and privacy link --}}
+            <div class="float-right d-none d-sm-inline-block">
+                @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT'))
+                    <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+                @endif
+                @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY'))
+                    <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+                @endif
+            </div>
         </footer>
 
         <!-- Control Sidebar -->
@@ -448,42 +468,42 @@
     <script>
         @if (Session::has('error'))
             Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            html: '{{ Session::get('error') }}',
+                icon: 'error',
+                title: 'Oops...',
+                html: '{{ Session::get('error') }}',
             })
         @endif
         @if (Session::has('success'))
             Swal.fire({
-            icon: 'success',
-            title: '{{ Session::get('success') }}',
-            position: 'top-end',
-            showConfirmButton: false,
-            background: '#343a40',
-            toast: true,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
+                icon: 'success',
+                title: '{{ Session::get('success') }}',
+                position: 'top-end',
+                showConfirmButton: false,
+                background: '#343a40',
+                toast: true,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
             })
         @endif
         @if (Session::has('info'))
-        Swal.fire({
-            icon: 'info',
-            title: '{{ Session::get('info') }}',
-            position: 'top-end',
-            showConfirmButton: false,
-            background: '#343a40',
-            toast: true,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
+            Swal.fire({
+                icon: 'info',
+                title: '{{ Session::get('info') }}',
+                position: 'top-end',
+                showConfirmButton: false,
+                background: '#343a40',
+                toast: true,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
         @endif
     </script>
 </body>

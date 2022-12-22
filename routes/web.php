@@ -52,6 +52,14 @@ Auth::routes(['verify' => true]);
 # Stripe WebhookRoute -> validation in Route Handler
 Route::post('payment/StripeWebhooks', [PaymentController::class, 'StripeWebhooks'])->name('payment.StripeWebhooks');
 
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
+Route::get('/imprint', function () {
+    return view('imprint');
+})->name('imprint');
+
+
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
