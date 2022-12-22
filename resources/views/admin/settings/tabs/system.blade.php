@@ -22,7 +22,7 @@
                                 <label for="show-imprint">{{ __('Show imprint') }} </label>
                             </div>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Show the imprint link in the footer of every page.') }}"
+                                data-content="{{ __('Show the imprint link in the footer of every page. <br> Edit the content in "resources/views/information/imprint-content.blade.php"') }}"
                                 class="fas fa-info-circle"></i>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                                 <label for="show-privacy">{{ __('Show Privacy Policy') }} </label>
                             </div>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Show the privacy policy link in the footer of every page.') }}"
+                                data-content="{{ __('Show the privacy policy link in the footer of every page. <br> Edit the content in "resources/views/information/privacy-content.blade.php"') }}"
                                 class="fas fa-info-circle"></i>
                         </div>
                     </div>
