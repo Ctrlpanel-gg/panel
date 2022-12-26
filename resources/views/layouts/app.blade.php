@@ -20,9 +20,11 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
+
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="preload" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}" as="style"
         onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
@@ -36,26 +38,26 @@
 <script>
     @if (Session::has('error'))
         Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        html: '{{ Session::get('error') }}',
+            icon: 'error',
+            title: 'Oops...',
+            html: '{{ Session::get('error') }}',
         })
     @endif
 
     @if (Session::has('success'))
         Swal.fire({
-        icon: 'success',
-        title: '{{ Session::get('success') }}',
-        position: 'top-end',
-        showConfirmButton: false,
-        background : '#343a40',
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer)
-        toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
+            icon: 'success',
+            title: '{{ Session::get('success') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
         })
     @endif
 </script>
