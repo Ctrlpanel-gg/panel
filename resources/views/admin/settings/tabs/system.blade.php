@@ -16,6 +16,19 @@
                     <div class="custom-control mb-1 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <div>
+                                <input value="true" id="show-tos" name="show-tos"
+                                       {{ config('SETTINGS::SYSTEM:SHOW_TOS') == 'true' ? 'checked' : '' }}
+                                       type="checkbox">
+                                <label for="show-tos">{{ __('Show Terms of Service') }} </label>
+                            </div>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                               data-content="{{ __('Show the TOS link in the footer of every page. <br> Edit the content in "resources/views/information/tos-content.blade.php"') }}"
+                               class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                    <div class="custom-control mb-1 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <div>
                                 <input value="true" id="show-imprint" name="show-imprint"
                                     {{ config('SETTINGS::SYSTEM:SHOW_IMPRINT') == 'true' ? 'checked' : '' }}
                                     type="checkbox">
