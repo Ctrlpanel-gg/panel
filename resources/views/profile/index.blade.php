@@ -123,6 +123,11 @@
                                             <div class="text-muted">
                                                 <small>{{ $user->created_at->isoFormat('LL') }}</small>
                                             </div>
+                                            <div class="text-muted">
+                                                <small>
+                                                            <button class="badge badge-danger" id="confirmDeleteButton" type="button">{{ __('Permanently delete my account') }}</button>
+                                                </small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -307,6 +312,35 @@
         </section>
         <!-- END CONTENT -->
     <script>
+
+        document.getElementById("confirmDeleteButton").onclick=async ()=>{
+                const {value: enterConfirm} = await Swal.fire({
+                    input: 'text',
+                    inputLabel: '{{__("Are you sure you want to permanently delete your account and all of your servers?")}} \n Type "delete my account" in the Box below',
+                    inputPlaceholder: 'delete my account',
+                    showCancelButton: true
+                })
+                if (enterConfirm === "delete my account") {
+                    Swal.fire("{{__('Account has been destroyed')}}", '', 'error')
+                    $.ajax({
+                        type: "POST",
+                        url: "{{route("profile.selfDestroyUser")}}",
+                        data: `{
+                        "confirmed": "yes",
+                      }`,
+                        success: function (result) {
+                            console.log(result);
+                        },
+                        dataType: "json"
+                    });
+                    location.reload();
+
+                } else {
+                    Swal.fire("{{__('Account has not been destroyed')}}", '', 'info')
+
+                }
+
+            }
         function onClickCopy() {
             let textToCopy = document.getElementById('RefLink').innerText;
             if(navigator.clipboard) {

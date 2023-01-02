@@ -39,6 +39,18 @@ class ProfileController extends Controller
         ]);
     }
 
+
+
+    public function selfDestroyUser(){
+
+            $user = Auth::user();
+            //if ($user->role == "admin") return back()->with("error", "You cannot delete yourself as an admin!");
+
+            $user->delete();
+            return redirect("/login")->with('success', __("Account permanently deleted!"));
+
+    }
+
     /** Update the specified resource in storage.
      * @param Request $request
      * @param int $id

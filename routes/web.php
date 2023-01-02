@@ -1,36 +1,36 @@
 <?php
 
+use App\Classes\Settings\Invoices;
+use App\Classes\Settings\Language;
 use App\Classes\Settings\Misc;
 use App\Classes\Settings\Payments;
+use App\Classes\Settings\System;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\ShopProductController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ShopProductController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
-use App\Http\Controllers\Moderation\TicketsController as ModTicketsController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Moderation\TicketsController as ModTicketsController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
-use App\Http\Controllers\TranslationController;
 use App\Http\Controllers\TicketsController;
+use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Classes\Settings\Language;
-use App\Classes\Settings\Invoices;
-use App\Classes\Settings\System;
-use App\Http\Controllers\PartnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,15 +53,9 @@ Auth::routes(['verify' => true]);
 # Stripe WebhookRoute -> validation in Route Handler
 Route::post('payment/StripeWebhooks', [PaymentController::class, 'StripeWebhooks'])->name('payment.StripeWebhooks');
 
-Route::get('/privacy', function () {
-    return view('information.privacy');
-})->name('privacy');
-Route::get('/imprint', function () {
-    return view('information.imprint');
-})->name('imprint');
-Route::get('/tos', function () {
-    return view('information.tos');
-})->name('tos');
+Route::get('/privacy', function () { return view('information.privacy');})->name('privacy');
+Route::get('/imprint', function () { return view('information.imprint');})->name('imprint');
+Route::get('/tos', function () { return view('information.tos');})->name('tos');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     #resend verification email
@@ -72,12 +66,14 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
 
     #normal routes
-    Route::get('notifications/readAll',[NotificationController::class,'readAll'])->name('notifications.readAll');
+    Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
     Route::resource('servers', ServerController::class);
-    if(config('SETTINGS::SYSTEM:ENABLE_UPGRADE')){
-        Route::post('servers/{server}/upgrade', [ServerController::class,'upgrade'])->name('servers.upgrade');
+    if (config('SETTINGS::SYSTEM:ENABLE_UPGRADE')) {
+        Route::post('servers/{server}/upgrade', [ServerController::class, 'upgrade'])->name('servers.upgrade');
     }
+
+    Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
 
@@ -108,7 +104,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
     #ticket user
-    if(config("SETTINGS::TICKET:ENABLED")) {
+    if (config("SETTINGS::TICKET:ENABLED")) {
         Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
         Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
         Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
@@ -174,7 +170,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::resource('settings', SettingsController::class)->only('index');
 
         #invoices
-        Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');;
+        Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');
         Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');
 
         #usefullinks
