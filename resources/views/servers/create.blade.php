@@ -222,7 +222,7 @@
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
-                                    <button type="submit" x-model="selectedProduct" name="product"
+                                    <button type="submit" class="click-once" x-model="selectedProduct" name="product"
                                         :disabled="product.minimum_credits > user.credits||product.doesNotFit == true"
                                         :class="product.minimum_credits > user.credits ? 'disabled' : ''"
                                         class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
@@ -244,6 +244,13 @@
 
 
     <script>
+        $(".click-once").onClick(function (e) {
+
+            $(".click-once").attr("disabled", true);
+            return true;
+        })
+
+
         function serverApp() {
             return {
                 //loading
