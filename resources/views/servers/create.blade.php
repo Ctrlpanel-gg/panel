@@ -222,6 +222,7 @@
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
+                                    <div x-data="{ buttonDisabled: false }">
                                     <button type="submit" id="click-once" x-model="selectedProduct" name="product"
                                         :disabled="product.minimum_credits > user.credits||product.doesNotFit == true"
                                         :class="product.minimum_credits > user.credits ? 'disabled' : ''"
@@ -229,6 +230,7 @@
                                         x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled"
                                         x-text=" product.doesNotFit == true? '{{ __('Server can´t fit on this node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
                                     </button>
+                                    </div>
                                 </div>
                             </div>
                     </div>
