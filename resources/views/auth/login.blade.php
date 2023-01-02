@@ -131,6 +131,9 @@
                 @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY'))
                     <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
+                @if (config('SETTINGS::SYSTEM:SHOW_TOS'))
+                    | <a href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+                @endif
             </div>
         </div>
     </body>

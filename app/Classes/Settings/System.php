@@ -48,6 +48,7 @@ public function checkPteroClientkey(){
             "enable-disable-servers" => "string",
             "show-imprint" => "string",
             "show-privacy" => "string",
+            "show-tos" => "string",
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -91,6 +92,7 @@ public function checkPteroClientkey(){
             "SETTINGS::SYSTEM:CREATION_OF_NEW_USERS" => "enable-disable-new-users",
             "SETTINGS::SYSTEM:SHOW_IMPRINT" => "show-imprint",
             "SETTINGS::SYSTEM:SHOW_PRIVACY" => "show-privacy",
+            "SETTINGS::SYSTEM:SHOW_TOS" => "show-tos",
         ];
 
 
