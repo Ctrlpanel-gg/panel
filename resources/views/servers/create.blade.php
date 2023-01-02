@@ -226,6 +226,7 @@
                                         :disabled="product.minimum_credits > user.credits||product.doesNotFit == true"
                                         :class="product.minimum_credits > user.credits ? 'disabled' : ''"
                                         class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
+                                        x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled"
                                         x-text=" product.doesNotFit == true? '{{ __('Server can´t fit on this node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
                                     </button>
                                 </div>
@@ -244,12 +245,6 @@
 
 
     <script>
-        $("#click-once").onClick(function (e) {
-
-            $(".click-once").setAttribute("disabled", "");
-            return true;
-        })
-
 
         function serverApp() {
             return {
