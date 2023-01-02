@@ -223,6 +223,20 @@
                 </div>
 
                 <div class="custom-control mb-3 p-0">
+                    <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                        <div>
+                            <input value="true" id="always_give_commission" name="always_give_commission"
+                                   {{ config('SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION') == 'true' ? 'checked' : '' }}
+                                   type="checkbox">
+                            <label for="always_give_commission">{{ __('Always give commission') }}:
+                                <i data-toggle="popover" data-trigger="hover"
+                                   data-content="{{ __('Should users recieve the commission only for the first payment, or for every payment?') }}" class="fas fa-info-circle"></i>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-control mb-3 p-0">
                     <label for="referral_mode">{{ __('Mode') }}:
                         <i data-toggle="popover" data-trigger="hover"
                            data-content="{{ __('Should a reward be given if a new User registers or if a new user buys credits') }}" class="fas fa-info-circle"></i>

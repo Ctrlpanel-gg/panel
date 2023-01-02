@@ -39,6 +39,7 @@
                             <tr>
                                 <th>{{ __('ID') }}</th>
                                 <th>{{ __('Type') }}</th>
+                                <th>{{ __('User') }}</th>
                                 <th>{{ __('Amount') }}</th>
                                 <th>{{ __('Product Price') }}</th>
                                 <th>{{ __('Tax Value') }}</th>
@@ -77,6 +78,7 @@
                 columns: [
                     {data: 'id',name: 'payments.id'},
                     {data: 'type'},
+                    {data: 'user', sortable: false},
                     {data: 'amount'},
                     {data: 'price'},
                     {data: 'tax_value'},

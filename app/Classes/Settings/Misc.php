@@ -40,6 +40,7 @@ class Misc
             'enable_referral' => 'nullable|string',
             'referral_reward' => 'nullable|numeric',
             'referral_allowed' => 'nullable|string',
+            'always_give_commission' => 'nullable|string',
             'referral_percentage' => 'nullable|numeric',
             'referral_mode' => 'nullable|string',
             'ticket_enabled' => 'nullable|string',
@@ -87,6 +88,7 @@ class Misc
             "SETTINGS::REFERRAL::REWARD" => "referral_reward",
             "SETTINGS::REFERRAL::ALLOWED" => "referral_allowed",
             "SETTINGS::REFERRAL:MODE" => "referral_mode",
+            "SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION" => "always_give_commission",
             "SETTINGS::REFERRAL:PERCENTAGE" => "referral_percentage",
             "SETTINGS::TICKET:ENABLED" => "ticket_enabled"
 

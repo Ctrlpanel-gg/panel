@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\InvoiceSettings;
+use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\Settings;
@@ -57,10 +58,13 @@ class PaymentController extends Controller
     public function checkOut(Request $request, ShopProduct $shopProduct)
     {
         return view('store.checkout')->with([
-            'product'      => $shopProduct,
-            'taxvalue'     => $shopProduct->getTaxValue(),
-            'taxpercent'   => $shopProduct->getTaxPercent(),
-            'total'        => $shopProduct->getTotalPrice()
+            'product'           => $shopProduct,
+            'discountpercent'   => PartnerDiscount::getDiscount(),
+            'discountvalue'     => PartnerDiscount::getDiscount() * $shopProduct->price/100,
+            'discountedprice'   => $shopProduct->getPriceAfterDiscount(),
+            'taxvalue'          => $shopProduct->getTaxValue(),
+            'taxpercent'        => $shopProduct->getTaxPercent(),
+            'total'             => $shopProduct->getTotalPrice()
         ]);
     }
 
@@ -78,7 +82,7 @@ class PaymentController extends Controller
             "purchase_units" => [
                 [
                     "reference_id" => uniqid(),
-                    "description" => $shopProduct->description,
+                    "description" => $shopProduct->display . (PartnerDiscount::getDiscount()?(" (" . __('Discount') . " " . PartnerDiscount::getDiscount() . '%)'):""),
                     "amount"       => [
                         "value"         => $shopProduct->getTotalPrice(),
                         'currency_code' => strtoupper($shopProduct->currency_code),
@@ -86,7 +90,7 @@ class PaymentController extends Controller
                             'item_total' =>
                             [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $shopProduct->price,
+                                'value' => $shopProduct->getPriceAfterDiscount(),
                             ],
                             'tax_total' =>
                             [
@@ -180,15 +184,31 @@ class PaymentController extends Controller
                     $user->increment('server_limit', $shopProduct->quantity);
                 }
 
+                //give referral commission always
+                if((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits" && config("SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION") == "true"){
+                    if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
+                        $ref_user = User::findOrFail($ref_user->referral_id);
+                        $increment = number_format($shopProduct->quantity*(PartnerDiscount::getCommission($ref_user->id))/100,0,"","");
+                        $ref_user->increment('credits', $increment);
+
+                        //LOGS REFERRALS IN THE ACTIVITY LOG
+                        activity()
+                            ->performedOn($user)
+                            ->causedBy($ref_user)
+                            ->log('gained '. $increment.' '.config("SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME").' for commission-referral of '.$user->name.' (ID:'.$user->id.')');
+                    }
+
+                }
 
                 //update role give Referral-reward
                 if ($user->role == 'member') {
                     $user->update(['role' => 'client']);
 
-                    if((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits"){
+                    //give referral commission only on first purchase
+                    if((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type=="Credits" && config("SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION") == "false"){
                         if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()){
                             $ref_user = User::findOrFail($ref_user->referral_id);
-                            $increment = number_format($shopProduct->quantity/100*config("SETTINGS::REFERRAL:PERCENTAGE"),0,"","");
+                            $increment = number_format($shopProduct->quantity*(PartnerDiscount::getCommission($ref_user->id))/100,0,"","");
                             $ref_user->increment('credits', $increment);
 
                             //LOGS REFERRALS IN THE ACTIVITY LOG
@@ -210,7 +230,7 @@ class PaymentController extends Controller
                     'type' => $shopProduct->type,
                     'status' => 'paid',
                     'amount' => $shopProduct->quantity,
-                    'price' => $shopProduct->price,
+                    'price' => $shopProduct->price - ($shopProduct->price*PartnerDiscount::getDiscount()/100),
                     'tax_value' => $shopProduct->getTaxValue(),
                     'tax_percent' => $shopProduct->getTaxPercent(),
                     'total_price' => $shopProduct->getTotalPrice(),
@@ -273,10 +293,10 @@ class PaymentController extends Controller
                     'price_data' => [
                         'currency' => $shopProduct->currency_code,
                         'product_data' => [
-                            'name' => $shopProduct->display,
+                            'name' => $shopProduct->display . (PartnerDiscount::getDiscount()?(" (" . __('Discount') . " " . PartnerDiscount::getDiscount() . '%)'):""),
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => round($shopProduct->price * 100, 2),
+                        'unit_amount_decimal' => round($shopProduct->getPriceAfterDiscount() * 100, 2),
                     ],
                     'quantity' => 1,
                 ],
@@ -284,7 +304,7 @@ class PaymentController extends Controller
                     'price_data' => [
                         'currency' => $shopProduct->currency_code,
                         'product_data' => [
-                            'name' => 'Product Tax',
+                            'name' => __('Tax'),
                             'description' => $shopProduct->getTaxPercent() . "%",
                         ],
                         'unit_amount_decimal' => round($shopProduct->getTaxValue(), 2) * 100,
@@ -373,7 +393,7 @@ class PaymentController extends Controller
                     'type' => $shopProduct->type,
                     'status' => 'paid',
                     'amount' => $shopProduct->quantity,
-                    'price' => $shopProduct->price,
+                    'price' => $shopProduct->price - ($shopProduct->price*PartnerDiscount::getDiscount()/100),
                     'tax_value' => $shopProduct->getTaxValue(),
                     'total_price' => $shopProduct->getTotalPrice(),
                     'tax_percent' => $shopProduct->getTaxPercent(),
@@ -611,7 +631,7 @@ class PaymentController extends Controller
             ->name(__("Invoice"))
             ->buyer($customer)
             ->seller($seller)
-            ->discountByPercent(0)
+            ->discountByPercent(PartnerDiscount::getDiscount())
             ->taxRate(floatval($shopProduct->getTaxPercent()))
             ->shipping(0)
             ->addItem($item)
@@ -654,7 +674,8 @@ class PaymentController extends Controller
 
         return datatables($query)
             ->editColumn('user', function (Payment $payment) {
-                return $payment->user->name;
+                return 
+                ($payment->user)?'<a href="'.route('admin.users.show', $payment->user->id).'">'.$payment->user->name.'</a>':__('Unknown user');
             })
             ->editColumn('price', function (Payment $payment) {
                 return $payment->formatToCurrency($payment->price);
@@ -675,7 +696,7 @@ class PaymentController extends Controller
             ->addColumn('actions', function (Payment $payment) {
                 return '<a data-content="' . __("Download") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', "id=" . $payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>';
             })
-            ->rawColumns(['actions'])
+            ->rawColumns(['actions', 'user'])
             ->make(true);
     }
 }

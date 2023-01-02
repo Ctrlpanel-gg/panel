@@ -107,17 +107,19 @@
 
                                 <div class="table-responsive">
                                     <table class="table">
+                                        @if($discountpercent&&$discountvalue)
+                                            <tr>
+                                                <th>{{ __('Discount') }} ({{ $discountpercent }}%):</th>
+                                                <td>{{$product->formatToCurrency($discountvalue)}}</td>
+                                            </tr>
+                                        @endif
                                         <tr>
                                             <th style="width:50%">{{ __('Subtotal') }}:</th>
-                                            <td>{{ $product->formatToCurrency($product->price) }}</td>
+                                            <td>{{ $product->formatToCurrency($discountedprice) }}</td>
                                         </tr>
                                         <tr>
-                                            <th>{{ __('Tax') }} ({{ $taxpercent }}%)</th>
+                                            <th>{{ __('Tax') }} ({{ $taxpercent }}%):</th>
                                             <td>{{ $product->formatToCurrency($taxvalue) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>{{ __('Quantity') }}:</th>
-                                            <td>1</td>
                                         </tr>
                                         <tr>
                                             <th>{{ __('Total') }}:</th>
@@ -154,7 +156,6 @@
                 //loading
                 paymentMethod: '',
                 paymentRoute: '',
-
                 setPaymentRoute(provider) {
                     switch (provider) {
                         case 'paypal':
@@ -167,9 +168,6 @@
                             this.paymentRoute = '{{ route('payment.PaypalPay', $product->id) }}';
                     }
                 },
-
-
-
             }
         }
     </script>

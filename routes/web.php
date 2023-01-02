@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Route;
 use App\Classes\Settings\Language;
 use App\Classes\Settings\Invoices;
 use App\Classes\Settings\System;
+use App\Http\Controllers\PartnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -183,6 +184,11 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('vouchers/{voucher}/usersdatatable', [VoucherController::class, 'usersdatatable'])->name('vouchers.usersdatatable');
         Route::get('vouchers/{voucher}/users', [VoucherController::class, 'users'])->name('vouchers.users');
         Route::resource('vouchers', VoucherController::class);
+
+        #partners
+        Route::get('partners/datatable', [PartnerController::class, 'datatable'])->name('partners.datatable');
+        Route::get('partners/{voucher}/users', [PartnerController::class, 'users'])->name('partners.users');
+        Route::resource('partners', PartnerController::class);
 
         #api-keys
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
