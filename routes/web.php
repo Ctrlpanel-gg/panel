@@ -85,8 +85,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     #payments
     Route::get('checkout/{shopProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
-    Route::get('payment/PaypalPay/{shopProduct}', [PaymentController::class, 'PaypalPay'])->name('payment.PaypalPay');
-    Route::get('payment/PaypalSuccess', [PaymentController::class, 'PaypalSuccess'])->name('payment.PaypalSuccess');
+    Route::get('payment/pay', [PaymentController::class, 'pay'])->name('payment.pay');
     Route::get('payment/StripePay/{shopProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
     Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
@@ -214,3 +213,5 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
+
+require __DIR__ . '/extensions.php';
