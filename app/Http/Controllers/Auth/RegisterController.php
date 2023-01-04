@@ -67,6 +67,9 @@ class RegisterController extends Controller
         if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
             $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
         }
+        if (config('SETTINGS::SYSTEM:SHOW_TOS') == 'true') {
+            $validationRules['terms'] = ['required'];
+        }
 
         if (config('SETTINGS::SYSTEM:REGISTER_IP_CHECK', 'true') == 'true') {
 
