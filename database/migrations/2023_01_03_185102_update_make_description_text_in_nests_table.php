@@ -26,7 +26,7 @@ class UpdateMakeDescriptionTextInNestsTable extends Migration
     public function down()
     {
         Schema::table('nests', function (Blueprint $table) {
-            $table->text('description')->change();
+            $table->string('description')->change();
         });
     }
 }
