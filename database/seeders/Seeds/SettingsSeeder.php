@@ -117,6 +117,13 @@ class SettingsSeeder extends Seeder
             'type' => 'integer',
             'description' => 'The maximum amount of allocations to pull per node for automatic deployment, if more allocations are being used than this limit is set to, no new servers can be created!',
         ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER',
+        ], [
+            'value'       => '0',
+            'type'        => 'integer',
+            'description' => 'The minimum amount of credits user has to have to create a server. Can be overridden by package limits.'
+        ]);
 
         //credits display name
         Settings::firstOrCreate([
@@ -545,16 +552,27 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:SHOW_IMPRINT',
         ], [
-            'value' => 'true',
-            'type' => 'boolean',
-            'description' => 'Enable/disable imprint in footer',
+
+            'value' => "false",
+            'type'  => 'boolean',
+            'description'  => 'Enable/disable imprint in footer'
+
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:SHOW_PRIVACY',
         ], [
-            'value' => 'true',
+
+            'value' => "false",
+            'type'  => 'boolean',
+            'description'  => 'Enable/disable privacy policy in footer'
+
+        ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:SHOW_TOS',
+        ], [
+            'value' => 'false',
             'type' => 'boolean',
-            'description' => 'Enable/disable privacy policy in footer',
+            'description' => 'Enable/disable Terms of Service in footer',
         ]);
     }
 }

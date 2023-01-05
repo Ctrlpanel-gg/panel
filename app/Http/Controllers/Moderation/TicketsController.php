@@ -117,10 +117,14 @@ class TicketsController extends Controller
 
                 return '<span class="badge '.$badgeColor.'">'.$tickets->status.'</span>';
             })
-            ->editColumn('updated_at', function (Ticket $tickets) {
-                return $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '';
+            ->editColumn('priority', function (Ticket $tickets) {
+                return __($tickets->priority);
             })
-            ->rawColumns(['category', 'title', 'user_id', 'status', 'updated_at', 'actions'])
+            ->editColumn('updated_at', function (Ticket $tickets) {
+                return ['display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
+                        'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
+            })
+            ->rawColumns(['category', 'title', 'user_id', 'status', 'priority', 'updated_at', 'actions'])
             ->make(true);
     }
 

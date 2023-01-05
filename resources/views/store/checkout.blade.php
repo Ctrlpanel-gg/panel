@@ -75,30 +75,33 @@
                         <div class="row">
                             <!-- accepted payments column -->
                             <div class="col-6">
-                                <p class="lead">{{ __('Payment Methods') }}:</p>
+                                @if($total!=0)
+                                    <p class="lead">{{ __('Payment Methods') }}:</p>
 
-                                <div>
-                                    @if (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') || config('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET'))
-                                        <label class="text-center " for="paypal">
-                                            <img class="mb-3" height="50"
-                                                src="{{ url('/images/paypal_logo.png') }}"></br>
+                                    <div>
+                                        @if (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') || config('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET'))
+                                            <label class="text-center " for="paypal">
+                                                <img class="mb-3" height="50"
+                                                    src="{{ url('/images/paypal_logo.png') }}"></br>
 
-                                            <input x-model="paymentMethod" type="radio" id="paypal" value="paypal"
-                                                name="payment_method">
-                                            </input>
-                                        </label>
-                                    @endif
-                                    @if (config('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET') || config('SETTINGS::PAYMENTS:STRIPE:SECRET'))
-                                        <label class="ml-5 text-center " for="stripe">
-                                            <img class="mb-3" height="50"
-                                                src="{{ url('/images/stripe_logo.png') }}" /></br>
-                                            <input x-model="paymentMethod" type="radio" id="stripe" value="stripe"
-                                                name="payment_method">
-                                            </input>
-                                        </label>
-                                    @endif
-                                </div>
-
+                                                <input x-model="paymentMethod" type="radio" id="paypal" value="paypal"
+                                                    name="payment_method">
+                                                </input>
+                                            </label>
+                                        @endif
+                                        @if (config('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET') || config('SETTINGS::PAYMENTS:STRIPE:SECRET'))
+                                            <label class="ml-5 text-center " for="stripe">
+                                                <img class="mb-3" height="50"
+                                                    src="{{ url('/images/stripe_logo.png') }}" /></br>
+                                                <input x-model="paymentMethod" type="radio" id="stripe" value="stripe"
+                                                    name="payment_method">
+                                                </input>
+                                            </label>
+                                        @endif
+                                    </div>
+                                @else
+                                    <p class="lead" style="text-align: center">{{ __('This product is free for you') }}.</p>
+                                @endif
                             </div>
                             <!-- /.col -->
                             <div class="col-6">
@@ -155,7 +158,7 @@
             return {
                 //loading
                 paymentMethod: '',
-                paymentRoute: '',
+                paymentRoute: ({{ $total }} == 0)?('{{ route('payment.FreePay', $product->id) }}'):'',
                 setPaymentRoute(provider) {
                     switch (provider) {
                         case 'paypal':

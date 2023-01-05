@@ -70,8 +70,61 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
+    public function FreePay(Request $request, ShopProduct $shopProduct)
+    {
+        //dd($shopProduct);
+        //check if the product is really free or the discount is 100%
+        if($shopProduct->getTotalPrice()>0) return redirect()->route('home')->with('error', __('An error ocured. Please try again.'));
+        
+        //give product
+        /** @var User $user */
+        $user = Auth::user();
+
+        //not updating server limit
+
+        //update User with bought item
+        if ($shopProduct->type=="Credits") {
+            $user->increment('credits', $shopProduct->quantity);
+        }elseif ($shopProduct->type=="Server slots"){
+            $user->increment('server_limit', $shopProduct->quantity);
+        }
+
+        //skipped the referral commission, because the user did not pay anything.
+        
+        //not giving client role
+
+        //store payment
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'payment_id' => uniqid(),
+            'payment_method' => 'free',
+            'type' => $shopProduct->type,
+            'status' => 'paid',
+            'amount' => $shopProduct->quantity,
+            'price' => $shopProduct->price - ($shopProduct->price*PartnerDiscount::getDiscount()/100),
+            'tax_value' => $shopProduct->getTaxValue(),
+            'tax_percent' => $shopProduct->getTaxPercent(),
+            'total_price' => $shopProduct->getTotalPrice(),
+            'currency_code' => $shopProduct->currency_code,
+            'shop_item_product_id' => $shopProduct->id,
+        ]);
+
+        event(new UserUpdateCreditsEvent($user));
+
+        //not sending an invoice
+
+        //redirect back to home
+        return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
+    }
+
+    /**
+     * @param Request $request
+     * @param ShopProduct $shopProduct
+     * @return RedirectResponse
+     */
     public function PaypalPay(Request $request, ShopProduct $shopProduct)
     {
+        if(!$this->checkAmount($shopProduct->getTotalPrice(), strtoupper($shopProduct->currency_code), "paypal")) return redirect()->route('home')->with('error', __('The product you chose can´t be purchased with this payment method. The total amount is too small. Please buy a bigger amount or try a different payment method.'));
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -271,6 +324,7 @@ class PaymentController extends Controller
      */
     public function StripePay(Request $request, ShopProduct $shopProduct)
     {
+        if(!$this->checkAmount($shopProduct->getTotalPrice(), strtoupper($shopProduct->currency_code), "stripe")) return redirect()->route('home')->with('error', __('The product you chose can´t be purchased with this payment method. The total amount is too small. Please buy a bigger amount or try a different payment method.'));
         $stripeClient = $this->getStripeClient();
 
         $request = $stripeClient->checkout->sessions->create([
@@ -637,6 +691,114 @@ class PaymentController extends Controller
         $user->notify(new InvoiceNotification($invoice, $user, $payment));
     }
 
+    public function checkAmount($amount, $currencyCode, $payment_method)
+    {
+        $minimums = [
+            "USD" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "AED" => [
+                "paypal" => 0,
+                "stripe" => 2
+            ],
+            "AUD" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "BGN" => [
+                "paypal" => 0,
+                "stripe" => 1
+            ],
+            "BRL" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "CAD" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "CHF" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "CZK" => [
+                "paypal" => 0,
+                "stripe" => 15
+            ],
+            "DKK" => [
+                "paypal" => 0,
+                "stripe" => 2.5
+            ],
+            "EUR" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "GBP" => [
+                "paypal" => 0,
+                "stripe" => 0.3
+            ],
+            "HKD" => [
+                "paypal" => 0,
+                "stripe" => 4
+            ],
+            "HRK" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "HUF" => [
+                "paypal" => 0,
+                "stripe" => 175
+            ],
+            "INR" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "JPY" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "MXN" => [
+                "paypal" => 0,
+                "stripe" => 10
+            ],
+            "MYR" => [
+                "paypal" => 0,
+                "stripe" => 2
+            ],
+            "NOK" => [
+                "paypal" => 0,
+                "stripe" => 3
+            ],
+            "NZD" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "PLN" => [
+                "paypal" => 0,
+                "stripe" => 2
+            ],
+            "RON" => [
+                "paypal" => 0,
+                "stripe" => 2
+            ],
+            "SEK" => [
+                "paypal" => 0,
+                "stripe" => 3
+            ],
+            "SGD" => [
+                "paypal" => 0,
+                "stripe" => 0.5
+            ],
+            "THB" => [
+                "paypal" => 0,
+                "stripe" => 10
+            ]
+        ];
+        return $amount >= $minimums[$currencyCode][$payment_method];
+    }
+
+
     /**
      * @return JsonResponse|mixed
      *
@@ -647,9 +809,11 @@ class PaymentController extends Controller
         $query = Payment::with('user');
 
         return datatables($query)
-            ->editColumn('user', function (Payment $payment) {
-                return
-                ($payment->user) ? '<a href="'.route('admin.users.show', $payment->user->id).'">'.$payment->user->name.'</a>' : __('Unknown user');
+
+            ->addColumn('user', function (Payment $payment) {
+                return 
+                ($payment->user)?'<a href="'.route('admin.users.show', $payment->user->id).'">'.$payment->user->name.'</a>':__('Unknown user');
+
             })
             ->editColumn('price', function (Payment $payment) {
                 return $payment->formatToCurrency($payment->price);
@@ -665,7 +829,8 @@ class PaymentController extends Controller
             })
 
             ->editColumn('created_at', function (Payment $payment) {
-                return $payment->created_at ? $payment->created_at->diffForHumans() : '';
+                return ['display' => $payment->created_at ? $payment->created_at->diffForHumans() : '',
+                        'raw' => $payment->created_at ? strtotime($payment->created_at) : ''];
             })
             ->addColumn('actions', function (Payment $payment) {
                 return '<a data-content="'.__('Download').'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="'.route('admin.invoices.downloadSingleInvoice', 'id='.$payment->payment_id).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>';

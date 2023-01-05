@@ -113,7 +113,8 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-header d-flex justify-content-between">
+                <div class="card-header">
+                    <h5 class="card-title float-right"><i title="Created at" class="fas fa-calendar-alt mr-2"></i><span>{{ $server->created_at->isoFormat('LL') }}</span></h5>
                     <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Server Information')}}</h5>
                 </div>
                 <div class="card-body">

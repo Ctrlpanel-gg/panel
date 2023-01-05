@@ -44,25 +44,18 @@ class OverViewController extends Controller
         $counters->put('payments', collect());
         //Get and save payments from last 2 months for later filtering and looping
         $payments = Payment::query()->where('created_at', '>=', Carbon::today()->startOfMonth()->subMonth())->where('status', 'paid')->get();
-        //Prepare collections and set a few variables
+        //Prepare collections
         $counters['payments']->put('thisMonth', collect());
         $counters['payments']->put('lastMonth', collect());
-        $counters['payments']['thisMonth']->timeStart = Carbon::today()->startOfMonth()->toDateString();
-        $counters['payments']['thisMonth']->timeEnd = Carbon::today()->toDateString();
-        $counters['payments']['lastMonth']->timeStart = Carbon::today()->startOfMonth()->subMonth()->toDateString();
-        $counters['payments']['lastMonth']->timeEnd = Carbon::today()->endOfMonth()->subMonth()->toDateString();
+
 
         //Prepare subCollection 'taxPayments'
         $counters->put('taxPayments', collect());
         //Get and save taxPayments from last 2 years for later filtering and looping
         $taxPayments = Payment::query()->where('created_at', '>=', Carbon::today()->startOfYear()->subYear())->where('status', 'paid')->get();
-        //Prepare collections and set a few variables
+        //Prepare collections
         $counters['taxPayments']->put('thisYear', collect());
         $counters['taxPayments']->put('lastYear', collect());
-        $counters['taxPayments']['thisYear']->timeStart = Carbon::today()->startOfYear()->toDateString();
-        $counters['taxPayments']['thisYear']->timeEnd = Carbon::today()->toDateString();
-        $counters['taxPayments']['lastYear']->timeStart = Carbon::today()->startOfYear()->subYear()->toDateString();
-        $counters['taxPayments']['lastYear']->timeEnd = Carbon::today()->endOfYear()->subYear()->toDateString();
 
         //Fill out variables for each currency separately
         foreach ($payments->where('created_at', '>=', Carbon::today()->startOfMonth()) as $payment) {
@@ -85,11 +78,21 @@ class OverViewController extends Controller
             $counters['payments']['lastMonth'][$paymentCurrency]->total += $payment->total_price;
             $counters['payments']['lastMonth'][$paymentCurrency]->count++;
         }
+
+        //sort currencies alphabetically and set some additional variables
+        $counters['payments']['thisMonth'] = $counters['payments']['thisMonth']->sortKeys();
+        $counters['payments']['thisMonth']->timeStart = Carbon::today()->startOfMonth()->toDateString();
+        $counters['payments']['thisMonth']->timeEnd = Carbon::today()->toDateString();
+        $counters['payments']['lastMonth'] = $counters['payments']['lastMonth']->sortKeys();
+        $counters['payments']['lastMonth']->timeStart = Carbon::today()->startOfMonth()->subMonth()->toDateString();
+        $counters['payments']['lastMonth']->timeEnd = Carbon::today()->endOfMonth()->subMonth()->toDateString();
         $counters['payments']->total = Payment::query()->count();
 
-        foreach ($taxPayments->where('created_at', '>=', Carbon::today()->startOfYear()->subYear()) as $taxPayment) {
-            $paymentCurrency = $payment->currency_code;
-            if (! isset($counters['taxPayments']['thisYear'][$paymentCurrency])) {
+
+        foreach($taxPayments->where('created_at', '>=', Carbon::today()->startOfYear()) as $taxPayment){
+            $paymentCurrency = $taxPayment->currency_code;
+            if(!isset($counters['taxPayments']['thisYear'][$paymentCurrency])){
+
                 $counters['taxPayments']['thisYear']->put($paymentCurrency, collect());
                 $counters['taxPayments']['thisYear'][$paymentCurrency]->total = 0;
                 $counters['taxPayments']['thisYear'][$paymentCurrency]->count = 0;
@@ -101,9 +104,11 @@ class OverViewController extends Controller
             $counters['taxPayments']['thisYear'][$paymentCurrency]->price += $taxPayment->price;
             $counters['taxPayments']['thisYear'][$paymentCurrency]->taxes += $taxPayment->tax_value;
         }
-        foreach ($taxPayments->where('created_at', '<', Carbon::today()->startOfYear()) as $taxPayment) {
-            $paymentCurrency = $payment->currency_code;
-            if (! isset($counters['taxPayments']['lastYear'][$paymentCurrency])) {
+
+        foreach($taxPayments->where('created_at', '>=', Carbon::today()->startOfYear()->subYear())->where('created_at', '<', Carbon::today()->startOfYear()) as $taxPayment){
+            $paymentCurrency = $taxPayment->currency_code;
+            if(!isset($counters['taxPayments']['lastYear'][$paymentCurrency])){
+
                 $counters['taxPayments']['lastYear']->put($paymentCurrency, collect());
                 $counters['taxPayments']['lastYear'][$paymentCurrency]->total = 0;
                 $counters['taxPayments']['lastYear'][$paymentCurrency]->count = 0;
@@ -115,6 +120,14 @@ class OverViewController extends Controller
             $counters['taxPayments']['lastYear'][$paymentCurrency]->price += $taxPayment->price;
             $counters['taxPayments']['lastYear'][$paymentCurrency]->taxes += $taxPayment->tax_value;
         }
+
+        //sort currencies alphabetically and set some additional variables
+        $counters['taxPayments']['thisYear'] = $counters['taxPayments']['thisYear']->sortKeys();
+        $counters['taxPayments']['thisYear']->timeStart = Carbon::today()->startOfYear()->toDateString();
+        $counters['taxPayments']['thisYear']->timeEnd = Carbon::today()->toDateString();
+        $counters['taxPayments']['lastYear'] = $counters['taxPayments']['lastYear']->sortKeys();
+        $counters['taxPayments']['lastYear']->timeStart = Carbon::today()->startOfYear()->subYear()->toDateString();
+        $counters['taxPayments']['lastYear']->timeEnd = Carbon::today()->endOfYear()->subYear()->toDateString();
 
         $lastEgg = Egg::query()->latest('updated_at')->first();
         $syncLastUpdate = $lastEgg ? $lastEgg->updated_at->isoFormat('LLL') : __('unknown');

@@ -312,15 +312,14 @@
         </section>
         <!-- END CONTENT -->
     <script>
-
         document.getElementById("confirmDeleteButton").onclick=async ()=>{
                 const {value: enterConfirm} = await Swal.fire({
                     input: 'text',
-                    inputLabel: '{{__("Are you sure you want to permanently delete your account and all of your servers?")}} \n Type "delete my account" in the Box below',
-                    inputPlaceholder: 'delete my account',
+                    inputLabel: '{{__("Are you sure you want to permanently delete your account and all of your servers?")}} \n Type "{{__('Delete my account')}}" in the Box below',
+                    inputPlaceholder: "{{__('Delete my account')}}",
                     showCancelButton: true
                 })
-                if (enterConfirm === "delete my account") {
+                if (enterConfirm === "{{__('Delete my account')}}") {
                     Swal.fire("{{__('Account has been destroyed')}}", '', 'error')
                     $.ajax({
                         type: "POST",
@@ -336,7 +335,7 @@
                     location.reload();
 
                 } else {
-                    Swal.fire("{{__('Account has not been destroyed')}}", '', 'info')
+                    Swal.fire("{{__('Account was NOT deleted.')}}", '', 'info')
 
                 }
 

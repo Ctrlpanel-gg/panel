@@ -94,6 +94,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('payment/PaypalSuccess', [PaymentController::class, 'PaypalSuccess'])->name('payment.PaypalSuccess');
     Route::get('payment/StripePay/{shopProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
     Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
+    Route::get('payment/FreePay/{shopProduct}', [PaymentController::class, 'FreePay'])->name('payment.FreePay');
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
 
     Route::get('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
@@ -116,6 +117,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:ticket-new'])->name('ticket.new.store');
         Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
         Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:ticket-reply'])->name('ticket.reply');
+        Route::post('ticket/close/{ticket_id}', [TicketsController::class, 'close'])->name('ticket.close');
     }
 
     //admin

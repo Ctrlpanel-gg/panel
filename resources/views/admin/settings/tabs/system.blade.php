@@ -113,7 +113,7 @@
                     <div class="custom-control mb-3 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
                             <label for="per-page-limit">{{ __('Pterodactyl API perPage limit') }}</label>
-                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                            <i data-toggle="popover" data-trigger="hover" data-html="true" type="number" min="0" max="99999999"
                                 data-content="{{ __('The Pterodactyl API perPage limit. It is necessary to set it higher than your server count.') }}"
                                 class="fas fa-info-circle"></i>
                         </div>
@@ -189,20 +189,20 @@
 
                     <div class="custom-control mb-3 p-0">
                         <label for="initial-credits">{{ __('Initial Credits') }}</label>
-                        <input x-model="initial-credits" id="initial-credits" name="initial-credits" type="number"
+                        <input x-model="initial-credits" id="initial-credits" name="initial-credits" type="number" min="0" max="99999999"
                             value="{{ config('SETTINGS::USER:INITIAL_CREDITS') }}"
                             class="form-control @error('initial-credits') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="initial-server-limit">{{ __('Initial Server Limit') }}</label>
-                        <input x-model="initial-server-limit" id="initial-server-limit" name="initial-server-limit"
-                            type="number" value="{{ config('SETTINGS::USER:INITIAL_SERVER_LIMIT') }}"
+                        <input x-model="initial-server-limit" id="initial-server-limit" name="initial-server-limit" type="number" min="0" max="99999999" 
+                            value="{{ config('SETTINGS::USER:INITIAL_SERVER_LIMIT') }}"
                             class="form-control @error('initial-server-limit') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="credits-reward-amount-discord">{{ __('Credits Reward Amount - Discord') }}</label>
                         <input x-model="credits-reward-amount-discord" id="credits-reward-amount-discord"
-                            name="credits-reward-amount-discord" type="number"
+                            name="credits-reward-amount-discord" type="number" min="0" max="99999999"
                             value="{{ config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD') }}"
                             class="form-control @error('credits-reward-amount-discord') is-invalid @enderror" required>
                     </div>
@@ -210,28 +210,28 @@
                     <div class="custom-control mb-3 p-0">
                         <label for="credits-reward-amount-email">{{ __('Credits Reward Amount - E-Mail') }}</label>
                         <input x-model="credits-reward-amount-email" id="credits-reward-amount-email"
-                            name="credits-reward-amount-email" type="number"
+                            name="credits-reward-amount-email" type="number" min="0" max="99999999"
                             value="{{ config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL') }}"
                             class="form-control @error('credits-reward-amount-email') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-discord">{{ __('Server Limit Increase - Discord') }}</label>
                         <input x-model="server-limit-discord" id="server-limit-discord" name="server-limit-discord"
-                            type="number"
+                            type="number" min="0" max="99999999"
                             value="{{ config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') }}"
                             class="form-control @error('server-limit-discord') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-email">{{ __('Server Limit Increase - E-Mail') }}</label>
                         <input x-model="server-limit-email" id="server-limit-email" name="server-limit-email"
-                            type="number"
+                            type="number" min="0" max="99999999"
                             value="{{ config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') }}"
                             class="form-control @error('server-limit-email') is-invalid @enderror" required>
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="server-limit-purchase">{{ __('Server Limit after Credits Purchase') }}</label>
                         <input x-model="server-limit-purchase" id="server-limit-purchase"
-                            name="server-limit-purchase" type="number"
+                            name="server-limit-purchase" type="number" min="0" max="99999999"
                             value="{{ config('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') }}"
                             class="form-control @error('server-limit-purchase') is-invalid @enderror" required>
                     </div>
@@ -278,14 +278,25 @@
                 <div class="form-group">
                     <div class="custom-control mb-3 p-0">
                         <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
-                            <label for="initial-credits">{{ __('Server Allocation Limit') }}</label>
+                            <label for="allocation-limit">{{ __('Server Allocation Limit') }}</label>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
                                 data-content="{{ __('The maximum amount of allocations to pull per node for automatic deployment, if more allocations are being used than this limit is set to, no new servers can be created!') }}"
                                 class="fas fa-info-circle"></i>
                         </div>
                         <input x-model="allocation-limit" id="allocation-limit" name="allocation-limit"
-                            type="number" value="{{ config('SETTINGS::SERVER:ALLOCATION_LIMIT') }}"
+                        type="number" min="0" max="99999999" value="{{ config('SETTINGS::SERVER:ALLOCATION_LIMIT') }}"
                             class="form-control @error('allocation-limit') is-invalid @enderror" required>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="minimum-credits">{{ __('Minimum credits') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                                data-content="{{ __('The minimum amount of credits user has to have to create a server. Can be overridden by package limits.') }}"
+                                class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="minimum-credits" id="minimum-credits" name="minimum-credits"
+                        type="number" min="0" max="99999999" value="{{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }}"
+                            class="form-control @error('minimum-credits') is-invalid @enderror" required>
                     </div>
                 </div>
             </div>

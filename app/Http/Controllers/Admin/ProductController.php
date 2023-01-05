@@ -229,6 +229,9 @@ class ProductController extends Controller
                        </form>
                 ';
             })
+            ->editColumn('minimum_credits', function (Product $product) {
+                return $product->minimum_credits==-1 ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') : $product->minimum_credits;
+            })
             ->editColumn('created_at', function (Product $product) {
                 return $product->created_at ? $product->created_at->diffForHumans() : '';
             })
