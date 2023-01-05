@@ -40,6 +40,7 @@
                             <th>{{__('Category')}}</th>
                             <th>{{__('Title')}}</th>
                             <th>{{__('User')}}</th>
+                            <th>{{__('Priority')}}</th>
                             <th>{{__('Status')}}</th>
                             <th>{{__('Last Updated')}}</th>
                             <th>{{__('Actions')}}</th>
@@ -69,12 +70,14 @@
                 serverSide: true,
                 stateSave: true,
                 ajax: "{{route('moderator.ticket.datatable')}}",
+                order: [[ 4, "desc" ]],
                 columns: [
                     {data: 'category'},
                     {data: 'title'},
                     {data: 'user_id'},
+                    {data: 'priority'},
                     {data: 'status'},
-                    {data: 'updated_at'},
+                    {data: 'updated_at', type: 'num', render: {_: 'display', sort: 'raw'}},
                     {data: 'actions', sortable: false},
                 ],
                 fnDrawCallback: function( oSettings ) {

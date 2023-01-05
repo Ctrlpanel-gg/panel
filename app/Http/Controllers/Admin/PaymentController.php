@@ -673,7 +673,7 @@ class PaymentController extends Controller
         $query = Payment::with('user');
 
         return datatables($query)
-            ->editColumn('user', function (Payment $payment) {
+            ->addColumn('user', function (Payment $payment) {
                 return 
                 ($payment->user)?'<a href="'.route('admin.users.show', $payment->user->id).'">'.$payment->user->name.'</a>':__('Unknown user');
             })
@@ -691,7 +691,8 @@ class PaymentController extends Controller
             })
 
             ->editColumn('created_at', function (Payment $payment) {
-                return $payment->created_at ? $payment->created_at->diffForHumans() : '';
+                return ['display' => $payment->created_at ? $payment->created_at->diffForHumans() : '',
+                        'raw' => $payment->created_at ? strtotime($payment->created_at) : ''];
             })
             ->addColumn('actions', function (Payment $payment) {
                 return '<a data-content="' . __("Download") . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', "id=" . $payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>';

@@ -52,6 +52,7 @@
                             <th>{{__('Backups')}}</th>
                             <th>{{__('Nodes')}}</th>
                             <th>{{__('Eggs')}}</th>
+                            <th>{{__('Min Credits')}}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Created at')}}</th>
                             <th></th>
@@ -99,6 +100,7 @@
                     {data: "backups"},
                     {data: "nodes", sortable: false},
                     {data: "eggs", sortable: false},
+                    {data: "minimum_credits"},
                     {data: "servers", sortable: false},
                     {data: "created_at"},
                     {data: "actions", sortable: false}

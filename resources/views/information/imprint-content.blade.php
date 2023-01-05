@@ -8,7 +8,7 @@
     City<br>
     Country<br>
     Phone: +00 000 000 000<br>
-    Email: <a href="mailto">[email protected]</a>
+    Email: PUT YOUR EMAIL HERE</a>
 </p>
 
 <p>

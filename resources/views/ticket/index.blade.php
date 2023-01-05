@@ -41,6 +41,7 @@
                                 <tr>
                                     <th>{{__('Category')}}</th>
                                     <th>{{__('Title')}}</th>
+                                    <th>{{__('Priority')}}</th>
                                     <th>{{__('Status')}}</th>
                                     <th>{{__('Last Updated')}}</th>
                                 </tr>
@@ -61,8 +62,8 @@
                                 class="fas fa-info-circle"></i></h5>
                         </div>
                         <div class="card-body">
-                            <p>Can't start your server? Need an additional port? Do you have any other questions? Let us know by
-                                opening a ticket.</p>
+                            <p>{{__("Can't start your server? Need an additional port? Do you have any other questions? Let us know by
+                                opening a ticket.")}}</p>
 
                         </div>
                     </div>
@@ -84,6 +85,7 @@
                 columns: [
                     {data: 'category'},
                     {data: 'title'},
+                    {data: 'priority'},
                     {data: 'status'},
                     {data: 'updated_at', sortable: false},
                 ],

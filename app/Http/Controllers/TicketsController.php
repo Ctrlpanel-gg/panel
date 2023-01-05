@@ -92,6 +92,13 @@ class TicketsController extends Controller
         Notification::send($admin, new AdminReplyNotification($ticket, $user, $newmessage));
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
+    public function close($ticket_id)
+    {
+        $ticket = Ticket::where('user_id', Auth::user()->id)->where("ticket_id", $ticket_id)->firstOrFail();
+        $ticket->status = "Closed";
+        $ticket->save();
+        return redirect()->back()->with('success', __('A ticket has been closed, ID: #') . $ticket->ticket_id);
+    }
 
     public function dataTable()
     {
@@ -121,6 +128,9 @@ class TicketsController extends Controller
                 }
 
                 return '<span class="badge ' . $badgeColor . '">' . $tickets->status . '</span>';
+            })
+            ->editColumn('priority', function (Ticket $tickets) {
+                return __($tickets->priority);
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
                 return $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '';
