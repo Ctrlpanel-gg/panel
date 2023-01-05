@@ -89,6 +89,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('payment/PaypalSuccess', [PaymentController::class, 'PaypalSuccess'])->name('payment.PaypalSuccess');
     Route::get('payment/StripePay/{shopProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
     Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
+    Route::get('payment/FreePay/{shopProduct}', [PaymentController::class, 'FreePay'])->name('payment.FreePay');
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
 
     Route::get('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
