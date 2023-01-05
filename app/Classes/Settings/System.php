@@ -72,6 +72,7 @@ public function checkPteroClientkey(){
             "SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR" => "server-create-charge-first-hour",
             "SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME" => "credits-display-name",
             "SETTINGS::SERVER:ALLOCATION_LIMIT" => "allocation-limit",
+            "SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER" => "minimum-credits",
             "SETTINGS::USER:FORCE_DISCORD_VERIFICATION" => "force-discord-verification",
             "SETTINGS::USER:FORCE_EMAIL_VERIFICATION" => "force-email-verification",
             "SETTINGS::USER:INITIAL_CREDITS" => "initial-credits",

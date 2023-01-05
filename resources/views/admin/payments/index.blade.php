@@ -45,7 +45,6 @@
                                 <th>{{ __('Tax Value') }}</th>
                                 <th>{{ __('Tax Percentage') }}</th>
                                 <th>{{ __('Total Price') }}</th>
-                                <th>{{ __('User') }}</th>
                                 <th>{{ __('Payment ID') }}</th>
                                 <th>{{ __('Payment Method') }}</th>
                                 <th>{{ __('Created at') }}</th>
@@ -74,20 +73,19 @@
                 serverSide: true,
                 stateSave: true,
                 ajax: "{{ route('admin.payments.datatable') }}",
-                order: [[ 9, "desc" ]],
+                order: [[ 10, "desc" ]],
                 columns: [
                     {data: 'id',name: 'payments.id'},
                     {data: 'type'},
-                    {data: 'user', sortable: false},
+                    {data: 'user'},
                     {data: 'amount'},
                     {data: 'price'},
                     {data: 'tax_value'},
                     {data: 'tax_percent'},
                     {data: 'total_price'},
-                    {data: 'user'},
                     {data: 'payment_id'},
                     {data: 'payment_method'},
-                    {data: 'created_at'},
+                    {data: 'created_at', type: 'num', render: {_: 'display', sort: 'raw'}},
                     {data: 'actions' , sortable : false},
                 ],
                 fnDrawCallback: function(oSettings) {

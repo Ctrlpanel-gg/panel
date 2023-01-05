@@ -36,6 +36,13 @@
                         class="fa fa-plus mr-2"></i>
                     {{ __('Create Server') }}
                 </a>
+                @if (Auth::user()->Servers->count() > 0&&!empty(config('SETTINGS::MISC:PHPMYADMIN:URL')))
+                    <a 
+                        href="{{ config('SETTINGS::MISC:PHPMYADMIN:URL') }}" target="_blank"
+                        class="btn btn-secondary ml-2"><i title="manage"
+                        class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span>
+                    </a>
+                @endif
             </div>
 
             <div class="row d-flex flex-row justify-content-center justify-content-md-start">
@@ -47,25 +54,6 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h5 class="card-title mt-1">{{ $server->name }}
                                     </h5>
-                                    <div class="card-tools mt-1">
-                                        <div class="dropdown no-arrow">
-                                            <a href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                <i class="fas fa-ellipsis-v fa-sm fa-fw text-white-50"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                                aria-labelledby="dropdownMenuLink">
-                                                @if (!empty(config('SETTINGS::MISC:PHPMYADMIN:URL')))
-                                                    <a href="{{ config('SETTINGS::MISC:PHPMYADMIN:URL') }}"
-                                                        class="dropdown-item text-info" target="__blank"><i title="manage"
-                                                            class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span></a>
-                                                @endif
-                                                <div class="dropdown-divider"></div>
-                                                <span class="dropdown-item"><i title="Created at"
-                                                        class="fas fa-sync-alt mr-2"></i><span>{{ $server->created_at->isoFormat('LL') }}</span></span>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="card-body">

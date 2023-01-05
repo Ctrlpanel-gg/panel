@@ -258,16 +258,16 @@
                                data-content="{{ __('If a referred user buys credits, the referral-user will get x% of the Credits the referred user bought') }}" class="fas fa-info-circle"></i>
                         </label>
                         <input x-model="referral_percentage" id="referral_percentage" name="referral_percentage"
-                               type="number" value="{{ config('SETTINGS::REFERRAL:PERCENTAGE') }}"
-                               class="form-control @error('referral_percentage') is-invalid @enderror">
+                            type="number" min="0" max="99999999" value="{{ config('SETTINGS::REFERRAL:PERCENTAGE') }}"
+                            class="form-control @error('referral_percentage') is-invalid @enderror">
                     </div>
                 </div>
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
                         <label for="referral_reward">{{ __('Referral reward in') }} {{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }} {{__("(only for sign-up-mode)")}}:</label>
                         <input x-model="referral_reward" id="referral_reward" name="referral_reward"
-                               type="number" value="{{ config('SETTINGS::REFERRAL::REWARD') }}"
-                               class="form-control @error('referral_reward') is-invalid @enderror">
+                            type="number" min="0" max="99999999" value="{{ config('SETTINGS::REFERRAL::REWARD') }}"
+                            class="form-control @error('referral_reward') is-invalid @enderror">
                     </div>
                 </div>
                 <div class="custom-control mb-3 p-0">

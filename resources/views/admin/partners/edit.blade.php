@@ -58,7 +58,11 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="partner_discount">{{__('Partner discount')}}</label>
+                                    <label for="partner_discount">{{__('Partner discount')}}
+                                        <i data-toggle="popover" data-trigger="hover"
+                                        data-content="{{__('The discount in percent given to the partner at checkout.')}}"
+                                        class="fas fa-info-circle"></i>
+                                    </label>
                                     <input value="{{$partner->partner_discount}}" placeholder="{{__('Discount in percent')}}" id="partner_discount" name="partner_discount"
                                            type="number" step="any" min="0" max="100"
                                            class="form-control @error('partner_discount') is-invalid @enderror">
@@ -71,7 +75,11 @@
 
 
                                 <div class="form-group">
-                                    <label for="registered_user_discount">{{__('Registered user discount')}}</label>
+                                    <label for="registered_user_discount">{{__('Registered user discount')}}
+                                        <i data-toggle="popover" data-trigger="hover"
+                                        data-content="{{__('The discount in percent given to all users registered using the partners referral link.')}}"
+                                        class="fas fa-info-circle"></i>
+                                    </label>
                                     <div class="input-group">
                                         <input value="{{$partner->registered_user_discount}}" placeholder="Discount in percent" id="registered_user_discount" name="registered_user_discount"
                                                type="number" class="form-control @error('registered_user_discount') is-invalid @enderror"
