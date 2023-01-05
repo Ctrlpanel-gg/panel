@@ -13,7 +13,6 @@
         "biscolab/laravel-recaptcha": "^5.4",
         "doctrine/dbal": "^3.1",
         "fideloper/proxy": "^4.4",
-        "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "hidehalo/nanoid-php": "^1.1",
         "kkomelin/laravel-translatable-string-exporter": "^1.14",
