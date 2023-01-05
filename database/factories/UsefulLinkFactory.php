@@ -24,8 +24,8 @@ class UsefulLinkFactory extends Factory
         return [
             'icon' => 'fas fa-user',
             'title' => $this->faker->text(30),
-            'link' => $this->faker->url,
-            'description' => $this->faker->text,
+            'link' => $this->faker->url(),
+            'description' => $this->faker->text(),
         ];
     }
 }

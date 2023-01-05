@@ -23,8 +23,8 @@ class UserFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
+            'name' => $this->faker->name(),
+            'email' => $this->faker->unique()->safeEmail(),
             'credits' => $this->faker->numberBetween(0, 1500),
             'last_seen' => $this->faker->dateTimeBetween(now(), '+30 days'),
             'email_verified_at' => $this->faker->dateTimeBetween('-30 days', now()),

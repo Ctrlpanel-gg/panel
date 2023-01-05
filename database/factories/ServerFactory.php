@@ -24,7 +24,7 @@ class ServerFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name,
+            'name' => $this->faker->name(),
             'description' => $this->faker->text(60),
             'identifier' => Str::random(30),
             'pterodactyl_id' => $this->faker->numberBetween(1000000, 1000000000),

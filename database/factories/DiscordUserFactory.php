@@ -28,14 +28,14 @@ class DiscordUserFactory extends Factory
             'user_id' => function () {
                 return User::factory()->create()->id;
             },
-            'username' => $this->faker->userName,
-            'avatar' => $this->faker->uuid,
+            'username' => $this->faker->userName(),
+            'avatar' => $this->faker->uuid(),
             'discriminator' => $this->faker->randomNumber(4),
-            'email' => $this->faker->safeEmail,
-            'verified' => $this->faker->boolean,
+            'email' => $this->faker->safeEmail(),
+            'verified' => $this->faker->boolean(),
             'public_flags' => $this->faker->randomNumber(1),
             'locale' => Str::random(2),
-            'mfa_enabled' => $this->faker->boolean,
+            'mfa_enabled' => $this->faker->boolean(),
             'premium_type' => $this->faker->randomNumber(1),
         ];
     }
