@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
-class ReferralCode extends Migration
+return new class extends Migration
 {
     public function generateCode($userid)
     {
@@ -50,4 +50,4 @@ class ReferralCode extends Migration
             $table->dropColumn('referral_code');
         });
     }
-}
+};
