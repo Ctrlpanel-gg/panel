@@ -25,20 +25,15 @@ class Voucher extends Model
         'uses',
         'expires_at',
     ];
-
-    protected $dates = [
-        'expires_at',
-    ];
-
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
+        'expires_at' => 'datetime',
         'credits' => 'float',
-        'uses' => 'integer',
-    ];
+        'uses' => 'integer',    ];
 
     protected $appends = ['used', 'status'];
 

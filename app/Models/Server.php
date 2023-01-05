@@ -51,8 +51,8 @@ class Server extends Model
     /**
      * @var string[]
      */
-    protected $dates = [
-        'suspended',
+    protected $casts = [
+        'suspended' => 'datetime',
     ];
 
     public static function boot()

@@ -15,8 +15,9 @@ class ApplicationApi extends Model
     protected $primaryKey = 'token';
 
     public $incrementing = false;
-
-    protected $dates = ['last_used'];
+    protected $casts = [
+        'last_used' => 'datetime',
+    ];
 
     public static function boot()
     {
