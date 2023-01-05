@@ -27,8 +27,8 @@ class ServerFactory extends Factory
             'name' => $this->faker->name,
             'description' => $this->faker->text(60),
             'identifier' => Str::random(30),
-            'pterodactyl_id' => $this->faker->numberBetween(1000000,1000000000),
-            'product_id' => Product::factory()
+            'pterodactyl_id' => $this->faker->numberBetween(1000000, 1000000000),
+            'product_id' => Product::factory(),
         ];
     }
 }

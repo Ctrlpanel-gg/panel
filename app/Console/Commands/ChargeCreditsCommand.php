@@ -24,9 +24,9 @@ class ChargeCreditsCommand extends Command
      */
     protected $description = 'Charge all users with active servers';
 
-
     /**
      * A list of users that have to be notified
+     *
      * @var array
      */
     protected $usersToNotify = [];
@@ -56,24 +56,23 @@ class ChargeCreditsCommand extends Command
                 /** @var User $user */
                 $user = $server->user;
 
-                #charge credits / suspend server
+                //charge credits / suspend server
                 if ($user->credits >= $product->getHourlyPrice()) {
                     $this->line("<fg=blue>{$user->name}</> Current credits: <fg=green>{$user->credits}</> Credits to be removed: <fg=red>{$product->getHourlyPrice()}</>");
                     $user->decrement('credits', $product->getHourlyPrice());
                 } else {
                     try {
-                        #suspend server
+                        //suspend server
                         $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> has been <fg=red>suspended!</>");
                         $server->suspend();
 
-                        #add user to notify list
-                        if (!in_array($user, $this->usersToNotify)) {
+                        //add user to notify list
+                        if (! in_array($user, $this->usersToNotify)) {
                             array_push($this->usersToNotify, $user);
                         }
                     } catch (\Exception $exception) {
                         $this->error($exception->getMessage());
                     }
-
                 }
             }
         });
@@ -86,7 +85,7 @@ class ChargeCreditsCommand extends Command
      */
     public function notifyUsers()
     {
-        if (!empty($this->usersToNotify)) {
+        if (! empty($this->usersToNotify)) {
             /** @var User $user */
             foreach ($this->usersToNotify as $user) {
                 $this->line("<fg=yellow>Notified user:</> <fg=blue>{$user->name}</>");
@@ -94,8 +93,9 @@ class ChargeCreditsCommand extends Command
             }
         }
 
-        #reset array
-        $this->usersToNotify = array();
+        //reset array
+        $this->usersToNotify = [];
+
         return true;
     }
 }

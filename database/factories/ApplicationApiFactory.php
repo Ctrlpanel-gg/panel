@@ -22,7 +22,7 @@ class ApplicationApiFactory extends Factory
     public function definition()
     {
         return [
-            'memo' => $this->faker->word()
+            'memo' => $this->faker->word(),
         ];
     }
 }

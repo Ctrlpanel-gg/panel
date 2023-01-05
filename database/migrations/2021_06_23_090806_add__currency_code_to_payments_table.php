@@ -14,7 +14,7 @@ class AddCurrencyCodeToPaymentsTable extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->string('currency_code' , 3)->default('USD')->after('price');
+            $table->string('currency_code', 3)->default('USD')->after('price');
         });
     }
 

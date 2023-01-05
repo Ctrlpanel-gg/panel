@@ -31,19 +31,20 @@ class Settings extends Model
         parent::boot();
 
         static::updated(function (Settings $settings) {
-            Cache::forget(self::CACHE_TAG .':'. $settings->key);
+            Cache::forget(self::CACHE_TAG.':'.$settings->key);
         });
     }
 
     /**
-     * @param string $key
+     * @param  string  $key
      * @param $default
      * @return mixed
      */
     public static function getValueByKey(string $key, $default = null)
     {
-        return Cache::rememberForever(self::CACHE_TAG .':'. $key, function () use ($default, $key) {
+        return Cache::rememberForever(self::CACHE_TAG.':'.$key, function () use ($default, $key) {
             $settings = self::find($key);
+
             return $settings ? $settings->value : $default;
         });
     }

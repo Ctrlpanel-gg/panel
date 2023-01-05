@@ -24,7 +24,7 @@ class DiscordUserFactory extends Factory
     public function definition()
     {
         return [
-            'id' => $this->faker->numberBetween(186902438396035072 , 986902438396035072),
+            'id' => $this->faker->numberBetween(186902438396035072, 986902438396035072),
             'user_id' => function () {
                 return User::factory()->create()->id;
             },

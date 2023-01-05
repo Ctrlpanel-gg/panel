@@ -51,7 +51,7 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            GlobalNames::class
+            GlobalNames::class,
         ],
     ];
 
@@ -75,6 +75,6 @@ class Kernel extends HttpKernel
         'admin' => isAdmin::class,
         'moderator' => isMod::class,
         'api.token' => ApiAuthToken::class,
-        'checkSuspended' => CheckSuspended::class
+        'checkSuspended' => CheckSuspended::class,
     ];
 }

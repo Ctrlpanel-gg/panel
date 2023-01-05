@@ -26,7 +26,6 @@ class EmailVerifyDB extends Migration
         }
     }
 
-
     /**
      * Reverse the migrations.
      *

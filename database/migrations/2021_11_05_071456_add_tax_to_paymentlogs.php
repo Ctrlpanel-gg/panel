@@ -14,9 +14,9 @@ class AddTaxToPaymentlogs extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->decimal('tax_value',8,2)->after('price')->nullable();
+            $table->decimal('tax_value', 8, 2)->after('price')->nullable();
             $table->integer('tax_percent')->after('tax_value')->nullable();
-            $table->decimal('total_price',8,2)->after('tax_percent')->nullable();    
+            $table->decimal('total_price', 8, 2)->after('tax_percent')->nullable();
         });
     }
 

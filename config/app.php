@@ -41,7 +41,7 @@ return [
     |
     */
 
-    'debug' => (bool)env('APP_DEBUG', false),
+    'debug' => (bool) env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -71,7 +71,6 @@ return [
 
     'timezone' => env('APP_TIMEZONE', 'UTC'),
 
-
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
@@ -83,7 +82,7 @@ return [
     |
     */
 
-    'locale' => "en",
+    'locale' => 'en',
 
     /*
     |--------------------------------------------------------------------------
@@ -96,8 +95,7 @@ return [
     |
     */
 
-    'available_locales' => array_map('basename', preg_replace('/\\.[^.\\s]{3,4}$/', '', glob(resource_path() . "/lang/*.json", GLOB_BRACE))),
-
+    'available_locales' => array_map('basename', preg_replace('/\\.[^.\\s]{3,4}$/', '', glob(resource_path().'/lang/*.json', GLOB_BRACE))),
 
     /*
     |--------------------------------------------------------------------------
@@ -179,7 +177,6 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
-
         /*
          * Package Service Providers...
          */
@@ -195,7 +192,6 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
 
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
-
 
     ],
 

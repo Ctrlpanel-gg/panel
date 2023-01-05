@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\ApplicationApi;
-
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -14,7 +13,9 @@ class TestApiAuthorization extends TestCase
 
     /**
      * A basic feature test example.
+     *
      * @dataProvider ApiRoutesThatRequireAuthorization
+     *
      * @return void
      * @test
      */
@@ -28,17 +29,18 @@ class TestApiAuthorization extends TestCase
         $response->assertJson(['message' => 'Missing Authorization header']);
     }
 
-
     /**
      * A basic feature test example.
+     *
      * @dataProvider ApiRoutesThatRequireAuthorization
+     *
      * @return void
      */
     public function test_api_route_with_auth_headers_but_invalid_token(string $method, string $route)
     {
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . Str::random(48)
+            'Authorization' => 'Bearer '.Str::random(48),
         ])->{$method}($route);
 
         $response->assertStatus(401);
@@ -47,7 +49,9 @@ class TestApiAuthorization extends TestCase
 
     /**
      * A basic feature test example.
+     *
      * @dataProvider ApiRoutesThatRequireAuthorization
+     *
      * @return void
      */
     public function test_api_route_with_valid_auth_headers(string $method, string $route)
@@ -56,7 +60,7 @@ class TestApiAuthorization extends TestCase
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer ' . $applicationApi->token
+            'Authorization' => 'Bearer '.$applicationApi->token,
         ])->{$method}($route);
 
         $response->assertStatus(200);
@@ -72,7 +76,7 @@ class TestApiAuthorization extends TestCase
             'List Servers' => [
                 'method' => 'get',
                 'route' => '/api/servers',
-            ]
+            ],
         ];
     }
 }

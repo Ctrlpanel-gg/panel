@@ -11,18 +11,18 @@ class DiscordUser extends Model
     use HasFactory;
 
     protected $fillable = [
-        "id",
-        "user_id",
-        "username",
-        "avatar",
-        "discriminator",
-        "public_flags",
-        "flags",
-        "locale",
-        "mfa_enabled",
-        "premium_type",
-        "email",
-        "verified",
+        'id',
+        'user_id',
+        'username',
+        'avatar',
+        'discriminator',
+        'public_flags',
+        'flags',
+        'locale',
+        'mfa_enabled',
+        'premium_type',
+        'email',
+        'verified',
     ];
 
     public $incrementing = false;
@@ -30,14 +30,16 @@ class DiscordUser extends Model
     /**
      * @return BelongsTo
      */
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
     /**
      * @return string
      */
-    public function getAvatar(){
-        return "https://cdn.discordapp.com/avatars/" . $this->id . "/" . $this->avatar . ".png";
+    public function getAvatar()
+    {
+        return 'https://cdn.discordapp.com/avatars/'.$this->id.'/'.$this->avatar.'.png';
     }
 }

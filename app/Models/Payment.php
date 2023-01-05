@@ -55,14 +55,14 @@ class Payment extends Model
     }
 
     /**
-     * @param mixed $value
-     * @param string $locale
-     *
+     * @param  mixed  $value
+     * @param  string  $locale
      * @return float
      */
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 }

@@ -23,7 +23,7 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         UserUpdateCreditsEvent::class => [
-            UnsuspendServers::class
+            UnsuspendServers::class,
         ],
         SocialiteWasCalled::class => [
             // ... other providers

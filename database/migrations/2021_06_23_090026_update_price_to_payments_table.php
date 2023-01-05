@@ -26,7 +26,7 @@ class UpdatePriceToPaymentsTable extends Migration
     public function down()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->string('price')->change()->nullable();;
+            $table->string('price')->change()->nullable();
         });
     }
 }

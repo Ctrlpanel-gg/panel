@@ -14,7 +14,7 @@ class RenameCreditsProduct extends Migration
     public function up()
     {
         Schema::rename('credit_products', 'shop_products');
-        Schema::table('payments', function(Blueprint $table) {
+        Schema::table('payments', function (Blueprint $table) {
             $table->renameColumn('credit_product_id', 'shop_item_product_id');
         });
     }
@@ -28,7 +28,7 @@ class RenameCreditsProduct extends Migration
     {
         Schema::rename('shop_products', 'credit_products');
 
-        Schema::table('payments', function(Blueprint $table) {
+        Schema::table('payments', function (Blueprint $table) {
             $table->renameColumn('shop_item_product_id', 'credit_product_id');
         });
     }

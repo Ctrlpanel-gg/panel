@@ -14,7 +14,7 @@ class DecimalsInPrice extends Migration
     public function up()
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->decimal('price',['11','2'])->change();
+            $table->decimal('price', ['11', '2'])->change();
         });
     }
 

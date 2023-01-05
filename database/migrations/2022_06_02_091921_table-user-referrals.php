@@ -16,11 +16,10 @@ class TableUserReferrals extends Migration
         Schema::create('user_referrals', function (Blueprint $table) {
             $table->unsignedBigInteger('referral_id');
             $table->unsignedBigInteger('registered_user_id');
-            $table->foreign('referral_id')->references('id')->on('users')->onDelete('cascade');;
-            $table->foreign('registered_user_id')->references('id')->on('users')->onDelete('cascade');;
+            $table->foreign('referral_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('registered_user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
-
     }
 
     /**

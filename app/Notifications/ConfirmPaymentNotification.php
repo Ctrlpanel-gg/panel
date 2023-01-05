@@ -10,7 +10,6 @@ use Illuminate\Notifications\Notification;
 
 class ConfirmPaymentNotification extends Notification implements ShouldQueue
 {
-
     //THIS IS BASICALLY NOT USED ANYMORE WITH INVOICENOTIFICATION IN PLACE
 
     use Queueable;
@@ -48,20 +47,20 @@ class ConfirmPaymentNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject(__('Payment Confirmation'))
-            ->markdown('mail.payment.confirmed' , ['payment' => $this->payment]);
+            ->markdown('mail.payment.confirmed', ['payment' => $this->payment]);
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function toArray($notifiable)
     {
         return [
-            'title'   => __("Payment Confirmed!"),
-            'content' => __("Payment Confirmed!"),
+            'title' => __('Payment Confirmed!'),
+            'content' => __('Payment Confirmed!'),
         ];
     }
 }

@@ -1,8 +1,8 @@
 <?php
-include("functions.php");
+include 'functions.php';
 
-if (file_exists("../../install.lock")) {
-    die("The installation has been completed already. Please delete the File 'install.lock' to re-run");
+if (file_exists('../../install.lock')) {
+    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
 }
 ?>
 
@@ -52,43 +52,38 @@ $cardheader = '
         </div>
         <div class="card-body bg-light">';
 
-
-if (!isset($_GET['step'])) {
-
-
-    if (!file_exists("../../.env")) {
+if (! isset($_GET['step'])) {
+    if (! file_exists('../../.env')) {
         echo run_console('cp .env.example .env');
-
     }
-    echo $cardheader;
-    ?>
+    echo $cardheader; ?>
     <p class="login-box-msg">This installer will lead you through the most crucial Steps of Controlpanel.gg`s
         setup</p>
-    <p class="<?php print(checkHTTPS() == true ? "ok" : "notok"); ?>">HTTPS is required</p>
+    <p class="<?php echo checkHTTPS() == true ? 'ok' : 'notok'; ?>">HTTPS is required</p>
 
-    <p class="<?php print(checkWriteable() == true ? "ok" : "notok"); ?>">Write-permissions on .env-file</p>
+    <p class="<?php echo checkWriteable() == true ? 'ok' : 'notok'; ?>">Write-permissions on .env-file</p>
 
-    <p class="<?php print(checkPhpVersion() === "OK" ? "ok" : "notok"); ?>"> php
-        version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements["minPhp"]; ?>)</p>
-    <p class="<?php print(getMySQLVersion() === "OK" ? "ok" : "notok"); ?>"> mysql
-        version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements["mysql"]; ?>)</p>
+    <p class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'notok'; ?>"> php
+        version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)</p>
+    <p class="<?php echo getMySQLVersion() === 'OK' ? 'ok' : 'notok'; ?>"> mysql
+        version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements['mysql']; ?>)</p>
 
-    <p class="<?php print(sizeof(checkExtensions()) == 0 ? "ok" : "notok"); ?>"> Missing
-        php-extentions: <?php print(sizeof(checkExtensions()) == 0 ? "none" : "");
-        foreach (checkExtensions() as $ext) {
-            echo $ext . ", ";
-        }
+    <p class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'notok'; ?>"> Missing
+        php-extentions: <?php echo count(checkExtensions()) == 0 ? 'none' : '';
+    foreach (checkExtensions() as $ext) {
+        echo $ext.', ';
+    }
 
-        print(sizeof(checkExtensions()) == 0 ? "" : "(Proceed anyway)"); ?></p>
+    echo count(checkExtensions()) == 0 ? '' : '(Proceed anyway)'; ?></p>
 
 
-    <!-- <p class="<?php print(getZipVersion() === "OK" ? "ok" : "notok"); ?>"> Zip
+    <!-- <p class="<?php echo getZipVersion() === 'OK' ? 'ok' : 'notok'; ?>"> Zip
                 version: <?php echo getZipVersion(); ?> </p> -->
 
-    <p class="<?php print(getGitVersion() === "OK" ? "ok" : "notok"); ?>"> Git
+    <p class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'notok'; ?>"> Git
         version: <?php echo getGitVersion(); ?> </p>
 
-    <p class="<?php print(getTarVersion() === "OK" ? "ok" : "notok"); ?>"> Tar
+    <p class="<?php echo getTarVersion() === 'OK' ? 'ok' : 'notok'; ?>"> Tar
         version: <?php echo getTarVersion(); ?> </p>
 
 
@@ -101,13 +96,11 @@ if (!isset($_GET['step'])) {
     <?php
 }
 if (isset($_GET['step']) && $_GET['step'] == 2) {
-echo $cardheader;
-?>
+    echo $cardheader; ?>
 <p class="login-box-msg">Lets start with your Database</p>
 <?php if (isset($_GET['message'])) {
-    echo "<p class='notok'>" . $_GET['message'] . "</p>";
-}
-?>
+        echo "<p class='notok'>".$_GET['message'].'</p>';
+    } ?>
 
 <form method="POST" enctype="multipart/form-data" class="mb-3"
       action="/install/forms.php" name="checkDB">
@@ -174,17 +167,14 @@ echo $cardheader;
     </div>
 
     <?php
-    }
+}
     if (isset($_GET['step']) && $_GET['step'] == 2.5) {
-    echo $cardheader;
-    ?>
+        echo $cardheader; ?>
     <p class="login-box-msg">Lets feed your Database and generate some security keys!</p>
     <p> This process might take a while. Please do not refresh or close this page!</p>
     <?php if (isset($_GET['message'])) {
-        echo "<p class='notok'>" . $_GET['message'] . "</p>";
-    }
-
-    ?>
+            echo "<p class='notok'>".$_GET['message'].'</p>';
+        } ?>
 
     <form method="POST" enctype="multipart/form-data" class="mb-3"
           action="/install/forms.php" name="feedDB">
@@ -198,18 +188,15 @@ echo $cardheader;
         </div>
 
         <?php
-        }
-
+    }
 
         if (isset($_GET['step']) && $_GET['step'] == 3) {
-        echo $cardheader;
-        ?>
+            echo $cardheader; ?>
         <p class="login-box-msg">Tell us something about your Host</p>
 
         <?php if (isset($_GET['message'])) {
-            echo "<p class='notok'>" . $_GET['message'] . "</p>";
-        }
-        ?>
+                echo "<p class='notok'>".$_GET['message'].'</p>';
+            } ?>
 
         <form method="POST" enctype="multipart/form-data" class="mb-3"
               action="/install/forms.php" name="checkGeneral">
@@ -222,7 +209,7 @@ echo $cardheader;
                             <label for="database">Your Dashboard URL</label>
                             <input id="url" name="url"
                                    type="text" required
-                                   value="<?php echo "https://" . $_SERVER['SERVER_NAME']; ?>" class="form-control">
+                                   value="<?php echo 'https://'.$_SERVER['SERVER_NAME']; ?>" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">
@@ -245,17 +232,15 @@ echo $cardheader;
             </div>
 
             <?php
-            }
+        }
             if (isset($_GET['step']) && $_GET['step'] == 4) {
-            echo $cardheader;
-            ?>
+                echo $cardheader; ?>
             <p class="login-box-msg">Lets get your E-Mails going! </p>
             <p class="login-box-msg">This might take a few seconds when submitted! </p>
 
             <?php if (isset($_GET['message'])) {
-                echo "<p class='notok'>" . $_GET['message'] . "</p>";
-            }
-            ?>
+                    echo "<p class='notok'>".$_GET['message'].'</p>';
+                } ?>
 
             <form method="POST" enctype="multipart/form-data" class="mb-3"
 
@@ -331,21 +316,18 @@ echo $cardheader;
 
                 </div>
                 <?php
-                }
+            }
 
                 if (isset($_GET['step']) && $_GET['step'] == 5) {
-
-                echo $cardheader;
-                ?>
+                    echo $cardheader; ?>
 
                 <p class="login-box-msg">Almost done! </p>
                 <p class="login-box-msg">Lets get some info about your Pterodactyl Installation!</p>
 
 
                 <?php if (isset($_GET['message'])) {
-                    echo "<p class='notok'>" . $_GET['message'] . "</p>";
-                }
-                ?>
+                        echo "<p class='notok'>".$_GET['message'].'</p>';
+                    } ?>
 
                 <form method="POST" enctype="multipart/form-data" class="mb-3"
 
@@ -394,17 +376,15 @@ echo $cardheader;
                     </div>
 
                     <?php
-                    }
+                }
 
                     if (isset($_GET['step']) && $_GET['step'] == 6) {
-                    echo $cardheader;
-                    ?>
+                        echo $cardheader; ?>
                     <p class="login-box-msg">Lets create yourself!</p>
                     <p class="login-box-msg">We're making the first Admin user</p>
                     <?php if (isset($_GET['message'])) {
-                        echo "<p class='notok'>" . $_GET['message'] . "</p>";
-                    }
-                    ?>
+                            echo "<p class='notok'>".$_GET['message'].'</p>';
+                        } ?>
 
                     <form method="POST" enctype="multipart/form-data" class="mb-3"
                           action="/install/forms.php" name="createUser">
@@ -446,18 +426,16 @@ echo $cardheader;
                         </div>
 
                         <?php
-                        }
+                    }
                         if (isset($_GET['step']) && $_GET['step'] == 7) {
-                            $lockfile = fopen("../../install.lock", "w") or die("Unable to open file!");
-                            fwrite($lockfile, "locked");
+                            $lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
+                            fwrite($lockfile, 'locked');
                             fclose($lockfile);
 
-                            echo $cardheader;
-
-                            ?>
+                            echo $cardheader; ?>
                             <p class="login-box-msg">All done!</p>
                             <p class="login-box-msg">You may navigate to your Dashboard now and log in!</p>
-                            <a href="<?php echo getEnvironmentValue("APP_URL"); ?>">
+                            <a href="<?php echo getEnvironmentValue('APP_URL'); ?>">
                                 <button class="btn btn-success">Lets go!</button>
                             </a>
                             </div>

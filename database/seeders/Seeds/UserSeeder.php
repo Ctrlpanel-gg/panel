@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     {
         User::factory()
             ->count(10)
-            ->has(Server::factory()->count(rand(1,3)) , 'servers')
+            ->has(Server::factory()->count(rand(1, 3)), 'servers')
             ->create();
     }
 }
