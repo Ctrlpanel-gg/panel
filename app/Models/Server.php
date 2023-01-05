@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Client\Response;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
@@ -20,7 +21,13 @@ class Server extends Model
 {
     use HasFactory;
     use LogsActivity;
-
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
+    }
     /**
      * @var bool
      */

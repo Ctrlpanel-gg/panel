@@ -19,6 +19,7 @@
         "laravel/tinker": "^2.7",
         "laravel/ui": "^3.3",
         "laraveldaily/laravel-invoices": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "paypal/paypal-checkout-sdk": "^1.0",
         "paypal/rest-api-sdk-php": "^1.14",
         "socialiteproviders/discord": "^4.1",
@@ -26,9 +27,10 @@
         "spatie/laravel-query-builder": "^5.0",
         "spatie/laravel-validation-rules": "^3.2",
         "stripe/stripe-php": "^7.107",
+        "symfony/http-client": "^6.2",
         "symfony/intl": "^6.0",
-        "yajra/laravel-datatables-oracle": "^9.19",
-        "league/flysystem-aws-s3-v3": "^3.0"
+        "symfony/mailgun-mailer": "^6.2",
+        "yajra/laravel-datatables-oracle": "^9.19"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6",

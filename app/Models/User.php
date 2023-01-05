@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -292,5 +293,13 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->forceFill([
             'email_verified_at' => null,
         ])->save();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnly(['*'])
+            -> logOnlyDirty()
+            -> dontSubmitEmptyLogs();
     }
 }
