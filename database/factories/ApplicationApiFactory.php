@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\ApplicationApi;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ApplicationApiFactory extends Factory

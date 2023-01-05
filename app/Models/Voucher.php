@@ -25,6 +25,7 @@ class Voucher extends Model
         'uses',
         'expires_at',
     ];
+
     /**
      * The attributes that should be cast to native types.
      *

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\UsefulLink;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class UsefulLinkFactory extends Factory
