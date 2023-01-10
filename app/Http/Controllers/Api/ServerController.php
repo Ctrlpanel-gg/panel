@@ -15,12 +15,13 @@ use Spatie\QueryBuilder\QueryBuilder;
 class ServerController extends Controller
 {
     public const ALLOWED_INCLUDES = ['product', 'user'];
+
     public const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
 
     /**
      * Display a listing of the resource.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return LengthAwarePaginator
      */
     public function index(Request $request)
@@ -35,8 +36,7 @@ class ServerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Server $server
-     *
+     * @param  Server  $server
      * @return Server|Collection|Model
      */
     public function show(Server $server)
@@ -51,19 +51,20 @@ class ServerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param Server $server
+     * @param  Server  $server
      * @return Server
      */
     public function destroy(Server $server)
     {
         $server->delete();
+
         return $server;
     }
 
-
     /**
      * suspend server
-     * @param Server $server
+     *
+     * @param  Server  $server
      * @return Server|JsonResponse
      */
     public function suspend(Server $server)
@@ -77,10 +78,10 @@ class ServerController extends Controller
         return $server->load('product');
     }
 
-
     /**
      * unsuspend server
-     * @param Server $server
+     *
+     * @param  Server  $server
      * @return Server|JsonResponse
      */
     public function unSuspend(Server $server)

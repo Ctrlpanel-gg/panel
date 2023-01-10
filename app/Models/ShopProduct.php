@@ -5,12 +5,19 @@ namespace App\Models;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use App\Models\Configuration;
 
 class ShopProduct extends Model
 {
     use LogsActivity;
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
+    }
     /**
      * @var bool
      */
@@ -20,13 +27,13 @@ class ShopProduct extends Model
      * @var string[]
      */
     protected $fillable = [
-        "type",
-        "price",
-        "description",
-        "display",
-        "currency_code",
-        "quantity",
-        "disabled",
+        'type',
+        'price',
+        'description',
+        'display',
+        'currency_code',
+        'quantity',
+        'disabled',
     ];
 
     public static function boot()
@@ -41,14 +48,14 @@ class ShopProduct extends Model
     }
 
     /**
-     * @param mixed $value
-     * @param string $locale
-     *
+     * @param  mixed  $value
+     * @param  string  $locale
      * @return float
      */
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 
@@ -59,7 +66,8 @@ class ShopProduct extends Model
      */
     public function getTaxPercent()
     {
-        $tax = config("SETTINGS::PAYMENTS:SALES_TAX");
+        $tax = config('SETTINGS::PAYMENTS:SALES_TAX');
+
         return $tax < 0 ? 0 : $tax;
     }
 

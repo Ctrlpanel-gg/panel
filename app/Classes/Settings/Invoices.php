@@ -10,9 +10,8 @@ class Invoices
 {
     public function __construct()
     {
-        return;
-    }
 
+    }
 
     public function updateSettings(Request $request)
     {
@@ -22,29 +21,27 @@ class Invoices
 
         $values = [
             //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
-            "SETTINGS::INVOICE:COMPANY_NAME" => "company-name",
-            "SETTINGS::INVOICE:COMPANY_ADDRESS" => "company-address",
-            "SETTINGS::INVOICE:COMPANY_PHONE" => "company-phone",
-            "SETTINGS::INVOICE:COMPANY_MAIL" => "company-mail",
-            "SETTINGS::INVOICE:COMPANY_VAT" => "company-vat",
-            "SETTINGS::INVOICE:COMPANY_WEBSITE" => "company-web",
-            "SETTINGS::INVOICE:PREFIX" => "invoice-prefix",
-            "SETTINGS::INVOICE:ENABLED" => "enable-invoices",
+            'SETTINGS::INVOICE:COMPANY_NAME' => 'company-name',
+            'SETTINGS::INVOICE:COMPANY_ADDRESS' => 'company-address',
+            'SETTINGS::INVOICE:COMPANY_PHONE' => 'company-phone',
+            'SETTINGS::INVOICE:COMPANY_MAIL' => 'company-mail',
+            'SETTINGS::INVOICE:COMPANY_VAT' => 'company-vat',
+            'SETTINGS::INVOICE:COMPANY_WEBSITE' => 'company-web',
+            'SETTINGS::INVOICE:PREFIX' => 'invoice-prefix',
+            'SETTINGS::INVOICE:ENABLED' => 'enable-invoices',
         ];
 
         foreach ($values as $key => $value) {
             $param = $request->get($value);
 
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
-            Cache::forget("setting" . ':' . $key);
+            Cache::forget('setting'.':'.$key);
         }
-
 
         if ($request->hasFile('logo')) {
             $request->file('logo')->storeAs('public', 'logo.png');
         }
 
-
-        return redirect(route('admin.settings.index') . '#invoices')->with('success', __('Invoice settings updated!'));
+        return redirect(route('admin.settings.index').'#invoices')->with('success', __('Invoice settings updated!'));
     }
 }

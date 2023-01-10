@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use Closure;
-use Symfony\Component\Process\Process;
+use Illuminate\Console\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Process\Process;
 
 class update extends Command
 {
@@ -45,7 +45,7 @@ class update extends Command
         $this->output->warning('This command does just pull the newest changes from the github repo. Verify the github repo before running this');
 
         if (version_compare(PHP_VERSION, '8.0.0') < 0) {
-            $this->error('Cannot execute self-upgrade process. The minimum required PHP version required is 8.0.0, you have [' . PHP_VERSION . '].');
+            $this->error('Cannot execute self-upgrade process. The minimum required PHP version required is 8.0.0, you have ['.PHP_VERSION.'].');
         }
 
         $user = 'www-data';
@@ -55,7 +55,7 @@ class update extends Command
                 $userDetails = posix_getpwuid(fileowner('public'));
                 $user = $userDetails['name'] ?? 'www-data';
 
-                if (!$this->confirm("Your webserver user has been detected as [{$user}]: is this correct?", true)) {
+                if (! $this->confirm("Your webserver user has been detected as [{$user}]: is this correct?", true)) {
                     $user = $this->anticipate(
                         'Please enter the name of the user running your webserver process. This varies from system to system, but is generally "www-data", "nginx", or "apache".',
                         [
@@ -71,7 +71,7 @@ class update extends Command
                 $groupDetails = posix_getgrgid(filegroup('public'));
                 $group = $groupDetails['name'] ?? 'www-data';
 
-                if (!$this->confirm("Your webserver group has been detected as [{$group}]: is this correct?", true)) {
+                if (! $this->confirm("Your webserver group has been detected as [{$group}]: is this correct?", true)) {
                     $group = $this->anticipate(
                         'Please enter the name of the group running your webserver process. Normally this is the same as your user.',
                         [
@@ -85,23 +85,20 @@ class update extends Command
 
             ini_set('output_buffering', 0);
 
-            if (!$this->confirm('Are you sure you want to run the upgrade process for your Dashboard?')) {
+            if (! $this->confirm('Are you sure you want to run the upgrade process for your Dashboard?')) {
                 return false;
             }
-
 
             $bar = $this->output->createProgressBar(9);
             $bar->start();
 
-
             $this->withProgress($bar, function () {
-                $this->line("\$upgrader> git pull");
-                $process = Process::fromShellCommandline("git pull");
+                $this->line('$upgrader> git pull');
+                $process = Process::fromShellCommandline('git pull');
                 $process->run(function ($type, $buffer) {
                     $this->{$type === Process::ERR ? 'error' : 'line'}($buffer);
                 });
             });
-
 
             $this->withProgress($bar, function () {
                 $this->line('$upgrader> php artisan down');
@@ -118,12 +115,12 @@ class update extends Command
 
             $this->withProgress($bar, function () {
                 $command = ['composer', 'install', '--no-ansi'];
-                if (config('app.env') === 'production' && !config('app.debug')) {
+                if (config('app.env') === 'production' && ! config('app.debug')) {
                     $command[] = '--optimize-autoloader';
                     $command[] = '--no-dev';
                 }
 
-                $this->line('$upgrader> ' . implode(' ', $command));
+                $this->line('$upgrader> '.implode(' ', $command));
                 $process = new Process($command);
                 $process->setTimeout(10 * 60);
                 $process->run(function ($type, $buffer) {
@@ -162,9 +159,8 @@ class update extends Command
 
             $this->newLine();
             $this->info('Finished running upgrade.');
-        };
+        }
     }
-
 
     protected function withProgress(ProgressBar $bar, Closure $callback)
     {

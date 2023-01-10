@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Database\Seeders\Seeds\ApplicationApiSeeder;
 use Database\Seeders\Seeds\ProductSeeder;
 use Database\Seeders\Seeds\ShopProductSeeder;
-use Database\Seeders\Seeds\ApplicationApiSeeder;
 use Database\Seeders\Seeds\UsefulLinksSeeder;
 use Illuminate\Database\Seeder;
 
@@ -21,8 +21,7 @@ class ExampleItemsSeeder extends Seeder
             ProductSeeder::class,
             ShopProductSeeder::class,
             ApplicationApiSeeder::class,
-            UsefulLinksSeeder::class
+            UsefulLinksSeeder::class,
         ]);
-
     }
 }

@@ -43,29 +43,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::middleware('guest')->get('/', function () {
     return redirect('login');
 })->name('welcome');
 
 Auth::routes(['verify' => true]);
 
-# Stripe WebhookRoute -> validation in Route Handler
+// Stripe WebhookRoute -> validation in Route Handler
 Route::post('payment/StripeWebhooks', [PaymentController::class, 'StripeWebhooks'])->name('payment.StripeWebhooks');
 
-Route::get('/privacy', function () { return view('information.privacy');})->name('privacy');
-Route::get('/imprint', function () { return view('information.imprint');})->name('imprint');
-Route::get('/tos', function () { return view('information.tos');})->name('tos');
+Route::get('/privacy', function () {
+return view('information.privacy');
+})->name('privacy');
+Route::get('/imprint', function () {
+return view('information.imprint');
+})->name('imprint');
+Route::get('/tos', function () {
+return view('information.tos');
+})->name('tos');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
-    #resend verification email
+    //resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
 
         return back()->with('success', 'Verification link sent!');
     })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
 
-    #normal routes
+    //normal routes
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
     Route::resource('servers', ServerController::class);
@@ -77,13 +82,13 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
 
-    #server create utility routes (product)
-    #routes made for server create page to fetch product info
+    //server create utility routes (product)
+    //routes made for server create page to fetch product info
     Route::get('/products/nodes/egg/{egg?}', [FrontProductController::class, 'getNodesBasedOnEgg'])->name('products.nodes.egg');
     Route::get('/products/locations/egg/{egg?}', [FrontProductController::class, 'getLocationsBasedOnEgg'])->name('products.locations.egg');
     Route::get('/products/products/{egg?}/{node?}', [FrontProductController::class, 'getProductsBasedOnNode'])->name('products.products.node');
 
-    #payments
+    //payments
     Route::get('checkout/{shopProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
     Route::get('payment/PaypalPay/{shopProduct}', [PaymentController::class, 'PaypalPay'])->name('payment.PaypalPay');
     Route::get('payment/PaypalSuccess', [PaymentController::class, 'PaypalSuccess'])->name('payment.PaypalSuccess');
@@ -94,18 +99,18 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     Route::get('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
 
-    #discord
+    //discord
     Route::get('/auth/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect');
     Route::get('/auth/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
 
-    #voucher redeem
+    //voucher redeem
     Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->middleware('throttle:5,1')->name('voucher.redeem');
 
-    #switch language
+    //switch language
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
-    #ticket user
-    if (config("SETTINGS::TICKET:ENABLED")) {
+    //ticket user
+    if (config('SETTINGS::TICKET:ENABLED')) {
         Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
         Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
         Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
@@ -115,17 +120,17 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::post('ticket/close/{ticket_id}', [TicketsController::class, 'close'])->name('ticket.close');
     }
 
-    #admin
+    //admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
-        #overview
+        //overview
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
         Route::resource('activitylogs', ActivityLogController::class);
 
-        #users
-        Route::get("users.json", [UserController::class, "json"])->name('users.json');
+        //users
+        Route::get('users.json', [UserController::class, 'json'])->name('users.json');
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
         Route::get('users/verifyEmail/{user}', [UserController::class, 'verifyEmail'])->name('users.verifyEmail');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
@@ -134,36 +139,36 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
         Route::resource('users', UserController::class);
 
-        #servers
+        //servers
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
         Route::post('servers/togglesuspend/{server}', [AdminServerController::class, 'toggleSuspended'])->name('servers.togglesuspend');
         Route::get('servers/sync', [AdminServerController::class, 'syncServers'])->name('servers.sync');
         Route::resource('servers', AdminServerController::class);
 
-        #products
+        //products
         Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
         Route::get('products/clone/{product}', [ProductController::class, 'clone'])->name('products.clone');
         Route::patch('products/disable/{product}', [ProductController::class, 'disable'])->name('products.disable');
         Route::resource('products', ProductController::class);
 
-        #store
+        //store
         Route::get('store/datatable', [ShopProductController::class, 'datatable'])->name('store.datatable');
         Route::patch('store/disable/{shopProduct}', [ShopProductController::class, 'disable'])->name('store.disable');
         Route::resource('store', ShopProductController::class)->parameters([
             'store' => 'shopProduct',
         ]);
 
-        #payments
+        //payments
         Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
-        #settings
+        //settings
         Route::get('settings/datatable', [SettingsController::class, 'datatable'])->name('settings.datatable');
         Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
-        Route::get("settings/checkPteroClientkey", [System::class, 'checkPteroClientkey'])->name('settings.checkPteroClientkey');
-        Route::redirect("settings#system", "system")->name('settings.system');
+        Route::get('settings/checkPteroClientkey', [System::class, 'checkPteroClientkey'])->name('settings.checkPteroClientkey');
+        Route::redirect('settings#system', 'system')->name('settings.system');
 
-        #settings
+        //settings
         Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateSettings'])->name('settings.update.invoicesettings');
         Route::patch('settings/update/language', [Language::class, 'updateSettings'])->name('settings.update.languagesettings');
         Route::patch('settings/update/payment', [Payments::class, 'updateSettings'])->name('settings.update.paymentsettings');
@@ -171,42 +176,42 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::patch('settings/update/system', [System::class, 'updateSettings'])->name('settings.update.systemsettings');
         Route::resource('settings', SettingsController::class)->only('index');
 
-        #invoices
+        //invoices
         Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');
         Route::get('invoices/download-single-invoice', [InvoiceController::class, 'downloadSingleInvoice'])->name('invoices.downloadSingleInvoice');
 
-        #usefullinks
+        //usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
 
-        #vouchers
+        //vouchers
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
         Route::get('vouchers/{voucher}/usersdatatable', [VoucherController::class, 'usersdatatable'])->name('vouchers.usersdatatable');
         Route::get('vouchers/{voucher}/users', [VoucherController::class, 'users'])->name('vouchers.users');
         Route::resource('vouchers', VoucherController::class);
 
-        #partners
+        //partners
         Route::get('partners/datatable', [PartnerController::class, 'datatable'])->name('partners.datatable');
         Route::get('partners/{voucher}/users', [PartnerController::class, 'users'])->name('partners.users');
         Route::resource('partners', PartnerController::class);
 
-        #api-keys
+        //api-keys
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
         Route::resource('api', ApplicationApiController::class)->parameters([
             'api' => 'applicationApi',
         ]);
     });
 
-    #mod
+    //mod
     Route::prefix('moderator')->name('moderator.')->middleware('moderator')->group(function () {
-        #ticket moderation
+        //ticket moderation
         Route::get('ticket', [ModTicketsController::class, 'index'])->name('ticket.index');
         Route::get('ticket/datatable', [ModTicketsController::class, 'datatable'])->name('ticket.datatable');
         Route::get('ticket/show/{ticket_id}', [ModTicketsController::class, 'show'])->name('ticket.show');
         Route::post('ticket/reply', [ModTicketsController::class, 'reply'])->name('ticket.reply');
         Route::post('ticket/close/{ticket_id}', [ModTicketsController::class, 'close'])->name('ticket.close');
         Route::post('ticket/delete/{ticket_id}', [ModTicketsController::class, 'delete'])->name('ticket.delete');
-        #ticket moderation blacklist
+        //ticket moderation blacklist
         Route::get('ticket/blacklist', [ModTicketsController::class, 'blacklist'])->name('ticket.blacklist');
         Route::post('ticket/blacklist', [ModTicketsController::class, 'blacklistAdd'])->name('ticket.blacklist.add');
         Route::post('ticket/blacklist/delete/{id}', [ModTicketsController::class, 'blacklistDelete'])->name('ticket.blacklist.delete');

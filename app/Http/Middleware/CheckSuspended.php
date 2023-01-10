@@ -23,6 +23,7 @@ class CheckSuspended
 
             return redirect()->route('login')->withMessage($message);
         }
+
         return $next($request);
     }
 }

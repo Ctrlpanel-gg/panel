@@ -7,13 +7,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use NumberFormatter;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Payment extends Model
 {
     use HasFactory;
     use LogsActivity;
-
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
+    }
     public $incrementing = false;
 
     /**
@@ -55,14 +62,14 @@ class Payment extends Model
     }
 
     /**
-     * @param mixed $value
-     * @param string $locale
-     *
+     * @param  mixed  $value
+     * @param  string  $locale
      * @return float
      */
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
+
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 }

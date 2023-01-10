@@ -2,8 +2,8 @@
 
 namespace App\Notifications\Ticket\User;
 
-use App\Models\User;
 use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,13 +11,14 @@ use Illuminate\Notifications\Notification;
 
 class ReplyNotification extends Notification implements ShouldQueue
 {
-
     //THIS IS BASICALLY NOT USED ANYMORE WITH INVOICENOTIFICATION IN PLACE
 
     use Queueable;
 
     private Ticket $ticket;
+
     private User $user;
+
     private $newmessage;
 
     /**
@@ -27,8 +28,8 @@ class ReplyNotification extends Notification implements ShouldQueue
      */
     public function __construct(Ticket $ticket, User $user, $newmessage)
     {
-        $this->ticket     = $ticket;
-        $this->user       = $user;
+        $this->ticket = $ticket;
+        $this->user = $user;
         $this->newmessage = $newmessage;
     }
 
@@ -40,7 +41,8 @@ class ReplyNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        $via = ['mail','database'];
+        $via = ['mail', 'database'];
+
         return $via;
     }
 
@@ -53,20 +55,20 @@ class ReplyNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('[Ticket ID: ' . $this->ticket->ticket_id . '] ' . $this->ticket->title)
-            ->markdown('mail.ticket.user.reply' , ['ticket' => $this->ticket, 'user' => $this->user, 'newmessage' => $this->newmessage]);
+            ->subject('[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title)
+            ->markdown('mail.ticket.user.reply', ['ticket' => $this->ticket, 'user' => $this->user, 'newmessage' => $this->newmessage]);
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function toArray($notifiable)
     {
         return [
-            'title'   => '[Ticket ID: ' . $this->ticket->ticket_id . '] ' . $this->ticket->title,
+            'title' => '[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title,
             'content' => "
                 <p>Ticket With ID : {$this->ticket->ticket_id} A response has been added to your ticket. Please see below for our response!</p>
                 <br>
