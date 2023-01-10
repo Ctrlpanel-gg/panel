@@ -51,6 +51,9 @@ class System
             'show-imprint' => 'string',
             'show-privacy' => 'string',
             'show-tos' => 'string',
+            'alert-enabled' => 'string',
+            'alter-type' => 'string',
+            'alert-message' => 'string',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -96,6 +99,9 @@ class System
             "SETTINGS::SYSTEM:SHOW_IMPRINT" => "show-imprint",
             "SETTINGS::SYSTEM:SHOW_PRIVACY" => "show-privacy",
             "SETTINGS::SYSTEM:SHOW_TOS" => "show-tos",
+            "SETTINGS::SYSTEM:ALERT_ENABLED" => "alert-enabled",
+            "SETTINGS::SYSTEM:ALERT_TYPE" => "alert-type",
+            "SETTINGS::SYSTEM:ALERT_MESSAGE" => "alert-message",
         ];
 
         foreach ($values as $key => $value) {

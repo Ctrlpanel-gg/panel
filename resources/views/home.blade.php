@@ -26,6 +26,12 @@
 
         </div>
     @endif
+
+    @if(config("SETTINGS::SYSTEM:ALERT_ENABLED") && !empty(config("SETTINGS::SYSTEM:ALERT_MESSAGE")))
+        <div class="alert mt-4 alert-{{config("SETTINGS::SYSTEM:ALERT_TYPE")}}" role="alert">
+            {!! config("SETTINGS::SYSTEM:ALERT_MESSAGE") !!}
+        </div>
+    @endif
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">

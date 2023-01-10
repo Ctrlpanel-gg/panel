@@ -574,5 +574,28 @@ class SettingsSeeder extends Seeder
             'type' => 'boolean',
             'description' => 'Enable/disable Terms of Service in footer',
         ]);
+
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:ALERT_ENABLED',
+        ], [
+            'value' => 'false',
+            'type' => 'boolean',
+            'description' => 'Enable/disable Alerts on Homepage',
+        ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:ALERT_TYPE',
+        ], [
+            'value' => 'dark',
+            'type' => 'text',
+            'description' => 'Changes the Color of the Alert',
+        ]);
+
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:ALERT_MESSAGE',
+        ], [
+            'value' => '',
+            'type' => 'text',
+            'description' => 'Changes the Content the Alert',
+        ]);
     }
 }

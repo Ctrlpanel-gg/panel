@@ -298,7 +298,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            -> logOnly(['*'])
+            -> logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'email'])
             -> logOnlyDirty()
             -> dontSubmitEmptyLogs();
     }

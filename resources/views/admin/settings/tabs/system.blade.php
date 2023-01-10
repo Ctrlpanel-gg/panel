@@ -195,7 +195,7 @@
                     </div>
                     <div class="custom-control mb-3 p-0">
                         <label for="initial-server-limit">{{ __('Initial Server Limit') }}</label>
-                        <input x-model="initial-server-limit" id="initial-server-limit" name="initial-server-limit" type="number" min="0" max="99999999" 
+                        <input x-model="initial-server-limit" id="initial-server-limit" name="initial-server-limit" type="number" min="0" max="99999999"
                             value="{{ config('SETTINGS::USER:INITIAL_SERVER_LIMIT') }}"
                             class="form-control @error('initial-server-limit') is-invalid @enderror" required>
                     </div>
@@ -299,7 +299,48 @@
                             class="form-control @error('minimum-credits') is-invalid @enderror" required>
                     </div>
                 </div>
+                {{-- ALERT --}}
+                <div class="row mb-2">
+                    <div class="col text-center">
+                        <h1>Alert</h1>
+                    </div>
+                </div>
+                <div class="custom-control mb-3 p-0">
+                    <input value="true" id="alert-enabled" name="alert-enabled"
+                           {{ config('SETTINGS::SYSTEM:ALERT_ENABLED') == 'true' ? 'checked' : '' }} type="checkbox">
+                    <label for="enable-login-logo">{{ __('Enable the Alert Message on Homepage') }} </label>
+                </div>
+
+                <div class="custom-control mb-3 p-0">
+                    <label for="alert-type">{{ __('Alert Color') }}</label>
+                <select id="alert-type" style="width:100%" class="custom-select" name="alert-type" required
+                        autocomplete="off" @error('alert-type') is-invalid @enderror>
+                    <option value="primary" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "primary") selected
+                        @endif>{{ __("Blue") }}</option>
+                    <option value="secondary" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "secondary") selected
+                        @endif>{{ __("Grey") }}</option>
+                    <option value="success" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "success") selected
+                        @endif>{{ __("Green") }}</option>
+                    <option value="danger" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "danger") selected
+                        @endif>{{ __("Red") }}</option>
+                    <option value="warning" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "warning") selected
+                        @endif>{{ __("Orange") }}</option>
+                    <option value="info" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "info") selected
+                        @endif>{{ __("Cyan") }}</option>
+                </select>
+                </div>
+
+                <div class="custom-control mb-3 p-0">
+                    <label for="alert-message">{{ __('Alert Message (HTML might be used)') }}</label>
+                    <textarea x-model="alert-message" id="alert-message" name="alert-message"
+                           class="form-control @error('alert-message') is-invalid @enderror">
+                        {{ config('SETTINGS::SYSTEM:ALERT_MESSAGE', '') }}
+                        </textarea>
+                </div>
+
             </div>
+
+
 
             {{-- Design --}}
             <div class="col-md-3 px-3">
