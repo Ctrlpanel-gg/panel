@@ -36,12 +36,13 @@ class notify extends Command
     /**
      * Execute the console command.
      *
-     * @param int $id
+     * @param  int  $id
      * @return int
      */
     public function handle()
     {
         User::findOrFail($this->argument('id'))->notify(new ServerCreationError(Server::all()[0]));
+
         return 'message send';
     }
 }

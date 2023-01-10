@@ -11,12 +11,12 @@ use Illuminate\Notifications\Notification;
 
 class AdminCreateNotification extends Notification implements ShouldQueue
 {
-
     //THIS IS BASICALLY NOT USED ANYMORE WITH INVOICENOTIFICATION IN PLACE
 
     use Queueable;
 
     private Ticket $ticket;
+
     private User $user;
 
     /**
@@ -27,7 +27,7 @@ class AdminCreateNotification extends Notification implements ShouldQueue
     public function __construct(Ticket $ticket, User $user)
     {
         $this->ticket = $ticket;
-        $this->user   = $user;
+        $this->user = $user;
     }
 
     /**
@@ -38,7 +38,8 @@ class AdminCreateNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        $via = ['mail','database'];
+        $via = ['mail', 'database'];
+
         return $via;
     }
 
@@ -51,20 +52,20 @@ class AdminCreateNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('[Ticket ID: ' . $this->ticket->ticket_id . '] ' . $this->ticket->title)
-            ->markdown('mail.ticket.admin.create' , ['ticket' => $this->ticket, 'user' => $this->user]);
+            ->subject('[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title)
+            ->markdown('mail.ticket.admin.create', ['ticket' => $this->ticket, 'user' => $this->user]);
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function toArray($notifiable)
     {
         return [
-            'title'   => '[Ticket ID: ' . $this->ticket->ticket_id . '] ' . $this->ticket->title,
+            'title' => '[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title,
             'content' => "Ticket With ID : {$this->ticket->ticket_id} has been opened by <strong>{$this->user->name}</strong>",
         ];
     }

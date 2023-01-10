@@ -6,16 +6,22 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class Voucher
- * @package App\Models
  */
 class Voucher extends Model
 {
     use HasFactory, LogsActivity;
-
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
+    }
     /**
      * @var string[]
      */
@@ -27,19 +33,15 @@ class Voucher extends Model
         'expires_at',
     ];
 
-    protected $dates = [
-        'expires_at'
-    ];
-
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
+        'expires_at' => 'datetime',
         'credits' => 'float',
-        'uses'    => 'integer'
-    ];
+        'uses' => 'integer',    ];
 
     protected $appends = ['used', 'status'];
 
@@ -59,9 +61,6 @@ class Voucher extends Model
         return $this->getStatus();
     }
 
-    /**
-     *
-     */
     public static function boot()
     {
         parent::boot();
@@ -84,17 +83,22 @@ class Voucher extends Model
      */
     public function getStatus()
     {
-        if ($this->users()->count() >= $this->uses) return 'USES_LIMIT_REACHED';
-        if (!is_null($this->expires_at)) {
-            if ($this->expires_at->isPast()) return __('EXPIRED');
+        if ($this->users()->count() >= $this->uses) {
+            return 'USES_LIMIT_REACHED';
+        }
+        if (! is_null($this->expires_at)) {
+            if ($this->expires_at->isPast()) {
+                return __('EXPIRED');
+            }
         }
 
         return __('VALID');
     }
 
     /**
-     * @param User $user
+     * @param  User  $user
      * @return float
+     *
      * @throws Exception
      */
     public function redeem(User $user)
@@ -111,7 +115,7 @@ class Voucher extends Model
     }
 
     /**
-     * @param User $user
+     * @param  User  $user
      * @return null
      */
     private function logRedeem(User $user)

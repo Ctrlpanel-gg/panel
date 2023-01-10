@@ -8,7 +8,6 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -44,17 +43,14 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-
         $validationRules = [
-            $this->username()      => 'required|string',
-            'password'             => 'required|string',
+            $this->username() => 'required|string',
+            'password' => 'required|string',
         ];
         if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
             $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
         }
         $request->validate($validationRules);
-
-
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
@@ -72,6 +68,7 @@ class LoginController extends Controller
             $user = Auth::user();
             $user->last_seen = now();
             $user->save();
+
             return $this->sendLoginResponse($request);
         }
 

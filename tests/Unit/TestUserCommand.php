@@ -12,9 +12,11 @@ class TestUserCommand extends TestCase
 
     /**
      * A basic feature test example.
+     *
      * @dataProvider invalidPteroIdDataProvider
-     * @param array $apiResponse
-     * @param int $expectedExitCode
+     *
+     * @param  array  $apiResponse
+     * @param  int  $expectedExitCode
      * @return void
      */
     public function testMakeUserCommand(array $apiResponse, int $expectedExitCode): void
@@ -37,14 +39,14 @@ class TestUserCommand extends TestCase
                 'apiResponse' => [
                     'id' => 12345,
                     'first_name' => 'Test',
-                    'email' => 'test@test.test'
+                    'email' => 'test@test.test',
                 ],
-                'expectedExitCode' => 1
+                'expectedExitCode' => 1,
             ],
             'Bad Response' => [
                 'apiResponse' => [],
-                'expectedExitCode' => 0
-            ]
+                'expectedExitCode' => 0,
+            ],
         ];
     }
 }

@@ -12,6 +12,7 @@ class ImportUsersFromPteroCommand extends Command
      * @var string
      */
     private $importFileName = 'users.json';
+
     /**
      * The name and signature of the console command.
      *
@@ -39,25 +40,28 @@ class ImportUsersFromPteroCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return boolean
+     * @return bool
      */
     public function handle()
     {
 
         //check if json file exists
-        if (!Storage::disk('local')->exists('users.json')) {
-            $this->error('[ERROR] ' . storage_path('app') . '/' . $this->importFileName . ' is missing');
+        if (! Storage::disk('local')->exists('users.json')) {
+            $this->error('[ERROR] '.storage_path('app').'/'.$this->importFileName.' is missing');
+
             return false;
         }
 
         //check if json file is valid
         $json = json_decode(Storage::disk('local')->get('users.json'));
-        if (!array_key_exists(2, $json)) {
+        if (! array_key_exists(2, $json)) {
             $this->error('[ERROR] Invalid json file');
+
             return false;
         }
-        if (!$json[2]->data) {
+        if (! $json[2]->data) {
             $this->error('[ERROR] Invalid json file / No users found!');
+
             return false;
         }
 
@@ -69,12 +73,14 @@ class ImportUsersFromPteroCommand extends Command
         //cancel
         if ($confirm !== 'y') {
             $this->error('[ERROR] Stopped import script!');
+
             return false;
         }
 
         //import users
         $this->deleteCurrentUserBase();
         $this->importUsingJsonFile($json, $initial_credits, $initial_server_limit);
+
         return true;
     }
 
@@ -84,7 +90,9 @@ class ImportUsersFromPteroCommand extends Command
     private function deleteCurrentUserBase()
     {
         $currentUserCount = User::count();
-        if ($currentUserCount == 0) return;
+        if ($currentUserCount == 0) {
+            return;
+        }
 
         $this->line("Deleting ({$currentUserCount}) users..");
         foreach (User::all() as $user) {
@@ -104,20 +112,20 @@ class ImportUsersFromPteroCommand extends Command
             $role = $user->root_admin == '0' ? 'member' : 'admin';
 
             User::create([
-                "pterodactyl_id" => $user->id,
-                "name" => $user->name_first,
-                "email" => $user->email,
-                "password" => $user->password,
-                "role" => $role,
-                "credits" => $initial_credits,
-                "server_limit" => $initial_server_limit,
-                "created_at" => $user->created_at,
-                "updated_at" => $user->updated_at,
+                'pterodactyl_id' => $user->id,
+                'name' => $user->name_first,
+                'email' => $user->email,
+                'password' => $user->password,
+                'role' => $role,
+                'credits' => $initial_credits,
+                'server_limit' => $initial_server_limit,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
             ]);
         });
 
         $this->newLine();
-        $this->line("Done importing, you can now login using your pterodactyl credentials.");
+        $this->line('Done importing, you can now login using your pterodactyl credentials.');
         $this->newLine();
     }
 }

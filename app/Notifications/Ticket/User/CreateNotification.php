@@ -10,7 +10,6 @@ use Illuminate\Notifications\Notification;
 
 class CreateNotification extends Notification implements ShouldQueue
 {
-
     //THIS IS BASICALLY NOT USED ANYMORE WITH INVOICENOTIFICATION IN PLACE
 
     use Queueable;
@@ -35,7 +34,8 @@ class CreateNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        $via = ['mail','database'];
+        $via = ['mail', 'database'];
+
         return $via;
     }
 
@@ -48,20 +48,20 @@ class CreateNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('[Ticket ID: ' . $this->ticket->ticket_id . '] ' . $this->ticket->title)
-            ->markdown('mail.ticket.user.create' , ['ticket' => $this->ticket]);
+            ->subject('[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title)
+            ->markdown('mail.ticket.user.create', ['ticket' => $this->ticket]);
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function toArray($notifiable)
     {
         return [
-            'title'   => '[Ticket ID: ' . $this->ticket->ticket_id . '] ' . $this->ticket->title,
+            'title' => '[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title,
             'content' => "Your Ticket has been Created With ID : {$this->ticket->ticket_id}",
         ];
     }

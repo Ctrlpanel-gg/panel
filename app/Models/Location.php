@@ -28,6 +28,7 @@ class Location extends Model
 
     /**
      * Sync locations with pterodactyl panel
+     *
      * @throws Exception
      */
     public static function syncLocations()
@@ -36,21 +37,21 @@ class Location extends Model
 
         //map response
         $locations = array_map(function ($val) {
-            return array(
-                'id'          => $val['attributes']['id'],
-                'name'        => $val['attributes']['short'],
-                'description' => $val['attributes']['long']
-            );
+            return [
+                'id' => $val['attributes']['id'],
+                'name' => $val['attributes']['short'],
+                'description' => $val['attributes']['long'],
+            ];
         }, $locations);
 
         //update or create
         foreach ($locations as $location) {
             self::query()->updateOrCreate(
                 [
-                    'id' => $location['id']
+                    'id' => $location['id'],
                 ],
                 [
-                    'name'        => $location['name'],
+                    'name' => $location['name'],
                     'description' => $location['name'],
                 ]
             );
@@ -61,7 +62,8 @@ class Location extends Model
 
     /**
      * @description remove locations that have been deleted on pterodactyl
-     * @param array $locations
+     *
+     * @param  array  $locations
      */
     private static function removeDeletedLocation(array $locations): void
     {
@@ -70,7 +72,9 @@ class Location extends Model
         }, $locations);
 
         self::all()->each(function (Location $location) use ($ids) {
-            if (!in_array($location->id, $ids)) $location->delete();
+            if (! in_array($location->id, $ids)) {
+                $location->delete();
+            }
         });
     }
 
@@ -78,5 +82,4 @@ class Location extends Model
     {
         return $this->hasMany(Node::class, 'location_id', 'id');
     }
-
 }

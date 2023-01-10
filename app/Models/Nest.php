@@ -36,20 +36,20 @@ class Nest extends Model
 
         //map response
         $nests = array_map(function ($nest) {
-            return array(
-                'id'          => $nest['attributes']['id'],
-                'name'        => $nest['attributes']['name'],
+            return [
+                'id' => $nest['attributes']['id'],
+                'name' => $nest['attributes']['name'],
                 'description' => $nest['attributes']['description'],
-            );
+            ];
         }, $nests);
 
         foreach ($nests as $nest) {
             self::query()->updateOrCreate([
-                'id' => $nest['id']
+                'id' => $nest['id'],
             ], [
-                'name'        => $nest['name'],
+                'name' => $nest['name'],
                 'description' => $nest['description'],
-                'disabled'    => false
+                'disabled' => false,
             ]);
         }
 
@@ -58,7 +58,8 @@ class Nest extends Model
 
     /**
      * @description remove nests that have been deleted on pterodactyl
-     * @param array $nests
+     *
+     * @param  array  $nests
      */
     private static function removeDeletedNests(array $nests): void
     {
@@ -67,7 +68,9 @@ class Nest extends Model
         }, $nests);
 
         self::all()->each(function (Nest $nest) use ($ids) {
-            if (!in_array($nest->id, $ids)) $nest->delete();
+            if (! in_array($nest->id, $ids)) {
+                $nest->delete();
+            }
         });
     }
 

@@ -6,27 +6,30 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
 class DynamicNotification extends Notification
-
 {
     use Queueable;
+
     /**
      * @var array
      */
     private $via;
+
     /**
      * @var array
      */
     private $database;
+
     /**
      * @var MailMessage
      */
     private $mail;
+
     /**
      * Create a new notification instance.
      *
-     * @param array $via
-     * @param array $database
-     * @param MailMessage $mail
+     * @param  array  $via
+     * @param  array  $database
+     * @param  MailMessage  $mail
      */
     public function __construct($via, $database, $mail)
     {
@@ -38,7 +41,7 @@ class DynamicNotification extends Notification
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function via()
@@ -50,10 +53,11 @@ class DynamicNotification extends Notification
     {
         return $this->mail;
     }
+
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
+     * @param  mixed  $notifiable
      * @return array
      */
     public function toArray()

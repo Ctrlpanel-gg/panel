@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class MakeUserCommand extends Command
 {
@@ -59,6 +58,7 @@ class MakeUserCommand extends Command
 
         if ($validator->fails()) {
             $this->error($validator->errors()->first());
+
             return 0;
         }
 
@@ -66,9 +66,16 @@ class MakeUserCommand extends Command
         $response = $this->pterodactyl->getUser($ptero_id);
 
         if (isset($response['errors'])) {
-            if (isset($response['errors'][0]['code'])) $this->error("code: {$response['errors'][0]['code']}");
-            if (isset($response['errors'][0]['status'])) $this->error("status: {$response['errors'][0]['status']}");
-            if (isset($response['errors'][0]['detail'])) $this->error("detail: {$response['errors'][0]['detail']}");
+            if (isset($response['errors'][0]['code'])) {
+                $this->error("code: {$response['errors'][0]['code']}");
+            }
+            if (isset($response['errors'][0]['status'])) {
+                $this->error("status: {$response['errors'][0]['status']}");
+            }
+            if (isset($response['errors'][0]['detail'])) {
+                $this->error("detail: {$response['errors'][0]['detail']}");
+            }
+
             return 0;
         }
 
@@ -77,7 +84,7 @@ class MakeUserCommand extends Command
             'email' => $response['email'],
             'role' => 'admin',
             'password' => Hash::make($password),
-            'pterodactyl_id' => $response['id']
+            'pterodactyl_id' => $response['id'],
         ]);
 
         $this->table(['Field', 'Value'], [

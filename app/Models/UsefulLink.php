@@ -15,6 +15,6 @@ class UsefulLink extends Model
         'icon',
         'title',
         'link',
-        'description'
+        'description',
     ];
 }

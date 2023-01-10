@@ -15,27 +15,32 @@ class PartnerDiscount extends Model
         'user_id',
         'partner_discount',
         'registered_user_discount',
-        'referral_system_commission'
+        'referral_system_commission',
     ];
 
     public static function getDiscount()
     {
-        if($partnerDiscount = PartnerDiscount::where('user_id', Auth::user()->id)->first()){
+        if ($partnerDiscount = PartnerDiscount::where('user_id', Auth::user()->id)->first()) {
             return $partnerDiscount->partner_discount;
-        }
-        else if($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', Auth::user()->id)->first()){
-            if($partnerDiscount = PartnerDiscount::where('user_id', $ref_user->referral_id)->first()){
+        } elseif ($ref_user = DB::table('user_referrals')->where('registered_user_id', '=', Auth::user()->id)->first()) {
+            if ($partnerDiscount = PartnerDiscount::where('user_id', $ref_user->referral_id)->first()) {
                 return $partnerDiscount->registered_user_discount;
             }
+
             return 0;
         }
+
         return 0;
     }
+
     public static function getCommission($user_id)
     {
-        if($partnerDiscount = PartnerDiscount::where('user_id', $user_id)->first()){
-            if($partnerDiscount->referral_system_commission>=0) return $partnerDiscount->referral_system_commission>=0;
+        if ($partnerDiscount = PartnerDiscount::where('user_id', $user_id)->first()) {
+            if ($partnerDiscount->referral_system_commission >= 0) {
+                return $partnerDiscount->referral_system_commission >= 0;
+            }
         }
-        return config("SETTINGS::REFERRAL:PERCENTAGE");
+
+        return config('SETTINGS::REFERRAL:PERCENTAGE');
     }
 }
