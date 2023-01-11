@@ -350,6 +350,15 @@
                     </div>
                 </div>
                 <div class="custom-control mb-3 p-0">
+                    <label for="alert-type">{{ __('Theme') }}</label>
+                    <select id="theme" style="width:100%" class="custom-select" name="theme" required
+                            autocomplete="off" @error('theme') is-invalid @enderror>
+                        @foreach($themes as $theme)
+                        <option value="{{$theme}}" @if ($active_theme == $theme) selected @endif>{{$theme}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="custom-control mb-3 p-0">
                     <input value="true" id="enable-login-logo" name="enable-login-logo"
                         {{ config('SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO') == 'true' ? 'checked' : '' }} type="checkbox">
                     <label for="enable-login-logo">{{ __('Enable Logo on Loginpage') }} </label>

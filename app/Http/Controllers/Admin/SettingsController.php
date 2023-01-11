@@ -7,6 +7,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
+use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
 {
@@ -17,11 +18,14 @@ class SettingsController extends Controller
      */
     public function index()
     {
+
+
         //Get all tabs as laravel view paths
         $tabs = [];
-        foreach (glob(resource_path('views/admin/settings/tabs/*.blade.php')) as $filename) {
+        foreach (glob(Theme::getViewPaths()[0] . '/admin/settings/tabs/*.blade.php') as $filename) {
             $tabs[] = 'admin.settings.tabs.'.basename($filename, '.blade.php');
         }
+
 
         //Generate a html list item for each tab based on tabs file basename, set first tab as active
         $tabListItems = [];
@@ -33,9 +37,13 @@ class SettingsController extends Controller
             </a></li>';
         }
 
+        $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
+
         return view('admin.settings.index', [
             'tabs' => $tabs,
             'tabListItems' => $tabListItems,
+            'themes' => $themes,
+            'active_theme' => Theme::active(),
         ]);
     }
 }

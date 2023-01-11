@@ -227,7 +227,7 @@
                                         :disabled="product.minimum_credits > user.credits||product.doesNotFit == true"
                                         :class="product.minimum_credits > user.credits ? 'disabled' : ''"
                                         class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
-                                        x-text=" product.doesNotFit == true? '{{ __('Server can\'t fit on this node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
+                                        x-text=" product.doesNotFit == true? '{{ __("Server cant fit on this Node") }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
                                     </button>
                                     </div>
                                 </div>
