@@ -336,6 +336,11 @@
                            class="form-control @error('alert-message') is-invalid @enderror">
                         {{ config('SETTINGS::SYSTEM:ALERT_MESSAGE', '') }}
                         </textarea>
+                    @error('alert-message')
+                    <div class="text-danger">
+                        {{ $message }}
+                    </div>
+                    @enderror
                 </div>
 
             </div>
