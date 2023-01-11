@@ -66,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             if(config('theme.active') == null){
-                Theme::set(config("SETTINGS::SYSTEM:THEME"), "default");
+                Theme::set(config("SETTINGS::SYSTEM:THEME","default"), "default");
             }
 
             // Set Mail Config
