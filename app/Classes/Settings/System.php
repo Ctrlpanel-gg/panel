@@ -55,7 +55,7 @@ class System
             'show-tos' => 'string',
             'alert-enabled' => 'string',
             'alter-type' => 'string',
-            'alert-message' => 'string',
+            'alert-message' => 'string|nullable',
         ]);
 
         $validator->after(function ($validator) use ($request) {

@@ -79,13 +79,16 @@
         <!-- /.login-box -->
 
         {{-- imprint and privacy policy --}}
-        <div class="fixed-bottom">
+        <div class="fixed-bottom ">
             <div class="container text-center">
-                @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT'))
+                @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT') == "true")
                     <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
                 @endif
-                @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY'))
+                @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY') == "true")
                     <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+                @endif
+                @if (config('SETTINGS::SYSTEM:SHOW_TOS') == "true")
+                    | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>
         </div>

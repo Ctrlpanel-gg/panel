@@ -302,4 +302,5 @@ class User extends Authenticatable implements MustVerifyEmail
             -> logOnlyDirty()
             -> dontSubmitEmptyLogs();
     }
+
 }

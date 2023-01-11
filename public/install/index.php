@@ -65,6 +65,7 @@ if (! isset($_GET['step'])) {
 
     <p class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'notok'; ?>"> php
         version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)</p>
+
     <p class="<?php echo getMySQLVersion() === 'OK' ? 'ok' : 'notok'; ?>"> mysql
         version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements['mysql']; ?>)</p>
 
