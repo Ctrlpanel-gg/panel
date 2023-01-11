@@ -61,13 +61,12 @@ class AppServiceProvider extends ServiceProvider
                 config([$setting->key => $setting->value]);
             }
 
-
             if(!file_exists(base_path('themes')."/".config("SETTINGS::SYSTEM:THEME"))){
                 config(['SETTINGS::SYSTEM:THEME' => "default"]);
             }
 
             if(config('theme.active') == null){
-                Theme::set(config("SETTINGS::SYSTEM:THEME"));
+                Theme::set(config("SETTINGS::SYSTEM:THEME"), "default");
             }
 
             // Set Mail Config
