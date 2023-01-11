@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Qirolab\Theme\Theme;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -58,6 +59,15 @@ class AppServiceProvider extends ServiceProvider
             // Set all configs from database
             foreach ($settings as $setting) {
                 config([$setting->key => $setting->value]);
+            }
+
+
+            if(!file_exists(base_path('themes')."/".config("SETTINGS::SYSTEM:THEME"))){
+                config(['SETTINGS::SYSTEM:THEME' => "default"]);
+            }
+
+            if(config('theme.active') == null){
+                Theme::set(config("SETTINGS::SYSTEM:THEME"));
             }
 
             // Set Mail Config

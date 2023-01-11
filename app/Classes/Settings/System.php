@@ -7,6 +7,8 @@ use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use Qirolab\Theme\Theme;
+
 
 class System
 {
@@ -102,6 +104,7 @@ class System
             "SETTINGS::SYSTEM:ALERT_ENABLED" => "alert-enabled",
             "SETTINGS::SYSTEM:ALERT_TYPE" => "alert-type",
             "SETTINGS::SYSTEM:ALERT_MESSAGE" => "alert-message",
+            "SETTINGS::SYSTEM:THEME" => "theme",
         ];
 
         foreach ($values as $key => $value) {
@@ -110,6 +113,11 @@ class System
             Settings::where('key', $key)->updateOrCreate(['key' => $key], ['value' => $param]);
             Cache::forget('setting'.':'.$key);
         }
+
+        //SET THEME
+        $theme = $request->get('theme');
+        Theme::set($theme);
+
 
         return redirect(route('admin.settings.index').'#system')->with('success', __('System settings updated!'));
     }

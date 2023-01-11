@@ -597,5 +597,12 @@ class SettingsSeeder extends Seeder
             'type' => 'text',
             'description' => 'Changes the Content the Alert',
         ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:THEME',
+        ], [
+            'value' => 'default',
+            'type' => 'text',
+            'description' => 'Current active theme',
+        ]);
     }
 }
