@@ -3,15 +3,15 @@
 $required_extentions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
 
 $requirements = [
-    'minPhp' => '7.4',
-    'maxPhp' => '8.1', // This version is not supported
+    'minPhp' => '8.1',
+    'maxPhp' => '8.1.9', // This version is not supported
     'mysql' => '5.7.22',
 ];
 
 function checkPhpVersion()
 {
     global $requirements;
-    if (version_compare(phpversion(), $requirements['minPhp'], '>=') && version_compare(phpversion(), $requirements['maxPhp'], '<')) {
+    if (version_compare(phpversion(), $requirements['minPhp'], '>=') && version_compare(phpversion(), $requirements['maxPhp'], '<=')) {
         return 'OK';
     }
 
