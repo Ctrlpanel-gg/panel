@@ -44,6 +44,7 @@
                                     <th>{{__('Priority')}}</th>
                                     <th>{{__('Status')}}</th>
                                     <th>{{__('Last Updated')}}</th>
+                                    <th>{{__('Actions')}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -88,6 +89,7 @@
                     {data: 'priority'},
                     {data: 'status'},
                     {data: 'updated_at', sortable: false},
+                    {data: 'actions', sortable: false},
                 ],
                 fnDrawCallback: function( oSettings ) {
                     $('[data-toggle="popover"]').popover();
