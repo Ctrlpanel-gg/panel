@@ -18,7 +18,7 @@
                 <!-- address -->
                 <div class="form-group mb-3">
                     <div class="custom-control  p-0">
-                        <label for="company-address">{{ __('Company Adress') }}:</label>
+                        <label for="company-address">{{ __('Company Address') }}:</label>
                         <input x-model="company-address" id="company-address" name="company-address" type="text"
                             value="{{ config('SETTINGS::INVOICE:COMPANY_ADDRESS') }}"
                             class="form-control @error('company-address') is-invalid @enderror">
@@ -49,7 +49,7 @@
                 <!-- email -->
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
-                        <label for="company-mail">{{ __('Company E-Mail Adress') }}:</label>
+                        <label for="company-mail">{{ __('Company E-Mail Address') }}:</label>
                         <input x-model="company-mail" id="company-mail" name="company-mail" type="text"
                             value="{{ config('SETTINGS::INVOICE:COMPANY_MAIL') }}"
                             class="form-control @error('company-mail') is-invalid @enderror">

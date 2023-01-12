@@ -143,7 +143,19 @@ class TicketsController extends Controller
             ->editColumn('updated_at', function (Ticket $tickets) {
                 return $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '';
             })
-            ->rawColumns(['category', 'title', 'status', 'updated_at'])
+            ->addColumn('actions', function (Ticket $tickets) {
+                return '
+                            <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
+                            <form class="d-inline"  method="post" action="'.route('ticket.close', ['ticket_id' => $tickets->ticket_id]).'">
+                                '.csrf_field().'
+                                '.method_field('POST').'
+                            <button data-content="'.__('Close').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-times"></i></button>
+                            </form>
+
+                            </form>
+                ';
+            })
+            ->rawColumns(['category', 'title', 'status', 'updated_at', "actions"])
             ->make(true);
     }
 }

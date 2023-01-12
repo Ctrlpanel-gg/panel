@@ -434,7 +434,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('MAIL_HOST', 'localhost'),
             'type' => 'string',
-            'description' => 'Mailer Host Adress',
+            'description' => 'Mailer Host Address',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:PORT',
