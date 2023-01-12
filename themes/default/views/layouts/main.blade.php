@@ -19,6 +19,8 @@
     {{-- summernote --}}
     <link rel="stylesheet" href="{{ asset('plugins/summernote/summernote-bs4.min.css') }}">
 
+
+
     {{-- datetimepicker --}}
     <link rel="stylesheet"
         href="{{ asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
@@ -33,6 +35,8 @@
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
     <script src="{{ asset('js/app.js') }}"></script>
+    <!-- tinymce -->
+    <script src={{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}></script>
 </head>
 
 <body class="sidebar-mini layout-fixed dark-mode" style="height: auto;">
@@ -465,6 +469,8 @@
 
     <!-- Select2 -->
     <script src={{ asset('plugins/select2/js/select2.min.js') }}></script>
+
+
     <script>
         $(document).ready(function() {
             $('[data-toggle="popover"]').popover();
