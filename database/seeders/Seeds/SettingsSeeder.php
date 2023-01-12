@@ -604,5 +604,31 @@ class SettingsSeeder extends Seeder
             'type' => 'text',
             'description' => 'Current active theme',
         ]);
+
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:USEFULLINKS_ENABLED',
+        ], [
+            'value' => 'true',
+            'type' => 'boolean',
+            'description' => 'Enable/disable Useful Links on Homepage',
+        ]);
+
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:MOTD_ENABLED',
+        ], [
+            'value' => 'true',
+            'type' => 'boolean',
+            'description' => 'Enable/disable MOTD on Homepage',
+        ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:MOTD_MESSAGE',
+        ], [
+            'value' => '<h1 style="text-align: center;"><img style="display: block; margin-left: auto; margin-right: auto;" src="https://controlpanel.gg/img/controlpanel.png" alt="" width="200" height="200"><span style="font-size: 36pt;">Controlpanel.gg</span></h1>
+ <p><span style="font-size: 18pt;">Thank you for using our Software</span></p>
+ <p><span style="font-size: 18pt;">If you have any questions, make sure to join our <a href="https://discord.com/invite/4Y6HjD2uyU" target="_blank" rel="noopener">Discord</a></span></p>
+ <p><span style="font-size: 10pt;">(you can change this message in the <a href="admin/settings#system">Settings</a> )</span></p>',
+            'type' => 'text',
+            'description' => 'MOTD Message',
+        ]);
     }
 }

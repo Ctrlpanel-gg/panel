@@ -56,6 +56,9 @@ class System
             'alert-enabled' => 'string',
             'alter-type' => 'string',
             'alert-message' => 'string|nullable',
+            'motd-enabled' => 'string',
+            'usefullinks-enabled' => 'string',
+            'motd-message' => 'string|nullable',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -105,6 +108,9 @@ class System
             "SETTINGS::SYSTEM:ALERT_TYPE" => "alert-type",
             "SETTINGS::SYSTEM:ALERT_MESSAGE" => "alert-message",
             "SETTINGS::SYSTEM:THEME" => "theme",
+            "SETTINGS::SYSTEM:MOTD_ENABLED" => "motd-enabled",
+            "SETTINGS::SYSTEM:MOTD_MESSAGE" => "motd-message",
+            "SETTINGS::SYSTEM:USEFULLINKS_ENABLED" => "usefullinks-enabled",
         ];
 
         foreach ($values as $key => $value) {

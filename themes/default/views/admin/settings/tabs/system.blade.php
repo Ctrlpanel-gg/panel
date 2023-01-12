@@ -1,3 +1,4 @@
+
 <div class="tab-pane mt-3" id="system">
     <form method="POST" enctype="multipart/form-data" class="mb-3"
         action="{{ route('admin.settings.update.systemsettings') }}">
@@ -299,49 +300,6 @@
                             class="form-control @error('minimum-credits') is-invalid @enderror" required>
                     </div>
                 </div>
-                {{-- ALERT --}}
-                <div class="row mb-2">
-                    <div class="col text-center">
-                        <h1>Alert</h1>
-                    </div>
-                </div>
-                <div class="custom-control mb-3 p-0">
-                    <input value="true" id="alert-enabled" name="alert-enabled"
-                           {{ config('SETTINGS::SYSTEM:ALERT_ENABLED') == 'true' ? 'checked' : '' }} type="checkbox">
-                    <label for="enable-login-logo">{{ __('Enable the Alert Message on Homepage') }} </label>
-                </div>
-
-                <div class="custom-control mb-3 p-0">
-                    <label for="alert-type">{{ __('Alert Color') }}</label>
-                <select id="alert-type" style="width:100%" class="custom-select" name="alert-type" required
-                        autocomplete="off" @error('alert-type') is-invalid @enderror>
-                    <option value="primary" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "primary") selected
-                        @endif>{{ __("Blue") }}</option>
-                    <option value="secondary" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "secondary") selected
-                        @endif>{{ __("Grey") }}</option>
-                    <option value="success" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "success") selected
-                        @endif>{{ __("Green") }}</option>
-                    <option value="danger" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "danger") selected
-                        @endif>{{ __("Red") }}</option>
-                    <option value="warning" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "warning") selected
-                        @endif>{{ __("Orange") }}</option>
-                    <option value="info" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "info") selected
-                        @endif>{{ __("Cyan") }}</option>
-                </select>
-                </div>
-
-                <div class="custom-control mb-3 p-0">
-                    <label for="alert-message">{{ __('Alert Message (HTML might be used)') }}</label>
-                    <textarea x-model="alert-message" id="alert-message" name="alert-message"
-                           class="form-control @error('alert-message') is-invalid @enderror">
-                        {{ config('SETTINGS::SYSTEM:ALERT_MESSAGE', '') }}
-                        </textarea>
-                    @error('alert-message')
-                    <div class="text-danger">
-                        {{ $message }}
-                    </div>
-                    @enderror
-                </div>
 
             </div>
 
@@ -409,9 +367,94 @@
                         @enderror
                     </div>
                 </div>
+
+            </div>
+        </div>
+            <div class="row">
+                <div class="col-md-3">
+                    {{-- ALERT --}}
+                    <div class="row mb-2">
+                        <div class="col text-center">
+                            <h1>Alert</h1>
+                        </div>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <input value="true" id="alert-enabled" name="alert-enabled"
+                               {{ config('SETTINGS::SYSTEM:ALERT_ENABLED') == 'true' ? 'checked' : '' }} type="checkbox">
+                        <label for="alert-enabled">{{ __('Enable the Alert Message on Homepage') }} </label>
+                    </div>
+
+                    <div class="custom-control mb-3 p-0">
+                        <label for="alert-type">{{ __('Alert Color') }}</label>
+                        <select id="alert-type" style="width:100%" class="custom-select" name="alert-type" required
+                                autocomplete="off" @error('alert-type') is-invalid @enderror>
+                            <option value="primary" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "primary") selected
+                                @endif>{{ __("Blue") }}</option>
+                            <option value="secondary" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "secondary") selected
+                                @endif>{{ __("Grey") }}</option>
+                            <option value="success" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "success") selected
+                                @endif>{{ __("Green") }}</option>
+                            <option value="danger" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "danger") selected
+                                @endif>{{ __("Red") }}</option>
+                            <option value="warning" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "warning") selected
+                                @endif>{{ __("Orange") }}</option>
+                            <option value="info" @if (config('SETTINGS::SYSTEM:ALERT_TYPE') == "info") selected
+                                @endif>{{ __("Cyan") }}</option>
+                        </select>
+                    </div>
+
+                    <div class="custom-control mb-3 p-0">
+                        <label for="alert-message">{{ __('Alert Message (HTML might be used)') }}</label>
+                        <textarea x-model="alert-message" id="alert-message" name="alert-message"
+                                  class="form-control @error('alert-message') is-invalid @enderror">
+                        {{ config('SETTINGS::SYSTEM:ALERT_MESSAGE', '') }}
+                        </textarea>
+                        @error('alert-message')
+                        <div class="text-danger">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    {{-- Homepage Text --}}
+                    <div class="row mb-2">
+                        <div class="col text-center">
+                            <h1>{{__("Message of the day")}}</h1>
+                        </div>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <input value="true" id="motd-enabled" name="motd-enabled"
+                               {{ config('SETTINGS::SYSTEM:MOTD_ENABLED') == 'true' ? 'checked' : '' }} type="checkbox">
+                        <label for="motd-enabled">{{ __('Enable the MOTD on the Homepage') }} </label>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <input value="true" id="usefullinks-enabled" name="usefullinks-enabled"
+                               {{ config('SETTINGS::SYSTEM:USEFULLINKS_ENABLED') == 'true' ? 'checked' : '' }} type="checkbox">
+                        <label for="usefullinks-enabled">{{ __('Enable the Useful-Links section') }} </label>
+                    </div>
+
+                    <div class="custom-control mb-3 p-0">
+                        <label for="alert-message">{{ __('MOTD-Text') }}</label>
+                        <textarea x-model="motd-message" id="motd-message" name="motd-message"
+                                  class="form-control @error('motd-message') is-invalid @enderror">
+                        {{ config('SETTINGS::SYSTEM:MOTD_MESSAGE', '') }}
+                        </textarea>
+                        @error('motd-message')
+                        <div class="text-danger">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                </div>
             </div>
             <div class="row">
                 <button class="btn btn-primary ml-3 mt-3">{{ __('Submit') }}</button>
             </div>
     </form>
 </div>
+<script>tinymce.init({selector:'textarea',skin: "oxide-dark",
+        content_css: "dark",branding: false,  height: 200,
+        plugins: ['image','link'],});
+</script>
+

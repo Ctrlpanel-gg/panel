@@ -106,6 +106,24 @@
 
         <div class="row">
             <div class="col-md-6">
+                @if(config("SETTINGS::SYSTEM:MOTD_ENABLED") == "true")
+                    <div class="card card-default">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-home mr-2"></i>
+                                {{ config('app.name', 'MOTD') }}
+                            </h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                           {!! config('SETTINGS::SYSTEM:MOTD_MESSAGE', '') !!}
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                @endif
+
+                <!-- /.card -->
+                @if(config("SETTINGS::SYSTEM:USEFULLINKS_ENABLED") == "true")
                 <div class="card card-default">
                     <div class="card-header">
                         <h3 class="card-title">
@@ -131,6 +149,7 @@
                     </div>
                     <!-- /.card-body -->
                 </div>
+                @endif
                 <!-- /.card -->
             </div>
             <!-- /.col -->
