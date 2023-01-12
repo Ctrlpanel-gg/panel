@@ -111,7 +111,7 @@
                         <div class="card-header">
                             <h3 class="card-title">
                                 <i class="fas fa-home mr-2"></i>
-                                {{ config('app.name', 'MOTD') }}
+                                {{ config('app.name', 'MOTD') }} - MOTD
                             </h3>
                         </div>
                         <!-- /.card-header -->
