@@ -145,7 +145,7 @@ class TicketsController extends Controller
             })
             ->addColumn('actions', function (Ticket $tickets) {
                 return '
-                            <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
+                            <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
                             <form class="d-inline"  method="post" action="'.route('ticket.close', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
