@@ -69,7 +69,7 @@
                 </div>
                 <div class="form-group mb-3">
                     <div class="custom-control p-0">
-                        <label for="mailfromadress">{{ __('Mail From Adress') }}:</label>
+                        <label for="mailfromadress">{{ __('Mail From Address') }}:</label>
                         <input x-model="mailfromadress" id="mailfromadress" name="mailfromadress" type="text"
                             value="{{ config('SETTINGS::MAIL:FROM_ADDRESS') }}"
                             class="form-control @error('mailfromadress') is-invalid @enderror">
