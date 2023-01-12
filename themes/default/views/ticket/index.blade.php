@@ -57,10 +57,13 @@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">{{__('Ticket Information')}}
+                                <!--
                                 <i data-toggle="popover"
                                 data-trigger="hover"
                                 data-content="{{__('please make the best of it')}}"
                                 class="fas fa-info-circle"></i></h5>
+                                -->
+
                         </div>
                         <div class="card-body">
                             <p>{{__("Can't start your server? Need an additional port? Do you have any other questions? Let us know by
