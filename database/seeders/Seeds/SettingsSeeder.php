@@ -645,5 +645,12 @@ class SettingsSeeder extends Seeder
             'type' => 'text',
             'description' => 'SEO Description',
         ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::TICKET:NOTIFY',
+        ], [
+            'value' => 'all',
+            'type' => 'text',
+            'description' => 'Who will get a Email Notifcation on new Tickets',
+        ]);
     }
 }

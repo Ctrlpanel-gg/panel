@@ -297,6 +297,23 @@
                             <label for="ticket_enabled">{{ __('Enable Ticketsystem') }} </label>
                         </div>
                     </div>
+                    <div class="custom-control mb-3 p-0">
+                        <label for="ticket_notify">{{ __('Notify on Ticket creation') }}:
+                            <i data-toggle="popover" data-trigger="hover"
+                               data-content="{{ __('Who will receive an E-Mail when a new Ticket is created') }}" class="fas fa-info-circle"></i>
+                        </label>
+                        <select id="ticket_notify" style="width:100%" class="custom-select" name="ticket_notify" required
+                                autocomplete="off" @error('ticket_notify') is-invalid @enderror>
+                            <option value="admin" @if (config('SETTINGS::TICKET:NOTIFY') == "admin") selected
+                                @endif>{{ __("Admins") }}</option>
+                            <option value="moderator" @if (config('SETTINGS::TICKET:NOTIFY') == "moderator") selected
+                                @endif>{{ __("Moderators") }}</option>
+                            <option value="all" @if (config('SETTINGS::TICKET:NOTIFY') == "all") selected
+                                @endif>{{ __("Both") }}</option>
+                            <option value="none" @if (config('SETTINGS::TICKET:NOTIFY') == "none") selected
+                                @endif>{{ __("Disabled") }}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
