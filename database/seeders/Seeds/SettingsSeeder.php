@@ -630,5 +630,20 @@ class SettingsSeeder extends Seeder
             'type' => 'text',
             'description' => 'MOTD Message',
         ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:SEO_TITLE',
+        ], [
+            'value' => 'Controlpanel.gg',
+            'type' => 'text',
+            'description' => 'The SEO Title',
+        ]);
+
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::SYSTEM:SEO_DESCRIPTION',
+        ], [
+            'value' => 'Billing software for Pterodactyl Dashboard!',
+            'type' => 'text',
+            'description' => 'SEO Description',
+        ]);
     }
 }
