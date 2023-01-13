@@ -43,6 +43,7 @@ class Misc
             'referral_percentage' => 'nullable|numeric',
             'referral_mode' => 'nullable|string',
             'ticket_enabled' => 'nullable|string',
+            'ticket_notify' => 'string',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -90,6 +91,7 @@ class Misc
             'SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION' => 'always_give_commission',
             'SETTINGS::REFERRAL:PERCENTAGE' => 'referral_percentage',
             'SETTINGS::TICKET:ENABLED' => 'ticket_enabled',
+            'SETTINGS::TICKET:NOTIFY' => 'ticket_notify',
 
         ];
 
