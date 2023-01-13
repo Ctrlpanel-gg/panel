@@ -79,7 +79,7 @@ class TicketsController extends Controller
                 return $tickets->ticketcategory->name;
             })
             ->editColumn('title', function (Ticket $tickets) {
-                return '<a class="text-info"  href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'">'.'#'.$tickets->ticket_id.' - '.$tickets->title.'</a>';
+                return '<a class="text-info"  href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'">'.'#'.$tickets->ticket_id.' - '.htmlspecialchars($tickets->title).'</a>';
             })
             ->editColumn('user_id', function (Ticket $tickets) {
                 return '<a href="'.route('admin.users.show', $tickets->user->id).'">'.$tickets->user->name.'</a>';
