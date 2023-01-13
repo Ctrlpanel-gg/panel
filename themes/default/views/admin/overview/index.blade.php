@@ -8,6 +8,7 @@
                 <div class="col-sm-6">
                     <h1>{{__('Admin Overview')}}</h1>
                 </div>
+
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
@@ -17,6 +18,14 @@
                 </div>
             </div>
         </div>
+        @if(Storage::get('latestVersion') && config("app.version") < Storage::get('latestVersion'))
+            <div class="alert alert-danger" role="alert">
+                <b><i class="fas fa-shield-alt"></i> {{__("Version Outdated:")}}</b></br>
+                {{__("You are running on")}} v{{config("app.version")}}-{{config("BRANCHNAME")}}.
+                    {{__("The latest Version is")}} v{{Storage::get('latestVersion')}}</br>
+                <a href="https://controlpanel.gg/docs/Installation/updating">{{__("Consider updating now")}}</a>
+            </div>
+        @endif
     </section>
     <!-- END CONTENT HEADER -->
 
@@ -171,7 +180,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                        
+
                                         @foreach($tickets as $ticket_id => $ticket)
                                             <tr>
                                                 <td><a class="text-info"  href="{{route('moderator.ticket.show', ['ticket_id' => $ticket_id])}}">#{{$ticket_id}} - {{$ticket->title}}</td>
@@ -180,7 +189,7 @@
                                                 <td>{{$ticket->last_updated}}</td>
                                             </tr>
                                         @endforeach
-                                        
+
                                     </tbody>
                                 </table>
                             @endif
@@ -323,7 +332,7 @@
                                     <hr style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: -16px">
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                     <div class="card">
