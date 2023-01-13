@@ -59,6 +59,8 @@ class System
             'motd-enabled' => 'string',
             'usefullinks-enabled' => 'string',
             'motd-message' => 'string|nullable',
+            'seo-title' => 'string|nullable',
+            'seo-description' => 'string|nullable',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -111,6 +113,8 @@ class System
             "SETTINGS::SYSTEM:MOTD_ENABLED" => "motd-enabled",
             "SETTINGS::SYSTEM:MOTD_MESSAGE" => "motd-message",
             "SETTINGS::SYSTEM:USEFULLINKS_ENABLED" => "usefullinks-enabled",
+            "SETTINGS::SYSTEM:SEO_TITLE" => "seo-title",
+            "SETTINGS::SYSTEM:SEO_DESCRIPTION" => "seo-description",
         ];
 
         foreach ($values as $key => $value) {

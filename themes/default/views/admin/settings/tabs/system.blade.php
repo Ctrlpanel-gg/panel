@@ -300,7 +300,35 @@
                             class="form-control @error('minimum-credits') is-invalid @enderror" required>
                     </div>
                 </div>
-
+                <div class="row mb-2">
+                    <div class="col text-center">
+                        <h1>{{ __('SEO') }}</h1>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="custom-control mb-3 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="seo-title">{{ __('SEO Title') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                               data-content="{{ __('An SEO title tag must contain your target keyword. This tells both Google and searchers that your web page is relevant to this search query!') }}"
+                               class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="seo-title" id="seo-title" name="seo-title"
+                               type="text" value="{{ config('SETTINGS::SYSTEM:SEO_TITLE') }}"
+                               class="form-control @error('seo-title') is-invalid @enderror" required>
+                    </div>
+                    <div class="custom-control mb-3 p-0">
+                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                            <label for="seo-description">{{ __('SEO Description') }}</label>
+                            <i data-toggle="popover" data-trigger="hover" data-html="true"
+                               data-content="{{ __('The SEO site description represents your homepage. Search engines show this description in search results for your homepage if they dont find content more relevant to a visitors search terms.') }}"
+                               class="fas fa-info-circle"></i>
+                        </div>
+                        <input x-model="seo-description" id="seo-description" name="seo-description"
+                               type="text" value="{{ config('SETTINGS::SYSTEM:SEO_DESCRIPTION') }}"
+                               class="form-control @error('seo-description') is-invalid @enderror" required>
+                    </div>
+                </div>
             </div>
 
 
@@ -454,7 +482,7 @@
     </form>
 </div>
 <script>tinymce.init({selector:'textarea',skin: "oxide-dark",
-        content_css: "dark",branding: false,  height: 200,
+        content_css: "dark",branding: false,  height: 500,
         plugins: ['image','link'],});
 </script>
 
