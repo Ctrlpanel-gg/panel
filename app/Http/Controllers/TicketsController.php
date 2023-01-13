@@ -59,9 +59,13 @@ class TicketsController extends Controller
         );
         $ticket->save();
         $user = Auth::user();
-        $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();
+        if(config('SETTINGS::TICKET:NOTIFY') == "all"){  $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();}
+        if(config('SETTINGS::TICKET:NOTIFY') == "admin"){  $admin = User::where('role', 'admin')->get();}
+        if(config('SETTINGS::TICKET:NOTIFY') == "moderator"){  $admin = User::where('role', 'mod')->get();}
         $user->notify(new CreateNotification($ticket));
-        Notification::send($admin, new AdminCreateNotification($ticket, $user));
+        if(config('SETTINGS::TICKET:NOTIFY') != "none"){
+            Notification::send($admin, new AdminCreateNotification($ticket, $user));
+        }
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #').$ticket->ticket_id);
     }
