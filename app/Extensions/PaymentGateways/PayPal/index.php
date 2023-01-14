@@ -4,12 +4,14 @@ use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\ShopProduct;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
@@ -22,12 +24,29 @@ use PayPalHttp\HttpException;
 /**
  * @param Request $request
  * @param ShopProduct $shopProduct
- * @return RedirectResponse
  */
 function PaypalPay(Request $request)
 {
+    /** @var User $user */
+    $user = Auth::user();
     $shopProduct = ShopProduct::findOrFail($request->shopProduct);
-    
+
+     // create a new payment
+     $payment = Payment::create([
+        'user_id' => $user->id,
+        'payment_id' => null,
+        'payment_method' => 'paypal',
+        'type' => $shopProduct->type,
+        'status' => 'open',
+        'amount' => $shopProduct->quantity,
+        'price' => $shopProduct->price - ($shopProduct->price*PartnerDiscount::getDiscount()/100),
+        'tax_value' => $shopProduct->getTaxValue(),
+        'tax_percent' => $shopProduct->getTaxPercent(),
+        'total_price' => $shopProduct->getTotalPrice(),
+        'currency_code' => $shopProduct->currency_code,
+        'shop_item_product_id' => $shopProduct->id,
+    ]);
+
     $request = new OrdersCreateRequest();
     $request->prefer('return=representation');
     $request->body = [
@@ -56,21 +75,27 @@ function PaypalPay(Request $request)
             ],
             "application_context" => [
                 "cancel_url" => route('payment.Cancel'),
-                "return_url" => route('payment.PayPalSuccess'),
+                "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id]),
                 'brand_name' =>  config('app.name', 'Laravel'),
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
 
 
     ];
+
+
+
     try {
         // Call API with your client and get a response for your call
         $response = getPayPalClient()->execute($request);
-        return redirect()->away($response->result->links[1]->href);
-        // If call returns body in response, you can get the deserialized version from the result attribute of the response
+
+        Redirect::away($response->result->links[1]->href)->send();
     } catch (HttpException $ex) {
-        echo $ex->statusCode;
-        dd(json_decode($ex->getMessage()));
+        error_log($ex->statusCode);
+        error_log($ex->getMessage());
+
+        $payment->delete();
+        return Redirect::route('payment.Cancel');
     }
 }
 /**
@@ -78,12 +103,13 @@ function PaypalPay(Request $request)
  */
 function PaypalSuccess(Request $laravelRequest)
 {
-    /** @var ShopProduct $shopProduct */
-    $shopProduct = ShopProduct::findOrFail($laravelRequest->input('product'));
-    /** @var User $user */
     $user = Auth::user();
+    $payment = Payment::findOrFail($laravelRequest->payment);
+    $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+ 
     $request = new OrdersCaptureRequest($laravelRequest->input('token'));
     $request->prefer('return=representation');
+
     try {
         // Call API with your client and get a response for your call
         $response = getPayPalClient()->execute($request);
@@ -136,38 +162,41 @@ function PaypalSuccess(Request $laravelRequest)
                     }
 
             }
-            //store payment
-            $payment = Payment::create([
-                    'user_id' => $user->id,
-                    'payment_id' => $response->result->id,
-                    'payment_method' => 'paypal',
-                    'type' => $shopProduct->type,
-                    'status' => 'paid',
-                    'amount' => $shopProduct->quantity,
-                    'price' => $shopProduct->price - ($shopProduct->price*PartnerDiscount::getDiscount()/100),
-                    'tax_value' => $shopProduct->getTaxValue(),
-                    'tax_percent' => $shopProduct->getTaxPercent(),
-                    'total_price' => $shopProduct->getTotalPrice(),
-                    'currency_code' => $shopProduct->currency_code,
-                    'shop_item_product_id' => $shopProduct->id,
+
+            //update payment
+            $payment->update([
+                'status' => 'success',
+                'payment_id' => $response->result->id,
             ]);
+
             event(new UserUpdateCreditsEvent($user));
             event(new PaymentEvent($payment));
-            
-            //redirect back to home
-            return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
-        }
-        // If call returns body in response, you can get the deserialized version from the result attribute of the response
-        if (env('APP_ENV') == 'local') {
+
+            error_log("Payment successfull");
+
+            // redirect to the payment success page with success message
+            Redirect::route('home')->with('success', 'Payment successful')->send();
+        } elseif(env('APP_ENV') == 'local') {
+            // If call returns body in response, you can get the deserialized version from the result attribute of the response
+            $payment->delete();
             dd($response);
         } else {
+            $payment->update([
+                'status' => 'failed',
+                'payment_id' => $response->result->id,
+            ]);  
             abort(500);
         }
     } catch (HttpException $ex) {
         if (env('APP_ENV') == 'local') {
             echo $ex->statusCode;
+            $payment->delete();
             dd($ex->getMessage());
         } else {
+            $payment->update([
+                'status' => 'failed',
+                'payment_id' => $response->result->id,
+            ]);  
             abort(422);
         }
     }
