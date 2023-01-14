@@ -14,7 +14,7 @@ use Symfony\Component\Intl\Currencies;
 
 trait Invoiceable
 {
-    public function createInvoice($user, $payment, $paymentStatus, $currencyCode)
+    public function createInvoice($user, $payment)
     {
         $shopProduct = ShopProduct::where('id', $payment->shop_item_product_id)->first();
         //create invoice
@@ -60,13 +60,13 @@ trait Invoiceable
             ->taxRate(floatval($shopProduct->getTaxPercent()))
             ->shipping(0)
             ->addItem($item)
-            ->status(__($paymentStatus))
+            ->status(__($payment->status))
             ->series(now()->format('mY'))
             ->delimiter("-")
             ->sequence($newInvoiceID)
             ->serialNumberFormat(config("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
-            ->currencyCode($currencyCode)
-            ->currencySymbol(Currencies::getSymbol($currencyCode))
+            ->currencyCode($payment->currency_code)
+            ->currencySymbol(Currencies::getSymbol($payment->currency_code))
             ->notes($notes);
 
         if (file_exists($logoPath)) {

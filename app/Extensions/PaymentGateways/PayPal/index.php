@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
@@ -151,11 +152,8 @@ function PaypalSuccess(Request $laravelRequest)
                     'shop_item_product_id' => $shopProduct->id,
             ]);
             event(new UserUpdateCreditsEvent($user));
-            //only create invoice if SETTINGS::INVOICE:ENABLED is true
-            if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
-                // use the createInvoice method that is defined in the Invoiceable trait
-                $payment->createInvoice($user, $payment, 'paid', $shopProduct->currency_code);
-            }
+            event(new PaymentEvent($payment));
+            
             //redirect back to home
             return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
         }
