@@ -4,8 +4,9 @@ namespace App\Providers;
 
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
-use App\Listeners\PaymentListener;
+use App\Listeners\CreateInvoice;
 use App\Listeners\UnsuspendServers;
+use App\Listeners\UserPayment;
 use App\Listeners\Verified;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -28,7 +29,8 @@ class EventServiceProvider extends ServiceProvider
             UnsuspendServers::class,
         ],
         PaymentEvent::class => [
-            PaymentListener::class,
+            CreateInvoice::class,
+            UserPayment::class,
         ],
         SocialiteWasCalled::class => [
             // ... other providers
