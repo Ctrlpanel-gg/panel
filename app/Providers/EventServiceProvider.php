@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
+use App\Listeners\PaymentListener;
 use App\Listeners\UnsuspendServers;
 use App\Listeners\Verified;
 use Illuminate\Auth\Events\Registered;
@@ -24,6 +26,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         UserUpdateCreditsEvent::class => [
             UnsuspendServers::class,
+        ],
+        PaymentEvent::class => [
+            PaymentListener::class,
         ],
         SocialiteWasCalled::class => [
             // ... other providers
