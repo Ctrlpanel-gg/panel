@@ -29,4 +29,19 @@ class ExtensionHelper
 
         return $config;
     }
+
+    public static function getPayMethod($extensionName, $nameSpace)
+    {
+        // return the payment method of the extension to be used elsewhere
+        // for example in the payment controller
+        // the function starts with the name of the extension and ends with Pay
+
+        $config = self::getExtensionConfig($extensionName, $nameSpace);
+
+        if ($config == null) {
+            return null;
+        }
+
+        return $config['payMethod'];
+    }
 }
