@@ -26,7 +26,6 @@ class Node extends Model
         });
     }
 
-
     /**
      * @throws Exception
      */
@@ -37,25 +36,25 @@ class Node extends Model
 
         //map response
         $nodes = array_map(function ($node) {
-            return array(
-                'id'          => $node['attributes']['id'],
+            return [
+                'id' => $node['attributes']['id'],
                 'location_id' => $node['attributes']['location_id'],
-                'name'        => $node['attributes']['name'],
+                'name' => $node['attributes']['name'],
                 'description' => $node['attributes']['description'],
-            );
+            ];
         }, $nodes);
 
         //update or create
         foreach ($nodes as $node) {
             self::query()->updateOrCreate(
                 [
-                    'id' => $node['id']
+                    'id' => $node['id'],
                 ],
                 [
-                    'name'        => $node['name'],
+                    'name' => $node['name'],
                     'description' => $node['description'],
                     'location_id' => $node['location_id'],
-                    'disabled'    => false
+                    'disabled' => false,
                 ]);
         }
 
@@ -64,7 +63,8 @@ class Node extends Model
 
     /**
      * @description remove nodes that have been deleted on pterodactyl
-     * @param array $nodes
+     *
+     * @param  array  $nodes
      */
     private static function removeDeletedNodes(array $nodes): void
     {
@@ -73,7 +73,9 @@ class Node extends Model
         }, $nodes);
 
         self::all()->each(function (Node $node) use ($ids) {
-            if (!in_array($node->id, $ids)) $node->delete();
+            if (! in_array($node->id, $ids)) {
+                $node->delete();
+            }
         });
     }
 

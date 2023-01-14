@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+
 return [
     /*
      * Set trusted proxy IP addresses.
@@ -50,5 +52,5 @@ return [
      * The following are Symfony defaults, found in
      * \Symfony\Component\HttpFoundation\Request::$trustedHeaders
      */
-    'headers' => \Illuminate\Http\Request::HEADER_X_FORWARDED_ALL,
+    'headers' => \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO | Request::HEADER_X_FORWARDED_AWS_ELB,
 ];

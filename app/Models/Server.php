@@ -11,17 +11,23 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Client\Response;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class Server
- * @package App\Models
  */
 class Server extends Model
 {
     use HasFactory;
     use LogsActivity;
-
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
+    }
     /**
      * @var bool
      */
@@ -41,24 +47,21 @@ class Server extends Model
      * @var string[]
      */
     protected $fillable = [
-        "name",
-        "description",
-        "suspended",
-        "identifier",
-        "product_id",
-        "pterodactyl_id",
+        'name',
+        'description',
+        'suspended',
+        'identifier',
+        'product_id',
+        'pterodactyl_id',
     ];
 
     /**
      * @var string[]
      */
-    protected $dates = [
-        'suspended'
+    protected $casts = [
+        'suspended' => 'datetime',
     ];
 
-    /**
-     *
-     */
     public static function boot()
     {
         parent::boot();
@@ -71,7 +74,7 @@ class Server extends Model
 
         static::deleting(function (Server $server) {
             $response = Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
-            if ($response->failed() && !is_null($server->pterodactyl_id)) {
+            if ($response->failed() && ! is_null($server->pterodactyl_id)) {
                 //only return error when it's not a 404 error
                 if ($response['errors'][0]['status'] != '404') {
                     throw new Exception($response['errors'][0]['code']);
@@ -85,9 +88,8 @@ class Server extends Model
      */
     public function isSuspended()
     {
-        return !is_null($this->suspended);
+        return ! is_null($this->suspended);
     }
-
 
     /**
      * @return PromiseInterface|Response
@@ -98,7 +100,6 @@ class Server extends Model
     }
 
     /**
-     *
      * @throws Exception
      */
     public function suspend()
@@ -107,7 +108,7 @@ class Server extends Model
 
         if ($response->successful()) {
             $this->update([
-                'suspended' => now()
+                'suspended' => now(),
             ]);
         }
 
@@ -123,13 +124,12 @@ class Server extends Model
 
         if ($response->successful()) {
             $this->update([
-                'suspended' => null
+                'suspended' => null,
             ]);
         }
 
         return $this;
     }
-
 
     /**
      * @return HasOne
@@ -146,5 +146,4 @@ class Server extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
-
 }

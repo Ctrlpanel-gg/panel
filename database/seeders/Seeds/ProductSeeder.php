@@ -20,7 +20,7 @@ class ProductSeeder extends Seeder
             'price' => 140,
             'memory' => 64,
             'disk' => 1000,
-            'databases' => 1
+            'databases' => 1,
         ]);
 
         Product::create([
@@ -29,7 +29,7 @@ class ProductSeeder extends Seeder
             'price' => 210,
             'memory' => 128,
             'disk' => 2000,
-            'databases' => 2
+            'databases' => 2,
         ]);
 
         Product::create([
@@ -38,7 +38,7 @@ class ProductSeeder extends Seeder
             'price' => 280,
             'memory' => 256,
             'disk' => 5000,
-            'databases' => 5
+            'databases' => 5,
         ]);
     }
 }

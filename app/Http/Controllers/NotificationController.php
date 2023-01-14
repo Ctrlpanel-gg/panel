@@ -10,8 +10,9 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = Auth::user()->notifications()->paginate();
+
         return view('notifications.index')->with([
-            'notifications' => $notifications
+            'notifications' => $notifications,
         ]);
     }
 
@@ -21,17 +22,19 @@ class NotificationController extends Controller
         $notification = Auth::user()->notifications()->findOrFail($id);
 
         $notification->markAsRead();
+
         return view('notifications.show')->with([
-            'notification' => $notification
+            'notification' => $notification,
         ]);
     }
 
-    public function readAll(){
+    public function readAll()
+    {
         $notifications = Auth::user()->notifications()->get();
-        foreach($notifications as $notification){
+        foreach ($notifications as $notification) {
             $notification->markAsRead();
         }
-        return redirect()->back();
 
+        return redirect()->back();
     }
 }

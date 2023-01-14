@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class TableUserReferrals extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -16,11 +16,10 @@ class TableUserReferrals extends Migration
         Schema::create('user_referrals', function (Blueprint $table) {
             $table->unsignedBigInteger('referral_id');
             $table->unsignedBigInteger('registered_user_id');
-            $table->foreign('referral_id')->references('id')->on('users')->onDelete('cascade');;
-            $table->foreign('registered_user_id')->references('id')->on('users')->onDelete('cascade');;
+            $table->foreign('referral_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('registered_user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -32,4 +31,4 @@ class TableUserReferrals extends Migration
     {
         Schema::dropIfExists('user_referrals');
     }
-}
+};

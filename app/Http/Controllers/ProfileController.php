@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Classes\Pterodactyl;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -30,6 +29,7 @@ class ProfileController extends Controller
                 $badgeColor = 'badge-secondary';
                 break;
         }
+
         return view('profile.index')->with([
             'user' => Auth::user(),
             'credits_reward_after_verify_discord' => config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD'),
@@ -39,80 +39,81 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function selfDestroyUser()
+    {
+        $user = Auth::user();
+        if ($user->role == "admin") return back()->with("error", "You cannot delete yourself as an admin!");
 
+        $user->delete();
 
-    public function selfDestroyUser(){
-
-            $user = Auth::user();
-            //if ($user->role == "admin") return back()->with("error", "You cannot delete yourself as an admin!");
-
-            $user->delete();
-            return redirect("/login")->with('success', __("Account permanently deleted!"));
-
+        return redirect('/login')->with('success', __('Account permanently deleted!'));
     }
 
     /** Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
+     * @param  Request  $request
+     * @param  int  $id
      * @return RedirectResponse
      */
     public function update(Request $request, int $id)
     {
         //prevent other users from editing a user
-        if ($id != Auth::user()->id) dd(401);
+        if ($id != Auth::user()->id) {
+            dd(401);
+        }
         $user = User::findOrFail($id);
 
         //update password if necessary
-        if (!is_null($request->input('new_password'))) {
+        if (! is_null($request->input('new_password'))) {
 
             //validate password request
             $request->validate([
                 'current_password' => [
                     'required',
                     function ($attribute, $value, $fail) use ($user) {
-                        if (!Hash::check($value, $user->password)) {
-                            $fail('The ' . $attribute . ' is invalid.');
+                        if (! Hash::check($value, $user->password)) {
+                            $fail('The '.$attribute.' is invalid.');
                         }
                     },
                 ],
                 'new_password' => 'required|string|min:8',
-                'new_password_confirmation' => 'required|same:new_password'
+                'new_password_confirmation' => 'required|same:new_password',
             ]);
 
             //Update Users Password on Pterodactyl
             //Username,Mail,First and Lastname are required aswell
             $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
-                "password" => $request->input('new_password'),
-                "username" => $request->input('name'),
-                "first_name" => $request->input('name'),
-                "last_name" => $request->input('name'),
-                "email" => $request->input('email'),
+                'password' => $request->input('new_password'),
+                'username' => $request->input('name'),
+                'first_name' => $request->input('name'),
+                'last_name' => $request->input('name'),
+                'email' => $request->input('email'),
 
             ]);
             if ($response->failed()) {
                 throw ValidationException::withMessages([
                     'pterodactyl_error_message' => $response->toException()->getMessage(),
-                    'pterodactyl_error_status' => $response->toException()->getCode()
+                    'pterodactyl_error_status' => $response->toException()->getCode(),
                 ]);
             }
             //update password
             $user->update([
                 'password' => Hash::make($request->input('new_password')),
             ]);
-
         }
 
         //validate request
         $request->validate([
-            'name' => 'required|min:4|max:30|alpha_num|unique:users,name,' . $id . ',id',
-            'email' => 'required|email|max:64|unique:users,email,' . $id . ',id',
-            'avatar' => 'nullable'
+            'name' => 'required|min:4|max:30|alpha_num|unique:users,name,'.$id.',id',
+            'email' => 'required|email|max:64|unique:users,email,'.$id.',id',
+            'avatar' => 'nullable',
         ]);
 
         //update avatar
-        if (!is_null($request->input('avatar'))) {
+        if (! is_null($request->input('avatar'))) {
             $avatar = json_decode($request->input('avatar'));
-            if ($avatar->input->size > 3000000) abort(500);
+            if ($avatar->input->size > 3000000) {
+                abort(500);
+            }
 
             $user->update([
                 'avatar' => $avatar->output->image,
@@ -125,16 +126,16 @@ class ProfileController extends Controller
 
         //update name and email on Pterodactyl
         $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
-            "username" => $request->input('name'),
-            "first_name" => $request->input('name'),
-            "last_name" => $request->input('name'),
-            "email" => $request->input('email'),
+            'username' => $request->input('name'),
+            'first_name' => $request->input('name'),
+            'last_name' => $request->input('name'),
+            'email' => $request->input('email'),
         ]);
 
         if ($response->failed()) {
             throw ValidationException::withMessages([
                 'pterodactyl_error_message' => $response->toException()->getMessage(),
-                'pterodactyl_error_status' => $response->toException()->getCode()
+                'pterodactyl_error_status' => $response->toException()->getCode(),
             ]);
         }
 
@@ -147,7 +148,7 @@ class ProfileController extends Controller
         if ($request->input('email') != Auth::user()->email) {
             $user->reVerifyEmail();
             $user->sendEmailVerificationNotification();
-        };
+        }
 
         return redirect()->route('profile.index')->with('success', __('Profile updated'));
     }
