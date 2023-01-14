@@ -126,35 +126,6 @@ class PaymentController extends Controller
         return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
     }
 
-    /**
-     * @return PayPalHttpClient
-     */
-    protected function getPayPalClient()
-    {
-        $environment = env('APP_ENV') == 'local'
-            ? new SandboxEnvironment($this->getPaypalClientId(), $this->getPaypalClientSecret())
-            : new ProductionEnvironment($this->getPaypalClientId(), $this->getPaypalClientSecret());
-
-        return new PayPalHttpClient($environment);
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPaypalClientId()
-    {
-        return env('APP_ENV') == 'local' ? config('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID') : config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID');
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPaypalClientSecret()
-    {
-        return env('APP_ENV') == 'local' ? config('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET') : config('SETTINGS::PAYMENTS:PAYPAL:SECRET');
-    }
-
-
    public function pay(Request $request)
    {
         $product = ShopProduct::find($request->product_id);
@@ -168,7 +139,7 @@ class PaymentController extends Controller
      */
     public function Cancel(Request $request)
     {
-        return redirect()->route('store.index')->with('success', 'Payment was Canceled');
+        return redirect()->route('store.index')->with('info', 'Payment was Canceled');
     }
 
     /**
