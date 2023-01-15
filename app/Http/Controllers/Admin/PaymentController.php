@@ -8,7 +8,6 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\ShopProduct;
-use App\Notifications\ConfirmPaymentNotification;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -17,12 +16,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use PayPalCheckoutSdk\Core\PayPalHttpClient;
-use PayPalCheckoutSdk\Core\ProductionEnvironment;
-use PayPalCheckoutSdk\Core\SandboxEnvironment;
-use PayPalHttp\HttpException;
-use Stripe\Stripe;
 use App\Helpers\ExtensionHelper;
 
 
@@ -80,7 +73,6 @@ class PaymentController extends Controller
      */
     public function FreePay(ShopProduct $shopProduct)
     {
-        //dd($shopProduct);
         //check if the product is really free or the discount is 100%
         if ($shopProduct->getTotalPrice() > 0) return redirect()->route('home')->with('error', __('An error ocured. Please try again.'));
 
