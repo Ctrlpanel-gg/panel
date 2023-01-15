@@ -65,8 +65,8 @@ trait Invoiceable
             ->delimiter("-")
             ->sequence($newInvoiceID)
             ->serialNumberFormat(config("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
-            ->currencyCode($payment->currency_code)
-            ->currencySymbol(Currencies::getSymbol($payment->currency_code))
+            ->currencyCode(strtoupper($payment->currency_code))
+            ->currencySymbol(Currencies::getSymbol(strtoupper($payment->currency_code)))
             ->notes($notes);
 
         if (file_exists($logoPath)) {
@@ -89,4 +89,3 @@ trait Invoiceable
         $user->notify(new InvoiceNotification($invoice, $user, $payment));
     }
 }
-
