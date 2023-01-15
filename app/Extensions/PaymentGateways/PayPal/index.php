@@ -176,7 +176,7 @@ function getPaypalClientSecret()
 {
     return env('APP_ENV') == 'local' ? config("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET") : config("SETTINGS::PAYMENTS:PAYPAL:SECRET");
 }
-function getConfig()
+function getPayPalConfig()
 {
     return [
         "name" => "PayPal",

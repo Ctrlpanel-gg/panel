@@ -16,11 +16,11 @@ class ExtensionHelper
         $config = include_once $extension;
 
         // Check if the getConfig function exists
-        if (!function_exists('getConfig')) {
+        if (!function_exists('get' . $extensionName . 'Config')) {
             return null;
         }
 
-        $config = call_user_func('getConfig');
+        $config = call_user_func('get' . $extensionName . 'Config');
 
         // Check if the getConfig function returned an array
         if (!is_array($config)) {
