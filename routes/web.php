@@ -49,17 +49,14 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
-// Stripe WebhookRoute -> validation in Route Handler
-Route::post('payment/StripeWebhooks', [PaymentController::class, 'StripeWebhooks'])->name('payment.StripeWebhooks');
-
 Route::get('/privacy', function () {
-return view('information.privacy');
+    return view('information.privacy');
 })->name('privacy');
 Route::get('/imprint', function () {
-return view('information.imprint');
+    return view('information.imprint');
 })->name('imprint');
 Route::get('/tos', function () {
-return view('information.tos');
+    return view('information.tos');
 })->name('tos');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
@@ -91,8 +88,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //payments
     Route::get('checkout/{shopProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
     Route::post('payment/pay', [PaymentController::class, 'pay'])->name('payment.pay');
-    Route::get('payment/StripePay/{shopProduct}', [PaymentController::class, 'StripePay'])->name('payment.StripePay');
-    Route::get('payment/StripeSuccess', [PaymentController::class, 'StripeSuccess'])->name('payment.StripeSuccess');
     Route::get('payment/FreePay/{shopProduct}', [PaymentController::class, 'FreePay'])->name('payment.FreePay');
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
 
