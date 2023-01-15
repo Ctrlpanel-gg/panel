@@ -93,7 +93,7 @@ function StripePay(Request $request)
 function StripeSuccess(Request $request)
 {
     $user = Auth::user();
-    error_log('StripeSuccess');
+    $user = User::findOrFail($user->id);
     $payment = Payment::findOrFail($request->input('payment'));
     $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
@@ -133,7 +133,6 @@ function StripeSuccess(Request $request)
                     'status' => 'processing',
                 ]);
 
-                // todo invoice
                 event(new PaymentEvent($user, $payment, $shopProduct));
 
                 Redirect::route('home')->with('success', 'Your payment is being processed')->send();
@@ -179,6 +178,9 @@ function handleStripePaymentSuccessHook($paymentIntent)
             event(new UserUpdateCreditsEvent($user));
             event(new PaymentEvent($user, $payment, $shopProduct));
         }
+
+        // return 200
+        return response()->json(['success' => true], 200);
     } catch (Exception $ex) {
         abort(422);
     }
