@@ -9,7 +9,6 @@ use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Product;
 use App\Models\Server;
-use App\Models\Settings;
 use App\Notifications\ServerCreationError;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;

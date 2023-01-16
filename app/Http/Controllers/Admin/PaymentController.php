@@ -6,7 +6,6 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
-use App\Models\Settings;
 use App\Models\ShopProduct;
 use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
@@ -20,7 +19,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Buyer;
 use LaravelDaily\Invoices\Classes\InvoiceItem;
@@ -32,7 +30,6 @@ use PayPalCheckoutSdk\Core\SandboxEnvironment;
 use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
 use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
 use PayPalHttp\HttpException;
-use Stripe\Stripe;
 use Symfony\Component\Intl\Currencies;
 
 class PaymentController extends Controller
@@ -75,7 +72,7 @@ class PaymentController extends Controller
         //dd($shopProduct);
         //check if the product is really free or the discount is 100%
         if($shopProduct->getTotalPrice()>0) return redirect()->route('home')->with('error', __('An error ocured. Please try again.'));
-        
+
         //give product
         /** @var User $user */
         $user = Auth::user();
@@ -90,7 +87,7 @@ class PaymentController extends Controller
         }
 
         //skipped the referral commission, because the user did not pay anything.
-        
+
         //not giving client role
 
         //store payment
@@ -811,7 +808,7 @@ class PaymentController extends Controller
         return datatables($query)
 
             ->addColumn('user', function (Payment $payment) {
-                return 
+                return
                 ($payment->user)?'<a href="'.route('admin.users.show', $payment->user->id).'">'.$payment->user->name.'</a>':__('Unknown user');
 
             })
