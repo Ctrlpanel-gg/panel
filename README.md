@@ -4,13 +4,13 @@
 -   Stripe Integration
 -   Referral System
 -   Ticket System
--   Upgrade/Downgrade Server Ressources
+-   Upgrade/Downgrade Server Resources
 -   Store (credit system with hourly billing and invoices)
 -   Email Verification
 -   Audit Log
 -   Admin Dashboard
 -   User/Server Management
--   Customizable server plans
+-   Customisable server plans
 -   Vouchers
 -   and so much more!
 
