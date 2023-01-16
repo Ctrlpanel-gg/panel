@@ -77,7 +77,7 @@
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
                 },
                 processing: true,
-                serverSide: false, //increases loading times too much? change back to "true" if it does
+                serverSide: true, //why was this set to false before? increased loadingtimes by 10 seconds
                 stateSave: true,
                 ajax: "{{route('admin.users.datatable')}}",
                 order: [[ 11, "asc" ]],
