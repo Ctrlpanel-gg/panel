@@ -33,7 +33,7 @@
                                 <input value="true" id="show-imprint" name="show-imprint"
                                     {{ config('SETTINGS::SYSTEM:SHOW_IMPRINT') == 'true' ? 'checked' : '' }}
                                     type="checkbox">
-                                <label for="show-imprint">{{ __('Show imprint') }} </label>
+                                <label for="show-imprint">{{ __('Show Imprint') }} </label>
                             </div>
                             <i data-toggle="popover" data-trigger="hover" data-html="true"
                                 data-content="{{ __('Show the imprint link in the footer of every page. <br> Edit the content in <b>'.Qirolab\Theme\Theme::path($path = "views").'/resources/views/information/imprint-content.blade.php</b>') }}"

@@ -58,7 +58,7 @@
                                 <div class="form-group">
                                     <label for="partner_discount">{{__('Partner discount')}}
                                         <i data-toggle="popover" data-trigger="hover"
-                                        data-content="{{__('The discount in percent given to the partner at checkout.')}}"
+                                        data-content="{{__('The discount in percent given to the partner when purchasing credits.')}}"
                                         class="fas fa-info-circle"></i>
                                     </label>
                                     <input value="{{old('partner_discount')}}" placeholder="{{__('Discount in percent')}}" id="partner_discount" name="partner_discount"
@@ -75,7 +75,7 @@
                                 <div class="form-group">
                                     <label for="registered_user_discount">{{__('Registered user discount')}}
                                         <i data-toggle="popover" data-trigger="hover"
-                                        data-content="{{__('The discount in percent given to all users registered using the partners referral link.')}}"
+                                        data-content="{{__('The discount in percent given to all users registered using the partners referral link when purchasing credits.')}}"
                                         class="fas fa-info-circle"></i>
                                     </label>
                                     <div class="input-group">

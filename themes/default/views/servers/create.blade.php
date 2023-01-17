@@ -206,6 +206,11 @@
                                                         ({{ __('ports') }})</span>
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="d-inline-block"><i class="fa fa-coins"></i>
+                                                        {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }} {{ __('to create this server') }}</span>
+                                                    <span class="d-inline-block" x-text="product.minimum_credits === -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credit"></span>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="mt-2 mb-2">
