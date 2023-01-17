@@ -118,7 +118,7 @@ function PaypalSuccess(Request $laravelRequest)
         if ($response->statusCode == 201 || $response->statusCode == 200) {
             //update payment
             $payment->update([
-                'status' => 'success',
+                'status' => 'paid',
                 'payment_id' => $response->result->id,
             ]);
 
@@ -133,7 +133,7 @@ function PaypalSuccess(Request $laravelRequest)
             dd($response);
         } else {
             $payment->update([
-                'status' => 'failed',
+                'status' => 'cancelled',
                 'payment_id' => $response->result->id,
             ]);
             abort(500);
@@ -145,7 +145,7 @@ function PaypalSuccess(Request $laravelRequest)
             dd($ex->getMessage());
         } else {
             $payment->update([
-                'status' => 'failed',
+                'status' => 'cancelled',
                 'payment_id' => $response->result->id,
             ]);
             abort(422);
