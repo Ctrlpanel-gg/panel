@@ -2,8 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['prefix' => 'extensions'], function () {
-    
+Route::group(['prefix' => 'extensions', 'middleware' => 'api.token'], function () {
     // get all extensions that are inside App/Extensions
     // It is important that the extensions are inside a folder with the name of the extension
     // while those folders are inside Folders with the name of the type of extension like PaymentGateways, Themes, etc.
@@ -14,9 +13,9 @@ Route::group(['prefix' => 'extensions'], function () {
     }
 
     foreach ($extensions as $extension) {
-        $routesFile = $extension . '/routes.php';
+        $routesFile = $extension . '/api_routes.php';
         if (file_exists($routesFile)) {
             include_once $routesFile;
         }
-    }        
+    }
 });

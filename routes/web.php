@@ -216,4 +216,4 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
 
-require __DIR__ . '/extensions.php';
+require __DIR__ . '/extensions_web.php';
