@@ -28,7 +28,7 @@
             <div class="row">
                 <div class="col-12">
 
-                    <form action="{{ route('payment.pay') }}" method="POST">
+                    <form x-data="{ payment_method: '', clicked: false }" action="{{ route('payment.pay') }}" method="POST">
                         @csrf
                         @method('post')
                         <!-- Main content -->
@@ -84,9 +84,9 @@
                                             <div class="ml-2">
                                                 <label class="text-center" for="{{ $gateway->name }}">
                                                     <img class="mb-3" height="50" src="{{ $gateway->image }}"></br>
-                                                    <input x-model="payment_method" type="radio"
-                                                        id="{{ $gateway->name }}" value="{{ $gateway->name }}"
-                                                        name="payment_method">
+                                                    <input x-on:click="console.log(payment_method)" x-model="payment_method"
+                                                        type="radio" id="{{ $gateway->name }}"
+                                                        value="{{ $gateway->name }}">
                                                     </input>
                                                 </label>
                                             </div>
@@ -129,9 +129,10 @@
                             <!-- this row will not appear when printing -->
                             <div class="row no-print">
                                 <div class="col-12">
-                                    <button x-on="console.log('Method', paymentMethod)" :disabled="!paymentMethod"
-                                        :class="!paymentMethod ? 'disabled' : ''" class="btn btn-success float-right"><i
-                                            class="far fa-credit-card mr-2"></i>
+                                    <button :disabled="!payment_method || clicked"
+                                        :class="!payment_method || clicked ? 'disabled' : ''"
+                                        class="btn btn-success float-right"><i class="far fa-credit-card mr-2"
+                                            @click="clicked = true"></i>
                                         {{ __('Submit Payment') }}
                                     </button>
                                 </div>
