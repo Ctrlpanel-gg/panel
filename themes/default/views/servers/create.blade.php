@@ -23,10 +23,11 @@
     <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
-    <section x-data="serverApp()" class="content">
+    <section x-data="{ ...serverApp(), submitClicked: false }" class="content">
         <div class="container-xxl">
             <!-- FORM -->
-            <form action="{{ route('servers.store') }}" method="post" class="row justify-content-center">
+            <form action="{{ route('servers.store') }}" x-on:submit="submitClicked = true" method="post"
+                class="row justify-content-center">
                 @csrf
                 <div class="col-xl-6 col-lg-8 col-md-8 col-sm-10">
                     <div class="card">
@@ -227,13 +228,18 @@
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
-                                    <div x-data="{ buttonDisabled: false }">
-                                    <button type="submit" x-model="selectedProduct" name="product"
-                                        :disabled="product.minimum_credits > user.credits||product.doesNotFit == true"
-                                        :class="product.minimum_credits > user.credits ? 'disabled' : ''"
-                                        class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
-                                        x-text=" product.doesNotFit == true? '{{ __("Server cant fit on this Node") }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
-                                    </button>
+                                    <div>
+                                        <input type="hidden" name="product" x-model="selectedProduct">
+                                    </div>
+                                    <div>
+                                        <button type="submit" x-model="selectedProduct" name="product"
+                                            :disabled="product.minimum_credits > user.credits || product.doesNotFit == true ||
+                                                submitClicked"
+                                            :class="product.minimum_credits > user.credits || product.doesNotFit == true ||
+                                                submitClicked ? 'disabled' : ''"
+                                            class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
+                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -251,7 +257,6 @@
 
 
     <script>
-
         function serverApp() {
             return {
                 //loading
