@@ -10,8 +10,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class=""
-                                href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a class="" href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
                                 href="{{ route('store.index') }}">{{ __('Store') }}</a>
                         </li>
@@ -23,157 +22,127 @@
     <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
-    <section x-data="serverApp()" x-init="$watch('paymentMethod', value => setPaymentRoute(value))" class="content">
+    <section class="content">
         <div class="container-fluid">
 
             <div class="row">
                 <div class="col-12">
 
-
-                    <!-- Main content -->
-                    <div class="invoice p-3 mb-3">
-                        <!-- title row -->
-                        <div class="row">
-                            <div class="col-12">
-                                <h4>
-                                    <i class="fas fa-globe"></i> {{ config('app.name', 'Laravel') }}
-                                    <small class="float-right">{{ __('Date') }}:
-                                        {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
-                                </h4>
+                    <form x-data="{ payment_method: '', clicked: false }" action="{{ route('payment.pay') }}" method="POST">
+                        @csrf
+                        @method('post')
+                        <!-- Main content -->
+                        <div class="invoice p-3 mb-3">
+                            <!-- title row -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4>
+                                        <i class="fas fa-globe"></i> {{ config('app.name', 'Laravel') }}
+                                        <small class="float-right">{{ __('Date') }}:
+                                            {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
+                                    </h4>
+                                </div>
+                                <!-- /.col -->
                             </div>
-                            <!-- /.col -->
-                        </div>
 
-                        <!-- Table row -->
-                        <div class="row">
-                            <div class="col-12 table-responsive">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ __('Quantity') }}</th>
-                                            <th>{{ __('Product') }}</th>
-                                            <th>{{ __('Description') }}</th>
-                                            <th>{{ __('Subtotal') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td><i class="fa fa-coins mr-2"></i>{{ $product->quantity }}
-                                                {{ strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type }}
-                                            </td>
-                                            <td>{{ $product->description }}</td>
-                                            <td>{{ $product->formatToCurrency($product->price) }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <!-- Table row -->
+                            <div class="row">
+                                <div class="col-12 table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('Quantity') }}</th>
+                                                <th>{{ __('Product') }}</th>
+                                                <th>{{ __('Description') }}</th>
+                                                <th>{{ __('Subtotal') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td><i class="fa fa-coins mr-2"></i>{{ $product->quantity }}
+                                                    {{ strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type }}
+                                                </td>
+                                                <td>{{ $product->description }}</td>
+                                                <td>{{ $product->formatToCurrency($product->price) }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                </div>
+                                <!-- /.col -->
                             </div>
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
+                            <!-- /.row -->
 
-                        <div class="row">
-                            <!-- accepted payments column -->
-                            <div class="col-6">
-                                @if($total!=0)
+                            <div class="row">
+                                <!-- accepted payments column -->
+                                <div class="col-6">
                                     <p class="lead">{{ __('Payment Methods') }}:</p>
 
-                                    <div>
-                                        @if (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') || config('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET'))
-                                            <label class="text-center " for="paypal">
-                                                <img class="mb-3" height="50"
-                                                    src="{{ url('/images/paypal_logo.png') }}"></br>
-
-                                                <input x-model="paymentMethod" type="radio" id="paypal" value="paypal"
-                                                    name="payment_method">
-                                                </input>
-                                            </label>
-                                        @endif
-                                        @if (config('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET') || config('SETTINGS::PAYMENTS:STRIPE:SECRET'))
-                                            <label class="ml-5 text-center " for="stripe">
-                                                <img class="mb-3" height="50"
-                                                    src="{{ url('/images/stripe_logo.png') }}" /></br>
-                                                <input x-model="paymentMethod" type="radio" id="stripe" value="stripe"
-                                                    name="payment_method">
-                                                </input>
-                                            </label>
-                                        @endif
+                                    <div class="d-flex flex-wrap  flex-direction-row">
+                                        @foreach ($paymentGateways as $gateway)
+                                            <div class="ml-2">
+                                                <label class="text-center" for="{{ $gateway->name }}">
+                                                    <img class="mb-3" height="50" src="{{ $gateway->image }}"></br>
+                                                    <input x-on:click="console.log(payment_method)" x-model="payment_method"
+                                                        type="radio" id="{{ $gateway->name }}"
+                                                        value="{{ $gateway->name }}">
+                                                    </input>
+                                                </label>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                @else
-                                    <p class="lead" style="text-align: center">{{ __('This product is free for you') }}.</p>
-                                @endif
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-6">
-                                <p class="lead">{{ __('Amount Due') }}
-                                    {{ Carbon\Carbon::now()->isoFormat('LL') }}</p>
 
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        @if($discountpercent&&$discountvalue)
+                                </div>
+                                <!-- /.col -->
+                                <div class="col-6">
+                                    <p class="lead">{{ __('Amount Due') }}
+                                        {{ Carbon\Carbon::now()->isoFormat('LL') }}</p>
+
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            @if ($discountpercent && $discountvalue)
+                                                <tr>
+                                                    <th>{{ __('Discount') }} ({{ $discountpercent }}%):</th>
+                                                    <td>{{ $product->formatToCurrency($discountvalue) }}</td>
+                                                </tr>
+                                            @endif
                                             <tr>
-                                                <th>{{ __('Discount') }} ({{ $discountpercent }}%):</th>
-                                                <td>{{$product->formatToCurrency($discountvalue)}}</td>
+                                                <th style="width:50%">{{ __('Subtotal') }}:</th>
+                                                <td>{{ $product->formatToCurrency($discountedprice) }}</td>
                                             </tr>
-                                        @endif
-                                        <tr>
-                                            <th style="width:50%">{{ __('Subtotal') }}:</th>
-                                            <td>{{ $product->formatToCurrency($discountedprice) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>{{ __('Tax') }} ({{ $taxpercent }}%):</th>
-                                            <td>{{ $product->formatToCurrency($taxvalue) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>{{ __('Total') }}:</th>
-                                            <td>{{ $product->formatToCurrency($total) }}</td>
-                                        </tr>
-                                    </table>
+                                            <tr>
+                                                <th>{{ __('Tax') }} ({{ $taxpercent }}%):</th>
+                                                <td>{{ $product->formatToCurrency($taxvalue) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>{{ __('Total') }}:</th>
+                                                <td>{{ $product->formatToCurrency($total) }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                            <!-- /.row -->
+
+                            <!-- this row will not appear when printing -->
+                            <div class="row no-print">
+                                <div class="col-12">
+                                    <button :disabled="!payment_method || clicked"
+                                        :class="!payment_method || clicked ? 'disabled' : ''"
+                                        class="btn btn-success float-right"><i class="far fa-credit-card mr-2"
+                                            @click="clicked = true"></i>
+                                        {{ __('Submit Payment') }}
+                                    </button>
                                 </div>
                             </div>
-                            <!-- /.col -->
                         </div>
-                        <!-- /.row -->
-
-                        <!-- this row will not appear when printing -->
-                        <div class="row no-print">
-                            <div class="col-12">
-                                <a type="button" :href="paymentRoute" :disabled="!paymentRoute"
-                                    :class="!paymentRoute ? 'disabled' : ''" class="btn btn-success float-right"><i
-                                        class="far fa-credit-card mr-2"></i>
-                                    {{ __('Submit Payment') }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                     <!-- /.invoice -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div>
     </section>
     <!-- END CONTENT -->
-
-    <script>
-        function serverApp() {
-            return {
-                //loading
-                paymentMethod: '',
-                paymentRoute: ({{ $total }} == 0)?('{{ route('payment.FreePay', $product->id) }}'):'',
-                setPaymentRoute(provider) {
-                    switch (provider) {
-                        case 'paypal':
-                            this.paymentRoute = '{{ route('payment.PaypalPay', $product->id) }}';
-                            break;
-                        case 'stripe':
-                            this.paymentRoute = '{{ route('payment.StripePay', $product->id) }}';
-                            break;
-                        default:
-                            this.paymentRoute = '{{ route('payment.PaypalPay', $product->id) }}';
-                    }
-                },
-            }
-        }
-    </script>
-
-
 @endsection
