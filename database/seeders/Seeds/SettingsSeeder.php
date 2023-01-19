@@ -616,7 +616,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:MOTD_ENABLED',
         ], [
-            'value' => 'false',
+            'value' => 'true',
             'type' => 'boolean',
             'description' => 'Enable/disable MOTD on Homepage',
         ]);
