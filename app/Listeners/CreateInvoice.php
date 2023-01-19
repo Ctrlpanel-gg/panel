@@ -4,10 +4,8 @@ namespace App\Listeners;
 
 use App\Events\PaymentEvent;
 use App\Traits\Invoiceable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class CreateInvoice implements ShouldQueue
+class CreateInvoice
 {
 
     use Invoiceable;
