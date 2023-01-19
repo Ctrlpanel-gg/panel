@@ -59,7 +59,7 @@
 
                         <div class="info-box-content">
                             <span class="info-box-text">{{__('Servers')}}</span>
-                            <span class="info-box-number">{{$counters['servers']->total}}</span>
+                            <span class="info-box-number">{{$counters['servers']->active}}/{{$counters['servers']->total}}</span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>

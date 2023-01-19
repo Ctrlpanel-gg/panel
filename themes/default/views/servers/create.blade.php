@@ -26,7 +26,8 @@
     <section x-data="serverApp()" class="content">
         <div class="container-xxl">
             <!-- FORM -->
-            <form action="{{ route('servers.store') }}" method="post" class="row justify-content-center">
+            <form action="{{ route('servers.store') }}" x-on:submit="submitClicked = true" method="post"
+                class="row justify-content-center">
                 @csrf
                 <div class="col-xl-6 col-lg-8 col-md-8 col-sm-10">
                     <div class="card">
@@ -34,10 +35,10 @@
                             <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{ __('Server configuration') }}
                             </div>
                         </div>
-                        @if (!config("SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS"))
+                        @if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS'))
                             <div class="alert alert-warning p-2 m-2">
                                 The creation of new servers has been disabled for regular users, enable it again
-                                <a href="{{route('admin.settings.system')}}">{{ __('here') }}</a>.
+                                <a href="{{ route('admin.settings.system') }}">{{ __('here') }}</a>.
                             </div>
                         @endif
                         @if ($productCount === 0 || $nodeCount === 0 || count($nests) === 0 || count($eggs) === 0)
@@ -47,7 +48,7 @@
                                     @if (Auth::user()->role == 'admin')
                                         {{ __('Make sure to link your products to nodes and eggs.') }} <br>
                                         {{ __('There has to be at least 1 valid product for server creation') }}
-                                        <a href="{{route('admin.overview.sync')}}">{{ __('Sync now') }}</a>
+                                        <a href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>
                                     @endif
 
                                 </p>
@@ -102,8 +103,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="nest">{{ __('Software / Games') }}</label>
-                                        <select class="custom-select" required name="nest" id="nest" x-model="selectedNest"
-                                            @change="setEggs();">
+                                        <select class="custom-select" required name="nest" id="nest"
+                                            x-model="selectedNest" @change="setEggs();">
                                             <option selected disabled hidden value="null">
                                                 {{ count($nests) > 0 ? __('Please select software ...') : __('---') }}
                                             </option>
@@ -134,8 +135,8 @@
 
                             <div class="form-group">
                                 <label for="node">{{ __('Node') }}</label>
-                                <select name="node" required id="node" x-model="selectedNode" :disabled="!fetchedLocations"
-                                    @change="fetchProducts();" class="custom-select">
+                                <select name="node" required id="node" x-model="selectedNode"
+                                    :disabled="!fetchedLocations" @change="fetchProducts();" class="custom-select">
                                     <option x-text="getNodeInputText()" disabled selected hidden value="null">
                                     </option>
 
@@ -206,11 +207,19 @@
                                                         ({{ __('ports') }})</span>
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="d-inline-block"><i class="fa fa-coins"></i>
+                                                        {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }}
+                                                        {{ __('to create this server') }}</span>
+                                                    <span class="d-inline-block"
+                                                        x-text="product.minimum_credits === -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credit"></span>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div class="mt-2 mb-2">
                                             <span class="card-text text-muted">{{ __('Description') }}</span>
-                                            <p class="card-text" style="white-space:pre-wrap" x-text="product.description"></p>
+                                            <p class="card-text" style="white-space:pre-wrap"
+                                                x-text="product.description"></p>
                                         </div>
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
@@ -222,13 +231,18 @@
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
-                                    <div x-data="{ buttonDisabled: false }">
-                                    <button type="submit" x-model="selectedProduct" name="product"
-                                        :disabled="product.minimum_credits > user.credits||product.doesNotFit == true"
-                                        :class="product.minimum_credits > user.credits ? 'disabled' : ''"
-                                        class="btn btn-primary btn-block mt-2" @click="setProduct(product.id)"
-                                        x-text=" product.doesNotFit == true? '{{ __("Server cant fit on this Node") }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
-                                    </button>
+                                    <div>
+                                        <input type="hidden" name="product" x-model="selectedProduct">
+                                    </div>
+                                    <div>
+                                        <button type="submit" x-model="selectedProduct" name="product"
+                                            :disabled="product.minimum_credits > user.credits || product.doesNotFit == true ||
+                                                submitClicked"
+                                            :class="product.minimum_credits > user.credits || product.doesNotFit == true ||
+                                                submitClicked ? 'disabled' : ''"
+                                            class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
+                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -246,7 +260,6 @@
 
 
     <script>
-
         function serverApp() {
             return {
                 //loading
@@ -274,6 +287,8 @@
                 eggs: [],
                 locations: [],
                 products: [],
+
+                submitClicked: false,
 
 
                 /**
@@ -358,7 +373,8 @@
 
                     this.fetchedProducts = true;
                     // TODO: Sortable by user chosen property (cpu, ram, disk...)
-                    this.products = response.data.sort((p1, p2) => parseInt(p1.price,10) > parseInt(p2.price,10) && 1 || -1)
+                    this.products = response.data.sort((p1, p2) => parseInt(p1.price, 10) > parseInt(p2.price, 10) &&
+                        1 || -1)
 
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
