@@ -41,7 +41,11 @@
                                 @csrf
                                 @method('PATCH')
                                 <div class="form-group">
-                                    <label for="identifier">{{ __('Server identifier') }}</label>
+                                    <label for="identifier">{{ __('Server identifier') }}
+                                        <i data-toggle="popover" data-trigger="hover"
+                                            data-content="{{ __('Change the server identifier on controlpanel to match a pterodactyl server.') }}"
+                                            class="fas fa-info-circle"></i>
+                                    </label>
                                     <input value="{{ $server->identifier }}" id="identifier" name="identifier"
                                         type="text" class="form-control @error('identifier') is-invalid @enderror"
                                         required="required">
@@ -50,9 +54,14 @@
                                             {{ $message }}
                                         </div>
                                     @enderror
+                                </div>
 
-
-                                    <label for="user_id">{{ __('Server owner') }}</label>
+                                <div class="form-group">
+                                    <label for="user_id">{{ __('Server owner') }}
+                                        <i data-toggle="popover" data-trigger="hover"
+                                            data-content="{{ __('Change the current server owner on controlpanel and pterodactyl.') }}"
+                                            class="fas fa-info-circle"></i>
+                                    </label>
                                     <select name="user_id" id="user_id" class="form-control">
                                         @foreach ($users as $user)
                                             <option value="{{ $user->id }}"
@@ -69,9 +78,8 @@
                                     @enderror
                                 </div>
 
-                                <div class="form-group text-right">
-                                    <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
-                                </div>
+                                <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
+
                         </div>
                     </div>
                 </div>
