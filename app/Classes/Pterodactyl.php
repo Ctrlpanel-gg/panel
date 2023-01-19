@@ -7,6 +7,7 @@ use App\Models\Nest;
 use App\Models\Node;
 use App\Models\Product;
 use App\Models\Server;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -22,19 +23,19 @@ class Pterodactyl
     public static function client()
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer '.config('SETTINGS::SYSTEM:PTERODACTYL:TOKEN'),
+            'Authorization' => 'Bearer ' . config('SETTINGS::SYSTEM:PTERODACTYL:TOKEN'),
             'Content-type' => 'application/json',
             'Accept' => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(config('SETTINGS::SYSTEM:PTERODACTYL:URL').'/api');
+        ])->baseUrl(config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/api');
     }
 
     public static function clientAdmin()
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer '.config('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN'),
+            'Authorization' => 'Bearer ' . config('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN'),
             'Content-type' => 'application/json',
             'Accept' => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(config('SETTINGS::SYSTEM:PTERODACTYL:URL').'/api');
+        ])->baseUrl(config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/api');
     }
 
     /**
@@ -43,22 +44,22 @@ class Pterodactyl
     private static function getException(string $message = '', int $status = 0): Exception
     {
         if ($status == 404) {
-            return new Exception('Ressource does not exist on pterodactyl - '.$message, 404);
+            return new Exception('Ressource does not exist on pterodactyl - ' . $message, 404);
         }
 
         if ($status == 403) {
-            return new Exception('No permission on pterodactyl, check pterodactyl token and permissions - '.$message, 403);
+            return new Exception('No permission on pterodactyl, check pterodactyl token and permissions - ' . $message, 403);
         }
 
         if ($status == 401) {
-            return new Exception('No pterodactyl token set - '.$message, 401);
+            return new Exception('No pterodactyl token set - ' . $message, 401);
         }
 
         if ($status == 500) {
-            return new Exception('Pterodactyl server error - '.$message, 500);
+            return new Exception('Pterodactyl server error - ' . $message, 500);
         }
 
-        return new Exception('Request Failed, is pterodactyl set-up correctly? - '.$message);
+        return new Exception('Request Failed, is pterodactyl set-up correctly? - ' . $message);
     }
 
     /**
@@ -70,7 +71,7 @@ class Pterodactyl
     public static function getEggs(Nest $nest)
     {
         try {
-            $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=".config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -89,7 +90,7 @@ class Pterodactyl
     public static function getNodes()
     {
         try {
-            $response = self::client()->get('/application/nodes?per_page='.config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = self::client()->get('/application/nodes?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -109,12 +110,12 @@ class Pterodactyl
     public static function getNode($id)
     {
         try {
-            $response = self::client()->get('/application/nodes/'.$id);
+            $response = self::client()->get('/application/nodes/' . $id);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get node id '.$id.' - '.$response->status());
+            throw self::getException('Failed to get node id ' . $id . ' - ' . $response->status());
         }
 
         return $response->json()['attributes'];
@@ -123,7 +124,7 @@ class Pterodactyl
     public static function getServers()
     {
         try {
-            $response = self::client()->get('/application/servers?per_page='.config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = self::client()->get('/application/servers?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -142,7 +143,7 @@ class Pterodactyl
     public static function getNests()
     {
         try {
-            $response = self::client()->get('/application/nests?per_page='.config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = self::client()->get('/application/nests?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -161,7 +162,7 @@ class Pterodactyl
     public static function getLocations()
     {
         try {
-            $response = self::client()->get('/application/locations?per_page='.config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = self::client()->get('/application/locations?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -195,9 +196,9 @@ class Pterodactyl
         $freeAllocations = [];
 
         if (isset($response['data'])) {
-            if (! empty($response['data'])) {
+            if (!empty($response['data'])) {
                 foreach ($response['data'] as $allocation) {
-                    if (! $allocation['attributes']['assigned']) {
+                    if (!$allocation['attributes']['assigned']) {
                         array_push($freeAllocations, $allocation);
                     }
                 }
@@ -234,7 +235,7 @@ class Pterodactyl
      */
     public static function url(string $route): string
     {
-        return config('SETTINGS::SYSTEM:PTERODACTYL:URL').$route;
+        return config('SETTINGS::SYSTEM:PTERODACTYL:URL') . $route;
     }
 
     /**
@@ -370,6 +371,21 @@ class Pterodactyl
                 'backups' => $product->backups,
                 'allocations' => $product->allocations,
             ],
+        ]);
+    }
+
+    /**
+     * Update the owner of a server
+     *
+     * @param  int  $userId
+     * @param  Server  $server
+     * @return mixed
+     */
+    public static function updateServerOwner(Server $server, int $userId)
+    {
+        return self::client()->patch("/application/servers/{$server->pterodactyl_id}/details", [
+            'name' => $server->name,
+            'user' => $userId,
         ]);
     }
 

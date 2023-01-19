@@ -6,21 +6,22 @@
         <div class="container-fluid">
             <div class="alert alert-danger p-2 m-2">
                 <h5><i class="icon fas fa-exclamation-circle"></i> {{ __('ATTENTION!') }}</h5>
-                {{ __('Only edit these settings if you know exactly what you are doing ')}}
+                {{ __('Only edit these settings if you know exactly what you are doing ') }}
                 <br>
                 {{ __('You usually do not need to change anything here') }}
             </div>
             <div class="row mb-2">
                 <div class="col-sm-6">
 
-                    <h1>{{__('Edit Server')}}</h1>
+                    <h1>{{ __('Edit Server') }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.servers.index')}}">{{__('Servers')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.servers.index') }}">{{ __('Servers') }}</a>
+                        </li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.servers.edit' , $server->id)}}">{{__('Edit')}}</a></li>
+                                href="{{ route('admin.servers.edit', $server->id) }}">{{ __('Edit') }}</a></li>
                     </ol>
                 </div>
             </div>
@@ -36,22 +37,40 @@
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{route('admin.servers.update', $server->id)}}" method="POST">
+                            <form action="{{ route('admin.servers.update', $server->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
                                 <div class="form-group">
-                                    <label for="name">{{__('Server identifier')}}</label>
-                                    <input value="{{$server->identifier}}" id="identifier" name="identifier" type="text"
-                                           class="form-control @error('identifier') is-invalid @enderror" required="required">
+                                    <label for="identifier">{{ __('Server identifier') }}</label>
+                                    <input value="{{ $server->identifier }}" id="identifier" name="identifier"
+                                        type="text" class="form-control @error('identifier') is-invalid @enderror"
+                                        required="required">
                                     @error('identifier')
-                                    <div class="invalid-feedback">
-                                        {{$message}}
-                                    </div>
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+
+
+                                    <label for="user_id">{{ __('Server owner') }}</label>
+                                    <select name="user_id" id="user_id" class="form-control">
+                                        @foreach ($users as $user)
+                                            <option value="{{ $user->id }}"
+                                                @if ($user->id == $server->user_id) selected @endif>{{ $user->name }}
+                                                ({{ $user->email }})
+                                                ({{ $user->id }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('user_id')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
                                     @enderror
                                 </div>
 
                                 <div class="form-group text-right">
-                                    <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
+                                    <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
                                 </div>
                         </div>
                     </div>
@@ -63,5 +82,4 @@
 
     </section>
     <!-- END CONTENT -->
-
 @endsection
