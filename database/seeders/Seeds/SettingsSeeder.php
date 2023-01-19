@@ -481,7 +481,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key' => 'SETTINGS::REFERRAL::ENABLED',
         ], [
-            'value' => 'true',
+            'value' => 'false',
             'type' => 'string',
             'description' => 'Enable or disable the referral system',
         ]);
@@ -616,7 +616,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:MOTD_ENABLED',
         ], [
-            'value' => 'true',
+            'value' => 'false',
             'type' => 'boolean',
             'description' => 'Enable/disable MOTD on Homepage',
         ]);
