@@ -4,18 +4,16 @@ use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
-use App\Models\Product;
 use App\Models\ShopProduct;
 use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Stripe;
 use Stripe\StripeClient;
+
 
 
 
@@ -34,6 +32,8 @@ function StripePay(Request $request)
         return;
     }
 
+    $discount = PartnerDiscount::getDiscount();
+
 
     // create payment
     $payment = Payment::create([
@@ -43,7 +43,7 @@ function StripePay(Request $request)
         'type' => $shopProduct->type,
         'status' => 'open',
         'amount' => $shopProduct->quantity,
-        'price' => $shopProduct->price - ($shopProduct->price * PartnerDiscount::getDiscount() / 100),
+        'price' => $shopProduct->price - ($shopProduct->price * $discount / 100),
         'tax_value' => $shopProduct->getTaxValue(),
         'total_price' => $shopProduct->getTotalPrice(),
         'tax_percent' => $shopProduct->getTaxPercent(),
@@ -58,7 +58,7 @@ function StripePay(Request $request)
                 'price_data' => [
                     'currency' => $shopProduct->currency_code,
                     'product_data' => [
-                        'name' => $shopProduct->display . (PartnerDiscount::getDiscount() ? (' (' . __('Discount') . ' ' . PartnerDiscount::getDiscount() . '%)') : ''),
+                        'name' => $shopProduct->display . ($discount ? (' (' . __('Discount') . ' ' . $discount . '%)') : ''),
                         'description' => $shopProduct->description,
                     ],
                     'unit_amount_decimal' => round($shopProduct->getPriceAfterDiscount() * 100, 2),
@@ -82,6 +82,11 @@ function StripePay(Request $request)
         'payment_method_types' => str_getcsv(config('SETTINGS::PAYMENTS:STRIPE:METHODS')),
         'success_url' => route('payment.StripeSuccess', ['payment' => $payment->id]) . '&session_id={CHECKOUT_SESSION_ID}',
         'cancel_url' => route('payment.Cancel'),
+        'payment_intent_data' => [
+            'metadata' => [
+                'payment_id' => $payment->id,
+            ],
+        ],
     ]);
 
     Redirect::to($request->url)->send();
@@ -97,6 +102,8 @@ function StripeSuccess(Request $request)
     $payment = Payment::findOrFail($request->input('payment'));
     $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
+
+    Redirect::route('home')->with('success', 'Please wait for success')->send();
 
     $stripeClient = getStripeClient();
     try {
@@ -162,16 +169,17 @@ function StripeSuccess(Request $request)
 function handleStripePaymentSuccessHook($paymentIntent)
 {
     try {
-        // Get payment db entry
-        $payment = Payment::where('payment_id', $paymentIntent->id)->first();
+        $payment = Payment::where('id', $paymentIntent->metadata->payment_id)->with('user')->first();
         $user = User::where('id', $payment->user_id)->first();
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
         if ($paymentIntent->status == 'succeeded' && $payment->status == 'processing') {
 
-
             //update payment db entry status
-            $payment->update(['status' => 'paid']);
+            $payment->update([
+                'payment_id' => $payment->payment_id ?? $paymentIntent->id,
+                'status' => 'paid'
+            ]);
 
             //payment notification
             $user->notify(new ConfirmPaymentNotification($payment));

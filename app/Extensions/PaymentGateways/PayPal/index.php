@@ -4,13 +4,10 @@ use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
-use App\Models\Product;
 use App\Models\ShopProduct;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
@@ -30,6 +27,7 @@ function PaypalPay(Request $request)
     /** @var User $user */
     $user = Auth::user();
     $shopProduct = ShopProduct::findOrFail($request->shopProduct);
+    $discount = PartnerDiscount::getDiscount();
 
     // create a new payment
     $payment = Payment::create([
@@ -39,7 +37,7 @@ function PaypalPay(Request $request)
         'type' => $shopProduct->type,
         'status' => 'open',
         'amount' => $shopProduct->quantity,
-        'price' => $shopProduct->price - ($shopProduct->price * PartnerDiscount::getDiscount() / 100),
+        'price' => $shopProduct->price - ($shopProduct->price * $discount / 100),
         'tax_value' => $shopProduct->getTaxValue(),
         'tax_percent' => $shopProduct->getTaxPercent(),
         'total_price' => $shopProduct->getTotalPrice(),
@@ -54,7 +52,7 @@ function PaypalPay(Request $request)
         "purchase_units" => [
             [
                 "reference_id" => uniqid(),
-                "description" => $shopProduct->display . (PartnerDiscount::getDiscount() ? (" (" . __('Discount') . " " . PartnerDiscount::getDiscount() . '%)') : ""),
+                "description" => $shopProduct->display . ($discount ? (" (" . __('Discount') . " " . $discount . '%)') : ""),
                 "amount"       => [
                     "value"         => $shopProduct->getTotalPrice(),
                     'currency_code' => strtoupper($shopProduct->currency_code),
