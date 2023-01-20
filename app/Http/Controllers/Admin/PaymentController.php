@@ -54,10 +54,12 @@ class PaymentController extends Controller
             }
         }
 
+        $discount = PartnerDiscount::getDiscount();
+
         return view('store.checkout')->with([
             'product' => $shopProduct,
-            'discountpercent' => PartnerDiscount::getDiscount(),
-            'discountvalue' => PartnerDiscount::getDiscount() * $shopProduct->price / 100,
+            'discountpercent' => $discount,
+            'discountvalue' => $discount * $shopProduct->price / 100,
             'discountedprice' => $shopProduct->getPriceAfterDiscount(),
             'taxvalue' => $shopProduct->getTaxValue(),
             'taxpercent' => $shopProduct->getTaxPercent(),
