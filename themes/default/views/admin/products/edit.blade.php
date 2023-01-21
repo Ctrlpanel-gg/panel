@@ -75,8 +75,10 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="price">{{__('Price in')}} {{ CREDITS_DISPLAY_NAME }}</label>
-                                            <input value="{{ $product->price }}" id="price" name="price" type="number" step=".01"
+                                            <label for="price">{{__('Price in')}} {{CREDITS_DISPLAY_NAME}}</label>
+                                            <input value="{{$product->price}}" id="price" name="price"
+                                                   type="number"
+                                                   step="0.0001"
                                                    class="form-control @error('price') is-invalid @enderror"
                                                    required="required">
                                             @error('price')
@@ -122,7 +124,18 @@
                                             </div>
                                             @enderror
                                         </div>
-
+                                        <div class="form-group">
+                                            <label for="allocations">{{__('Allocations')}}</label>
+                                            <input value="{{ $product->allocations }}" id="allocations"
+                                                   name="allocations" type="number"
+                                                   class="form-control @error('allocations') is-invalid @enderror"
+                                                   required="required">
+                                            @error('allocations')
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
                                         <div class="form-group">
                                             <label for="description">{{__('Description')}} <i data-toggle="popover"
                                                                                               data-trigger="hover"
@@ -152,6 +165,51 @@
                                             </div>
                                             @enderror
                                         </div>
+
+                                        <div class="form-group">
+                                            <label for="billing_period">{{__('Billing Period')}} <i
+                                                    data-toggle="popover" data-trigger="hover"
+                                                    data-content="{{__('Period when the user will be charged for the given price')}}"
+                                                    class="fas fa-info-circle"></i></label>
+
+                                            <select id="billing_period" style="width:100%" class="custom-select" name="billing_period" required
+                                                autocomplete="off" @error('billing_period') is-invalid @enderror>
+                                                    <option value="hourly" @if ($product->billing_period == 'hourly') selected
+                                                    @endif>
+                                                        {{__('Hourly')}}
+                                                    </option>
+                                                    <option value="daily" @if ($product->billing_period  == 'daily') selected
+                                                    @endif>
+                                                        {{__('Daily')}}
+                                                    </option>
+                                                    <option value="weekly" @if ($product->billing_period  == 'weekly') selected
+                                                    @endif>
+                                                        {{__('Weekly')}}
+                                                    </option>
+                                                     <option value="monthly" @if ($product->billing_period  == 'monthly') selected
+                                                     @endif>
+                                                        {{__('Monthly')}}
+                                                    </option>
+                                                    <option value="quarterly" @if ($product->billing_period  == 'quarterly') selected
+                                                    @endif>
+                                                        {{__('Quarterly')}}
+                                                    </option>
+                                                    <option value="half-annually" @if ($product->billing_period  == 'half-annually') selected
+                                                    @endif>
+                                                        {{__('Half Annually')}}
+                                                    </option>
+                                                    <option value="annually" @if ($product->billing_period  == 'annually') selected
+                                                    @endif>
+                                                        {{__('Annually')}}
+                                                    </option>
+                                            </select>
+                                            @error('billing_period')
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
+
                                         <div class="form-group">
                                             <label for="minimum_credits">{{__('Minimum')}} {{ CREDITS_DISPLAY_NAME }} <i
                                                     data-toggle="popover" data-trigger="hover"
@@ -197,18 +255,6 @@
                                                    class="form-control @error('backups') is-invalid @enderror"
                                                    required="required">
                                             @error('backups')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                            @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="allocations">{{__('Allocations')}}</label>
-                                            <input value="{{ $product->allocations }}" id="allocations"
-                                                   name="allocations" type="number"
-                                                   class="form-control @error('allocations') is-invalid @enderror"
-                                                   required="required">
-                                            @error('allocations')
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
