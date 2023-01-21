@@ -38,20 +38,16 @@ class PaymentController extends Controller
      */
     public function checkOut(ShopProduct $shopProduct)
     {
-        // get all payment gateway extensions
-        $extensions = glob(app_path() . '/Extensions/PaymentGateways/*', GLOB_ONLYDIR);
+        $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
 
         // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
         $paymentGateways = [];
         foreach ($extensions as $extension) {
             $extensionName = basename($extension);
-            $config = ExtensionHelper::getExtensionConfig($extensionName, 'PaymentGateways');
-            if ($config) {
-                $payment = new \stdClass();
-                $payment->name = $config['name'];
-                $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
-                $paymentGateways[] = $payment;
-            }
+            $payment = new \stdClass();
+            $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
+            $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
+            $paymentGateways[] = $payment;
         }
 
         $discount = PartnerDiscount::getDiscount();
