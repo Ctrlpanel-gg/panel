@@ -22,7 +22,7 @@ class PermissionSeeder extends Seeder
 
         $users = User::all();
         foreach($users as $user){
-            $user->assignRole('Member');
+            $user->assignRole('User');
         }
 
         $admins = User::where("role","admin")->get();
@@ -54,7 +54,7 @@ class PermissionSeeder extends Seeder
         $adminRole = Role::findOrCreate('Admin');
         $supportRole = Role::findOrCreate('Support-Team');
         $clientRole = Role::findOrCreate('Client');
-        $memberRole = Role::findOrCreate('Member');
+        $userRole = Role::findOrCreate('User');
 
         $adminRole->givePermissionTo(Permission::findByName('*'));
     }

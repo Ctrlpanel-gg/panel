@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function($table) {
-            $table->dropColumn('role');
-        });
+            Schema::table('users', function ($table) {
+                $table->dropColumn('role');
+            });
     }
 
     /**
