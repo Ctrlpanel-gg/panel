@@ -20,9 +20,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -100,8 +100,10 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
+        $roles = Role::all();
         return view('admin.users.edit')->with([
             'user' => $user,
+            'roles' => $roles
         ]);
     }
 
@@ -116,13 +118,17 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        //update roles
+        if ($request->roles) {
+            $user->syncRoles($request->roles);
+        }
+
         $request->validate([
             'name' => 'required|string|min:4|max:30',
             'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
             'email' => 'required|string|email',
             'credits' => 'required|numeric|min:0|max:99999999',
             'server_limit' => 'required|numeric|min:0|max:1000000',
-            'role' => Rule::in(['admin', 'moderator', 'client', 'member']),
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
 
@@ -319,22 +325,13 @@ class UserController extends Controller
                 ';
             })
             ->editColumn('role', function (User $user) {
-                switch ($user->role) {
-                    case 'admin':
-                        $badgeColor = 'badge-danger';
-                        break;
-                    case 'moderator':
-                        $badgeColor = 'badge-info';
-                        break;
-                    case 'client':
-                        $badgeColor = 'badge-success';
-                        break;
-                    default:
-                        $badgeColor = 'badge-secondary';
-                        break;
+                $html = '';
+
+                foreach ($user->roles as $role) {
+                    $html .= "<span style='background-color: $role->color' class='badge'>$role->name</span>";
                 }
 
-                return '<span class="badge '.$badgeColor.'">'.$user->role.'</span>';
+                return $html;
             })
             ->editColumn('name', function (User $user) {
                 return '<a class="text-info" target="_blank" href="'.config('SETTINGS::SYSTEM:PTERODACTYL:URL').'/admin/users/view/'.$user->pterodactyl_id.'">'.strip_tags($user->name).'</a>';

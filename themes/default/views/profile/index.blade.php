@@ -84,6 +84,7 @@
                                 <div class="col d-flex flex-column flex-sm-row justify-content-between mb-3">
                                     <div class="text-center text-sm-left mb-2 mb-sm-0">
                                         <h4 class="pt-sm-2 pb-1 mb-0 text-nowrap">{{ $user->name }}</h4>
+
                                         <p class="mb-0">{{ $user->email }}
                                             @if ($user->hasVerifiedEmail())
                                                 <i data-toggle="popover" data-trigger="hover" data-content="Verified"
@@ -95,6 +96,10 @@
                                             @endif
 
                                         </p>
+                                        @foreach ($user->roles as $role)
+                                            <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+
+                                        @endforeach
                                         <div class="mt-1">
                                             <span class="badge badge-primary"><i
                                                     class="fa fa-coins mr-2"></i>{{ $user->Credits() }}</span>
@@ -118,8 +123,7 @@
                                         @endif
                                         </div>
 
-                                        <div class="text-center text-sm-right"><span
-                                                class="badge {{$badgeColor}}">{{ $user->role }}</span>
+                                        <div class="text-center text-sm-right">
                                             <div class="text-muted">
                                                 <small>{{ $user->created_at->isoFormat('LL') }}</small>
                                             </div>
