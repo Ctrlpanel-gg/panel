@@ -31,6 +31,7 @@ use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,7 +117,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     //admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
-
+        //roles
+        Route::get('roles/datatable', [RoleController::class, 'datatable'])->name('roles.datatable');
+        Route::resource('roles', RoleController::class);
         //overview
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');

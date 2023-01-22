@@ -15,13 +15,14 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class User
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, LogsActivity, CausesActivity;
+    use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles;
 
     /**
      * @var string[]
