@@ -134,7 +134,7 @@ class RoleController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSIONS);
 
-        if($role->id == 1 || $role->id == 4){ //cannot delete admin and member role
+        if($role->id == 1 || $role->id == 4){ //cannot delete admin and User role
             return back()->with("error","You cannot delete that role");
         }
 
