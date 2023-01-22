@@ -545,7 +545,7 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:CREATION_OF_NEW_USERS',
         ], [
-            'value' => 'false',
+            'value' => 'true',
             'type' => 'boolean',
             'description' => 'Enable/disable the creation of new users',
         ]);
