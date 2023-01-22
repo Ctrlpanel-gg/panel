@@ -25,9 +25,17 @@ class PermissionSeeder extends Seeder
             $user->assignRole('Member');
         }
 
-        $admin = User::where('id',1)->first();
-        $admin->assignRole('Admin');
-        $admin->removeRole('Member');
+        $admins = User::where("role","admin")->get();
+        foreach($admins as $admin) {
+            $admin->syncRoles('Admin');
+        }
+
+        $admins = User::where("role","client")->get();
+        foreach($admins as $admin) {
+            $admin->syncRoles('Client');
+        }
+
+        //TODO Migration to drop table "roles"
 
 
     }
