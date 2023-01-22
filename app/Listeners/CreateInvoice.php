@@ -19,11 +19,8 @@ class CreateInvoice
     public function handle(PaymentEvent $event)
     {
         if (config('SETTINGS::INVOICE:ENABLED') == 'true') {
-            // get user from payment which does hold the user_id
-            $user = $event->payment->user;
-
             // create invoice using the trait
-            $this->createInvoice($user, $event->payment);
+            $this->createInvoice($event->payment, $event->shopProduct);
         }
     }
 }

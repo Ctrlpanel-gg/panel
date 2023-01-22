@@ -4,44 +4,81 @@ namespace App\Helpers;
 
 class ExtensionHelper
 {
-    public static function getExtensionConfig($extensionName, $nameSpace)
+    /**
+     * Get a config of an extension by its name
+     * @param string $extensionName
+     * @param string $configname
+     */
+    public static function getExtensionConfig(string $extensionName, string $configname)
     {
-        $extension = app_path() . '/Extensions/' . $nameSpace . "/" . $extensionName . "/index.php";
-        // Check if extension exists
-        if (!file_exists($extension)) {
-            return null;
+        $extensions = ExtensionHelper::getAllExtensions();
+
+        // call the getConfig function of the config file of the extension like that
+        // call_user_func("App\\Extensions\\PaymentGateways\\Stripe" . "\\getConfig");
+        foreach ($extensions as $extension) {
+            if (!(basename($extension) ==  $extensionName)) {
+                continue;
+            }
+
+            $configFile = $extension . '/config.php';
+            if (file_exists($configFile)) {
+                include_once $configFile;
+                $config = call_user_func('App\\Extensions\\' . basename(dirname($extension)) . '\\' . basename($extension) . "\\getConfig");
+            }
+
+
+            if (isset($config[$configname])) {
+                return $config[$configname];
+            }
         }
 
-        // call the getConfig function from the index.php file of the extension
-        $config = include_once $extension;
-
-        // Check if the getConfig function exists
-        if (!function_exists('get' . $extensionName . 'Config')) {
-            return null;
-        }
-
-        $config = call_user_func('get' . $extensionName . 'Config');
-
-        // Check if the getConfig function returned an array
-        if (!is_array($config)) {
-            return null;
-        }
-
-        return $config;
+        return null;
     }
 
-    public static function getPayMethod($extensionName, $nameSpace)
+    public static function getAllCsrfIgnoredRoutes()
     {
-        // return the payment method of the extension to be used elsewhere
-        // for example in the payment controller
-        // the function starts with the name of the extension and ends with Pay
+        $extensions = ExtensionHelper::getAllExtensions();
 
-        $config = self::getExtensionConfig($extensionName, $nameSpace);
+        $routes = [];
+        foreach ($extensions as $extension) {
+            $configFile = $extension . '/config.php';
+            if (file_exists($configFile)) {
+                include_once $configFile;
+                $config = call_user_func('App\\Extensions\\' . basename(dirname($extension)) . '\\' . basename($extension) . "\\getConfig");
+            }
 
-        if ($config == null) {
-            return null;
+            if (isset($config['RoutesIgnoreCsrf'])) {
+                $routes = array_merge($routes, $config['RoutesIgnoreCsrf']);
+            }
+
+            // add extension/ infront of every route
+            foreach ($routes as $key => $route) {
+                $routes[$key] = 'extensions/' . $route;
+            }
         }
 
-        return $config['payMethod'];
+        return $routes;
+    }
+
+    /**
+     * Get all extensions
+     * @return array
+     */
+    public static function getAllExtensions()
+    {
+        $extensionNamespaces = glob(app_path() . '/Extensions/*', GLOB_ONLYDIR);
+        $extensions = [];
+        foreach ($extensionNamespaces as $extensionNamespace) {
+            $extensions = array_merge($extensions, glob($extensionNamespace . '/*', GLOB_ONLYDIR));
+        }
+
+        return $extensions;
+    }
+
+    public static function getAllExtensionsByNamespace(string $namespace)
+    {
+        $extensions = glob(app_path() . '/Extensions/' . $namespace . '/*', GLOB_ONLYDIR);
+
+        return $extensions;
     }
 }

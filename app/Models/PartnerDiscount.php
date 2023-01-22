@@ -18,11 +18,11 @@ class PartnerDiscount extends Model
         'referral_system_commission',
     ];
 
-    public static function getDiscount()
+    public static function getDiscount(int $user_id = null)
     {
-        if ($partnerDiscount = PartnerDiscount::where('user_id', Auth::user()->id)->first()) {
+        if ($partnerDiscount = PartnerDiscount::where('user_id', $user_id ?? Auth::user()->id)->first()) {
             return $partnerDiscount->partner_discount;
-        } elseif ($ref_user = DB::table('user_referrals')->where('registered_user_id', '=', Auth::user()->id)->first()) {
+        } elseif ($ref_user = DB::table('user_referrals')->where('registered_user_id', '=', $user_id ?? Auth::user()->id)->first()) {
             if ($partnerDiscount = PartnerDiscount::where('user_id', $ref_user->referral_id)->first()) {
                 return $partnerDiscount->registered_user_discount;
             }
