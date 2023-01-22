@@ -277,6 +277,13 @@
                                     <p>{{ __('Overview') }}</p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.roles.index') }}"
+                                   class="nav-link @if (Request::routeIs('admin.roles.*')) active @endif">
+                                    <i class="nav-icon fa fa-user-check"></i>
+                                    <p>{{ __('Role Management') }}</p>
+                                </a>
+                            </li>
 
 
                             <li class="nav-item">
