@@ -223,13 +223,17 @@
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
                                         <div class="d-flex justify-content-between p-2">
-                                            <span class="d-inline-block mr-4" x-text="'{{ __('Price') }}' + ' (' + product.billing_period + ')'">
+                                            <span class="d-inline-block mr-4"
+                                                x-text="'{{ __('Price') }}' + ' (' + product.billing_period + ')'">
                                             </span>
                                             <span class="d-inline-block"
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
-									<div>
+                                    <div>
+                                        <input type="hidden" name="product" x-model="selectedProduct">
+                                    </div>
+                                    <div>
                                         <button type="submit" x-model="selectedProduct" name="product"
                                             :disabled="product.minimum_credits > user.credits || product.doesNotFit == true ||
                                                 product.price > user.credits || submitClicked"
@@ -240,14 +244,14 @@
                                         </button>
                                     </div>
 
+                                </div>
                             </div>
+                        </template>
                     </div>
-                    </template>
                 </div>
-        </div>
 
-        </form>
-        <!-- END FORM -->
+            </form>
+            <!-- END FORM -->
 
         </div>
     </section>
