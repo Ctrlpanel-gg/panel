@@ -61,8 +61,8 @@ class Egg extends Model
                 $array['environment'] = json_encode([$environment]);
 
                 self::query()->updateOrCreate([
-                    'id' => $array['id']
-                ], array_diff_key($array, array_flip(["id"]))
+                    'id' => $array['id'],
+                ], array_diff_key($array, array_flip(['id']))
                 );
             }
 
@@ -72,8 +72,9 @@ class Egg extends Model
 
     /**
      * @description remove eggs that have been deleted on pterodactyl
-     * @param Nest $nest
-     * @param array $eggs
+     *
+     * @param  Nest  $nest
+     * @param  array  $eggs
      */
     private static function removeDeletedEggs(Nest $nest, array $eggs): void
     {
@@ -82,7 +83,9 @@ class Egg extends Model
         }, $eggs);
 
         $nest->eggs()->each(function (Egg $egg) use ($ids) {
-            if (!in_array($egg->id, $ids)) $egg->delete();
+            if (! in_array($egg->id, $ids)) {
+                $egg->delete();
+            }
         });
     }
 

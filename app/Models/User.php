@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Class User
- * @package App\Models
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -38,7 +38,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'server_limit',
         'last_seen',
         'ip',
-        'pterodactyl_id'
+        'pterodactyl_id',
     ];
 
     /**
@@ -60,7 +60,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'discord_verified_at',
         'avatar',
         'suspended',
-        'referral_code'
+        'referral_code',
     ];
 
     /**
@@ -85,9 +85,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'server_limit' => 'float',
     ];
 
-    /**
-     *
-     */
     public static function boot()
     {
         parent::boot();
@@ -118,7 +115,6 @@ class User extends Authenticatable implements MustVerifyEmail
             $user->ticketBlackList()->delete();
 
             $user->vouchers()->detach();
-
 
             $user->discordUser()->delete();
 
@@ -174,9 +170,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(DiscordUser::class);
     }
 
-    /**
-     *
-     */
     public function sendEmailVerificationNotification()
     {
         $this->notify(new QueuedVerifyEmail);
@@ -199,7 +192,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     *
      * @throws Exception
      */
     public function suspend()
@@ -209,7 +201,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         $this->update([
-            'suspended' => true
+            'suspended' => true,
         ]);
 
         return $this;
@@ -227,7 +219,7 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         $this->update([
-            'suspended' => false
+            'suspended' => false,
         ]);
 
         return $this;
@@ -256,8 +248,7 @@ class User extends Authenticatable implements MustVerifyEmail
 //            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
 //        }
 
-        return "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-
+        return 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($this->email)));
     }
 
     /**
@@ -279,9 +270,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getVerifiedStatus()
     {
         $status = '';
-        if ($this->hasVerifiedEmail()) $status .= 'email ';
-        if ($this->discordUser()->exists()) $status .= 'discord';
+        if ($this->hasVerifiedEmail()) {
+            $status .= 'email ';
+        }
+        if ($this->discordUser()->exists()) {
+            $status .= 'discord';
+        }
         $status = str_replace(' ', '/', $status);
+
         return $status;
     }
 
@@ -298,4 +294,13 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => null,
         ])->save();
     }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'email'])
+            -> logOnlyDirty()
+            -> dontSubmitEmptyLogs();
+    }
+
 }
