@@ -2,13 +2,15 @@
 
 namespace App\Providers;
 
+use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
+use App\Listeners\CreateInvoice;
 use App\Listeners\UnsuspendServers;
+use App\Listeners\UserPayment;
 use App\Listeners\Verified;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class EventServiceProvider extends ServiceProvider
@@ -23,7 +25,11 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         UserUpdateCreditsEvent::class => [
-            UnsuspendServers::class
+            UnsuspendServers::class,
+        ],
+        PaymentEvent::class => [
+            CreateInvoice::class,
+            UserPayment::class,
         ],
         SocialiteWasCalled::class => [
             // ... other providers
@@ -42,5 +48,15 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         //
+    }
+
+    /**
+     * Determine if events and listeners should be automatically discovered.
+     *
+     * @return bool
+     */
+    public function shouldDiscoverEvents()
+    {
+        return false;
     }
 }
