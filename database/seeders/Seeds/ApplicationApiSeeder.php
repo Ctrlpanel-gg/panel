@@ -15,7 +15,7 @@ class ApplicationApiSeeder extends Seeder
     public function run()
     {
         ApplicationApi::create([
-            'memo' => 'admin'
+            'memo' => 'admin',
         ]);
     }
 }

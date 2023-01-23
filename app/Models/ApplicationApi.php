@@ -10,13 +10,15 @@ class ApplicationApi extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['token', 'memo' , 'last_used'];
+    protected $fillable = ['token', 'memo', 'last_used'];
 
     protected $primaryKey = 'token';
 
     public $incrementing = false;
 
-    protected $dates = ['last_used'];
+    protected $casts = [
+        'last_used' => 'datetime',
+    ];
 
     public static function boot()
     {
@@ -29,7 +31,8 @@ class ApplicationApi extends Model
         });
     }
 
-    public function updateLastUsed(){
+    public function updateLastUsed()
+    {
         $this->update(['last_used' => now()]);
     }
 }

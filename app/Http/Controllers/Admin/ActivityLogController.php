@@ -24,17 +24,16 @@ class ActivityLogController extends Controller
         $cronLogs = Storage::disk('logs')->exists('cron.log') ? Storage::disk('logs')->get('cron.log') : null;
 
         if ($request->input('search')) {
-            $query = Activity::whereHasMorph('causer' , [User::class] , function($query) use ($request) {
-                $query->where('name', 'like' , "%{$request->input('search')}%");
-            })->orderBy('created_at' , 'desc')->paginate(20);
+            $query = Activity::whereHasMorph('causer', [User::class], function ($query) use ($request) {
+                $query->where('name', 'like', "%{$request->input('search')}%");
+            })->orderBy('created_at', 'desc')->paginate(20);
         } else {
-            $query = Activity::orderBy('created_at' , 'desc')->paginate(20);
+            $query = Activity::orderBy('created_at', 'desc')->paginate(20);
         }
-
 
         return view('admin.activitylogs.index')->with([
             'logs' => $query,
-            'cronlogs' => $cronLogs
+            'cronlogs' => $cronLogs,
         ]);
     }
 
@@ -51,7 +50,7 @@ class ActivityLogController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return Response
      */
     public function store(Request $request)
@@ -84,7 +83,7 @@ class ActivityLogController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param  int  $id
      * @return Response
      */

@@ -3,13 +3,14 @@
 namespace App\Providers;
 
 use App\Models\Settings;
+use Exception;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
-use Exception;
+use Qirolab\Theme\Theme;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,9 +45,9 @@ class AppServiceProvider extends ServiceProvider
             }
 
             //if none of result array is true. it sets ok to false
-            if (!in_array(true, $result)) {
+            if (! in_array(true, $result)) {
                 $ok = false;
-                $validator->setCustomMessages(['multiple_date_format' => 'The format must be one of ' . join(",", $parameters)]);
+                $validator->setCustomMessages(['multiple_date_format' => 'The format must be one of '.implode(',', $parameters)]);
             }
 
             return $ok;
@@ -58,6 +59,14 @@ class AppServiceProvider extends ServiceProvider
             // Set all configs from database
             foreach ($settings as $setting) {
                 config([$setting->key => $setting->value]);
+            }
+
+            if(!file_exists(base_path('themes')."/".config("SETTINGS::SYSTEM:THEME"))){
+                config(['SETTINGS::SYSTEM:THEME' => "default"]);
+            }
+
+            if(config('theme.active') == null){
+                Theme::set(config("SETTINGS::SYSTEM:THEME","default"), "default");
             }
 
             // Set Mail Config
@@ -88,10 +97,9 @@ class AppServiceProvider extends ServiceProvider
                 Artisan::call('queue:restart');
             }
 
-
             // Set Recaptcha API Config
             // Load recaptcha package if recaptcha is enabled
-            if(config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
+            if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
                 $this->app->register(\Biscolab\ReCaptcha\ReCaptchaServiceProvider::class);
             }
 
@@ -107,29 +115,27 @@ class AppServiceProvider extends ServiceProvider
                 Artisan::call('cache:clear');
             }
 
-
             try {
                 $stringfromfile = file(base_path().'/.git/HEAD');
 
                 $firstLine = $stringfromfile[0]; //get the string from the array
 
-                $explodedstring = explode("/", $firstLine, 3); //seperate out by the "/" in the string
+                $explodedstring = explode('/', $firstLine, 3); //seperate out by the "/" in the string
 
                 $branchname = $explodedstring[2]; //get the one that is always the branch name
             } catch (Exception $e) {
-                $branchname = "unknown";
+                $branchname = 'unknown';
                 Log::error($e);
             }
             config(['BRANCHNAME' => $branchname]);
-
 
             // Set Discord-API Config
             config(['services.discord.client_id' => config('SETTINGS::DISCORD:CLIENT_ID')]);
             config(['services.discord.client_secret' => config('SETTINGS::DISCORD:CLIENT_SECRET')]);
         } catch (Exception $e) {
-            error_log("Settings Error: Could not load settings from database. The Installation probably is not done yet.");
+            error_log('Settings Error: Could not load settings from database. The Installation probably is not done yet.');
             error_log($e);
-            Log::error("Settings Error: Could not load settings from database. The Installation probably is not done yet.");
+            Log::error('Settings Error: Could not load settings from database. The Installation probably is not done yet.');
             Log::error($e);
         }
     }

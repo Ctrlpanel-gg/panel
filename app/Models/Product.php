@@ -7,14 +7,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
 {
     use HasFactory;
     use LogsActivity;
-
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
+    }
     public $incrementing = false;
 
     protected $guarded = ['id'];
@@ -29,7 +35,7 @@ class Product extends Model
             $product->{$product->getKeyName()} = $client->generateId($size = 21);
         });
 
-        static::deleting(function(Product $product) {
+        static::deleting(function (Product $product) {
             $product->nodes()->detach();
             $product->eggs()->detach();
         });
@@ -58,12 +64,12 @@ class Product extends Model
 
     public function getDailyPrice()
     {
-        return ($this->price / 30);
+        return $this->price / 30;
     }
 
     public function getWeeklyPrice()
     {
-        return ($this->price / 4);
+        return $this->price / 4;
     }
 
     /**
@@ -77,14 +83,16 @@ class Product extends Model
     /**
      * @return BelongsToMany
      */
-    public function eggs() {
+    public function eggs()
+    {
         return $this->belongsToMany(Egg::class);
     }
 
     /**
      * @return BelongsToMany
      */
-    public function nodes() {
+    public function nodes()
+    {
         return $this->belongsToMany(Node::class);
     }
 }

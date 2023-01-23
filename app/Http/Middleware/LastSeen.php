@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,17 +11,17 @@ class LastSeen
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
+     * @param  Request  $request
+     * @param  Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-        if (env('APP_ENV' , 'local') == 'local'){
+        if (env('APP_ENV', 'local') == 'local') {
             return $next($request);
         }
 
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return $next($request);
         }
 
@@ -32,7 +31,7 @@ class LastSeen
 
         Auth::user()->update([
             'last_seen' => now(),
-            'ip' => $request->ip()
+            'ip' => $request->ip(),
         ]);
 
         return $next($request);

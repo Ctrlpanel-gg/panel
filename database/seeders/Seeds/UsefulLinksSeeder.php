@@ -18,19 +18,19 @@ class UsefulLinksSeeder extends Seeder
             'icon' => 'fas fa-egg',
             'title' => 'Pterodactyl Panel',
             'link' => env('PTERODACTYL_URL', 'http://localhost'),
-            'description' => 'Use your servers on our pterodactyl panel <small>(You can use the same login details)</small>'
+            'description' => 'Use your servers on our pterodactyl panel <small>(You can use the same login details)</small>',
         ]);
         UsefulLink::create([
             'icon' => 'fas fa-database',
             'title' => 'phpMyAdmin',
             'link' => env('PHPMYADMIN_URL', 'http://localhost'),
-            'description' => 'View your database online using phpMyAdmin'
+            'description' => 'View your database online using phpMyAdmin',
         ]);
         UsefulLink::create([
             'icon' => 'fab fa-discord',
             'title' => 'Discord',
-            'link' => env('DISCORD_INVITE_URL' , 'https://discord.gg/4Y6HjD2uyU'),
-            'description' => 'Need a helping hand? Want to chat? Got any questions? Join our discord!'
+            'link' => env('DISCORD_INVITE_URL', 'https://discord.gg/4Y6HjD2uyU'),
+            'description' => 'Need a helping hand? Want to chat? Got any questions? Join our discord!',
         ]);
     }
 }
