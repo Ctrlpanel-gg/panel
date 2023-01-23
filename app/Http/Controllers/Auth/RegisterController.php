@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -132,6 +133,7 @@ class RegisterController extends Controller
 
         if ($response->failed()) {
             $user->delete();
+            Log::error('Pterodactyl Registration Error: ' . $response->json()['errors'][0]['detail']);
             throw ValidationException::withMessages([
                 'ptero_registration_error' => [__('Account already exists on Pterodactyl. Please contact the Support!')],
             ]);
@@ -142,7 +144,7 @@ class RegisterController extends Controller
         ]);
 
         //INCREMENT REFERRAL-USER CREDITS
-        if (! empty($data['referral_code'])) {
+        if (!empty($data['referral_code'])) {
             $ref_code = $data['referral_code'];
             $new_user = $user->id;
             if ($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
@@ -154,7 +156,7 @@ class RegisterController extends Controller
                     activity()
                         ->performedOn($user)
                         ->causedBy($ref_user)
-                        ->log('gained '.config('SETTINGS::REFERRAL::REWARD').' '.config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME').' for sign-up-referral of '.$user->name.' (ID:'.$user->id.')');
+                        ->log('gained ' . config('SETTINGS::REFERRAL::REWARD') . ' ' . config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME') . ' for sign-up-referral of ' . $user->name . ' (ID:' . $user->id . ')');
                 }
                 //INSERT INTO USER_REFERRALS TABLE
                 DB::table('user_referrals')->insert([
