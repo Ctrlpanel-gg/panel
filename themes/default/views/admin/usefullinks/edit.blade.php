@@ -95,6 +95,21 @@
                                     @enderror
                                 </div>
 
+                                <div class="form-group">
+                                    <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <input value="true" id="navbar" name="navbar"
+                                                   type="checkbox" @if($link->navbar == "true") checked @endif
+                                            <label for="navbar">{{ __('Show link on top Navbar') }} </label>
+                                        </div>
+                                    </div>
+                                    @error('navbar')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                </div>
+
 
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">

@@ -48,7 +48,14 @@ class UsefulLinkController extends Controller
             'description' => 'required|string|max:2000',
         ]);
 
-        UsefulLink::create($request->all());
+
+        UsefulLink::create([
+            'icon' => $request->icon,
+            'title' => $request->title,
+            'link' => $request->link,
+            'description' => $request->description,
+            'navbar' => $request->navbar,
+        ]);
 
         return redirect()->route('admin.usefullinks.index')->with('success', __('link has been created!'));
     }
@@ -93,7 +100,13 @@ class UsefulLinkController extends Controller
             'description' => 'required|string|max:2000',
         ]);
 
-        $usefullink->update($request->all());
+        $usefullink->update([
+            'icon' => $request->icon,
+            'title' => $request->title,
+            'link' => $request->link,
+            'description' => $request->description,
+            'navbar' => $request->navbar,
+        ]);
 
         return redirect()->route('admin.usefullinks.index')->with('success', __('link has been updated!'));
     }

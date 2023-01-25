@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Settings;
+use App\Models\UsefulLink;
 use Exception;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Artisan;
@@ -52,6 +53,12 @@ class AppServiceProvider extends ServiceProvider
 
             return $ok;
         });
+
+
+        if (Schema::hasColumn('useful_links', 'navbar')) {
+            $useful_links = UsefulLink::where("navbar", "true")->get();
+            view()->share('useful_links', $useful_links);
+        }
 
         //only run if the installer has been executed
         try {
