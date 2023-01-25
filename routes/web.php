@@ -116,7 +116,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     }
 
     //admin
-    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
         //roles
         Route::get('roles/datatable', [RoleController::class, 'datatable'])->name('roles.datatable');
         Route::resource('roles', RoleController::class);

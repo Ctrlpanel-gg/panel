@@ -59,9 +59,16 @@ class RoleController extends Controller
             ]
         ]);
 
-        //TODO PERMISSIONS?
+        $role = Role::create([
+            'name' => $request->name,
+            'color' => $request->color
+        ]);
 
-        return Role::create($request->all());
+        if ($request->permissions) {
+            $role->givePermissionTo($request->permissions);
+        }
+
+        return $role;
     }
 
     /**
@@ -108,6 +115,10 @@ class RoleController extends Controller
                 'regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'
             ]
         ]);
+
+        if ($request->permissions) {
+            $role->givePermissionTo($request->permissions);
+        }
 
         $role->update($request->all());
         //TODO PERMISSIONS?
