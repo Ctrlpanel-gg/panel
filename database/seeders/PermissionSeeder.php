@@ -20,6 +20,7 @@ class PermissionSeeder extends Seeder
         $this->createPermissions();
         $this->createRoles();
 
+
         $users = User::all();
         foreach($users as $user){
             $user->assignRole(4);
@@ -35,7 +36,7 @@ class PermissionSeeder extends Seeder
             $admin->syncRoles(3);
         }
 
-        //TODO Migration to drop table "roles"
+
 
 
     }
@@ -51,10 +52,10 @@ class PermissionSeeder extends Seeder
     public function createRoles()
     {
         /** @var Role $adminRole */
-        $adminRole = Role::findOrCreate('Admin');
-        $supportRole = Role::findOrCreate('Support-Team');
-        $clientRole = Role::findOrCreate('Client');
-        $userRole = Role::findOrCreate('User');
+        $adminRole = Role::updateOrCreate(["name"=>"Admin","color"=>"#fa0000"]);
+        $supportRole = Role::updateOrCreate(["name"=>"Support-Team","color"=>"#00b0b3"]);
+        $clientRole = Role::updateOrCreate(["name"=>"Client","color"=>"#008009"]);
+        $userRole =  Role::updateOrCreate(["name"=>"User","color"=>"#0052a3"]);
 
         $adminRole->givePermissionTo(Permission::findByName('*'));
     }
