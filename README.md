@@ -52,7 +52,7 @@ This dashboard offers an easy to use and free billing solution for all starting 
 ![image](https://user-images.githubusercontent.com/8725848/171575809-7620ed4f-5715-420f-8c25-8bfa1c4342f7.png)
 
 ### Example server products
-![image](https://user-images.githubusercontent.com/8725848/171575987-c1398ff6-83fa-4cb8-bd1f-986cee4da565.png)
+![image](https://user-images.githubusercontent.com/67899387/214685759-f72080b8-41c4-4f6b-9db7-a13c7918c6e0.png)
 
 ### Ticket System
 ![image](https://user-images.githubusercontent.com/8725848/184131270-9d997ebf-8965-4910-90d2-b410ae37f201.png)
