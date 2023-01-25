@@ -652,5 +652,13 @@ class SettingsSeeder extends Seeder
             'type' => 'text',
             'description' => 'Who will get a Email Notifcation on new Tickets',
         ]);
+        Settings::firstOrCreate([
+            'key' => 'SETTINGS::PAYMENT:ROLE_AFTER_PAYMENT',
+        ], [
+            'value' => '3',
+            'type' => 'int',
+            'description' => 'Role a user will receive after succesful payment',
+        ]);
+
     }
 }

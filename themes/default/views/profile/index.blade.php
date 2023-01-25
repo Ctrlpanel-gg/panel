@@ -106,7 +106,7 @@
                                         </div>
 
                                     @if(config('SETTINGS::REFERRAL::ENABLED') == "true")
-                                        @if((config('SETTINGS::REFERRAL::ALLOWED') == "client" && $user->role != "member") || config('SETTINGS::REFERRAL::ALLOWED') == "everyone")
+                                        @if((config('SETTINGS::REFERRAL::ALLOWED') == "client" && $user->role->id != 4) || config('SETTINGS::REFERRAL::ALLOWED') == "everyone")
                                             <div class="mt-1">
                                                     <span class="badge badge-success"><i
                                                             class="fa fa-user-check mr-2"></i>

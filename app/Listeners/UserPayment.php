@@ -54,8 +54,8 @@ class UserPayment
             }
         }
         //update role give Referral-reward
-        if ($user->role == 'member') {
-            $user->update(['role' => 'client']);
+        if ($user->role->id == '4') {
+            $user->syncRoles(config('SETTINGS::PAYMENT:ROLE_AFTER_PAYMENT'));
 
             //give referral commission only on first purchase
             if ((config("SETTINGS::REFERRAL:MODE") == "commission" || config("SETTINGS::REFERRAL:MODE") == "both") && $shopProduct->type == "Credits" && config("SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION") == "false") {

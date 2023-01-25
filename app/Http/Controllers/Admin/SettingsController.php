@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 use Qirolab\Theme\Theme;
+use Spatie\Permission\Models\Role;
 
 class SettingsController extends Controller
 {
@@ -44,6 +45,7 @@ class SettingsController extends Controller
             'tabListItems' => $tabListItems,
             'themes' => $themes,
             'active_theme' => Theme::active(),
+            'roles' => Role::All()
         ]);
     }
 }

@@ -135,6 +135,26 @@
                             class="form-control @error('sales-tax') is-invalid @enderror">
                     </div>
                 </div>
+                <div class="form-group">
+                    <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
+                        <label for="sales-tax">{{ __('Role after Payment') }}:</label>
+                        <i data-toggle="popover" data-trigger="hover" data-html="true"
+                           data-content="The Role a user will receive on a successful payment"
+                           class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <select id="role_after_payment" name="role_after_payment"
+                                class="custom-select @error('role') is-invalid @enderror"
+                                required="required">
+                            @foreach($roles as $role)
+                                <option style="color: {{$role->color}}"
+                                        @if (config('SETTINGS::PAYMENT:ROLE_AFTER_PAYMENT') == $role->id) selected @endif
+                                         value="{{$role->id}}">{{$role->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
             </div>
         </div>
         <div class="row">

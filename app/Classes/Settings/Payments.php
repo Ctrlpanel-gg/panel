@@ -26,6 +26,7 @@ class Payments
             'stripe-test-endpoint-secret' => 'nullable|string',
             'stripe-methods' => 'nullable|string',
             'sales-tax' => 'nullable|numeric',
+            'role_after_payment' => 'nullable|numeric',
         ]);
         if ($validator->fails()) {
             return redirect(route('admin.settings.index').'#payment')->with('error', __('Payment settings have not been updated!'))->withErrors($validator)
@@ -44,6 +45,7 @@ class Payments
             'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET' => 'stripe-endpoint-test-secret',
             'SETTINGS::PAYMENTS:STRIPE:METHODS' => 'stripe-methods',
             'SETTINGS::PAYMENTS:SALES_TAX' => 'sales-tax',
+            'SETTINGS::PAYMENT:ROLE_AFTER_PAYMENT' => 'role_after_payment',
         ];
 
         foreach ($values as $key => $value) {
