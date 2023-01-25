@@ -3,6 +3,7 @@
 -   PayPal Integration
 -   Stripe Integration
 -   Referral System
+-   Partner System
 -   Ticket System
 -   Upgrade/Downgrade Server Resources
 -   Store (credit system with hourly billing and invoices)
@@ -12,7 +13,6 @@
 -   User/Server Management
 -   Customisable server plans
 -   Vouchers
--   Partner System
 -   Alert System
 -   Theme Support
 -   and so much more!
@@ -29,13 +29,13 @@
 
 ControlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that credits users hourly for each server they have and suspends them if they run out of credits.
 
-This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customization options and added discord 0auth verification to offer a solid link between your discord server and your dashboard. You can check our Demo here ([Demo](https://demo.controlpanel.gg "Demo"))
+This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customisation options and added discord Oauth verification to offer a solid link between your discord server and your dashboard. You can check our ([Demo here](https://demo.controlpanel.gg "Demo"))
 
 ### [Installation](https://controlpanel.gg/docs/intro "Installation")
 
 ### [Updating](https://controlpanel.gg/docs/Installation/updating "Updating")
 
-### [Discord](https://discord.gg/4Y6HjD2uyU "discord")
+### [Discord](https://discord.gg/4Y6HjD2uyU "Discord")
 
 ### [Contributing](https://controlpanel.gg/docs/Contributing/contributing "Contributing")
 
