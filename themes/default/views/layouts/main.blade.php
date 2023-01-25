@@ -22,8 +22,6 @@
     {{-- summernote --}}
     <link rel="stylesheet" href="{{ asset('plugins/summernote/summernote-bs4.min.css') }}">
 
-
-
     {{-- datetimepicker --}}
     <link rel="stylesheet"
         href="{{ asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
@@ -31,7 +29,6 @@
     {{-- select2 --}}
     <link rel="stylesheet" href="{{ asset('plugins/select2/css/select2.min.css') }}">
 
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="preload" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}" as="style"
         onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
@@ -40,6 +37,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- tinymce -->
     <script src={{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}></script>
+    @vite('themes/default/sass/app.scss')
 </head>
 
 <body class="sidebar-mini layout-fixed dark-mode" style="height: auto;">
