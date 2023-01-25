@@ -63,6 +63,7 @@ if (isset($_POST['feedDB'])) {
     //$logs .= run_console('composer install --no-dev --optimize-autoloader');
     $logs .= run_console('php artisan migrate --seed --force');
     $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
+    $logs .= run_console('php artisan db:seed --class=PermissionSeeder');
     if (strpos(getEnvironmentValue('APP_KEY'), 'base64') === false) {
         $logs .= run_console('php artisan key:generate --force');
     } else {
@@ -266,9 +267,12 @@ if (isset($_POST['createUser'])) {
     }
 
     $random = generateRandomString();
-    $query1 = 'INSERT INTO `'.getEnvironmentValue('DB_DATABASE')."`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
+    $query1 = 'INSERT INTO `'.getEnvironmentValue('DB_DATABASE')."`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
 
-    if ($db->query($query1)) {
+    $query2 = 'INSERT INTO `'.getEnvironmentValue('DB_DATABASE')."`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\Models\User', '1')";
+
+
+    if ($db->query($query1) && $db->query($query2)) {
         wh_log('[USER MAKER] Created user with Email '.$mail.' and pterodactyl ID '.$pteroID);
         header('LOCATION: index.php?step=7');
     } else {
