@@ -22,17 +22,17 @@ class PermissionSeeder extends Seeder
 
         $users = User::all();
         foreach($users as $user){
-            $user->assignRole('User');
+            $user->assignRole(4);
         }
 
         $admins = User::where("role","admin")->get();
         foreach($admins as $admin) {
-            $admin->syncRoles('Admin');
+            $admin->syncRoles(1);
         }
 
         $admins = User::where("role","client")->get();
         foreach($admins as $admin) {
-            $admin->syncRoles('Client');
+            $admin->syncRoles(3);
         }
 
         //TODO Migration to drop table "roles"
