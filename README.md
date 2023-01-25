@@ -12,11 +12,14 @@
 -   User/Server Management
 -   Customisable server plans
 -   Vouchers
+-   Partner System
+-   Alert System
+-   Theme Support
 -   and so much more!
 
 # ControlPanel-gg
 
-![controlpanel](https://user-images.githubusercontent.com/45005889/123518824-06b05000-d6a8-11eb-91b9-d1ed36bd2317.png)
+![controlpanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
 
 
 ![](https://img.shields.io/endpoint?label=v0.8%20Installations&url=https%3A%2F%2Fmarket.controlpanel.gg%2Fcallhome.php%3Fgetinstalls)
