@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\PartnerDiscount;
+use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Notifications\InvoiceNotification;
 use Illuminate\Support\Facades\Storage;
@@ -14,9 +15,9 @@ use Symfony\Component\Intl\Currencies;
 
 trait Invoiceable
 {
-    public function createInvoice($user, $payment)
+    public function createInvoice(Payment $payment, ShopProduct $shopProduct)
     {
-        $shopProduct = ShopProduct::where('id', $payment->shop_item_product_id)->first();
+        $user = $payment->user;
         //create invoice
         $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
         $newInvoiceID = $lastInvoiceID + 1;
@@ -32,7 +33,6 @@ trait Invoiceable
                 "Web" => config("SETTINGS::INVOICE:COMPANY_WEBSITE")
             ],
         ]);
-
 
         $customer = new Buyer([
             'name' => $user->name,
@@ -77,7 +77,6 @@ trait Invoiceable
         $invoice->filename = $invoice->getSerialNumber() . '.pdf';
         $invoice->render();
         Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
-
 
         \App\Models\Invoice::create([
             'invoice_user' => $user->id,
