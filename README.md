@@ -46,7 +46,7 @@ This dashboard offers an easy to use and free billing solution for all starting 
 # Preview
 
 ### Server Creation
-![image](https://user-images.githubusercontent.com/8725848/171575021-bc248f12-2aba-44e8-82aa-bdc907b1d3fc.png)
+![image](https://user-images.githubusercontent.com/67899387/214687234-d1ae58c0-5667-4e99-ac39-adeaabfcc7f2.png)
 
 ### Overview
 ![image](https://user-images.githubusercontent.com/67899387/214685859-03c8d9e1-c685-4a07-979f-df2e88ec3931.png)
