@@ -27,9 +27,9 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
-    const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'discordUser'];
+    const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'roles', 'discordUser'];
 
-    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'role', 'suspended'];
+    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
 
     /**
      * Display a listing of the resource.
@@ -85,7 +85,6 @@ class UserController extends Controller
             'email' => 'sometimes|string|email',
             'credits' => 'sometimes|numeric|min:0|max:1000000',
             'server_limit' => 'sometimes|numeric|min:0|max:1000000',
-            'role' => ['sometimes', Rule::in(['admin', 'moderator', 'client', 'member'])],
         ]);
 
         event(new UserUpdateCreditsEvent($user));

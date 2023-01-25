@@ -141,7 +141,7 @@ class RoleController extends Controller
         $users = User::role($role)->get();
 
         foreach($users as $user){
-            $user->syncRoles(['User']);
+            $user->syncRoles([4]);
         }
 
         $role->delete();
