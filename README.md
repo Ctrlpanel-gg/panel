@@ -55,7 +55,7 @@ This dashboard offers an easy to use and free billing solution for all starting 
 ![image](https://user-images.githubusercontent.com/67899387/214686950-218e1ede-6a1f-4e53-b3f4-fe1abc371a9c.png)
 
 ### Ticket System
-![image](https://user-images.githubusercontent.com/67899387/214686041-c9c0e57f-81d7-403a-9ef9-aa6dd2483b3c.png)
+![image](https://user-images.githubusercontent.com/67899387/214687123-0a3d0f8f-b53c-4b0d-869a-4d5df45f5184.png)
 
 ### Voucher System
 ![image](https://user-images.githubusercontent.com/67899387/214686578-ec9f0b0f-6047-4665-835f-70594b56dfd5.png)
