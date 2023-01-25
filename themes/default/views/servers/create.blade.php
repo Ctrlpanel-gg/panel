@@ -212,7 +212,7 @@
                                                         {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }}
                                                         {{ __('to create this server') }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="product.minimum_credits === -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credit"></span>
+                                                        x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credits"></span>
                                                 </li>
                                             </ul>
                                         </div>
