@@ -44,6 +44,8 @@ class PaymentController extends Controller
         $paymentGateways = [];
         foreach ($extensions as $extension) {
             $extensionName = basename($extension);
+            if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
+
             $payment = new \stdClass();
             $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
             $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
