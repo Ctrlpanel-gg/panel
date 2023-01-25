@@ -12,6 +12,9 @@
 -   User/Server Management
 -   Customisable server plans
 -   Vouchers
+-   Partner System
+-   Alert System
+-   Theme Support
 -   and so much more!
 
 # ControlPanel-gg
