@@ -16,24 +16,21 @@
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? \Illuminate\Support\Facades\Storage::disk('public')->url('favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
-    <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
-
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="preload" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}" as="style"
         onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
     @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
         {!! htmlScriptTagJsApi() !!}
     @endif
+    @vite('themes/default/sass/app.scss')
 </head>
 @yield('content')
 
