@@ -481,7 +481,7 @@
             </div>
     </form>
 </div>
-<script>tinymce.init({selector:'textarea',skin: "oxide-dark",
+<script>tinymce.init({selector:'textarea',promotion: false,skin: "oxide-dark",
         content_css: "dark",branding: false,  height: 500,
         plugins: ['image','link'],});
 </script>
