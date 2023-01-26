@@ -54,10 +54,13 @@ class AppServiceProvider extends ServiceProvider
             return $ok;
         });
 
-
-        if (Schema::hasColumn('useful_links', 'position')) {
-            $useful_links = UsefulLink::where("position","like","%topbar%")->get()->sortby("id");
-            view()->share('useful_links', $useful_links);
+        try {
+            if (Schema::hasColumn('useful_links', 'position')) {
+                $useful_links = UsefulLink::where("position", "like", "%topbar%")->get()->sortby("id");
+                view()->share('useful_links', $useful_links);
+            }
+        } catch (Exception $e) {
+            Log::error("Couldnt find useful_links. Probably the installation is not completet. ".$e);
         }
 
         //only run if the installer has been executed
