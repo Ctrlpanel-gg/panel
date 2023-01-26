@@ -8,6 +8,5 @@ function getConfig()
         "name" => "PayPal",
         "description" => "PayPal payment gateway",
         "RoutesIgnoreCsrf" => [],
-        "enabled" => config('SETTINGS::PAYMENTS:STRIPE:SECRET') && true,
     ];
 }
