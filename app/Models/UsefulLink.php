@@ -16,6 +16,6 @@ class UsefulLink extends Model
         'title',
         'link',
         'description',
-        'navbar',
+        'position',
     ];
 }

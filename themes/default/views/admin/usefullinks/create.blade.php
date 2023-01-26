@@ -95,14 +95,15 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <input value="true" id="navbar" name="navbar"
-                                                   type="checkbox">
-                                            <label for="navbar">{{ __('Show link on top Navbar') }} </label>
-                                        </div>
-                                    </div>
-                                    @error('navbar')
+                                    <select id="position" style="width:100%" class="custom-select" name="position[]"
+                                            required multiple autocomplete="off" @error('position') is-invalid @enderror>
+                                        @foreach ($positions as $position)
+                                            <option id="{{$position->value}}" value="{{ $position->value }}">
+                                                {{ __($position->value) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('position')
                                     <div class="text-danger">
                                         {{$message}}
                                     </div>
@@ -126,6 +127,7 @@
     <!-- END CONTENT -->
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
+            $('.custom-select').select2();
 // Summernote
             $('#description').summernote({
                 height: 100,
@@ -142,6 +144,8 @@
                 ]
             })
         })
+
+
     </script>
 
 @endsection

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('useful_links', function (Blueprint $table) {
-            $table->string('navbar')->after("description")->nullable();
+            $table->string('position')->after("description")->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('useful_links', function (Blueprint $table) {
-            $table->dropColumn('navbar');
+            $table->dropColumn('position');
         });
     }
 };

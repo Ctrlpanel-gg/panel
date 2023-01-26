@@ -55,8 +55,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
 
-        if (Schema::hasColumn('useful_links', 'navbar')) {
-            $useful_links = UsefulLink::where("navbar", "true")->get();
+        if (Schema::hasColumn('useful_links', 'position')) {
+            $useful_links = UsefulLink::get();
             view()->share('useful_links', $useful_links);
         }
 
