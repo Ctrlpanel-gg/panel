@@ -60,6 +60,7 @@
                                 class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
                     </li>
                 @endif
+
                 <!-- Language Selection -->
                 @if (config('SETTINGS::LOCALE:CLIENTS_CAN_CHANGE') == 'true')
                     <li class="nav-item dropdown">
@@ -84,6 +85,12 @@
                     </li>
                     <!-- End Language Selection -->
                 @endif
+                @foreach($useful_links as $link)
+                        <li class="nav-item d-none d-sm-inline-block">
+                            <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
+                                    class="{{$link->icon}}"></i> {{ $link->title }}</a>
+                        </li>
+                @endforeach
             </ul>
 
             <!-- Right navbar links -->
