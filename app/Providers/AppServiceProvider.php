@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
 
 
         if (Schema::hasColumn('useful_links', 'position')) {
-            $useful_links = UsefulLink::get();
+            $useful_links = UsefulLink::where("position","like","%topbar%")->get()->sortby("id");
             view()->share('useful_links', $useful_links);
         }
 

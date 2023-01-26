@@ -86,12 +86,10 @@
                     <!-- End Language Selection -->
                 @endif
                 @foreach($useful_links as $link)
-                    @if(strpos($link->position,"topbar") !== false)
                         <li class="nav-item d-none d-sm-inline-block">
                             <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
                                     class="{{$link->icon}}"></i> {{ $link->title }}</a>
                         </li>
-                    @endif
                 @endforeach
             </ul>
 
