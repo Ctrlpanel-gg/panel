@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\UsefulLinkLocation;
 use App\Http\Controllers\Controller;
 use App\Models\UsefulLink;
 use Illuminate\Contracts\Foundation\Application;
@@ -31,8 +30,7 @@ class UsefulLinkController extends Controller
      */
     public function create()
     {
-        $positions = UsefulLinkLocation::cases();
-        return view('admin.usefullinks.create')->with('positions', $positions);
+        return view('admin.usefullinks.create');
     }
 
     /**
@@ -50,14 +48,7 @@ class UsefulLinkController extends Controller
             'description' => 'required|string|max:2000',
         ]);
 
-
-        UsefulLink::create([
-            'icon' => $request->icon,
-            'title' => $request->title,
-            'link' => $request->link,
-            'description' => $request->description,
-            'position' => implode(",",$request->position),
-        ]);
+        UsefulLink::create($request->all());
 
         return redirect()->route('admin.usefullinks.index')->with('success', __('link has been created!'));
     }
@@ -81,10 +72,8 @@ class UsefulLinkController extends Controller
      */
     public function edit(UsefulLink $usefullink)
     {
-        $positions = UsefulLinkLocation::cases();
         return view('admin.usefullinks.edit', [
             'link' => $usefullink,
-            'positions' => $positions,
         ]);
     }
 
@@ -104,13 +93,7 @@ class UsefulLinkController extends Controller
             'description' => 'required|string|max:2000',
         ]);
 
-        $usefullink->update([
-            'icon' => $request->icon,
-            'title' => $request->title,
-            'link' => $request->link,
-            'description' => $request->description,
-            'position' => implode(",",$request->position),
-        ]);
+        $usefullink->update($request->all());
 
         return redirect()->route('admin.usefullinks.index')->with('success', __('link has been updated!'));
     }

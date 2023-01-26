@@ -131,7 +131,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'Credits',
             'type' => 'string',
-            'description' => 'The display name of your currency.',
+            'description' => 'Set the display name of your currency :)',
         ]);
 
         //credits display name
@@ -148,7 +148,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '0',
             'type' => 'integer',
-            'description' => 'The %-value of tax that will be added to the product price on checkout.',
+            'description' => 'The %-value of tax that will be added to the product price on checkout',
         ]);
         //Invoices enabled
         Settings::firstOrCreate([
@@ -156,7 +156,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'false',
             'type' => 'boolean',
-            'description' => 'Enables or disables the invoice feature for payments.',
+            'description' => 'Enables or disables the invoice feature for payments',
         ]);
         //Invoice company name
         Settings::firstOrCreate([
@@ -164,7 +164,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'string',
-            'description' => 'The name of the Company on the Invoices.',
+            'description' => 'The name of the Company on the Invoices',
         ]);
         //Invoice company address
         Settings::firstOrCreate([
@@ -172,7 +172,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'string',
-            'description' => 'The address of the Company on the Invoices.',
+            'description' => 'The address of the Company on the Invoices',
         ]);
         //Invoice company phone
         Settings::firstOrCreate([
@@ -180,7 +180,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'string',
-            'description' => 'The phone number of the Company on the Invoices.',
+            'description' => 'The phone number of the Company on the Invoices',
         ]);
 
         //Invoice company mail
@@ -189,7 +189,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'string',
-            'description' => 'The email address of the Company on the Invoices.',
+            'description' => 'The email address of the Company on the Invoices',
         ]);
 
         //Invoice VAT
@@ -198,7 +198,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'string',
-            'description' => 'The VAT-Number of the Company on the Invoices.',
+            'description' => 'The VAT-Number of the Company on the Invoices',
         ]);
 
         //Invoice Website
@@ -207,7 +207,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'string',
-            'description' => 'The Website of the Company on the Invoices.',
+            'description' => 'The Website of the Company on the Invoices',
         ]);
 
         //Invoice Website
@@ -216,7 +216,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'INV',
             'type' => 'string',
-            'description' => 'The invoice prefix.',
+            'description' => 'The invoice prefix',
         ]);
 
         //Locale
@@ -225,7 +225,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'en',
             'type' => 'string',
-            'description' => 'The default dashboard language.',
+            'description' => 'The default Language the dashboard will be shown in',
         ]);
         //Dynamic locale
         Settings::firstOrCreate([
@@ -247,9 +247,9 @@ class SettingsSeeder extends Seeder
         Settings::firstOrCreate([
             'key' => 'SETTINGS::LOCALE:AVAILABLE',
         ], [
-            'value' => 'en',
+            'value' => '',
             'type' => 'string',
-            'description' => 'The available languages.',
+            'description' => 'The available languages',
         ]);
         //Locale
         Settings::firstOrCreate([
@@ -265,63 +265,63 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('PAYPAL_SECRET', ''),
             'type' => 'string',
-            'description' => 'Your PayPal Secret-Key (https://developer.paypal.com/docs/integration/direct/rest/).',
+            'description' => 'Your PayPal Secret-Key ( https://developer.paypal.com/docs/integration/direct/rest/)',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID',
         ], [
             'value' => env('PAYPAL_CLIENT_ID', ''),
             'type' => 'string',
-            'description' => 'Your PayPal Client_ID.',
+            'description' => 'Your PayPal Client_ID',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET',
         ], [
             'value' => env('PAYPAL_SANDBOX_SECRET', ''),
             'type' => 'string',
-            'description' => 'Your PayPal SANDBOX Secret-Key used for testing.',
+            'description' => 'Your PayPal SANDBOX Secret-Key used for testing ',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID',
         ], [
             'value' => env('PAYPAL_SANDBOX_CLIENT_ID', ''),
             'type' => 'string',
-            'description' => 'Your PayPal SANDBOX Client-ID used for testing.',
+            'description' => 'Your PayPal SANDBOX Client-ID used for testing ',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:STRIPE:SECRET',
         ], [
             'value' => env('STRIPE_SECRET', ''),
             'type' => 'string',
-            'description' => 'Your Stripe Secret-Key (https://dashboard.stripe.com/account/apikeys).',
+            'description' => 'Your Stripe  Secret-Key  ( https://dashboard.stripe.com/account/apikeys )',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET',
         ], [
             'value' => env('STRIPE_ENDPOINT_SECRET', ''),
             'type' => 'string',
-            'description' => 'Your Stripe endpoint secret-key.',
+            'description' => 'Your Stripe endpoint secret-key',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:STRIPE:TEST_SECRET',
         ], [
             'value' => env('STRIPE_TEST_SECRET', ''),
             'type' => 'string',
-            'description' => 'Your Stripe test secret-key.',
+            'description' => 'Your Stripe test secret-key',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET',
         ], [
             'value' => env('STRIPE_ENDPOINT_TEST_SECRET', ''),
             'type' => 'string',
-            'description' => 'Your Stripe endpoint test secret-key.',
+            'description' => 'Your Stripe endpoint test secret-key',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:STRIPE:METHODS',
         ], [
             'value' => env('STRIPE_METHODS', 'card,sepa_debit'),
             'type' => 'string',
-            'description' => 'Comma seperated list of payment methods that are enabled (https://stripe.com/docs/payments/payment-methods/integration-options).',
+            'description' => 'Comma seperated list of payment methods that are enabled (https://stripe.com/docs/payments/payment-methods/integration-options)',
         ]);
 
         Settings::firstOrCreate([
@@ -329,7 +329,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('DISCORD_CLIENT_ID', ''),
             'type' => 'string',
-            'description' => 'Discord API Credentials (https://discordapp.com/developers/applications/).',
+            'description' => 'Discord API Credentials - https://discordapp.com/developers/applications/',
         ]);
 
         Settings::firstOrCreate([
@@ -337,14 +337,14 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('DISCORD_CLIENT_SECRET', ''),
             'type' => 'string',
-            'description' => 'Discord API Credentials (https://discordapp.com/developers/applications/).',
+            'description' => 'Discord API Credentials - https://discordapp.com/developers/applications/',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::DISCORD:BOT_TOKEN',
         ], [
             'value' => env('DISCORD_BOT_TOKEN', ''),
             'type' => 'string',
-            'description' => 'Discord API Credentials (https://discordapp.com/developers/applications/).',
+            'description' => 'Discord API Credentials - https://discordapp.com/developers/applications/',
         ]);
 
         Settings::firstOrCreate([
@@ -352,7 +352,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('DISCORD_GUILD_ID', ''),
             'type' => 'string',
-            'description' => 'Discord API Credentials (https://discordapp.com/developers/applications/).',
+            'description' => 'Discord API Credentials - https://discordapp.com/developers/applications/',
         ]);
 
         Settings::firstOrCreate([
@@ -360,14 +360,14 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('DISCORD_ROLE_ID', ''),
             'type' => 'string',
-            'description' => 'Discord role that will be assigned to users when they register.',
+            'description' => 'Discord role that will be assigned to users when they register',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::DISCORD:INVITE_URL',
         ], [
             'value' => env('DISCORD_INVITE_URL', ''),
             'type' => 'string',
-            'description' => 'The invite URL to your Discord Server.',
+            'description' => 'The invite URL to your Discord Server',
         ]);
 
         Settings::firstOrCreate([
@@ -404,7 +404,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'),
             'type' => 'string',
-            'description' => 'Google Recaptcha API Credentials (https://www.google.com/recaptcha/admin) - reCaptcha V2 (not v3)',
+            'description' => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)',
         ]);
 
         Settings::firstOrCreate([
@@ -412,14 +412,14 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'),
             'type' => 'string',
-            'description' => 'Google Recaptcha API Credentials (https://www.google.com/recaptcha/admin) - reCaptcha V2 (not v3)',
+            'description' => 'Google Recaptcha API Credentials - https://www.google.com/recaptcha/admin - reCaptcha V2 (not v3)',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::RECAPTCHA:ENABLED',
         ], [
             'value' => 'true',
             'type' => 'boolean',
-            'description' => 'Enables or disables the ReCaptcha feature on the registration/login page.',
+            'description' => 'Enables or disables the ReCaptcha feature on the registration/login page',
 
         ]);
         Settings::firstOrCreate([
@@ -427,63 +427,63 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => env('MAIL_MAILER', 'smtp'),
             'type' => 'string',
-            'description' => 'Selected Mailer (smtp, mailgun, sendgrid, mailtrap).',
+            'description' => 'Selected Mailer (smtp, mailgun, sendgrid, mailtrap)',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:HOST',
         ], [
             'value' => env('MAIL_HOST', 'localhost'),
             'type' => 'string',
-            'description' => 'Mailer Host Address.',
+            'description' => 'Mailer Host Address',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:PORT',
         ], [
             'value' => env('MAIL_PORT', '25'),
             'type' => 'string',
-            'description' => 'Mailer Server Port.',
+            'description' => 'Mailer Server Port',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:USERNAME',
         ], [
             'value' => env('MAIL_USERNAME', ''),
             'type' => 'string',
-            'description' => 'Mailer Username.',
+            'description' => 'Mailer Username',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:PASSWORD',
         ], [
             'value' => env('MAIL_PASSWORD', ''),
             'type' => 'string',
-            'description' => 'Mailer Password.',
+            'description' => 'Mailer Password',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:ENCRYPTION',
         ], [
             'value' => env('MAIL_ENCRYPTION', 'tls'),
             'type' => 'string',
-            'description' => 'Mailer Encryption (tls, ssl).',
+            'description' => 'Mailer Encryption (tls, ssl)',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:FROM_ADDRESS',
         ], [
             'value' => env('MAIL_FROM_ADDRESS', ''),
             'type' => 'string',
-            'description' => 'Mailer From Address.',
+            'description' => 'Mailer From Address',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::MAIL:FROM_NAME',
         ], [
             'value' => env('APP_NAME', 'Controlpanel'),
             'type' => 'string',
-            'description' => 'Mailer From Name.',
+            'description' => 'Mailer From Name',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::REFERRAL::ENABLED',
         ], [
             'value' => 'false',
             'type' => 'string',
-            'description' => 'Enable or disable the referral system.',
+            'description' => 'Enable or disable the referral system',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION',
@@ -518,7 +518,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 100,
             'type' => 'integer',
-            'description' => 'The Percentage value a referred user gets.',
+            'description' => 'The Percentage Value a referred user gets',
         ]);
 
         Settings::firstOrCreate([
@@ -526,28 +526,28 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'string',
-            'description' => 'The Client API Key of an Pterodactyl Admin Account.',
+            'description' => 'The Client API Key of an Pterodactyl Admin Account',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:ENABLE_UPGRADE',
         ], [
             'value' => 'false',
             'type' => 'boolean',
-            'description' => 'Enables the updgrade/downgrade feature for servers.',
+            'description' => 'Enables the updgrade/downgrade feature for servers',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS',
         ], [
             'value' => 'true',
             'type' => 'boolean',
-            'description' => 'Enable creation of new servers',
+            'description' => 'Enable/disable the creation of new servers',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:CREATION_OF_NEW_USERS',
         ], [
-            'value' => 'true',
+            'value' => 'false',
             'type' => 'boolean',
-            'description' => 'Enable creation of new users',
+            'description' => 'Enable/disable the creation of new users',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:SHOW_IMPRINT',
@@ -555,7 +555,7 @@ class SettingsSeeder extends Seeder
 
             'value' => "false",
             'type'  => 'boolean',
-            'description'  => 'Enable imprint in footer.'
+            'description'  => 'Enable/disable imprint in footer'
 
         ]);
         Settings::firstOrCreate([
@@ -564,7 +564,7 @@ class SettingsSeeder extends Seeder
 
             'value' => "false",
             'type'  => 'boolean',
-            'description'  => 'Enable privacy policy in footer.'
+            'description'  => 'Enable/disable privacy policy in footer'
 
         ]);
         Settings::firstOrCreate([
@@ -572,7 +572,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'false',
             'type' => 'boolean',
-            'description' => 'Enable Terms of Service in footer.',
+            'description' => 'Enable/disable Terms of Service in footer',
         ]);
 
         Settings::firstOrCreate([
@@ -580,14 +580,14 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'false',
             'type' => 'boolean',
-            'description' => 'Enable Alerts on Homepage.',
+            'description' => 'Enable/disable Alerts on Homepage',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:ALERT_TYPE',
         ], [
             'value' => 'dark',
             'type' => 'text',
-            'description' => 'Changes the Color of the Alert.',
+            'description' => 'Changes the Color of the Alert',
         ]);
 
         Settings::firstOrCreate([
@@ -595,14 +595,14 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => '',
             'type' => 'text',
-            'description' => 'Changes the Content the Alert.',
+            'description' => 'Changes the Content the Alert',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:THEME',
         ], [
             'value' => 'default',
             'type' => 'text',
-            'description' => 'Current active theme.',
+            'description' => 'Current active theme',
         ]);
 
         Settings::firstOrCreate([
@@ -610,7 +610,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'true',
             'type' => 'boolean',
-            'description' => 'Enable Useful Links on Homepage.',
+            'description' => 'Enable/disable Useful Links on Homepage',
         ]);
 
         Settings::firstOrCreate([
@@ -618,7 +618,7 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'true',
             'type' => 'boolean',
-            'description' => 'Enable MOTD on Homepage.',
+            'description' => 'Enable/disable MOTD on Homepage',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:MOTD_MESSAGE',
@@ -628,14 +628,14 @@ class SettingsSeeder extends Seeder
  <p><span style="font-size: 18pt;">If you have any questions, make sure to join our <a href="https://discord.com/invite/4Y6HjD2uyU" target="_blank" rel="noopener">Discord</a></span></p>
  <p><span style="font-size: 10pt;">(you can change this message in the <a href="admin/settings#system">Settings</a> )</span></p>',
             'type' => 'text',
-            'description' => 'MOTD Message.',
+            'description' => 'MOTD Message',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::SYSTEM:SEO_TITLE',
         ], [
             'value' => 'Controlpanel.gg',
             'type' => 'text',
-            'description' => 'The SEO Title.',
+            'description' => 'The SEO Title',
         ]);
 
         Settings::firstOrCreate([
@@ -643,14 +643,14 @@ class SettingsSeeder extends Seeder
         ], [
             'value' => 'Billing software for Pterodactyl Dashboard!',
             'type' => 'text',
-            'description' => 'SEO Description.',
+            'description' => 'SEO Description',
         ]);
         Settings::firstOrCreate([
             'key' => 'SETTINGS::TICKET:NOTIFY',
         ], [
             'value' => 'all',
             'type' => 'text',
-            'description' => 'Who will get a Email Notifcation on new Tickets.',
+            'description' => 'Who will get a Email Notifcation on new Tickets',
         ]);
     }
 }

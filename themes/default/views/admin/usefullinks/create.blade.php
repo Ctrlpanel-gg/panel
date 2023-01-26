@@ -94,22 +94,6 @@
                                     @enderror
                                 </div>
 
-                                <div class="form-group">
-                                    <select id="position" style="width:100%" class="custom-select" name="position[]"
-                                            required multiple autocomplete="off" @error('position') is-invalid @enderror>
-                                        @foreach ($positions as $position)
-                                            <option id="{{$position->value}}" value="{{ $position->value }}">
-                                                {{ __($position->value) }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('position')
-                                    <div class="text-danger">
-                                        {{$message}}
-                                    </div>
-                                    @enderror
-                                </div>
-
 
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">
@@ -127,7 +111,6 @@
     <!-- END CONTENT -->
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
 // Summernote
             $('#description').summernote({
                 height: 100,
@@ -144,8 +127,6 @@
                 ]
             })
         })
-
-
     </script>
 
 @endsection
