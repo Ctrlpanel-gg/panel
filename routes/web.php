@@ -8,6 +8,7 @@ use App\Classes\Settings\System;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\LegalController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ProductController;
@@ -118,6 +119,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
         //overview
+        Route::get('legal', [OverViewController::class, 'index'])->name('overview.index');
+
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
@@ -177,6 +180,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         //usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
+
+        //legal
+        Route::get('legal', [LegalController::class, 'index'])->name('legal.index');
+        Route::patch('legal', [LegalController::class, 'update'])->name('legal.update');
 
         //vouchers
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
