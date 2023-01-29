@@ -30,7 +30,7 @@
     @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
         {!! htmlScriptTagJsApi() !!}
     @endif
-    @vite('themes/default/sass/app.scss')
+    @vite('resources/sass/app.scss')
 </head>
 @yield('content')
 
