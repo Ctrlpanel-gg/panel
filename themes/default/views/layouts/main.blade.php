@@ -379,6 +379,14 @@
                                 </a>
                             </li>
 
+                            <li class="nav-item">
+                                <a href="{{ route('admin.legal.index') }}"
+                                   class="nav-link @if (Request::routeIs('admin.legal.*')) active @endif">
+                                    <i class="nav-icon fas fa-link"></i>
+                                    <p>{{ __('Legal Sites') }}</p>
+                                </a>
+                            </li>
+
                             <li class="nav-header">{{ __('Logs') }}</li>
 
                             <li class="nav-item">
