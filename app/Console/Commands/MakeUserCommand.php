@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class MakeUserCommand extends Command
 {
@@ -35,6 +36,19 @@ class MakeUserCommand extends Command
     {
         parent::__construct();
         $this->pterodactyl = $pterodactyl;
+    }
+
+    /**
+     * @param $userid
+     * @return string
+     */
+    public function generateCode(){
+        $random = STR::random(8);
+        if (User::where('referral_code', '=', $random)->doesntExist()) {
+            return $random;
+        } else {
+            $this->generateCode();
+        }
     }
 
     /**
@@ -78,12 +92,12 @@ class MakeUserCommand extends Command
 
             return 0;
         }
-
         $user = User::create([
             'name' => $response['first_name'],
             'email' => $response['email'],
             'role' => 'admin',
             'password' => Hash::make($password),
+            'referral_code' => $this->generateCode(),
             'pterodactyl_id' => $response['id'],
         ]);
 
@@ -93,6 +107,7 @@ class MakeUserCommand extends Command
             ['Username', $user->name],
             ['Ptero-ID', $user->pterodactyl_id],
             ['Admin', $user->role],
+            ['Referral code', $user->referral_code],
         ]);
 
         return 1;
