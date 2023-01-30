@@ -119,8 +119,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
         //overview
-        Route::get('legal', [OverViewController::class, 'index'])->name('overview.index');
-
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
