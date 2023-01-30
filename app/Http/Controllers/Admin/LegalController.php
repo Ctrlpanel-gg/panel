@@ -17,9 +17,9 @@ class LegalController extends Controller
      */
     public function index()
     {
-        $tos = File::get(Theme::path($path = 'views') . '/information/tos-content.blade.php');
-        $privacy = File::get(Theme::path($path = 'views') . '/information/privacy-content.blade.php');
-        $imprint = File::get(Theme::path($path = 'views') . '/information/imprint-content.blade.php');
+        $tos = File::get(Theme::path($path = 'views', "default") . '/information/tos-content.blade.php');
+        $privacy = File::get(Theme::path($path = 'views', "default") . '/information/privacy-content.blade.php');
+        $imprint = File::get(Theme::path($path = 'views', "default") . '/information/imprint-content.blade.php');
 
         return view('admin.legal.index')->with([
             "tos" => $tos,
@@ -33,9 +33,9 @@ class LegalController extends Controller
         $privacy = $request->privacy;
         $imprint = $request->imprint;
 
-        File::put(Theme::path($path = 'views') . '/information/tos-content.blade.php', $tos);
-        File::put(Theme::path($path = 'views') . '/information/privacy-content.blade.php', $privacy);
-        File::put(Theme::path($path = 'views') . '/information/imprint-content.blade.php', $imprint);
+        File::put(Theme::path($path = 'views', "default") . '/information/tos-content.blade.php', $tos);
+        File::put(Theme::path($path = 'views', "default") . '/information/privacy-content.blade.php', $privacy);
+        File::put(Theme::path($path = 'views', "default") . '/information/imprint-content.blade.php', $imprint);
 
         return back()->with("success",__("Legal pages updated"));
     }
