@@ -30,7 +30,7 @@
     @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
         {!! htmlScriptTagJsApi() !!}
     @endif
-    @vite('themes/default/sass/app.scss')
+    <link rel="stylesheet" href="{{ asset('themes/blue/app.css') }}">
 </head>
 @yield('content')
 

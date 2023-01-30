@@ -37,7 +37,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- tinymce -->
     <script src={{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}></script>
-    @vite('themes/default/sass/app.scss')
+    <link rel="stylesheet" href="{{ asset('themes/blue/app.css') }}">
 </head>
 
 <body class="sidebar-mini layout-fixed dark-mode" style="height: auto;">
