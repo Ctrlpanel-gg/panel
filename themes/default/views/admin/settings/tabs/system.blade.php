@@ -20,11 +20,9 @@
                                 <input value="true" id="show-tos" name="show-tos"
                                        {{ config('SETTINGS::SYSTEM:SHOW_TOS') == 'true' ? 'checked' : '' }}
                                        type="checkbox">
-                                <label for="show-tos">{{ __('Show Terms of Service') }} </label>
+                                <label for="show-tos">{{ __('Show Terms of Service') }}  <small><a href="/admin/legal">({{ __('edit content') }})</a></small> </label>
                             </div>
-                            <i data-toggle="popover" data-trigger="hover" data-html="true"
-                               data-content="{{ __('Show the TOS link in the footer of every page. <br> Edit the content in <b>'.Qirolab\Theme\Theme::path($path = "views").'/information/tos-content.blade.php</b>') }}"
-                               class="fas fa-info-circle"></i>
+
                         </div>
                     </div>
                     <div class="custom-control mb-1 p-0">
@@ -33,11 +31,9 @@
                                 <input value="true" id="show-imprint" name="show-imprint"
                                     {{ config('SETTINGS::SYSTEM:SHOW_IMPRINT') == 'true' ? 'checked' : '' }}
                                     type="checkbox">
-                                <label for="show-imprint">{{ __('Show Imprint') }} </label>
+                                <label for="show-imprint">{{ __('Show Imprint') }} <small><a href="/admin/legal">({{ __('edit content') }})</a></small> </label>
                             </div>
-                            <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Show the imprint link in the footer of every page. <br> Edit the content in <b>'.Qirolab\Theme\Theme::path($path = "views").'/resources/views/information/imprint-content.blade.php</b>') }}"
-                                class="fas fa-info-circle"></i>
+
                         </div>
                     </div>
                     <div class="custom-control mb-1 p-0">
@@ -46,11 +42,9 @@
                                 <input value="true" id="show-privacy" name="show-privacy"
                                     {{ config('SETTINGS::SYSTEM:SHOW_PRIVACY') == 'true' ? 'checked' : '' }}
                                     type="checkbox">
-                                <label for="show-privacy">{{ __('Show Privacy Policy') }} </label>
+                                <label for="show-privacy">{{ __('Show Privacy Policy') }}  <small><a href="/admin/legal">({{ __('edit content') }})</a></small> </label>
                             </div>
-                            <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Show the privacy policy link in the footer of every page. <br> Edit the content in <b>'.Qirolab\Theme\Theme::path($path = "views").'/resources/views/information/privacy-content.blade.php</b>') }}"
-                                class="fas fa-info-circle"></i>
+
                         </div>
                     </div>
                     <div class="custom-control mb-1 p-0">
