@@ -28,7 +28,7 @@
             <div class="row">
                 <div class="col-12">
 
-                    <form x-data="{ payment_method: '', clicked: false }" action="{{ route('payment.pay') }}" method="POST">
+                    <form x-data="{ payment_method: '', clicked: false }" action="{{ $discountpercent >= 100 ? route('payment.FreePay', [$product]) : route('payment.pay') }}" method="POST">
                         @csrf
                         @method('post')
                         <!-- Main content -->
