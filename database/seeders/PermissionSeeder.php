@@ -51,6 +51,14 @@ class PermissionSeeder extends Seeder
     //TODO run only once
     public function createRoles()
     {
+        $userPermissions=[
+            'user.server.create',
+            'user.server.upgrade',
+            'user.shop.buy',
+            'user.ticket.read',
+            'user.ticket.write',
+            'user.referral',
+        ];
         /** @var Role $adminRole */
         $adminRole = Role::updateOrCreate(["name"=>"Admin","color"=>"#fa0000"]);
         $supportRole = Role::updateOrCreate(["name"=>"Support-Team","color"=>"#00b0b3"]);
@@ -58,5 +66,8 @@ class PermissionSeeder extends Seeder
         $userRole =  Role::updateOrCreate(["name"=>"User","color"=>"#0052a3"]);
 
         $adminRole->givePermissionTo(Permission::findByName('*'));
+
+        $userRole->syncPermissions($userPermissions);
+        $clientRole->syncPermissions($userPermissions);
     }
 }
