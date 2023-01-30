@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\PartnerDiscount;
@@ -38,21 +39,29 @@ class PaymentController extends Controller
      */
     public function checkOut(ShopProduct $shopProduct)
     {
-        $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
+        $discount = PartnerDiscount::getDiscount();
+        $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
 
-        // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
         $paymentGateways = [];
-        foreach ($extensions as $extension) {
-            $extensionName = basename($extension);
-            if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
+        if ($price > 0) {
+            $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
 
-            $payment = new \stdClass();
-            $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
-            $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
-            $paymentGateways[] = $payment;
+            // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
+            foreach ($extensions as $extension) {
+                $extensionName = basename($extension);
+                if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
+
+                $payment = new \stdClass();
+                $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
+                $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
+                $paymentGateways[] = $payment;
+            }
         }
 
-        $discount = PartnerDiscount::getDiscount();
+
+
+
+
 
         return view('store.checkout')->with([
             'product' => $shopProduct,
@@ -63,6 +72,7 @@ class PaymentController extends Controller
             'taxpercent' => $shopProduct->getTaxPercent(),
             'total' => $shopProduct->getTotalPrice(),
             'paymentGateways'   => $paymentGateways,
+            'productIsFree' => $price <= 0,
         ]);
     }
 
@@ -71,29 +81,12 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function FreePay(ShopProduct $shopProduct)
+    public function handleFreeProduct(ShopProduct $shopProduct)
     {
-        //check if the product is really free or the discount is 100%
-        if ($shopProduct->getTotalPrice() > 0) return redirect()->route('home')->with('error', __('An error ocured. Please try again.'));
-
-        //give product
         /** @var User $user */
         $user = Auth::user();
 
-        //not updating server limit
-
-        //update User with bought item
-        if ($shopProduct->type == "Credits") {
-            $user->increment('credits', $shopProduct->quantity);
-        } elseif ($shopProduct->type == "Server slots") {
-            $user->increment('server_limit', $shopProduct->quantity);
-        }
-
-        //skipped the referral commission, because the user did not pay anything.
-
-        //not giving client role
-
-        //store payment
+        //create a payment
         $payment = Payment::create([
             'user_id' => $user->id,
             'payment_id' => uniqid(),
@@ -110,6 +103,7 @@ class PaymentController extends Controller
         ]);
 
         event(new UserUpdateCreditsEvent($user));
+        event(new PaymentEvent($user, $payment, $shopProduct));
 
         //not sending an invoice
 
@@ -121,6 +115,12 @@ class PaymentController extends Controller
     {
         $product = ShopProduct::find($request->product_id);
         $paymentGateway = $request->payment_method;
+
+        // on free products, we don't need to use a payment gateway
+        $realPrice = $product->price - ($product->price * PartnerDiscount::getDiscount() / 100);
+        if ($realPrice <= 0) {
+            return $this->handleFreeProduct($product);
+        }
 
         return redirect()->route('payment.' . $paymentGateway . 'Pay', ['shopProduct' => $product->id]);
     }

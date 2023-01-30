@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
 use App\Providers\RouteServiceProvider;
+use App\Traits\Referral;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\App;
@@ -30,7 +31,7 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers;
+    use RegistersUsers, Referral;
 
     /**
      * Where to redirect users after registration.
@@ -85,21 +86,6 @@ class RegisterController extends Controller
         }
 
         return Validator::make($data, $validationRules);
-    }
-
-    /**
-     * Create a unique Referral Code for User
-     *
-     * @return string
-     */
-    protected function createReferralCode()
-    {
-        $referralcode = STR::random(8);
-        if (User::where('referral_code', '=', $referralcode)->exists()) {
-            $this->createReferralCode();
-        }
-
-        return $referralcode;
     }
 
     /**

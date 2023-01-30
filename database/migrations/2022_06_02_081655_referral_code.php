@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Traits\Referral;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -9,16 +10,13 @@ use Illuminate\Support\Str;
 
 return new class extends Migration
 {
-    public function generateCode($userid)
+    use Referral;
+    public function setReferralCode($userid)
     {
-        $random = STR::random(8);
-        if (User::where('referral_code', '=', $random)->doesntExist()) {
-            DB::table('users')
-                    ->where('id', '=', $userid)
-                    ->update(['referral_code' => $random]);
-        } else {
-            $this->generateCode($userid);
-        }
+        $code = $this->createReferralCode();
+        DB::table('users')
+            ->where('id', '=', $userid)
+            ->update(['referral_code' => $code]);
     }
 
     /**
@@ -35,7 +33,7 @@ return new class extends Migration
         $existing_user = User::where('referral_code', '')->orWhere('referral_code', null)->get();
 
         foreach ($existing_user as $user) {
-            $this->generateCode($user->id);
+            $this->setReferralCode($user->id);
         }
     }
 
