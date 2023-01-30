@@ -20,6 +20,10 @@ use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ServerController extends Controller
 {
+    const CREATE_PERMISSIONS = 'user.server.create';
+    const UPGRADE_PERMISSIONS = 'user.server.upgrade';
+
+
     /** Display a listing of the resource. */
     public function index()
     {
@@ -67,6 +71,8 @@ class ServerController extends Controller
     /** Show the form for creating a new resource. */
     public function create()
     {
+        $this->checkPermission(self::CREATE_PERMISSIONS);
+
         if (! is_null($this->validateConfigurationRules())) {
             return $this->validateConfigurationRules();
         }
@@ -297,6 +303,9 @@ class ServerController extends Controller
 
     public function upgrade(Server $server, Request $request)
     {
+        $this->checkPermission(self::UPGRADE_PERMISSIONS);
+
+
         if ($server->user_id != Auth::user()->id) {
             return redirect()->route('servers.index');
         }

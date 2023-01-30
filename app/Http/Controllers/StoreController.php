@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
 {
+    const SHOP_PERMISSIONS = 'user.shop.buy';
     /** Display a listing of the resource. */
     public function index()
     {
+        $this->checkPermission(self::SHOP_PERMISSIONS);
         $isPaymentSetup = false;
 
         if (

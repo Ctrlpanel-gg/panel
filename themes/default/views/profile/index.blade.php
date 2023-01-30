@@ -106,19 +106,20 @@
                                         </div>
 
                                     @if(config('SETTINGS::REFERRAL::ENABLED') == "true")
-                                        @if((config('SETTINGS::REFERRAL::ALLOWED') == "client" && $user->role->id != 4) || config('SETTINGS::REFERRAL::ALLOWED') == "everyone")
+
+                                        @can("user.referral")
                                             <div class="mt-1">
                                                     <span class="badge badge-success"><i
                                                             class="fa fa-user-check mr-2"></i>
-                                                        {{_("Referral URL")}} :
+                                                        {{__("Referral URL")}} :
                                                         <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
                                                             {{route("register")}}?ref={{$user->referral_code}}</span>
                                                     </span>
                                                 @else
                                                     <span class="badge badge-warning"><i
                                                             class="fa fa-user-check mr-2"></i>
-                                                        {{_("Make a purchase to reveal your referral-URL")}}</span>
-                                        @endif
+                                                        {{__("You are not allowed to see your referral Code")}}</span>
+                                        @endcan
                                             </div>
                                         @endif
                                         </div>

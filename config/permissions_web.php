@@ -55,6 +55,9 @@ return [
     'admin.useful_links.read',
     'admin.useful_links.write',
 
+    'admin.legal.read',
+    'admin.legal.write',
+
     'admin.logs.read',
 
     /*
