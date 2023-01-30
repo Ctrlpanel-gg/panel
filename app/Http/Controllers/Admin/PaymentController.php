@@ -39,21 +39,29 @@ class PaymentController extends Controller
      */
     public function checkOut(ShopProduct $shopProduct)
     {
-        $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
+        $discount = PartnerDiscount::getDiscount();
+        $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
 
-        // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
         $paymentGateways = [];
-        foreach ($extensions as $extension) {
-            $extensionName = basename($extension);
-            if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
+        if ($price > 0) {
+            $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
 
-            $payment = new \stdClass();
-            $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
-            $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
-            $paymentGateways[] = $payment;
+            // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
+            foreach ($extensions as $extension) {
+                $extensionName = basename($extension);
+                if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
+
+                $payment = new \stdClass();
+                $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
+                $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
+                $paymentGateways[] = $payment;
+            }
         }
 
-        $discount = PartnerDiscount::getDiscount();
+
+
+
+
 
         return view('store.checkout')->with([
             'product' => $shopProduct,
@@ -64,6 +72,7 @@ class PaymentController extends Controller
             'taxpercent' => $shopProduct->getTaxPercent(),
             'total' => $shopProduct->getTotalPrice(),
             'paymentGateways'   => $paymentGateways,
+            'productIsFree' => $price <= 0,
         ]);
     }
 
