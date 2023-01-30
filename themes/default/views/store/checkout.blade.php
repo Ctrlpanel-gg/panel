@@ -77,22 +77,25 @@
                             <div class="row">
                                 <!-- accepted payments column -->
                                 <div class="col-6">
-                                    <p class="lead">{{ __('Payment Methods') }}:</p>
+                                    @if (!$productIsFree)
+                                        <p class="lead">{{ __('Payment Methods') }}:</p>
 
-                                    <div class="d-flex flex-wrap  flex-direction-row">
+                                        <div class="d-flex flex-wrap  flex-direction-row">
 
-                                        @foreach ($paymentGateways as $gateway)
-                                            <div class="ml-2">
-                                                <label class="text-center" for="{{ $gateway->name }}">
-                                                    <img class="mb-3" height="50" src="{{ $gateway->image }}"></br>
-                                                    <input x-on:click="console.log(payment_method)" x-model="payment_method"
-                                                        type="radio" id="{{ $gateway->name }}"
-                                                        value="{{ $gateway->name }}">
-                                                    </input>
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                            @foreach ($paymentGateways as $gateway)
+                                                <div class="ml-2">
+                                                    <label class="text-center" for="{{ $gateway->name }}">
+                                                        <img class="mb-3" height="50"
+                                                            src="{{ $gateway->image }}"></br>
+                                                        <input x-on:click="console.log(payment_method)"
+                                                            x-model="payment_method" type="radio"
+                                                            id="{{ $gateway->name }}" value="{{ $gateway->name }}">
+                                                        </input>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
 
                                 </div>
                                 <!-- /.col -->
