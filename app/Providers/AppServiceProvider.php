@@ -135,7 +135,7 @@ class AppServiceProvider extends ServiceProvider
                 $branchname = $explodedstring[2]; //get the one that is always the branch name
             } catch (Exception $e) {
                 $branchname = 'unknown';
-                Log::error($e);
+                Log::notice($e);
             }
             config(['BRANCHNAME' => $branchname]);
 
