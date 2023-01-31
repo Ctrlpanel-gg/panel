@@ -53,10 +53,10 @@ class PartnerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  Partner  $voucher
+     * @param  Partner  $partner
      * @return Response
      */
-    public function show(Partner $voucher)
+    public function show(Partner $partner)
     {
         //
     }
@@ -64,7 +64,7 @@ class PartnerController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  Partner  $voucher
+     * @param  Partner  $partner
      * @return Application|Factory|View
      */
     public function edit(PartnerDiscount $partner)
@@ -80,7 +80,7 @@ class PartnerController extends Controller
      * Update the specified resource in storage.
      *
      * @param  Request  $request
-     * @param  Partner  $voucher
+     * @param  Partner  $partner
      * @return RedirectResponse
      */
     public function update(Request $request, PartnerDiscount $partner)
