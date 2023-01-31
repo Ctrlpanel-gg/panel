@@ -39,17 +39,35 @@
                                 @endif
                                 <p><b>Title:</b> {{ $ticket->title }}</p>
                                 <p><b>Category:</b> {{ $ticketcategory->name }}</p>
-                                <p>
-                                    @if ($ticket->status === 'Open')
-                                    <b>Status:</b> <span class="badge badge-success">Open</span>
-                                    @elseif ($ticket->status === 'Closed')
-                                    <b>Status:</b> <span class="badge badge-danger">Closed</span>
-                                    @elseif ($ticket->status === 'Answered')
-                                    <b>Status:</b> <span class="badge badge-info">Answered</span>
-                                    @elseif ($ticket->status === 'Client Reply')
-                                    <b>Status:</b> <span class="badge badge-warning">Client Reply</span>
-                                    @endif
+                                <p><b>Status:</b>
+                                @switch($ticket->status)
+                                        @case("Open")
+                                            <span class="badge badge-success">Open</span>
+                                        @break
+                                        @case("Closed")
+                                            <span class="badge badge-danger">Closed</span>
+                                        @break
+                                        @case("Answered")
+                                            <span class="badge badge-info">Answered</span>
+                                        @break
+                                        @case("Client Reply")
+                                           <span class="badge badge-warning">Client Reply</span>
+                                        @break
+                                    @endswitch
                                 </p>
+                                    <p><b>Priority:</b>
+                                        @switch($ticket->priority)
+                                            @case("Low")
+                                                <span class="badge badge-success">Low</span>
+                                                @break
+                                            @case("Medium")
+                                               <span class="badge badge-warning">Closed</span>
+                                                @break
+                                            @case("High")
+                                               <span class="badge badge-danger">Answered</span>
+                                                @break
+                                        @endswitch
+                                    </p>
                                 <p><b>Created on:</b> {{ $ticket->created_at->diffForHumans() }}</p>
                                 @if($ticket->status!='Closed')
                                     <form class="d-inline"  method="post" action="{{route('moderator.ticket.close', ['ticket_id' => $ticket->ticket_id ])}}">
