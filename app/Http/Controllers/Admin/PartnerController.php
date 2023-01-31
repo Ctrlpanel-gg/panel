@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\PartnerDiscount;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -40,26 +41,19 @@ class PartnerController extends Controller
             'registered_user_discount' => 'required|integer|max:100|min:0',
         ]);
 
+        if(PartnerDiscount::where("user_id",$request->user_id)->exists()){
+            return redirect()->route('admin.partners.index')->with('error', __('Partner already exists'));
+        }
+
         PartnerDiscount::create($request->all());
 
         return redirect()->route('admin.partners.index')->with('success', __('partner has been created!'));
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  Voucher  $voucher
-     * @return Response
-     */
-    public function show(Voucher $voucher)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
-     * @param  Voucher  $voucher
+     * @param  Partner  $partner
      * @return Application|Factory|View
      */
     public function edit(PartnerDiscount $partner)
@@ -75,7 +69,7 @@ class PartnerController extends Controller
      * Update the specified resource in storage.
      *
      * @param  Request  $request
-     * @param  Voucher  $voucher
+     * @param  Partner  $partner
      * @return RedirectResponse
      */
     public function update(Request $request, PartnerDiscount $partner)
@@ -95,7 +89,7 @@ class PartnerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Voucher  $voucher
+     * @param  Partner  $partner
      * @return RedirectResponse
      */
     public function destroy(PartnerDiscount $partner)
@@ -105,81 +99,7 @@ class PartnerController extends Controller
         return redirect()->back()->with('success', __('partner has been removed!'));
     }
 
-    public function users(Voucher $voucher)
-    {
-        return view('admin.vouchers.users', [
-            'voucher' => $voucher,
-        ]);
-    }
 
-    /**
-     * @param  Request  $request
-     * @return JsonResponse
-     *
-     * @throws ValidationException
-     */
-    public function redeem(Request $request)
-    {
-        //general validations
-        $request->validate([
-            'code' => 'required|exists:vouchers,code',
-        ]);
-
-        //get voucher by code
-        $voucher = Voucher::where('code', '=', $request->input('code'))->firstOrFail();
-
-        //extra validations
-        if ($voucher->getStatus() == 'USES_LIMIT_REACHED') {
-            throw ValidationException::withMessages([
-                'code' => __('This voucher has reached the maximum amount of uses'),
-            ]);
-        }
-
-        if ($voucher->getStatus() == 'EXPIRED') {
-            throw ValidationException::withMessages([
-                'code' => __('This voucher has expired'),
-            ]);
-        }
-
-        if (! $request->user()->vouchers()->where('id', '=', $voucher->id)->get()->isEmpty()) {
-            throw ValidationException::withMessages([
-                'code' => __('You already redeemed this voucher code'),
-            ]);
-        }
-
-        if ($request->user()->credits + $voucher->credits >= 99999999) {
-            throw ValidationException::withMessages([
-                'code' => "You can't redeem this voucher because you would exceed the  limit of ".CREDITS_DISPLAY_NAME,
-            ]);
-        }
-
-        //redeem voucher
-        $voucher->redeem($request->user());
-
-        event(new UserUpdateCreditsEvent($request->user()));
-
-        return response()->json([
-            'success' => "{$voucher->credits} ".CREDITS_DISPLAY_NAME.' '.__('have been added to your balance!'),
-        ]);
-    }
-
-    public function usersDataTable(Voucher $voucher)
-    {
-        $users = $voucher->users();
-
-        return datatables($users)
-            ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.$user->name.'</a>';
-            })
-            ->addColumn('credits', function (User $user) {
-                return '<i class="fas fa-coins mr-2"></i> '.$user->credits();
-            })
-            ->addColumn('last_seen', function (User $user) {
-                return $user->last_seen ? $user->last_seen->diffForHumans() : '';
-            })
-            ->rawColumns(['name', 'credits', 'last_seen'])
-            ->make();
-    }
 
     public function dataTable()
     {
