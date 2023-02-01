@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Moderation\TicketCategoryController;
 use App\Http\Controllers\Moderation\TicketsController as ModTicketsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController as FrontProductController;
@@ -218,6 +219,13 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::post('ticket/blacklist/delete/{id}', [ModTicketsController::class, 'blacklistDelete'])->name('ticket.blacklist.delete');
         Route::post('ticket/blacklist/change/{id}', [ModTicketsController::class, 'blacklistChange'])->name('ticket.blacklist.change');
         Route::get('ticket/blacklist/datatable', [ModTicketsController::class, 'dataTableBlacklist'])->name('ticket.blacklist.datatable');
+
+
+        Route::get('ticket/category', [TicketCategoryController::class, 'index'])->name('ticket.category.index');
+        Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
+        Route::post('ticket/category', [TicketCategoryController::class, 'store'])->name('ticket.category.store');
+        Route::delete('ticket/category/destroy/{id}', [TicketCategoryController::class, 'destroy'])->name('ticket.category.destroy');
+
     });
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
