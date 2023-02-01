@@ -208,11 +208,20 @@
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
-                                                    <span class="d-inline-block"><i class="fa fa-coins"></i>
+                                                    <<<<<<< HEAD:themes/default/views/servers/create.blade.php <span
+                                                        class="d-inline-block"><i class="fa fa-coins"></i>
                                                         {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }}
                                                         {{ __('to create this server') }}</span>
-                                                    <span class="d-inline-block"
-                                                        x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credits"></span>
+                                                        <span class="d-inline-block"
+                                                            x-text="product.minimum_credits === -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credit"></span>
+                                                        =======
+                                                        <span class="d-inline-block"><i class="fas fa-clock"></i>
+                                                            {{ __('Billing Period') }}</span>
+
+                                                        <span class="d-inline-block"
+                                                            x-text="product.billing_period"></span>
+                                                        >>>>>>>
+                                                        addon/billing_system:resources/views/servers/create.blade.php
                                                 </li>
                                             </ul>
                                         </div>
@@ -224,8 +233,8 @@
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
                                         <div class="d-flex justify-content-between p-2">
-                                            <span class="d-inline-block mr-4">
-                                                {{ __('Price') }}:
+                                            <span class="d-inline-block mr-4"
+                                                x-text="'{{ __('Price') }}' + ' (' + product.billing_period + ')'">
                                             </span>
                                             <span class="d-inline-block"
                                                 x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
@@ -237,11 +246,11 @@
                                     <div>
                                         <button type="submit" x-model="selectedProduct" name="product"
                                             :disabled="product.minimum_credits > user.credits || product.doesNotFit == true ||
-                                                submitClicked"
+                                                product.price > user.credits || submitClicked"
                                             :class="product.minimum_credits > user.credits || product.doesNotFit == true ||
-                                                submitClicked ? 'disabled' : ''"
+                                                product.price > user.credits || submitClicked ? 'disabled' : ''"
                                             class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
-                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
+                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
                                         </button>
                                     </div>
                                 </div>
@@ -372,6 +381,7 @@
                         .catch(console.error)
 
                     this.fetchedProducts = true;
+
                     // TODO: Sortable by user chosen property (cpu, ram, disk...)
                     this.products = response.data.sort((p1, p2) => parseInt(p1.price, 10) > parseInt(p2.price, 10) &&
                         1 || -1)
@@ -381,10 +391,18 @@
                         product.cpu = product.cpu / 100;
                     })
 
+                    //format price to have no decimals if it is a whole number
+                    this.products.forEach(product => {
+                        if (product.price % 1 === 0) {
+                            product.price = Math.round(product.price);
+                        }
+                    })
+
 
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
+
 
                 /**
                  * @description map selected id's to selected objects

@@ -66,6 +66,7 @@
                                             <label for="price">{{__('Price in')}} {{CREDITS_DISPLAY_NAME}}</label>
                                             <input value="{{$product->price ??  old('price')}}" id="price" name="price" step=".01"
                                                    type="number"
+                                                   step="0.0001"
                                                    class="form-control @error('price') is-invalid @enderror"
                                                    required="required">
                                             @error('price')
@@ -117,6 +118,20 @@
                                         </div>
 
                                         <div class="form-group">
+                                            <label for="allocations">{{__('Allocations')}}</label>
+                                            <input value="{{$product->allocations ?? old('allocations') ?? 0}}"
+                                                   id="allocations" name="allocations"
+                                                   type="number"
+                                                   class="form-control @error('allocations') is-invalid @enderror"
+                                                   required="required">
+                                            @error('allocations')
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group">
                                             <label for="description">{{__('Description')}} <i data-toggle="popover"
                                                                                               data-trigger="hover"
                                                                                               data-content="{{__('This is what the users sees')}}"
@@ -142,6 +157,43 @@
                                                    class="form-control @error('disk') is-invalid @enderror"
                                                    required="required">
                                             @error('disk')
+                                            <div class="invalid-feedback">
+                                                {{ $message }}
+                                            </div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="billing_period">{{__('Billing Period')}} <i
+                                                    data-toggle="popover" data-trigger="hover"
+                                                    data-content="{{__('Period when the user will be charged for the given price')}}"
+                                                    class="fas fa-info-circle"></i></label>
+
+                                            <select id="billing_period" style="width:100%" class="custom-select" name="billing_period" required
+                                                autocomplete="off" @error('billing_period') is-invalid @enderror>
+                                                    <option value="hourly" selected>
+                                                        {{__('Hourly')}}
+                                                    </option>
+                                                    <option value="daily">
+                                                        {{__('Daily')}}
+                                                    </option>
+                                                    <option value="weekly">
+                                                        {{__('Weekly')}}
+                                                    </option>
+                                                     <option value="monthly">
+                                                        {{__('Monthly')}}
+                                                    </option>
+                                                    <option value="quarterly">
+                                                        {{__('Quarterly')}}
+                                                    </option>
+                                                    <option value="half-annually">
+                                                        {{__('Half Annually')}}
+                                                    </option>
+                                                    <option value="annually">
+                                                        {{__('Annually')}}
+                                                    </option>
+                                            </select>
+                                            @error('billing_period')
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
@@ -200,19 +252,6 @@
                                                    class="form-control @error('backups') is-invalid @enderror"
                                                    required="required">
                                             @error('backups')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                            @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="allocations">{{__('Allocations')}}</label>
-                                            <input value="{{$product->allocations ?? old('allocations') ?? 0}}"
-                                                   id="allocations" name="allocations"
-                                                   type="number"
-                                                   class="form-control @error('allocations') is-invalid @enderror"
-                                                   required="required">
-                                            @error('allocations')
                                             <div class="invalid-feedback">
                                                 {{ $message }}
                                             </div>
