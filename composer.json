@@ -26,6 +26,7 @@
         "socialiteproviders/discord": "^4.1",
         "spatie/laravel-activitylog": "^4.4",
         "spatie/laravel-query-builder": "^5.0",
+        "spatie/laravel-settings": "^2.7",
         "spatie/laravel-validation-rules": "^3.2",
         "stripe/stripe-php": "^7.107",
         "symfony/http-client": "^6.2",
