@@ -86,12 +86,13 @@
                 serverSide: true,
                 stateSave: true,
                 ajax: "{{route('ticket.datatable')}}",
+                order: [[ 4, "desc" ]],
                 columns: [
                     {data: 'category'},
                     {data: 'title'},
                     {data: 'priority'},
                     {data: 'status'},
-                    {data: 'updated_at', sortable: false},
+                    {data: 'updated_at', type: 'num', render: {_: 'display', sort: 'raw'}},
                     {data: 'actions', sortable: false},
                 ],
                 fnDrawCallback: function( oSettings ) {

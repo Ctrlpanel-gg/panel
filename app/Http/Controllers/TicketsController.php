@@ -145,7 +145,8 @@ class TicketsController extends Controller
                 return __($tickets->priority);
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
-                return $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '';
+                return ['display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
+                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
             })
             ->addColumn('actions', function (Ticket $tickets) {
                 return '
