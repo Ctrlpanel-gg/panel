@@ -108,7 +108,7 @@
                             <div class="card-body">
                                 <div class="form-group col-sm-12 {{ $errors->has('message') ? ' has-error' : '' }}">
                                     <label for="message" class="control-label">Message</label>
-                                    <textarea rows="8" id="message" class="form-control" name="message"></textarea>
+                                    <textarea rows="8" id="message" class="form-control" name="message">{{old("message")}}</textarea>
                                     @if ($errors->has('message'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('message') }}</strong>
