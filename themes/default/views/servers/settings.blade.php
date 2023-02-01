@@ -243,7 +243,10 @@
                                         </button>
                                     </div>
                                     <div class="modal-body card-body">
-                                        <strong>{{__("Current Product")}}: </strong> {{ $server->product->name }}
+                                        <strong>{{__("FOR DOWNGRADE PLEASE CHOOSE A PLAN BELOW YOUR PLAN")}}</strong>
+                                        <br>
+                                        <br>
+                                        <strong>{{__("YOUR PRODUCT")}} : </strong> {{ $server->product->name }}
                                         <br>
                                         <br>
 
@@ -253,13 +256,12 @@
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
                                                   @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && $product->disabled == false)
-                                                    <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} @if($product->doesNotFit)] {{__('Server can\'t fit on this node')}} @else @if($product->minimum_credits!=-1) /
+                                                    <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} @if($product->doesNotFit)] {{__('Server can´t fit on this node')}} @else @if($product->minimum_credits!=-1) /
                                                         {{__("Required")}}: {{$product->minimum_credits}} {{ CREDITS_DISPLAY_NAME }}@endif ] @endif</option>
                                                   @endif
                                               @endforeach
                                           </select>
-                                          
-                                          <br> <strong>{{__("Caution") }}:</strong> {{__("Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed")}}. <br>
+                                          <br> {{__("Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits")}}. <br>
                                           <br> {{__("Server will be automatically restarted once upgraded")}}
                                     </div>
                                     <div class="modal-footer card-body">

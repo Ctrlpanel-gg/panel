@@ -9,16 +9,6 @@ use Illuminate\Support\Facades\Storage;
 class Kernel extends ConsoleKernel
 {
     /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
-    protected $commands = [
-        Commands\ChargeCreditsCommand::class,
-        Commands\ChargeServers::class,
-    ];
-
-    /**
      * Define the application's command schedule.
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
@@ -26,12 +16,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('servers:charge')->everyMinute();
+        $schedule->command('credits:charge')->hourly();
         $schedule->command('cp:versioncheck:get')->daily();
 
         //log cronjob activity
         $schedule->call(function () {
-            Storage::disk('logs')->put('cron.log', 'Last activity from cronjobs - ' . now());
+            Storage::disk('logs')->put('cron.log', 'Last activity from cronjobs - '.now());
         })->everyMinute();
     }
 
@@ -42,7 +32,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

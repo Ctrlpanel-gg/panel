@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Classes\Pterodactyl;
-use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Hidehalo\Nanoid\Client;
@@ -25,9 +24,9 @@ class Server extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnlyDirty()
-            ->logOnly(['*'])
-            ->dontSubmitEmptyLogs();
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
     }
     /**
      * @var bool
@@ -48,14 +47,12 @@ class Server extends Model
      * @var string[]
      */
     protected $fillable = [
-        "name",
-        "description",
-        "suspended",
-        "identifier",
-        "product_id",
-        "pterodactyl_id",
-        "last_billed",
-        "cancelled"
+        'name',
+        'description',
+        'suspended',
+        'identifier',
+        'product_id',
+        'pterodactyl_id',
     ];
 
     /**
@@ -77,7 +74,7 @@ class Server extends Model
 
         static::deleting(function (Server $server) {
             $response = Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
-            if ($response->failed() && !is_null($server->pterodactyl_id)) {
+            if ($response->failed() && ! is_null($server->pterodactyl_id)) {
                 //only return error when it's not a 404 error
                 if ($response['errors'][0]['status'] != '404') {
                     throw new Exception($response['errors'][0]['code']);
@@ -91,7 +88,7 @@ class Server extends Model
      */
     public function isSuspended()
     {
-        return !is_null($this->suspended);
+        return ! is_null($this->suspended);
     }
 
     /**
@@ -128,10 +125,8 @@ class Server extends Model
         if ($response->successful()) {
             $this->update([
                 'suspended' => null,
-                'last_billed' => Carbon::now()->toDateTimeString(),
             ]);
         }
-
 
         return $this;
     }

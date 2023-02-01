@@ -97,7 +97,7 @@ class HomeController extends Controller
 
         /** Build our Time-Left-Box */
         if ($credits > 0.01 and $usage > 0) {
-            $daysLeft = number_format($credits / ($usage / 30), 2, '.', '');
+            $daysLeft = number_format(($credits * 30) / $usage, 2, '.', '');
             $hoursLeft = number_format($credits / ($usage / 30 / 24), 2, '.', '');
 
             $bg = $this->getTimeLeftBoxBackground($daysLeft);

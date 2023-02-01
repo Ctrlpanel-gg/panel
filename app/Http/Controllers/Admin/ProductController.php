@@ -57,25 +57,24 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            "name" => "required|max:30",
-            "price" => "required|numeric|max:1000000|min:0",
-            "memory" => "required|numeric|max:1000000|min:5",
-            "cpu" => "required|numeric|max:1000000|min:0",
-            "swap" => "required|numeric|max:1000000|min:0",
-            "description" => "required|string|max:191",
-            "disk" => "required|numeric|max:1000000|min:5",
-            "minimum_credits" => "required|numeric|max:1000000|min:-1",
-            "io" => "required|numeric|max:1000000|min:0",
-            "databases" => "required|numeric|max:1000000|min:0",
-            "backups" => "required|numeric|max:1000000|min:0",
-            "allocations" => "required|numeric|max:1000000|min:0",
-            "nodes.*" => "required|exists:nodes,id",
-            "eggs.*" => "required|exists:eggs,id",
-            "disabled" => "nullable",
-            "billing_period" => "required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually",
+            'name' => 'required|max:30',
+            'price' => 'required|numeric|max:1000000|min:0',
+            'memory' => 'required|numeric|max:1000000|min:5',
+            'cpu' => 'required|numeric|max:1000000|min:0',
+            'swap' => 'required|numeric|max:1000000|min:0',
+            'description' => 'required|string|max:191',
+            'disk' => 'required|numeric|max:1000000|min:5',
+            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'io' => 'required|numeric|max:1000000|min:0',
+            'databases' => 'required|numeric|max:1000000|min:0',
+            'backups' => 'required|numeric|max:1000000|min:0',
+            'allocations' => 'required|numeric|max:1000000|min:0',
+            'nodes.*' => 'required|exists:nodes,id',
+            'eggs.*' => 'required|exists:eggs,id',
+            'disabled' => 'nullable',
         ]);
 
-        $disabled = !is_null($request->input('disabled'));
+        $disabled = ! is_null($request->input('disabled'));
         $product = Product::create(array_merge($request->all(), ['disabled' => $disabled]));
 
         //link nodes and eggs
@@ -124,25 +123,24 @@ class ProductController extends Controller
     public function update(Request $request, Product $product): RedirectResponse
     {
         $request->validate([
-            "name" => "required|max:30",
-            "price" => "required|numeric|max:1000000|min:0",
-            "memory" => "required|numeric|max:1000000|min:5",
-            "cpu" => "required|numeric|max:1000000|min:0",
-            "swap" => "required|numeric|max:1000000|min:0",
-            "description" => "required|string|max:191",
-            "disk" => "required|numeric|max:1000000|min:5",
-            "io" => "required|numeric|max:1000000|min:0",
-            "minimum_credits" => "required|numeric|max:1000000|min:-1",
-            "databases" => "required|numeric|max:1000000|min:0",
-            "backups" => "required|numeric|max:1000000|min:0",
-            "allocations" => "required|numeric|max:1000000|min:0",
-            "nodes.*" => "required|exists:nodes,id",
-            "eggs.*" => "required|exists:eggs,id",
-            "disabled" => "nullable",
-            "billing_period" => "required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually",
+            'name' => 'required|max:30',
+            'price' => 'required|numeric|max:1000000|min:0',
+            'memory' => 'required|numeric|max:1000000|min:5',
+            'cpu' => 'required|numeric|max:1000000|min:0',
+            'swap' => 'required|numeric|max:1000000|min:0',
+            'description' => 'required|string|max:191',
+            'disk' => 'required|numeric|max:1000000|min:5',
+            'io' => 'required|numeric|max:1000000|min:0',
+            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'databases' => 'required|numeric|max:1000000|min:0',
+            'backups' => 'required|numeric|max:1000000|min:0',
+            'allocations' => 'required|numeric|max:1000000|min:0',
+            'nodes.*' => 'required|exists:nodes,id',
+            'eggs.*' => 'required|exists:eggs,id',
+            'disabled' => 'nullable',
         ]);
 
-        $disabled = !is_null($request->input('disabled'));
+        $disabled = ! is_null($request->input('disabled'));
         $product->update(array_merge($request->all(), ['disabled' => $disabled]));
 
         //link nodes and eggs
@@ -161,7 +159,7 @@ class ProductController extends Controller
      */
     public function disable(Request $request, Product $product)
     {
-        $product->update(['disabled' => !$product->disabled]);
+        $product->update(['disabled' => ! $product->disabled]);
 
         return redirect()->route('admin.products.index')->with('success', 'Product has been updated!');
     }
@@ -196,14 +194,14 @@ class ProductController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
                 return '
-                            <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.show', $product->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
-                            <a data-content="' . __('Clone') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.clone', $product->id) . '" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
-                            <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.products.edit', $product->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
+                            <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
+                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.products.destroy', $product->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.destroy', $product->id).'">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })
@@ -221,18 +219,18 @@ class ProductController extends Controller
                 $checked = $product->disabled == false ? 'checked' : '';
 
                 return '
-                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.products.disable', $product->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('PATCH') . '
+                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.disable', $product->id).'">
+                            '.csrf_field().'
+                            '.method_field('PATCH').'
                             <div class="custom-control custom-switch">
-                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $product->id . '">
-                            <label class="custom-control-label" for="switch' . $product->id . '"></label>
+                            <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
+                            <label class="custom-control-label" for="switch'.$product->id.'"></label>
                           </div>
                        </form>
                 ';
             })
             ->editColumn('minimum_credits', function (Product $product) {
-                return $product->minimum_credits == -1 ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') : $product->minimum_credits;
+                return $product->minimum_credits==-1 ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') : $product->minimum_credits;
             })
             ->editColumn('created_at', function (Product $product) {
                 return $product->created_at ? $product->created_at->diffForHumans() : '';
