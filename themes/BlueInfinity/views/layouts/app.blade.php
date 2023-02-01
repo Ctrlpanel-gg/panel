@@ -13,8 +13,8 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
-        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? \Illuminate\Support\Facades\Storage::disk('public')->url('favicon.ico') : asset('favicon.ico') }}"
-        type="image/x-icon">
+          href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? \Illuminate\Support\Facades\Storage::disk('public')->url('favicon.ico') : asset('favicon.ico') }}"
+          type="image/x-icon">
 
     <script src="{{ asset('js/app.js') }}" defer></script>
 
@@ -23,14 +23,14 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
     <link rel="preload" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}" as="style"
-        onload="this.onload=null;this.rel='stylesheet'">
+          onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
     @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
         {!! htmlScriptTagJsApi() !!}
     @endif
-    <link rel="stylesheet" href="{{ asset('themes/blue/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('themes/BlueInfinity/app.css') }}">
 </head>
 @yield('content')
 
@@ -38,28 +38,28 @@
 
 <script>
     @if (Session::has('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            html: '{{ Session::get('error') }}',
-        })
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        html: '{{ Session::get('error') }}',
+    })
     @endif
 
     @if (Session::has('success'))
-        Swal.fire({
-            icon: 'success',
-            title: '{{ Session::get('success') }}',
-            position: 'top-end',
-            showConfirmButton: false,
-            background: '#343a40',
-            toast: true,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
+    Swal.fire({
+        icon: 'success',
+        title: '{{ Session::get('success') }}',
+        position: 'top-end',
+        showConfirmButton: false,
+        background: '#343a40',
+        toast: true,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
     @endif
 </script>
 
