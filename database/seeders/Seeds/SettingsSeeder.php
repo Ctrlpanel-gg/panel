@@ -4,7 +4,6 @@ namespace Database\Seeders\Seeds;
 
 use App\Models\Settings;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class SettingsSeeder extends Seeder
 {
@@ -15,7 +14,6 @@ class SettingsSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('settings_old', 'old')->where('');
         //initials
         Settings::firstOrCreate([
             'key' => 'SETTINGS::USER:INITIAL_CREDITS',
