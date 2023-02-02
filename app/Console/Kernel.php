@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('credits:charge')->hourly();
         $schedule->command('cp:versioncheck:get')->daily();
-        $schedule->command('payments:clear')->daily();
+        $schedule->command('payments:open:clear')->daily();
 
         //log cronjob activity
         $schedule->call(function () {

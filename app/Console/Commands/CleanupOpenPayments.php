@@ -12,7 +12,7 @@ class CleanupPayments extends Command
      *
      * @var string
      */
-    protected $signature = 'payments:clear';
+    protected $signature = 'payments:open:clear';
 
     /**
      * The console command description.
