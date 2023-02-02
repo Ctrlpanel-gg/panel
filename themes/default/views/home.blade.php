@@ -133,7 +133,7 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        @foreach ($useful_links as $useful_link)
+                        @foreach ($useful_links_dashboard as $useful_link)
                             <div class="alert alert-dismissible">
                                 <button type="button" class="close" data-dismiss="alert"
                                     aria-hidden="true">×</button>

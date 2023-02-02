@@ -111,7 +111,7 @@ class HomeController extends Controller
         return view('home')->with([
             'usage' => $usage,
             'credits' => $credits,
-            'useful_links' => UsefulLink::where("position","like","%dashboard%")->get()->sortby("id"),
+            'useful_links_dashboard' => UsefulLink::where("position","like","%dashboard%")->get()->sortby("id"),
             'bg' => $bg,
             'boxText' => $boxText,
             'unit' => $unit,
