@@ -13,6 +13,7 @@ class Payment extends Model
     use HasFactory;
 
     public $incrementing = false;
+    protected $primaryKey = 'id';
 
     /**
      * @var string[]
