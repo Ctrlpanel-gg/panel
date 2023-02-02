@@ -16,8 +16,8 @@ class TicketCategoryController extends Controller
      */
     public function index()
     {
-
-        return view('moderator.ticket.category');
+        $categories = TicketCategory::all();
+        return view('moderator.ticket.category')->with("categories",$categories);
     }
 
     /**
@@ -38,28 +38,26 @@ class TicketCategoryController extends Controller
         return redirect(route("moderator.ticket.category.index"))->with("success",__("Category created"));
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $request->validate([
+            'category' => 'required|int',
+            'name' => 'required|string|max:191',
+        ]);
+
+        $category = TicketCategory::where("id",$request->category)->firstOrFail();
+
+        $category->name = $request->name;
+        $category->save();
+
+        return redirect()->back()->with("success",__("Category name updated"));
+
     }
 
     /**
@@ -103,7 +101,6 @@ class TicketCategoryController extends Controller
             })
             ->addColumn('actions', function (TicketCategory $category) {
                 return '
-
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('moderator.ticket.category.destroy', $category->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'

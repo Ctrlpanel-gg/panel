@@ -221,10 +221,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('ticket/blacklist/datatable', [ModTicketsController::class, 'dataTableBlacklist'])->name('ticket.blacklist.datatable');
 
 
-        Route::get('ticket/category', [TicketCategoryController::class, 'index'])->name('ticket.category.index');
         Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
-        Route::post('ticket/category', [TicketCategoryController::class, 'store'])->name('ticket.category.store');
-        Route::delete('ticket/category/destroy/{id}', [TicketCategoryController::class, 'destroy'])->name('ticket.category.destroy');
+        Route::resource("ticket/category", TicketCategoryController::class,['as' => 'ticket']);
 
     });
 

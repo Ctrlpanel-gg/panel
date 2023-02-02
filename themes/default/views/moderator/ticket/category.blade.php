@@ -68,9 +68,36 @@
                             </form>
                         </div>
                     </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">{{__('Edit Category')}}
+                        </div>
+                        <div class="card-body">
+                            <form action="{{route("moderator.ticket.category.update","1")}}" method="POST" class="ticket-form">
+                                @csrf
+                                @method('PATCH')
+                                <select id="category" style="width:100%" class="custom-select" name="category"
+                                        required autocomplete="off" @error('category') is-invalid @enderror>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->id }}">{{ __($category->name) }}</option>
+                                    @endforeach
+                                </select>
+
+                                <div class="form-group ">
+                                    <label for="name" class="control-label">{{__("New Name")}}</label>
+                                    <input id="name" type="text" class="form-control" name="name" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    {{__('Submit')}}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+
     </section>
     <!-- END CONTENT -->
     <script>
@@ -95,6 +122,11 @@
                 }
             });
         });
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+            $('.custom-select').select2();
+        })
+
     </script>
 @endsection
 
