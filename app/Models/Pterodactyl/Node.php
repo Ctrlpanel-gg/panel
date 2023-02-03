@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Pterodactyl;
 
-use App\Classes\Pterodactyl;
+use App\Classes\PterodactylClient;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,7 +32,8 @@ class Node extends Model
     public static function syncNodes()
     {
         Location::syncLocations();
-        $nodes = Pterodactyl::getNodes();
+        $client = app(PterodactylClient::class);
+        $nodes = $client->getNodes();
 
         //map response
         $nodes = array_map(function ($node) {
