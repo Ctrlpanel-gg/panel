@@ -18,4 +18,22 @@ class PterodactylSettings extends Settings
     {
         return 'pterodactyl';
     }
+
+    public static function encrypted(): array
+    {
+        return [
+            'admin_token',
+            'user_token'
+        ];
+    }
+
+    /**
+     * Get url with ensured ending backslash
+     *
+     * @return string
+     */
+    public function getUrl(): string
+    {
+        return str_ends_with($this->panel_url, '/') ? $this->panel_url : $this->panel_url . '/';
+    }
 }
