@@ -58,11 +58,6 @@ class PaymentController extends Controller
             }
         }
 
-
-
-
-
-
         return view('store.checkout')->with([
             'product' => $shopProduct,
             'discountpercent' => $discount,

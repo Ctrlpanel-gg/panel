@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Nest;
 use App\Models\Product;
+use App\Settings\UserSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -39,7 +40,7 @@ class ProductController extends Controller
         ]);
     }
 
-    public function clone(Request $request, Product $product)
+    public function clone(Product $product)
     {
         return view('admin.products.create', [
             'product' => $product,
@@ -90,11 +91,11 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return Application|Factory|View
      */
-    public function show(Product $product)
+    public function show(Product $product, UserSettings $user_settings)
     {
         return view('admin.products.show', [
             'product' => $product,
-            'minimum_credits' => config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER'),
+            'minimum_credits' => $user_settings->min_credits_to_make_server,
         ]);
     }
 
@@ -157,7 +158,7 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return RedirectResponse
      */
-    public function disable(Request $request, Product $product)
+    public function disable(Product $product)
     {
         $product->update(['disabled' => ! $product->disabled]);
 

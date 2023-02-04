@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
@@ -106,7 +105,7 @@ class RegisterController extends Controller
 
         ]);
 
-        $response = Pterodactyl::client()->post('/application/users', [
+        $response = $this->pterodactyl->client_admin->post('/application/users', [
             'external_id' => App::environment('local') ? Str::random(16) : (string) $user->id,
             'username' => $user->name,
             'email' => $user->email,

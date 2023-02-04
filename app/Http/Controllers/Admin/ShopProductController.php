@@ -117,7 +117,7 @@ class ShopProductController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function disable(Request $request, ShopProduct $shopProduct)
+    public function disable(ShopProduct $shopProduct)
     {
         $shopProduct->update(['disabled' => !$shopProduct->disabled]);
 

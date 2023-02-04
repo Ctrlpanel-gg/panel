@@ -64,7 +64,7 @@ class ServerController extends Controller
 
             // try to update the owner on pterodactyl
             try {
-                $response = $this->client->updateServerOwner($server, $user->pterodactyl_id);
+                $response = $this->pterodactyl->updateServerOwner($server, $user->pterodactyl_id);
                 if ($response->getStatusCode() != 200) {
                     return redirect()->back()->with('error', 'Failed to update server owner on pterodactyl');
                 }
@@ -127,7 +127,7 @@ class ServerController extends Controller
             }
         }
 
-        foreach ($this->client->getServers() as $server) { //go thru all ptero servers, if server exists, change value to true in array.
+        foreach ($this->pterodactyl->getServers() as $server) { //go thru all ptero servers, if server exists, change value to true in array.
             if (isset($CPIDArray[$server['attributes']['id']])) {
                 $CPIDArray[$server['attributes']['id']] = true;
 
@@ -147,7 +147,7 @@ class ServerController extends Controller
         }, ARRAY_FILTER_USE_BOTH); //Array of servers, that dont exist on ptero (value == false)
         $deleteCount = 0;
         foreach ($filteredArray as $key => $CPID) { //delete servers that dont exist on ptero anymore
-            if (!$this->client->getServerAttributes($key, true)) {
+            if (!$this->pterodactyl->getServerAttributes($key, true)) {
                 $deleteCount++;
             }
         }
