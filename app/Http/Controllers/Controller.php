@@ -14,12 +14,12 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public $client = null;
+    public $pterodactyl = null;
 
     public function __construct(PterodactylSettings $ptero_settings)
     {
         try {
-            $this->client = new PterodactylClient($ptero_settings);
+            $this->pterodactyl = new PterodactylClient($ptero_settings);
         }
         catch (Exception $exception) {
             
