@@ -31,7 +31,7 @@ class UserController extends Controller
      * @param  Request  $request
      * @return Application|Factory|View|Response
      */
-    public function index(Request $request)
+    public function index()
     {
         return view('admin.users.index');
     }
@@ -118,7 +118,7 @@ class UserController extends Controller
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
 
-        if (isset($this->client->getUser($request->input('pterodactyl_id'))['errors'])) {
+        if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => [__("User does not exists on pterodactyl's panel")],
             ]);
@@ -160,7 +160,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return RedirectResponse
      */
-    public function verifyEmail(Request $request, User $user)
+    public function verifyEmail(User $user)
     {
         $user->verifyEmail();
 
@@ -198,7 +198,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function notifications(User $user)
+    public function notifications()
     {
         return view('admin.users.notifications');
     }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Classes\Pterodactyl;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
@@ -95,7 +94,7 @@ class UserController extends Controller
 
         //Update Users Password on Pterodactyl
         //Username,Mail,First and Lastname are required aswell
-        $response = Pterodactyl::client()->patch('/application/users/' . $user->pterodactyl_id, [
+        $response = $this->pterodactyl->client_admin->patch('/application/users/' . $user->pterodactyl_id, [
             'username' => $request->name,
             'first_name' => $request->name,
             'last_name' => $request->name,
@@ -203,7 +202,7 @@ class UserController extends Controller
      *
      * @throws ValidationException
      */
-    public function suspend(Request $request, int $id)
+    public function suspend(int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
@@ -227,7 +226,7 @@ class UserController extends Controller
      *
      * @throws ValidationException
      */
-    public function unsuspend(Request $request, int $id)
+    public function unsuspend(int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
@@ -270,7 +269,7 @@ class UserController extends Controller
             'referral_code' => $this->createReferralCode(),
         ]);
 
-        $response = Pterodactyl::client()->post('/application/users', [
+        $response = $this->pterodactyl->client_admin->post('/application/users', [
             'external_id' => App::environment('local') ? Str::random(16) : (string) $user->id,
             'username' => $user->name,
             'email' => $user->email,
