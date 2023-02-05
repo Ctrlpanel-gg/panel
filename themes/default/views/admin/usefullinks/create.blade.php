@@ -128,7 +128,6 @@
     <!-- END CONTENT -->
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
 // Summernote
             $('#description').summernote({
                 height: 100,
@@ -145,8 +144,6 @@
                 ]
             })
         })
-
-
     </script>
 
 @endsection

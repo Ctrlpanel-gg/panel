@@ -112,7 +112,6 @@
                                     @enderror
                                 </div>
 
-
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">
                                         {{__('Submit')}}
@@ -130,7 +129,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
 // Summernote
             $('#description').summernote({
                 height: 100,
