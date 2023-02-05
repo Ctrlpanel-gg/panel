@@ -10,6 +10,6 @@ function getConfig()
         "RoutesIgnoreCsrf" => [
             "payment/StripeWebhooks",
         ],
-        "enabled" => config('SETTINGS::PAYMENTS:STRIPE:SECRET') && config('SETTINGS::PAYMENTS:STRIPE:CLIENT_ID'),
+        "enabled" => config('SETTINGS::PAYMENTS:STRIPE:SECRET') && config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET'),
     ];
 }
