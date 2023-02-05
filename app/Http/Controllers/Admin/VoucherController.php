@@ -6,6 +6,7 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Voucher;
+use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -22,9 +23,11 @@ class VoucherController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function index()
+    public function index(LocaleSettings $locale_settings)
     {
-        return view('admin.vouchers.index');
+        return view('admin.vouchers.index', [
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     /**
@@ -117,10 +120,11 @@ class VoucherController extends Controller
         return redirect()->back()->with('success', __('voucher has been removed!'));
     }
 
-    public function users(Voucher $voucher)
+    public function users(Voucher $voucher, LocaleSettings $locale_settings)
     {
         return view('admin.vouchers.users', [
             'voucher' => $voucher,
+            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
