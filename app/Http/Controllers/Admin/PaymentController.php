@@ -43,7 +43,6 @@ class PaymentController extends Controller
         $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
 
         $paymentGateways = [];
-
         if ($price > 0) {
             $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
 
@@ -58,6 +57,11 @@ class PaymentController extends Controller
                 $paymentGateways[] = $payment;
             }
         }
+
+
+
+
+
 
         return view('store.checkout')->with([
             'product' => $shopProduct,
