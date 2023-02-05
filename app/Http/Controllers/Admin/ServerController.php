@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
+use App\Settings\LocaleSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -21,9 +22,11 @@ class ServerController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function index()
+    public function index(LocaleSettings $locale_settings)
     {
-        return view('admin.servers.index');
+        return view('admin.servers.index', [
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     /**

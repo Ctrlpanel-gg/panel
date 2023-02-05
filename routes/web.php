@@ -105,15 +105,14 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
     //ticket user
-    if (config('SETTINGS::TICKET:ENABLED')) {
-        Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
-        Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
-        Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
-        Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:ticket-new'])->name('ticket.new.store');
-        Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
-        Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:ticket-reply'])->name('ticket.reply');
-        Route::post('ticket/close/{ticket_id}', [TicketsController::class, 'close'])->name('ticket.close');
-    }
+    Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
+    Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
+    Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
+    Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:ticket-new'])->name('ticket.new.store');
+    Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
+    Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:ticket-reply'])->name('ticket.reply');
+    Route::post('ticket/close/{ticket_id}', [TicketsController::class, 'close'])->name('ticket.close');
+    
 
     //admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {

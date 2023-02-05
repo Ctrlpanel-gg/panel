@@ -22,6 +22,8 @@ class WebsiteSettings extends Settings
 
     public string $seo_description;
 
+    public bool $enable_login_logo;
+
     public static function group(): string
     {
         return 'website';

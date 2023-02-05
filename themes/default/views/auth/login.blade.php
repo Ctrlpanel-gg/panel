@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
 @section('content')
-
+    @php($website_settings = app(App\Settings\WebsiteSettings::class))
     <body class="hold-transition dark-mode login-page">
         <div class="login-box">
             <!-- /.login-logo -->
             <div class="card card-outline card-primary">
                 <div class="card-header text-center">
-                    <a href="{{ route('welcome') }}" class="h1"><b
+                    <a href="{{ route('welcome') }}" class="h1 mb-2"><b
                             class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
-                    @if (config('SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO'))
+                    @if ($website_settings->enable_login_logo) 
                         <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}"
-                            alt="{{ config('app.name', 'Controlpanel.gg') }} Logo" style="opacity: .8;max-width:100%">
+                            alt="{{ config('app.name', 'Controlpanel.gg') }} Logo" style="opacity: .8; max-width:100%; height: 150px; margin-top: 10px;">
                     @endif
                 </div>
-                <div class="card-body">
+                <div class="card-body pt-0">
                     <p class="login-box-msg">{{ __('Sign in to start your session') }}</p>
 
                     @if (session('message'))
@@ -66,7 +66,7 @@
                                 </span>
                             @enderror
                         </div>
-                        @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
+                        @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
                             <div class="input-group mb-3">
                                 {!! htmlFormSnippet() !!}
                                 @error('g-recaptcha-response')
@@ -94,17 +94,6 @@
                             <!-- /.col -->
                         </div>
                     </form>
-
-                    {{--                <div class="social-auth-links text-center mt-2 mb-3"> --}}
-                    {{--                    <a href="#" class="btn btn-block btn-primary"> --}}
-                    {{--                        <i class="fab fa-facebook mr-2"></i> Sign in using Facebook --}}
-                    {{--                    </a> --}}
-                    {{--                    <a href="#" class="btn btn-block btn-danger"> --}}
-                    {{--                        <i class="fab fa-google-plus mr-2"></i> Sign in using Google+ --}}
-                    {{--                    </a> --}}
-                    {{--                </div> --}}
-                    <!-- /.social-auth-links -->
-
                     <p class="mb-1">
                         @if (Route::has('password.request'))
                             <a class="" href="{{ route('password.request') }}">
@@ -125,13 +114,13 @@
         {{-- imprint and privacy policy --}}
         <div class="fixed-bottom ">
             <div class="container text-center">
-                @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT') == "true")
+                @if ($website_settings->show_imprint)
                     <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
                 @endif
-                @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY') == "true")
+                @if ($website_settings->show_privacy)
                     <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
-                @if (config('SETTINGS::SYSTEM:SHOW_TOS') == "true")
+                @if ($website_settings->show_tos)
                     | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>

@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Notifications\Ticket\Admin\AdminCreateNotification;
 use App\Notifications\Ticket\Admin\AdminReplyNotification;
 use App\Notifications\Ticket\User\CreateNotification;
+use App\Settings\LocaleSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -18,12 +19,13 @@ use Illuminate\Support\Str;
 
 class TicketsController extends Controller
 {
-    public function index()
+    public function index(LocaleSettings $locale_settings)
     {
-        $tickets = Ticket::where('user_id', Auth::user()->id)->paginate(10);
-        $ticketcategories = TicketCategory::all();
-
-        return view('ticket.index', compact('tickets', 'ticketcategories'));
+        return view('ticket.index', [
+            'tickets' => Ticket::where('user_id', Auth::user()->id)->paginate(10),
+            'ticketcategories' => TicketCategory::all(),
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     public function create()
