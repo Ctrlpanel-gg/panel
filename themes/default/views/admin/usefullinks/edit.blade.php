@@ -96,6 +96,7 @@
                                 </div>
 
                                 <div class="form-group">
+                                    <label for="position">{{__('Position')}}</label>
                                     <select id="position" style="width:100%" class="custom-select" name="position[]"
                                             required multiple autocomplete="off" @error('position') is-invalid @enderror>
                                         @foreach ($positions as $position)
