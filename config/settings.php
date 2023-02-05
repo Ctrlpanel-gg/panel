@@ -10,6 +10,7 @@ use App\Settings\ReferralSettings;
 use App\Settings\ServerSettings;
 use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
+use App\Settings\TicketSettings;
 
 return [
 
@@ -27,7 +28,8 @@ return [
         ReferralSettings::class,
         ServerSettings::class,
         UserSettings::class,
-        WebsiteSettings::class
+        WebsiteSettings::class,
+        TicketSettings::class
     ],
 
     /*
@@ -75,7 +77,7 @@ return [
     'cache' => [
         'enabled' => env('SETTINGS_CACHE_ENABLED', false),
         'store' => null,
-        'prefix' => null,
+        'prefix' => 'setting_',
         'ttl' => null,
     ],
 
