@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PartnerDiscount;
 use App\Models\User;
+use App\Settings\LocaleSettings;
 use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
-    public function index()
+    public function index(LocaleSettings $locale_settings)
     {
-        return view('admin.partners.index');
+        return view('admin.partners.index', [
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     /**

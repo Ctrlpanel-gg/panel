@@ -18,17 +18,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ExtensionHelper;
-
+use App\Settings\LocaleSettings;
 
 class PaymentController extends Controller
 {
     /**
      * @return Application|Factory|View
      */
-    public function index()
+    public function index(LocaleSettings $locale_settings)
     {
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15),
+            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
