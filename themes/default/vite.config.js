@@ -11,7 +11,7 @@ export default defineConfig({
                 "themes/default/sass/app.scss",
                 "themes/default/js/app.js"
             ],
-            buildDirectory: "default",
+            buildDirectory: "build",
         }),
         
         

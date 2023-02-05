@@ -35,22 +35,40 @@
                         <div class="card-body">
                             <div class="ticket-info">
                                 @if(!empty($server))
-                                <p><b>Server:</b> <a href="{{ config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/servers/view/' . $server->pterodactyl_id }}" target="__blank">{{ $server->name }}</a></p>
+                                <p><b>{{__("Server")}}:</b> <a href="{{ config("SETTINGS::SYSTEM:PTERODACTYL:URL") . '/admin/servers/view/' . $server->pterodactyl_id }}" target="__blank">{{ $server->name }}</a></p>
                                 @endif
-                                <p><b>Title:</b> {{ $ticket->title }}</p>
-                                <p><b>Category:</b> {{ $ticketcategory->name }}</p>
-                                <p>
-                                    @if ($ticket->status === 'Open')
-                                    <b>Status:</b> <span class="badge badge-success">Open</span>
-                                    @elseif ($ticket->status === 'Closed')
-                                    <b>Status:</b> <span class="badge badge-danger">Closed</span>
-                                    @elseif ($ticket->status === 'Answered')
-                                    <b>Status:</b> <span class="badge badge-info">Answered</span>
-                                    @elseif ($ticket->status === 'Client Reply')
-                                    <b>Status:</b> <span class="badge badge-warning">Client Reply</span>
-                                    @endif
+                                <p><b>{{__("Title")}}:</b> {{ $ticket->title }}</p>
+                                <p><b>{{__("Category")}}:</b> {{ $ticketcategory->name }}</p>
+                                <p><b>{{__("Status")}}:</b>
+                                @switch($ticket->status)
+                                        @case("Open")
+                                            <span class="badge badge-success">{{__("Open")}}</span>
+                                        @break
+                                        @case("Closed")
+                                            <span class="badge badge-danger">{{__("Closed")}}</span>
+                                        @break
+                                        @case("Answered")
+                                            <span class="badge badge-info">{{__("Answered")}}</span>
+                                        @break
+                                        @case("Client Reply")
+                                           <span class="badge badge-warning">{{__("Client Reply")}}</span>
+                                        @break
+                                    @endswitch
                                 </p>
-                                <p><b>Created on:</b> {{ $ticket->created_at->diffForHumans() }}</p>
+                                    <p><b>Priority:</b>
+                                        @switch($ticket->priority)
+                                            @case("Low")
+                                                <span class="badge badge-success">{{__("Low")}}</span>
+                                                @break
+                                            @case("Medium")
+                                               <span class="badge badge-warning">{{__("Closed")}}</span>
+                                                @break
+                                            @case("High")
+                                               <span class="badge badge-danger">{{__("Answered")}}</span>
+                                                @break
+                                        @endswitch
+                                    </p>
+                                    <p><b>{{__("Created on")}}:</b> {{ $ticket->created_at->diffForHumans() }}</p>
                                 @if($ticket->status!='Closed')
                                     <form class="d-inline"  method="post" action="{{route('moderator.ticket.close', ['ticket_id' => $ticket->ticket_id ])}}">
                                         {{csrf_field()}}

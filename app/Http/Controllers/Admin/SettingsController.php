@@ -22,7 +22,13 @@ class SettingsController extends Controller
 
         //Get all tabs as laravel view paths
         $tabs = [];
-        foreach (glob(Theme::getViewPaths()[0] . '/admin/settings/tabs/*.blade.php') as $filename) {
+        if(file_exists(Theme::getViewPaths()[0] . '/admin/settings/tabs/')){
+            $tabspath = glob(Theme::getViewPaths()[0] . '/admin/settings/tabs/*.blade.php');
+        }else{
+            $tabspath = glob(Theme::path($path = 'views', $themeName = 'default').'/admin/settings/tabs/*.blade.php');
+        }
+
+          foreach ($tabspath as $filename) {
             $tabs[] = 'admin.settings.tabs.'.basename($filename, '.blade.php');
         }
 

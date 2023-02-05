@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Settings;
+use App\Models\UsefulLink;
 use Exception;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Artisan;
@@ -53,6 +54,15 @@ class AppServiceProvider extends ServiceProvider
             return $ok;
         });
 
+        try {
+            if (Schema::hasColumn('useful_links', 'position')) {
+                $useful_links = UsefulLink::where("position", "like", "%topbar%")->get()->sortby("id");
+                view()->share('useful_links', $useful_links);
+            }
+        } catch (Exception $e) {
+            Log::error("Couldnt find useful_links. Probably the installation is not completet. ".$e);
+        }
+
         //only run if the installer has been executed
         try {
             $settings = Settings::all();
@@ -61,12 +71,12 @@ class AppServiceProvider extends ServiceProvider
                 config([$setting->key => $setting->value]);
             }
 
-            if(!file_exists(base_path('themes')."/".config("SETTINGS::SYSTEM:THEME"))){
+            if(!file_exists(base_path('themes') . "/" . config("SETTINGS::SYSTEM:THEME"))){
                 config(['SETTINGS::SYSTEM:THEME' => "default"]);
             }
 
-            if(config('theme.active') == null){
-                Theme::set(config("SETTINGS::SYSTEM:THEME","default"), "default");
+            if(config('SETTINGS::SYSTEM:THEME') !== config('theme.active')){
+                Theme::set(config("SETTINGS::SYSTEM:THEME"), "default");
             }
 
             // Set Mail Config
@@ -125,7 +135,7 @@ class AppServiceProvider extends ServiceProvider
                 $branchname = $explodedstring[2]; //get the one that is always the branch name
             } catch (Exception $e) {
                 $branchname = 'unknown';
-                Log::error($e);
+                Log::notice($e);
             }
             config(['BRANCHNAME' => $branchname]);
 

@@ -50,7 +50,7 @@ class TicketsController extends Controller
         $ticket = new Ticket([
             'title' => $request->input('title'),
             'user_id' => Auth::user()->id,
-            'ticket_id' => strtoupper(Str::random(5)),
+            'ticket_id' => strtoupper(Str::random(8)),
             'ticketcategory_id' => $request->input('ticketcategory'),
             'priority' => $request->input('priority'),
             'message' => $request->input('message'),
@@ -145,7 +145,8 @@ class TicketsController extends Controller
                 return __($tickets->priority);
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
-                return $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '';
+                return ['display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
+                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
             })
             ->addColumn('actions', function (Ticket $tickets) {
                 return '

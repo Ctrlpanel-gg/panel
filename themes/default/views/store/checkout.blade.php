@@ -77,21 +77,25 @@
                             <div class="row">
                                 <!-- accepted payments column -->
                                 <div class="col-6">
-                                    <p class="lead">{{ __('Payment Methods') }}:</p>
+                                    @if (!$productIsFree)
+                                        <p class="lead">{{ __('Payment Methods') }}:</p>
 
-                                    <div class="d-flex flex-wrap  flex-direction-row">
-                                        @foreach ($paymentGateways as $gateway)
-                                            <div class="ml-2">
-                                                <label class="text-center" for="{{ $gateway->name }}">
-                                                    <img class="mb-3" height="50" src="{{ $gateway->image }}"></br>
-                                                    <input x-on:click="console.log(payment_method)" x-model="payment_method"
-                                                        type="radio" id="{{ $gateway->name }}"
-                                                        value="{{ $gateway->name }}">
-                                                    </input>
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                        <div class="d-flex flex-wrap  flex-direction-row">
+
+                                            @foreach ($paymentGateways as $gateway)
+                                                <div class="ml-2">
+                                                    <label class="text-center" for="{{ $gateway->name }}">
+                                                        <img class="mb-3" height="50"
+                                                            src="{{ $gateway->image }}"></br>
+                                                        <input x-on:click="console.log(payment_method)"
+                                                            x-model="payment_method" type="radio"
+                                                            id="{{ $gateway->name }}" value="{{ $gateway->name }}">
+                                                        </input>
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
 
                                 </div>
                                 <!-- /.col -->
@@ -129,11 +133,15 @@
                             <!-- this row will not appear when printing -->
                             <div class="row no-print">
                                 <div class="col-12">
-                                    <button :disabled="!payment_method || clicked"
-                                        :class="!payment_method || clicked ? 'disabled' : ''"
+                                    <button :disabled="(!payment_method || clicked) && {{ !$productIsFree }}"
+                                        :class="(!payment_method || clicked) && {{ !$productIsFree }} ? 'disabled' : ''"
                                         class="btn btn-success float-right"><i class="far fa-credit-card mr-2"
                                             @click="clicked = true"></i>
-                                        {{ __('Submit Payment') }}
+                                        @if ($productIsFree)
+                                            {{ __('Get for free') }}
+                                        @else
+                                            {{ __('Submit Payment') }}
+                                        @endif
                                     </button>
                                 </div>
                             </div>

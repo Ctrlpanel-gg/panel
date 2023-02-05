@@ -4,12 +4,16 @@ namespace App\Console\Commands;
 
 use App\Classes\Pterodactyl;
 use App\Models\User;
+use App\Traits\Referral;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class MakeUserCommand extends Command
 {
+    use Referral;
+
     /**
      * The name and signature of the console command.
      *
@@ -36,6 +40,7 @@ class MakeUserCommand extends Command
         parent::__construct();
         $this->pterodactyl = $pterodactyl;
     }
+
 
     /**
      * Execute the console command.
@@ -78,12 +83,12 @@ class MakeUserCommand extends Command
 
             return 0;
         }
-
         $user = User::create([
             'name' => $response['first_name'],
             'email' => $response['email'],
             'role' => 'admin',
             'password' => Hash::make($password),
+            'referral_code' => $this->createReferralCode(),
             'pterodactyl_id' => $response['id'],
         ]);
 
@@ -93,6 +98,7 @@ class MakeUserCommand extends Command
             ['Username', $user->name],
             ['Ptero-ID', $user->pterodactyl_id],
             ['Admin', $user->role],
+            ['Referral code', $user->referral_code],
         ]);
 
         return 1;

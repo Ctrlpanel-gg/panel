@@ -50,6 +50,7 @@ class System
             'pterodactyl-admin-api-key' => 'required|string',
             'enable-upgrades' => 'string',
             'enable-disable-servers' => 'string',
+            'enable-disable-new-users' => 'string',
             'show-imprint' => 'string',
             'show-privacy' => 'string',
             'show-tos' => 'string',

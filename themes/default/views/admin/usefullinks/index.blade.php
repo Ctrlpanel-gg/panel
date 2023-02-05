@@ -41,6 +41,7 @@
                             <th width="50">{{__('Icon')}}</th>
                             <th>{{__('Title')}}</th>
                             <th>{{__('Link')}}</th>
+                            <th>{{__('Position')}}</th>
                             <th>{{__('Created at')}}</th>
                             <th></th>
                         </tr>
@@ -79,6 +80,7 @@
                     {data: 'icon'},
                     {data: 'title'},
                     {data: 'link'},
+                    {data: 'position'},
                     {data: 'created_at'},
                     {data: 'actions', sortable: false},
                 ],

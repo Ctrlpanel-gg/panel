@@ -8,7 +8,9 @@ use App\Classes\Settings\System;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\LegalController;
 use App\Http\Controllers\Admin\OverViewController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
@@ -19,9 +21,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Moderation\TicketCategoryController;
 use App\Http\Controllers\Moderation\TicketsController as ModTicketsController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
@@ -118,6 +120,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
 
         //overview
+        Route::get('legal', [OverViewController::class, 'index'])->name('overview.index');
+
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
@@ -178,6 +182,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
 
+        //legal
+        Route::get('legal', [LegalController::class, 'index'])->name('legal.index');
+        Route::patch('legal', [LegalController::class, 'update'])->name('legal.update');
+
         //vouchers
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
         Route::get('vouchers/{voucher}/usersdatatable', [VoucherController::class, 'usersdatatable'])->name('vouchers.usersdatatable');
@@ -211,6 +219,11 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::post('ticket/blacklist/delete/{id}', [ModTicketsController::class, 'blacklistDelete'])->name('ticket.blacklist.delete');
         Route::post('ticket/blacklist/change/{id}', [ModTicketsController::class, 'blacklistChange'])->name('ticket.blacklist.change');
         Route::get('ticket/blacklist/datatable', [ModTicketsController::class, 'dataTableBlacklist'])->name('ticket.blacklist.datatable');
+
+
+        Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
+        Route::resource("ticket/category", TicketCategoryController::class,['as' => 'ticket']);
+
     });
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
