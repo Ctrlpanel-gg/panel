@@ -63,7 +63,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="price">{{__('Price in')}} {{CREDITS_DISPLAY_NAME}}</label>
+                                            <label for="price">{{__('Price in')}} {{ $credits_display_name }}</label>
                                             <input value="{{$product->price ??  old('price')}}" id="price" name="price" step=".01"
                                                    type="number"
                                                    class="form-control @error('price') is-invalid @enderror"

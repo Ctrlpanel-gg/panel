@@ -9,6 +9,7 @@ use App\Notifications\DynamicNotification;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -41,10 +42,11 @@ class UserController extends Controller
      * @param  Request  $request
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
         return view('admin.users.index', [
-            'locale_datatables' => $locale_settings->datatables
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -54,7 +56,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function show(User $user, LocaleSettings $locale_settings)
+    public function show(User $user, LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
         //QUERY ALL REFERRALS A USER HAS
         //i am not proud of this at all.
@@ -68,7 +70,8 @@ class UserController extends Controller
         return view('admin.users.show')->with([
             'user' => $user,
             'referrals' => $allReferals,
-            'locale_datatables' => $locale_settings->datatables
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -103,10 +106,11 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function edit(User $user)
+    public function edit(User $user, GeneralSettings $general_settings)
     {
         return view('admin.users.edit')->with([
             'user' => $user,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
