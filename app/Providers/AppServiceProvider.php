@@ -46,9 +46,9 @@ class AppServiceProvider extends ServiceProvider
             }
 
             //if none of result array is true. it sets ok to false
-            if (! in_array(true, $result)) {
+            if (!in_array(true, $result)) {
                 $ok = false;
-                $validator->setCustomMessages(['multiple_date_format' => 'The format must be one of '.implode(',', $parameters)]);
+                $validator->setCustomMessages(['multiple_date_format' => 'The format must be one of ' . implode(',', $parameters)]);
             }
 
             return $ok;
@@ -60,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
                 view()->share('useful_links', $useful_links);
             }
         } catch (Exception $e) {
-            Log::error("Couldnt find useful_links. Probably the installation is not completet. ".$e);
+            Log::error("Couldnt find useful_links. Probably the installation is not completet. " . $e);
         }
 
         //only run if the installer has been executed
@@ -71,12 +71,14 @@ class AppServiceProvider extends ServiceProvider
                 config([$setting->key => $setting->value]);
             }
 
-            if(!file_exists(base_path('themes') . "/" . config("SETTINGS::SYSTEM:THEME"))){
+            if (!file_exists(base_path('themes') . "/" . config("SETTINGS::SYSTEM:THEME"))) {
                 config(['SETTINGS::SYSTEM:THEME' => "default"]);
             }
 
-            if(config('SETTINGS::SYSTEM:THEME') !== config('theme.active')){
-                Theme::set(config("SETTINGS::SYSTEM:THEME"), "default");
+            if (config('SETTINGS::SYSTEM:THEME') && config('SETTINGS::SYSTEM:THEME') !== config('theme.active')) {
+                Theme::set(config("SETTINGS::SYSTEM:THEME", "default"), "default");
+            } else {
+                Theme::set("default", "default");
             }
 
             // Set Mail Config
@@ -126,7 +128,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             try {
-                $stringfromfile = file(base_path().'/.git/HEAD');
+                $stringfromfile = file(base_path() . '/.git/HEAD');
 
                 $firstLine = $stringfromfile[0]; //get the string from the array
 
