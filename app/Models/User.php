@@ -185,7 +185,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function suspend()
     {
@@ -201,7 +201,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function unSuspend()
     {
@@ -218,12 +218,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this;
     }
 
-    private function getServersWithProduct()
-    {
-        return $this->servers()
-            ->with('product')
-            ->get();
-    }
 
     /**
      * @return string
@@ -257,7 +251,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return number_format($usage, 2, '.', '');
     }
 
-    private function getServersWithProduct() {
+    private function getServersWithProduct()
+    {
         return $this->servers()
             ->whereNull('suspended')
             ->whereNull('cancelled')

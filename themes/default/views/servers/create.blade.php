@@ -213,11 +213,11 @@
 
                                                     <span class="d-inline-block" x-text="product.billing_period"></span>
                                                 </li>
-                                                <li>
+                                                <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
                                                         {{ __('Minimum') }} {{ CREDITS_DISPLAY_NAME }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credits"></span>
+                                                        x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : Math.round(product.minimum_credits)"></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -240,14 +240,16 @@
                                         <input type="hidden" name="product" x-model="selectedProduct">
                                     </div>
                                     <div>
-										<button type="submit" x-model="selectedProduct" name="product"
-        									:disabled="product.minimum_credits > user.credits || product.price > user.credits || product.doesNotFit == true ||
-            									submitClicked"
-       										:class="product.minimum_credits > user.credits || product.price > user.credits || product.doesNotFit == true ||
-            									submitClicked ? 'disabled' : ''"
-        									class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
-        									x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
-    									</button>
+                                        <button type="submit" x-model="selectedProduct" name="product"
+                                            :disabled="product.minimum_credits > user.credits || product.price > user.credits ||
+                                                product.doesNotFit == true ||
+                                                submitClicked"
+                                            :class="product.minimum_credits > user.credits || product.price > user.credits ||
+                                                product.doesNotFit == true ||
+                                                submitClicked ? 'disabled' : ''"
+                                            class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
+                                            x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
+                                        </button>
                                     </div>
                                 </div>
                             </div>
