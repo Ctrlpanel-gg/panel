@@ -251,6 +251,7 @@
                                             x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
                                         </button>
                                     </div>
+
                                 </div>
                             </div>
                         </template>

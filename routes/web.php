@@ -224,8 +224,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
 
         Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
-        Route::resource("ticket/category", TicketCategoryController::class,['as' => 'ticket']);
-
+        Route::resource("ticket/category", TicketCategoryController::class, ['as' => 'ticket']);
     });
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');

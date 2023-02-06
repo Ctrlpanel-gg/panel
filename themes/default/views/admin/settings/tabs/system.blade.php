@@ -62,22 +62,6 @@
                     </div>
 
                     <div class="custom-control mb-3 p-0">
-                        <div class="col m-0 p-0 d-flex justify-content-between align-items-center">
-                            <div>
-                                <input value="true" id="server-create-charge-first-hour"
-                                    name="server-create-charge-first-hour"
-                                    {{ config('SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR') == 'true' ? 'checked' : '' }}
-                                    type="checkbox">
-                                <label for="server-create-charge-first-hour">{{ __('Charge first hour at creation') }}
-                                </label>
-                            </div>
-                            <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                data-content="{{ __('Charges the first hour worth of credits upon creating a server.') }}"
-                                class="fas fa-info-circle"></i>
-                        </div>
-                    </div>
-
-                    <div class="custom-control mb-3 p-0">
                         <label for="credits-display-name">{{ __('Credits Display Name') }}</label>
                         <input x-model="credits-display-name" id="credits-display-name" name="credits-display-name"
                             type="text" value="{{ config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME', 'Credits') }}"
