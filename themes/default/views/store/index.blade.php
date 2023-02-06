@@ -1,5 +1,4 @@
 @extends('layouts.main')
-<?php use App\Models\ShopProduct; ?>
 
 @section('content')
     <!-- CONTENT HEADER -->
@@ -36,7 +35,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-coins mr-2"></i>{{ CREDITS_DISPLAY_NAME }}</h5>
+                        <h5 class="card-title"><i class="fa fa-coins mr-2"></i>{{ $credits_display_name }}</h5>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-responsive-sm">
@@ -49,13 +48,10 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <?php /** @var $product ShopProduct */
-                            ?>
                             @foreach ($products as $product)
                                 <tr>
                                     <td>{{ $product->formatToCurrency($product->price) }}</td>
-                                    <td>{{ strtolower($product->type) == 'credits' ? CREDITS_DISPLAY_NAME : $product->type }}
-                                    </td>
+                                    <td>{{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}</td>
                                     <td>
                                         @if(strtolower($product->type) == 'credits')
                                             <i class="fa fa-coins mr-2"></i>
