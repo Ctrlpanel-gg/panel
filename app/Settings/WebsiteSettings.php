@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Settings;
+namespace App\Settings;
 
 use Spatie\LaravelSettings\Settings;
 

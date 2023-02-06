@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
 use App\Settings\LocaleSettings;
+use App\Settings\PterodactylSettings;
+use App\Classes\PterodactylClient;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -26,6 +28,13 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -332,12 +341,9 @@ class UserController extends Controller
 
                 return '<span class="badge '.$badgeColor.'">'.$user->role.'</span>';
             })
-            ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="'.config('SETTINGS::SYSTEM:PTERODACTYL:URL').'/admin/users/view/'.$user->pterodactyl_id.'">'.strip_tags($user->name).'</a>';
+            ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
+                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
-            /*->orderColumn('last_seen', function ($query) {
-                $query->orderBy('last_seen', "desc");
-            })*/
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'referrals', 'actions', 'last_seen'])
             ->make(true);
     }

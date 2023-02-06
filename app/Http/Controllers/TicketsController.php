@@ -12,6 +12,8 @@ use App\Notifications\Ticket\Admin\AdminCreateNotification;
 use App\Notifications\Ticket\Admin\AdminReplyNotification;
 use App\Notifications\Ticket\User\CreateNotification;
 use App\Settings\LocaleSettings;
+use App\Settings\PterodactylSettings;
+use App\Settings\TicketSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -41,7 +43,7 @@ class TicketsController extends Controller
         return view('ticket.create', compact('ticketcategories', 'servers'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, TicketSettings $ticket_settings)
     {
         $this->validate($request, [
             'title' => 'required',
@@ -61,25 +63,31 @@ class TicketsController extends Controller
         );
         $ticket->save();
         $user = Auth::user();
-        if(config('SETTINGS::TICKET:NOTIFY') == "all"){  $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();}
-        if(config('SETTINGS::TICKET:NOTIFY') == "admin"){  $admin = User::where('role', 'admin')->get();}
-        if(config('SETTINGS::TICKET:NOTIFY') == "moderator"){  $admin = User::where('role', 'mod')->get();}
-        $user->notify(new CreateNotification($ticket));
-        if(config('SETTINGS::TICKET:NOTIFY') != "none"){
-            Notification::send($admin, new AdminCreateNotification($ticket, $user));
+        switch ($ticket_settings->notify) {
+            case 'all':
+                $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();
+                Notification::send($admin, new AdminCreateNotification($ticket, $user));
+            case 'admin':
+                $admin = User::where('role', 'admin')->get();
+                Notification::send($admin, new AdminCreateNotification($ticket, $user));
+            case 'moderator':
+                $admin = User::where('role', 'mod')->get();
+                Notification::send($admin, new AdminCreateNotification($ticket, $user));
         }
+        $user->notify(new CreateNotification($ticket));
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #').$ticket->ticket_id);
     }
 
-    public function show($ticket_id)
+    public function show($ticket_id, PterodactylSettings $ptero_settings)
     {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
+        $pterodactyl_url = $ptero_settings->panel_url;
 
-        return view('ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server'));
+        return view('ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
     }
 
     public function reply(Request $request)

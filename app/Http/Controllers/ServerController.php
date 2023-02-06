@@ -11,6 +11,9 @@ use App\Models\Server;
 use App\Notifications\ServerCreationError;
 use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
+use App\Settings\PterodactylSettings;
+use App\Classes\PterodactylClient;
+use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
@@ -21,8 +24,15 @@ use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ServerController extends Controller
 {
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+
     /** Display a listing of the resource. */
-    public function index()
+    public function index(GeneralSettings $general_settings, PterodactylSettings $ptero_settings)
     {
         $servers = Auth::user()->servers;
 
@@ -62,6 +72,9 @@ class ServerController extends Controller
 
         return view('servers.index')->with([
             'servers' => $servers,
+            'credits_display_name' => $general_settings->credits_display_name,
+            'pterodactyl_url' => $ptero_settings->panel_url,
+            'phpmyadmin_url' => $general_settings->phpmyadmin_url
         ]);
     }
 
@@ -101,6 +114,8 @@ class ServerController extends Controller
             'locations' => $locations,
             'eggs' => $eggs,
             'user' => Auth::user(),
+            'server_creation_enabled' => $server_settings->creation_enabled,
+            'min_credits_to_make_server' => $user_settings->min_credits_to_make_server
         ]);
     }
 
@@ -253,7 +268,7 @@ class ServerController extends Controller
     }
 
     /** Show Server Settings */
-    public function show(Server $server)
+    public function show(Server $server, ServerSettings $server_settings)
     {
         if ($server->user_id != Auth::user()->id) {
             return back()->with('error', __('This is not your Server!'));
@@ -293,6 +308,7 @@ class ServerController extends Controller
         return view('servers.settings')->with([
             'server' => $server,
             'products' => $products,
+            'server_enable_upgrade' => $server_settings->enable_upgrade
         ]);
     }
 

@@ -222,16 +222,12 @@
                 <div class="card-footer">
                     <div class="col-md-12 text-center">
                         <!-- Upgrade Button trigger modal -->
-                        @if(config("SETTINGS::SYSTEM:ENABLE_UPGRADE"))
+                        @if($server_enable_upgrade)
                             <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
                                 class="btn btn-info btn-md">
                                 <i class="fas fa-upload mr-2"></i>
                                 <span>{{ __('Upgrade / Downgrade') }}</span>
                             </button>
-
-
-
-
                         <!-- Upgrade Modal -->
                         <div style="width: 100%; margin-block-start: 100px;" class="modal fade" id="UpgradeModal{{ $server->id }}" tabindex="-1">
                             <div class="modal-dialog">
