@@ -38,21 +38,21 @@
 
                     <table id="datatable" class="table table-striped">
                         <thead>
-                            <tr>
-                                <th>discordId</th>
-                                <th>ip</th>
-                                <th>pterodactyl_id</th>
-                                <th>{{ __('Avatar') }}</th>
-                                <th>{{ __('Name') }}</th>
-                                <th>{{ __('Role') }}</th>
-                                <th>{{ __('Email') }}</th>
-                                <th>{{ CREDITS_DISPLAY_NAME }}</th>
-                                <th>{{ __('Servers') }}</th>
-                                <th>{{ __('Referrals') }}</th>
-                                <th>{{ __('Verified') }}</th>
-                                <th>{{ __('Last seen') }}</th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>discordId</th>
+                            <th>ip</th>
+                            <th>pterodactyl_id</th>
+                            <th>{{__('Avatar')}}</th>
+                            <th>{{__('Name')}}</th>
+                            <th>{{__('Role')}}</th>
+                            <th>{{__('Email')}}</th>
+                            <th>{{ $credits_display_name }}</th>
+                            <th>{{__('Servers')}}</th>
+                            <th>{{__('Referrals')}}</th>
+                            <th>{{__('Verified')}}</th>
+                            <th>{{__('Last seen')}}</th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
                         </tbody>

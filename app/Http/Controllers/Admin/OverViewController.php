@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Classes\PterodactylClient;
 use App\Settings\PterodactylSettings;
+use App\Settings\GeneralSettings;
 use App\Http\Controllers\Controller;
 use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Location;
@@ -27,7 +28,7 @@ class OverViewController extends Controller
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
     
-    public function index()
+    public function index(GeneralSettings $general_settings)
     {
         //Get counters
         $counters = collect();
@@ -215,6 +216,7 @@ class OverViewController extends Controller
             'deletedNodesPresent' => ($DBnodes->count() != count($pteroNodeIds)) ? true : false,
             'perPageLimit' => ($counters['servers']->total != Server::query()->count()) ? true : false,
             'tickets' => $tickets,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
