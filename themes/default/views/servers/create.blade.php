@@ -35,9 +35,9 @@
                             <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{ __('Server configuration') }}
                             </div>
                         </div>
-                        @if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS'))
+                        @if (!$server_creation_enabled)
                             <div class="alert alert-warning p-2 m-2">
-                                The creation of new servers has been disabled for regular users, enable it again
+                                {{ __('The creation of new servers has been disabled for regular users, enable it again') }}
                                 <a href="{{ route('admin.settings.system') }}">{{ __('here') }}</a>.
                             </div>
                         @endif
@@ -212,7 +212,7 @@
                                                         {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }}
                                                         {{ __('to create this server') }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credits"></span>
+                                                        x-text="product.minimum_credits == -1 ? {{ $min_credits_to_make_server }} : product.minimum_credits"></span>
                                                 </li>
                                             </ul>
                                         </div>

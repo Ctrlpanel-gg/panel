@@ -11,6 +11,7 @@ use App\Models\TicketComment;
 use App\Models\User;
 use App\Notifications\Ticket\User\ReplyNotification;
 use App\Settings\LocaleSettings;
+use App\Settings\PterodactylSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,7 +26,7 @@ class TicketsController extends Controller
         ]);
     }
 
-    public function show($ticket_id)
+    public function show($ticket_id, PterodactylSettings $ptero_settings)
     {
         try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
@@ -36,8 +37,9 @@ class TicketsController extends Controller
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
+        $pterodactyl_url = $ptero_settings->panel_url;
 
-        return view('moderator.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server'));
+        return view('moderator.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
     }
 
     public function changeStatus($ticket_id)
