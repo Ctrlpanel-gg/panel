@@ -49,7 +49,7 @@
                                     <label for="type">{{__('Type')}}</label>
                                     <select required name="type" id="type"
                                             class="custom-select  @error('name') is-invalid @enderror">
-                                        <option selected value="Credits">{{CREDITS_DISPLAY_NAME}}</option>
+                                        <option selected value="Credits">{{ $credits_display_name }}</option>
                                         <option value="Server slots">{{__("Server Slots")}}</option>
                                     </select>
                                     @error('name')

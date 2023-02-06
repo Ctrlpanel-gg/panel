@@ -45,7 +45,7 @@
                             <th>{{__('Name')}}</th>
                             <th>{{__('Role')}}</th>
                             <th>{{__('Email')}}</th>
-                            <th>{{CREDITS_DISPLAY_NAME}}</th>
+                            <th>{{ $credits_display_name }}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__("Referrals")}}</th>
                             <th>{{__('Verified')}}</th>

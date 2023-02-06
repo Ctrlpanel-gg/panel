@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\ShopProduct;
+use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -43,10 +44,11 @@ class ShopProductController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function create()
+    public function create(GeneralSettings $general_settings)
     {
         return view('admin.store.create', [
             'currencyCodes' => config('currency_codes'),
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 

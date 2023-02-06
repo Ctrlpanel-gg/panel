@@ -42,7 +42,7 @@
                             <th>{{__('Status')}}</th>
                             <th>{{__('Code')}}</th>
                             <th>{{__('Memo')}}</th>
-                            <th>{{CREDITS_DISPLAY_NAME}}</th>
+                            <th>{{ $credits_display_name }}</th>
                             <th>{{__('Used / Uses')}}</th>
                             <th>{{__('Expires')}}</th>
                             <th></th>
