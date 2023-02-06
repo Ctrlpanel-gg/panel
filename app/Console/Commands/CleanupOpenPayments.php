@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Payment;
 use Illuminate\Console\Command;
 
-class CleanupPayments extends Command
+class CleanupOpenPayments extends Command
 {
     /**
      * The name and signature of the console command.
