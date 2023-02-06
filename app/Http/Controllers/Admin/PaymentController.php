@@ -18,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ExtensionHelper;
+use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 
 class PaymentController extends Controller
@@ -38,7 +39,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View
      */
-    public function checkOut(ShopProduct $shopProduct)
+    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings)
     {
         $discount = PartnerDiscount::getDiscount();
         $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
@@ -69,6 +70,7 @@ class PaymentController extends Controller
             'total' => $shopProduct->getTotalPrice(),
             'paymentGateways'   => $paymentGateways,
             'productIsFree' => $price <= 0,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 

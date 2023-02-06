@@ -37,14 +37,14 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th width="20"></th>
+                            <th width="20">{{ __('Status') }}</th>
                             <th>{{__('Name')}}</th>
                             <th>{{__('User')}}</th>
                             <th>{{__('Server id')}}</th>
                             <th>{{__('Config')}}</th>
                             <th>{{__('Suspended at')}}</th>
                             <th>{{__('Created at')}}</th>
-                            <th></th>
+                            <th>{{ __('Actions') }}</th>
                         </tr>
                         </thead>
                         <tbody>
