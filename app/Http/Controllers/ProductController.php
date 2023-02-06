@@ -2,17 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\PterodactylClient;
 use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Node;
 use App\Models\Product;
+use App\Settings\PterodactylSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class ProductController extends Controller
-{
+{   
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+
     /**
      * @description get product locations based on selected egg
      *

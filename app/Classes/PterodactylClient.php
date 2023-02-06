@@ -17,7 +17,9 @@ class PterodactylClient
 {
     //TODO: Extend error handling (maybe logger for more errors when debugging)
 
-    public int $per_page_limit = 200;
+    private int $per_page_limit = 200;
+
+    private int $allocation_limit = 200;
 
     public PendingRequest $client;
 
@@ -29,6 +31,7 @@ class PterodactylClient
             $this->client = $this->client($ptero_settings);
             $this->client_admin = $this->clientAdmin($ptero_settings);
             $this->per_page_limit = $ptero_settings->per_page_limit;
+            $this->allocation_limit = $ptero_settings->allocation_limit;
         }
         catch (Exception $exception) {
             logger('Failed to construct Pterodactyl client, Settings table not available?', ['exception' => $exception]);
@@ -233,9 +236,8 @@ class PterodactylClient
      */
     public function getAllocations(Node $node)
     {
-        $per_page = config('SETTINGS::SERVER:ALLOCATION_LIMIT', 200);
         try {
-            $response = $this->client_admin->get("application/nodes/{$node->id}/allocations?per_page={$per_page}");
+            $response = $this->client_admin->get("application/nodes/{$node->id}/allocations?per_page={$this->allocation_limit}");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -244,15 +246,6 @@ class PterodactylClient
         }
 
         return $response->json();
-    }
-
-    /**
-     * @param  string  $route
-     * @return string
-     */
-    public function url(string $route): string
-    {
-        return config('SETTINGS::SYSTEM:PTERODACTYL:URL') . $route;
     }
 
     /**

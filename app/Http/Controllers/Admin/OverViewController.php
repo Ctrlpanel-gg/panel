@@ -20,6 +20,13 @@ class OverViewController extends Controller
 {
     public const TTL = 86400;
 
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+    
     public function index()
     {
         //Get counters

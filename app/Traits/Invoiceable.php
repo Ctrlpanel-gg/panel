@@ -6,6 +6,7 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Notifications\InvoiceNotification;
+use App\Settings\InvoiceSettings;
 use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Buyer;
 use LaravelDaily\Invoices\Classes\InvoiceItem;
@@ -15,7 +16,7 @@ use Symfony\Component\Intl\Currencies;
 
 trait Invoiceable
 {
-    public function createInvoice(Payment $payment, ShopProduct $shopProduct)
+    public function createInvoice(Payment $payment, ShopProduct $shopProduct, InvoiceSettings $invoice_settings)
     {
         $user = $payment->user;
         //create invoice
@@ -24,13 +25,13 @@ trait Invoiceable
         $logoPath = storage_path('app/public/logo.png');
 
         $seller = new Party([
-            'name' => config("SETTINGS::INVOICE:COMPANY_NAME"),
-            'phone' => config("SETTINGS::INVOICE:COMPANY_PHONE"),
-            'address' => config("SETTINGS::INVOICE:COMPANY_ADDRESS"),
-            'vat' => config("SETTINGS::INVOICE:COMPANY_VAT"),
+            'name' => $invoice_settings->company_name,
+            'phone' => $invoice_settings->company_phone,
+            'address' => $invoice_settings->company_address,
+            'vat' => $invoice_settings->company_vat,
             'custom_fields' => [
-                'E-Mail' => config("SETTINGS::INVOICE:COMPANY_MAIL"),
-                "Web" => config("SETTINGS::INVOICE:COMPANY_WEBSITE")
+                'E-Mail' => $invoice_settings->company_mail,
+                "Web" => $invoice_settings->company_website
             ],
         ]);
 
@@ -64,7 +65,7 @@ trait Invoiceable
             ->series(now()->format('mY'))
             ->delimiter("-")
             ->sequence($newInvoiceID)
-            ->serialNumberFormat(config("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
+            ->serialNumberFormat($invoice_settings->prefix . '{DELIMITER}{SERIES}{SEQUENCE}')
             ->currencyCode(strtoupper($payment->currency_code))
             ->currencySymbol(Currencies::getSymbol(strtoupper($payment->currency_code)))
             ->notes($notes);
