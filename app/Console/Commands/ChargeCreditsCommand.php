@@ -67,7 +67,7 @@ class ChargeCreditsCommand extends Command
                         $server->suspend();
 
                         //add user to notify list
-                        if (! in_array($user, $this->usersToNotify)) {
+                        if (!in_array($user, $this->usersToNotify)) {
                             array_push($this->usersToNotify, $user);
                         }
                     } catch (\Exception $exception) {
@@ -85,7 +85,7 @@ class ChargeCreditsCommand extends Command
      */
     public function notifyUsers()
     {
-        if (! empty($this->usersToNotify)) {
+        if (!empty($this->usersToNotify)) {
             /** @var User $user */
             foreach ($this->usersToNotify as $user) {
                 $this->line("<fg=yellow>Notified user:</> <fg=blue>{$user->name}</>");

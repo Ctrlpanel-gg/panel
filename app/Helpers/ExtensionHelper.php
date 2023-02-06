@@ -51,13 +51,11 @@ class ExtensionHelper
                 $routes = array_merge($routes, $config['RoutesIgnoreCsrf']);
             }
 
-            // add extension/ infront of every route
-            foreach ($routes as $key => $route) {
-                $routes[$key] = 'extensions/' . $route;
-            }
+            // map over the routes and add the extension name as prefix
+            $result = array_map(fn ($item) => "extensions/{$item}", $routes);
         }
 
-        return $routes;
+        return $result;
     }
 
     /**

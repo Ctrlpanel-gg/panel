@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Classes\Pterodactyl;
+use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Hidehalo\Nanoid\Client;
@@ -47,12 +48,14 @@ class Server extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name',
-        'description',
-        'suspended',
-        'identifier',
-        'product_id',
-        'pterodactyl_id',
+        "name",
+        "description",
+        "suspended",
+        "identifier",
+        "product_id",
+        "pterodactyl_id",
+        "last_billed",
+        "cancelled"
     ];
 
     /**
@@ -125,8 +128,10 @@ class Server extends Model
         if ($response->successful()) {
             $this->update([
                 'suspended' => null,
+                'last_billed' => Carbon::now()->toDateTimeString(),
             ]);
         }
+
 
         return $this;
     }
