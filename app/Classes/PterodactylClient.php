@@ -12,6 +12,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use App\Settings\PterodactylSettings;
+use App\Settings\ServerSettings;
 
 class PterodactylClient
 {
@@ -27,11 +28,13 @@ class PterodactylClient
     
     public function __construct(PterodactylSettings $ptero_settings)
     {
+        $server_settings = new ServerSettings();
+        
         try {
             $this->client = $this->client($ptero_settings);
             $this->client_admin = $this->clientAdmin($ptero_settings);
             $this->per_page_limit = $ptero_settings->per_page_limit;
-            $this->allocation_limit = $ptero_settings->allocation_limit;
+            $this->allocation_limit = $server_settings->allocation_limit;
         }
         catch (Exception $exception) {
             logger('Failed to construct Pterodactyl client, Settings table not available?', ['exception' => $exception]);

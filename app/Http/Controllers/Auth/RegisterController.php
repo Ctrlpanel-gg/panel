@@ -27,6 +27,22 @@ class RegisterController extends Controller
 {
     private $pterodactyl;
 
+    private $credits_display_name;
+
+    private $recaptcha_enabled;
+
+    private $website_show_tos;
+
+    private $register_ip_check;
+
+    private $initial_credits;
+
+    private $initial_server_limit;
+
+    private $referral_mode;
+
+    private $referral_reward;
+
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -52,10 +68,18 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct(PterodactylSettings $ptero_settings)
+    public function __construct(PterodactylSettings $ptero_settings, GeneralSettings $general_settings, WebsiteSettings $website_settings, UserSettings $user_settings, ReferralSettings $referral_settings)
     {
         $this->middleware('guest');
         $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->credits_display_name = $general_settings->credits_display_name;
+        $this->recaptcha_enabled = $general_settings->recaptcha_enabled;
+        $this->website_show_tos = $website_settings->show_tos;
+        $this->register_ip_check = $user_settings->register_ip_check;
+        $this->initial_credits = $user_settings->initial_credits;
+        $this->initial_server_limit = $user_settings->initial_server_limit;
+        $this->referral_mode = $referral_settings->mode;
+        $this->referral_reward = $referral_settings->reward;
     }
 
     /**
@@ -64,21 +88,21 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    protected function validator(array $data, GeneralSettings $general_settings, WebsiteSettings $website_settings, UserSettings $user_settings)
+    protected function validator(array $data)
     {
         $validationRules = [
             'name' => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:64', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
-        if ($general_settings->recaptcha_enabled) {
+        if ($this->recaptcha_enabled) {
             $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
         }
-        if ($website_settings->show_tos) {
+        if ($this->website_show_tos) {
             $validationRules['terms'] = ['required'];
         }
 
-        if ($user_settings->register_ip_check) {
+        if ($this->register_ip_check) {
 
             //check if ip has already made an account
             $data['ip'] = session()->get('ip') ?? request()->ip();
@@ -102,13 +126,13 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return User
      */
-    protected function create(array $data, GeneralSettings $general_settings, UserSettings $user_settings, ReferralSettings $referral_settings)
+    protected function create(array $data)
     {
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'credits' => $user_settings->initial_credits,
-            'server_limit' => $user_settings->initial_server_limit,
+            'credits' => $this->initial_credits,
+            'server_limit' => $this->initial_server_limit,
             'password' => Hash::make($data['password']),
             'referral_code' => $this->createReferralCode(),
 
@@ -142,15 +166,15 @@ class RegisterController extends Controller
             $ref_code = $data['referral_code'];
             $new_user = $user->id;
             if ($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
-                if ($referral_settings->mode === 'sign-up' || $referral_settings->mode === 'both') {
-                    $ref_user->increment('credits', $referral_settings->reward);
+                if ($this->referral_mode === 'sign-up' || $this->referral_mode === 'both') {
+                    $ref_user->increment('credits', $this->referral_reward);
                     $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
 
                     //LOGS REFERRALS IN THE ACTIVITY LOG
                     activity()
                         ->performedOn($user)
                         ->causedBy($ref_user)
-                        ->log('gained ' . $referral_settings->reward . ' ' . $general_settings->credits_display_name . ' for sign-up-referral of ' . $user->name . ' (ID:' . $user->id . ')');
+                        ->log('gained ' . $this->referral_reward . ' ' . $this->credits_display_name . ' for sign-up-referral of ' . $user->name . ' (ID:' . $user->id . ')');
                 }
                 //INSERT INTO USER_REFERRALS TABLE
                 DB::table('user_referrals')->insert([

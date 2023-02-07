@@ -3,9 +3,9 @@
 namespace App\Providers;
 
 use App\Models\UsefulLink;
+use App\Settings\MailSettings;
 use Exception;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -61,6 +61,9 @@ class AppServiceProvider extends ServiceProvider
         } catch (Exception $e) {
             Log::error("Couldnt find useful_links. Probably the installation is not completet. ".$e);
         }
+
+        $settings = $this->app->make(MailSettings::class);
+        $settings->setConfig();
 
         //only run if the installer has been executed
         // try {
