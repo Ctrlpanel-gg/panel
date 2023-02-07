@@ -102,7 +102,7 @@ function PaypalPay(Request $request)
         Log::error('PayPal Payment: ' . $ex->getMessage());
         $payment->delete();
 
-        Redirect::route('store.index')->with('error', 'Payment failed')->send();
+        Redirect::route('store.index')->with('error', __('Payment failed'))->send();
         return;
     }
 }
