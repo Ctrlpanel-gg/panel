@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
 use PayPalCheckoutSdk\Core\SandboxEnvironment;
@@ -74,7 +75,7 @@ function PaypalPay(Request $request)
         "application_context" => [
             "cancel_url" => route('payment.Cancel'),
             "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id]),
-            'brand_name' =>  config('app.name', 'Laravel'),
+            'brand_name' =>  config('app.name', 'Controlpanel.GG'),
             'shipping_preference'  => 'NO_SHIPPING'
         ]
 
@@ -85,14 +86,23 @@ function PaypalPay(Request $request)
         // Call API with your client and get a response for your call
         $response = getPayPalClient()->execute($request);
 
+        // check for any errors in the response
+        if ($response->statusCode != 201) {
+            throw new \Exception($response->statusCode);
+        }
+
+        // make sure the link is not empty
+        if (empty($response->result->links[1]->href)) {
+            throw new \Exception('No redirect link found');
+        }
+
         Redirect::away($response->result->links[1]->href)->send();
         return;
     } catch (HttpException $ex) {
-        error_log($ex->statusCode);
-        error_log($ex->getMessage());
-
+        Log::error('PayPal Payment: ' . $ex->getMessage());
         $payment->delete();
-        Redirect::route('payment.Cancel');
+
+        Redirect::route('store.index')->with('error', __('Payment failed'))->send();
         return;
     }
 }
