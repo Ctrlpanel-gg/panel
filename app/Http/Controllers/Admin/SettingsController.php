@@ -88,9 +88,24 @@ class SettingsController extends Controller
 
         $settingsClass = new $className();
 
-        foreach ($request->all() as $key => $value) {
-            if ($key === '_token' || $key === 'category') continue;
-            $settingsClass->$key = $value;
+        foreach ($settingsClass->toArray() as $key => $value) {
+            switch (gettype($value)) {
+                case 'boolean':
+                    $settingsClass->$key = $request->has($key);
+                    break;
+                case 'string':
+                    $settingsClass->$key = $request->input($key) ?? '';
+                    break;
+                case 'integer':
+                    $settingsClass->$key = $request->input($key) ?? 0;
+                    break;
+                case 'array':
+                    $settingsClass->$key = $request->input($key) ?? [];
+                    break;
+                case 'double':
+                    $settingsClass->$key = $request->input($key) ?? 0.0;
+                    break;
+            }
         }
 
         $settingsClass->save();
