@@ -83,38 +83,52 @@
                                                             <i class="fas fa-info-circle mr-4 invisible"></i>
                                                         @endif
 
-                                                        @if ($value['type'] == 'string')
-                                                            <input type="text" class="form-control"
-                                                                name="{{ $key }}" value="{{ $value['value'] }}">
-                                                        @elseif ($value['type'] == 'boolean')
-                                                            <input type="checkbox" name="{{ $key }}"
-                                                                value="{{ $value['value'] }}">
-                                                        @elseif ($value['type'] == 'number')
-                                                            <input type="number" class="form-control"
-                                                                name="{{ $key }}" value="{{ $value['value'] }}">
-                                                        @elseif ($value['type'] == 'select')
-                                                            <select id="{{ $key }}" class="custom-select w-100"
-                                                                name="{{ $key }}">
-                                                                @foreach ($value['options'] as $option)
-                                                                    <option value="{{ $option }}"
-                                                                        {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                        {{ __($option) }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        @elseif($value['type'] == 'multiselect')
-                                                            <select class="custom-select w-100" name="{{ $key }}"
-                                                                multiple>
-                                                                @foreach ($value['options'] as $option)
-                                                                    <option value="{{ $option }}"
-                                                                        {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                        {{ __($option) }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        @elseif($value['type'] == 'textarea')
-                                                            <textarea class="form-control w-100" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
-                                                        @endif
+                                                        @switch($value)
+                                                            @case($value['type'] == 'string')
+                                                                <input type="text" class="form-control"
+                                                                    name="{{ $key }}" value="{{ $value['value'] }}">
+                                                            @break
+
+                                                            @case($value['type'] == 'boolean')
+                                                                <input type="checkbox" name="{{ $key }}"
+                                                                    value="{{ $value['value'] }}">
+                                                            @break
+
+                                                            @case($value['type'] == 'number')
+                                                                <input type="number" class="form-control"
+                                                                    name="{{ $key }}" value="{{ $value['value'] }}">
+                                                            @break
+
+                                                            @case($value['type'] == 'select')
+                                                                <select id="{{ $key }}" class="custom-select w-100"
+                                                                    name="{{ $key }}">
+                                                                    @foreach ($value['options'] as $option)
+                                                                        <option value="{{ $option }}"
+                                                                            {{ $value['value'] == $option ? 'selected' : '' }}>
+                                                                            {{ __($option) }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @break
+
+                                                            @case($value['type'] == 'multiselect')
+                                                                <select id="{{ $key }}" class="custom-select w-100"
+                                                                    name="{{ $key }}" multiple>
+                                                                    @foreach ($value['options'] as $option)
+                                                                        <option value="{{ $option }}"
+                                                                            {{ $value['value'] == $option ? 'selected' : '' }}>
+                                                                            {{ __($option) }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @break
+
+                                                            @case($value['type'] == 'textarea')
+                                                                <textarea class="form-control" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
+                                                            @break
+
+                                                            @default
+                                                        @endswitch
 
                                                     </div>
                                                 </div>
