@@ -45,4 +45,15 @@ class GeneralSettings extends Settings
             'recaptcha_secret_key'
         ];
     }
+
+    public static function validation()
+    {
+        // create validation rules that can be used in the controller
+        return [
+            'main_site' => 'required|url',
+            'credits_display_name' => 'required|string',
+            'initial_user_credits' => 'required|numeric',
+            'initial_server_limit' => 'required|numeric',
+        ];
+    }
 }
