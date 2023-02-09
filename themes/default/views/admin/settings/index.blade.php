@@ -10,7 +10,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
                                 href="{{ route('admin.settings.index') }}">{{ __('Settings') }}</a></li>
                     </ol>
@@ -31,34 +31,100 @@
     <section class="content">
         <div class="container-fluid">
             <div class="card">
-
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title"><i class="fas fa-tools mr-2"></i>{{ __('Settings') }}</h5>
                     </div>
                 </div>
-
-                <div class="card-body ">
-
-                    <!-- Nav pills -->
-                    <ul class="nav nav-tabs">
-
-                        @foreach ($tabListItems as $tabListItem)
-                            {!! $tabListItem !!}
-                        @endforeach
-                    </ul>
-
-                    <!-- Tab panes -->
-                    <div class="tab-content">
-
-                        @foreach ($tabs as $tab)
-                            @include($tab)
-                        @endforeach
-                    </div>
-
-
-                    </form>
-
+                <div class="card-body">
+                    <aside class="d-flex" style="">
+                        <div class="sidebar d-flex flex-column" style="height: fit-content">
+                            <nav class="container">
+                                <ul class="row nav nav-pills nav-sidebar flex-column" style="width: fit-content" data-widget="treeview" role="menu" data-accordion="false">
+                                    <li class="nav-item col">
+                                        <a href="#general"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('General') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#system"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('System') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#mail"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Mail') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#discord"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Discord') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#invoices"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Invoices') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#locales"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Locales') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#pterodactyl"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Pterodactyl') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#referral"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Referral') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#servers"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Servers') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#tickets"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Tickets') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#users"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Users') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#website"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Website') }}</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="d-flex justify-content-around w-100">
+                            <div class="d-flex" style="height: fit-content;">
+                                Ptero API
+                            </div>
+                            <div class="d-flex" style="height: fit-content;">
+                                <input type="text" name="text" id="#general">
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
 
