@@ -30,7 +30,10 @@
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title"><i class="fas fa-ticket-alt mr-2"></i>{{__('Ticket List')}}</h5>
                     </div>
+                    <a href="{{route("moderator.ticket.category.index")}}"><button class="btn btn-primary float-right">+ {{__("Add Category")}}</button></a>
                 </div>
+
+
 
                 <div class="card-body table-responsive">
 

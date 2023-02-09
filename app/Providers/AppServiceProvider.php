@@ -45,9 +45,9 @@ class AppServiceProvider extends ServiceProvider
             }
 
             //if none of result array is true. it sets ok to false
-            if (! in_array(true, $result)) {
+            if (!in_array(true, $result)) {
                 $ok = false;
-                $validator->setCustomMessages(['multiple_date_format' => 'The format must be one of '.implode(',', $parameters)]);
+                $validator->setCustomMessages(['multiple_date_format' => 'The format must be one of ' . implode(',', $parameters)]);
             }
 
             return $ok;
@@ -59,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
                 view()->share('useful_links', $useful_links);
             }
         } catch (Exception $e) {
-            Log::error("Couldnt find useful_links. Probably the installation is not completet. ".$e);
+            Log::error("Couldnt find useful_links. Probably the installation is not completet. " . $e);
         }
 
         $settings = $this->app->make(MailSettings::class);
@@ -150,5 +150,6 @@ class AppServiceProvider extends ServiceProvider
         //     Log::error('Settings Error: Could not load settings from database. The Installation probably is not done yet.');
         //     Log::error($e);
         // }
+
     }
 }

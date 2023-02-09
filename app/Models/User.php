@@ -105,23 +105,16 @@ class User extends Authenticatable implements MustVerifyEmail
         });
 
         static::deleting(function (User $user) {
-            $user->servers()->chunk(10, function ($servers) {
-                foreach ($servers as $server) {
-                    $server->delete();
-                }
+
+
+            // delete every server the user owns without using chunks
+            $user->servers()->each(function ($server) {
+                $server->delete();
             });
 
-            $user->payments()->chunk(10, function ($payments) {
-                foreach ($payments as $payment) {
-                    $payment->delete();
-                }
-            });
+            $user->payments()->delete();
 
-            $user->tickets()->chunk(10, function ($tickets) {
-                foreach ($tickets as $ticket) {
-                    $ticket->delete();
-                }
-            });
+            $user->tickets()->delete();
 
             $user->ticketBlackList()->delete();
 
@@ -249,17 +242,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getAvatar()
     {
         //TODO loading the images to confirm they exist is causing to much load time. alternative has to be found :) maybe onerror tag on the <img tags>
-//        if ($this->discordUser()->exists()) {
-//            if(@getimagesize($this->discordUser->getAvatar())) {
-//                $avatar = $this->discordUser->getAvatar();
-//            } else {
-//                $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-//            }
-//        } else {
-//            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-//        }
+        //        if ($this->discordUser()->exists()) {
+        //            if(@getimagesize($this->discordUser->getAvatar())) {
+        //                $avatar = $this->discordUser->getAvatar();
+        //            } else {
+        //                $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
+        //            }
+        //        } else {
+        //            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
+        //        }
 
-        return 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($this->email)));
+        return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email)));
     }
 
     /**
@@ -309,9 +302,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            -> logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'email'])
-            -> logOnlyDirty()
-            -> dontSubmitEmptyLogs();
+            ->logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'email'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
-
 }
