@@ -24,6 +24,22 @@ class ReferralSettings extends Settings
     }
 
     /**
+     * Summary of validations array
+     * @return array<string, string>
+     */
+    public static function getValidations()
+    {
+        return [
+            'allowed' => 'nullable|string',
+            'always_give_commission' => 'nullable|boolean',
+            'enabled' => 'nullable|boolean',
+            'reward' => 'nullable|numeric',
+            'mode' => 'nullable|string',
+            'percentage' => 'nullable|numeric',
+        ];
+    }
+
+    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
