@@ -7,6 +7,9 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
@@ -60,5 +63,33 @@ class SettingsController extends Controller
             'themes' => $themes,
             'active_theme' => Theme::active(),
         ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     */
+    public function update(Request $request)
+    {
+        $category = request()->get('category');
+
+        error_log($category);
+
+
+        $className = 'App\\Settings\\' . $category . 'Settings';
+        if (method_exists($className, 'getValidations')) {
+            $validations = $className::getValidations();
+        } else {
+            $validations = [];
+        }
+
+
+        $validator = Validator::make($request->all(), $validations);
+        if ($validator->fails()) {
+            return Redirect::to('admin/settings' . '#' . $category)->withErrors($validator)->withInput();
+        }
+
+
+        return Redirect::to('admin/settings' . '#' . $category)->with('success', 'Settings updated successfully.');
     }
 }
