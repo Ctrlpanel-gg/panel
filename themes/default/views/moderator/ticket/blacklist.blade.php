@@ -90,7 +90,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
                 },
                 processing: true,
                 serverSide: true,

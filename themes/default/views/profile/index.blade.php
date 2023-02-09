@@ -41,7 +41,7 @@
                     @endif
 
                     @if (is_null(Auth::user()->discordUser) && strtolower($force_discord_verification) == 'true')
-                        @if (!empty(config('SETTINGS::DISCORD:CLIENT_ID')) && !empty(config('SETTINGS::DISCORD:CLIENT_SECRET')))
+                        @if (!empty($discord_client_id) && !empty($discord_client_secret))
                             <div class="alert alert-warning p-2 m-2">
                                 <h5>
                                     <i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
@@ -100,8 +100,8 @@
                                                     class="fa fa-coins mr-2"></i>{{ $user->Credits() }}</span>
                                         </div>
 
-                                    @if(config('SETTINGS::REFERRAL::ENABLED') == "true")
-                                        @if((config('SETTINGS::REFERRAL::ALLOWED') == "client" && $user->role != "member") || config('SETTINGS::REFERRAL::ALLOWED') == "everyone")
+                                    @if($referral_enabled)
+                                        @if(($referral_allowed === "client" && $user->role != "member") || $referral_allowed === "everyone")
                                             <div class="mt-1">
                                                     <span class="badge badge-success"><i
                                                             class="fa fa-user-check mr-2"></i>
@@ -239,7 +239,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if (!empty(config('SETTINGS::DISCORD:CLIENT_ID')) && !empty(config('SETTINGS::DISCORD:CLIENT_SECRET')))
+                                            @if (!empty($discord_client_id) && !empty($discord_client_secret))
                                                 <div class="col-12 col-sm-5 offset-sm-1 mb-3">
                                                     @if (is_null(Auth::user()->discordUser))
                                                         <b>{{ __('Link your discord account!') }}</b>

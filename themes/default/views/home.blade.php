@@ -26,10 +26,10 @@
 
         </div>
     @endif
-
-    @if(config("SETTINGS::SYSTEM:ALERT_ENABLED") && !empty(config("SETTINGS::SYSTEM:ALERT_MESSAGE")))
-        <div class="alert mt-4 alert-{{config("SETTINGS::SYSTEM:ALERT_TYPE")}}" role="alert">
-            {!! config("SETTINGS::SYSTEM:ALERT_MESSAGE") !!}
+    
+    @if($general_settings->alert_enabled && !empty($general_settings->alert_message))
+        <div class="alert mt-4 alert-{{$general_settings->alert_type}}" role="alert">
+            {!! $general_settings->alert_message !!}
         </div>
     @endif
     <!-- MAIN CONTENT -->
@@ -55,7 +55,7 @@
                         <span class="info-box-icon bg-secondary elevation-1"><i class="fas fa-coins"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{ CREDITS_DISPLAY_NAME }}</span>
+                            <span class="info-box-text">{{ $general_settings->credits_display_name }}</span>
                             <span class="info-box-number">{{ Auth::user()->Credits() }}</span>
                         </div>
                         <!-- /.info-box-content -->
@@ -72,7 +72,7 @@
                         <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-chart-line"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{ CREDITS_DISPLAY_NAME }} {{ __('Usage') }}</span>
+                            <span class="info-box-text">{{ $general_settings->credits_display_name }} {{ __('Usage') }}</span>
                             <span class="info-box-number">{{ number_format($usage, 2, '.', '') }}
                                 <sup>{{ __('per month') }}</sup></span>
                         </div>
@@ -82,14 +82,14 @@
                 </div>
 
                 <!-- /.col -->
-                @if ($credits > 0.01 and $usage > 0)
+                @if ($credits > 0.01 && $usage > 0)
                     <div class="col-12 col-sm-6 col-md-3">
                         <div class="info-box mb-3">
                             <span class="info-box-icon {{ $bg }} elevation-1">
                                 <i class="fas fa-hourglass-half"></i></span>
                             <div class="info-box-content">
                                 <span
-                                    class="info-box-text">{{ __('Out of Credits in', ['credits' => CREDITS_DISPLAY_NAME]) }}
+                                    class="info-box-text">{{ __('Out of Credits in', ['credits' => $general_settings->credits_display_name]) }}
                                 </span>
                                 <span class="info-box-number">{{ $boxText }}<sup>{{ $unit }}</sup></span>
                             </div>
@@ -106,7 +106,7 @@
 
         <div class="row">
             <div class="col-md-6">
-                @if(config("SETTINGS::SYSTEM:MOTD_ENABLED") == "true")
+                @if($website_settings->motd_enabled)
                     <div class="card card-default">
                         <div class="card-header">
                             <h3 class="card-title">
@@ -116,39 +116,39 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                           {!! config('SETTINGS::SYSTEM:MOTD_MESSAGE', '') !!}
+                           {!! $website_settings->motd_message !!}
                         </div>
                         <!-- /.card-body -->
                     </div>
                 @endif
 
                 <!-- /.card -->
-                @if(config("SETTINGS::SYSTEM:USEFULLINKS_ENABLED") == "true")
-                <div class="card card-default">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-link mr-2"></i>
-                            {{ __('Useful Links') }}
-                        </h3>
+                @if($website_settings->useful_links_enabled)
+                    <div class="card card-default">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-link mr-2"></i>
+                                {{ __('Useful Links') }}
+                            </h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            @foreach ($useful_links as $useful_link)
+                                <div class="alert alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert"
+                                        aria-hidden="true">×</button>
+                                    <h5>
+                                        <a class="alert-link text-decoration-none" target="__blank"
+                                            href="{{ $useful_link->link }}">
+                                            <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
+                                        </a>
+                                    </h5>
+                                    {!! $useful_link->description !!}
+                                </div>
+                            @endforeach
+                        </div>
+                        <!-- /.card-body -->
                     </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        @foreach ($useful_links_dashboard as $useful_link)
-                            <div class="alert alert-dismissible">
-                                <button type="button" class="close" data-dismiss="alert"
-                                    aria-hidden="true">×</button>
-                                <h5>
-                                    <a class="alert-link text-decoration-none" target="__blank"
-                                        href="{{ $useful_link->link }}">
-                                        <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
-                                    </a>
-                                </h5>
-                                {!! $useful_link->description !!}
-                            </div>
-                        @endforeach
-                    </div>
-                    <!-- /.card-body -->
-                </div>
                 @endif
                 <!-- /.card -->
             </div>
@@ -192,7 +192,7 @@
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
-                @if((config('SETTINGS::REFERRAL::ENABLED') ==true))<!--PartnerDiscount::getDiscount()--->
+                @if($referral_settings->enabled)<!--PartnerDiscount::getDiscount()--->
                     <div class="card card-default">
                         <div class="card-header">
                             <h3 class="card-title">
@@ -202,7 +202,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body py-0 pb-2">
-                            @if((config('SETTINGS::REFERRAL::ALLOWED') == "client" && Auth::user()->role != "member") || config('SETTINGS::REFERRAL::ALLOWED') == "everyone")
+                            @if($referral_settings->allowed == "client" && Auth::user()->role != "member" || $referral_settings->allowed == "everyone")
                                 <div class="row">
                                     <div class="mt-3 col-md-8">
                                         <span class="badge badge-success" style="font-size: 14px">
@@ -232,8 +232,8 @@
                                             <tr>
                                                 <td>{{$partnerDiscount->partner_discount}}%</td>
                                                 <td>{{$partnerDiscount->registered_user_discount}}%</td>
-                                                <td>{{config('SETTINGS::REFERRAL::REWARD')}} {{config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME')}}</td>
-                                                <td>{{($partnerDiscount->referral_system_commission==-1)?config('SETTINGS::REFERRAL:PERCENTAGE'):($partnerDiscount->referral_system_commission)}}%</td>
+                                                <td>{{$referral_settings->reward}} {{$general_settings->credits_display_name}}</td>
+                                                <td>{{($partnerDiscount->referral_system_commission==-1) ? $referral_settings->percentage : ($partnerDiscount->referral_system_commission)}}%</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -249,8 +249,8 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{{config('SETTINGS::REFERRAL::REWARD')}} {{config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME')}}</td>
-                                                <td>{{config('SETTINGS::REFERRAL:PERCENTAGE')}}%</td>
+                                                <td>{{$referral_settings->reward}} {{$general_settings->credits_display_name}}</td>
+                                                <td>{{$referral_settings->percentage}}%</td>
                                             </tr>
                                         </tbody>
                                     </table>

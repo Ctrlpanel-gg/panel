@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Classes\Pterodactyl;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
+use App\Settings\LocaleSettings;
+use App\Settings\PterodactylSettings;
+use App\Classes\PterodactylClient;
+use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -26,22 +29,25 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
-    private Pterodactyl $pterodactyl;
+    private $pterodactyl;
 
-    public function __construct(Pterodactyl $pterodactyl)
+    public function __construct(PterodactylSettings $ptero_settings)
     {
-        $this->pterodactyl = $pterodactyl;
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
-
+    
     /**
      * Display a listing of the resource.
      *
      * @param  Request  $request
      * @return Application|Factory|View|Response
      */
-    public function index(Request $request)
+    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
-        return view('admin.users.index');
+        return view('admin.users.index', [
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name
+        ]);
     }
 
     /**
@@ -50,7 +56,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function show(User $user)
+    public function show(User $user, LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
         //QUERY ALL REFERRALS A USER HAS
         //i am not proud of this at all.
@@ -64,6 +70,8 @@ class UserController extends Controller
         return view('admin.users.show')->with([
             'user' => $user,
             'referrals' => $allReferals,
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -98,10 +106,11 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function edit(User $user)
+    public function edit(User $user, GeneralSettings $general_settings)
     {
         return view('admin.users.edit')->with([
             'user' => $user,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -168,7 +177,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return RedirectResponse
      */
-    public function verifyEmail(Request $request, User $user)
+    public function verifyEmail(User $user)
     {
         $user->verifyEmail();
 
@@ -206,7 +215,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function notifications(User $user)
+    public function notifications()
     {
         return view('admin.users.notifications');
     }
@@ -247,7 +256,12 @@ class UserController extends Controller
         }
         $all = $data['all'] ?? false;
         $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
-        Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
+        try {
+            Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
+        }
+        catch (Exception $e) {
+            return redirect()->route('admin.users.notifications')->with('error', __('The attempt to send the email failed with the error: ' . $e->getMessage()));
+        }
 
         return redirect()->route('admin.users.notifications')->with('success', __('Notification sent!'));
     }
@@ -336,12 +350,9 @@ class UserController extends Controller
 
                 return '<span class="badge '.$badgeColor.'">'.$user->role.'</span>';
             })
-            ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="'.config('SETTINGS::SYSTEM:PTERODACTYL:URL').'/admin/users/view/'.$user->pterodactyl_id.'">'.strip_tags($user->name).'</a>';
+            ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
+                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
-            /*->orderColumn('last_seen', function ($query) {
-                $query->orderBy('last_seen', "desc");
-            })*/
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'referrals', 'actions', 'last_seen'])
             ->make(true);
     }
