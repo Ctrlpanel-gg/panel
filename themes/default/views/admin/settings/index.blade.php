@@ -70,9 +70,9 @@
                                         <form action="{{ route('admin.settings.update') }}" method="POST">
                                             @csrf
                                             @method('POST')
+                                            <input type="hidden" name="category" value="{{ $category }}">
 
                                             @foreach ($options as $key => $value)
-                                                <input type="hidden" name="category" value="{{ $category }}">
                                                 <div class="row">
                                                     <div class="col-4 d-flex align-items-center">
                                                         <label for="{{ $key }}">{{ $value['label'] }}</label>
