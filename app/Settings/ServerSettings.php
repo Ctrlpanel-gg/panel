@@ -20,6 +20,20 @@ class ServerSettings extends Settings
     }
 
     /**
+     * Summary of validations array
+     * @return array<string, string>
+     */
+    public static function getValidations()
+    {
+        return [
+            'allocation_limit' => 'required|integer|min:0',
+            'creation_enabled' => 'nullable|string',
+            'enable_upgrade' => 'nullable|string',
+            'charge_first_hour' => 'nullable|string',
+        ];
+    }
+
+    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
