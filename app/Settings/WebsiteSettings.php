@@ -28,6 +28,25 @@ class WebsiteSettings extends Settings
         return 'website';
     }
 
+    /**
+     * Summary of validations array
+     * @return array<string, string>
+     */
+    public static function getValidations()
+    {
+        return [
+            'motd_enabled' => 'nullable|string',
+            'motd_message' => 'nullable|string',
+            'show_imprint' => 'nullable|string',
+            'show_privacy' => 'nullable|string',
+            'show_tos' => 'nullable|string',
+            'useful_links_enabled' => 'nullable|string',
+            'enable_login_logo' => 'nullable|string',
+            'seo_title' => 'nullable|string',
+            'seo_description' => 'nullable|string',
+        ];
+    }
+
 
     /**
      * Summary of optionTypes
