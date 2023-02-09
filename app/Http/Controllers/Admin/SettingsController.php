@@ -18,33 +18,24 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        //Get all tabs as laravel view paths
-        $tabs = [];
-        if(file_exists(Theme::getViewPaths()[0] . '/admin/settings/tabs/')){
-            $tabspath = glob(Theme::getViewPaths()[0] . '/admin/settings/tabs/*.blade.php');
-        }else{
-            $tabspath = glob(Theme::path('views', 'default').'/admin/settings/tabs/*.blade.php');
-        }
 
-        foreach ($tabspath as $filename) {
-            $tabs[] = 'admin.settings.tabs.'.basename($filename, '.blade.php');
+        // get all other settings in app/Settings directory
+        // group items by file name like $categories
+        $settings = collect();
+        foreach (scandir(app_path('Settings')) as $file) {
+            if (in_array($file, ['.', '..'])) {
+                continue;
+            }
+            $className = 'App\\Settings\\' . str_replace('.php', '', $file);
+            $settings[str_replace('Settings.php', '', $file)] = (new $className())->toCollection()->all();
         }
+        $settings->sort();
 
-        //Generate a html list item for each tab based on tabs file basename, set first tab as active
-        $tabListItems = [];
-        foreach ($tabs as $tab) {
-            $tabName = str_replace('admin.settings.tabs.', '', $tab);
-            $tabListItems[] = '<li class="nav-item">
-            <a class="nav-link '.(empty($tabListItems) ? 'active' : '').'" data-toggle="pill" href="#'.$tabName.'">
-            '.__(ucfirst($tabName)).'
-            </a></li>';
-        }
 
         $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
 
         return view('admin.settings.index', [
-            'tabs' => $tabs,
-            'tabListItems' => $tabListItems,
+            'settings' => $settings->all(),
             'themes' => $themes,
             'active_theme' => Theme::active(),
         ]);
