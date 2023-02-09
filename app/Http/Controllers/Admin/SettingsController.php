@@ -73,9 +73,6 @@ class SettingsController extends Controller
     {
         $category = request()->get('category');
 
-        error_log($category);
-
-
         $className = 'App\\Settings\\' . $category . 'Settings';
         if (method_exists($className, 'getValidations')) {
             $validations = $className::getValidations();
@@ -88,6 +85,15 @@ class SettingsController extends Controller
         if ($validator->fails()) {
             return Redirect::to('admin/settings' . '#' . $category)->withErrors($validator)->withInput();
         }
+
+        $settingsClass = new $className();
+
+        foreach ($request->all() as $key => $value) {
+            if ($key === '_token' || $key === 'category') continue;
+            $settingsClass->$key = $value;
+        }
+
+        $settingsClass->save();
 
 
         return Redirect::to('admin/settings' . '#' . $category)->with('success', 'Settings updated successfully.');
