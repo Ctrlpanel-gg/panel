@@ -38,6 +38,20 @@ class PterodactylSettings extends Settings
     }
 
     /**
+     * Summary of validations array
+     * @return array<string, string>
+     */
+    public static function getValidations()
+    {
+        return [
+            'panel_url' => 'required|string|url',
+            'admin_token' => 'required|string',
+            'user_token' => 'required|string',
+            'per_page_limit' => 'required|integer|min:1|max:10000',
+        ];
+    }
+
+    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
