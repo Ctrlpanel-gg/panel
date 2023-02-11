@@ -7,6 +7,9 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
@@ -18,35 +21,96 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        //Get all tabs as laravel view paths
-        $tabs = [];
-        if(file_exists(Theme::getViewPaths()[0] . '/admin/settings/tabs/')){
-            $tabspath = glob(Theme::getViewPaths()[0] . '/admin/settings/tabs/*.blade.php');
-        }else{
-            $tabspath = glob(Theme::path('views', 'default').'/admin/settings/tabs/*.blade.php');
+
+        // get all other settings in app/Settings directory
+        // group items by file name like $categories
+        $settings = collect();
+        foreach (scandir(app_path('Settings')) as $file) {
+            if (in_array($file, ['.', '..'])) {
+                continue;
+            }
+            $className = 'App\\Settings\\' . str_replace('.php', '', $file);
+            $options = (new $className())->toArray();
+
+            if (method_exists($className, 'getOptionInputData')) {
+                $optionInputData = $className::getOptionInputData();
+            } else {
+                $optionInputData = [];
+            }
+
+            $optionsData = [];
+
+            foreach ($options as $key => $value) {
+                $optionsData[$key] = [
+                    'value' => $value,
+                    'label' => $optionInputData[$key]['label'] ?? ucwords(str_replace('_', ' ', $key)),
+                    'type' => $optionInputData[$key]['type'] ?? 'string',
+                    'description' => $optionInputData[$key]['description'] ?? '',
+                    'options' => $optionInputData[$key]['options'] ?? [],
+                ];
+            }
+
+            $settings[str_replace('Settings.php', '', $file)] = $optionsData;
         }
 
-        foreach ($tabspath as $filename) {
-            $tabs[] = 'admin.settings.tabs.'.basename($filename, '.blade.php');
-        }
+        $settings->sort();
 
-        //Generate a html list item for each tab based on tabs file basename, set first tab as active
-        $tabListItems = [];
-        foreach ($tabs as $tab) {
-            $tabName = str_replace('admin.settings.tabs.', '', $tab);
-            $tabListItems[] = '<li class="nav-item">
-            <a class="nav-link '.(empty($tabListItems) ? 'active' : '').'" data-toggle="pill" href="#'.$tabName.'">
-            '.__(ucfirst($tabName)).'
-            </a></li>';
-        }
 
         $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
 
         return view('admin.settings.index', [
-            'tabs' => $tabs,
-            'tabListItems' => $tabListItems,
+            'settings' => $settings->all(),
             'themes' => $themes,
             'active_theme' => Theme::active(),
         ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     */
+    public function update(Request $request)
+    {
+        $category = request()->get('category');
+
+        $className = 'App\\Settings\\' . $category . 'Settings';
+        if (method_exists($className, 'getValidations')) {
+            $validations = $className::getValidations();
+        } else {
+            $validations = [];
+        }
+
+
+        $validator = Validator::make($request->all(), $validations);
+        if ($validator->fails()) {
+            return Redirect::to('admin/settings' . '#' . $category)->withErrors($validator)->withInput();
+        }
+
+        $settingsClass = new $className();
+
+        foreach ($settingsClass->toArray() as $key => $value) {
+            switch (gettype($value)) {
+                case 'boolean':
+                    $settingsClass->$key = $request->has($key);
+                    break;
+                case 'string':
+                    $settingsClass->$key = $request->input($key) ?? '';
+                    break;
+                case 'integer':
+                    $settingsClass->$key = $request->input($key) ?? 0;
+                    break;
+                case 'array':
+                    $settingsClass->$key = $request->input($key) ?? [];
+                    break;
+                case 'double':
+                    $settingsClass->$key = $request->input($key) ?? 0.0;
+                    break;
+            }
+        }
+
+        $settingsClass->save();
+
+
+        return Redirect::to('admin/settings' . '#' . $category)->with('success', 'Settings updated successfully.');
     }
 }

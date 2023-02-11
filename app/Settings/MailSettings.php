@@ -23,7 +23,7 @@ class MailSettings extends Settings
     public ?string $mail_mailer;
 
     public ?bool $mail_enabled;
-    
+
     public static function group(): string
     {
         return 'mail';
@@ -47,7 +47,80 @@ class MailSettings extends Settings
             config()->set('mail.from.address', $this->mail_from_address);
             config()->set('mail.from.name', $this->mail_from_name);
         } catch (\Exception) {
-
         }
+    }
+
+    /**
+     * Summary of validations array
+     * @return array<string, string>
+     */
+    public static function getValidations()
+    {
+        return [
+            'mail_host' => 'nullable|string',
+            'mail_port' => 'nullable|int',
+            'mail_username' => 'nullable|string',
+            'mail_password' => 'nullable|string',
+            'mail_encryption' => 'nullable|string',
+            'mail_from_address' => 'nullable|string',
+            'mail_from_name' => 'nullable|string',
+            'mail_mailer' => 'nullable|string',
+            'mail_enabled' => 'nullable|boolean',
+        ];
+    }
+
+    /**
+     * Summary of optionTypes
+     * Only used for the settings page
+     * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
+     */
+    public static function getOptionInputData()
+    {
+        return [
+            'mail_host' => [
+                'label' => 'Mail Host',
+                'type' => 'string',
+                'description' => 'The host of your mail server.',
+            ],
+            'mail_port' => [
+                'label' => 'Mail Port',
+                'type' => 'number',
+                'description' => 'The port of your mail server.',
+            ],
+            'mail_username' => [
+                'label' => 'Mail Username',
+                'type' => 'string',
+                'description' => 'The username of your mail server.',
+            ],
+            'mail_password' => [
+                'label' => 'Mail Password',
+                'type' => 'string',
+                'description' => 'The password of your mail server.',
+            ],
+            'mail_encryption' => [
+                'label' => 'Mail Encryption',
+                'type' => 'string',
+                'description' => 'The encryption of your mail server.',
+            ],
+            'mail_from_address' => [
+                'label' => 'Mail From Address',
+                'type' => 'string',
+                'description' => 'The from address of your mail server.',
+            ],
+            'mail_from_name' => [
+                'label' => 'Mail From Name',
+                'type' => 'string',
+                'description' => 'The from name of your mail server.',
+            ],
+            'mail_mailer' => [
+                'label' => 'Mail Mailer',
+                'type' => 'string',
+                'description' => 'The mailer of your mail server.',
+            ],
+            'mail_enabled' => [
+                'label' => 'Mail Enabled',
+                'type' => 'boolean',
+            ],
+        ];
     }
 }
