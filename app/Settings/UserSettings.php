@@ -77,12 +77,12 @@ class UserSettings extends Settings
             ],
             'force_discord_verification' => [
                 'label' => 'Force Discord Verification',
-                'type' => 'bool',
+                'type' => 'boolean',
                 'description' => 'Force users to verify their discord account.',
             ],
             'force_email_verification' => [
                 'label' => 'Force Email Verification',
-                'type' => 'bool',
+                'type' => 'boolean',
                 'description' => 'Force users to verify their email.',
             ],
             'initial_credits' => [
