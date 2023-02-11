@@ -89,7 +89,7 @@
                                                                 <i class="fas fa-info-circle mr-4 invisible"></i>
                                                             @endif
 
-                                                            <div class=" w-100">
+                                                            <div class="w-100">
                                                                 @switch($value)
                                                                     @case($value['type'] == 'string')
                                                                         <input type="text" class="form-control"
