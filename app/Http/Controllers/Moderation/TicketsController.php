@@ -33,9 +33,14 @@ class TicketsController extends Controller
         return view('moderator.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server'));
     }
 
-    public function close($ticket_id)
+    public function changeStatus($ticket_id)
     {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        if($ticket->status == "Closed"){
+            $ticket->status = "Reopened";
+            $ticket->save();
+            return redirect()->back()->with('success', __('A ticket has been reopened, ID: #') . $ticket->ticket_id);
+        }
         $ticket->status = 'Closed';
         $ticket->save();
         $ticketOwner = $ticket->user;
@@ -85,12 +90,16 @@ class TicketsController extends Controller
                 return '<a href="'.route('admin.users.show', $tickets->user->id).'">'.$tickets->user->name.'</a>';
             })
             ->addColumn('actions', function (Ticket $tickets) {
+                $statusButtonColor = ($tickets->status == "Closed") ? 'btn-success' : 'btn-warning';
+                $statusButtonIcon = ($tickets->status == "Closed") ? 'fa-redo' : 'fa-times';
+                $statusButtonText = ($tickets->status == "Closed") ? __('Reopen') : __('Close');
+
                 return '
                             <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
-                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.close', ['ticket_id' => $tickets->ticket_id]).'">
+                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
-                            <button data-content="'.__('Close').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-times"></i></button>
+                            <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
                             </form>
                             <form class="d-inline"  method="post" action="'.route('moderator.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
@@ -101,6 +110,7 @@ class TicketsController extends Controller
             })
             ->editColumn('status', function (Ticket $tickets) {
                 switch ($tickets->status) {
+                    case 'Reopened':
                     case 'Open':
                         $badgeColor = 'badge-success';
                         break;

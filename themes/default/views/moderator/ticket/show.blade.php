@@ -44,6 +44,9 @@
                                         @case("Open")
                                             <span class="badge badge-success">{{__("Open")}}</span>
                                         @break
+                                        @case("Reopened")
+                                            <span class="badge badge-success">{{__("Reopened")}}</span>
+                                            @break
                                         @case("Closed")
                                             <span class="badge badge-danger">{{__("Closed")}}</span>
                                         @break
@@ -69,13 +72,27 @@
                                         @endswitch
                                     </p>
                                     <p><b>{{__("Created on")}}:</b> {{ $ticket->created_at->diffForHumans() }}</p>
-                                @if($ticket->status!='Closed')
-                                    <form class="d-inline"  method="post" action="{{route('moderator.ticket.close', ['ticket_id' => $ticket->ticket_id ])}}">
-                                        {{csrf_field()}}
-                                        {{method_field("POST") }}
-                                        <button data-content="{{__("Close")}}" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-times"></i>{{__("Close")}}</button>
-                                    </form>
-                                @endif
+                                    @if($ticket->status=='Closed')
+                                        <form class="d-inline" method="post"
+                                              action="{{route('moderator.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
+                                            {{csrf_field()}}
+                                            {{method_field("POST") }}
+                                            <button data-content="{{__("Reopen")}}" data-toggle="popover"
+                                                    data-trigger="hover" data-placement="top"
+                                                    class="btn btn-sm text-white btn-success mr-1"><i
+                                                    class="fas fa-redo"></i>{{__("Reopen")}}</button>
+                                        </form>
+                                    @else
+                                        <form class="d-inline" method="post"
+                                              action="{{route('moderator.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
+                                            {{csrf_field()}}
+                                            {{method_field("POST") }}
+                                            <button data-content="{{__("Close")}}" data-toggle="popover"
+                                                    data-trigger="hover" data-placement="top"
+                                                    class="btn btn-sm text-white btn-warning mr-1"><i
+                                                    class="fas fa-times"></i>{{__("Close")}}</button>
+                                        </form>
+                                    @endif
                             </div>
                         </div>
                     </div>
