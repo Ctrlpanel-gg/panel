@@ -84,7 +84,7 @@ class MailSettings extends Settings
             ],
             'mail_port' => [
                 'label' => 'Mail Port',
-                'type' => 'int',
+                'type' => 'number',
                 'description' => 'The port of your mail server.',
             ],
             'mail_username' => [
