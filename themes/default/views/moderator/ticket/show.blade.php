@@ -61,10 +61,10 @@
                                                 <span class="badge badge-success">{{__("Low")}}</span>
                                                 @break
                                             @case("Medium")
-                                               <span class="badge badge-warning">{{__("Closed")}}</span>
+                                               <span class="badge badge-warning">{{__("Medium")}}</span>
                                                 @break
                                             @case("High")
-                                               <span class="badge badge-danger">{{__("Answered")}}</span>
+                                               <span class="badge badge-danger">{{__("High")}}</span>
                                                 @break
                                         @endswitch
                                     </p>
