@@ -24,6 +24,52 @@ class CreateGeneralSettings extends SettingsMigration
         $this->migrator->add('general.main_site', '');
     }
 
+    public function down(): void
+    {
+        $table_exists = DB::table('settings')->exists();
+
+        if ($table_exists) {
+            DB::table('settings')->insert([
+                [
+                    'key' => 'SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME',
+                    'value' => $this->getNewValue('credits_display_name'),
+                    'type' => 'string',
+                    'description' => null
+                ],
+                [
+                    'key' => 'SETTINGS::SYSTEM:ALERT_ENABLED',
+                    'value' => $this->getNewValue('alert_enabled'),
+                    'type' => 'boolean',
+                    'description' => null
+                ],
+                [
+                    'key' => 'SETTINGS::SYSTEM:ALERT_TYPE',
+                    'value' => $this->getNewValue('alert_type'),
+                    'type' => 'string',
+                    'description' => null
+                ],
+                [
+                    'key' => 'SETTINGS::SYSTEM:ALERT_MESSAGE',
+                    'value' => $this->getNewValue('alert_message'),
+                    'type' => 'text',
+                    'description' => null
+                ],
+            ]);
+        }
+    }
+
+    public function getNewValue(string $name)
+    {
+        $new_value = DB::table('settings')->where([['group', '=', 'general'], ['name', '=', $name]])->get(['payload'])->first();
+
+        // Some keys returns '""' as a value.
+        if ($new_value->payload === '""') {
+            return null;
+        }
+
+        return $new_value->payload;
+    }
+
     public function getOldValue(string $key)
     {
         // Always get the first value of the key.
