@@ -7,6 +7,7 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
+use App\Traits\DatatablesSortable;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -26,6 +27,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
+    use DatatablesSortable;
+
     private Pterodactyl $pterodactyl;
 
     public function __construct(Pterodactyl $pterodactyl)
@@ -132,7 +135,7 @@ class UserController extends Controller
             ]);
         }
 
-        if (! is_null($request->input('new_password'))) {
+        if (!is_null($request->input('new_password'))) {
             $request->validate([
                 'new_password' => 'required|string|min:8',
                 'new_password_confirmation' => 'required|same:new_password',
@@ -259,7 +262,7 @@ class UserController extends Controller
     public function toggleSuspended(User $user)
     {
         try {
-            ! $user->isSuspended() ? $user->suspend() : $user->unSuspend();
+            !$user->isSuspended() ? $user->suspend() : $user->unSuspend();
         } catch (Exception $exception) {
             return redirect()->back()->with('error', $exception->getMessage());
         }
@@ -270,32 +273,42 @@ class UserController extends Controller
     /**
      * @throws Exception
      */
-    public function dataTable()
+    public function dataTable(Request $request)
     {
-        $query = User::with(['discordUser', 'servers'])->select('users.*');
+        $query =  User::withCount(['servers'])->with('discordUser');
+        // manually count referrals in user_referrals table
+        $query->addSelect(DB::raw('(SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count'));
+
+
+        if ($request->has('order')) {
+            $query = $this->sortByColumn($request->input('order'), $request->input('columns'), $query);
+        }
+
 
         return datatables($query)
             ->addColumn('avatar', function (User $user) {
-                return '<img width="28px" height="28px" class="rounded-circle ml-1" src="'.$user->getAvatar().'">';
+                return '<img width="28px" height="28px" class="rounded-circle ml-1" src="' . $user->getAvatar() . '">';
             })
             ->addColumn('credits', function (User $user) {
-                return '<i class="fas fa-coins mr-2"></i> '.$user->credits();
+                return '<i class="fas fa-coins mr-2"></i> ' . $user->credits();
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
             })
-            ->addColumn('servers', function (User $user) {
-                return $user->servers->count();
+            ->addColumn('servers_count', function (User $user) {
+                return $user->servers_count;
             })
-            ->addColumn('referrals', function (User $user) {
-                return DB::table('user_referrals')->where('referral_id', '=', $user->id)->count();
+            ->addColumn('referrals_count', function (User $user) {
+                return $user->referrals_count;
             })
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
             })
             ->addColumn('last_seen', function (User $user) {
-                return ['display' => $user->last_seen ? $user->last_seen->diffForHumans() : '',
-                    'raw' => $user->last_seen ? strtotime($user->last_seen) : '', ];
+                return [
+                    'display' => $user->last_seen ? $user->last_seen->diffForHumans() : __('Never'),
+                    'raw' => $user->last_seen ? strtotime($user->last_seen) : '',
+                ];
             })
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
@@ -303,19 +316,19 @@ class UserController extends Controller
                 $suspendText = $user->isSuspended() ? __('Unsuspend') : __('Suspend');
 
                 return '
-                <a data-content="'.__('Login as User').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.users.loginas', $user->id).'" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="'.__('Verify').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.users.verifyEmail', $user->id).'" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-envelope"></i></a>
-                <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="'.route('admin.users.show', $user->id).'" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
-                <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="'.route('admin.users.edit', $user->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
-               <form class="d-inline" method="post" action="'.route('admin.users.togglesuspend', $user->id).'">
-                            '.csrf_field().'
-                           <button data-content="'.$suspendText.'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm '.$suspendColor.' text-white mr-1"><i class="far '.$suspendIcon.'"></i></button>
-                       </form>
-                <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.users.destroy', $user->id).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
+                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-envelope"></i></a>
+                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
+                             ' . csrf_field() . '
+                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
+                          </form>
+                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
+                             ' . csrf_field() . '
+                             ' . method_field('DELETE') . '
+                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                        </form>
                 ';
             })
             ->editColumn('role', function (User $user) {
@@ -334,14 +347,14 @@ class UserController extends Controller
                         break;
                 }
 
-                return '<span class="badge '.$badgeColor.'">'.$user->role.'</span>';
+                return '<span class="badge ' . $badgeColor . '">' . $user->role . '</span>';
             })
             ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="'.config('SETTINGS::SYSTEM:PTERODACTYL:URL').'/admin/users/view/'.$user->pterodactyl_id.'">'.strip_tags($user->name).'</a>';
+                return '<a class="text-info" target="_blank" href="' . config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
-            /*->orderColumn('last_seen', function ($query) {
+            ->orderColumn('last_seen', function ($query) {
                 $query->orderBy('last_seen', "desc");
-            })*/
+            })
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'referrals', 'actions', 'last_seen'])
             ->make(true);
     }
