@@ -39,7 +39,7 @@ class TicketsController extends Controller
     }
 
     public function changeStatus($ticket_id)
-    {   
+    {
         try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch(Exception $e)
@@ -66,7 +66,6 @@ class TicketsController extends Controller
         } catch (Exception $e)
         {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
-
         }
 
         TicketComment::where('ticket_id', $ticket->id)->delete();
@@ -80,11 +79,8 @@ class TicketsController extends Controller
         $this->validate($request, ['ticketcomment' => 'required']);
         try {
             $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
-
-        }
-        catch (Exception $e){
+        } catch (Exception $e){
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
-
         }
         $ticket->status = 'Answered';
         $ticket->update();
@@ -176,13 +172,12 @@ class TicketsController extends Controller
     public function blacklistAdd(Request $request)
     {
         try {
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('id', $request->user_id)->firstOrFail();
+        $check = TicketBlacklist::where('user_id', $user->id)->first();
         }
         catch (Exception $e){
             return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
-
         }
-        $check = TicketBlacklist::where('user_id', $user->id)->first();
         if ($check) {
             $check->reason = $request->reason;
             $check->status = 'True';
@@ -209,7 +204,12 @@ class TicketsController extends Controller
 
     public function blacklistChange($id)
     {
-        $blacklist = TicketBlacklist::where('id', $id)->first();
+        try {
+            $blacklist = TicketBlacklist::where('id', $id)->first();
+        }
+        catch (Exception $e){
+            return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
+        }
         if ($blacklist->status == 'True') {
             $blacklist->status = 'False';
         } else {
