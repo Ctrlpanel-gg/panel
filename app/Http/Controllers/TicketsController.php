@@ -72,7 +72,12 @@ class TicketsController extends Controller
 
     public function show($ticket_id)
     {
+       try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+       } catch (Exception $e)
+       {
+        return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+       }
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
@@ -88,7 +93,12 @@ class TicketsController extends Controller
             return redirect()->route('ticket.index')->with('error', __("You can't reply a ticket because you're on the blacklist for a reason: '".$check->reason."', please contact the administrator"));
         }
         $this->validate($request, ['ticketcomment' => 'required']);
+        try {
         $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
+        } catch (Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
         $ticket->status = 'Client Reply';
         $ticket->update();
         $ticketcomment = TicketComment::create([
@@ -105,8 +115,13 @@ class TicketsController extends Controller
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
     public function changeStatus($ticket_id)
-    {
+    {   
+        try {
         $ticket = Ticket::where('user_id', Auth::user()->id)->where("ticket_id", $ticket_id)->firstOrFail();
+        } catch (Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
         if($ticket->status == "Closed"){
             $ticket->status = "Reopened";
             $ticket->save();
