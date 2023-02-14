@@ -25,7 +25,12 @@ class TicketsController extends Controller
 
     public function show($ticket_id)
     {
+        try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
@@ -34,8 +39,14 @@ class TicketsController extends Controller
     }
 
     public function changeStatus($ticket_id)
-    {
+    {   
+        try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch(Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
+
         if($ticket->status == "Closed"){
             $ticket->status = "Reopened";
             $ticket->save();
@@ -50,7 +61,14 @@ class TicketsController extends Controller
 
     public function delete($ticket_id)
     {
+        try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+
+        }
+
         TicketComment::where('ticket_id', $ticket->id)->delete();
         $ticket->delete();
 
@@ -60,7 +78,14 @@ class TicketsController extends Controller
     public function reply(Request $request)
     {
         $this->validate($request, ['ticketcomment' => 'required']);
-        $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
+        try {
+            $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
+
+        }
+        catch (Exception $e){
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+
+        }
         $ticket->status = 'Answered';
         $ticket->update();
         TicketComment::create([
@@ -68,7 +93,12 @@ class TicketsController extends Controller
             'user_id' => Auth::user()->id,
             'ticketcomment' => $request->input('ticketcomment'),
         ]);
+        try {
         $user = User::where('id', $ticket->user_id)->firstOrFail();
+        } catch(Exception $e)
+        {
+            return redirect()->back()->with('warning', __('User not found on the server. Check on the admin database or try again later.'));
+        }
         $newmessage = $request->input('ticketcomment');
         $user->notify(new ReplyNotification($ticket, $user, $newmessage));
 
@@ -145,7 +175,13 @@ class TicketsController extends Controller
 
     public function blacklistAdd(Request $request)
     {
+        try {
         $user = User::where('id', $request->user_id)->first();
+        }
+        catch (Exception $e){
+            return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
+
+        }
         $check = TicketBlacklist::where('user_id', $user->id)->first();
         if ($check) {
             $check->reason = $request->reason;
