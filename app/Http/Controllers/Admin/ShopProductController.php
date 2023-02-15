@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\ShopProduct;
-use App\Traits\DatatablesSortable;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -15,7 +14,6 @@ use Illuminate\Validation\Rule;
 
 class ShopProductController extends Controller
 {
-    use DatatablesSortable;
 
     /**
      * Display a listing of the resource.
@@ -143,9 +141,6 @@ class ShopProductController extends Controller
     {
         $query = ShopProduct::query();
 
-        if ($request->has('order')) {
-            $query = $this->sortByColumn($request->input('order'), $request->input('columns'), $query);
-        }
 
         return datatables($query)
             ->addColumn('actions', function (ShopProduct $shopProduct) {
