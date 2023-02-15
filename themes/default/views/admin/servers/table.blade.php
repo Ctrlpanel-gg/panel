@@ -43,7 +43,6 @@
                 {
                     data: 'user',
                     name: 'user.name',
-                    sortable: false
                 },
                 {
                     data: 'identifier'
