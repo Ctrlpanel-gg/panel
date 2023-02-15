@@ -102,10 +102,12 @@
                         data: 'price'
                     },
                     {
-                        data: 'display'
+                        data: 'display',
+                        sortable: false
                     },
                     {
-                        data: 'description'
+                        data: 'description',
+                        sortable: false
                     },
                     {
                         data: 'created_at'
@@ -121,7 +123,4 @@
             });
         });
     </script>
-
-
-
 @endsection
