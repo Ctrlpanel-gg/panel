@@ -80,8 +80,10 @@
                 processing: true,
                 serverSide: true, //why was this set to false before? increased loadingtimes by 10 seconds
                 stateSave: true,
-                ajax: "{{ route('admin.users.datatable') }}",
-
+                ajax: "{{ route('admin.users.datatable') }}{{ $filter ?? '' }}",
+                order: [
+                    [11, "desc"]
+                ],
                 columns: [{
                         data: 'discordId',
                         visible: false,
@@ -115,10 +117,10 @@
                     },
                     {
                         data: 'servers_count'
+
                     },
                     {
                         data: 'referrals_count',
-                        sortable: false
                     },
                     {
                         data: 'verified',
@@ -126,11 +128,6 @@
                     },
                     {
                         data: 'last_seen',
-                        type: 'num',
-                        render: {
-                            _: 'display',
-                            sort: 'raw'
-                        }
                     },
                     {
                         data: 'actions',

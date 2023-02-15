@@ -16,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\DataTables;
 
 class ServerController extends Controller
 {
@@ -169,6 +170,7 @@ class ServerController extends Controller
     {
         $query = Server::with(['user', 'product']);
 
+
         if ($request->has('product')) {
             $query->where('product_id', '=', $request->input('product'));
         }
@@ -177,10 +179,8 @@ class ServerController extends Controller
         }
         $query->select('servers.*');
 
+        Log::info($request->input('order'));
 
-        if ($request->has('order')) {
-            $query = $this->sortByColumn($request->input('order'), $request->input('columns'), $query);
-        }
 
         return datatables($query)
             ->addColumn('user', function (Server $server) {
