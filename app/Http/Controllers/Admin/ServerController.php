@@ -6,7 +6,6 @@ use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
-use App\Traits\DatatablesSortable;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -16,12 +15,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Yajra\DataTables\DataTables;
 
 class ServerController extends Controller
 {
-    use DatatablesSortable;
-
     /**
      * Display a listing of the resource.
      *
