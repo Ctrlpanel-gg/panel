@@ -7,7 +7,6 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
-use App\Traits\DatatablesSortable;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -27,7 +26,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
-    use DatatablesSortable;
 
     private Pterodactyl $pterodactyl;
 
@@ -275,14 +273,9 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $query =  User::withCount(['servers'])->with('discordUser');
+        $query =  User::with('discordUser')->withCount('servers');
         // manually count referrals in user_referrals table
-        $query->addSelect(DB::raw('(SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count'));
-
-
-        if ($request->has('order')) {
-            $query = $this->sortByColumn($request->input('order'), $request->input('columns'), $query);
-        }
+        $query->selectRaw('users.*, (SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count');
 
 
         return datatables($query)
@@ -295,20 +288,8 @@ class UserController extends Controller
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
             })
-            ->addColumn('servers_count', function (User $user) {
-                return $user->servers_count;
-            })
-            ->addColumn('referrals_count', function (User $user) {
-                return $user->referrals_count;
-            })
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
-            })
-            ->addColumn('last_seen', function (User $user) {
-                return [
-                    'display' => $user->last_seen ? $user->last_seen->diffForHumans() : __('Never'),
-                    'raw' => $user->last_seen ? strtotime($user->last_seen) : '',
-                ];
             })
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
@@ -349,13 +330,13 @@ class UserController extends Controller
 
                 return '<span class="badge ' . $badgeColor . '">' . $user->role . '</span>';
             })
+            ->editColumn('last_seen', function (User $user) {
+                return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');
+            })
             ->editColumn('name', function (User $user) {
                 return '<a class="text-info" target="_blank" href="' . config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
-            ->orderColumn('last_seen', function ($query) {
-                $query->orderBy('last_seen', "desc");
-            })
-            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'referrals', 'actions', 'last_seen'])
-            ->make(true);
+            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
+            ->make();
     }
 }
