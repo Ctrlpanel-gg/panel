@@ -6,6 +6,7 @@ use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
+use App\Traits\DatatablesSortable;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -14,9 +15,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
 {
+    use DatatablesSortable;
+
     /**
      * Display a listing of the resource.
      *
@@ -25,38 +29,6 @@ class ServerController extends Controller
     public function index()
     {
         return view('admin.servers.index');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  Request  $request
-     * @return Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  Server  $server
-     * @return Response
-     */
-    public function show(Server $server)
-    {
-        //
     }
 
     /**
@@ -196,6 +168,7 @@ class ServerController extends Controller
     public function dataTable(Request $request)
     {
         $query = Server::with(['user', 'product']);
+
         if ($request->has('product')) {
             $query->where('product_id', '=', $request->input('product'));
         }
@@ -203,6 +176,11 @@ class ServerController extends Controller
             $query->where('user_id', '=', $request->input('user'));
         }
         $query->select('servers.*');
+
+
+        if ($request->has('order')) {
+            $query = $this->sortByColumn($request->input('order'), $request->input('columns'), $query);
+        }
 
         return datatables($query)
             ->addColumn('user', function (Server $server) {
@@ -232,7 +210,7 @@ class ServerController extends Controller
                 ';
             })
             ->addColumn('status', function (Server $server) {
-                $labelColor = $server->isSuspended() ? 'text-danger' : 'text-success';
+                $labelColor = $server->suspended ? 'text-danger' : 'text-success';
 
                 return '<i class="fas ' . $labelColor . ' fa-circle mr-2"></i>';
             })
