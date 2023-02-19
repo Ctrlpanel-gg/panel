@@ -13,6 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
+        // rename old settings table
+        Schema::table('settings', function (Blueprint $table) {
+            $table->rename('settings_old');
+        });
+
+        // create new settings table
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -31,5 +37,9 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('settings');
+
+        Schema::table('settings_old', function (Blueprint $table) {
+            $table->rename("settings");
+        });
     }
 };
