@@ -26,7 +26,7 @@ class CreateServerSettings extends SettingsMigration
                 'description' => 'The number of servers to show per page.',
             ],
             [
-                'key' => 'SETTINGS::SYSTEM:CREATION',
+                'key' => 'SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS',
                 'value' => $this->getNewValue('creation_enabled'),
                 'type' => 'boolean',
                 'description' => 'Whether or not users can create new servers.',

@@ -11,8 +11,6 @@ class CreateGeneralSettings extends SettingsMigration
 
         // Get the user-set configuration values from the old table.
         $this->migrator->add('general.credits_display_name', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME') : 'Credits');
-        $this->migrator->add('general.initial_user_credits', $table_exists ? $this->getOldValue("SETTINGS::USER:INITIAL_CREDITS") : 250);
-        $this->migrator->add('general.initial_server_limit', $table_exists ? $this->getOldValue("SETTINGS::USER:INITIAL_SERVER_LIMIT") : 1);
         $this->migrator->addEncrypted('general.recaptcha_site_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SITE_KEY") : env('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'));
         $this->migrator->addEncrypted('general.recaptcha_secret_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SECRET_KEY") : env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'));
         $this->migrator->add('general.recaptcha_enabled', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:ENABLED") : true);
@@ -51,11 +49,46 @@ class CreateGeneralSettings extends SettingsMigration
                 'type' => 'text',
                 'description' => 'The message to display in the alert.'
             ],
+            [
+                'key' => 'SETTINGS::SYSTEM:THEME',
+                'value' => $this->getNewValue('theme'),
+                'type' => 'string',
+                'description' => 'The theme to use for the panel.'
+
+            ],
+            [
+                'key' => 'SETTINGS::RECAPTCHA:SITE_KEY',
+                'value' => $this->getNewValue('recaptcha_site_key'),
+                'type' => 'string',
+                'description' => 'The site key for reCAPTCHA.'
+            ],
+            [
+                'key' => 'SETTINGS::RECAPTCHA:SECRET_KEY',
+                'value' => $this->getNewValue('recaptcha_secret_key'),
+                'type' => 'string',
+                'description' => 'The secret key for reCAPTCHA.'
+            ],
+            [
+                'key' => 'SETTINGS::RECAPTCHA:ENABLED',
+                'value' => $this->getNewValue('recaptcha_enabled'),
+                'type' => 'boolean',
+                'description' => 'Enable reCAPTCHA on the panel.'
+            ],
+            [
+                'key' => 'SETTINGS::MISC:PHPMYADMIN:URL',
+                'value' => $this->getNewValue('phpmyadmin_url'),
+                'type' => 'string',
+                'description' => 'The URL to your phpMyAdmin installation.'
+            ],
+            [
+                'key' => 'SETTINGS::SYSTEM:MAIN_SITE',
+                'value' => $this->getNewValue('main_site'),
+                'type' => 'string',
+                'description' => 'The URL to your main site.'
+            ],
         ]);
 
         $this->migrator->delete('general.credits_display_name');
-        $this->migrator->delete('general.initial_user_credits');
-        $this->migrator->delete('general.initial_server_limit');
         $this->migrator->delete('general.recaptcha_site_key');
         $this->migrator->delete('general.recaptcha_secret_key');
         $this->migrator->delete('general.recaptcha_enabled');
