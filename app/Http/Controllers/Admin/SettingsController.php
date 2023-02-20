@@ -38,8 +38,8 @@ class SettingsController extends Controller
                 $optionInputData = [];
             }
 
+            // collect all option input data
             $optionsData = [];
-
             foreach ($options as $key => $value) {
                 $optionsData[$key] = [
                     'value' => $value,
@@ -48,6 +48,11 @@ class SettingsController extends Controller
                     'description' => $optionInputData[$key]['description'] ?? '',
                     'options' => $optionInputData[$key]['options'] ?? [],
                 ];
+            }
+
+            // collect category icon if available
+            if (isset($optionInputData['category_icon'])) {
+                $optionsData['category_icon'] = $optionInputData['category_icon'];
             }
 
             $settings[str_replace('Settings.php', '', $file)] = $optionsData;

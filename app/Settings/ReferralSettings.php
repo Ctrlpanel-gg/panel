@@ -47,6 +47,7 @@ class ReferralSettings extends Settings
     public static function getOptionInputData()
     {
         return [
+            'category_icon' => 'fas fa-user-friends',
             'allowed' => [
                 'label' => 'Allowed',
                 'type' => 'select',

@@ -49,7 +49,8 @@
                                             <a href="#{{ $category }}"
                                                 class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="pill"
                                                 role="tab">
-                                                <i class="nav-icon fas fa-cog"></i>
+                                                <i
+                                                    class="nav-icon fas {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
                                                 <p>
                                                     {{ $category }}
                                                 </p>
@@ -73,6 +74,9 @@
                                             <input type="hidden" name="category" value="{{ $category }}">
 
                                             @foreach ($options as $key => $value)
+                                                @if ($key == 'category_icon')
+                                                    @continue
+                                                @endif
                                                 <div class="row">
                                                     <div class="col-4 d-flex align-items-center">
                                                         <label for="{{ $key }}">{{ $value['label'] }}</label>

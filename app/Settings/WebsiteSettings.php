@@ -56,6 +56,7 @@ class WebsiteSettings extends Settings
     public static function getOptionInputData()
     {
         return [
+            'category_icon' => 'fas fa-globe',
             'motd_enabled' => [
                 'label' => 'Enable MOTD',
                 'type' => 'boolean',
