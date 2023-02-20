@@ -77,6 +77,7 @@ class MailSettings extends Settings
     public static function getOptionInputData()
     {
         return [
+            'category_icon' => 'fas fa-envelope',
             'mail_host' => [
                 'label' => 'Mail Host',
                 'type' => 'string',

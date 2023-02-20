@@ -41,6 +41,7 @@ class ServerSettings extends Settings
     public static function getOptionInputData()
     {
         return [
+            'category_icon' => 'fas fa-server',
             'allocation_limit' => [
                 'label' => 'Allocation Limit',
                 'type' => 'number',
