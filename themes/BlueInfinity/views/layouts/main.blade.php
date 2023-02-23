@@ -441,7 +441,7 @@
         <strong>Copyright &copy; 2021-{{ date('Y') }} <a
                 href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
         All rights
-        reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>.
+        reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. | Theme by <a href="https://2icecube.de/cpgg">2IceCube</a>
         @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
             Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
         @endif

@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 
 class ShopProductController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -66,21 +67,10 @@ class ShopProductController extends Controller
             'display' => 'required|string|max:60',
         ]);
 
-        $disabled = ! is_null($request->input('disabled'));
+        $disabled = !is_null($request->input('disabled'));
         ShopProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been created!'));
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  ShopProduct  $shopProduct
-     * @return Response
-     */
-    public function show(ShopProduct $shopProduct)
-    {
-        //
     }
 
     /**
@@ -116,7 +106,7 @@ class ShopProductController extends Controller
             'display' => 'required|string|max:60',
         ]);
 
-        $disabled = ! is_null($request->input('disabled'));
+        $disabled = !is_null($request->input('disabled'));
         $shopProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been updated!'));
@@ -129,7 +119,7 @@ class ShopProductController extends Controller
      */
     public function disable(Request $request, ShopProduct $shopProduct)
     {
-        $shopProduct->update(['disabled' => ! $shopProduct->disabled]);
+        $shopProduct->update(['disabled' => !$shopProduct->disabled]);
 
         return redirect()->route('admin.store.index')->with('success', __('Product has been updated!'));
     }
@@ -147,19 +137,20 @@ class ShopProductController extends Controller
         return redirect()->back()->with('success', __('Store item has been removed!'));
     }
 
-    public function dataTable()
+    public function dataTable(Request $request)
     {
         $query = ShopProduct::query();
+
 
         return datatables($query)
             ->addColumn('actions', function (ShopProduct $shopProduct) {
                 return '
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.store.edit', $shopProduct->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $shopProduct->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.store.destroy', $shopProduct->id).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">
+                            ' . csrf_field() . '
+                            ' . method_field('DELETE') . '
+                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })
@@ -167,12 +158,12 @@ class ShopProductController extends Controller
                 $checked = $shopProduct->disabled == false ? 'checked' : '';
 
                 return '
-                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.store.disable', $shopProduct->id).'">
-                            '.csrf_field().'
-                            '.method_field('PATCH').'
+                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.disable', $shopProduct->id) . '">
+                            ' . csrf_field() . '
+                            ' . method_field('PATCH') . '
                             <div class="custom-control custom-switch">
-                            <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$shopProduct->id.'">
-                            <label class="custom-control-label" for="switch'.$shopProduct->id.'"></label>
+                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $shopProduct->id . '">
+                            <label class="custom-control-label" for="switch' . $shopProduct->id . '"></label>
                           </div>
                        </form>
                 ';
