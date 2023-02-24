@@ -6,7 +6,6 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Voucher;
-use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -24,11 +23,10 @@ class VoucherController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
+    public function index(LocaleSettings $locale_settings)
     {
         return view('admin.vouchers.index', [
-            'locale_datatables' => $locale_settings->datatables,
-            'credits_display_name' => $general_settings->credits_display_name
+            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
@@ -37,11 +35,9 @@ class VoucherController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create(GeneralSettings $general_settings)
+    public function create()
     {
-        return view('admin.vouchers.create', [
-            'credits_display_name' => $general_settings->credits_display_name
-        ]);
+        return view('admin.vouchers.create');
     }
 
     /**
@@ -82,11 +78,10 @@ class VoucherController extends Controller
      * @param  Voucher  $voucher
      * @return Application|Factory|View
      */
-    public function edit(Voucher $voucher, GeneralSettings $general_settings)
+    public function edit(Voucher $voucher)
     {
         return view('admin.vouchers.edit', [
             'voucher' => $voucher,
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -139,7 +134,7 @@ class VoucherController extends Controller
      *
      * @throws ValidationException
      */
-    public function redeem(Request $request, GeneralSettings $general_settings)
+    public function redeem(Request $request)
     {
         //general validations
         $request->validate([
@@ -170,7 +165,7 @@ class VoucherController extends Controller
 
         if ($request->user()->credits + $voucher->credits >= 99999999) {
             throw ValidationException::withMessages([
-                'code' => "You can't redeem this voucher because you would exceed the  limit of " . $general_settings->credits_display_name,
+                'code' => "You can't redeem this voucher because you would exceed the  limit of ".CREDITS_DISPLAY_NAME,
             ]);
         }
 
@@ -180,7 +175,7 @@ class VoucherController extends Controller
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => "{$voucher->credits} ". $general_settings->credits_display_name .' '.__('have been added to your balance!'),
+            'success' => "{$voucher->credits} ".CREDITS_DISPLAY_NAME.' '.__('have been added to your balance!'),
         ]);
     }
 
