@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Classes\Pterodactyl;
+use App\Classes\PterodactylClient;
+use App\Settings\PterodactylSettings;
+use App\Settings\GeneralSettings;
 use App\Http\Controllers\Controller;
-use App\Models\Egg;
-use App\Models\Location;
-use App\Models\Nest;
-use App\Models\Node;
+use App\Models\Pterodactyl\Egg;
+use App\Models\Pterodactyl\Location;
+use App\Models\Pterodactyl\Nest;
+use App\Models\Pterodactyl\Node;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Server;
@@ -19,7 +21,14 @@ class OverViewController extends Controller
 {
     public const TTL = 86400;
 
-    public function index()
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+    
+    public function index(GeneralSettings $general_settings)
     {
         //Get counters
         $counters = collect();
@@ -134,7 +143,7 @@ class OverViewController extends Controller
 
         //Get node information and prepare collection
         $pteroNodeIds = [];
-        foreach (Pterodactyl::getNodes() as $pteroNode) {
+        foreach ($this->pterodactyl->getNodes() as $pteroNode) {
             array_push($pteroNodeIds, $pteroNode['attributes']['id']);
         }
         $nodes = collect();
@@ -145,7 +154,7 @@ class OverViewController extends Controller
             } //Check if node exists on pterodactyl too, if not, skip
             $nodes->put($nodeId, collect());
             $nodes[$nodeId]->name = $DBnode['name'];
-            $pteroNode = Pterodactyl::getNode($nodeId);
+            $pteroNode = $this->pterodactyl->getNode($nodeId);
             $nodes[$nodeId]->usagePercent = round(max($pteroNode['allocated_resources']['memory'] / ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100), $pteroNode['allocated_resources']['disk'] / ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100)) * 100, 2);
             $counters['totalUsagePercent'] += $nodes[$nodeId]->usagePercent;
 
@@ -156,7 +165,7 @@ class OverViewController extends Controller
         }
         $counters['totalUsagePercent'] = ($DBnodes->count()) ? round($counters['totalUsagePercent'] / $DBnodes->count(), 2) : 0;
 
-        foreach (Pterodactyl::getServers() as $server) { //gets all servers from Pterodactyl and calculates total of credit usage for each node separately + total
+        foreach ($this->pterodactyl->getServers() as $server) { //gets all servers from Pterodactyl and calculates total of credit usage for each node separately + total
             $nodeId = $server['attributes']['node'];
 
             if ($CPServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first()) {
@@ -207,6 +216,7 @@ class OverViewController extends Controller
             'deletedNodesPresent' => ($DBnodes->count() != count($pteroNodeIds)) ? true : false,
             'perPageLimit' => ($counters['servers']->total != Server::query()->count()) ? true : false,
             'tickets' => $tickets,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
