@@ -18,17 +18,20 @@ class SettingsController extends Controller
      */
     public function index()
     {
+
+
         //Get all tabs as laravel view paths
         $tabs = [];
         if(file_exists(Theme::getViewPaths()[0] . '/admin/settings/tabs/')){
             $tabspath = glob(Theme::getViewPaths()[0] . '/admin/settings/tabs/*.blade.php');
         }else{
-            $tabspath = glob(Theme::path('views', 'default').'/admin/settings/tabs/*.blade.php');
+            $tabspath = glob(Theme::path($path = 'views', $themeName = 'default').'/admin/settings/tabs/*.blade.php');
         }
 
-        foreach ($tabspath as $filename) {
+          foreach ($tabspath as $filename) {
             $tabs[] = 'admin.settings.tabs.'.basename($filename, '.blade.php');
         }
+
 
         //Generate a html list item for each tab based on tabs file basename, set first tab as active
         $tabListItems = [];
