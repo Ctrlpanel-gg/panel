@@ -24,10 +24,10 @@ return new class extends Migration
     public function down()
     {
         Schema::create('settings_old', function (Blueprint $table) {
-            $table->string('key', 191)->primary();
+            $table->string('key', 191);
             $table->text('value')->nullable();
             $table->string('type');
-            $table->longText('description')->nullable();
+            $table->longText('description');
             $table->timestamps();
         });
     }
