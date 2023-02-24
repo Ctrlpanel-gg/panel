@@ -23,7 +23,7 @@ class CreateWebsiteSettings extends SettingsMigration
         $this->migrator->add('website.useful_links_enabled', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:USEFULLINKS_ENABLED") : true);
         $this->migrator->add('website.seo_title', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SEO_TITLE") : 'ControlPanel.gg');
         $this->migrator->add('website.seo_description', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SEO_DESCRIPTION") : 'Billing software for Pterodactyl Panel.');
-        $this->migrator->add('website.enable_login_logo', true);
+    
     }
 
     public function getOldValue(string $key)

@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\PartnerDiscount;
 use App\Models\UsefulLink;
-use App\Settings\GeneralSettings;
-use App\Settings\WebsiteSettings;
-use App\Settings\ReferralSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
+use App\Settings\ReferralSettings;
 
 class HomeController extends Controller
 {

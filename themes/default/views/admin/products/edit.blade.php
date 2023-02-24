@@ -153,7 +153,7 @@
                                             @enderror
                                         </div>
                                         <div class="form-group">
-                                            <label for="minimum_credits">{{__('Minimum')}} {{ $credits_display_name }} <i
+                                            <label for="minimum_credits">{{__('Minimum')}} {{ CREDITS_DISPLAY_NAME }} <i
                                                     data-toggle="popover" data-trigger="hover"
                                                     data-content="{{__('Setting to -1 will use the value from configuration.')}}"
                                                     class="fas fa-info-circle"></i></label>

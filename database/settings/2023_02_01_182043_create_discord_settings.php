@@ -13,9 +13,9 @@ class CreateDiscordSettings extends SettingsMigration
         $this->migrator->addEncrypted('discord.bot_token', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:BOT_TOKEN'): '');
         $this->migrator->addEncrypted('discord.client_id', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:CLIENT_ID'): '');
         $this->migrator->addEncrypted('discord.client_secret', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:CLIENT_SECRET'): '');
-        $this->migrator->add('discord.guild_id', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:GUILD_ID'): '');
+        $this->migrator->add('discord.guild_id', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:GUILD_ID'): null);
         $this->migrator->add('discord.invite_url', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:INVITE_URL'): '');
-        $this->migrator->add('discord.role_id', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:ROLE_ID'): '');
+        $this->migrator->add('discord.role_id', $table_exists ? $this->getOldValue('SETTINGS::DISCORD:ROLE_ID'): null);
     }
 
     public function getOldValue(string $key)

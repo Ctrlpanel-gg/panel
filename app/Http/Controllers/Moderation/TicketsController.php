@@ -10,19 +10,17 @@ use App\Models\TicketCategory;
 use App\Models\TicketComment;
 use App\Models\User;
 use App\Notifications\Ticket\User\ReplyNotification;
-use App\Settings\LocaleSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TicketsController extends Controller
 {
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
-        return view('moderator.ticket.index', [
-            'tickets' => Ticket::orderBy('id', 'desc')->paginate(10),
-            'ticketcategories' => TicketCategory::all(),
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        $tickets = Ticket::orderBy('id', 'desc')->paginate(10);
+        $ticketcategories = TicketCategory::all();
+
+        return view('moderator.ticket.index', compact('tickets', 'ticketcategories'));
     }
 
     public function show($ticket_id)
@@ -166,11 +164,9 @@ class TicketsController extends Controller
             ->make(true);
     }
 
-    public function blacklist(LocaleSettings $locale_settings)
+    public function blacklist()
     {
-        return view('moderator.ticket.blacklist', [
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        return view('moderator.ticket.blacklist');
     }
 
     public function blacklistAdd(Request $request)

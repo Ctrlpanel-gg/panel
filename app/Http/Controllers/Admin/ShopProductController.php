@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\ShopProduct;
-use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -21,7 +20,7 @@ class ShopProductController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index(Request $request)
     {
         $isPaymentSetup = false;
 
@@ -35,7 +34,6 @@ class ShopProductController extends Controller
 
         return view('admin.store.index', [
             'isPaymentSetup' => $isPaymentSetup,
-            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 

@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Nest;
 use App\Models\Product;
-use App\Settings\GeneralSettings;
-use App\Settings\LocaleSettings;
 use App\Settings\UserSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -24,11 +22,9 @@ class ProductController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
-        return view('admin.products.index', [
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        return view('admin.products.index');
     }
 
     /**
@@ -36,12 +32,11 @@ class ProductController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create(GeneralSettings $general_settings)
+    public function create()
     {
         return view('admin.products.create', [
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -96,12 +91,11 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return Application|Factory|View
      */
-    public function show(Product $product, UserSettings $user_settings, GeneralSettings $general_settings)
+    public function show(Product $product, UserSettings $user_settings)
     {
         return view('admin.products.show', [
             'product' => $product,
             'minimum_credits' => $user_settings->min_credits_to_make_server,
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -111,13 +105,12 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return Application|Factory|View
      */
-    public function edit(Product $product, GeneralSettings $general_settings)
+    public function edit(Product $product)
     {
         return view('admin.products.edit', [
             'product' => $product,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 

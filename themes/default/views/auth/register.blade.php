@@ -10,7 +10,7 @@
                         class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
             </div>
             <div class="card-body">
-                @if (!app(App\Settings\UserSettings::class)->creation_enabled)
+                @if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS'))
                     <div class="alert alert-warning p-2 m-2">
                         <h5><i class="icon fas fa-exclamation-circle"></i> {{ __('Warning!') }}</h5>
                         {{ __('The system administrator has blocked the registration of new users') }}
@@ -108,7 +108,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if (app(App\Settings\ReferralSettings::class)->enabled)
+                        @if (config('SETTINGS::REFERRAL::ENABLED') == 'true')
                             <div class="input-group mb-3">
                                 <input type="text" value="{{ Request::get('ref') }}" class="form-control"
                                        name="referral_code"
@@ -120,7 +120,7 @@
                                 </div>
                             </div>
                         @endif
-                        @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
+                        @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
                             <div class="input-group mb-3">
                                 {!! htmlFormSnippet() !!}
                                 @error('g-recaptcha-response')
@@ -133,8 +133,8 @@
 
                         <div class="row">
                             <div class="col-12">
-                                @php($website_settings = app(App\Settings\WebsiteSettings::class))
-                                @if ($website_settings->show_tos)
+                                @if (config('SETTINGS::SYSTEM:SHOW_TOS'))
+
                                     <div class="icheck-primary">
                                         <input type="checkbox" id="agreeTerms" name="terms" value="agree">
                                         <label for="agreeTerms">
@@ -146,6 +146,7 @@
                                             <small><strong>{{ $message }}</strong></small>
                                        </span>
                                         @enderror
+
                                 @endif
                             </div>
                         </div>
@@ -156,6 +157,18 @@
                         <!-- /.col -->
             </div>
             </form>
+
+            {{--                <div class="social-auth-links text-center"> --}}
+            {{--                    <a href="#" class="btn btn-block btn-primary"> --}}
+            {{--                        <i class="fab fa-facebook mr-2"></i> --}}
+            {{--                        Sign up using Facebook --}}
+            {{--                    </a> --}}
+            {{--                    <a href="#" class="btn btn-block btn-danger"> --}}
+            {{--                        <i class="fab fa-google-plus mr-2"></i> --}}
+            {{--                        Sign up using Google+ --}}
+            {{--                    </a> --}}
+            {{--                </div> --}}
+
             <a href="{{ route('login') }}" class="text-center">{{ __('I already have a membership') }}</a>
         </div>
         <!-- /.form-box -->
@@ -166,15 +179,15 @@
     {{-- imprint and privacy policy --}}
     <div class="fixed-bottom ">
         <div class="container text-center">
-            @if ($website_settings->show_imprint)
-                    <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
-                @endif
-                @if ($website_settings->show_privacy)
-                    <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
-                @endif
-                @if ($website_settings->show_tos)
-                    | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
-                @endif
+            @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT') == "true")
+                <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+            @endif
+            @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY') == "true")
+                <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+            @endif
+            @if (config('SETTINGS::SYSTEM:SHOW_TOS') == "true")
+                | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+            @endif
         </div>
     </div>
     </body>

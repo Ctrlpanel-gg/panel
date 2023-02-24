@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\UsefulLinkLocation;
 use App\Http\Controllers\Controller;
 use App\Models\UsefulLink;
-use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -20,11 +19,9 @@ class UsefulLinkController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
-        return view('admin.usefullinks.index', [
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        return view('admin.usefullinks.index');
     }
 
     /**

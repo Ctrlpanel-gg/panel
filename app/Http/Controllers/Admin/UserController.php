@@ -6,7 +6,6 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
-use App\Settings\LocaleSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -32,11 +31,9 @@ class UserController extends Controller
      * @param  Request  $request
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
-        return view('admin.users.index', [
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        return view('admin.users.index');
     }
 
     /**
