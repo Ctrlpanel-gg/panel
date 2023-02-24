@@ -10,41 +10,9 @@ class CreateTicketSettings extends SettingsMigration
         $table_exists = DB::table('settings_old')->exists();
 
         // Get the user-set configuration values from the old table.
-        $this->migrator->add('ticket.enabled', $table_exists ? $this->getOldValue('SETTINGS::TICKET:ENABLED') : 'all');
+        $this->migrator->add('ticket.enabled', true);
         $this->migrator->add('ticket.notify', $table_exists ? $this->getOldValue('SETTINGS::TICKET:NOTIFY') : 'all');
-    }
 
-    public function down(): void
-    {
-        DB::table('settings_old')->insert([
-            [
-                'key' => 'SETTINGS::TICKET:NOTIFY',
-                'value' => $this->getNewValue('notify'),
-                'type' => 'string',
-                'description' => 'The notification type for tickets.',
-            ],
-            [
-                'key' => 'SETTINGS::TICKET:ENABLED',
-                'value' => $this->getNewValue('enabled'),
-                'type' => 'boolean',
-                'description' => 'Enable or disable the ticket system.',
-            ]
-        ]);
-
-        $this->migrator->delete('ticket.enabled');
-        $this->migrator->delete('ticket.notify');
-    }
-
-    public function getNewValue(string $name)
-    {
-        $new_value = DB::table('settings')->where([['group', '=', 'ticket'], ['name', '=', $name]])->get(['payload'])->first();
-
-        // Some keys returns '""' as a value.
-        if ($new_value->payload === '""') {
-            return null;
-        }
-
-        return $new_value->payload;
     }
 
     public function getOldValue(string $key)

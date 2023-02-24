@@ -16,55 +16,6 @@ class CreatePterodactylSettings extends SettingsMigration
         $this->migrator->add('pterodactyl.per_page_limit', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT') : 200);
     }
 
-    public function down(): void
-    {
-
-
-        DB::table('settings_old')->insert([
-            [
-                'key' => 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN',
-                'value' => $this->getNewValue('admin_token'),
-                'type' => 'string',
-                'description' => 'The admin token for the Pterodactyl panel.',
-            ],
-            [
-                'key' => 'SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN',
-                'value' => $this->getNewValue('user_token'),
-                'type' => 'string',
-                'description' => 'The user token for the Pterodactyl panel.',
-            ],
-            [
-                'key' => 'SETTINGS::SYSTEM:PTERODACTYL:URL',
-                'value' => $this->getNewValue('panel_url'),
-                'type' => 'string',
-                'description' => 'The URL for the Pterodactyl panel.',
-            ],
-            [
-                'key' => 'SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT',
-                'value' => $this->getNewValue('per_page_limit'),
-                'type' => 'integer',
-                'description' => 'The number of servers to show per page.',
-            ],
-        ]);
-
-        $this->migrator->delete('pterodactyl.admin_token');
-        $this->migrator->delete('pterodactyl.user_token');
-        $this->migrator->delete('pterodactyl.panel_url');
-        $this->migrator->delete('pterodactyl.per_page_limit');
-    }
-
-    public function getNewValue(string $name)
-    {
-        $new_value = DB::table('settings')->where([['group', '=', 'pterodactyl'], ['name', '=', $name]])->get(['payload'])->first();
-
-        // Some keys returns '""' as a value.
-        if ($new_value->payload === '""') {
-            return null;
-        }
-
-        return $new_value->payload;
-    }
-
     public function getOldValue(string $key)
     {
         // Always get the first value of the key.

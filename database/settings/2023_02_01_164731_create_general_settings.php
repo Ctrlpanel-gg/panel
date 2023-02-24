@@ -26,45 +26,36 @@ class CreateGeneralSettings extends SettingsMigration
 
     public function down(): void
     {
-        DB::table('settings_old')->insert([
-            [
-                'key' => 'SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME',
-                'value' => $this->getNewValue('credits_display_name'),
-                'type' => 'string',
-                'description' => 'The name of the credits on the panel.'
-            ],
-            [
-                'key' => 'SETTINGS::SYSTEM:ALERT_ENABLED',
-                'value' => $this->getNewValue('alert_enabled'),
-                'type' => 'boolean',
-                'description' => 'Enable the alert at the top of the panel.'
-            ],
-            [
-                'key' => 'SETTINGS::SYSTEM:ALERT_TYPE',
-                'value' => $this->getNewValue('alert_type'),
-                'type' => 'string',
-                'description' => 'The type of alert to display.'
-            ],
-            [
-                'key' => 'SETTINGS::SYSTEM:ALERT_MESSAGE',
-                'value' => $this->getNewValue('alert_message'),
-                'type' => 'text',
-                'description' => 'The message to display in the alert.'
-            ],
-        ]);
+        $table_exists = DB::table('settings')->exists();
 
-        $this->migrator->delete('general.credits_display_name');
-        $this->migrator->delete('general.initial_user_credits');
-        $this->migrator->delete('general.initial_server_limit');
-        $this->migrator->delete('general.recaptcha_site_key');
-        $this->migrator->delete('general.recaptcha_secret_key');
-        $this->migrator->delete('general.recaptcha_enabled');
-        $this->migrator->delete('general.phpmyadmin_url');
-        $this->migrator->delete('general.alert_enabled');
-        $this->migrator->delete('general.alert_type');
-        $this->migrator->delete('general.alert_message');
-        $this->migrator->delete('general.theme');
-        $this->migrator->delete('general.main_site');
+        if ($table_exists) {
+            DB::table('settings')->insert([
+                [
+                    'key' => 'SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME',
+                    'value' => $this->getNewValue('credits_display_name'),
+                    'type' => 'string',
+                    'description' => null
+                ],
+                [
+                    'key' => 'SETTINGS::SYSTEM:ALERT_ENABLED',
+                    'value' => $this->getNewValue('alert_enabled'),
+                    'type' => 'boolean',
+                    'description' => null
+                ],
+                [
+                    'key' => 'SETTINGS::SYSTEM:ALERT_TYPE',
+                    'value' => $this->getNewValue('alert_type'),
+                    'type' => 'string',
+                    'description' => null
+                ],
+                [
+                    'key' => 'SETTINGS::SYSTEM:ALERT_MESSAGE',
+                    'value' => $this->getNewValue('alert_message'),
+                    'type' => 'text',
+                    'description' => null
+                ],
+            ]);
+        }
     }
 
     public function getNewValue(string $name)
