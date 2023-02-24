@@ -40,95 +40,61 @@
                 <div class="card-body">
                     <!-- Sidebar Menu -->
                     <div class="d-flex w-100">
-                        <div class="col-2 p-0">
-                            <nav class="mt-1">
-                                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
-                                    data-accordion="false">
-                                    @foreach ($settings as $category => $options)
-                                        <li class="nav-item border-bottom-0">
-                                            <a href="#{{ $category }}"
-                                                class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="pill"
-                                                role="tab">
-                                                <i class="nav-icon fas fa-cog"></i>
-                                                <p>
-                                                    {{ $category }}
-                                                </p>
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </nav>
-                        </div>
+                        <nav class="mt-1">
+                            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
+                                data-accordion="false">
+                                @foreach ($settings as $category => $options)
+                                    <li class="nav-item border-bottom-0">
+                                        <a href="#{{ $category }}" class="nav-link {{ $loop->first ? 'active' : '' }}"
+                                            data-toggle="pill" role="tab">
+                                            <i class="nav-icon fas fa-cog"></i>
+                                            <p>
+                                                {{ $category }}
+                                            </p>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </nav>
                         <!-- /.sidebar-menu -->
                         <!-- Content in $settings -->
-                        <div class="col-10 p-0">
-
-                            <div class="tab-content ml-3" style="width: 100%;">
-                                @foreach ($settings as $category => $options)
-                                    <div container class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
-                                        id="{{ $category }}" role="tabpanel">
-                                        @foreach ($options as $key => $value)
-                                            <div class="row">
-                                                <div class="col-4 d-flex align-items-center">
-                                                    <label for="{{ $key }}">{{ $value['label'] }}</label>
-                                                </div>
-
-                                                <div class="col-8">
-                                                    <div class="custom-control mb-3 d-flex align-items-center">
-                                                        @if ($value['description'])
-                                                            <i class="fas fa-info-circle mr-4" data-toggle="popover"
-                                                                data-trigger="hover" data-placement="top" data-html="true"
-                                                                data-content="{{ $value['description'] }}"></i>
-                                                        @else
-                                                            <i class="fas fa-info-circle mr-4 invisible"></i>
-                                                        @endif
-
-                                                        @if ($value['type'] == 'string')
-                                                            <input type="text" class="form-control"
-                                                                name="{{ $key }}" value="{{ $value['value'] }}">
-                                                        @elseif ($value['type'] == 'boolean')
-                                                            <input type="checkbox" name="{{ $key }}"
-                                                                value="{{ $value['value'] }}">
-                                                        @elseif ($value['type'] == 'number')
-                                                            <input type="number" class="form-control"
-                                                                name="{{ $key }}" value="{{ $value['value'] }}">
-                                                        @elseif ($value['type'] == 'select')
-                                                            <select id="{{ $key }}" class="custom-select w-100"
-                                                                name="{{ $key }}">
-                                                                @foreach ($value['options'] as $option)
-                                                                    <option value="{{ $option }}"
-                                                                        {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                        {{ __($option) }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        @elseif($value['type'] == 'multiselect')
-                                                            <select class="custom-select w-100" name="{{ $key }}"
-                                                                multiple>
-                                                                @foreach ($value['options'] as $option)
-                                                                    <option value="{{ $option }}"
-                                                                        {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                        {{ __($option) }}
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                        @elseif($value['type'] == 'textarea')
-                                                            <textarea class="form-control w-100" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
-                                                        @endif
-
-                                                    </div>
-                                                </div>
+                        <div class="tab-content ml-3" style="width: 100%;">
+                            @foreach ($settings as $category => $options)
+                                <div container class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
+                                    id="{{ $category }}" role="tabpanel">
+                                    @foreach ($options as $key => $value)
+                                        <div class="row">
+                                            <div class="col">
+                                                {{ $value['label'] }}
                                             </div>
-                                        @endforeach
-                                    </div>
-                                @endforeach
-                            </div>
+                                            <div class="col">
+                                                @if (gettype($value['value']) == 'string')
+                                                    <input type="text" class="form-control" name="{{ $key }}"
+                                                        value="{{ $value['value'] }}">
+                                                @elseif (gettype($value['value']) == 'boolean')
+                                                    <input type="checkbox" class="form-control" name="{{ $key }}"
+                                                        value="{{ $value['value'] }}">
+                                                @elseif (gettype($value['value']) == 'integer' || gettype($value['value']) == 'double')
+                                                    <input type="number" class="form-control" name="{{ $key }}"
+                                                        value="{{ $value['value'] }}">
+                                                @elseif (gettype($value['value']) == 'array')
+                                                    <select class="form-control" name="{{ $key }}">
+                                                        @foreach ($value['value'] as $option)
+                                                            <option value="{{ $option }}">{{ $option }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
 
 
         <!-- END CUSTOM CONTENT -->
@@ -147,21 +113,6 @@
             const scrollmem = $('body').scrollTop();
             window.location.hash = this.hash;
             $('html,body').scrollTop(scrollmem);
-        });
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
-        })
-
-        tinymce.init({
-            selector: 'textarea',
-            promotion: false,
-            skin: "oxide-dark",
-            content_css: "dark",
-            branding: false,
-            height: 500,
-            width: '100%',
-            plugins: ['image', 'link'],
         });
     </script>
 @endsection

@@ -29,25 +29,17 @@ class SettingsController extends Controller
             $className = 'App\\Settings\\' . str_replace('.php', '', $file);
             $options = (new $className())->toArray();
 
-            if (method_exists($className, 'getOptionInputData')) {
-                $optionInputData = $className::getOptionInputData();
-            } else {
-                $optionInputData = [];
-            }
-
-            $optionsData = [];
 
             foreach ($options as $key => $value) {
-                $optionsData[$key] = [
+                $options[$key] = [
                     'value' => $value,
-                    'label' => $optionInputData[$key]['label'] ?? ucwords(str_replace('_', ' ', $key)),
-                    'type' => $optionInputData[$key]['type'] ?? 'string',
-                    'description' => $optionInputData[$key]['description'] ?? '',
-                    'options' => $optionInputData[$key]['options'] ?? [],
+                    'label' => ucwords(str_replace('_', ' ', $key))
                 ];
             }
 
-            $settings[str_replace('Settings.php', '', $file)] = $optionsData;
+
+
+            $settings[str_replace('Settings.php', '', $file)] = $options;
         }
 
         $settings->sort();
