@@ -75,9 +75,9 @@ return [
      * additional prefix.
      */
     'cache' => [
-        'enabled' => env('SETTINGS_CACHE_ENABLED', true),
-        'store' => 'redis',
-        'prefix' => 'setting',
+        'enabled' => env('SETTINGS_CACHE_ENABLED', false),
+        'store' => null,
+        'prefix' => 'setting_',
         'ttl' => null,
     ],
 
