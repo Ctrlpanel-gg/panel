@@ -12,8 +12,6 @@ class ServerSettings extends Settings
 
     public bool $enable_upgrade;
 
-    public bool $charge_first_hour;
-
     public static function group(): string
     {
         return 'server';

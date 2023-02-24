@@ -29,17 +29,6 @@ class CreateWebsiteSettings extends SettingsMigration
     public function getOldValue(string $key)
     {
         // Always get the first value of the key.
-        $old_value = DB::table('settings_old')->where('key', '=', $key)->get(['value', 'type'])->first();
-
-        // Handle the old values to return without it being a string in all cases.
-        if ($old_value->type === "string" || $old_value->type === "text") {
-            return $old_value->value;
-        }
-
-        if ($old_value->type === "boolean") {
-            return filter_var($old_value->value, FILTER_VALIDATE_BOOL);
-        }
-
-        return filter_var($old_value->value, FILTER_VALIDATE_INT);
+        return DB::table('settings_old')->where('key', '=', $key)->get(['value'])->first()->value;
     }
 }

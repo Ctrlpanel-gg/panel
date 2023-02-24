@@ -20,8 +20,10 @@ class OverViewController extends Controller
 {
     public const TTL = 86400;
 
-    public function index()
+    public function index(PterodactylSettings $ptero_settings)
     {
+        //Prepare pterodactyl client
+        $pterodactyl_client = new PterodactylClient($ptero_settings);
         //Get counters
         $counters = collect();
         //Set basic variables in the collection
@@ -135,7 +137,7 @@ class OverViewController extends Controller
 
         //Get node information and prepare collection
         $pteroNodeIds = [];
-        foreach ($this->pterodactyl->getNodes() as $pteroNode) {
+        foreach ($pterodactyl_client->getNodes() as $pteroNode) {
             array_push($pteroNodeIds, $pteroNode['attributes']['id']);
         }
         $nodes = collect();
@@ -146,7 +148,7 @@ class OverViewController extends Controller
             } //Check if node exists on pterodactyl too, if not, skip
             $nodes->put($nodeId, collect());
             $nodes[$nodeId]->name = $DBnode['name'];
-            $pteroNode = $this->pterodactyl->getNode($nodeId);
+            $pteroNode = $pterodactyl_client->getNode($nodeId);
             $nodes[$nodeId]->usagePercent = round(max($pteroNode['allocated_resources']['memory'] / ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100), $pteroNode['allocated_resources']['disk'] / ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100)) * 100, 2);
             $counters['totalUsagePercent'] += $nodes[$nodeId]->usagePercent;
 
@@ -157,7 +159,7 @@ class OverViewController extends Controller
         }
         $counters['totalUsagePercent'] = ($DBnodes->count()) ? round($counters['totalUsagePercent'] / $DBnodes->count(), 2) : 0;
 
-        foreach ($this->pterodactyl->getServers() as $server) { //gets all servers from Pterodactyl and calculates total of credit usage for each node separately + total
+        foreach ($pterodactyl_client->getServers() as $server) { //gets all servers from Pterodactyl and calculates total of credit usage for each node separately + total
             $nodeId = $server['attributes']['node'];
 
             if ($CPServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first()) {
