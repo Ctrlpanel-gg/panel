@@ -45,7 +45,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function show(User $user, LocaleSettings $locale_settings)
+    public function show(User $user)
     {
         //QUERY ALL REFERRALS A USER HAS
         //i am not proud of this at all.
@@ -59,7 +59,6 @@ class UserController extends Controller
         return view('admin.users.show')->with([
             'user' => $user,
             'referrals' => $allReferals,
-            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
