@@ -36,8 +36,7 @@
                                 </span>
                             @enderror
                         </div>
-
-                        @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
+                        @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
                             <div class="input-group mb-3">
                                 {!! htmlFormSnippet() !!}
                                 @error('g-recaptcha-response')
@@ -70,13 +69,14 @@
         {{-- imprint and privacy policy --}}
         <div class="fixed-bottom ">
             <div class="container text-center">
-                @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT') == "true")
+                @php($website_settings = app(App\Settings\WebsiteSettings::class))
+                @if ($website_settings->show_imprint)
                     <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
                 @endif
-                @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY') == "true")
+                @if ($website_settings->show_privacy)
                     <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
-                @if (config('SETTINGS::SYSTEM:SHOW_TOS') == "true")
+                @if ($website_settings->show_tos)
                     | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>

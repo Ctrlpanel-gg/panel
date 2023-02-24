@@ -38,21 +38,21 @@
 
                     <table id="datatable" class="table table-striped">
                         <thead>
-                            <tr>
-                                <th>discordId</th>
-                                <th>ip</th>
-                                <th>pterodactyl_id</th>
-                                <th>{{ __('Avatar') }}</th>
-                                <th>{{ __('Name') }}</th>
-                                <th>{{ __('Role') }}</th>
-                                <th>{{ __('Email') }}</th>
-                                <th>{{ CREDITS_DISPLAY_NAME }}</th>
-                                <th>{{ __('Servers') }}</th>
-                                <th>{{ __('Referrals') }}</th>
-                                <th>{{ __('Verified') }}</th>
-                                <th>{{ __('Last seen') }}</th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>discordId</th>
+                            <th>ip</th>
+                            <th>pterodactyl_id</th>
+                            <th>{{__('Avatar')}}</th>
+                            <th>{{__('Name')}}</th>
+                            <th>{{__('Role')}}</th>
+                            <th>{{__('Email')}}</th>
+                            <th>{{ $credits_display_name }}</th>
+                            <th>{{__('Servers')}}</th>
+                            <th>{{__('Referrals')}}</th>
+                            <th>{{__('Verified')}}</th>
+                            <th>{{__('Last seen')}}</th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
                         </tbody>
@@ -75,7 +75,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             $('#datatable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ config('SETTINGS::LOCALE:DATATABLES') }}.json'
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
                 },
                 processing: true,
                 serverSide: true, //why was this set to false before? increased loadingtimes by 10 seconds

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShopProduct;
+use App\Settings\GeneralSettings;
+use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
 {
     /** Display a listing of the resource. */
-    public function index()
+    public function index(UserSettings $user_settings, GeneralSettings $general_settings)
     {
         $isPaymentSetup = false;
 
@@ -21,18 +23,19 @@ class StoreController extends Controller
         }
 
         //Required Verification for creating an server
-        if (config('SETTINGS::USER:FORCE_EMAIL_VERIFICATION', false) === 'true' && ! Auth::user()->hasVerifiedEmail()) {
+        if ($user_settings->force_email_verification && ! Auth::user()->hasVerifiedEmail()) {
             return redirect()->route('profile.index')->with('error', __('You are required to verify your email address before you can purchase credits.'));
         }
 
         //Required Verification for creating an server
-        if (config('SETTINGS::USER:FORCE_DISCORD_VERIFICATION', false) === 'true' && ! Auth::user()->discordUser) {
+        if ($user_settings->force_discord_verification && ! Auth::user()->discordUser) {
             return redirect()->route('profile.index')->with('error', __('You are required to link your discord account before you can purchase Credits'));
         }
 
         return view('store.index')->with([
             'products' => ShopProduct::where('disabled', '=', false)->orderBy('type', 'asc')->orderBy('price', 'asc')->get(),
-            'isPaymentSetup' => $isPaymentSetup,
+            'isPaymentSetup' => true,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 }

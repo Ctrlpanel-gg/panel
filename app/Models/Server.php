@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Classes\Pterodactyl;
+use App\Classes\PterodactylClient;
+use App\Settings\PterodactylSettings;
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Hidehalo\Nanoid\Client;
@@ -21,6 +22,9 @@ class Server extends Model
 {
     use HasFactory;
     use LogsActivity;
+
+    private PterodactylClient $pterodactyl;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -28,6 +32,7 @@ class Server extends Model
             -> logOnly(['*'])
             -> dontSubmitEmptyLogs();
     }
+
     /**
      * @var bool
      */
@@ -62,6 +67,12 @@ class Server extends Model
         'suspended' => 'datetime',
     ];
 
+    public function __construct()
+    {
+        $ptero_settings = new PterodactylSettings();
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+
     public static function boot()
     {
         parent::boot();
@@ -73,7 +84,7 @@ class Server extends Model
         });
 
         static::deleting(function (Server $server) {
-            $response = Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
+            $response = $server->pterodactyl->client_admin->delete("/application/servers/{$server->pterodactyl_id}");
             if ($response->failed() && ! is_null($server->pterodactyl_id)) {
                 //only return error when it's not a 404 error
                 if ($response['errors'][0]['status'] != '404') {
@@ -96,7 +107,7 @@ class Server extends Model
      */
     public function getPterodactylServer()
     {
-        return Pterodactyl::client()->get("/application/servers/{$this->pterodactyl_id}");
+        return $this->pterodactyl->client_admin->get("/application/servers/{$this->pterodactyl_id}");
     }
 
     /**
@@ -104,7 +115,7 @@ class Server extends Model
      */
     public function suspend()
     {
-        $response = Pterodactyl::suspendServer($this);
+        $response = $this->pterodactyl->suspendServer($this);
 
         if ($response->successful()) {
             $this->update([
@@ -120,7 +131,7 @@ class Server extends Model
      */
     public function unSuspend()
     {
-        $response = Pterodactyl::unSuspendServer($this);
+        $response = $this->pterodactyl->unSuspendServer($this);
 
         if ($response->successful()) {
             $this->update([

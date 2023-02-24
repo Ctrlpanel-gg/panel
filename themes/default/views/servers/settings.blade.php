@@ -222,16 +222,12 @@
                 <div class="card-footer">
                     <div class="col-md-12 text-center">
                         <!-- Upgrade Button trigger modal -->
-                        @if(config("SETTINGS::SYSTEM:ENABLE_UPGRADE"))
+                        @if($server_enable_upgrade)
                             <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
                                 class="btn btn-info btn-md">
                                 <i class="fas fa-upload mr-2"></i>
                                 <span>{{ __('Upgrade / Downgrade') }}</span>
                             </button>
-
-
-
-
                         <!-- Upgrade Modal -->
                         <div style="width: 100%; margin-block-start: 100px;" class="modal fade" id="UpgradeModal{{ $server->id }}" tabindex="-1">
                             <div class="modal-dialog">
@@ -256,8 +252,8 @@
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
                                                   @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && $product->disabled == false)
-                                                    <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ CREDITS_DISPLAY_NAME }} {{ $product->price }} @if($product->doesNotFit)] {{__('Server can´t fit on this node')}} @else @if($product->minimum_credits!=-1) /
-                                                        {{__("Required")}}: {{$product->minimum_credits}} {{ CREDITS_DISPLAY_NAME }}@endif ] @endif</option>
+                                                    <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ $credits_display_name }} {{ $product->price }} @if($product->doesNotFit)] {{__('Server can´t fit on this node')}} @else @if($product->minimum_credits!=-1) /
+                                                        {{__("Required")}}: {{$product->minimum_credits}} {{ $credits_display_name }}@endif ] @endif</option>
                                                   @endif
                                               @endforeach
                                           </select>
