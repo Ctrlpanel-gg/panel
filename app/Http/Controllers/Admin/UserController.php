@@ -256,12 +256,7 @@ class UserController extends Controller
         }
         $all = $data['all'] ?? false;
         $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
-        try {
-            Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
-        }
-        catch (Exception $e) {
-            return redirect()->route('admin.users.notifications')->with('error', __('The attempt to send the email failed with the error: ' . $e->getMessage()));
-        }
+        Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
 
         return redirect()->route('admin.users.notifications')->with('success', __('Notification sent!'));
     }
