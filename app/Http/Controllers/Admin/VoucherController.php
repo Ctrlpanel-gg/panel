@@ -125,12 +125,11 @@ class VoucherController extends Controller
         return redirect()->back()->with('success', __('voucher has been removed!'));
     }
 
-    public function users(Voucher $voucher, LocaleSettings $locale_settings, GeneralSettings $general_settings)
+    public function users(Voucher $voucher, LocaleSettings $locale_settings)
     {
         return view('admin.vouchers.users', [
             'voucher' => $voucher,
-            'locale_datatables' => $locale_settings->datatables,
-            'credits_display_name' => $general_settings->credits_display_name
+            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 

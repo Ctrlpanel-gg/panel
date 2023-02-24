@@ -48,7 +48,7 @@
                                     <label for="type">{{ __('Type') }}</label>
                                     <select required name="type" id="type"
                                         class="custom-select  @error('name') is-invalid @enderror">
-                                        <option @if ($shopProduct->type == 'credits') selected @endif value="Credits">{{ $credits_display_name }}</option>
+                                        <option @if ($shopProduct->type == 'credits') selected @endif value="Credits">{{ CREDITS_DISPLAY_NAME }}</option>
                                         <option @if ($shopProduct->type == 'Server slots') selected @endif value="Server slots">{{__("Server Slots")}}</option>
                                     </select>
                                     @error('name')
@@ -75,12 +75,12 @@
                                     <div class="text-muted">
                                         {{ __('Checkout the paypal docs to select the appropriate code') }} <a
                                             target="_blank"
-                                            href="https://developer.paypal.com/docs/api/reference/currency-codes/">{{ __('Link') }}</a>
+                                            href="https://developer.paypal.com/docs/api/reference/currency-codes/">link</a>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="price">{{ __('Price') }}</label>
+                                    <label for="price">Price</label>
                                     <input value="{{ $shopProduct->price }}" id="price" name="price" type="number"
                                         placeholder="10.00" step="any"
                                         class="form-control @error('price') is-invalid @enderror" required="required">
@@ -92,7 +92,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="quantity">{{ __('Quantity') }}</label>
+                                    <label for="quantity">Quantity</label>
                                     <input value="{{ $shopProduct->quantity }}" id="quantity" name="quantity"
                                         type="number" placeholder="1000"
                                         class="form-control @error('quantity') is-invalid @enderror" required="required">
@@ -107,7 +107,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="display">{{ __('Display') }}</label>
+                                    <label for="display">Display</label>
                                     <input value="{{ $shopProduct->display }}" id="display" name="display" type="text"
                                         placeholder="750 + 250" class="form-control @error('display') is-invalid @enderror"
                                         required="required">
@@ -122,7 +122,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="description">{{ __('Description') }}</label>
+                                    <label for="description">Description</label>
                                     <input value="{{ $shopProduct->description }}" id="description" name="description"
                                         type="text" placeholder="{{ __('Adds 1000 credits to your account') }}"
                                         class="form-control @error('description') is-invalid @enderror" required="required">

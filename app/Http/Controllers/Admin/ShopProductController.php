@@ -83,12 +83,11 @@ class ShopProductController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View|Response
      */
-    public function edit(ShopProduct $shopProduct, GeneralSettings $general_settings)
+    public function edit(ShopProduct $shopProduct)
     {
         return view('admin.store.edit', [
             'currencyCodes' => config('currency_codes'),
             'shopProduct' => $shopProduct,
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 

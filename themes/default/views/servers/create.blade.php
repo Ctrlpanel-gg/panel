@@ -209,7 +209,7 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
-                                                        {{ __('Required') }} {{ $credits_display_name }}
+                                                        {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }}
                                                         {{ __('to create this server') }}</span>
                                                     <span class="d-inline-block"
                                                         x-text="product.minimum_credits == -1 ? {{ $min_credits_to_make_server }} : product.minimum_credits"></span>
@@ -228,7 +228,7 @@
                                                 {{ __('Price') }}:
                                             </span>
                                             <span class="d-inline-block"
-                                                x-text="product.price + ' {{ $credits_display_name }}'"></span>
+                                                x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
                                     <div>
@@ -241,7 +241,7 @@
                                             :class="product.minimum_credits > user.credits || product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
-                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ $credits_display_name }}!' : '{{ __('Create server') }}')">
+                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
                                         </button>
                                     </div>
                                 </div>

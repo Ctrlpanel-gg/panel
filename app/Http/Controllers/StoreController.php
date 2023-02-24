@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShopProduct;
-use App\Settings\GeneralSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
 {
     /** Display a listing of the resource. */
-    public function index(UserSettings $user_settings, GeneralSettings $general_settings)
+    public function index(UserSettings $user_settings)
     {
         $isPaymentSetup = false;
 
@@ -34,8 +33,7 @@ class StoreController extends Controller
 
         return view('store.index')->with([
             'products' => ShopProduct::where('disabled', '=', false)->orderBy('type', 'asc')->orderBy('price', 'asc')->get(),
-            'isPaymentSetup' => true,
-            'credits_display_name' => $general_settings->credits_display_name
+            'isPaymentSetup' => $isPaymentSetup,
         ]);
     }
 }

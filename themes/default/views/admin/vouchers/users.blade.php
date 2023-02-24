@@ -41,7 +41,7 @@
                                 <th>{{__('ID')}}</th>
                                 <th>{{__('Name')}}</th>
                                 <th>{{__('Email')}}</th>
-                                <th>{{ $credits_display_name }}</th>
+                                <th>{{ CREDITS_DISPLAY_NAME }}</th>
                                 <th>{{__('Last seen')}}</th>
                             </tr>
                         </thead>

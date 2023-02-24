@@ -79,7 +79,7 @@ class ServerController extends Controller
     }
 
     /** Show the form for creating a new resource. */
-    public function create(UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $general_settings)
+    public function create(UserSettings $user_settings, ServerSettings $server_settings)
     {
         $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings);
 
@@ -115,8 +115,7 @@ class ServerController extends Controller
             'eggs' => $eggs,
             'user' => Auth::user(),
             'server_creation_enabled' => $server_settings->creation_enabled,
-            'min_credits_to_make_server' => $user_settings->min_credits_to_make_server,
-            'credits_display_name' => $general_settings->credits_display_name
+            'min_credits_to_make_server' => $user_settings->min_credits_to_make_server
         ]);
     }
 
@@ -269,7 +268,7 @@ class ServerController extends Controller
     }
 
     /** Show Server Settings */
-    public function show(Server $server, ServerSettings $server_settings, GeneralSettings $general_settings)
+    public function show(Server $server, ServerSettings $server_settings)
     {
         if ($server->user_id != Auth::user()->id) {
             return back()->with('error', __('This is not your Server!'));
@@ -309,8 +308,7 @@ class ServerController extends Controller
         return view('servers.settings')->with([
             'server' => $server,
             'products' => $products,
-            'server_enable_upgrade' => $server_settings->enable_upgrade,
-            'credits_display_name' => $general_settings->credits_display_name
+            'server_enable_upgrade' => $server_settings->enable_upgrade
         ]);
     }
 
