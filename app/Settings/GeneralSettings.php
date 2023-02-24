@@ -34,25 +34,16 @@ class GeneralSettings extends Settings
         ];
     }
 
-    /**
-     * Summary of validations array
-     * @return array<string, string>
-     */
     public static function getValidations()
     {
+        // create validation rules that can be used in the controller
         return [
-            'main_site' => 'nullable|string',
+            'main_site' => 'required|string|max:1',
             'credits_display_name' => 'required|string',
             'initial_user_credits' => 'required|numeric',
             'initial_server_limit' => 'required|numeric',
-            'recaptcha_enabled' => 'nullable|string',
-            'recaptcha_site_key' => 'nullable|string',
-            'recaptcha_secret_key' => 'nullable|string',
-            'phpmyadmin_url' => 'nullable|string',
-            'alert_enabled' => 'nullable|string',
-            'alert_type' => 'nullable|string',
-            'alert_message' => 'nullable|string',
-            'theme' => 'required|string'
+            'recaptcha_enabled' => 'required|boolean',
+
         ];
     }
 

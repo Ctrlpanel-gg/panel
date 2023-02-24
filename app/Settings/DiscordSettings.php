@@ -33,23 +33,7 @@ class DiscordSettings extends Settings
     }
 
     /**
-     * Summary of validations array
-     * @return array<string, string>
-     */
-    public static function getValidations()
-    {
-        return [
-            'bot_token' => 'nullable|string',
-            'client_id' => 'nullable|string',
-            'client_secret' => 'nullable|string',
-            'guild_id' => 'nullable|string',
-            'invite_url' => 'nullable|string|url',
-            'role_id' => 'nullable|string',
-        ];
-    }
-
-    /**
-     * Summary of optionInputData array
+     * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
      */

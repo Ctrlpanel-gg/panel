@@ -16,18 +16,6 @@ class TicketSettings extends Settings
     }
 
     /**
-     * Summary of validations array
-     * @return array<string, string>
-     */
-    public static function getValidations()
-    {
-        return [
-            'enabled' => 'nullable|string',
-            'notify' => 'nullable|string',
-        ];
-    }
-
-    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>

@@ -51,25 +51,6 @@ class MailSettings extends Settings
     }
 
     /**
-     * Summary of validations array
-     * @return array<string, string>
-     */
-    public static function getValidations()
-    {
-        return [
-            'mail_host' => 'nullable|string',
-            'mail_port' => 'nullable|int',
-            'mail_username' => 'nullable|string',
-            'mail_password' => 'nullable|string',
-            'mail_encryption' => 'nullable|string',
-            'mail_from_address' => 'nullable|string',
-            'mail_from_name' => 'nullable|string',
-            'mail_mailer' => 'nullable|string',
-            'mail_enabled' => 'nullable|boolean',
-        ];
-    }
-
-    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>

@@ -28,24 +28,6 @@ class InvoiceSettings extends Settings
     }
 
     /**
-     * Summary of validations array
-     * @return array<string, string>
-     */
-    public static function getValidations()
-    {
-        return [
-            'company_address' => 'nullable|string',
-            'company_mail' => 'nullable|string',
-            'company_name' => 'nullable|string',
-            'company_phone' => 'nullable|string',
-            'company_vat' => 'nullable|string',
-            'company_website' => 'nullable|string',
-            'enabled' => 'nullable|string',
-            'prefix' => 'nullable|string',
-        ];
-    }
-
-    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
@@ -74,9 +56,9 @@ class InvoiceSettings extends Settings
                 'description' => 'The phone of your company.',
             ],
             'company_vat' => [
-                'label' => 'Company VAT ID',
+                'label' => 'Company VAT',
                 'type' => 'string',
-                'description' => 'The VAT ID of your company.',
+                'description' => 'The VAT of your company.',
             ],
             'company_website' => [
                 'label' => 'Company Website',

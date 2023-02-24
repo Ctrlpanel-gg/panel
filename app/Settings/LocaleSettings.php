@@ -22,21 +22,6 @@ class LocaleSettings extends Settings
     }
 
     /**
-     * Summary of validations array
-     * @return array<string, string>
-     */
-    public static function getValidations()
-    {
-        return [
-            'available' => 'nullable|array',
-            'clients_can_change' => 'nullable|string',
-            'datatables' => 'nullable|string',
-            'default' => 'nullable|string',
-            'dynamic' => 'nullable|string',
-        ];
-    }
-
-    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
