@@ -19,12 +19,11 @@
         </div>
     </section>
     <!-- END CONTENT HEADER -->
-    @if (!file_exists(base_path() . '/install.lock'))
+    @if(!file_exists(base_path()."/install.lock"))
         <div class="callout callout-danger">
             <h4>{{ __('The installer is not locked!') }}</h4>
-            <p>{{ __('please create a file called "install.lock" in your dashboard Root directory. Otherwise no settings will be loaded!') }}
-            </p>
-            <a href="/install?step=7"><button class="btn btn-outline-danger">{{ __('or click here') }}</button></a>
+            <p>{{ __('please create a file called "install.lock" in your dashboard Root directory. Otherwise no settings will be loaded!') }}</p>
+            <a href="/install?step=7"><button class="btn btn-outline-danger">{{__('or click here')}}</button></a>
 
         </div>
     @endif
@@ -38,35 +37,98 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <!-- Sidebar Menu -->
-                    <nav class="mt-2 max-w-30">
-                        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                            data-accordion="false">
-                            @foreach ($settings as $key => $setting)
-                                <li class="nav-item border-bottom-0">
-                                    <a href="#{{ $key }}" class="nav-link {{ $loop->first ? 'active' : '' }}"
-                                        data-toggle="tab">
-                                        <i class="nav-icon fas fa-cog"></i>
-                                        <p>
-                                            {{ $key }}
-                                        </p>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </nav>
-                    <!-- /.sidebar-menu -->
-                    <!-- Content in $settings -->
-                    <div class="tab-content">
-
-                        @foreach ($settings as $key => $value)
-                            <
-
-                        @endforeach
-
-                    </div>
+                    <aside class="d-flex" style="">
+                        <div class="sidebar d-flex flex-column" style="height: fit-content">
+                            <nav class="container">
+                                <ul class="row nav nav-pills nav-sidebar flex-column" style="width: fit-content" data-widget="treeview" role="menu" data-accordion="false">
+                                    <li class="nav-item col">
+                                        <a href="#general"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('General') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#system"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('System') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#mail"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Mail') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#discord"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Discord') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#invoices"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Invoices') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#locales"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Locales') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#pterodactyl"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Pterodactyl') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#referral"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Referral') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#servers"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Servers') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#tickets"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Tickets') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#users"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Users') }}</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item col">
+                                        <a href="#website"
+                                            class="nav-link @if (Request::routeIs('home')) active @endif">
+                                            <p>{{ __('Website') }}</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="d-flex justify-content-around w-100">
+                            <div class="d-flex" style="height: fit-content;">
+                                Ptero API
+                            </div>
+                            <div class="d-flex" style="height: fit-content;">
+                                <input type="text" name="text" id="#general">
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
+
+        </div>
         </div>
 
 
@@ -97,4 +159,6 @@
             $('html,body').scrollTop(scrollmem);
         });
     </script>
+
+
 @endsection
