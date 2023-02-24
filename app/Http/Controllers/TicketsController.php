@@ -30,19 +30,28 @@ class TicketsController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        //check in blacklist
+        $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
+        if ($check && $check->status == 'True') {
+            return redirect()->route('ticket.index')->with('error', __("You can't make a ticket because you're on the blacklist for a reason: '".$check->reason."', please contact the administrator"));
+        }
+        $ticketcategories = TicketCategory::all();
+        $servers = Auth::user()->servers;
+
+        return view('ticket.create', compact('ticketcategories', 'servers'));
+    }
+
     public function store(Request $request, TicketSettings $ticket_settings)
     {
-        $this->validate(
-            $request,
-            [
+        $this->validate($request, [
                 'title' => 'required',
                 'ticketcategory' => 'required',
                 'priority' => 'required',
-                'message' => 'required',
-            ]
+                'message' => 'required',]
         );
-        $ticket = new Ticket(
-            [
+        $ticket = new Ticket([
                 'title' => $request->input('title'),
                 'user_id' => Auth::user()->id,
                 'ticket_id' => strtoupper(Str::random(8)),
@@ -50,8 +59,7 @@ class TicketsController extends Controller
                 'priority' => $request->input('priority'),
                 'message' => $request->input('message'),
                 'status' => 'Open',
-                'server' => $request->input('server'),
-            ]
+                'server' => $request->input('server'),]
         );
         $ticket->save();
         $user = Auth::user();
@@ -179,10 +187,8 @@ class TicketsController extends Controller
                 return __($tickets->priority);
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
-                return [
-                    'display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
-                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''
-                ];
+                return ['display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
+                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
             })
             ->addColumn('actions', function (Ticket $tickets) {
                 $statusButtonColor = ($tickets->status == "Closed") ? 'btn-success' : 'btn-warning';

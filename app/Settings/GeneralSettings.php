@@ -6,7 +6,10 @@ use Spatie\LaravelSettings\Settings;
 
 class GeneralSettings extends Settings
 {
+    public string $main_site;
     public string $credits_display_name;
+    public float $initial_user_credits;
+    public int $initial_server_limit;
     public bool $recaptcha_enabled;
     public string $recaptcha_site_key;
     public string $recaptcha_secret_key;
