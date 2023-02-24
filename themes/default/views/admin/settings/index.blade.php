@@ -62,110 +62,80 @@
                         <!-- /.sidebar-menu -->
                         <!-- Content in $settings -->
                         <div class="col-10 p-0">
+
                             <div class="tab-content ml-3" style="width: 100%;">
                                 @foreach ($settings as $category => $options)
                                     <div container class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
                                         id="{{ $category }}" role="tabpanel">
-
-                                        <form action="{{ route('admin.settings.update') }}" method="POST">
-                                            @csrf
-                                            @method('POST')
-
-                                            @foreach ($options as $key => $value)
-                                                <input type="hidden" name="category" value="{{ $category }}">
-                                                <div class="row">
-                                                    <div class="col-4 d-flex align-items-center">
-                                                        <label for="{{ $key }}">{{ $value['label'] }}</label>
-                                                    </div>
-
-                                                    <div class="col-8">
-                                                        <div class="custom-control mb-3 d-flex align-items-center">
-                                                            @if ($value['description'])
-                                                                <i class="fas fa-info-circle mr-4" data-toggle="popover"
-                                                                    data-trigger="hover" data-placement="top"
-                                                                    data-html="true"
-                                                                    data-content="{{ $value['description'] }}"></i>
-                                                            @else
-                                                                <i class="fas fa-info-circle mr-4 invisible"></i>
-                                                            @endif
-
-                                                            <div class=" w-100">
-                                                                @switch($value)
-                                                                    @case($value['type'] == 'string')
-                                                                        <input type="text" class="form-control"
-                                                                            name="{{ $key }}"
-                                                                            value="{{ $value['value'] }}">
-                                                                    @break
-
-                                                                    @case($value['type'] == 'boolean')
-                                                                        <input type="checkbox" name="{{ $key }}"
-                                                                            value="{{ $value['value'] }}">
-                                                                    @break
-
-                                                                    @case($value['type'] == 'number')
-                                                                        <input type="number" class="form-control"
-                                                                            name="{{ $key }}"
-                                                                            value="{{ $value['value'] }}">
-                                                                    @break
-
-                                                                    @case($value['type'] == 'select')
-                                                                        <select id="{{ $key }}"
-                                                                            class="custom-select w-100" name="{{ $key }}">
-                                                                            @foreach ($value['options'] as $option)
-                                                                                <option value="{{ $option }}"
-                                                                                    {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                                    {{ __($option) }}
-                                                                                </option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    @break
-
-                                                                    @case($value['type'] == 'multiselect')
-                                                                        <select id="{{ $key }}"
-                                                                            class="custom-select w-100" name="{{ $key }}"
-                                                                            multiple>
-                                                                            @foreach ($value['options'] as $option)
-                                                                                <option value="{{ $option }}"
-                                                                                    {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                                    {{ __($option) }}
-                                                                                </option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    @break
-
-                                                                    @case($value['type'] == 'textarea')
-                                                                        <textarea class="form-control" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
-                                                                    @break
-
-                                                                    @default
-                                                                @endswitch
-                                                                @error($key)
-                                                                    <div class="text-danger ">
-                                                                        {{ $message }}
-                                                                    </div>
-                                                                @enderror
-                                                            </div>
-
-
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                                        @foreach ($options as $key => $value)
                                             <div class="row">
-                                                <div class="col-12">
-                                                    <button type="submit" class="btn btn-primary float-right">Save</button>
+                                                <div class="col-4 d-flex align-items-center">
+                                                    <label for="{{ $key }}">{{ $value['label'] }}</label>
                                                 </div>
-                                                <div class="col-12">
-                                                    <button type="reset"
-                                                        class="btn btn-secondary float-right mr-2">Reset</button>
 
+                                                <div class="col-8">
+                                                    <div class="custom-control mb-3 d-flex align-items-center">
+                                                        @if ($value['description'])
+                                                            <i class="fas fa-info-circle mr-4" data-toggle="popover"
+                                                                data-trigger="hover" data-placement="top" data-html="true"
+                                                                data-content="{{ $value['description'] }}"></i>
+                                                        @else
+                                                            <i class="fas fa-info-circle mr-4 invisible"></i>
+                                                        @endif
+
+                                                        @switch($value)
+                                                            @case($value['type'] == 'string')
+                                                                <input type="text" class="form-control"
+                                                                    name="{{ $key }}" value="{{ $value['value'] }}">
+                                                            @break
+
+                                                            @case($value['type'] == 'boolean')
+                                                                <input type="checkbox" name="{{ $key }}"
+                                                                    value="{{ $value['value'] }}">
+                                                            @break
+
+                                                            @case($value['type'] == 'number')
+                                                                <input type="number" class="form-control"
+                                                                    name="{{ $key }}" value="{{ $value['value'] }}">
+                                                            @break
+
+                                                            @case($value['type'] == 'select')
+                                                                <select id="{{ $key }}" class="custom-select w-100"
+                                                                    name="{{ $key }}">
+                                                                    @foreach ($value['options'] as $option)
+                                                                        <option value="{{ $option }}"
+                                                                            {{ $value['value'] == $option ? 'selected' : '' }}>
+                                                                            {{ __($option) }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @break
+
+                                                            @case($value['type'] == 'multiselect')
+                                                                <select id="{{ $key }}" class="custom-select w-100"
+                                                                    name="{{ $key }}" multiple>
+                                                                    @foreach ($value['options'] as $option)
+                                                                        <option value="{{ $option }}"
+                                                                            {{ $value['value'] == $option ? 'selected' : '' }}>
+                                                                            {{ __($option) }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @break
+
+                                                            @case($value['type'] == 'textarea')
+                                                                <textarea class="form-control" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
+                                                            @break
+
+                                                            @default
+                                                        @endswitch
+
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </form>
+                                        @endforeach
                                     </div>
                                 @endforeach
-
                             </div>
                         </div>
                     </div>
