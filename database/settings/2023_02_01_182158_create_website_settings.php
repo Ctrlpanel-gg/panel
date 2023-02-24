@@ -8,6 +8,7 @@ class CreateWebsiteSettings extends SettingsMigration
     public function up(): void
     {
         // Get the user-set configuration values from the old table.
+        $this->migrator->add('website.', ($this->getOldValue('SETTINGS::') != null) ?: '');
         $this->migrator->add('website.motd_enabled', ($this->getOldValue("SETTINGS::SYSTEM:MOTD_ENABLED") != null) ?: true);
         $this->migrator->add('website.motd_message', ($this->getOldValue("SETTINGS::SYSTEM:MOTD_MESSAGE") != null) ?:
             '<h1 style="text-align: center;"><img style="display: block; margin-left: auto; margin-right: auto;" src="https://controlpanel.gg/img/controlpanel.png" alt="" width="200" height="200"><span style="font-size: 36pt;">Controlpanel.gg</span></h1>
