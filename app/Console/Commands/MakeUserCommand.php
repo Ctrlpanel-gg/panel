@@ -4,17 +4,15 @@ namespace App\Console\Commands;
 
 use App\Classes\PterodactylClient;
 use App\Models\User;
-use App\Settings\PterodactylSettings;
 use App\Traits\Referral;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class MakeUserCommand extends Command
 {
     use Referral;
-
-    private $pterodactyl;
 
     /**
      * The name and signature of the console command.
@@ -30,15 +28,17 @@ class MakeUserCommand extends Command
      */
     protected $description = 'Create an admin account with the Artisan Console';
 
+    private PterodactylClient $pterodactyl;
+
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct(PterodactylSettings $ptero_settings)
+    public function __construct(PterodactylClient $pterodactyl)
     {
         parent::__construct();
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->pterodactyl = $pterodactyl;
     }
 
 

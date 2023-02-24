@@ -36,9 +36,9 @@
                         class="fa fa-plus mr-2"></i>
                     {{ __('Create Server') }}
                 </a>
-                @if (Auth::user()->Servers->count() > 0 && !empty($phpmyadmin_url))
+                @if (Auth::user()->Servers->count() > 0&&!empty(config('SETTINGS::MISC:PHPMYADMIN:URL')))
                     <a 
-                        href="{{ $phpmyadmin_url }}" target="_blank"
+                        href="{{ config('SETTINGS::MISC:PHPMYADMIN:URL') }}" target="_blank"
                         class="btn btn-secondary ml-2"><i title="manage"
                         class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span>
                     </a>
@@ -47,8 +47,8 @@
 
             <div class="row d-flex flex-row justify-content-center justify-content-md-start">
                 @foreach ($servers as $server)
-                    @if($server->location && $server->node && $server->nest && $server->egg)
-                        <div class="col-xl-4 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
+                    @if($server->location&&$server->node&&$server->nest&&$server->egg)
+                        <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
                             style="max-width: 350px">
                             <div class="card-header">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -112,7 +112,7 @@
                                         <div class="col-4">
                                             {{ __('Price') }}:
                                             <span class="text-muted">
-                                                {{ $credits_display_name }}
+                                                ({{ CREDITS_DISPLAY_NAME }})
                                             </span>
                                         </div>
                                         <div class="col-8">
@@ -136,19 +136,17 @@
                                 </div>
                             </div>
 
-                            <div class="card-footer d-flex align-items-center justify-content-center w-auto">
-                                <div class="d-flex w-100" style="justify-content: space-evenly">
-                                    <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
-                                        target="__blank"
-                                        class="btn btn-info align-items-center justify-content-center d-flex">
-                                        <i class="fas fa-tools mr-2"></i>
-                                        <span>{{ __('Manage') }}</span>
-                                    </a>
-                                    <a href="{{ route('servers.show', ['server' => $server->id])}}" class="btn btn-warning align-items-center justify-content-center d-flex">
-                                        <i class="fas fa-cog mr-2"></i>
-                                        <span>{{ __('Settings') }}</span>
-                                    </a>
-                                </div>
+                            <div class="card-footer d-flex align-items-center justify-content-between">
+                                <a href="{{ config('SETTINGS::SYSTEM:PTERODACTYL:URL') }}/server/{{ $server->identifier }}"
+                                    target="__blank"
+                                    class="btn btn-info mx-3 w-100 align-items-center justify-content-center d-flex">
+                                    <i class="fas fa-tools mr-2"></i>
+                                    <span>{{ __('Manage') }}</span>
+                                </a>
+                                <a href="{{ route('servers.show', ['server' => $server->id])}}" class="btn btn-warning mx-3 w-100 align-items-center justify-content-center d-flex">
+                                    <i class="fas fa-cog mr-2"></i>
+                                    <span>{{ __('Settings') }}</span>
+                                </a>
                             </div>
                         </div>
                     @endif

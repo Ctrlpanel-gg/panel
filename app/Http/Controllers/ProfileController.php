@@ -4,10 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Settings\UserSettings;
-use App\Settings\PterodactylSettings;
-use App\Classes\PterodactylClient;
-use App\Settings\DiscordSettings;
-use App\Settings\ReferralSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,15 +12,8 @@ use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
 {
-    private $pterodactyl;
-
-    public function __construct(PterodactylSettings $ptero_settings)
-    {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
-    }
-
     /** Display a listing of the resource. */
-    public function index(UserSettings $user_settings, DiscordSettings $discord_settings, ReferralSettings $referral_settings)
+    public function index(UserSettings $user_settings)
     {
         switch (Auth::user()->role) {
             case 'admin':
@@ -47,10 +36,6 @@ class ProfileController extends Controller
             'force_email_verification' => $user_settings->force_email_verification,
             'force_discord_verification' => $user_settings->force_discord_verification,
             'badgeColor' => $badgeColor,
-            'discord_client_id' => $discord_settings->client_id,
-            'discord_client_secret' => $discord_settings->client_secret,
-            'referral_enabled' => $referral_settings->enabled,
-            'referral_allowed' => $referral_settings->allowed
         ]);
     }
 
@@ -96,7 +81,7 @@ class ProfileController extends Controller
 
             //Update Users Password on Pterodactyl
             //Username,Mail,First and Lastname are required aswell
-            $response = $this->pterodactyl->client_admin->patch('/application/users/' . $user->pterodactyl_id, [
+            $response = $this->pterodactyl->client_admin->patch('/application/users/'.$user->pterodactyl_id, [
                 'password' => $request->input('new_password'),
                 'username' => $request->input('name'),
                 'first_name' => $request->input('name'),
@@ -140,7 +125,7 @@ class ProfileController extends Controller
         }
 
         //update name and email on Pterodactyl
-        $response = $this->pterodactyl->client_admin->patch('/application/users/' . $user->pterodactyl_id, [
+        $response = $this->pterodactyl->client_admin->patch('/application/users/'.$user->pterodactyl_id, [
             'username' => $request->input('name'),
             'first_name' => $request->input('name'),
             'last_name' => $request->input('name'),

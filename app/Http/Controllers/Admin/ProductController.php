@@ -198,6 +198,7 @@ class ProductController extends Controller
     public function dataTable()
     {
         $query = Product::with(['servers']);
+
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
                 return '
@@ -226,18 +227,18 @@ class ProductController extends Controller
                 $checked = $product->disabled == false ? 'checked' : '';
 
                 return '
-                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.disable', $product->id).'">
-                        '.csrf_field().'
-                        '.method_field('PATCH').'
-                        <div class="custom-control custom-switch">
-                        <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
-                        <label class="custom-control-label" for="switch'.$product->id.'"></label>
-                        </div>
-                    </form>
+                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.disable', $product->id).'">
+                            '.csrf_field().'
+                            '.method_field('PATCH').'
+                            <div class="custom-control custom-switch">
+                            <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
+                            <label class="custom-control-label" for="switch'.$product->id.'"></label>
+                          </div>
+                       </form>
                 ';
             })
-            ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
-                return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
+            ->editColumn('minimum_credits', function (Product $product) {
+                return $product->minimum_credits==-1 ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') : $product->minimum_credits;
             })
             ->editColumn('created_at', function (Product $product) {
                 return $product->created_at ? $product->created_at->diffForHumans() : '';

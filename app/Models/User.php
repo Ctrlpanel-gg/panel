@@ -2,12 +2,9 @@
 
 namespace App\Models;
 
+use App\Classes\Pterodactyl;
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
-use App\Settings\GeneralSettings;
-use App\Settings\UserSettings;
-use App\Classes\PterodactylClient;
-use App\Settings\PterodactylSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,8 +22,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, LogsActivity, CausesActivity;
-
-    private PterodactylClient $pterodactyl;
 
     /**
      * @var string[]
@@ -90,18 +85,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'server_limit' => 'float',
     ];
 
-    public function __construct()
-    {
-        $ptero_settings = new PterodactylSettings();
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
-    }
-
     public static function boot()
     {
         parent::boot();
 
-        static::created(function (User $user, GeneralSettings $general_settings, UserSettings $user_settings) {
-            $user->notify(new WelcomeMessage($user, $general_settings, $user_settings));
+        static::created(function (User $user) {
+            $user->notify(new WelcomeMessage($user));
         });
 
         static::deleting(function (User $user) {
@@ -122,7 +111,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->discordUser()->delete();
 
-            $user->pterodactyl->client_admin->delete("/application/users/{$user->pterodactyl_id}");
+            Pterodactyl::client()->delete("/application/users/{$user->pterodactyl_id}");
         });
     }
 

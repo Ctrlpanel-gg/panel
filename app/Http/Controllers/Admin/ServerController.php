@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
 use App\Settings\LocaleSettings;
-use App\Settings\PterodactylSettings;
-use App\Classes\PterodactylClient;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -20,13 +18,6 @@ use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
 {
-    private $pterodactyl;
-
-    public function __construct(PterodactylSettings $ptero_settings)
-    {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -226,8 +217,8 @@ class ServerController extends Controller
             ->editColumn('suspended', function (Server $server) {
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
-            ->editColumn('name', function (Server $server, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
+            ->editColumn('name', function (Server $server) {
+                return '<a class="text-info" target="_blank" href="' . config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();

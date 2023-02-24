@@ -55,7 +55,7 @@
                             <th>{{__('Min Credits')}}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Created at')}}</th>
-                            <th>{{ __('Actions') }}</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody></tbody>

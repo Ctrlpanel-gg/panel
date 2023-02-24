@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Settings\ReferralSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +33,7 @@ class PartnerDiscount extends Model
         return 0;
     }
 
-    public static function getCommission($user_id, $percentage)
+    public static function getCommission($user_id)
     {
         if ($partnerDiscount = PartnerDiscount::where('user_id', $user_id)->first()) {
             if ($partnerDiscount->referral_system_commission >= 0) {
@@ -42,6 +41,6 @@ class PartnerDiscount extends Model
             }
         }
 
-        return $percentage;
+        return config('SETTINGS::REFERRAL:PERCENTAGE');
     }
 }
