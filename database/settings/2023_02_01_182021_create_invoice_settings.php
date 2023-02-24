@@ -27,15 +27,6 @@ class CreateInvoiceSettings extends SettingsMigration
 
         // Handle the old values to return without it being a string in all cases.
         if ($old_value->type === "string" || $old_value->type === "text") {
-            if (is_null($old_value->value)) {
-                return '';
-            }
-
-            // Some values have the type string, but their values are boolean.
-            if ($old_value->value === "false" || $old_value->value === "true") {
-                return filter_var($old_value->value, FILTER_VALIDATE_BOOL);
-            }
-
             return $old_value->value;
         }
 
