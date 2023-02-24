@@ -116,11 +116,12 @@
                         name: 'users.credits'
                     },
                     {
-                        data: 'servers_count'
-
+                        data: 'servers_count',
+                        searchable: false
                     },
                     {
                         data: 'referrals_count',
+                        searchable: false
                     },
                     {
                         data: 'verified',
