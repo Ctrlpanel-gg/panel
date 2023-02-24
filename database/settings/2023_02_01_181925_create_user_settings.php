@@ -18,8 +18,6 @@ class CreateUserSettings extends SettingsMigration
         $this->migrator->add('user.server_limit_after_irl_purchase', ($this->getOldValue('SETTINGS::USER:SERVER_LIMIT_AFTER_IRL_PURCHASE') != null) ?: 10);
         $this->migrator->add('user.server_limit_after_verify_discord', ($this->getOldValue('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') != null) ?: 2);
         $this->migrator->add('user.server_limit_after_verify_email', ($this->getOldValue('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') != null) ?: 2);
-        $this->migrator->add('user.register_ip_check', ($this->getOldValue("SETTINGS::SYSTEM:REGISTER_IP_CHECK") != null) ?: true);
-        $this->migrator->add('user.creation_enabled', ($this->getOldValue("SETTINGS::SYSTEM:CREATION_OF_NEW_USERS") != null) ?: true);
     }
 
     public function getOldValue(string $key)
