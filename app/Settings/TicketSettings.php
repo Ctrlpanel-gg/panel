@@ -35,7 +35,6 @@ class TicketSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => 'fas fa-ticket-alt',
             'enabled' => [
                 'label' => 'Enabled',
                 'type' => 'boolean',

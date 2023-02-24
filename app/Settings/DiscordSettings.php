@@ -56,7 +56,6 @@ class DiscordSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => 'fas fa-user-friends',
             'bot_token' => [
                 'label' => 'Bot Token',
                 'type' => 'string',

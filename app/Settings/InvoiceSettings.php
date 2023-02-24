@@ -53,7 +53,6 @@ class InvoiceSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => 'fas fa-file-invoice-dollar',
             'company_address' => [
                 'label' => 'Company Address',
                 'type' => 'string',

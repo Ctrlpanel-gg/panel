@@ -59,7 +59,6 @@ class PterodactylSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => 'fas fa-server',
             'panel_url' => [
                 'label' => 'Panel URL',
                 'type' => 'string',

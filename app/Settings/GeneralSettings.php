@@ -38,6 +38,7 @@ class GeneralSettings extends Settings
     public static function getValidations()
     {
         return [
+            'main_site' => 'nullable|string',
             'credits_display_name' => 'required|string',
             'initial_user_credits' => 'required|numeric',
             'initial_server_limit' => 'required|numeric',
@@ -60,7 +61,11 @@ class GeneralSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => "fas fa-cog",
+            'main_site' => [
+                'type' => 'string',
+                'label' => 'Main Site URL',
+                'description' => 'The URL of your main site.'
+            ],
             'credits_display_name' => [
                 'type' => 'string',
                 'label' => 'Credits Display Name',
