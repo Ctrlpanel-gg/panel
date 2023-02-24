@@ -154,11 +154,13 @@
                                                 </div>
                                             @endforeach
                                             <div class="row">
-                                                <div class="col-12 d-flex align-items-center justify-content-end">
-                                                    <button type="submit"
-                                                        class="btn btn-primary float-right ">Save</button>
+                                                <div class="col-12">
+                                                    <button type="submit" class="btn btn-primary float-right">Save</button>
+                                                </div>
+                                                <div class="col-12">
                                                     <button type="reset"
-                                                        class="btn btn-secondary float-right ml-2">Reset</button>
+                                                        class="btn btn-secondary float-right mr-2">Reset</button>
+
                                                 </div>
                                             </div>
                                         </form>
