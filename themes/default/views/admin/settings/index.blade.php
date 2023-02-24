@@ -99,8 +99,7 @@
 
                                                                     @case($value['type'] == 'boolean')
                                                                         <input type="checkbox" name="{{ $key }}"
-                                                                            value="{{ $value['value'] }}"
-                                                                            {{ $value['value'] ? 'checked' : '' }}>
+                                                                            value="{{ $value['value'] }}">
                                                                     @break
 
                                                                     @case($value['type'] == 'number')
