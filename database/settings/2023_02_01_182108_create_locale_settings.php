@@ -68,11 +68,6 @@ class CreateLocaleSettings extends SettingsMigration
             return null;
         }
 
-        // remove the quotes from the string
-        if (substr($new_value->payload, 0, 1) === '"' && substr($new_value->payload, -1) === '"') {
-            return substr($new_value->payload, 1, -1);
-        }
-
         return $new_value->payload;
     }
 
