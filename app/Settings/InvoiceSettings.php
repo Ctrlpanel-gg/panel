@@ -14,7 +14,7 @@ class InvoiceSettings extends Settings
 
     public string $company_phone;
 
-    public string $company_vat;
+    public int $company_vat;
 
     public string $company_website;
 

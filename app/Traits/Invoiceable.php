@@ -5,14 +5,13 @@ namespace App\Traits;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
-use App\Models\Invoice;
 use App\Notifications\InvoiceNotification;
 use App\Settings\InvoiceSettings;
 use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Buyer;
 use LaravelDaily\Invoices\Classes\InvoiceItem;
 use LaravelDaily\Invoices\Classes\Party;
-use LaravelDaily\Invoices\Invoice as DailyInvoice;
+use LaravelDaily\Invoices\Invoice;
 use Symfony\Component\Intl\Currencies;
 
 trait Invoiceable
@@ -21,7 +20,7 @@ trait Invoiceable
     {
         $user = $payment->user;
         //create invoice
-        $lastInvoiceID = Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
+        $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
         $newInvoiceID = $lastInvoiceID + 1;
         $logoPath = storage_path('app/public/logo.png');
 
@@ -53,7 +52,7 @@ trait Invoiceable
         $notes = implode("<br>", $notes);
 
 
-        $invoice = DailyInvoice::make()
+        $invoice = Invoice::make()
             ->template('controlpanel')
             ->name(__("Invoice"))
             ->buyer($customer)
@@ -80,7 +79,7 @@ trait Invoiceable
         $invoice->render();
         Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
 
-        Invoice::create([
+        \App\Models\Invoice::create([
             'invoice_user' => $user->id,
             'invoice_name' => $invoice->getSerialNumber(),
             'payment_id' => $payment->payment_id,
