@@ -27,21 +27,8 @@ class SettingsController extends Controller
                 continue;
             }
             $className = 'App\\Settings\\' . str_replace('.php', '', $file);
-            $options = (new $className())->toArray();
-
-
-            foreach ($options as $key => $value) {
-                $options[$key] = [
-                    'value' => $value,
-                    'label' => ucwords(str_replace('_', ' ', $key))
-                ];
-            }
-
-
-
-            $settings[str_replace('Settings.php', '', $file)] = $options;
+            $settings[str_replace('Settings.php', '', $file)] = (new $className())->toCollection()->all();
         }
-
         $settings->sort();
 
 

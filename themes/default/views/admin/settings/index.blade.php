@@ -39,58 +39,31 @@
                 </div>
                 <div class="card-body">
                     <!-- Sidebar Menu -->
-                    <div class="d-flex w-100">
-                        <nav class="mt-1">
-                            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
-                                data-accordion="false">
-                                @foreach ($settings as $category => $options)
-                                    <li class="nav-item border-bottom-0">
-                                        <a href="#{{ $category }}" class="nav-link {{ $loop->first ? 'active' : '' }}"
-                                            data-toggle="pill" role="tab">
-                                            <i class="nav-icon fas fa-cog"></i>
-                                            <p>
-                                                {{ $category }}
-                                            </p>
-                                        </a>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </nav>
-                        <!-- /.sidebar-menu -->
-                        <!-- Content in $settings -->
-                        <div class="tab-content ml-3" style="width: 100%;">
-                            @foreach ($settings as $category => $options)
-                                <div container class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
-                                    id="{{ $category }}" role="tabpanel">
-                                    @foreach ($options as $key => $value)
-                                        <div class="row">
-                                            <div class="col">
-                                                {{ $value['label'] }}
-                                            </div>
-                                            <div class="col">
-                                                @if (gettype($value['value']) == 'string')
-                                                    <input type="text" class="form-control" name="{{ $key }}"
-                                                        value="{{ $value['value'] }}">
-                                                @elseif (gettype($value['value']) == 'boolean')
-                                                    <input type="checkbox" class="form-control" name="{{ $key }}"
-                                                        value="{{ $value['value'] }}">
-                                                @elseif (gettype($value['value']) == 'integer' || gettype($value['value']) == 'double')
-                                                    <input type="number" class="form-control" name="{{ $key }}"
-                                                        value="{{ $value['value'] }}">
-                                                @elseif (gettype($value['value']) == 'array')
-                                                    <select class="form-control" name="{{ $key }}">
-                                                        @foreach ($value['value'] as $option)
-                                                            <option value="{{ $option }}">{{ $option }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
+                    <nav class="mt-2 max-w-30">
+                        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                            data-accordion="false">
+                            @foreach ($settings as $key => $setting)
+                                <li class="nav-item border-bottom-0">
+                                    <a href="#{{ $key }}" class="nav-link {{ $loop->first ? 'active' : '' }}"
+                                        data-toggle="tab">
+                                        <i class="nav-icon fas fa-cog"></i>
+                                        <p>
+                                            {{ $key }}
+                                        </p>
+                                    </a>
+                                </li>
                             @endforeach
-                        </div>
+                        </ul>
+                    </nav>
+                    <!-- /.sidebar-menu -->
+                    <!-- Content in $settings -->
+                    <div class="tab-content">
+
+                        @foreach ($settings as $key => $value)
+                            <
+
+                        @endforeach
+
                     </div>
                 </div>
             </div>
@@ -103,12 +76,21 @@
     <!-- END CONTENT -->
 
     <script>
+        // Add the following code if you want the name of the file appear on select
+
+        document.addEventListener('DOMContentLoaded', () => {
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+        })
+
         const tabPaneHash = window.location.hash;
         if (tabPaneHash) {
-            $('.nav-item a[href="' + tabPaneHash + '"]').tab('show');
+            $('.nav-tabs a[href="' + tabPaneHash + '"]').tab('show');
         }
 
-        $('.nav-pills a').click(function(e) {
+        $('.nav-tabs a').click(function(e) {
             $(this).tab('show');
             const scrollmem = $('body').scrollTop();
             window.location.hash = this.hash;
