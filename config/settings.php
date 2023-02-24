@@ -1,15 +1,6 @@
 <?php
 
 use App\Settings\GeneralSettings;
-use App\Settings\DiscordSettings;
-use App\Settings\InvoiceSettings;
-use App\Settings\LocaleSettings;
-use App\Settings\MailSettings;
-use App\Settings\PterodactylSettings;
-use App\Settings\ReferralSettings;
-use App\Settings\ServerSettings;
-use App\Settings\UserSettings;
-use App\Settings\WebsiteSettings;
 
 return [
 
@@ -18,16 +9,7 @@ return [
      * put them (manually) here.
      */
     'settings' => [
-        GeneralSettings::class,
-        DiscordSettings::class,
-        InvoiceSettings::class,
-        LocaleSettings::class,
-        MailSettings::class,
-        PterodactylSettings::class,
-        ReferralSettings::class,
-        ServerSettings::class,
-        UserSettings::class,
-        WebsiteSettings::class
+        GeneralSettings::class
     ],
 
     /*
