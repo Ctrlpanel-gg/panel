@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pterodactyl\Location;
-use App\Models\Pterodactyl\Nest;
+use App\Models\Location;
+use App\Models\Nest;
 use App\Models\Product;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;

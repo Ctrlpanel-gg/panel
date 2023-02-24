@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\Pterodactyl;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -25,6 +26,14 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
+
+    private Pterodactyl $pterodactyl;
+
+    public function __construct(Pterodactyl $pterodactyl)
+    {
+        $this->pterodactyl = $pterodactyl;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -118,7 +127,7 @@ class UserController extends Controller
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
 
-        if (isset($this->client->getUser($request->input('pterodactyl_id'))['errors'])) {
+        if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => [__("User does not exists on pterodactyl's panel")],
             ]);
