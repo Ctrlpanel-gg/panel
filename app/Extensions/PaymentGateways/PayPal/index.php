@@ -23,7 +23,7 @@ use PayPalHttp\HttpException;
  * @param Request $request
  * @param ShopProduct $shopProduct
  */
-function PayPalPayment(Request $request)
+function PaypalPay(Request $request)
 {
     /** @var User $user */
     $user = Auth::user();
