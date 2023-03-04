@@ -2,6 +2,7 @@
 
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
+use App\Extensions\PaymentGateways\Stripe\StripeSettings;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
@@ -79,7 +80,6 @@ function StripePay(Request $request)
         ],
 
         'mode' => 'payment',
-        'payment_method_types' => str_getcsv(config('SETTINGS::PAYMENTS:STRIPE:METHODS')),
         'success_url' => route('payment.StripeSuccess', ['payment' => $payment->id]) . '&session_id={CHECKOUT_SESSION_ID}',
         'cancel_url' => route('payment.Cancel'),
         'payment_intent_data' => [
@@ -244,9 +244,11 @@ function getStripeClient()
  */
 function getStripeSecret()
 {
+    $settings = new StripeSettings();
+
     return env('APP_ENV') == 'local'
-        ? config('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET')
-        : config('SETTINGS::PAYMENTS:STRIPE:SECRET');
+        ? $settings->test_secret_key
+        : $settings->secret_key;
 }
 
 /**
@@ -254,9 +256,10 @@ function getStripeSecret()
  */
 function getStripeEndpointSecret()
 {
+    $settings = new StripeSettings();
     return env('APP_ENV') == 'local'
-        ? config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET')
-        : config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET');
+        ? $settings->test_endpoint_secret
+        : $settings->endpoint_secret;
 }
 /**
  * @param  $amount

@@ -71,10 +71,12 @@
                                         <form action="{{ route('admin.settings.update') }}" method="POST">
                                             @csrf
                                             @method('POST')
+                                            <input type="hidden" name="settings_class"
+                                                value="{{ $options['settings_class'] }}">
                                             <input type="hidden" name="category" value="{{ $category }}">
 
                                             @foreach ($options as $key => $value)
-                                                @if ($key == 'category_icon')
+                                                @if ($key == 'category_icon' || $key == 'settings_class')
                                                     @continue
                                                 @endif
                                                 <div class="row">

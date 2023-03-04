@@ -36,7 +36,7 @@ class SettingsController extends Controller
             $settings_classes[] = 'App\\Settings\\' . str_replace('.php', '', $app_setting);
         }
         // get all extension settings
-        $settings_files = array_merge($settings_classes, ExtensionHelper::getAllExtensionSettings());
+        $settings_files = array_merge($settings_classes, ExtensionHelper::getAllExtensionSettingsClasses());
 
 
         foreach ($settings_files as $file) {
@@ -70,6 +70,7 @@ class SettingsController extends Controller
             if (isset($optionInputData['category_icon'])) {
                 $optionsData['category_icon'] = $optionInputData['category_icon'];
             }
+            $optionsData['settings_class'] = $className;
 
             $settings[str_replace('Settings', '', class_basename($className))] = $optionsData;
         }
@@ -93,10 +94,10 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         $category = request()->get('category');
+        $settings_class = request()->get('settings_class');
 
-        $className = 'App\\Settings\\' . $category . 'Settings';
-        if (method_exists($className, 'getValidations')) {
-            $validations = $className::getValidations();
+        if (method_exists($settings_class, 'getValidations')) {
+            $validations = $settings_class::getValidations();
         } else {
             $validations = [];
         }
@@ -107,7 +108,7 @@ class SettingsController extends Controller
             return Redirect::to('admin/settings' . '#' . $category)->withErrors($validator)->withInput();
         }
 
-        $settingsClass = new $className();
+        $settingsClass = new $settings_class();
 
         foreach ($settingsClass->toArray() as $key => $value) {
             switch (gettype($value)) {
