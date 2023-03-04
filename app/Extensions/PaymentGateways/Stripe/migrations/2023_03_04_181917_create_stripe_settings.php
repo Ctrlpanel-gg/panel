@@ -3,61 +3,59 @@
 use Spatie\LaravelSettings\Migrations\SettingsMigration;
 use Illuminate\Support\Facades\DB;
 
-
-class CreatePayPalSettings extends SettingsMigration
+class CreateStripeSettings extends SettingsMigration
 {
     public function up(): void
     {
         $table_exists = DB::table('settings_old')->exists();
 
-
-        $this->migrator->addEncrypted('paypal.client_id', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID') : null);
-        $this->migrator->addEncrypted('paypal.client_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SECRET') : null);
-        $this->migrator->addEncrypted('paypal.sandbox_client_id', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID') : null);
-        $this->migrator->addEncrypted('paypal.sandbox_client_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET') : null);
-        $this->migrator->add('paypal.enabled', false);
+        $this->migrator->addEncrypted('stripe.secret_key', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:SECRET') : null);
+        $this->migrator->addEncrypted('stripe.endpoint_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') : null);
+        $this->migrator->addEncrypted('stripe.test_secret_key', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET') : null);
+        $this->migrator->addEncrypted('stripe.test_endpoint_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET') : null);
+        $this->migrator->add('stripe.enabled', false);
     }
 
     public function down(): void
     {
         DB::table('settings_old')->insert([
             [
-                'key' => 'SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID',
-                'value' => $this->getNewValue('client_id'),
+                'key' => 'SETTINGS::PAYMENTS:STRIPE:SECRET',
+                'value' => $this->getNewValue('secret_key'),
                 'type' => 'string',
-                'description' => 'The Client ID of your PayPal App'
+                'description' => 'The Secret Key of your Stripe App'
             ],
             [
-                'key' => 'SETTINGS::PAYMENTS:PAYPAL:SECRET',
-                'value' => $this->getNewValue('client_secret'),
+                'key' => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET',
+                'value' => $this->getNewValue('endpoint_secret'),
                 'type' => 'string',
-                'description' => 'The Client Secret of your PayPal App'
+                'description' => 'The Endpoint Secret of your Stripe App'
+
             ],
             [
-                'key' => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID',
-                'value' => $this->getNewValue('sandbox_client_id'),
+                'key' => 'SETTINGS::PAYMENTS:STRIPE:TEST_SECRET',
+                'value' => $this->getNewValue('test_secret_key'),
                 'type' => 'string',
-                'description' => 'The Sandbox Client ID of your PayPal App'
+                'description' => 'The Test Secret Key of your Stripe App'
             ],
             [
-                'key' => 'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET',
-                'value' => $this->getNewValue('sandbox_client_secret'),
+                'key' => 'SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET',
+                'value' => $this->getNewValue('test_endpoint_secret'),
                 'type' => 'string',
-                'description' => 'The Sandbox Client Secret of your PayPal App'
+                'description' => 'The Test Endpoint Secret of your Stripe App'
             ]
         ]);
 
-
-        $this->migrator->delete('paypal.client_id');
-        $this->migrator->delete('paypal.client_secret');
-        $this->migrator->delete('paypal.enabled');
-        $this->migrator->delete('paypal.sandbox_client_id');
-        $this->migrator->delete('paypal.sandbox_client_secret');
+        $this->migrator->delete('stripe.secret_key');
+        $this->migrator->delete('stripe.endpoint_secret');
+        $this->migrator->delete('stripe.enabled');
+        $this->migrator->delete('stripe.test_secret_key');
+        $this->migrator->delete('stripe.test_endpoint_secret');
     }
 
     public function getNewValue(string $name)
     {
-        $new_value = DB::table('settings')->where([['group', '=', 'paypal'], ['name', '=', $name]])->get(['payload'])->first();
+        $new_value = DB::table('settings')->where([['group', '=', 'stripe'], ['name', '=', $name]])->get(['payload'])->first();
 
         // Some keys returns '""' as a value.
         if ($new_value->payload === '""') {
