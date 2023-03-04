@@ -51,7 +51,10 @@ class PaymentController extends Controller
             // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
             foreach ($extensions as $extension) {
                 $extensionName = basename($extension);
-                if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
+
+                $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
+                if ($extensionSettings->enabled == false) continue;
+
 
                 $payment = new \stdClass();
                 $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
