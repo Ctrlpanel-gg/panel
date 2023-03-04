@@ -2,6 +2,9 @@
 
 namespace App\Helpers;
 
+/**
+ * Summary of ExtensionHelper
+ */
 class ExtensionHelper
 {
     /**
@@ -60,7 +63,7 @@ class ExtensionHelper
 
     /**
      * Get all extensions
-     * @return array
+     * @return array of all extension paths look like: app/Extensions/ExtensionNamespace/ExtensionName
      */
     public static function getAllExtensions()
     {
@@ -78,5 +81,25 @@ class ExtensionHelper
         $extensions = glob(app_path() . '/Extensions/' . $namespace . '/*', GLOB_ONLYDIR);
 
         return $extensions;
+    }
+
+    /**
+     * Summary of getAllExtensionMigrations
+     * @return array of all migration paths look like: app/Extensions/ExtensionNamespace/ExtensionName/migrations/
+     */
+    public static function getAllExtensionMigrations()
+    {
+        $extensions = ExtensionHelper::getAllExtensions();
+
+        // get all migration directories of the extensions and return them as array
+        $migrations = [];
+        foreach ($extensions as $extension) {
+            $migrationDir = $extension . '/migrations';
+            if (file_exists($migrationDir)) {
+                $migrations[] = $migrationDir;
+            }
+        }
+
+        return $migrations;
     }
 }
