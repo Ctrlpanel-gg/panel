@@ -127,9 +127,6 @@ class ExtensionHelper
             }
         }
 
-        error_log(print_r($settings, true));
-
-
         return $settings;
     }
 

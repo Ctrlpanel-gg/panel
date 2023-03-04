@@ -10,6 +10,7 @@ class CreateGeneralSettings extends SettingsMigration
         $table_exists = DB::table('settings_old')->exists();
 
         // Get the user-set configuration values from the old table.
+        $this->migrator->add('general.store_enabled',  true);
         $this->migrator->add('general.credits_display_name', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME') : 'Credits');
         $this->migrator->addEncrypted('general.recaptcha_site_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SITE_KEY") : env('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'));
         $this->migrator->addEncrypted('general.recaptcha_secret_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SECRET_KEY") : env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'));
@@ -88,6 +89,7 @@ class CreateGeneralSettings extends SettingsMigration
             ],
         ]);
 
+        $this->migrator->delete('general.store_enabled');
         $this->migrator->delete('general.credits_display_name');
         $this->migrator->delete('general.recaptcha_site_key');
         $this->migrator->delete('general.recaptcha_secret_key');
