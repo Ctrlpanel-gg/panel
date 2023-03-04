@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ExtensionHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -25,18 +26,33 @@ class SettingsController extends Controller
         // get all other settings in app/Settings directory
         // group items by file name like $categories
         $settings = collect();
-        foreach (scandir(app_path('Settings')) as $file) {
-            if (in_array($file, ['.', '..'])) {
-                continue;
-            }
-            $className = 'App\\Settings\\' . str_replace('.php', '', $file);
-            $options = (new $className())->toArray();
+        $settings_classes = [];
 
+        // get all app settings
+        $app_settings = scandir(app_path('Settings'));
+        $app_settings = array_diff($app_settings, ['.', '..']);
+        // append App\Settings to class name
+        foreach ($app_settings as $app_setting) {
+            $settings_classes[] = 'App\\Settings\\' . str_replace('.php', '', $app_setting);
+        }
+        // get all extension settings
+        $settings_files = array_merge($settings_classes, ExtensionHelper::getAllExtensionSettings());
+
+
+        foreach ($settings_files as $file) {
+
+            $className = $file;
+            // instantiate the class and call toArray method to get all options
+            $options = (new $className())->toArray();
+            error_log(print_r($className, true));
+
+            // call getOptionInputData method to get all options
             if (method_exists($className, 'getOptionInputData')) {
                 $optionInputData = $className::getOptionInputData();
             } else {
                 $optionInputData = [];
             }
+            error_log(print_r($optionInputData, true));
 
             // collect all option input data
             $optionsData = [];
@@ -55,7 +71,7 @@ class SettingsController extends Controller
                 $optionsData['category_icon'] = $optionInputData['category_icon'];
             }
 
-            $settings[str_replace('Settings.php', '', $file)] = $optionsData;
+            $settings[str_replace('Settings', '', class_basename($className))] = $optionsData;
         }
 
         $settings->sort();
