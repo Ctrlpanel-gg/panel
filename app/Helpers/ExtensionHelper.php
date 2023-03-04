@@ -102,4 +102,34 @@ class ExtensionHelper
 
         return $migrations;
     }
+
+    /**
+     * Summary of getAllExtensionSettings
+     * @return array of all setting classes look like: App\Extensions\PaymentGateways\PayPal\PayPalSettings
+     */
+    public static function getAllExtensionSettings()
+    {
+        $extensions = ExtensionHelper::getAllExtensions();
+
+        $settings = [];
+        foreach ($extensions as $extension) {
+
+            $extensionName = basename($extension);
+            $settingFile = $extension . '/' . $extensionName . 'Settings.php';
+            if (file_exists($settingFile)) {
+                // remove the base path from the setting file path to get the namespace
+
+                $settingFile = str_replace(app_path() . '/', '', $settingFile);
+                $settingFile = str_replace('.php', '', $settingFile);
+                $settingFile = str_replace('/', '\\', $settingFile);
+                $settingFile = 'App\\' . $settingFile;
+                $settings[] = $settingFile;
+            }
+        }
+
+        error_log(print_r($settings, true));
+
+
+        return $settings;
+    }
 }
