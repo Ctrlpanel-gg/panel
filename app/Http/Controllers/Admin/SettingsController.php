@@ -44,7 +44,6 @@ class SettingsController extends Controller
             $className = $file;
             // instantiate the class and call toArray method to get all options
             $options = (new $className())->toArray();
-            error_log(print_r($className, true));
 
             // call getOptionInputData method to get all options
             if (method_exists($className, 'getOptionInputData')) {
@@ -52,7 +51,6 @@ class SettingsController extends Controller
             } else {
                 $optionInputData = [];
             }
-            error_log(print_r($optionInputData, true));
 
             // collect all option input data
             $optionsData = [];
