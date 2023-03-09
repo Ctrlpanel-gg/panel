@@ -3,13 +3,16 @@
 
 <head>
     @php($website_settings = app(App\Settings\WebsiteSettings::class))
+    @php($general_settings = app(App\Settings\GeneralSettings::class))
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta content="{{ $website_settings->seo_title }}" property="og:title">
     <meta content="{{ $website_settings->seo_description }}" property="og:description">
-    <meta content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}' property="og:image">
+    <meta
+        content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}'
+        property="og:image">
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
@@ -87,11 +90,11 @@
                     </li>
                     <!-- End Language Selection -->
                 @endif
-                @foreach($useful_links as $link)
-                        <li class="nav-item d-none d-sm-inline-block">
-                            <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
-                                    class="{{$link->icon}}"></i> {{ $link->title }}</a>
-                        </li>
+                @foreach ($useful_links as $link)
+                    <li class="nav-item d-none d-sm-inline-block">
+                        <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
+                                class="{{ $link->icon }}"></i> {{ $link->title }}</a>
+                    </li>
                 @endforeach
             </ul>
 
@@ -232,11 +235,7 @@
                             </a>
                         </li>
 
-                        @if (env('APP_ENV') == 'local' ||
-                            (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) ||
-                            (config('SETTINGS::PAYMENTS:STRIPE:SECRET') &&
-                                config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') &&
-                                config('SETTINGS::PAYMENTS:STRIPE:METHODS')))
+                        @if (env('APP_ENV') == 'local' || $general_settings->store_enabled)
                             <li class="nav-item">
                                 <a href="{{ route('store.index') }}"
                                     class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
@@ -384,7 +383,7 @@
 
                             <li class="nav-item">
                                 <a href="{{ route('admin.legal.index') }}"
-                                   class="nav-link @if (Request::routeIs('admin.legal.*')) active @endif">
+                                    class="nav-link @if (Request::routeIs('admin.legal.*')) active @endif">
                                     <i class="nav-icon fas fa-link"></i>
                                     <p>{{ __('Legal Sites') }}</p>
                                 </a>
@@ -458,7 +457,8 @@
                     <a target="_blank" href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
                 @if ($website_settings->show_tos)
-                    | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+                    | <a target="_blank"
+                        href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>
         </footer>

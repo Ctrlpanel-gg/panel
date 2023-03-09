@@ -22,20 +22,13 @@ class ShopProductController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
-        $isPaymentSetup = false;
+        $isStoreEnabled = $general_settings->store_enabled;
 
-        if (
-            env('APP_ENV') == 'local' ||
-            config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID') ||
-            config('SETTINGS::PAYMENTS:STRIPE:SECRET') && config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') && config('SETTINGS::PAYMENTS:STRIPE:METHODS')
-        ) {
-            $isPaymentSetup = true;
-        }
 
         return view('admin.store.index', [
-            'isPaymentSetup' => $isPaymentSetup,
+            'isStoreEnabled' => $isStoreEnabled,
             'locale_datatables' => $locale_settings->datatables
         ]);
     }

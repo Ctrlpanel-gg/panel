@@ -168,139 +168,132 @@
                     <!-- /.card-body -->
             </div>
             @endif
-            <!-- /.card -->
-        </div>
-        <!-- /.col -->
 
-        <div class="col-md-6">
-            <div class="card card-default">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-history mr-2"></i>
-                        {{ __('Activity Logs') }}
-                    </h3>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body py-0 pb-2">
-                    <ul class="list-group list-group-flush">
-                        @foreach (Auth::user()->actions()->take(8)->orderBy('created_at', 'desc')->get() as $log)
-                            <li class="list-group-item d-flex justify-content-between text-muted">
-                                <span>
-                                    @if (str_starts_with($log->description, 'created'))
-                                        <small><i class="fas text-success fa-plus mr-2"></i></small>
-                                    @elseif(str_starts_with($log->description, 'redeemed'))
-                                        <small><i class="fas text-success fa-money-check-alt mr-2"></i></small>
-                                    @elseif(str_starts_with($log->description, 'deleted'))
-                                        <small><i class="fas text-danger fa-times mr-2"></i></small>
-                                    @elseif(str_starts_with($log->description, 'gained'))
-                                        <small><i class="fas text-success fa-money-bill mr-2"></i></small>
-                                    @elseif(str_starts_with($log->description, 'updated'))
-                                        <small><i class="fas text-info fa-pen mr-2"></i></small>
-                                    @endif
-                                    {{ explode('\\', $log->subject_type)[2] }}
-                                    {{ ucfirst($log->description) }}
-                                </span>
-                                <small>
-                                    {{ $log->created_at->diffForHumans() }}
-                                </small>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-            @if ($referral_settings->enabled)
-                <!--PartnerDiscount::getDiscount()--->
+            <div class="col-md-6">
                 <div class="card card-default">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fas fa-handshake mr-2"></i>
-                            {{ __('Partner program') }}
+                            <i class="fas fa-history mr-2"></i>
+                            {{ __('Activity Logs') }}
                         </h3>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body py-0 pb-2">
-                        @if (
-                            ($referral_settings->allowed == 'client' && Auth::user()->role != 'member') ||
-                                $referral_settings->allowed == 'everyone')
-                            <div class="row">
-                                <div class="mt-3 col-md-8">
-                                    <span class="badge badge-success" style="font-size: 14px">
-                                        <i class="fa fa-user-check mr-2"></i>
-                                        {{ __('Your referral URL') }}:
-                                        <span onmouseover="hoverIn()" onmouseout="hoverOut()" onclick="onClickCopy()"
-                                            id="RefLink" style="cursor: pointer;">
-                                            {{ __('Click to copy') }}
-                                        </span>
+                        <ul class="list-group list-group-flush">
+                            @foreach (Auth::user()->actions()->take(8)->orderBy('created_at', 'desc')->get() as $log)
+                                <li class="list-group-item d-flex justify-content-between text-muted">
+                                    <span>
+                                        @if (str_starts_with($log->description, 'created'))
+                                            <small><i class="fas text-success fa-plus mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description, 'redeemed'))
+                                            <small><i class="fas text-success fa-money-check-alt mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description, 'deleted'))
+                                            <small><i class="fas text-danger fa-times mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description, 'gained'))
+                                            <small><i class="fas text-success fa-money-bill mr-2"></i></small>
+                                        @elseif(str_starts_with($log->description, 'updated'))
+                                            <small><i class="fas text-info fa-pen mr-2"></i></small>
+                                        @endif
+                                        {{ explode('\\', $log->subject_type)[2] }}
+                                        {{ ucfirst($log->description) }}
                                     </span>
-                                </div>
-                                <div class="mt-3 col-md-4">
-                                    <span class="badge badge-info"
-                                        style="font-size: 14px">{{ __('Number of referred users:') }}
-                                        {{ $numberOfReferrals }}</span>
-                                </div>
-                            </div>
-                            @if ($partnerDiscount)
-                                <hr
-                                    style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-bottom: 0px">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ __('Your discount') }}</th>
-                                            <th>{{ __('Discount for your new users') }}</th>
-                                            <th>{{ __('Reward per registered user') }}</th>
-                                            <th>{{ __('New user payment commision') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $partnerDiscount->partner_discount }}%</td>
-                                            <td>{{ $partnerDiscount->registered_user_discount }}%</td>
-                                            <td>{{ $referral_settings->reward }}
-                                                {{ $general_settings->credits_display_name }}</td>
-                                            <td>{{ $partnerDiscount->referral_system_commission == -1 ? $referral_settings->percentage : $partnerDiscount->referral_system_commission }}%
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <hr
-                                    style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: 0px">
-                            @else
-                                <hr
-                                    style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-bottom: 0px">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>{{ __('Reward per registered user') }}</th>
-                                            <th>{{ __('New user payment commision') }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $referral_settings->reward }}
-                                                {{ $general_settings->credits_display_name }}</td>
-                                            <td>{{ $referral_settings->percentage }}%</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <hr
-                                    style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: 0px">
-                            @endif
-                        @else
-                            <span class="badge badge-warning"><i class="fa fa-user-check mr-2"></i>
-                                {{ __('Make a purchase to reveal your referral-URL') }}</span>
-                        @endif
+                                    <small>
+                                        {{ $log->created_at->diffForHumans() }}
+                                    </small>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                     <!-- /.card-body -->
                 </div>
-            @endif
-            <!-- /.card -->
-        </div>
-        <!-- /.col -->
-
-        </div>
-        <!-- END CUSTOM CONTENT -->
+                <!-- /.card -->
+                @if ($referral_settings->enabled)
+                    <!--PartnerDiscount::getDiscount()--->
+                    <div class="card card-default">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-handshake mr-2"></i>
+                                {{ __('Partner program') }}
+                            </h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body py-0 pb-2">
+                            @if (
+                                ($referral_settings->allowed == 'client' && Auth::user()->role != 'member') ||
+                                    $referral_settings->allowed == 'everyone')
+                                <div class="row">
+                                    <div class="mt-3 col-md-8">
+                                        <span class="badge badge-success" style="font-size: 14px">
+                                            <i class="fa fa-user-check mr-2"></i>
+                                            {{ __('Your referral URL') }}:
+                                            <span onmouseover="hoverIn()" onmouseout="hoverOut()" onclick="onClickCopy()"
+                                                id="RefLink" style="cursor: pointer;">
+                                                {{ __('Click to copy') }}
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="mt-3 col-md-4">
+                                        <span class="badge badge-info"
+                                            style="font-size: 14px">{{ __('Number of referred users:') }}
+                                            {{ $numberOfReferrals }}</span>
+                                    </div>
+                                </div>
+                                @if ($partnerDiscount)
+                                    <hr
+                                        style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-bottom: 0px">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('Your discount') }}</th>
+                                                <th>{{ __('Discount for your new users') }}</th>
+                                                <th>{{ __('Reward per registered user') }}</th>
+                                                <th>{{ __('New user payment commision') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{ $partnerDiscount->partner_discount }}%</td>
+                                                <td>{{ $partnerDiscount->registered_user_discount }}%</td>
+                                                <td>{{ $referral_settings->reward }}
+                                                    {{ $general_settings->credits_display_name }}</td>
+                                                <td>{{ $partnerDiscount->referral_system_commission == -1 ? $referral_settings->percentage : $partnerDiscount->referral_system_commission }}%
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr
+                                        style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: 0px">
+                                @else
+                                    <hr
+                                        style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-bottom: 0px">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('Reward per registered user') }}</th>
+                                                <th>{{ __('New user payment commision') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{ $referral_settings->reward }}
+                                                    {{ $general_settings->credits_display_name }}</td>
+                                                <td>{{ $referral_settings->percentage }}%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr
+                                        style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-top: 0px">
+                                @endif
+                            @else
+                                <span class="badge badge-warning"><i class="fa fa-user-check mr-2"></i>
+                                    {{ __('Make a purchase to reveal your referral-URL') }}</span>
+                            @endif
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                @endif
+                <!-- /.card -->
+            </div>
         </div>
     </section>
     <!-- END CONTENT -->

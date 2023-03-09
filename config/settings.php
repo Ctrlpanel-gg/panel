@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\ExtensionHelper;
 use App\Settings\GeneralSettings;
 use App\Settings\DiscordSettings;
 use App\Settings\InvoiceSettings;
@@ -29,7 +30,7 @@ return [
         ServerSettings::class,
         UserSettings::class,
         WebsiteSettings::class,
-        TicketSettings::class
+        TicketSettings::class,
     ],
 
     /*
@@ -44,6 +45,8 @@ return [
      */
     'migrations_paths' => [
         database_path('settings'),
+        ...ExtensionHelper::getAllExtensionMigrations()
+
     ],
 
     /*
@@ -88,7 +91,7 @@ return [
     'global_casts' => [
         DateTimeInterface::class => Spatie\LaravelSettings\SettingsCasts\DateTimeInterfaceCast::class,
         DateTimeZone::class => Spatie\LaravelSettings\SettingsCasts\DateTimeZoneCast::class,
-//        Spatie\DataTransferObject\DataTransferObject::class => Spatie\LaravelSettings\SettingsCasts\DtoCast::class,
+        //        Spatie\DataTransferObject\DataTransferObject::class => Spatie\LaravelSettings\SettingsCasts\DtoCast::class,
         Spatie\LaravelData\Data::class => Spatie\LaravelSettings\SettingsCasts\DataCast::class,
     ],
 

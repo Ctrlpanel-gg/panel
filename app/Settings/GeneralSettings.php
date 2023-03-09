@@ -6,6 +6,7 @@ use Spatie\LaravelSettings\Settings;
 
 class GeneralSettings extends Settings
 {
+    public bool $store_enabled = true;
     public string $credits_display_name;
     public bool $recaptcha_enabled;
     public string $recaptcha_site_key;
@@ -32,27 +33,6 @@ class GeneralSettings extends Settings
     }
 
     /**
-     * Summary of validations array
-     * @return array<string, string>
-     */
-    public static function getValidations()
-    {
-        return [
-            'credits_display_name' => 'required|string',
-            'initial_user_credits' => 'required|numeric',
-            'initial_server_limit' => 'required|numeric',
-            'recaptcha_enabled' => 'nullable|string',
-            'recaptcha_site_key' => 'nullable|string',
-            'recaptcha_secret_key' => 'nullable|string',
-            'phpmyadmin_url' => 'nullable|string',
-            'alert_enabled' => 'nullable|string',
-            'alert_type' => 'nullable|string',
-            'alert_message' => 'nullable|string',
-            'theme' => 'required|string'
-        ];
-    }
-
-    /**
      * Summary of optionTypes
      * Only used for the settings page
      * @return array<array<'type'|'label'|'description'|'options', string|bool|float|int|array<string, string>>>
@@ -61,6 +41,11 @@ class GeneralSettings extends Settings
     {
         return [
             'category_icon' => "fas fa-cog",
+            'store_enabled' => [
+                'type' => 'boolean',
+                'label' => 'Enable Store',
+                'description' => 'Enable the store for users to purchase credits.'
+            ],
             'credits_display_name' => [
                 'type' => 'string',
                 'label' => 'Credits Display Name',

@@ -2,6 +2,7 @@
 
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
+use App\Extensions\PaymentGateways\PayPal\PayPalSettings;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
@@ -25,6 +26,8 @@ use PayPalHttp\HttpException;
  */
 function PaypalPay(Request $request)
 {
+    $settings = new PayPalSettings();
+
     /** @var User $user */
     $user = Auth::user();
     $shopProduct = ShopProduct::findOrFail($request->shopProduct);
@@ -111,6 +114,8 @@ function PaypalPay(Request $request)
  */
 function PaypalSuccess(Request $laravelRequest)
 {
+    $settings = new PayPalSettings();
+
     $user = Auth::user();
     $user = User::findOrFail($user->id);
 
@@ -165,6 +170,8 @@ function PaypalSuccess(Request $laravelRequest)
  */
 function getPayPalClient()
 {
+    $settings = new PayPalSettings();
+
     $environment = env('APP_ENV') == 'local'
         ? new SandboxEnvironment(getPaypalClientId(), getPaypalClientSecret())
         : new ProductionEnvironment(getPaypalClientId(), getPaypalClientSecret());
@@ -175,12 +182,14 @@ function getPayPalClient()
  */
 function getPaypalClientId()
 {
-    return env('APP_ENV') == 'local' ?  config("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID") : config("SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID");
+    $settings = new PayPalSettings();
+    return env('APP_ENV') == 'local' ?  $settings->sandbox_client_id : $settings->client_id;
 }
 /**
  * @return string
  */
 function getPaypalClientSecret()
 {
-    return env('APP_ENV') == 'local' ? config("SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET") : config("SETTINGS::PAYMENTS:PAYPAL:SECRET");
+    $settings = new PayPalSettings();
+    return env('APP_ENV') == 'local' ? $settings->sandbox_client_secret : $settings->client_secret;
 }

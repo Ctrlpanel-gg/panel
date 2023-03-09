@@ -2,6 +2,9 @@
 
 namespace App\Helpers;
 
+/**
+ * Summary of ExtensionHelper
+ */
 class ExtensionHelper
 {
     /**
@@ -60,7 +63,7 @@ class ExtensionHelper
 
     /**
      * Get all extensions
-     * @return array
+     * @return array of all extension paths look like: app/Extensions/ExtensionNamespace/ExtensionName
      */
     public static function getAllExtensions()
     {
@@ -78,5 +81,76 @@ class ExtensionHelper
         $extensions = glob(app_path() . '/Extensions/' . $namespace . '/*', GLOB_ONLYDIR);
 
         return $extensions;
+    }
+
+    /**
+     * Summary of getAllExtensionMigrations
+     * @return array of all migration paths look like: app/Extensions/ExtensionNamespace/ExtensionName/migrations/
+     */
+    public static function getAllExtensionMigrations()
+    {
+        $extensions = ExtensionHelper::getAllExtensions();
+
+        // get all migration directories of the extensions and return them as array
+        $migrations = [];
+        foreach ($extensions as $extension) {
+            $migrationDir = $extension . '/migrations';
+            if (file_exists($migrationDir)) {
+                $migrations[] = $migrationDir;
+            }
+        }
+
+        return $migrations;
+    }
+
+    /**
+     * Summary of getAllExtensionSettings
+     * @return array of all setting classes look like: App\Extensions\PaymentGateways\PayPal\PayPalSettings
+     */
+    public static function getAllExtensionSettingsClasses()
+    {
+        $extensions = ExtensionHelper::getAllExtensions();
+
+        $settings = [];
+        foreach ($extensions as $extension) {
+
+            $extensionName = basename($extension);
+            $settingFile = $extension . '/' . $extensionName . 'Settings.php';
+            if (file_exists($settingFile)) {
+                // remove the base path from the setting file path to get the namespace
+
+                $settingFile = str_replace(app_path() . '/', '', $settingFile);
+                $settingFile = str_replace('.php', '', $settingFile);
+                $settingFile = str_replace('/', '\\', $settingFile);
+                $settingFile = 'App\\' . $settingFile;
+                $settings[] = $settingFile;
+            }
+        }
+
+        return $settings;
+    }
+
+    public static function getExtensionSettings(string $extensionName)
+    {
+        $extensions = ExtensionHelper::getAllExtensions();
+
+        // find the setting file of the extension and return an instance of it
+        foreach ($extensions as $extension) {
+            if (!(basename($extension) ==  $extensionName)) {
+                continue;
+            }
+
+            $extensionName = basename($extension);
+            $settingFile = $extension . '/' . $extensionName . 'Settings.php';
+            if (file_exists($settingFile)) {
+                // remove the base path from the setting file path to get the namespace
+
+                $settingFile = str_replace(app_path() . '/', '', $settingFile);
+                $settingFile = str_replace('.php', '', $settingFile);
+                $settingFile = str_replace('/', '\\', $settingFile);
+                $settingFile = 'App\\' . $settingFile;
+                return new $settingFile();
+            }
+        }
     }
 }
