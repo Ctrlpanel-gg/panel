@@ -25,7 +25,12 @@ class TicketsController extends Controller
 
     public function show($ticket_id)
     {
+        try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
@@ -33,9 +38,20 @@ class TicketsController extends Controller
         return view('moderator.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server'));
     }
 
-    public function close($ticket_id)
+    public function changeStatus($ticket_id)
     {
+        try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch(Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
+
+        if($ticket->status == "Closed"){
+            $ticket->status = "Reopened";
+            $ticket->save();
+            return redirect()->back()->with('success', __('A ticket has been reopened, ID: #') . $ticket->ticket_id);
+        }
         $ticket->status = 'Closed';
         $ticket->save();
         $ticketOwner = $ticket->user;
@@ -45,7 +61,13 @@ class TicketsController extends Controller
 
     public function delete($ticket_id)
     {
+        try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (Exception $e)
+        {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
+
         TicketComment::where('ticket_id', $ticket->id)->delete();
         $ticket->delete();
 
@@ -55,7 +77,11 @@ class TicketsController extends Controller
     public function reply(Request $request)
     {
         $this->validate($request, ['ticketcomment' => 'required']);
-        $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
+        try {
+            $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
+        } catch (Exception $e){
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
         $ticket->status = 'Answered';
         $ticket->update();
         TicketComment::create([
@@ -63,7 +89,12 @@ class TicketsController extends Controller
             'user_id' => Auth::user()->id,
             'ticketcomment' => $request->input('ticketcomment'),
         ]);
+        try {
         $user = User::where('id', $ticket->user_id)->firstOrFail();
+        } catch(Exception $e)
+        {
+            return redirect()->back()->with('warning', __('User not found on the server. Check on the admin database or try again later.'));
+        }
         $newmessage = $request->input('ticketcomment');
         $user->notify(new ReplyNotification($ticket, $user, $newmessage));
 
@@ -85,12 +116,16 @@ class TicketsController extends Controller
                 return '<a href="'.route('admin.users.show', $tickets->user->id).'">'.$tickets->user->name.'</a>';
             })
             ->addColumn('actions', function (Ticket $tickets) {
+                $statusButtonColor = ($tickets->status == "Closed") ? 'btn-success' : 'btn-warning';
+                $statusButtonIcon = ($tickets->status == "Closed") ? 'fa-redo' : 'fa-times';
+                $statusButtonText = ($tickets->status == "Closed") ? __('Reopen') : __('Close');
+
                 return '
                             <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
-                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.close', ['ticket_id' => $tickets->ticket_id]).'">
+                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
-                            <button data-content="'.__('Close').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-times"></i></button>
+                            <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
                             </form>
                             <form class="d-inline"  method="post" action="'.route('moderator.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
@@ -101,6 +136,7 @@ class TicketsController extends Controller
             })
             ->editColumn('status', function (Ticket $tickets) {
                 switch ($tickets->status) {
+                    case 'Reopened':
                     case 'Open':
                         $badgeColor = 'badge-success';
                         break;
@@ -135,8 +171,13 @@ class TicketsController extends Controller
 
     public function blacklistAdd(Request $request)
     {
-        $user = User::where('id', $request->user_id)->first();
+        try {
+        $user = User::where('id', $request->user_id)->firstOrFail();
         $check = TicketBlacklist::where('user_id', $user->id)->first();
+        }
+        catch (Exception $e){
+            return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
+        }
         if ($check) {
             $check->reason = $request->reason;
             $check->status = 'True';
@@ -163,7 +204,12 @@ class TicketsController extends Controller
 
     public function blacklistChange($id)
     {
-        $blacklist = TicketBlacklist::where('id', $id)->first();
+        try {
+            $blacklist = TicketBlacklist::where('id', $id)->first();
+        }
+        catch (Exception $e){
+            return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
+        }
         if ($blacklist->status == 'True') {
             $blacklist->status = 'False';
         } else {
