@@ -61,14 +61,14 @@ if (isset($_POST['feedDB'])) {
 
     //$logs .= run_console(putenv('COMPOSER_HOME=' . dirname(__FILE__, 3) . '/vendor/bin/composer'));
     //$logs .= run_console('composer install --no-dev --optimize-autoloader');
-    $logs .= run_console('php artisan migrate --seed --force');
-    $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
     if (strpos(getEnvironmentValue('APP_KEY'), 'base64') === false) {
         $logs .= run_console('php artisan key:generate --force');
     } else {
         $logs .= "Key already exists. Skipping\n";
     }
     $logs .= run_console('php artisan storage:link');
+    $logs .= run_console('php artisan migrate --seed --force');
+    $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
 
     wh_log($logs);
 
@@ -114,17 +114,17 @@ if (isset($_POST['checkSMTP'])) {
         exit();
     }
     $values = [
-        'SETTINGS::MAIL:MAILER' => $_POST['method'],
-        'SETTINGS::MAIL:HOST' => $_POST['host'],
-        'SETTINGS::MAIL:PORT' => $_POST['port'],
-        'SETTINGS::MAIL:USERNAME' => $_POST['user'],
-        'SETTINGS::MAIL:PASSWORD' => $_POST['pass'],
-        'SETTINGS::MAIL:ENCRYPTION' => $_POST['encryption'],
-        'SETTINGS::MAIL:FROM_ADDRESS' => $_POST['user'],
+        'mail_mailer' => $_POST['method'],
+        'mail_host' => $_POST['host'],
+        'mail_port' => $_POST['port'],
+        'mail_username' => $_POST['user'],
+        'mail_password' => $_POST['pass'],
+        'mail_encryption' => $_POST['encryption'],
+        'mail_from_address' => $_POST['user'],
     ];
 
     foreach ($values as $key => $value) {
-        $query = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$value' WHERE (`key` = '$key')";
+        $query = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = mail";
         $db->query($query);
     }
 
@@ -177,9 +177,9 @@ if (isset($_POST['checkPtero'])) {
         wh_log('API CALL ERROR: '.$result['errors'][0]['code']);
         exit();
     } else {
-        $query1 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$url' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL')";
-        $query2 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$key' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN')";
-        $query3 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$clientkey' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN')";
+        $query1 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '$url' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
+        $query2 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '$key' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
+        $query3 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '$clientkey' WHERE (`name` = 'user_token' AND `group` = 'pterodactyl')";
 
         $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
         if ($db->connect_error) {
@@ -209,8 +209,8 @@ if (isset($_POST['createUser'])) {
     $pass = $_POST['pass'];
     $repass = $_POST['repass'];
 
-    $key = $db->query('SELECT `value` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN'")->fetch_assoc();
-    $pterobaseurl = $db->query('SELECT `value` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL'")->fetch_assoc();
+    $key = $db->query('SELECT `payload` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
+    $pterobaseurl = $db->query('SELECT `payload` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
 
     $pteroURL = $pterobaseurl['value'].'/api/application/users/'.$pteroID;
     $ch = curl_init();
