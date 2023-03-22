@@ -14,49 +14,73 @@ class ExtensionHelper
      */
     public static function getExtensionConfig(string $extensionName, string $configname)
     {
-        $extensions = ExtensionHelper::getAllExtensions();
 
-        // call the getConfig function of the config file of the extension like that
-        // call_user_func("App\\Extensions\\PaymentGateways\\Stripe" . "\\getConfig");
+        $extension = self::getExtensionClass($extensionName);
+
+        $config = $extension::getConfig();
+
+
+
+        if (isset($config[$configname])) {
+            return $config[$configname];
+        }
+
+
+        return null;
+    }
+
+    public static function getAllExtensionClasses()
+    {
+        $extensions = array_filter(get_declared_classes(), function ($class) {
+            $reflection = new \ReflectionClass($class);
+            return $reflection->isSubclassOf('App\\Helpers\\AbstractExtension');
+        });
+
+        return $extensions;
+    }
+
+    public static function getAllExtensionClassesByNamespace(string $namespace)
+    {
+        $extensions = array_filter(get_declared_classes(), function ($class) use ($namespace) {
+            $reflection = new \ReflectionClass($class);
+            return $reflection->isSubclassOf('App\\Helpers\\AbstractExtension') && strpos($class, $namespace) !== false;
+        });
+
+        return $extensions;
+    }
+
+
+
+    public static function getExtensionClass(string $extensionName)
+    {
+        $extensions = self::getAllExtensions();
+
         foreach ($extensions as $extension) {
             if (!(basename($extension) ==  $extensionName)) {
                 continue;
             }
 
-            $configFile = $extension . '/config.php';
-            if (file_exists($configFile)) {
-                include_once $configFile;
-                $config = call_user_func('App\\Extensions\\' . basename(dirname($extension)) . '\\' . basename($extension) . "\\getConfig");
-            }
-
-
-            if (isset($config[$configname])) {
-                return $config[$configname];
-            }
+            $extensionClass = $extension . '\\' . $extensionName . 'Extension';
+            return $extensionClass;
         }
-
-        return null;
     }
 
     public static function getAllCsrfIgnoredRoutes()
     {
-        $extensions = ExtensionHelper::getAllExtensions();
+        $extensions = self::getAllExtensionClasses();
 
         $routes = [];
+
         foreach ($extensions as $extension) {
-            $configFile = $extension . '/config.php';
-            if (file_exists($configFile)) {
-                include_once $configFile;
-                $config = call_user_func('App\\Extensions\\' . basename(dirname($extension)) . '\\' . basename($extension) . "\\getConfig");
-            }
+            $config = $extension::getConfig();
 
             if (isset($config['RoutesIgnoreCsrf'])) {
                 $routes = array_merge($routes, $config['RoutesIgnoreCsrf']);
             }
-
-            // map over the routes and add the extension name as prefix
-            $result = array_map(fn ($item) => "extensions/{$item}", $routes);
         }
+
+        // map over the routes and add the extension name as prefix
+        $result = array_map(fn ($item) => "extensions/{$item}", $routes);
 
         return $result;
     }
@@ -67,18 +91,18 @@ class ExtensionHelper
      */
     public static function getAllExtensions()
     {
-        $extensionNamespaces = glob(app_path() . '/Extensions/*', GLOB_ONLYDIR);
-        $extensions = [];
-        foreach ($extensionNamespaces as $extensionNamespace) {
-            $extensions = array_merge($extensions, glob($extensionNamespace . '/*', GLOB_ONLYDIR));
-        }
+        $extensions = self::getAllExtensionClasses();
+        // remove the last part of the namespace
+        $extensions = array_map(fn ($item) => dirname($item), $extensions);
 
         return $extensions;
     }
 
     public static function getAllExtensionsByNamespace(string $namespace)
     {
-        $extensions = glob(app_path() . '/Extensions/' . $namespace . '/*', GLOB_ONLYDIR);
+        $extensions = self::getAllExtensionClassesByNamespace($namespace);
+        // remove the last part of the namespace
+        $extensions = array_map(fn ($item) => dirname($item), $extensions);
 
         return $extensions;
     }
@@ -89,7 +113,7 @@ class ExtensionHelper
      */
     public static function getAllExtensionMigrations()
     {
-        $extensions = ExtensionHelper::getAllExtensions();
+        $extensions = self::getAllExtensions();
 
         // get all migration directories of the extensions and return them as array
         $migrations = [];
@@ -109,7 +133,7 @@ class ExtensionHelper
      */
     public static function getAllExtensionSettingsClasses()
     {
-        $extensions = ExtensionHelper::getAllExtensions();
+        $extensions = self::getAllExtensions();
 
         $settings = [];
         foreach ($extensions as $extension) {
@@ -132,23 +156,16 @@ class ExtensionHelper
 
     public static function getExtensionSettings(string $extensionName)
     {
-        $extensions = ExtensionHelper::getAllExtensions();
+        $extensions = self::getAllExtensions();
 
-        // find the setting file of the extension and return an instance of it
         foreach ($extensions as $extension) {
             if (!(basename($extension) ==  $extensionName)) {
                 continue;
             }
 
             $extensionName = basename($extension);
-            $settingFile = $extension . '/' . $extensionName . 'Settings.php';
-            if (file_exists($settingFile)) {
-                // remove the base path from the setting file path to get the namespace
-
-                $settingFile = str_replace(app_path() . '/', '', $settingFile);
-                $settingFile = str_replace('.php', '', $settingFile);
-                $settingFile = str_replace('/', '\\', $settingFile);
-                $settingFile = 'App\\' . $settingFile;
+            $settingFile = $extension . '\\' . $extensionName . 'Settings';
+            if (class_exists($settingFile)) {
                 return new $settingFile();
             }
         }
