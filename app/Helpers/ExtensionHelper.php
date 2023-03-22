@@ -65,6 +65,16 @@ class ExtensionHelper
         }
     }
 
+    public static function getExtension(string $extensionName)
+    {
+        $extensions = self::getAllExtensions();
+        // filter the extensions by the extension name
+        $extensions = array_filter($extensions, fn ($item) => basename($item) == $extensionName);
+
+        // return the only extension
+        return array_shift($extensions);
+    }
+
     public static function getAllCsrfIgnoredRoutes()
     {
         $extensions = self::getAllExtensionClasses();
@@ -78,7 +88,6 @@ class ExtensionHelper
                 $routes = array_merge($routes, $config['RoutesIgnoreCsrf']);
             }
         }
-
         // map over the routes and add the extension name as prefix
         $result = array_map(fn ($item) => "extensions/{$item}", $routes);
 
@@ -139,15 +148,9 @@ class ExtensionHelper
         foreach ($extensions as $extension) {
 
             $extensionName = basename($extension);
-            $settingFile = $extension . '/' . $extensionName . 'Settings.php';
-            if (file_exists($settingFile)) {
-                // remove the base path from the setting file path to get the namespace
-
-                $settingFile = str_replace(app_path() . '/', '', $settingFile);
-                $settingFile = str_replace('.php', '', $settingFile);
-                $settingFile = str_replace('/', '\\', $settingFile);
-                $settingFile = 'App\\' . $settingFile;
-                $settings[] = $settingFile;
+            $settingsClass = $extension . '\\' . $extensionName . 'Settings';
+            if (class_exists($settingsClass)) {
+                $settings[] = $settingsClass;
             }
         }
 
@@ -156,18 +159,13 @@ class ExtensionHelper
 
     public static function getExtensionSettings(string $extensionName)
     {
-        $extensions = self::getAllExtensions();
+        $extension = self::getExtension($extensionName);
 
-        foreach ($extensions as $extension) {
-            if (!(basename($extension) ==  $extensionName)) {
-                continue;
-            }
+        $settingClass = $extension . '/' . $extensionName . 'Settings';
 
-            $extensionName = basename($extension);
-            $settingFile = $extension . '\\' . $extensionName . 'Settings';
-            if (class_exists($settingFile)) {
-                return new $settingFile();
-            }
+
+        if (class_exists($settingClass)) {
+            return new $settingClass();
         }
     }
 }
