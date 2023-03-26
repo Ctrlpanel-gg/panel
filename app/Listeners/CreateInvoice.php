@@ -11,6 +11,7 @@ class CreateInvoice
     use Invoiceable;
 
     private $invoice_enabled;
+    private $invoice_settings;
 
     /**
      * Create the event listener.
@@ -20,6 +21,7 @@ class CreateInvoice
     public function __construct(InvoiceSettings $invoice_settings)
     {
         $this->invoice_enabled = $invoice_settings->enabled;
+        $this->invoice_settings = $invoice_settings;
     }
 
     /**
@@ -32,7 +34,7 @@ class CreateInvoice
     {
         if ($this->invoice_enabled) {
             // create invoice using the trait
-            $this->createInvoice($event->payment, $event->shopProduct);
+            $this->createInvoice($event->payment, $event->shopProduct, $this->invoice_settings);
         }
     }
 }
