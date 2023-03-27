@@ -8,6 +8,105 @@ namespace App\Helpers;
 class ExtensionHelper
 {
     /**
+     * Get all extensions
+     * @return array array of all extensions e.g. ["App\Extensions\PayPal", "App\Extensions\Stripe"]
+     */
+    public static function getAllExtensions()
+    {
+        $extensionNamespaces = glob(app_path() . '/Extensions/*', GLOB_ONLYDIR);
+        $extensions = [];
+        foreach ($extensionNamespaces as $extensionNamespace) {
+            $extensions = array_merge($extensions, glob($extensionNamespace . '/*', GLOB_ONLYDIR));
+        }
+        // remove base path from every extension but keep app/Extensions/...
+        $extensions = array_map(fn ($item) => str_replace('/', '\\', str_replace(app_path() . '/', 'App/', $item)), $extensions);
+
+        return $extensions;
+    }
+
+    /**
+     * Get all extensions by namespace
+     * @param string $namespace case sensitive namespace of the extension e.g. PaymentGateways
+     * @return array array of all extensions e.g. ["App\Extensions\PayPal", "App\Extensions\Stripe"]
+     */
+    public static function getAllExtensionsByNamespace(string $namespace)
+    {
+        $extensions = glob(app_path() . '/Extensions/' . $namespace . '/*', GLOB_ONLYDIR);
+        // remove base path from every extension but keep app/Extensions/...
+        $extensions = array_map(fn ($item) => str_replace('/', '\\', str_replace(app_path() . '/', 'App/', $item)), $extensions);
+
+        return $extensions;
+    }
+
+    /**
+     * Get an extension by its name
+     * @param string $extensionName case sensitive name of the extension e.g. PayPal
+     * @return string|null the path of the extension e.g. App\Extensions\PayPal
+     */
+    public static function getExtension(string $extensionName)
+    {
+        $extensions = self::getAllExtensions();
+        // filter the extensions by the extension name
+        $extensions = array_filter($extensions, fn ($item) => basename($item) == $extensionName);
+
+        // return the only extension
+        return array_shift($extensions);
+    }
+
+    /**
+     * Get all extension classes
+     * @return array array of all extension classes e.g. ["App\Extensions\PayPal\PayPalExtension", "App\Extensions\Stripe\StripeExtension"]
+     */
+    public static function getAllExtensionClasses()
+    {
+        $extensions = self::getAllExtensions();
+        // add the ExtensionClass to the end of the namespace 
+        $extensions = array_map(fn ($item) => $item . '\\' . basename($item) . 'Extension', $extensions);
+        // filter out non existing extension classes
+        $extensions = array_filter($extensions, fn ($item) => class_exists($item));
+
+        return $extensions;
+    }
+
+    /**
+     * Get all extension classes by namespace
+     * @param string $namespace case sensitive namespace of the extension e.g. PaymentGateways
+     * @return array array of all extension classes e.g. ["App\Extensions\PayPal\PayPalExtension", "App\Extensions\Stripe\StripeExtension"]
+     */
+    public static function getAllExtensionClassesByNamespace(string $namespace)
+    {
+        $extensions = self::getAllExtensionsByNamespace($namespace);
+        // add the ExtensionClass to the end of the namespace
+        $extensions = array_map(fn ($item) => $item . '\\' . basename($item) . 'Extension', $extensions);
+        // filter out non existing extension classes
+        $extensions = array_filter($extensions, fn ($item) => class_exists($item));
+
+        return $extensions;
+    }
+
+    /**
+     * Get the class of an extension by its name
+     * @param string $extensionName case sensitive name of the extension e.g. PayPal
+     * @return string|null the class name of the extension e.g. App\Extensions\PayPal\PayPalExtension
+     */
+    public static function getExtensionClass(string $extensionName)
+    {
+        $extensions = self::getAllExtensions();
+
+        foreach ($extensions as $extension) {
+            if (!(basename($extension) ==  $extensionName)) {
+                continue;
+            }
+
+            $extensionClass = $extension . '\\' . $extensionName . 'Extension';
+            return $extensionClass;
+        }
+    }
+
+
+
+
+    /**
      * Get a config of an extension by its name
      * @param string $extensionName
      * @param string $configname
@@ -27,52 +126,6 @@ class ExtensionHelper
 
 
         return null;
-    }
-
-    public static function getAllExtensionClasses()
-    {
-        $extensions = array_filter(get_declared_classes(), function ($class) {
-            $reflection = new \ReflectionClass($class);
-            return $reflection->isSubclassOf('App\\Helpers\\AbstractExtension');
-        });
-
-        return $extensions;
-    }
-
-    public static function getAllExtensionClassesByNamespace(string $namespace)
-    {
-        $extensions = array_filter(get_declared_classes(), function ($class) use ($namespace) {
-            $reflection = new \ReflectionClass($class);
-            return $reflection->isSubclassOf('App\\Helpers\\AbstractExtension') && strpos($class, $namespace) !== false;
-        });
-
-        return $extensions;
-    }
-
-
-
-    public static function getExtensionClass(string $extensionName)
-    {
-        $extensions = self::getAllExtensions();
-
-        foreach ($extensions as $extension) {
-            if (!(basename($extension) ==  $extensionName)) {
-                continue;
-            }
-
-            $extensionClass = $extension . '\\' . $extensionName . 'Extension';
-            return $extensionClass;
-        }
-    }
-
-    public static function getExtension(string $extensionName)
-    {
-        $extensions = self::getAllExtensions();
-        // filter the extensions by the extension name
-        $extensions = array_filter($extensions, fn ($item) => basename($item) == $extensionName);
-
-        // return the only extension
-        return array_shift($extensions);
     }
 
     public static function getAllCsrfIgnoredRoutes()
@@ -95,34 +148,17 @@ class ExtensionHelper
     }
 
     /**
-     * Get all extensions
-     * @return array of all extension paths look like: app/Extensions/ExtensionNamespace/ExtensionName
-     */
-    public static function getAllExtensions()
-    {
-        $extensions = self::getAllExtensionClasses();
-        // remove the last part of the namespace
-        $extensions = array_map(fn ($item) => dirname($item), $extensions);
-
-        return $extensions;
-    }
-
-    public static function getAllExtensionsByNamespace(string $namespace)
-    {
-        $extensions = self::getAllExtensionClassesByNamespace($namespace);
-        // remove the last part of the namespace
-        $extensions = array_map(fn ($item) => dirname($item), $extensions);
-
-        return $extensions;
-    }
-
-    /**
      * Summary of getAllExtensionMigrations
      * @return array of all migration paths look like: app/Extensions/ExtensionNamespace/ExtensionName/migrations/
      */
     public static function getAllExtensionMigrations()
     {
+
+        error_log(print_r(self::getAllCsrfIgnoredRoutes(), true));
+
         $extensions = self::getAllExtensions();
+        // Transform the extensions to a path
+        $extensions = array_map(fn ($item) => self::extensionNameToPath($item), $extensions);
 
         // get all migration directories of the extensions and return them as array
         $migrations = [];
@@ -160,12 +196,20 @@ class ExtensionHelper
     public static function getExtensionSettings(string $extensionName)
     {
         $extension = self::getExtension($extensionName);
-
         $settingClass = $extension . '/' . $extensionName . 'Settings';
-
 
         if (class_exists($settingClass)) {
             return new $settingClass();
         }
+    }
+
+    /**
+     * Transforms a extension name to a path
+     * @param string $extensionName e.g. App\Extensions\PaymentGateways\PayPal
+     * @return string e.g. C:\xampp\htdocs\laravel\app/Extensions/PaymentGateways/PayPal
+     */
+    private static function extensionNameToPath(string $extensionName)
+    {
+        return app_path() . '/' . str_replace('\\', '/', str_replace('App\\', '', $extensionName));
     }
 }
