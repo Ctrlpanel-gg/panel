@@ -84,14 +84,17 @@
 
                                             @foreach ($paymentGateways as $gateway)
                                                 <div class="ml-2">
-                                                    <label class="text-center" for="{{ $gateway->name }}">
-                                                        <img class="mb-3" height="50"
-                                                            src="{{ $gateway->image }}"></br>
-                                                        <input x-on:click="console.log(payment_method)"
-                                                            x-model="payment_method" type="radio"
-                                                            id="{{ $gateway->name }}" value="{{ $gateway->name }}">
-                                                        </input>
-                                                    </label>
+                                                    <span data-toggle="popover" data-trigger="hover" data-placement="bottom"
+                                                        data-content="{{ $gateway->name }}"> <label class="text-center"
+                                                            for="{{ $gateway->name }}">
+                                                            <img class="mb-3" height="50" src="{{ $gateway->image }}">
+                                                            </br>
+                                                            <input x-on:click="console.log(payment_method)"
+                                                                x-model="payment_method" type="radio"
+                                                                id="{{ $gateway->name }}" value="{{ $gateway->name }}">
+                                                            </input>
+                                                        </label>
+                                                    </span>
                                                 </div>
                                             @endforeach
                                         </div>
