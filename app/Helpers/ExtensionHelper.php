@@ -153,9 +153,6 @@ class ExtensionHelper
      */
     public static function getAllExtensionMigrations()
     {
-
-        error_log(print_r(self::getAllCsrfIgnoredRoutes(), true));
-
         $extensions = self::getAllExtensions();
         // Transform the extensions to a path
         $extensions = array_map(fn ($item) => self::extensionNameToPath($item), $extensions);
@@ -196,7 +193,7 @@ class ExtensionHelper
     public static function getExtensionSettings(string $extensionName)
     {
         $extension = self::getExtension($extensionName);
-        $settingClass = $extension . '/' . $extensionName . 'Settings';
+        $settingClass = $extension . '\\' . $extensionName . 'Settings';
 
         if (class_exists($settingClass)) {
             return new $settingClass();
