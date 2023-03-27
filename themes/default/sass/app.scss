@@ -5,3 +5,67 @@
 @import "../css/stylesheet.css";
 @import "../css/adminlte.min.css";
 @import "../css/slim.min.css";
+
+.gateway-container {
+    background-color: #ffffff;
+}
+
+.checkout-gateway-radio {
+    // make the radio button clickable
+    cursor: pointer;
+    // center the radio button
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkout-gateway-radio-input {
+    // make radio button square and show a checkmark instead of a circle when selected
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    border: 1px solid #d2d6de;
+    height: 20px;
+    width: 20px;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    // center the thing
+    margin: 0 auto;
+
+    &:checked {
+        background-color: #fff;
+        border: 1px solid #d2d6de;
+        height: 20px;
+        width: 20px;
+        border-radius: 0;
+        position: relative;
+        cursor: pointer;
+        outline: none;
+        &:after {
+            content: "";
+            position: absolute;
+            top: 0px;
+            left: 7px;
+            width: 5px;
+            height: 16px;
+            border: solid #3d6efe;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    }
+}
+
+.checkout-gateway-label {
+    // make the label clickable
+    cursor: pointer;
+
+    // center the label
+    display: flex;
+    justify-content: start;
+    align-items: center;
+
+    margin: 2px 0;
+}

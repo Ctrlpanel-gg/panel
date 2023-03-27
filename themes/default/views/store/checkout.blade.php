@@ -79,22 +79,18 @@
                                 <div class="col-6">
                                     @if (!$productIsFree)
                                         <p class="lead">{{ __('Payment Methods') }}:</p>
-
-                                        <div class="d-flex flex-wrap  flex-direction-row">
-
+                                        <div class="rounded pl-3 py-2 gateway-container" style="max-width: 50%;">
                                             @foreach ($paymentGateways as $gateway)
-                                                <div class="ml-2">
-                                                    <span data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                                                        data-content="{{ $gateway->name }}"> <label class="text-center"
-                                                            for="{{ $gateway->name }}">
-                                                            <img class="mb-3" height="50" src="{{ $gateway->image }}">
-                                                            </br>
-                                                            <input x-on:click="console.log(payment_method)"
-                                                                x-model="payment_method" type="radio"
-                                                                id="{{ $gateway->name }}" value="{{ $gateway->name }}">
-                                                            </input>
-                                                        </label>
-                                                    </span>
+                                                <div class="row ">
+                                                    <div class="col-sm-10 checkout-gateway-label">
+                                                        <label for="{{ $gateway->name }}">
+                                                            <img height="40" src="{{ $gateway->image }}"></label>
+                                                    </div>
+                                                    <div class="col-sm-2 checkout-gateway-radio">
+                                                        <input class="checkout-gateway-radio-input" x-model="payment_method"
+                                                            type="radio" id="{{ $gateway->name }}"
+                                                            value="{{ $gateway->name }}">
+                                                    </div>
                                                 </div>
                                             @endforeach
                                         </div>
