@@ -1,7 +1,7 @@
 <?php
 
-use App\Extensions\PaymentGateways\Mollie\MollieExtension;
 use Illuminate\Support\Facades\Route;
+use App\Extensions\PaymentGateways\Mollie\MollieExtension;
 
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get('payment/MolliePay/{shopProduct}', function () {
@@ -9,9 +9,14 @@ Route::middleware(['web', 'auth'])->group(function () {
     })->name('payment.MolliePay');
 
     Route::get(
-        'payment/PayPalSuccess',
+        'payment/MollieSuccess',
         function () {
             MollieExtension::success(request());
         }
     )->name('payment.MollieSuccess');
 });
+
+
+Route::post('payment/MollieWebhook', function () {
+    MollieExtension::webhook(request());
+})->name('payment.MollieWebhook');

@@ -18,7 +18,7 @@ class MollieSettings extends Settings
     public static function encrypted(): array
     {
         return [
-            "api_key",
+            'api_key',
         ];
     }
 
@@ -30,7 +30,12 @@ class MollieSettings extends Settings
                 'type' => 'string',
                 'label' => 'API Key',
                 'description' => 'The API Key of your Mollie App',
-            ]
+            ],
+            'enabled' => [
+                'type' => 'boolean',
+                'label' => 'Enabled',
+                'description' => 'Enable or disable this payment gateway',
+            ],
         ];
     }
 }

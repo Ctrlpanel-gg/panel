@@ -67,9 +67,9 @@ class MollieExtension extends AbstractExtension
                     'currency' => $shopProduct->currency_code,
                     'value' => number_format($shopProduct->getTotalPrice(), 2, '.', ''),
                 ],
-                'description' => "Order #{$payment->id}",
-                'redirectUrl' => route('payment.mollieSuccess', ['payment' => $payment->id]),
-                'cancelUrl' => route('payment.cancel'),
+                'description' => "Order #{$payment->id} - " . $shopProduct->name,
+                'redirectUrl' => route('payment.MollieSuccess'),
+                'cancelUrl' => route('payment.Cancel'),
                 'webhookUrl' => url('/extensions/payment/MollieWebhook'),
                 'metadata' => [
                     'payment_id' => $payment->id,
@@ -77,7 +77,7 @@ class MollieExtension extends AbstractExtension
             ]);
 
             if ($response->status() != 201) {
-                Log::error('Mollie Payment: ' . $response->json()['title']);
+                Log::error('Mollie Payment: ' . $response->body());
                 $payment->delete();
 
                 Redirect::route('store.index')->with('error', __('Payment failed'))->send();
