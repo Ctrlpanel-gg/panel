@@ -40,7 +40,7 @@
     </noscript>
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- tinymce -->
-    <script src={{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}></script>
+    <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
     @vite('themes/default/sass/app.scss')
 </head>
 
