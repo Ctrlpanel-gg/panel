@@ -15,7 +15,6 @@
         "guzzlehttp/guzzle": "^7.5",
         "hidehalo/nanoid-php": "^1.1.12",
         "kkomelin/laravel-translatable-string-exporter": "^1.18",
-        "laminas/laminas-stdlib": "*",
         "laravel/framework": "^9.50.2",
         "laravel/tinker": "^2.8",
         "laravel/ui": "^3.4.6",
