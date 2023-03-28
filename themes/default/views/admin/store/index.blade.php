@@ -24,18 +24,7 @@
     <section class="content">
         <div class="container-fluid">
 
-            <div class="row">
-                <div class="col-lg-4">
-                    @if ($isPaymentSetup == false)
-                        <div class="callout callout-danger">
-                            <h4>{{ __('No payment method is configured.') }}</h4>
-                            <p>{{ __('To configure the payment methods, head to the settings-page and add the required options for your prefered payment method.') }}
-                            </p>
-                        </div>
-                    @endif
 
-                </div>
-            </div>
 
             <div class="card">
 
