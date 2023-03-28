@@ -34,44 +34,71 @@
                         <!-- Main content -->
                         <div class="invoice p-3 mb-3">
                             <!-- title row -->
-                            <div class="row mb-4">
+                            <div class="row">
                                 <div class="col-12">
                                     <h4>
                                         <i class="fas fa-globe"></i> {{ config('app.name', 'Laravel') }}
                                         <small class="float-right">{{ __('Date') }}:
                                             {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
-                                        - Checkout
                                     </h4>
                                 </div>
                                 <!-- /.col -->
                             </div>
 
                             <!-- Table row -->
-                            <div class="row mb-4 d-flex align-items-center">
-                                <div class="col-4">
-                                    <p class="lead">{{ __('Product') }}:</p>
-
-                                    <div class="table-responsive">
-                                        <table class="table">
+                            <div class="row">
+                                <div class="col-12 table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
                                             <tr>
-                                                <th style="width:50%">{{ __('Type') }}:</th>
-                                                <td>
+                                                <th>{{ __('Quantity') }}</th>
+                                                <th>{{ __('Product') }}</th>
+                                                <th>{{ __('Description') }}</th>
+                                                <th>{{ __('Subtotal') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>1</td>
+                                                <td><i class="fa fa-coins mr-2"></i>{{ $product->quantity }}
                                                     {{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <th>{{ __('Amount') }}:</th>
-                                                <td>{{ $product->quantity }}</td>
-                                            <tr>
-                                                <th>{{ __('Description') }}:</th>
                                                 <td>{{ $product->description }}</td>
+                                                <td>{{ $product->formatToCurrency($product->price) }}</td>
                                             </tr>
-
-                                        </table>
-                                    </div>
+                                        </tbody>
+                                    </table>
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
                                 </div>
+                                <!-- /.col -->
+                            </div>
+                            <!-- /.row -->
 
-                                <div class="col-4">
+                            <div class="row">
+                                <!-- accepted payments column -->
+                                <div class="col-6">
+                                    @if (!$productIsFree)
+                                        <p class="lead">{{ __('Payment Methods') }}:</p>
+                                        <div class="rounded pl-3 py-2 gateway-container" style="max-width: 50%;">
+                                            @foreach ($paymentGateways as $gateway)
+                                                <div class="row ">
+                                                    <div class="col-sm-10 checkout-gateway-label">
+                                                        <label for="{{ $gateway->name }}">
+                                                            <img height="40" src="{{ $gateway->image }}"></label>
+                                                    </div>
+                                                    <div class="col-sm-2 checkout-gateway-radio">
+                                                        <input class="checkout-gateway-radio-input" x-model="payment_method"
+                                                            type="radio" id="{{ $gateway->name }}"
+                                                            value="{{ $gateway->name }}">
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                </div>
+                                <!-- /.col -->
+                                <div class="col-6">
                                     <p class="lead">{{ __('Amount Due') }}
                                         {{ Carbon\Carbon::now()->isoFormat('LL') }}</p>
 
@@ -97,31 +124,8 @@
                                             </tr>
                                         </table>
                                     </div>
-                                    <!-- /.col -->
                                 </div>
-
-                                <!-- accepted payments column -->
-                                <div class="col-4">
-                                    @if (!$productIsFree)
-                                        <p class="lead">{{ __('Payment Methods') }}:</p>
-                                        <div class="rounded pl-3 py-2 gateway-container">
-                                            @foreach ($paymentGateways as $gateway)
-                                                <div class="row ">
-                                                    <div class="col-sm-10 checkout-gateway-label">
-                                                        <label for="{{ $gateway->name }}">
-                                                            <img height="40" src="{{ $gateway->image }}"></label>
-                                                    </div>
-                                                    <div class="col-sm-2 checkout-gateway-radio">
-                                                        <input class="checkout-gateway-radio-input" x-model="payment_method"
-                                                            type="radio" id="{{ $gateway->name }}"
-                                                            value="{{ $gateway->name }}">
-                                                    </div>
-                                                </div>
-                                            @endforeach
-
-                                        </div>
-                                    @endif
-                                </div>
+                                <!-- /.col -->
                             </div>
                             <!-- /.row -->
 
