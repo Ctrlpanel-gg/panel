@@ -109,7 +109,7 @@ class SettingsController extends Controller
         $settingsClass = new $settings_class();
 
         foreach ($settingsClass->toArray() as $key => $value) {
-            switch (gettype($value)) {
+            switch (gettype($request->input($key))) {
                 case 'boolean':
                     $settingsClass->$key = $request->has($key);
                     break;
@@ -125,6 +125,8 @@ class SettingsController extends Controller
                 case 'double':
                     $settingsClass->$key = $request->input($key) ?? 0.0;
                     break;
+                default:
+                    $settingsClass->$key = null;
             }
         }
 
