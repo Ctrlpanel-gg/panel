@@ -31,7 +31,7 @@ function getMySQLVersion()
 {
     global $requirements;
 
-    $output = shell_exec('mysql -V');
+    $output = shell_exec('mysql -V') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? '0';
@@ -41,7 +41,7 @@ function getMySQLVersion()
 
 function getZipVersion()
 {
-    $output = shell_exec('zip  -v');
+    $output = shell_exec('zip  -v') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? 0;
@@ -51,7 +51,7 @@ function getZipVersion()
 
 function getGitVersion()
 {
-    $output = shell_exec('git  --version');
+    $output = shell_exec('git  --version') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? 0;
@@ -61,7 +61,7 @@ function getGitVersion()
 
 function getTarVersion()
 {
-    $output = shell_exec('tar  --version');
+    $output = shell_exec('tar  --version') ?? '';
     preg_match('@[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? 0;
