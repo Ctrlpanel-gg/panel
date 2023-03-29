@@ -20,7 +20,6 @@ class CreateGeneralSettings extends SettingsMigration
         $this->migrator->add('general.alert_type', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:ALERT_TYPE") : 'dark');
         $this->migrator->add('general.alert_message', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:ALERT_MESSAGE") : '');
         $this->migrator->add('general.theme', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:THEME") : 'default');
-        $this->migrator->add('general.main_site', '');
     }
 
     public function down(): void
@@ -81,12 +80,6 @@ class CreateGeneralSettings extends SettingsMigration
                 'type' => 'string',
                 'description' => 'The URL to your phpMyAdmin installation.'
             ],
-            [
-                'key' => 'SETTINGS::SYSTEM:MAIN_SITE',
-                'value' => $this->getNewValue('main_site'),
-                'type' => 'string',
-                'description' => 'The URL to your main site.'
-            ],
         ]);
 
         $this->migrator->delete('general.store_enabled');
@@ -99,7 +92,6 @@ class CreateGeneralSettings extends SettingsMigration
         $this->migrator->delete('general.alert_type');
         $this->migrator->delete('general.alert_message');
         $this->migrator->delete('general.theme');
-        $this->migrator->delete('general.main_site');
     }
 
     public function getNewValue(string $name)
