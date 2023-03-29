@@ -1,6 +1,9 @@
 <?php
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Str;
 
-$required_extentions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
+
+$required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
 
 $requirements = [
     'minPhp' => '8.1',
@@ -8,7 +11,11 @@ $requirements = [
     'mysql' => '5.7.22',
 ];
 
-function checkPhpVersion()
+/**
+ * Check if the minimum PHP version is present
+ * @return string 'OK' on success and 'not OK' on failure.
+ */
+function checkPhpVersion(): string
 {
     global $requirements;
     if (version_compare(phpversion(), $requirements['minPhp'], '>=') && version_compare(phpversion(), $requirements['maxPhp'], '<=')) {
@@ -17,17 +24,31 @@ function checkPhpVersion()
 
     return 'not OK';
 }
-function checkWriteable()
+
+/**
+ * Check if the environment file is writable
+ * @return bool Returns true on writable and false on not writable.
+ */
+function checkWriteable(): bool
 {
     return is_writable('../../.env');
 }
-function checkHTTPS()
+
+/**
+ * Check if the server runs using HTTPS
+ * @return bool Returns true on HTTPS or false on HTTP.
+ */
+function checkHTTPS(): bool
 {
     return (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || $_SERVER['SERVER_PORT'] == 443;
 }
 
-function getMySQLVersion()
+/**
+ * Check if MySQL is installed and runs the correct version using a shell command
+ * @return mixed|string 'OK' if required version is met, returns MySQL version if not met.
+ */
+function getMySQLVersion(): mixed
 {
     global $requirements;
 
@@ -39,7 +60,11 @@ function getMySQLVersion()
     return intval($versionoutput) > intval($requirements['mysql']) ? 'OK' : $versionoutput;
 }
 
-function getZipVersion()
+/**
+ * Check if zip is installed using a shell command
+ * @return string 'OK' on success and 'not OK' on failure.
+ */
+function getZipVersion(): string
 {
     $output = shell_exec('zip  -v') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
@@ -49,7 +74,11 @@ function getZipVersion()
     return $versionoutput != 0 ? 'OK' : 'not OK';
 }
 
-function getGitVersion()
+/**
+ * Check if git is installed using a shell command
+ * @return string 'OK' on success and 'not OK' on failure.
+ */
+function getGitVersion(): string
 {
     $output = shell_exec('git  --version') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
@@ -59,7 +88,11 @@ function getGitVersion()
     return $versionoutput != 0 ? 'OK' : 'not OK';
 }
 
-function getTarVersion()
+/**
+ * Check if tar is installed using a shell command
+ * @return string 'OK' on success and 'not OK' on failure.
+ */
+function getTarVersion(): string
 {
     $output = shell_exec('tar  --version') ?? '';
     preg_match('@[0-9]+\.[0-9]+@', $output, $version);
@@ -69,14 +102,18 @@ function getTarVersion()
     return $versionoutput != 0 ? 'OK' : 'not OK';
 }
 
-function checkExtensions()
+/**
+ * Check all extensions to see if they have loaded or not
+ * @return array Returns an array of extensions that failed to load.
+ */
+function checkExtensions(): array
 {
-    global $required_extentions;
+    global $required_extensions;
 
     $not_ok = [];
     $extentions = get_loaded_extensions();
 
-    foreach ($required_extentions as $ext) {
+    foreach ($required_extensions as $ext) {
         if (! preg_grep('/^(?=.*'.$ext.').*$/', $extentions)) {
             array_push($not_ok, $ext);
         }
@@ -85,38 +122,66 @@ function checkExtensions()
     return $not_ok;
 }
 
-function setEnvironmentValue($envKey, $envValue)
+/**
+ * Sets the environment variable into the env file
+ * @param string $envKey The environment key to set or modify
+ * @param string $envValue The environment variable to set
+ * @return bool true on success or false on failure.
+ */
+function setEnvironmentValue(string $envKey, $envValue)
 {
-    $envFile = dirname(__FILE__, 3).'/.env';
-    $str = file_get_contents($envFile);
-
-    $str .= "\n"; // In case the searched variable is in the last line without \n
-    $keyPosition = strpos($str, "{$envKey}=");
-    $endOfLinePosition = strpos($str, PHP_EOL, $keyPosition);
-    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-    $str = str_replace($oldLine, "{$envKey}={$envValue}", $str);
-    $str = substr($str, 0, -1);
-
-    $fp = fopen($envFile, 'w');
-    fwrite($fp, $str);
-    fclose($fp);
+    $str = "{$envKey}={$envValue}";
+    return putenv($str);
 }
 
-function getEnvironmentValue($envKey)
+/**
+ * Gets the variable from the env file
+ * @param string $envKey The environment variable to look for
+ * @return array|false|string Returns the value if found, otherwise returns false.
+ */
+function getEnvironmentValue(string $envKey): array|false|string
 {
-    $envFile = dirname(__FILE__, 3).'/.env';
-    $str = file_get_contents($envFile);
-
-    $str .= "\n"; // In case the searched variable is in the last line without \n
-    $keyPosition = strpos($str, "{$envKey}=");
-    $endOfLinePosition = strpos($str, PHP_EOL, $keyPosition);
-    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-    $value = substr($oldLine, strpos($oldLine, '=') + 1);
-
-    return $value;
+    return getenv($envKey);
 }
 
-function run_console($command)
+
+/**
+ * Encrypts the variable passed and returns the encrypted version
+ * @param mixed $value The variable to be encrypted
+ * @return string Returns the encrypted variable.
+ */
+function encryptSettingsValue(mixed $value): string
+{
+    $appKey = getEnvironmentValue('APP_KEY');
+    $appKey = base64_decode(Str::after($appKey, 'base64:'));
+    $encrypter = new Encrypter($appKey, 'AES-256-CBC');
+    $encryptedKey = $encrypter->encrypt($value);
+
+    return $encryptedKey;
+}
+
+/**
+ * Decrypts the payload passed and returns the decrypted version
+ * @param mixed $payload The payload to be decrypted
+ * @return mixed Returns the decrypted variable on success, throws otherwise.
+ */
+
+function decryptSettingsValue(mixed $payload, $unserialize = true)
+{
+    $appKey = getEnvironmentValue('APP_KEY');
+    $appKey = base64_decode(Str::after($appKey, 'base64:'));
+    $encrypter = new Encrypter($appKey, 'AES-256-CBC');
+    $decryptedKey = $encrypter->decrypt($payload, $unserialize);
+
+    return $decryptedKey;
+}
+
+/**
+ * Run a shell command
+ * @param string $command The command string to run
+ * @return false|string|null Returns the result from the command.
+ */
+function run_console(string $command)
 {
     $path = dirname(__FILE__, 3);
     $cmd = "cd '$path' && bash -c 'exec -a ServerCPP $command' 2>&1";
@@ -124,7 +189,12 @@ function run_console($command)
     return shell_exec($cmd);
 }
 
-function wh_log($log_msg)
+/**
+ * Log to installer.log in the install folder
+ * @param string $log_msg the message to log
+ * @return void No output.
+ */
+function wh_log(string $log_msg)
 {
     $log_filename = 'logs';
     if (! file_exists($log_filename)) {
@@ -136,7 +206,12 @@ function wh_log($log_msg)
     file_put_contents($log_file_data, '['.date('h:i:s').'] '.$log_msg."\n", FILE_APPEND);
 }
 
-function generateRandomString($length = 8)
+/**
+ * Generate a random string
+ * @param int $length The length of the random string
+ * @return string The randomly generated string.
+ */
+function generateRandomString(int $length = 8): string
 {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $charactersLength = strlen($characters);
