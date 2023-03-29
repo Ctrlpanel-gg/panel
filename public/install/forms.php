@@ -1,6 +1,5 @@
 <?php
 
-require '../../vendor/autoload.php';
 use DevCoder\DotEnv;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -14,19 +13,6 @@ require 'phpmailer/SMTP.php';
 
 include 'functions.php';
 
-function encrypt(string $text): string
-{
-    $text= '123456';
-    $key = env('APP_KEY');
-    $key = (string)base64_decode($key);
-    $iv = random_bytes(16);
-    $value = \openssl_encrypt(serialize($text), 'AES-256-CBC', $key, 0, $iv);
-    $bIv = base64_encode($iv);
-    $mac = hash_hmac('sha256', $bIv.$value, $key);
-    $c_arr = ['iv'=>$bIv,'value'=>$value,'mac'=>$mac];
-    $json = json_encode($c_arr);
-    return base64_encode($json);
-}
 
 if (isset($_POST['checkDB'])) {
     $values = [
@@ -133,7 +119,7 @@ if (isset($_POST['checkSMTP'])) {
         'mail_host' => $_POST['host'],
         'mail_port' => $_POST['port'],
         'mail_username' => $_POST['user'],
-        'mail_password' => encrypt($_POST['pass']),
+        'mail_password' => encryptSettingsValue($_POST['pass']),
         'mail_encryption' => $_POST['encryption'],
         'mail_from_address' => $_POST['user'],
     ];
@@ -192,8 +178,8 @@ if (isset($_POST['checkPtero'])) {
         wh_log('API CALL ERROR: '.$callresult['errors'][0]['code']);
         exit();
     } else {
-        $key = encrypt($key);
-        $clientkey = encrypt($clientkey);
+        $key = encryptSettingsValue($key);
+        $clientkey = encryptSettingsValue($clientkey);
 
         $query1 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '".json_encode($url)."' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
         $query2 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '".json_encode($key)."' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
@@ -228,7 +214,7 @@ if (isset($_POST['createUser'])) {
     $repass = $_POST['repass'];
 
     $key = $db->query('SELECT `payload` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
-    $key = encrypt($key['value']);
+    $key = encryptSettingsValue($key['value']);
     $pterobaseurl = $db->query('SELECT `payload` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
 
     $pteroURL = $pterobaseurl['value'].'/api/application/users/'.$pteroID;
