@@ -128,8 +128,6 @@ class SettingsController extends Controller
                 case 'NULL':
                     $settingsClass->$key = null;
                     break;
-                default:
-                    $settingsClass->$key = $request->input($key);
             }
         }
 
