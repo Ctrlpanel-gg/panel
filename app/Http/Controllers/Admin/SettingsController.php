@@ -125,8 +125,11 @@ class SettingsController extends Controller
                 case 'double':
                     $settingsClass->$key = $request->input($key) ?? 0.0;
                     break;
-                default:
+                case 'NULL':
                     $settingsClass->$key = null;
+                    break;
+                default:
+                    $settingsClass->$key = $request->input($key);
             }
         }
 
