@@ -146,23 +146,25 @@ function getEnvironmentValue(string $envKey): array|false|string
 
 
 /**
- * Encrypts the variable passed and returns the encrypted version
+ * Encrypt the given value
  * @param mixed $value The variable to be encrypted
+ * @param bool $serialize If the encryption should be serialized
  * @return string Returns the encrypted variable.
  */
-function encryptSettingsValue(mixed $value): string
+function encryptSettingsValue(mixed $value, $serialize = true): string
 {
     $appKey = getEnvironmentValue('APP_KEY');
     $appKey = base64_decode(Str::after($appKey, 'base64:'));
     $encrypter = new Encrypter($appKey, 'AES-256-CBC');
-    $encryptedKey = $encrypter->encrypt($value);
+    $encryptedKey = $encrypter->encrypt($value, $serialize);
 
     return $encryptedKey;
 }
 
 /**
- * Decrypts the payload passed and returns the decrypted version
+ * Decrypt the given value
  * @param mixed $payload The payload to be decrypted
+ * @param bool $unserialize If the encryption should be unserialized
  * @return mixed Returns the decrypted variable on success, throws otherwise.
  */
 
