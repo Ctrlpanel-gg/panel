@@ -41,7 +41,7 @@ function checkWriteable(): bool
  */
 function checkHTTPS(): bool
 {
-    return (! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || $_SERVER['SERVER_PORT'] == 443;
 }
 
@@ -115,7 +115,7 @@ function checkExtensions(): array
     $extentions = get_loaded_extensions();
 
     foreach ($required_extensions as $ext) {
-        if (! preg_grep('/^(?=.*'.$ext.').*$/', $extentions)) {
+        if (!preg_grep('/^(?=.*' . $ext . ').*$/', $extentions)) {
             array_push($not_ok, $ext);
         }
     }
@@ -200,13 +200,13 @@ function run_console(string $command)
 function wh_log(string $log_msg)
 {
     $log_filename = 'logs';
-    if (! file_exists($log_filename)) {
+    if (!file_exists($log_filename)) {
         // create directory/folder uploads.
         mkdir($log_filename, 0777, true);
     }
-    $log_file_data = $log_filename.'/installer.log';
+    $log_file_data = $log_filename . '/installer.log';
     // if you don't add `FILE_APPEND`, the file will be erased each time you add a log
-    file_put_contents($log_file_data, '['.date('h:i:s').'] '.$log_msg."\n", FILE_APPEND);
+    file_put_contents($log_file_data, '[' . date('h:i:s') . '] ' . $log_msg . "\n", FILE_APPEND);
 }
 
 /**
