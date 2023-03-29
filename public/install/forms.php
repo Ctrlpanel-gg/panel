@@ -1,5 +1,6 @@
 <?php
 
+require '../../vendor/autoload.php';
 use DevCoder\DotEnv;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -12,6 +13,20 @@ require 'phpmailer/SMTP.php';
 (new DotEnv(dirname(__FILE__, 3).'/.env'))->load();
 
 include 'functions.php';
+
+function encrypt(string $text): string
+{
+    $text= '123456';
+    $key = env('APP_KEY');
+    $key = (string)base64_decode($key);
+    $iv = random_bytes(16);
+    $value = \openssl_encrypt(serialize($text), 'AES-256-CBC', $key, 0, $iv);
+    $bIv = base64_encode($iv);
+    $mac = hash_hmac('sha256', $bIv.$value, $key);
+    $c_arr = ['iv'=>$bIv,'value'=>$value,'mac'=>$mac];
+    $json = json_encode($c_arr);
+    return base64_encode($json);
+}
 
 if (isset($_POST['checkDB'])) {
     $values = [
@@ -61,14 +76,14 @@ if (isset($_POST['feedDB'])) {
 
     //$logs .= run_console(putenv('COMPOSER_HOME=' . dirname(__FILE__, 3) . '/vendor/bin/composer'));
     //$logs .= run_console('composer install --no-dev --optimize-autoloader');
-    $logs .= run_console('php artisan migrate --seed --force');
-    $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
-    if (strpos(getEnvironmentValue('APP_KEY'), 'base64') === false) {
+    if (!str_contains(getEnvironmentValue('APP_KEY'), 'base64')) {
         $logs .= run_console('php artisan key:generate --force');
     } else {
         $logs .= "Key already exists. Skipping\n";
     }
     $logs .= run_console('php artisan storage:link');
+    $logs .= run_console('php artisan migrate --seed --force');
+    $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
 
     wh_log($logs);
 
@@ -114,17 +129,17 @@ if (isset($_POST['checkSMTP'])) {
         exit();
     }
     $values = [
-        'SETTINGS::MAIL:MAILER' => $_POST['method'],
-        'SETTINGS::MAIL:HOST' => $_POST['host'],
-        'SETTINGS::MAIL:PORT' => $_POST['port'],
-        'SETTINGS::MAIL:USERNAME' => $_POST['user'],
-        'SETTINGS::MAIL:PASSWORD' => $_POST['pass'],
-        'SETTINGS::MAIL:ENCRYPTION' => $_POST['encryption'],
-        'SETTINGS::MAIL:FROM_ADDRESS' => $_POST['user'],
+        'mail_mailer' => $_POST['method'],
+        'mail_host' => $_POST['host'],
+        'mail_port' => $_POST['port'],
+        'mail_username' => $_POST['user'],
+        'mail_password' => encrypt($_POST['pass']),
+        'mail_encryption' => $_POST['encryption'],
+        'mail_from_address' => $_POST['user'],
     ];
 
     foreach ($values as $key => $value) {
-        $query = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$value' WHERE (`key` = '$key')";
+        $query = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = mail";
         $db->query($query);
     }
 
@@ -146,7 +161,7 @@ if (isset($_POST['checkPtero'])) {
     curl_setopt($call, CURLOPT_URL, $callpteroURL);
     curl_setopt($call, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($call, CURLOPT_HTTPHEADER, [
-        'Accept: application/json',
+        'Accept: Application/vnd.pterodactyl.v1+json',
         'Content-Type: application/json',
         'Authorization: Bearer '.$clientkey,
     ]);
@@ -160,7 +175,7 @@ if (isset($_POST['checkPtero'])) {
     curl_setopt($ch, CURLOPT_URL, $pteroURL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Accept: application/json',
+        'Accept: Application/vnd.pterodactyl.v1+json',
         'Content-Type: application/json',
         'Authorization: Bearer '.$key,
     ]);
@@ -168,18 +183,21 @@ if (isset($_POST['checkPtero'])) {
     $result = json_decode($response, true);
     curl_close($ch); // Close the connection
 
-    if (! is_array($result) or in_array($result['errors'][0]['code'], $result)) {
-        header('LOCATION: index.php?step=5&message=Couldnt connect to Pterodactyl. Make sure your API key has all read and write permissions!');
+    if (! is_array($result) and $result['errors'][0] !== null) {
+        header('LOCATION: index.php?step=5&message=Couldn\'t connect to Pterodactyl. Make sure your API key has all read and write permissions!');
         wh_log('API CALL ERROR: '.$result['errors'][0]['code']);
         exit();
-    } elseif (! is_array($callresult) or in_array($result['errors'][0]['code'], $result) or $callresult['attributes']['admin'] == false) {
+    } elseif (! is_array($callresult) and $callresult['errors'][0] !== null or $callresult['attributes']['admin'] == false) {
         header('LOCATION: index.php?step=5&message=Your ClientAPI Key is wrong or the account is not an admin!');
-        wh_log('API CALL ERROR: '.$result['errors'][0]['code']);
+        wh_log('API CALL ERROR: '.$callresult['errors'][0]['code']);
         exit();
     } else {
-        $query1 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$url' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL')";
-        $query2 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$key' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN')";
-        $query3 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `value` = '$clientkey' WHERE (`key` = 'SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN')";
+        $key = encrypt($key);
+        $clientkey = encrypt($clientkey);
+
+        $query1 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '".json_encode($url)."' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
+        $query2 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '".json_encode($key)."' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
+        $query3 = 'UPDATE `'.getEnvironmentValue('DB_DATABASE')."`.`settings` SET `payload` = '".json_encode($clientkey)."' WHERE (`name` = 'user_token' AND `group` = 'pterodactyl')";
 
         $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
         if ($db->connect_error) {
@@ -209,8 +227,9 @@ if (isset($_POST['createUser'])) {
     $pass = $_POST['pass'];
     $repass = $_POST['repass'];
 
-    $key = $db->query('SELECT `value` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:TOKEN'")->fetch_assoc();
-    $pterobaseurl = $db->query('SELECT `value` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `key` = 'SETTINGS::SYSTEM:PTERODACTYL:URL'")->fetch_assoc();
+    $key = $db->query('SELECT `payload` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
+    $key = encrypt($key['value']);
+    $pterobaseurl = $db->query('SELECT `payload` FROM `'.getEnvironmentValue('DB_DATABASE')."`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
 
     $pteroURL = $pterobaseurl['value'].'/api/application/users/'.$pteroID;
     $ch = curl_init();
@@ -220,7 +239,7 @@ if (isset($_POST['createUser'])) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer '.$key['value'],
+        'Authorization: Bearer '.$key,
     ]);
     $response = curl_exec($ch);
     $result = json_decode($response, true);
