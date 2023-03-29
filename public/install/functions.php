@@ -1,7 +1,8 @@
 <?php
+require '../../vendor/autoload.php';
+
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Str;
-
 
 $required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
 
