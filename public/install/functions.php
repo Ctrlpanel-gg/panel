@@ -129,20 +129,10 @@ function checkExtensions(): array
  * @param string $envValue The environment variable to set
  * @return bool true on success or false on failure.
  */
-function setEnvironmentValue(string $envKey, $envValue)
+function setenv(string $envKey, $envValue)
 {
     $str = "{$envKey}={$envValue}";
     return putenv($str);
-}
-
-/**
- * Gets the variable from the env file
- * @param string $envKey The environment variable to look for
- * @return array|false|string Returns the value if found, otherwise returns false.
- */
-function getEnvironmentValue(string $envKey): array|false|string
-{
-    return getenv($envKey);
 }
 
 
