@@ -35,7 +35,7 @@ if (isset($_POST['checkDB'])) {
         // if ($key == "DB_PASSWORD") {
         //    $param = '"' . $_POST[$value] . '"';
         // }
-        setEnvironmentValue($key, $param);
+        setenv($key, $param);
     }
 
     wh_log('Database connection successful', 'debug');
@@ -51,8 +51,8 @@ if (isset($_POST['checkGeneral'])) {
         $appurl = substr_replace($appurl, '', -1);
     }
 
-    setEnvironmentValue('APP_NAME', $appname);
-    setEnvironmentValue('APP_URL', $appurl);
+    setenv('APP_NAME', $appname);
+    setenv('APP_URL', $appurl);
 
     wh_log('App settings set', 'debug');
     header('LOCATION: index.php?step=4');
@@ -62,9 +62,9 @@ if (isset($_POST['feedDB'])) {
     wh_log('Feeding the Database', 'debug');
     $logs = '';
 
-    //$logs .= run_console(setEnvironmentValue('COMPOSER_HOME', dirname(__FILE__, 3) . '/vendor/bin/composer'));
+    //$logs .= run_console(setenv('COMPOSER_HOME', dirname(__FILE__, 3) . '/vendor/bin/composer'));
     //$logs .= run_console('composer install --no-dev --optimize-autoloader');
-    if (!str_contains(getEnvironmentValue('APP_KEY'), 'base64')) {
+    if (!str_contains(getenv('APP_KEY'), 'base64')) {
         $logs .= run_console('php artisan key:generate --force');
     } else {
         $logs .= "Key already exists. Skipping\n";
@@ -75,7 +75,7 @@ if (isset($_POST['feedDB'])) {
 
     wh_log($logs, 'debug');
 
-    if (str_contains(getEnvironmentValue('APP_KEY'), 'base64')) {
+    if (str_contains(getenv('APP_KEY'), 'base64')) {
         wh_log('Feeding the Database successful', 'debug');
         header('LOCATION: index.php?step=3');
     } else {
@@ -116,7 +116,7 @@ if (isset($_POST['checkSMTP'])) {
 
     wh_log('SMTP Settings are correct', 'debug');
     wh_log('Updating Database', 'debug');
-    $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
+    $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     if ($db->connect_error) {
         wh_log($db->connect_error, 'error');
         header('LOCATION: index.php?step=4&message=Could not connect to the Database: ');
@@ -133,7 +133,7 @@ if (isset($_POST['checkSMTP'])) {
     ];
 
     foreach ($values as $key => $value) {
-        $query = 'UPDATE `' . getEnvironmentValue('DB_DATABASE') . "`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = mail";
+        $query = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = mail";
         $db->query($query);
     }
 
@@ -195,11 +195,11 @@ if (isset($_POST['checkPtero'])) {
         $key = encryptSettingsValue($key);
         $clientkey = encryptSettingsValue($clientkey);
 
-        $query1 = 'UPDATE `' . getEnvironmentValue('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($url) . "' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
-        $query2 = 'UPDATE `' . getEnvironmentValue('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($key) . "' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
-        $query3 = 'UPDATE `' . getEnvironmentValue('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($clientkey) . "' WHERE (`name` = 'user_token' AND `group` = 'pterodactyl')";
+        $query1 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($url) . "' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
+        $query2 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($key) . "' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
+        $query3 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($clientkey) . "' WHERE (`name` = 'user_token' AND `group` = 'pterodactyl')";
 
-        $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
+        $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
         if ($db->connect_error) {
             wh_log($db->connect_error, 'error');
             header('LOCATION: index.php?step=5&message=Could not connect to the Database');
@@ -218,7 +218,7 @@ if (isset($_POST['checkPtero'])) {
 
 if (isset($_POST['createUser'])) {
     wh_log('Creating User', 'debug');
-    $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
+    $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     if ($db->connect_error) {
         wh_log($db->connect_error, 'error');
         header('LOCATION: index.php?step=6&message=Could not connect to the Database');
@@ -229,9 +229,9 @@ if (isset($_POST['createUser'])) {
     $pass = $_POST['pass'];
     $repass = $_POST['repass'];
 
-    $key = $db->query('SELECT `payload` FROM `' . getEnvironmentValue('DB_DATABASE') . "`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
+    $key = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
     $key = encryptSettingsValue($key['value']);
-    $pterobaseurl = $db->query('SELECT `payload` FROM `' . getEnvironmentValue('DB_DATABASE') . "`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
+    $pterobaseurl = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
 
     $pteroURL = $pterobaseurl['value'] . '/api/application/users/' . $pteroID;
     $ch = curl_init();
@@ -287,7 +287,7 @@ if (isset($_POST['createUser'])) {
     }
 
     $random = generateRandomString();
-    $query1 = 'INSERT INTO `' . getEnvironmentValue('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
+    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
 
     if ($db->query($query1)) {
         wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID, 'info');
