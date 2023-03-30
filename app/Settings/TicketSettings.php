@@ -6,7 +6,7 @@ use Spatie\LaravelSettings\Settings;
 
 class TicketSettings extends Settings
 {
-    public bool $enabled;
+    public bool $enabled = false;
 
     public string $notify;
 
@@ -22,7 +22,7 @@ class TicketSettings extends Settings
     public static function getValidations()
     {
         return [
-            'enabled' => 'nullable|string',
+            'enabled' => 'nullable|boolean',
             'notify' => 'nullable|string',
         ];
     }

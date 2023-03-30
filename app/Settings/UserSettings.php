@@ -10,9 +10,9 @@ class UserSettings extends Settings
 
     public float $credits_reward_after_verify_email;
 
-    public bool $force_discord_verification;
+    public bool $force_discord_verification = false;
 
-    public bool $force_email_verification;
+    public bool $force_email_verification = false;
 
     public float $initial_credits;
 
@@ -26,9 +26,9 @@ class UserSettings extends Settings
 
     public int $server_limit_after_verify_email;
 
-    public bool $register_ip_check;
+    public bool $register_ip_check = false;
 
-    public bool $creation_enabled;
+    public bool $creation_enabled = false;
 
     public static function group(): string
     {
@@ -44,16 +44,16 @@ class UserSettings extends Settings
         return [
             'credits_reward_after_verify_discord' => 'required|numeric',
             'credits_reward_after_verify_email' => 'required|numeric',
-            'force_discord_verification' => 'nullable|string',
-            'force_email_verification' => 'nullable|string',
+            'force_discord_verification' => 'nullable|boolean',
+            'force_email_verification' => 'nullable|boolean',
             'initial_credits' => 'required|numeric',
             'initial_server_limit' => 'required|numeric',
             'min_credits_to_make_server' => 'required|numeric',
             'server_limit_after_irl_purchase' => 'required|numeric',
             'server_limit_after_verify_discord' => 'required|numeric',
             'server_limit_after_verify_email' => 'required|numeric',
-            'register_ip_check' => 'nullable|string',
-            'creation_enabled' => 'nullable|string',
+            'register_ip_check' => 'nullable|boolean',
+            'creation_enabled' => 'nullable|boolean',
         ];
     }
 

@@ -6,11 +6,11 @@ use Spatie\LaravelSettings\Settings;
 
 class PterodactylSettings extends Settings
 {
-    public ?string $admin_token;
+    public string $admin_token;
 
-    public ?string $user_token;
+    public string $user_token;
 
-    public ?string $panel_url;
+    public string $panel_url;
 
     public int $per_page_limit;
 
@@ -44,9 +44,9 @@ class PterodactylSettings extends Settings
     public static function getValidations()
     {
         return [
-            'panel_url' => 'nullable|string|url',
-            'admin_token' => 'nullable|string',
-            'user_token' => 'nullable|string',
+            'panel_url' => 'required|string|url',
+            'admin_token' => 'required|string',
+            'user_token' => 'required|string',
             'per_page_limit' => 'required|integer|min:1|max:10000',
         ];
     }

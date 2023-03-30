@@ -22,7 +22,7 @@ class MailSettings extends Settings
 
     public ?string $mail_mailer;
 
-    public ?bool $mail_enabled;
+    public bool $mail_enabled = false;
 
     public static function group(): string
     {
