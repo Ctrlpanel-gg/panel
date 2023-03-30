@@ -24,133 +24,155 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
-
-            <div class="row">
-                <div class="col-12">
-
-                    <form x-data="{ payment_method: '', clicked: false }" action="{{ route('payment.pay') }}" method="POST">
-                        @csrf
-                        @method('post')
-                        <!-- Main content -->
-                        <div class="invoice p-3 mb-3">
-                            <!-- title row -->
-                            <div class="row">
-                                <div class="col-12">
-                                    <h4>
-                                        <i class="fas fa-globe"></i> {{ config('app.name', 'Laravel') }}
-                                        <small class="float-right">{{ __('Date') }}:
-                                            {{ Carbon\Carbon::now()->isoFormat('LL') }}</small>
+            <form x-data="{ payment_method: '', clicked: false }" action="{{ route('payment.pay') }}" method="POST">
+                @csrf
+                @method('post')
+                <div class="row d-flex justify-content-center flex-wrap">
+                    @if (!$productIsFree)
+                        <div class="col-xl-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="mb-0">
+                                        <i class="fas fa-money-check-alt"></i>
+                                        Payment Methods
                                     </h4>
                                 </div>
-                                <!-- /.col -->
-                            </div>
-
-                            <!-- Table row -->
-                            <div class="row">
-                                <div class="col-12 table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>{{ __('Quantity') }}</th>
-                                                <th>{{ __('Product') }}</th>
-                                                <th>{{ __('Description') }}</th>
-                                                <th>{{ __('Subtotal') }}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td><i class="fa fa-coins mr-2"></i>{{ $product->quantity }}
-                                                    {{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}
-                                                </td>
-                                                <td>{{ $product->description }}</td>
-                                                <td>{{ $product->formatToCurrency($product->price) }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div class="card-body">
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                </div>
-                                <!-- /.col -->
-                            </div>
-                            <!-- /.row -->
-
-                            <div class="row">
-                                <!-- accepted payments column -->
-                                <div class="col-6">
-                                    @if (!$productIsFree)
-                                        <p class="lead">{{ __('Payment Methods') }}:</p>
-
-                                        <div class="d-flex flex-wrap  flex-direction-row">
-
+                                    <input type="hidden" name="payment_method" :value="payment_method"
+                                        x-model="payment_method">
+                                    <div class="row">
+                                        <div class="col-lg-12">
                                             @foreach ($paymentGateways as $gateway)
-                                                <div class="ml-2">
-                                                    <label class="text-center" for="{{ $gateway->name }}">
-                                                        <img class="mb-3" height="50"
-                                                            src="{{ $gateway->image }}"></br>
-                                                        <input x-on:click="console.log(payment_method)"
-                                                            x-model="payment_method" type="radio"
-                                                            id="{{ $gateway->name }}" value="{{ $gateway->name }}">
-                                                        </input>
-                                                    </label>
+                                                <div class="row checkout-gateways">
+                                                    <div class="col-12 d-flex justify-content-between">
+                                                        <label class="form-check-label h4 checkout-gateway-label"
+                                                            for="{{ $gateway->name }}">
+                                                            <span class="mr-3">{{ $gateway->name }}</span>
+                                                        </label>
+                                                        <button class="btn btn-primary rounded" type="button"
+                                                            name="payment-method" id="{{ $gateway->name }}"
+                                                            value="{{ $gateway->name }}"
+                                                            :class="payment_method === '{{ $gateway->name }}' ?
+                                                                'active' : ''"
+                                                            @click="payment_method = '{{ $gateway->name }}'; clicked = true;"
+                                                            x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">Select</button>
+                                                        </button>
+
+                                                    </div>
                                                 </div>
                                             @endforeach
                                         </div>
-                                    @endif
-
-                                </div>
-                                <!-- /.col -->
-                                <div class="col-6">
-                                    <p class="lead">{{ __('Amount Due') }}
-                                        {{ Carbon\Carbon::now()->isoFormat('LL') }}</p>
-
-                                    <div class="table-responsive">
-                                        <table class="table">
-                                            @if ($discountpercent && $discountvalue)
-                                                <tr>
-                                                    <th>{{ __('Discount') }} ({{ $discountpercent }}%):</th>
-                                                    <td>{{ $product->formatToCurrency($discountvalue) }}</td>
-                                                </tr>
-                                            @endif
-                                            <tr>
-                                                <th style="width:50%">{{ __('Subtotal') }}:</th>
-                                                <td>{{ $product->formatToCurrency($discountedprice) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>{{ __('Tax') }} ({{ $taxpercent }}%):</th>
-                                                <td>{{ $product->formatToCurrency($taxvalue) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>{{ __('Total') }}:</th>
-                                                <td>{{ $product->formatToCurrency($total) }}</td>
-                                            </tr>
-                                        </table>
                                     </div>
-                                </div>
-                                <!-- /.col -->
-                            </div>
-                            <!-- /.row -->
-
-                            <!-- this row will not appear when printing -->
-                            <div class="row no-print">
-                                <div class="col-12">
-                                    <button :disabled="(!payment_method || clicked) && {{ !$productIsFree }}"
-                                        :class="(!payment_method || clicked) && {{ !$productIsFree }} ? 'disabled' : ''"
-                                        class="btn btn-success float-right"><i class="far fa-credit-card mr-2"
-                                            @click="clicked = true"></i>
-                                        @if ($productIsFree)
-                                            {{ __('Get for free') }}
-                                        @else
-                                            {{ __('Submit Payment') }}
-                                        @endif
-                                    </button>
                                 </div>
                             </div>
                         </div>
-                    </form>
-                    <!-- /.invoice -->
-                </div><!-- /.col -->
-            </div><!-- /.row -->
+                    @endif
+                    <div class="col-xl-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="mb-0 text-center">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Checkout details
+                                </h4>
+                            </div>
+
+                            <div class="card-body">
+                                <ul class="list-group mb-3">
+                                    <li class="list-group-item">
+                                        <div>
+                                            <h5 class="my-0">{{ __('Product details') }}</h5>
+                                        </div>
+                                        <ul class="pl-0">
+                                            <li class="d-flex justify-content-between">
+                                                <span class="text-muted d-inline-block">{{ __('Type') }}</span>
+                                                <span
+                                                    class="text-muted d-inline-block">{{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}</span>
+                                            </li>
+                                            <li class="d-flex justify-content-between">
+                                                <span class="text-muted d-inline-block">{{ __('Amount') }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                            </li>
+                                            <li class="d-flex justify-content-between">
+                                                <span class="text-muted d-inline-block">{{ __('Total Amount') }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                            </li>
+                                        </ul>
+
+                                    </li>
+
+
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                                        <div>
+                                            <h6 class="my-0">{{ __('Description') }}</h6>
+                                            <span class="text-muted">
+                                                {{ $product->description }}
+                                            </span>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div>
+                                            <h5 class="my-0">{{ __('Pricing') }}</h5>
+                                        </div>
+
+                                        <ul class="pl-0">
+                                            <li class="d-flex justify-content-between">
+                                                <span class="text-muted d-inline-block">{{ __('Subtotal') }}</span>
+                                                <span class="text-muted d-inline-block">
+                                                    {{ $product->formatToCurrency($discountedprice) }}</span>
+                                            </li>
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted d-inline-block">{{ __('Tax') }}
+                                                    @if ($taxpercent > 0)
+                                                        ({{ $taxpercent }}%):
+                                                    @endif
+                                                </span>
+                                                <span class="text-muted d-inline-block">
+                                                    + {{ $product->formatToCurrency($taxvalue) }}</span>
+                                            </div>
+                                            @if ($discountpercent && $discountvalue)
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted d-inline-block">{{ __('Discount') }}
+                                                        ({{ $discountpercent }}%):</span>
+                                                    <span
+                                                        class="text-muted d-inline-block">-{{ $product->formatToCurrency($discountvalue) }}</span>
+                                                </div>
+                                            @endif
+                                            <hr class="text-white border-secondary">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted d-inline-block">{{ __('Total') }}</span>
+                                                <span
+                                                    class="text-muted d-inline-block">{{ $product->formatToCurrency($total) }}</span>
+                                            </div>
+                                            <template x-if="payment_method">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted d-inline-block">{{ __('Pay with') }}</span>
+                                                    <span class="text-muted d-inline-block" x-text="payment_method"></span>
+                                                </div>
+                                            </template>
+                                        </ul>
+                                    </li>
+                                </ul>
+
+                                <button :disabled="(!payment_method || !clicked) && {{ !$productIsFree }}"
+                                    :class="(!payment_method || !clicked) && {{ !$productIsFree }} ? 'disabled' : ''"
+                                    class="btn btn-success float-right w-100">
+                                    <i class="far fa-credit-card mr-2" @click="clicked == true"></i>
+                                    @if ($productIsFree)
+                                        {{ __('Get for free') }}
+                                    @else
+                                        {{ __('Submit Payment') }}
+                                    @endif
+
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
+
     </section>
     <!-- END CONTENT -->
 @endsection
