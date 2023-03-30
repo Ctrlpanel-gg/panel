@@ -3,6 +3,7 @@ require '../../vendor/autoload.php';
 
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 $required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
 
@@ -198,21 +199,29 @@ function run_console(string $command, array $descriptors = null, string $cwd = n
 }
 
 /**
- * Log to installer.log in the install folder
- * @param string $log_msg the message to log
- * @return void No output.
+ * Log to the default laravel.log file
+ * @param string $message The message to log
+ * @param string $level The log level to use (info, warning, error, critical)
+ * @return void Returns nothing.
  */
-function wh_log(string $log_msg)
+function wh_log(string $message, $level = 'info')
 {
-    $log_filename = 'logs';
-    if (!file_exists($log_filename)) {
-        // create directory/folder uploads.
-        mkdir($log_filename, 0777, true);
+    switch ($level) {
+        case 'info':
+            Log::info($message);
+            break;
+        case 'warning':
+            Log::warning($message);
+            break;
+        case 'error':
+            Log::error($message);
+            break;
+        case 'critical':
+            Log::critical($message);
+            break;
     }
-    $log_file_data = $log_filename . '/installer.log';
-    // if you don't add `FILE_APPEND`, the file will be erased each time you add a log
-    file_put_contents($log_file_data, '[' . date('h:i:s') . '] ' . $log_msg . "\n", FILE_APPEND);
 }
+
 
 /**
  * Generate a random string
