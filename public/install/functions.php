@@ -1,11 +1,15 @@
 <?php
 require '../../vendor/autoload.php';
+require 'dotenv.php';
 
+use DevCoder\DotEnv;
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Str;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+
+(new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
 $required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
 
@@ -148,7 +152,7 @@ function checkExtensions(): array
  * @param string $envValue The environment variable to set
  * @return bool true on success or false on failure.
  */
-function setEnvironmentValue($envKey, $envValue)
+function setenv($envKey, $envValue)
 {
     $envFile = dirname(__FILE__, 3).'/.env';
     $str = file_get_contents($envFile);
@@ -166,26 +170,6 @@ function setEnvironmentValue($envKey, $envValue)
 }
 
 /**
- * Gets the variable from the env file
- * @param string $envKey The environment variable to look for
- * @return array|false|string Returns the value if found, otherwise returns false.
- */
-function getEnvironmentValue($envKey)
-{
-    $envFile = dirname(__FILE__, 3).'/.env';
-    $str = file_get_contents($envFile);
-
-    $str .= "\n"; // In case the searched variable is in the last line without \n
-    $keyPosition = strpos($str, "{$envKey}=");
-    $endOfLinePosition = strpos($str, PHP_EOL, $keyPosition);
-    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-    $value = substr($oldLine, strpos($oldLine, '=') + 1);
-
-    return $value;
-}
-
-
-/**
  * Encrypt the given value
  * @param mixed $value The variable to be encrypted
  * @param bool $serialize If the encryption should be serialized
@@ -193,7 +177,7 @@ function getEnvironmentValue($envKey)
  */
 function encryptSettingsValue(mixed $value, $serialize = true): string
 {
-    $appKey = getEnvironmentValue('APP_KEY');
+    $appKey = getenv('APP_KEY');
     $appKey = base64_decode(Str::after($appKey, 'base64:'));
     $encrypter = new Encrypter($appKey);
     $encryptedKey = $encrypter->encrypt($value, $serialize);
@@ -210,7 +194,7 @@ function encryptSettingsValue(mixed $value, $serialize = true): string
 
 function decryptSettingsValue(mixed $payload, $unserialize = true)
 {
-    $appKey = getEnvironmentValue('APP_KEY');
+    $appKey = getenv('APP_KEY');
     $appKey = base64_decode(Str::after($appKey, 'base64:'));
     $encrypter = new Encrypter($appKey);
     $decryptedKey = $encrypter->decrypt($payload, $unserialize);
@@ -267,7 +251,7 @@ function wh_log(string $message, string $level = 'info', array $context = []): v
 
     switch (strtolower($level)) {
         case 'debug': // Only log debug messages if APP_DEBUG is true
-            if(getEnvironmentValue('APP_DEBUG') === false) return;
+            if(getenv('APP_DEBUG') === false) return;
             $log->debug($message, $context);
             break;
         case 'info':
