@@ -266,7 +266,6 @@ function wh_log(string $message, string $level = 'info', array $context = []): v
 
     switch (strtolower($level)) {
         case 'debug': // Only log debug messages if APP_DEBUG is true
-            wh_log('APP_DEBUG: ' . getEnvironmentValue('APP_DEBUG'));
             if(getEnvironmentValue('APP_DEBUG') === false) return;
             $log->debug($message, $context);
             break;
