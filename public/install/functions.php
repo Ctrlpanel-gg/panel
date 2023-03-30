@@ -47,7 +47,7 @@ function checkWriteable(): bool
 function checkHTTPS(): bool
 {
     $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
-    wh_log('https: ' . $isHttps, 'debug');
+    wh_log('https:', 'debug', (array)$isHttps);
     return $isHttps;
 }
 
@@ -137,7 +137,8 @@ function checkExtensions(): array
         }
     }
 
-    wh_log('extensions: ' . implode(', ', $not_ok), 'debug');
+    wh_log('loaded extensions:', 'debug', $extentions);
+    wh_log('failed extensions:', 'debug', $not_ok);
     return $not_ok;
 }
 
@@ -258,7 +259,7 @@ function run_console(string $command, array $descriptors = null, string $cwd = n
 function wh_log(string $message, string $level = 'info', array $context = []): void
 {
     $formatter = new LineFormatter(null, null, true, true);
-    $stream = new StreamHandler(dirname(__FILE__, 3) . '/storage/logs/laravel.log', Logger::DEBUG);
+    $stream = new StreamHandler(dirname(__FILE__, 3) . '/storage/logs/controlpanel.log', Logger::DEBUG);
     $stream->setFormatter($formatter);
 
     $log = new Logger('ControlPanel');
