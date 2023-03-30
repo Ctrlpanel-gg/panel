@@ -6,13 +6,13 @@ use Spatie\LaravelSettings\Settings;
 
 class GeneralSettings extends Settings
 {
-    public bool $store_enabled = true;
+    public bool $store_enabled = false;
     public string $credits_display_name;
     public bool $recaptcha_enabled;
     public string $recaptcha_site_key;
     public string $recaptcha_secret_key;
     public string $phpmyadmin_url;
-    public bool $alert_enabled;
+    public bool $alert_enabled = false;
     public string $alert_type;
     public string $alert_message;
     public string $theme;
@@ -29,6 +29,26 @@ class GeneralSettings extends Settings
         return [
             'recaptcha_site_key',
             'recaptcha_secret_key'
+        ];
+    }
+
+    /**
+     * Summary of validations array
+     * @return array<string, string>
+     */
+    public static function getValidations()
+    {
+        return [
+            'store_enabled' => 'boolean',
+            'credits_display_name' => 'required|string',
+            'recaptcha_enabled' => 'nullable|boolean',
+            'recaptcha_site_key' => 'nullable|string',
+            'recaptcha_secret_key' => 'nullable|string',
+            'phpmyadmin_url' => 'nullable|string',
+            'alert_enabled' => 'nullable|boolean',
+            'alert_type' => 'required|in:primary,secondary,success,danger,warning,info',
+            'alert_message' => 'required|string',
+            'theme' => 'required|in:default,BlueInfinity' // TODO: themes should be made/loaded dynamically
         ];
     }
 
@@ -110,7 +130,7 @@ class GeneralSettings extends Settings
                 'options' => [
                     'default' => 'Default',
                     'BlueInfinity' => 'Blue Infinity',
-                ],
+                ], // TODO: themes should be made/loaded dynamically
                 'description' => 'The theme to use for the site.'
             ],
         ];

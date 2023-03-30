@@ -8,11 +8,11 @@ class ServerSettings extends Settings
 {
     public int $allocation_limit;
 
-    public bool $creation_enabled;
+    public bool $creation_enabled = false;
 
-    public bool $enable_upgrade;
+    public bool $enable_upgrade = false;
 
-    public bool $charge_first_hour;
+    public bool $charge_first_hour = false;
 
     public static function group(): string
     {
@@ -27,9 +27,9 @@ class ServerSettings extends Settings
     {
         return [
             'allocation_limit' => 'required|integer|min:0',
-            'creation_enabled' => 'nullable|string',
-            'enable_upgrade' => 'nullable|string',
-            'charge_first_hour' => 'nullable|string',
+            'creation_enabled' => 'nullable|boolean',
+            'enable_upgrade' => 'nullable|boolean',
+            'charge_first_hour' => 'nullable|boolean',
         ];
     }
 

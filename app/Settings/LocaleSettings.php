@@ -6,15 +6,15 @@ use Spatie\LaravelSettings\Settings;
 
 class LocaleSettings extends Settings
 {
-    public string $available;
+    public ?string $available;
 
-    public bool $clients_can_change;
+    public bool $clients_can_change = false;
 
-    public string $datatables;
+    public ?string $datatables;
 
     public string $default;
 
-    public bool $dynamic;
+    public bool $dynamic = false;
 
     public static function group(): string
     {
@@ -29,10 +29,10 @@ class LocaleSettings extends Settings
     {
         return [
             'available' => 'nullable|array',
-            'clients_can_change' => 'nullable|string',
+            'clients_can_change' => 'nullable|boolean',
             'datatables' => 'nullable|string',
-            'default' => 'nullable|string',
-            'dynamic' => 'nullable|string',
+            'default' => 'required|in:' . implode(',', config('app.available_locales')),
+            'dynamic' => 'nullable|boolean',
         ];
     }
 
