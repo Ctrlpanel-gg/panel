@@ -3,7 +3,9 @@ require '../../vendor/autoload.php';
 
 use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Log;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 $required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
 
@@ -20,6 +22,8 @@ $requirements = [
 function checkPhpVersion(): string
 {
     global $requirements;
+
+    wh_log('php version: ' . phpversion(), 'debug');
     if (version_compare(phpversion(), $requirements['minPhp'], '>=') && version_compare(phpversion(), $requirements['maxPhp'], '<=')) {
         return 'OK';
     }
@@ -42,6 +46,7 @@ function checkWriteable(): bool
  */
 function checkHTTPS(): bool
 {
+    wh_log('https: ' . (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'true' : 'false', 'debug');
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || $_SERVER['SERVER_PORT'] == 443;
 }
@@ -54,10 +59,13 @@ function getMySQLVersion(): mixed
 {
     global $requirements;
 
+    wh_log('attempting to get mysql version', 'debug');
+
     $output = shell_exec('mysql -V') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? '0';
+    wh_log('mysql version: ' . $versionoutput, 'debug');
 
     return intval($versionoutput) > intval($requirements['mysql']) ? 'OK' : $versionoutput;
 }
@@ -68,10 +76,12 @@ function getMySQLVersion(): mixed
  */
 function getZipVersion(): string
 {
+    wh_log('attempting to get zip version', 'debug');
     $output = shell_exec('zip  -v') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? 0;
+    wh_log('zip version: ' . $versionoutput, 'debug');
 
     return $versionoutput != 0 ? 'OK' : 'not OK';
 }
@@ -82,10 +92,12 @@ function getZipVersion(): string
  */
 function getGitVersion(): string
 {
+    wh_log('attempting to get git version', 'debug');
     $output = shell_exec('git  --version') ?? '';
     preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? 0;
+    wh_log('git version: ' . $versionoutput, 'debug');
 
     return $versionoutput != 0 ? 'OK' : 'not OK';
 }
@@ -96,10 +108,12 @@ function getGitVersion(): string
  */
 function getTarVersion(): string
 {
+    wh_log('attempting to get tar version', 'debug');
     $output = shell_exec('tar  --version') ?? '';
     preg_match('@[0-9]+\.[0-9]+@', $output, $version);
 
     $versionoutput = $version[0] ?? 0;
+    wh_log('tar version: ' . $versionoutput, 'debug');
 
     return $versionoutput != 0 ? 'OK' : 'not OK';
 }
@@ -112,6 +126,8 @@ function checkExtensions(): array
 {
     global $required_extensions;
 
+    wh_log('checking extensions', 'debug');
+
     $not_ok = [];
     $extentions = get_loaded_extensions();
 
@@ -121,6 +137,7 @@ function checkExtensions(): array
         }
     }
 
+    wh_log('extensions: ' . implode(', ', $not_ok), 'debug');
     return $not_ok;
 }
 
@@ -130,10 +147,40 @@ function checkExtensions(): array
  * @param string $envValue The environment variable to set
  * @return bool true on success or false on failure.
  */
-function setenv(string $envKey, $envValue)
+function setEnvironmentValue($envKey, $envValue)
 {
-    $str = "{$envKey}={$envValue}";
-    return putenv($str);
+    $envFile = dirname(__FILE__, 3).'/.env';
+    $str = file_get_contents($envFile);
+
+    $str .= "\n"; // In case the searched variable is in the last line without \n
+    $keyPosition = strpos($str, "{$envKey}=");
+    $endOfLinePosition = strpos($str, PHP_EOL, $keyPosition);
+    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
+    $str = str_replace($oldLine, "{$envKey}={$envValue}", $str);
+    $str = substr($str, 0, -1);
+
+    $fp = fopen($envFile, 'w');
+    fwrite($fp, $str);
+    fclose($fp);
+}
+
+/**
+ * Gets the variable from the env file
+ * @param string $envKey The environment variable to look for
+ * @return array|false|string Returns the value if found, otherwise returns false.
+ */
+function getEnvironmentValue($envKey)
+{
+    $envFile = dirname(__FILE__, 3).'/.env';
+    $str = file_get_contents($envFile);
+
+    $str .= "\n"; // In case the searched variable is in the last line without \n
+    $keyPosition = strpos($str, "{$envKey}=");
+    $endOfLinePosition = strpos($str, PHP_EOL, $keyPosition);
+    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
+    $value = substr($oldLine, strpos($oldLine, '=') + 1);
+
+    return $value;
 }
 
 
@@ -191,37 +238,54 @@ function decryptSettingsValue(mixed $payload, $unserialize = true)
  */
 function run_console(string $command, array $descriptors = null, string $cwd = null, array $options = null)
 {
+    wh_log('running command: ' . $command, 'debug');
+
     $path = dirname(__FILE__, 3);
     $descriptors = $descriptors ?? [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
     $handle = proc_open("cd '$path' && bash -c 'exec -a ServerCPP $command'", $descriptors, $pipes, $cwd, null, $options);
 
+    wh_log('command result: ' . stream_get_contents($pipes[1]), 'debug');
     return stream_get_contents($pipes[1]);
 }
 
 /**
  * Log to the default laravel.log file
  * @param string $message The message to log
- * @param string $level The log level to use (info, warning, error, critical)
- * @return void Returns nothing.
+ * @param string $level The log level to use (debug, info, warning, error, critical)
+ * @param array $context [optional] The context to log extra information
+ * @return void
  */
-function wh_log(string $message, $level = 'info')
+function wh_log(string $message, string $level = 'info', array $context = []): void
 {
-    switch ($level) {
+    $formatter = new LineFormatter(null, null, true, true);
+    $stream = new StreamHandler(dirname(__FILE__, 3) . '/storage/logs/laravel.log', Logger::DEBUG);
+    $stream->setFormatter($formatter);
+
+    $log = new Logger('ControlPanel');
+    $log->pushHandler($stream);
+
+    switch (strtolower($level)) {
+        case 'debug': // Only log debug messages if APP_DEBUG is true
+            wh_log('APP_DEBUG: ' . getEnvironmentValue('APP_DEBUG'));
+            if(getEnvironmentValue('APP_DEBUG') === false) return;
+            $log->debug($message, $context);
+            break;
         case 'info':
-            Log::info($message);
+            $log->info($message, $context);
             break;
         case 'warning':
-            Log::warning($message);
+            $log->warning($message, $context);
             break;
         case 'error':
-            Log::error($message);
+            $log->error($message, $context);
             break;
         case 'critical':
-            Log::critical($message);
+            $log->critical($message, $context);
             break;
     }
+    // Prevent memory leaks by resetting the logger
+    $log->reset();
 }
-
 
 /**
  * Generate a random string
