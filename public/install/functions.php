@@ -46,9 +46,9 @@ function checkWriteable(): bool
  */
 function checkHTTPS(): bool
 {
-    wh_log('https: ' . (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'true' : 'false', 'debug');
-    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || $_SERVER['SERVER_PORT'] == 443;
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+    wh_log('https: ' . $isHttps, 'debug');
+    return $isHttps;
 }
 
 /**
