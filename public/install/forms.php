@@ -27,7 +27,7 @@ if (isset($_POST['checkDB'])) {
 
     $db = new mysqli($_POST['databasehost'], $_POST['databaseuser'], $_POST['databaseuserpass'], $_POST['database'], $_POST['databaseport']);
     if ($db->connect_error) {
-        wh_log($db->connect_error);
+        wh_log($db->connect_error, 'error');
         header('LOCATION: index.php?step=2&message=Could not connect to the Database');
         exit();
     }
@@ -71,7 +71,7 @@ if (isset($_POST['feedDB'])) {
     $logs .= run_console('php artisan migrate --seed --force');
     $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
 
-    wh_log($logs);
+    wh_log($logs, 'info');
 
     if (strpos(getenv('APP_KEY'), 'base64') !== false) {
         header('LOCATION: index.php?step=3');
@@ -110,7 +110,7 @@ if (isset($_POST['checkSMTP'])) {
 
     $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     if ($db->connect_error) {
-        wh_log($db->connect_error);
+        wh_log($db->connect_error, 'error');
         header('LOCATION: index.php?step=4&message=Could not connect to the Database: ');
         exit();
     }
@@ -171,11 +171,11 @@ if (isset($_POST['checkPtero'])) {
 
     if (!is_array($result) and $result['errors'][0] !== null) {
         header('LOCATION: index.php?step=5&message=Couldn\'t connect to Pterodactyl. Make sure your API key has all read and write permissions!');
-        wh_log('API CALL ERROR: ' . $result['errors'][0]['code']);
+        wh_log('API CALL ERROR: ' . $result['errors'][0]['code'], 'error');
         exit();
     } elseif (!is_array($callresult) and $callresult['errors'][0] !== null or $callresult['attributes']['admin'] == false) {
         header('LOCATION: index.php?step=5&message=Your ClientAPI Key is wrong or the account is not an admin!');
-        wh_log('API CALL ERROR: ' . $callresult['errors'][0]['code']);
+        wh_log('API CALL ERROR: ' . $callresult['errors'][0]['code'], 'error');
         exit();
     } else {
         $key = encryptSettingsValue($key);
@@ -187,7 +187,7 @@ if (isset($_POST['checkPtero'])) {
 
         $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
         if ($db->connect_error) {
-            wh_log($db->connect_error);
+            wh_log($db->connect_error, 'error');
             header('LOCATION: index.php?step=5&message=Could not connect to the Database');
             exit();
         }
@@ -195,7 +195,7 @@ if (isset($_POST['checkPtero'])) {
         if ($db->query($query1) && $db->query($query2) && $db->query($query3)) {
             header('LOCATION: index.php?step=6');
         } else {
-            wh_log($db->error);
+            wh_log($db->error, 'error');
             header('LOCATION: index.php?step=5&message=Something went wrong when communicating with the Database!');
         }
     }
@@ -204,7 +204,7 @@ if (isset($_POST['checkPtero'])) {
 if (isset($_POST['createUser'])) {
     $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     if ($db->connect_error) {
-        wh_log($db->connect_error);
+        wh_log($db->connect_error, 'error');
         header('LOCATION: index.php?step=6&message=Could not connect to the Database');
         exit();
     }
@@ -274,10 +274,10 @@ if (isset($_POST['createUser'])) {
     $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
 
     if ($db->query($query1)) {
-        wh_log('[USER MAKER] Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID);
+        wh_log('[USER MAKER] Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID, 'info');
         header('LOCATION: index.php?step=7');
     } else {
-        wh_log($db->error);
+        wh_log($db->error, 'error');
         header('LOCATION: index.php?step=6&message=Something went wrong when communicating with the Database');
     }
 }
