@@ -6,8 +6,7 @@ use Spatie\LaravelSettings\Settings;
 
 class TicketSettings extends Settings
 {
-    public bool $enabled = false;
-
+    public bool $enabled;
     public string $notify;
 
     public static function group(): string

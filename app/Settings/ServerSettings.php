@@ -7,12 +7,9 @@ use Spatie\LaravelSettings\Settings;
 class ServerSettings extends Settings
 {
     public int $allocation_limit;
-
-    public bool $creation_enabled = false;
-
-    public bool $enable_upgrade = false;
-
-    public bool $charge_first_hour = false;
+    public bool $creation_enabled;
+    public bool $enable_upgrade;
+    public bool $charge_first_hour;
 
     public static function group(): string
     {
