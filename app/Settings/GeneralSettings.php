@@ -6,13 +6,13 @@ use Spatie\LaravelSettings\Settings;
 
 class GeneralSettings extends Settings
 {
-    public bool $store_enabled = false;
+    public bool $store_enabled;
     public string $credits_display_name;
     public bool $recaptcha_enabled;
     public string $recaptcha_site_key;
     public string $recaptcha_secret_key;
     public string $phpmyadmin_url;
-    public bool $alert_enabled = false;
+    public bool $alert_enabled;
     public string $alert_type;
     public string $alert_message;
     public string $theme;

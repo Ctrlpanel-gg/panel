@@ -7,15 +7,10 @@ use Spatie\LaravelSettings\Settings;
 class ReferralSettings extends Settings
 {
     public string $allowed;
-
-    public bool $always_give_commission = false;
-
-    public bool $enabled = false;
-
+    public bool $always_give_commission;
+    public bool $enabled;
     public ?float $reward;
-
     public string $mode;
-
     public ?int $percentage;
 
     public static function group(): string

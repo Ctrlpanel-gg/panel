@@ -7,14 +7,10 @@ use Spatie\LaravelSettings\Settings;
 class LocaleSettings extends Settings
 {
     public ?string $available;
-
-    public bool $clients_can_change = false;
-
+    public bool $clients_can_change;
     public ?string $datatables;
-
     public string $default;
-
-    public bool $dynamic = false;
+    public bool $dynamic;
 
     public static function group(): string
     {
