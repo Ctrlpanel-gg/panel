@@ -138,7 +138,7 @@ class RegisterController extends Controller
 
         ]);
 
-        $response = $this->pterodactyl->client_admin->post('/application/users', [
+        $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => App::environment('local') ? Str::random(16) : (string) $user->id,
             'username' => $user->name,
             'email' => $user->email,

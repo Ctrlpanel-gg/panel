@@ -24,19 +24,18 @@ class PterodactylClient
 
     public PendingRequest $client;
 
-    public PendingRequest $client_admin;
-    
+    public PendingRequest $application;
+
     public function __construct(PterodactylSettings $ptero_settings)
     {
         $server_settings = new ServerSettings();
-        
+
         try {
             $this->client = $this->client($ptero_settings);
-            $this->client_admin = $this->clientAdmin($ptero_settings);
+            $this->application = $this->clientAdmin($ptero_settings);
             $this->per_page_limit = $ptero_settings->per_page_limit;
             $this->allocation_limit = $server_settings->allocation_limit;
-        }
-        catch (Exception $exception) {
+        } catch (Exception $exception) {
             logger('Failed to construct Pterodactyl client, Settings table not available?', ['exception' => $exception]);
         }
     }
@@ -94,7 +93,7 @@ class PterodactylClient
     public function getEggs(Nest $nest)
     {
         try {
-            $response = $this->client_admin->get("application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . $this->per_page_limit);
+            $response = $this->application->get("application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -113,7 +112,7 @@ class PterodactylClient
     public function getNodes()
     {
         try {
-            $response = $this->client_admin->get('application/nodes?per_page=' . $this->per_page_limit);
+            $response = $this->application->get('application/nodes?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -133,7 +132,7 @@ class PterodactylClient
     public function getNode($id)
     {
         try {
-            $response = $this->client_admin->get('application/nodes/' . $id);
+            $response = $this->application->get('application/nodes/' . $id);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -147,7 +146,7 @@ class PterodactylClient
     public function getServers()
     {
         try {
-            $response = $this->client_admin->get('application/servers?per_page=' . $this->per_page_limit);
+            $response = $this->application->get('application/servers?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -166,7 +165,7 @@ class PterodactylClient
     public function getNests()
     {
         try {
-            $response = $this->client_admin->get('application/nests?per_page=' . $this->per_page_limit);
+            $response = $this->application->get('application/nests?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -185,7 +184,7 @@ class PterodactylClient
     public function getLocations()
     {
         try {
-            $response = $this->client_admin->get('application/locations?per_page=' . $this->per_page_limit);
+            $response = $this->application->get('application/locations?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -240,7 +239,7 @@ class PterodactylClient
     public function getAllocations(Node $node)
     {
         try {
-            $response = $this->client_admin->get("application/nodes/{$node->id}/allocations?per_page={$this->allocation_limit}");
+            $response = $this->application->get("application/nodes/{$node->id}/allocations?per_page={$this->allocation_limit}");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -259,7 +258,7 @@ class PterodactylClient
      */
     public function createServer(Server $server, Egg $egg, int $allocationId)
     {
-        return $this->client_admin->post('application/servers', [
+        return $this->application->post('application/servers', [
             'name' => $server->name,
             'external_id' => $server->id,
             'user' => $server->user->pterodactyl_id,
@@ -288,7 +287,7 @@ class PterodactylClient
     public function suspendServer(Server $server)
     {
         try {
-            $response = $this->client_admin->post("application/servers/$server->pterodactyl_id/suspend");
+            $response = $this->application->post("application/servers/$server->pterodactyl_id/suspend");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -302,7 +301,7 @@ class PterodactylClient
     public function unSuspendServer(Server $server)
     {
         try {
-            $response = $this->client_admin->post("application/servers/$server->pterodactyl_id/unsuspend");
+            $response = $this->application->post("application/servers/$server->pterodactyl_id/unsuspend");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -322,7 +321,7 @@ class PterodactylClient
     public function getUser(int $pterodactylId)
     {
         try {
-            $response = $this->client_admin->get("application/users/{$pterodactylId}");
+            $response = $this->application->get("application/users/{$pterodactylId}");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -342,7 +341,7 @@ class PterodactylClient
     public function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
     {
         try {
-            $response = $this->client_admin->get("application/servers/{$pterodactylId}?include=egg,node,nest,location");
+            $response = $this->application->get("application/servers/{$pterodactylId}?include=egg,node,nest,location");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -371,7 +370,7 @@ class PterodactylClient
      */
     public function updateServer(Server $server, Product $product)
     {
-        return $this->client_admin->patch("application/servers/{$server->pterodactyl_id}/build", [
+        return $this->application->patch("application/servers/{$server->pterodactyl_id}/build", [
             'allocation' => $server->allocation,
             'memory' => $product->memory,
             'swap' => $product->swap,
@@ -396,7 +395,7 @@ class PterodactylClient
      */
     public function updateServerOwner(Server $server, int $userId)
     {
-        return $this->client_admin->patch("application/servers/{$server->pterodactyl_id}/details", [
+        return $this->application->patch("application/servers/{$server->pterodactyl_id}/details", [
             'name' => $server->name,
             'user' => $userId,
         ]);
@@ -435,7 +434,7 @@ class PterodactylClient
     public function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
     {
         try {
-            $response = $this->client_admin->get("application/nodes/{$node->id}");
+            $response = $this->application->get("application/nodes/{$node->id}");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
