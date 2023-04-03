@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
@@ -54,6 +55,14 @@ class AppServiceProvider extends ServiceProvider
             return $ok;
         });
 
+        // Force HTTPS if APP_URL is set to https
+        if (config('app.url') && parse_url(config('app.url'), PHP_URL_SCHEME) === 'https') {
+            URL::forceScheme('https');
+        }
+
+        // Do not run this code if no APP_KEY is set
+        if (config('app.key') == null) return;
+
         try {
             if (Schema::hasColumn('useful_links', 'position')) {
                 $useful_links = UsefulLink::where("position", "like", "%topbar%")->get()->sortby("id");
@@ -62,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         } catch (Exception $e) {
             Log::error("Couldnt find useful_links. Probably the installation is not completet. " . $e);
         }
+
 
         $settings = $this->app->make(MailSettings::class);
         $settings->setConfig();
