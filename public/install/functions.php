@@ -179,7 +179,7 @@ function encryptSettingsValue(mixed $value, $serialize = true): string
 {
     $appKey = getenv('APP_KEY');
     $appKey = base64_decode(Str::after($appKey, 'base64:'));
-    $encrypter = new Encrypter($appKey);
+    $encrypter = new Encrypter($appKey, 'AES-256-CBC');
     $encryptedKey = $encrypter->encrypt($value, $serialize);
 
     return $encryptedKey;
@@ -196,7 +196,7 @@ function decryptSettingsValue(mixed $payload, $unserialize = true)
 {
     $appKey = getenv('APP_KEY');
     $appKey = base64_decode(Str::after($appKey, 'base64:'));
-    $encrypter = new Encrypter($appKey);
+    $encrypter = new Encrypter($appKey, 'AES-256-CBC');
     $decryptedKey = $encrypter->decrypt($payload, $unserialize);
 
     return $decryptedKey;
