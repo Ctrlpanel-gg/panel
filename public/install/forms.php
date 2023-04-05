@@ -9,6 +9,7 @@ require 'phpmailer/SMTP.php';
 
 include 'functions.php';
 
+mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
 
 if (isset($_POST['checkDB'])) {
     $values = [
@@ -23,12 +24,15 @@ if (isset($_POST['checkDB'])) {
 
     wh_log('Trying to connect to the Database', 'debug');
 
-    $db = new mysqli($_POST['databasehost'], $_POST['databaseuser'], $_POST['databaseuserpass'], $_POST['database'], $_POST['databaseport']);
-    if ($db->connect_error) {
-        wh_log($db->connect_error, 'error');
-        header('LOCATION: index.php?step=2&message=Could not connect to the Database');
+    try {
+        $db = new mysqli($_POST['databasehost'], $_POST['databaseuser'], $_POST['databaseuserpass'], $_POST['database'], $_POST['databaseport']);
+    }
+    catch (mysqli_sql_exception $e) {
+        wh_log($e->getMessage(), 'error');
+        header('LOCATION: index.php?step=2&message=' . $e->getMessage());
         exit();
     }
+    
 
     foreach ($values as $key => $value) {
         $param = $_POST[$value];
