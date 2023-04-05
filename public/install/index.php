@@ -53,9 +53,6 @@ $cardheader = '
         <div class="card-body bg-light">';
 
 if (!isset($_GET['step'])) {
-    if (!file_exists('../../.env')) {
-        echo run_console('cp .env.example .env');
-    }
     echo $cardheader; ?>
     <p class="login-box-msg">This installer will lead you through the most crucial Steps of Controlpanel.gg`s
         setup</p>
