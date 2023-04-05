@@ -9,6 +9,10 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
+if (!file_exists('../../.env')) {
+        echo run_console('cp .env.example .env');
+}
+
 (new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
 $required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
