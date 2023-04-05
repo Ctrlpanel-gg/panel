@@ -35,7 +35,7 @@ class UserController extends Controller
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -166,6 +166,10 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        if ($user->role === 'admin' && User::query()->where('role', 'admin')->count() === 1) {
+            return redirect()->back()->with('error', __('You can not delete the last admin!'));
+        }
+
         $user->delete();
 
         return redirect()->back()->with('success', __('user has been removed!'));
@@ -258,8 +262,7 @@ class UserController extends Controller
         $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
         try {
             Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return redirect()->route('admin.users.notifications')->with('error', __('The attempt to send the email failed with the error: ' . $e->getMessage()));
         }
 

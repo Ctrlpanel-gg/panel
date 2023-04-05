@@ -28,9 +28,9 @@ class Server extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            -> logOnlyDirty()
-            -> logOnly(['*'])
-            -> dontSubmitEmptyLogs();
+            ->logOnlyDirty()
+            ->logOnly(['*'])
+            ->dontSubmitEmptyLogs();
     }
 
     /**
@@ -84,8 +84,8 @@ class Server extends Model
         });
 
         static::deleting(function (Server $server) {
-            $response = $server->pterodactyl->client_admin->delete("/application/servers/{$server->pterodactyl_id}");
-            if ($response->failed() && ! is_null($server->pterodactyl_id)) {
+            $response = $server->pterodactyl->application->delete("/application/servers/{$server->pterodactyl_id}");
+            if ($response->failed() && !is_null($server->pterodactyl_id)) {
                 //only return error when it's not a 404 error
                 if ($response['errors'][0]['status'] != '404') {
                     throw new Exception($response['errors'][0]['code']);
@@ -99,7 +99,7 @@ class Server extends Model
      */
     public function isSuspended()
     {
-        return ! is_null($this->suspended);
+        return !is_null($this->suspended);
     }
 
     /**
@@ -107,7 +107,7 @@ class Server extends Model
      */
     public function getPterodactylServer()
     {
-        return $this->pterodactyl->client_admin->get("/application/servers/{$this->pterodactyl_id}");
+        return $this->pterodactyl->application->get("/application/servers/{$this->pterodactyl_id}");
     }
 
     /**
