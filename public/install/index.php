@@ -67,9 +67,6 @@ function cardStart($title, $subtitle = null)
 
     // Getting started
     if (!isset($_GET['step']) || $_GET['step'] == 1) {
-        if (!file_exists('../../.env')) {
-            echo run_console('cp .env.example .env');
-        };
     ?>
         <?php echo cardStart($title = "Mandatory Checks before Installation", $subtitle = "This installer will lead you through the most crucial Steps of Controlpanel.gg's setup"); ?>
 
