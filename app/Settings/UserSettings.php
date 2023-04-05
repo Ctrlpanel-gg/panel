@@ -7,27 +7,16 @@ use Spatie\LaravelSettings\Settings;
 class UserSettings extends Settings
 {
     public float $credits_reward_after_verify_discord;
-
     public float $credits_reward_after_verify_email;
-
     public bool $force_discord_verification;
-
     public bool $force_email_verification;
-
     public float $initial_credits;
-
     public int $initial_server_limit;
-
     public float $min_credits_to_make_server;
-
     public int $server_limit_after_irl_purchase;
-
     public int $server_limit_after_verify_discord;
-
     public int $server_limit_after_verify_email;
-
     public bool $register_ip_check;
-
     public bool $creation_enabled;
 
     public static function group(): string
@@ -44,16 +33,16 @@ class UserSettings extends Settings
         return [
             'credits_reward_after_verify_discord' => 'required|numeric',
             'credits_reward_after_verify_email' => 'required|numeric',
-            'force_discord_verification' => 'nullable|string',
-            'force_email_verification' => 'nullable|string',
+            'force_discord_verification' => 'nullable|boolean',
+            'force_email_verification' => 'nullable|boolean',
             'initial_credits' => 'required|numeric',
             'initial_server_limit' => 'required|numeric',
             'min_credits_to_make_server' => 'required|numeric',
             'server_limit_after_irl_purchase' => 'required|numeric',
             'server_limit_after_verify_discord' => 'required|numeric',
             'server_limit_after_verify_email' => 'required|numeric',
-            'register_ip_check' => 'nullable|string',
-            'creation_enabled' => 'nullable|string',
+            'register_ip_check' => 'nullable|boolean',
+            'creation_enabled' => 'nullable|boolean',
         ];
     }
 

@@ -7,16 +7,11 @@ use Spatie\LaravelSettings\Settings;
 class ReferralSettings extends Settings
 {
     public string $allowed;
-
     public bool $always_give_commission;
-
     public bool $enabled;
-
-    public float $reward;
-
+    public ?float $reward;
     public string $mode;
-
-    public int $percentage;
+    public ?int $percentage;
 
     public static function group(): string
     {
@@ -30,11 +25,11 @@ class ReferralSettings extends Settings
     public static function getValidations()
     {
         return [
-            'allowed' => 'nullable|string',
+            'allowed' => 'required|in:Everyone,Clients',
             'always_give_commission' => 'nullable|boolean',
             'enabled' => 'nullable|boolean',
             'reward' => 'nullable|numeric',
-            'mode' => 'nullable|string',
+            'mode' => 'required|in:Commission,Sign-Up,Both',
             'percentage' => 'nullable|numeric',
         ];
     }
@@ -77,7 +72,7 @@ class ReferralSettings extends Settings
                 'type' => 'select',
                 'description' => 'Referral mode.',
                 'options' => [
-                    'comission' => 'Comission',
+                    'commission' => 'Commission',
                     'sign-up' => 'Sign-Up',
                     'both' => 'Both',
                 ],

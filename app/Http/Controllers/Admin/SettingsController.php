@@ -109,26 +109,18 @@ class SettingsController extends Controller
         $settingsClass = new $settings_class();
 
         foreach ($settingsClass->toArray() as $key => $value) {
-            switch (gettype($request->input($key))) {
-                case 'boolean':
-                    $settingsClass->$key = $request->has($key);
-                    break;
-                case 'string':
-                    $settingsClass->$key = $request->input($key) ?? '';
-                    break;
-                case 'integer':
-                    $settingsClass->$key = $request->input($key) ?? 0;
-                    break;
-                case 'array':
-                    $settingsClass->$key = $request->input($key) ?? [];
-                    break;
-                case 'double':
-                    $settingsClass->$key = $request->input($key) ?? 0.0;
-                    break;
-                case 'NULL':
-                    $settingsClass->$key = null;
-                    break;
+            // Get the type of the settingsclass property
+            $rp = new \ReflectionProperty($settingsClass, $key);
+            $rpType = $rp->getType();
+
+            if ($rpType == 'bool') {
+                $settingsClass->$key = $request->has($key);
+                continue;
             }
+
+            $nullable = $rpType->allowsNull();
+            if ($nullable) $settingsClass->$key = $request->input($key) ?? null;
+            else $settingsClass->$key = $request->input($key);
         }
 
         $settingsClass->save();

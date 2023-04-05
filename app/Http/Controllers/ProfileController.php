@@ -78,15 +78,15 @@ class ProfileController extends Controller
         $user = User::findOrFail($id);
 
         //update password if necessary
-        if (! is_null($request->input('new_password'))) {
+        if (!is_null($request->input('new_password'))) {
 
             //validate password request
             $request->validate([
                 'current_password' => [
                     'required',
                     function ($attribute, $value, $fail) use ($user) {
-                        if (! Hash::check($value, $user->password)) {
-                            $fail('The '.$attribute.' is invalid.');
+                        if (!Hash::check($value, $user->password)) {
+                            $fail('The ' . $attribute . ' is invalid.');
                         }
                     },
                 ],
@@ -96,7 +96,7 @@ class ProfileController extends Controller
 
             //Update Users Password on Pterodactyl
             //Username,Mail,First and Lastname are required aswell
-            $response = $this->pterodactyl->client_admin->patch('/application/users/' . $user->pterodactyl_id, [
+            $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, [
                 'password' => $request->input('new_password'),
                 'username' => $request->input('name'),
                 'first_name' => $request->input('name'),
@@ -118,13 +118,13 @@ class ProfileController extends Controller
 
         //validate request
         $request->validate([
-            'name' => 'required|min:4|max:30|alpha_num|unique:users,name,'.$id.',id',
-            'email' => 'required|email|max:64|unique:users,email,'.$id.',id',
+            'name' => 'required|min:4|max:30|alpha_num|unique:users,name,' . $id . ',id',
+            'email' => 'required|email|max:64|unique:users,email,' . $id . ',id',
             'avatar' => 'nullable',
         ]);
 
         //update avatar
-        if (! is_null($request->input('avatar'))) {
+        if (!is_null($request->input('avatar'))) {
             $avatar = json_decode($request->input('avatar'));
             if ($avatar->input->size > 3000000) {
                 abort(500);
@@ -140,7 +140,7 @@ class ProfileController extends Controller
         }
 
         //update name and email on Pterodactyl
-        $response = $this->pterodactyl->client_admin->patch('/application/users/' . $user->pterodactyl_id, [
+        $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, [
             'username' => $request->input('name'),
             'first_name' => $request->input('name'),
             'last_name' => $request->input('name'),

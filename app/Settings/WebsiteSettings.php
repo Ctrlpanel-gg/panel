@@ -9,19 +9,15 @@ class WebsiteSettings extends Settings
 
 
     public bool $show_imprint;
-
     public bool $show_privacy;
-
     public bool $show_tos;
-
     public bool $useful_links_enabled;
     public bool $enable_login_logo;
-    public string $seo_title;
-
-    public string $seo_description;
+    public ?string $seo_title;
+    public ?string $seo_description;
     public bool $motd_enabled;
 
-    public string $motd_message;
+    public ?string $motd_message;
 
     public static function group(): string
     {
@@ -35,13 +31,13 @@ class WebsiteSettings extends Settings
     public static function getValidations()
     {
         return [
-            'motd_enabled' => 'nullable|string',
+            'motd_enabled' => 'nullable|boolean',
             'motd_message' => 'nullable|string',
-            'show_imprint' => 'nullable|string',
-            'show_privacy' => 'nullable|string',
-            'show_tos' => 'nullable|string',
-            'useful_links_enabled' => 'nullable|string',
-            'enable_login_logo' => 'nullable|string',
+            'show_imprint' => 'nullable|boolean',
+            'show_privacy' => 'nullable|boolean',
+            'show_tos' => 'nullable|boolean',
+            'useful_links_enabled' => 'nullable|boolean',
+            'enable_login_logo' => 'nullable|boolean',
             'seo_title' => 'nullable|string',
             'seo_description' => 'nullable|string',
         ];

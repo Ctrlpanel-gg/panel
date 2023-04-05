@@ -43,7 +43,7 @@ class UserController extends Controller
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -105,7 +105,7 @@ class UserController extends Controller
 
         //Update Users Password on Pterodactyl
         //Username,Mail,First and Lastname are required aswell
-        $response = $this->pterodactyl->client_admin->patch('/application/users/' . $user->pterodactyl_id, [
+        $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, [
             'username' => $request->name,
             'first_name' => $request->name,
             'last_name' => $request->name,
@@ -280,7 +280,7 @@ class UserController extends Controller
             'referral_code' => $this->createReferralCode(),
         ]);
 
-        $response = $this->pterodactyl->client_admin->post('/application/users', [
+        $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => App::environment('local') ? Str::random(16) : (string) $user->id,
             'username' => $user->name,
             'email' => $user->email,
