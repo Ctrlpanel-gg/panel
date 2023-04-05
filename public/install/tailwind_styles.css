@@ -1,0 +1,10 @@
+/* 
+ * You need to have `tailwindcss` packages installed for these commands to work.
+ * 
+ * Build: `tailwindcss -i tailwind_styles.css -o styles.css -m`
+ * Dev: `tailwindcss -i tailwind_styles.css -o styles.css --watch` 
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
