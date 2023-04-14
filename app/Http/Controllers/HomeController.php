@@ -107,7 +107,7 @@ class HomeController extends Controller
             $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : __('hours')) : __('days');
         }
 
-        $this->callhome();
+        //$this->callhome(); TODO: Same as the function
 
         // RETURN ALL VALUES
         return view('home')->with([
