@@ -22,7 +22,7 @@ function cardStart($title, $subtitle = null)
     <title>Controlpanel.gg installer Script</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="styles.css" rel="stylesheet">
+    <link href="/install/styles.css" rel="stylesheet">
     <style>
         body {
             color-scheme: dark;
