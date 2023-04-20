@@ -35,10 +35,9 @@ class MakeUserCommand extends Command
      *
      * @return void
      */
-    public function __construct(PterodactylSettings $ptero_settings)
+    public function __construct()
     {
         parent::__construct();
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
 
 
@@ -47,8 +46,9 @@ class MakeUserCommand extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(PterodactylSettings $ptero_settings)
     {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
         $password = $this->secret('password') ?? $this->ask('Please specify your password.');
 
