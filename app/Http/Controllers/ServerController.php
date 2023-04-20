@@ -40,7 +40,7 @@ class ServerController extends Controller
         foreach ($servers as $server) {
 
             //Get server infos from ptero
-            $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id, true);
+            $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
             if (! $serverAttributes) {
                 continue;
             }
@@ -351,9 +351,7 @@ class ServerController extends Controller
             $server->update();
             $server->allocation = $serverAttributes['allocation'];
             $response = $this->pterodactyl->updateServer($server, $newProduct);
-            if ($response->failed()) {
-                return $this->serverCreationFailed($response, $server);
-            }
+            if ($response->failed()) return redirect()->route('servers.index')->with('error', __("The system was unable to update your server product. Please try again later or contact support."));
             //update user balance
             $user->decrement('credits', $priceupgrade);
             //restart the server
