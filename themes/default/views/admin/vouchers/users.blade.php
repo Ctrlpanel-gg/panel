@@ -41,7 +41,7 @@
                                 <th>{{__('ID')}}</th>
                                 <th>{{__('Name')}}</th>
                                 <th>{{__('Email')}}</th>
-                                <th>{{ $credits_display_name }}</th>
+                                <th>{{ CREDITS_DISPLAY_NAME }}</th>
                                 <th>{{__('Last seen')}}</th>
                             </tr>
                         </thead>
@@ -63,7 +63,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             $('#datatable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
                 },
                 processing: true,
                 serverSide: true,

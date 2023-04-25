@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\User;
-use App\Settings\GeneralSettings;
-use App\Settings\ReferralSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -16,8 +14,6 @@ class ReferralNotification extends Notification
      * @var User
      */
     private $user;
-
-    private $ref_user;
 
     /**
      * Create a new notification instance.
@@ -47,13 +43,13 @@ class ReferralNotification extends Notification
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toArray($notifiable, GeneralSettings $general_settings, ReferralSettings $referral_settings)
+    public function toArray($notifiable)
     {
         return [
             'title' => __('Someone registered using your Code!'),
             'content' => '
-                <p>You received '. $referral_settings->reward . ' ' . $general_settings->credits_display_name . '</p>
-                <p>because ' . $this->ref_user->name . ' registered with your Referral-Code!</p>
+                <p>You received '.config('SETTINGS::REFERRAL::REWARD').' '.config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME').'</p>
+                <p>because '.$this->ref_user->name.' registered with your Referral-Code!</p>
                 <p>Thank you very much for supporting us!.</p>
                 <p>'.config('app.name', 'Laravel').'</p>
             ',

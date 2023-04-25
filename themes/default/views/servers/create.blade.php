@@ -35,9 +35,9 @@
                             <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{ __('Server configuration') }}
                             </div>
                         </div>
-                        @if (!$server_creation_enabled)
+                        @if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS'))
                             <div class="alert alert-warning p-2 m-2">
-                                {{ __('The creation of new servers has been disabled for regular users, enable it again') }}
+                                The creation of new servers has been disabled for regular users, enable it again
                                 <a href="{{ route('admin.settings.system') }}">{{ __('here') }}</a>.
                             </div>
                         @endif
@@ -209,10 +209,10 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
-                                                        {{ __('Required') }} {{ $credits_display_name }}
+                                                        {{ __('Required') }} {{ CREDITS_DISPLAY_NAME }}
                                                         {{ __('to create this server') }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="product.minimum_credits == -1 ? {{ $min_credits_to_make_server }} : product.minimum_credits"></span>
+                                                        x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credits"></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -228,7 +228,7 @@
                                                 {{ __('Price') }}:
                                             </span>
                                             <span class="d-inline-block"
-                                                x-text="product.price + ' {{ $credits_display_name }}'"></span>
+                                                x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
                                     <div>
@@ -241,7 +241,7 @@
                                             :class="product.minimum_credits > user.credits || product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
-                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ $credits_display_name }}!' : '{{ __('Create server') }}')">
+                                            x-text=" product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits ? '{{ __('Not enough') }} {{ CREDITS_DISPLAY_NAME }}!' : '{{ __('Create server') }}')">
                                         </button>
                                     </div>
                                 </div>

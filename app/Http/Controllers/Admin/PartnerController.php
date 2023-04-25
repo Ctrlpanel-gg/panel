@@ -5,17 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PartnerDiscount;
 use App\Models\User;
-use App\Settings\LocaleSettings;
-use App\Settings\ReferralSettings;
 use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
-        return view('admin.partners.index', [
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        return view('admin.partners.index');
     }
 
     /**
@@ -121,19 +117,19 @@ class PartnerController extends Controller
                 ';
             })
             ->addColumn('user', function (PartnerDiscount $partner) {
-                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id) . '">' . $user->name . '</a>' : __('Unknown user');
+                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id).'">'.$user->name.'</a>' : __('Unknown user');
             })
             ->editColumn('created_at', function (PartnerDiscount $partner) {
                 return $partner->created_at ? $partner->created_at->diffForHumans() : '';
             })
             ->editColumn('partner_discount', function (PartnerDiscount $partner) {
-                return $partner->partner_discount ? $partner->partner_discount . '%' : '0%';
+                return $partner->partner_discount ? $partner->partner_discount.'%' : '0%';
             })
             ->editColumn('registered_user_discount', function (PartnerDiscount $partner) {
-                return $partner->registered_user_discount ? $partner->registered_user_discount . '%' : '0%';
+                return $partner->registered_user_discount ? $partner->registered_user_discount.'%' : '0%';
             })
-            ->editColumn('referral_system_commission', function (PartnerDiscount $partner, ReferralSettings $referral_settings) {
-                return $partner->referral_system_commission >= 0 ? $partner->referral_system_commission . '%' : __('Default') . ' ('.$referral_settings->percentage . '%)';
+            ->editColumn('referral_system_commission', function (PartnerDiscount $partner) {
+                return $partner->referral_system_commission >= 0 ? $partner->referral_system_commission.'%' : __('Default').' ('.config('SETTINGS::REFERRAL:PERCENTAGE').'%)';
             })
             ->rawColumns(['user', 'actions'])
             ->make();

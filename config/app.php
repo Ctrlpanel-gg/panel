@@ -210,8 +210,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
+
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
-        Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
+
     ],
 
     /*

@@ -106,14 +106,15 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
     //ticket user
-    Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
-    Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
-    Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
-    Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:ticket-new'])->name('ticket.new.store');
-    Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
-    Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:ticket-reply'])->name('ticket.reply');
-    Route::post('ticket/close/{ticket_id}', [TicketsController::class, 'close'])->name('ticket.close');
-
+    if (config('SETTINGS::TICKET:ENABLED')) {
+        Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
+        Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
+        Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:ticket-new'])->name('ticket.new.store');
+        Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
+        Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:ticket-reply'])->name('ticket.reply');
+        Route::post('ticket/status/{ticket_id}', [TicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
+    }
 
     //admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
@@ -165,8 +166,13 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('settings/checkPteroClientkey', [System::class, 'checkPteroClientkey'])->name('settings.checkPteroClientkey');
         Route::redirect('settings#system', 'system')->name('settings.system');
 
-        Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-        Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
+        //settings
+        Route::patch('settings/update/invoice-settings', [Invoices::class, 'updateSettings'])->name('settings.update.invoicesettings');
+        Route::patch('settings/update/language', [Language::class, 'updateSettings'])->name('settings.update.languagesettings');
+        Route::patch('settings/update/payment', [Payments::class, 'updateSettings'])->name('settings.update.paymentsettings');
+        Route::patch('settings/update/misc', [Misc::class, 'updateSettings'])->name('settings.update.miscsettings');
+        Route::patch('settings/update/system', [System::class, 'updateSettings'])->name('settings.update.systemsettings');
+        Route::resource('settings', SettingsController::class)->only('index');
 
         //invoices
         Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');
@@ -216,7 +222,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
 
         Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
-        Route::resource("ticket/category", TicketCategoryController::class, ['as' => 'ticket']);
+        Route::resource("ticket/category", TicketCategoryController::class,['as' => 'ticket']);
+
     });
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');

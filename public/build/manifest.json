@@ -1,12 +1,7 @@
 {
-  "themes/default/js/app.js": {
-    "file": "assets/app-0fd5dfcd.js",
-    "isEntry": true,
-    "src": "themes/default/js/app.js"
-  },
   "themes/default/sass/app.scss": {
-    "file": "assets/app-26e8174e.css",
-    "isEntry": true,
-    "src": "themes/default/sass/app.scss"
+    "file": "assets/app-bac23d88.css",
+    "src": "themes/default/sass/app.scss",
+    "isEntry": true
   }
 }

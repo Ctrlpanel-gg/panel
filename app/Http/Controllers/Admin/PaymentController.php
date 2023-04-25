@@ -18,19 +18,17 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ExtensionHelper;
-use App\Settings\GeneralSettings;
-use App\Settings\LocaleSettings;
+
 
 class PaymentController extends Controller
 {
     /**
      * @return Application|Factory|View
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15),
-            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
@@ -39,7 +37,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View
      */
-    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings)
+    public function checkOut(ShopProduct $shopProduct)
     {
         $discount = PartnerDiscount::getDiscount();
         $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
@@ -51,10 +49,7 @@ class PaymentController extends Controller
             // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
             foreach ($extensions as $extension) {
                 $extensionName = basename($extension);
-
-                $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
-                if ($extensionSettings->enabled == false) continue;
-
+                if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
 
                 $payment = new \stdClass();
                 $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
@@ -62,6 +57,11 @@ class PaymentController extends Controller
                 $paymentGateways[] = $payment;
             }
         }
+
+
+
+
+
 
         return view('store.checkout')->with([
             'product' => $shopProduct,
@@ -73,7 +73,6 @@ class PaymentController extends Controller
             'total' => $shopProduct->getTotalPrice(),
             'paymentGateways'   => $paymentGateways,
             'productIsFree' => $price <= 0,
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
