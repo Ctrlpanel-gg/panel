@@ -4,452 +4,431 @@ include 'functions.php';
 if (file_exists('../../install.lock')) {
     exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
 }
+
+function cardStart($title, $subtitle = null)
+{
+    return "
+    <div class='flex flex-col gap-4 sm:w-auto w-full sm:min-w-[550px] my-6'>
+        <h1 class='text-center font-bold text-3xl'>ControlPanel.gg Installation</h1>
+        <div class='border-4 border-[#2E373B] bg-[#242A2E] rounded-2xl p-6 pt-3 mx-2'>
+            <h2 class='text-xl text-center mb-2'>$title</h2>"
+        . (isset($subtitle) ? "<p class='text-neutral-400 mb-1'>$subtitle</p>" : "");
+}
 ?>
 
 <html>
+
 <head>
     <title>Controlpanel.gg installer Script</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/install/styles.css" rel="stylesheet">
     <style>
         body {
-            background-color: powderblue;
+            color-scheme: dark;
         }
 
-        .card {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-right: -50%;
-            transform: translate(-50%, -50%);
-            width: 30%;
+        .check {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .check::before {
+            width: 20px;
+            height: 20px;
+            display: block;
         }
 
         .ok {
-            color: green;
+            color: lightgreen;
         }
 
+        /* Green Checkmark */
         .ok::before {
-            content: "✔️";
+            content: url("data:image/svg+xml,%3Csvg fill='none' stroke='lightgreen' stroke-width='1.5' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z'%3E%3C/path%3E%3C/svg%3E");
         }
 
-        .notok {
-            color: red;
+        .not-ok {
+            color: lightcoral;
         }
 
-        .notok::before {
-            content: "❌";
+        /* Red Cross */
+        .not-ok::before {
+            content: url("data:image/svg+xml,%3Csvg fill='none' stroke='lightcoral' stroke-width='1.5' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z'%3E%3C/path%3E%3C/svg%3E");
         }
     </style>
 </head>
-<body>
 
-<?php
-$cardheader = '
-        <div class="card card-outline-success bg-dark">
-        <div class="card-header text-center">
-            <b class="mr-1 text-light">Controlpanel.GG</b>
-        </div>
-        <div class="card-body bg-light">';
-
-if (! isset($_GET['step'])) {
-    if (! file_exists('../../.env')) {
-        echo run_console('cp .env.example .env');
-    }
-    echo $cardheader; ?>
-    <p class="login-box-msg">This installer will lead you through the most crucial Steps of Controlpanel.gg`s
-        setup</p>
-    <p class="<?php echo checkHTTPS() == true ? 'ok' : 'notok'; ?>">HTTPS is required</p>
-
-    <p class="<?php echo checkWriteable() == true ? 'ok' : 'notok'; ?>">Write-permissions on .env-file</p>
-
-    <p class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'notok'; ?>"> php
-        version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)</p>
-
-    <p class="<?php echo getMySQLVersion() === 'OK' ? 'ok' : 'notok'; ?>"> mysql
-        version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements['mysql']; ?>)</p>
-
-    <p class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'notok'; ?>"> Missing
-        php-extentions: <?php echo count(checkExtensions()) == 0 ? 'none' : '';
-    foreach (checkExtensions() as $ext) {
-        echo $ext.', ';
-    }
-
-    echo count(checkExtensions()) == 0 ? '' : '(Proceed anyway)'; ?></p>
-
-
-    <!-- <p class="<?php echo getZipVersion() === 'OK' ? 'ok' : 'notok'; ?>"> Zip
-                version: <?php echo getZipVersion(); ?> </p> -->
-
-    <p class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'notok'; ?>"> Git
-        version: <?php echo getGitVersion(); ?> </p>
-
-    <p class="<?php echo getTarVersion() === 'OK' ? 'ok' : 'notok'; ?>"> Tar
-        version: <?php echo getTarVersion(); ?> </p>
-
-
-    <a href="?step=2">
-        <button class="btn btn-primary">Lets go</button>
-    </a>
-    </div>
-    </div>
+<body class="w-full flex items-center justify-center bg-[#1D2125] text-white">
 
     <?php
-}
-if (isset($_GET['step']) && $_GET['step'] == 2) {
-    echo $cardheader; ?>
-<p class="login-box-msg">Lets start with your Database</p>
-<?php if (isset($_GET['message'])) {
-        echo "<p class='notok'>".$_GET['message'].'</p>';
-    } ?>
 
-<form method="POST" enctype="multipart/form-data" class="mb-3"
-      action="/install/forms.php" name="checkDB">
+    // Getting started
+    if (!isset($_GET['step']) || $_GET['step'] == 1) {
+    ?>
+        <?php echo cardStart($title = "Mandatory Checks before Installation", $subtitle = "This installer will lead you through the most crucial Steps of Controlpanel.gg's setup"); ?>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group">
-                <div class="custom-control mb-3">
-                    <label for="database">Database Driver</label>
-                    <input x-model="databasedriver" id="databasedriver" name="databasedriver"
-                           type="text" required
-                           value="mysql" class="form-control">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="custom-control mb-3">
-                    <label for="databasehost">Database Host</label>
-                    <input x-model="databasehost" id="databasehost" name="databasehost" type="text"
-                           required
-                           value="127.0.0.1" class="form-control">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="custom-control mb-3">
-                    <label for="databaseport">Database Port</label>
-                    <input x-model="databaseport" id="databaseport" name="databaseport"
-                           type="number" required
-                           value="3306" class="form-control">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="custom-control mb-3">
-                    <label for="databaseuser">Database User</label>
-                    <input x-model="databaseuser" id="databaseuser" name="databaseuser" type="text"
-                           required
-                           value="controlpaneluser" class="form-control">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="custom-control mb-3">
-                    <label for="databaseuserpass">Database User Password</label>
-                    <input x-model="databaseuserpass" id="databaseuserpass" name="databaseuserpass"
-                           type="text" required
-                           class="form-control ">
-                </div>
-            </div>
+        <ul class="list-none mb-2">
 
-            <div class="form-group">
-                <div class="custom-control mb-3">
-                    <label for="database">Database</label>
-                    <input x-model="database" id="database" name="database" type="text" required
-                           value="controlpanel" class="form-control">
-                </div>
-            </div>
+            <li class="<?php echo checkHTTPS() == true ? 'ok' : 'not-ok'; ?> check">HTTPS is required</li>
+
+            <li class="<?php echo checkWriteable() == true ? 'ok' : 'not-ok'; ?> check">Write-permissions on .env-file</li>
+
+            <li class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> php
+                version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)</li>
+
+            <li class="<?php echo getMySQLVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> mysql
+                version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements['mysql']; ?>)</li>
+
+            <li class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'not-ok'; ?> check"> Missing
+                php-extentions: <?php echo count(checkExtensions()) == 0 ? 'none' : '';
+                                foreach (checkExtensions() as $ext) {
+                                    echo $ext . ', ';
+                                }
+
+                                echo count(checkExtensions()) == 0 ? '' : '(Proceed anyway)'; ?></li>
+
+
+            <!-- <li class="<?php echo getZipVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> Zip
+                    version: <?php echo getZipVersion(); ?> </li> -->
+
+            <li class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> Git
+                version: <?php echo getGitVersion(); ?> </li>
+
+            <li class="<?php echo getTarVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> Tar
+                version: <?php echo getTarVersion(); ?> </li>
+        </ul>
 
         </div>
-
-        <button class="btn btn-primary" name="checkDB">Submit</button>
-    </div>
-</form>
-    </div>
-
-
-    </div>
+        <a href="?step=2" class="w-full flex justify-center">
+            <button class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500">Lets
+                go</button>
+        </a>
 
     <?php
-}
-    if (isset($_GET['step']) && $_GET['step'] == 2.5) {
-        echo $cardheader; ?>
-    <p class="login-box-msg">Lets feed your Database and generate some security keys!</p>
-    <p> This process might take a while. Please do not refresh or close this page!</p>
-    <?php if (isset($_GET['message'])) {
-            echo "<p class='notok'>".$_GET['message'].'</p>';
-        } ?>
-
-    <form method="POST" enctype="multipart/form-data" class="mb-3"
-          action="/install/forms.php" name="feedDB">
-
-
-        <button class="btn btn-primary" name="feedDB">Submit</button>
-        </div>
-        </div>
-
-
-        </div>
-
-        <?php
     }
 
-        if (isset($_GET['step']) && $_GET['step'] == 3) {
-            echo $cardheader; ?>
-        <p class="login-box-msg">Tell us something about your Host</p>
+    // DB Config
+    if (isset($_GET['step']) && $_GET['step'] == 2) {
 
-        <?php if (isset($_GET['message'])) {
-                echo "<p class='notok'>".$_GET['message'].'</p>';
+        echo cardStart($title = "Database Configuration"); ?>
+
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkDB">
+            <?php if (isset($_GET['message'])) {
+                echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
             } ?>
-
-        <form method="POST" enctype="multipart/form-data" class="mb-3"
-              action="/install/forms.php" name="checkGeneral">
-
 
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group">
-                        <div class="custom-control mb-3">
-                            <label for="database">Your Dashboard URL</label>
-                            <input id="url" name="url"
-                                   type="text" required
-                                   value="<?php echo 'https://'.$_SERVER['SERVER_NAME']; ?>" class="form-control">
+                        <div class="flex flex-col mb-3">
+                            <label for="databasedriver">Database Driver</label>
+                            <input x-model="databasedriver" id="databasedriver" name="databasedriver" type="text" required value="mysql" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class="custom-control mb-3">
-                            <label for="name">Your Host-Name</label>
-                            <input id="name" name="name" type="text"
-                                   required
-                                   value="Controlpanel.gg" class="form-control">
+                        <div class="flex flex-col mb-3">
+                            <label for="databasehost">Database Host</label>
+                            <input x-model="databasehost" id="databasehost" name="databasehost" type="text" required value="127.0.0.1" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databaseport">Database Port</label>
+                            <input x-model="databaseport" id="databaseport" name="databaseport" type="number" required value="3306" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databaseuser">Database User</label>
+                            <input x-model="databaseuser" id="databaseuser" name="databaseuser" type="text" required value="controlpaneluser" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databaseuserpass">Database User Password</label>
+                            <input x-model="databaseuserpass" id="databaseuserpass" name="databaseuserpass" type="text" required class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none ">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="flex flex-col">
+                            <label for="database">Database</label>
+                            <input x-model="database" id="database" name="database" type="text" required value="controlpanel" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                         </div>
                     </div>
 
                 </div>
 
-                <button class="btn btn-primary" name="checkGeneral">Submit</button>
+            </div>
+
+            </div>
+            <div class="w-full flex justify-center ">
+                <button class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500" name="checkDB">Submit</button>
             </div>
         </form>
-            </div>
+        </div>
 
+    <?php
+    }
 
-            </div>
+    // DB Migration & APP_KEY Generation
+    if (isset($_GET['step']) && $_GET['step'] == 2.5) { ?>
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="feedDB">
 
-            <?php
-        }
-            if (isset($_GET['step']) && $_GET['step'] == 4) {
-                echo $cardheader; ?>
-            <p class="login-box-msg">Lets get your E-Mails going! </p>
-            <p class="login-box-msg">This might take a few seconds when submitted! </p>
+            <?php echo cardStart($title = "Database Migration and Encryption Key Generation", $subtitle = "Lets feed your Database and generate some security keys! <br> This process might take a while. Please do not refresh or close this page!"); ?> <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="feedDB">
 
-            <?php if (isset($_GET['message'])) {
-                    echo "<p class='notok'>".$_GET['message'].'</p>';
+                <?php if (isset($_GET['message'])) {
+                    echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
                 } ?>
 
-            <form method="POST" enctype="multipart/form-data" class="mb-3"
+                </div>
+                <div class="w-full flex justify-center ">
+                    <button class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500" name="feedDB">Submit</button>
+                </div>
+            </form>
+        <?php
+    }
 
-                  action="/install/forms.php" name="checkSMTP">
+    // Dashboard Config
+    if (isset($_GET['step']) && $_GET['step'] == 3) {
 
+        echo cardStart($title = "Dashboard Configuration"); ?>
+
+            <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkGeneral">
+
+                <?php if (isset($_GET['message'])) {
+                    echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+                } ?>
 
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <div class="custom-control mb-3">
-                                <label for="method">Your E-Mail method</label>
-                                <input id="method" name="method"
-                                       type="text" required
-                                       value="smtp" class="form-control">
+                            <div class="flex flex-col mb-3">
+                                <label for="database">Dashboard URL</label>
+                                <input id="url" name="url" type="text" required value="<?php echo 'https://' . $_SERVER['SERVER_NAME']; ?>" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="flex flex-col">
+                                <label for="name">Host Name</label>
+                                <input id="name" name="name" type="text" required value="" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                </div>
+
+                <div class="w-full flex justify-center ">
+                    <button class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500" name="checkGeneral">Submit</button>
+                </div>
+            </form>
+            </div>
+
+
+        <?php
+    }
+
+    // Email Config
+    if (isset($_GET['step']) && $_GET['step'] == 4) {
+
+        echo cardStart($title = "E-Mail Configuration", $subtitle = "This process might take a few seconds when submitted.<br>Please do not refresh or close this page!"); ?>
+
+            <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkSMTP">
+                <?php if (isset($_GET['message'])) {
+                    echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+                } ?>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="flex flex-col mb-3">
+                                <label for="method">Your E-Mail Method</label>
+                                <input id="method" name="method" type="text" required value="smtp" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
 
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="custom-control mb-3">
+                            <div class="flex flex-col mb-3">
                                 <label for="host">Your Mailer-Host</label>
-                                <input id="host" name="host" type="text"
-                                       required
-                                       value="smtp.google.com" class="form-control">
+                                <input id="host" name="host" type="text" required value="smtp.google.com" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="custom-control mb-3">
+                            <div class="flex flex-col mb-3">
                                 <label for="port">Your Mail Port</label>
-                                <input id="port" name="port" type="port"
-                                       required
-                                       value="567" class="form-control">
+                                <input id="port" name="port" type="number" required value="567" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="custom-control mb-3">
+                            <div class="flex flex-col mb-3">
                                 <label for="user">Your Mail User</label>
-                                <input id="user" name="user" type="text"
-                                       required
-                                       value="info@mydomain.com" class="form-control">
+                                <input id="user" name="user" type="text" required value="info@mydomain.com" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             </div>
                         </div>
 
 
                         <div class="form-group">
-                            <div class="custom-control mb-3">
+                            <div class="flex flex-col mb-3">
                                 <label for="pass">Your Mail-User Password</label>
-                                <input id="pass" name="pass" type="password"
-                                       required
-                                       value="" class="form-control">
+                                <input id="pass" name="pass" type="password" required value="" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <div class="custom-control mb-3">
+                            <div class="flex flex-col">
                                 <label for="encryption">Your Mail encryption method</label>
-                                <input id="encryption" name="encryption" type="text"
-                                       required
-                                       value="tls" class="form-control">
+                                <input id="encryption" name="encryption" type="text" required value="tls" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             </div>
                         </div>
 
                     </div>
 
-                    <button class="btn btn-primary" name="checkSMTP">Submit</button>
+
+
+                </div>
+
+                </div>
+
+                <div class="flex w-full justify-around mt-4 gap-8 px-8">
+                    <button type="submit" class="w-full px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500" name="checkSMTP">Submit</button>
+
+                    <a href="?step=5" class="w-full">
+                        <button type="button" class="w-full px-4 py-2 font-bold rounded-md bg-yellow-500/90 hover:bg-yellow-600 shadow-yellow-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-yellow-600">Skip
+                            For Now</button>
+                    </a>
+                </div>
             </form>
+            </div>
+
+
+        <?php
+    }
+
+    // Pterodactyl Config
+    if (isset($_GET['step']) && $_GET['step'] == 5) {
+
+        echo cardStart($title = "Pterodactyl Configuration", $subtitle = "Lets get some info about your Pterodactyl Installation!"); ?>
+
+            <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkPtero">
+                <?php if (isset($_GET['message'])) {
+                    echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+                } ?>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="flex flex-col mb-3">
+
+                                <label for="url">Pterodactyl URL</label>
+                                <input id="url" name="url" type="text" required value="https://ptero.example.com" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="flex flex-col mb-3">
+                                <label for="key">Application API Key</label>
+                                <input id="key" name="key" type="text" required value="" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                <span class="text-neutral-400">[Found at: ptero.example.com/admin/api] <br /> The key needs all
+                                    Read & Write permissions! </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="flex flex-col">
+                                <label for="clientkey">Admin User Client API Key</label>
+                                <input id="clientkey" name="clientkey" type="text" required value="" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                <span class="text-neutral-400">[Found at: ptero.example.com/account/api] <br /> Your Account
+                                    needs to be an Admin!</span>
+                            </div>
+                        </div>
+
+
+                    </div>
 
                 </div>
-
-                <a href="?step=5"><button class="btn btn-warning">Skip this step for now</button></a>
                 </div>
-
+                <div class="w-full flex justify-center ">
+                    <button class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500" name="checkPtero">Submit</button>
                 </div>
-                <?php
-            }
+            </form>
+            </div>
 
-                if (isset($_GET['step']) && $_GET['step'] == 5) {
-                    echo $cardheader; ?>
 
-                <p class="login-box-msg">Almost done! </p>
-                <p class="login-box-msg">Lets get some info about your Pterodactyl Installation!</p>
+        <?php
+    }
 
+    // Admin Creation Form
+    if (isset($_GET['step']) && $_GET['step'] == 6) {
+
+        echo cardStart($title = "First Admin Creation", $subtitle = "Lets create the first admin user!"); ?>
+
+            <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="createUser">
 
                 <?php if (isset($_GET['message'])) {
-                        echo "<p class='notok'>".$_GET['message'].'</p>';
-                    } ?>
-
-                <form method="POST" enctype="multipart/form-data" class="mb-3"
-
-                      action="/install/forms.php" name="checkPtero">
+                    echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+                } ?>
 
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <div class="custom-control mb-3">
-
-                                    <label for="url">Pterodactyl URL</label>
-                                    <input id="url" name="url"
-                                           type="text" required
-                                           value="https://ptero.example.com" class="form-control">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="custom-control mb-3">
-                                    <label for="key">Pterodactyl API-Key (found here: https://your.ptero.com/admin/api)</label>
-                                    <input id="key" name="key" type="text"
-                                           required
-                                           value="" class="form-control"
-                                           placeholder="The Key needs ALL read&write Permissions!">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="custom-control mb-3">
-                                    <label for="clientkey">Pterodactyl Admin-User API-Key (https://your.ptero.com/account/api)</label>
-                                    <input id="clientkey" name="clientkey" type="text"
-                                           required
-                                           value="" class="form-control"
-                                           placeholder="Your Account needs to be an Admin!">
-                                </div>
-                            </div>
-
-
-                        </div>
-
-                        <button  class="btn btn-primary" name="checkPtero">Submit</button>
+                <div class="form-group">
+                    <div class="flex flex-col mb-3">
+                        <label for="pteroID">Pterodactyl User ID </label>
+                        <input id="pteroID" name="pteroID" type="text" required value="1" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        <span class="text-neutral-400">Found in the users-list on your pterodactyl dashboard</span>
                     </div>
-                </form>
+                </div>
+
+                <div class="form-group">
+                    <div class="flex flex-col mb-3">
+                        <label for="pass">Password</label>
+                        <input id="pass" name="pass" type="password" required value="" minlength="8" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        <span class="text-neutral-400">This will be your new pterodactyl password aswell!</span>
                     </div>
-
-
+                </div>
+                <div class="form-group">
+                    <div class="flex flex-col">
+                        <label for="repass">Confirm Password</label>
+                        <input id="repass" name="repass" type="password" required value="" minlength="8" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                     </div>
+                </div>
 
-                    <?php
-                }
-
-                    if (isset($_GET['step']) && $_GET['step'] == 6) {
-                        echo $cardheader; ?>
-                    <p class="login-box-msg">Lets create yourself!</p>
-                    <p class="login-box-msg">We're making the first Admin user</p>
-                    <?php if (isset($_GET['message'])) {
-                            echo "<p class='notok'>".$_GET['message'].'</p>';
-                        } ?>
-
-                    <form method="POST" enctype="multipart/form-data" class="mb-3"
-                          action="/install/forms.php" name="createUser">
-
-                        <div class="form-group">
-                            <div class="custom-control mb-3">
-                                <label for="pteroID">Your Pterodactyl User-ID (found in the users-list on your pterodactyl dashboard)</label>
-                                <input id="pteroID" name="pteroID" type="text"
-                                       required
-                                       value="1" class="form-control">
-                            </div>
-                        </div>
-
-                                <div class="form-group">
-                                    <div class="custom-control mb-3">
-                                        <label for="pass">Password (this will be your new pterodactyl password aswell!)</label>
-                                        <input id="pass" name="pass" type="password"
-                                               required
-                                               value="" minlength="8" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="custom-control mb-3">
-                                        <label for="repass">Retype Password</label>
-                                        <input id="repass" name="repass" type="password"
-                                               required
-                                               value="" minlength="8" class="form-control">
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <button class="btn btn-primary" name="createUser">Submit</button>
-                        </div>
-                    </form>
-                        </div>
+                </div>
 
 
-                        </div>
+                <div class="w-full flex justify-center ">
+                    <button class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500" name="createUser">Submit</button>
+                </div>
 
-                        <?php
-                    }
-                        if (isset($_GET['step']) && $_GET['step'] == 7) {
-                            $lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
-                            fwrite($lockfile, 'locked');
-                            fclose($lockfile);
-
-                            echo $cardheader; ?>
-                            <p class="login-box-msg">All done!</p>
-                            <p class="login-box-msg">You may navigate to your Dashboard now and log in!</p>
-                            <a href="<?php echo getEnvironmentValue('APP_URL'); ?>">
-                                <button class="btn btn-success">Lets go!</button>
-                            </a>
-                            </div>
+            </form>
+            </div>
 
 
-                            </div>
-                            <?php
-                        }
-                        ?>
+        <?php
+    }
 
+    // Install Finished
+    if (isset($_GET['step']) && $_GET['step'] == 7) {
+        $lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
+        fwrite($lockfile, 'locked');
+        fclose($lockfile);
 
-                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-                                integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-                                crossorigin="anonymous"></script>
+        echo cardStart($title = "Installation Complete!", $subtitle = "You may navigate to your Dashboard now and log in!");
+        ?>
+
+            <a href="<?php echo getenv('APP_URL'); ?>" class="w-full flex justify-center ">
+                <button class="mt-2 px-4 py-2 font-bold rounded-md bg-green-500/90 hover:bg-green-600 shadow-green-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-green-500">Lets
+                    Go!</button>
+            </a>
+
+            </div>
+            </div>
+        <?php
+    }
+        ?>
 </body>
+
 </html>

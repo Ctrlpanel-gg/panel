@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
-use App\Classes\Pterodactyl;
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
+use App\Settings\GeneralSettings;
+use App\Settings\UserSettings;
+use App\Classes\PterodactylClient;
+use App\Settings\PterodactylSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,6 +25,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, LogsActivity, CausesActivity;
+
+    private PterodactylClient $pterodactyl;
 
     /**
      * @var string[]
@@ -85,12 +90,18 @@ class User extends Authenticatable implements MustVerifyEmail
         'server_limit' => 'float',
     ];
 
+    public function __construct()
+    {
+        $ptero_settings = new PterodactylSettings();
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+
     public static function boot()
     {
         parent::boot();
 
-        static::created(function (User $user) {
-            $user->notify(new WelcomeMessage($user));
+        static::created(function (User $user, GeneralSettings $general_settings, UserSettings $user_settings) {
+            $user->notify(new WelcomeMessage($user, $general_settings, $user_settings));
         });
 
         static::deleting(function (User $user) {
@@ -111,7 +122,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->discordUser()->delete();
 
-            Pterodactyl::client()->delete("/application/users/{$user->pterodactyl_id}");
+            $user->pterodactyl->application->delete("/application/users/{$user->pterodactyl_id}");
         });
     }
 
@@ -184,9 +195,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->suspended;
     }
 
-    /**
-     * @throws Exception
-     */
     public function suspend()
     {
         foreach ($this->servers as $server) {
@@ -200,9 +208,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this;
     }
 
-    /**
-     * @throws Exception
-     */
     public function unSuspend()
     {
         foreach ($this->getServersWithProduct() as $server) {
@@ -230,23 +235,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAvatar()
     {
-        //TODO loading the images to confirm they exist is causing to much load time. alternative has to be found :) maybe onerror tag on the <img tags>
-        //        if ($this->discordUser()->exists()) {
-        //            if(@getimagesize($this->discordUser->getAvatar())) {
-        //                $avatar = $this->discordUser->getAvatar();
-        //            } else {
-        //                $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-        //            }
-        //        } else {
-        //            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-        //        }
-
         return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email)));
     }
 
-    /**
-     * @return string
-     */
     public function creditUsage()
     {
         $usage = 0;

@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Pterodactyl;
-use App\Models\Egg;
-use App\Models\Location;
-use App\Models\Node;
+use App\Classes\PterodactylClient;
+use App\Models\Pterodactyl\Egg;
+use App\Models\Pterodactyl\Location;
+use App\Models\Pterodactyl\Node;
 use App\Models\Product;
+use App\Settings\PterodactylSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class ProductController extends Controller
-{
+{   
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+
     /**
      * @description get product locations based on selected egg
      *
@@ -60,7 +68,7 @@ class ProductController extends Controller
     {
         $nodes = $this->getNodesBasedOnEgg($request, $egg);
         foreach ($nodes as $key => $node) {
-            $pteroNode = Pterodactyl::getNode($node->id);
+            $pteroNode = $this->pterodactyl->getNode($node->id);
             if ($pteroNode['allocated_resources']['memory'] >= ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) || $pteroNode['allocated_resources']['disk'] >= ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100)) {
                 $nodes->forget($key);
             }
@@ -109,7 +117,7 @@ class ProductController extends Controller
             })
             ->get();
 
-        $pteroNode = Pterodactyl::getNode($node->id);
+        $pteroNode = $this->pterodactyl->getNode($node->id);
         foreach ($products as $key => $product) {
             if ($product->memory > ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'] || $product->disk > ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk']) {
                 $product->doesNotFit = true;

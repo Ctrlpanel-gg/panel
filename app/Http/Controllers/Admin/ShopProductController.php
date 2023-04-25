@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\ShopProduct;
+use App\Settings\GeneralSettings;
+use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -20,20 +22,14 @@ class ShopProductController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function index(Request $request)
+    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
-        $isPaymentSetup = false;
+        $isStoreEnabled = $general_settings->store_enabled;
 
-        if (
-            env('APP_ENV') == 'local' ||
-            config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID') ||
-            config('SETTINGS::PAYMENTS:STRIPE:SECRET') && config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') && config('SETTINGS::PAYMENTS:STRIPE:METHODS')
-        ) {
-            $isPaymentSetup = true;
-        }
 
         return view('admin.store.index', [
-            'isPaymentSetup' => $isPaymentSetup,
+            'isStoreEnabled' => $isStoreEnabled,
+            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
@@ -42,10 +38,11 @@ class ShopProductController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function create()
+    public function create(GeneralSettings $general_settings)
     {
         return view('admin.store.create', [
             'currencyCodes' => config('currency_codes'),
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -79,11 +76,12 @@ class ShopProductController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View|Response
      */
-    public function edit(ShopProduct $shopProduct)
+    public function edit(ShopProduct $shopProduct, GeneralSettings $general_settings)
     {
         return view('admin.store.edit', [
             'currencyCodes' => config('currency_codes'),
             'shopProduct' => $shopProduct,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -117,7 +115,7 @@ class ShopProductController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function disable(Request $request, ShopProduct $shopProduct)
+    public function disable(ShopProduct $shopProduct)
     {
         $shopProduct->update(['disabled' => !$shopProduct->disabled]);
 
