@@ -22,8 +22,8 @@
 ![controlpanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
 
 
-![](https://img.shields.io/endpoint?label=v0.9%20Installations&url=https%3A%2F%2Fmarket.controlpanel.gg%2Fcallhome.php%3Fgetinstalls)
-![](https://img.shields.io/badge/Overall%20Installations-3500%2B-green)
+![](https://img.shields.io/endpoint?label=v0.9%20Installations&url=https%3A%2F%2Fmarket.ctrlpanel.gg%2Fcallhome.php%3Fgetinstalls)
+![](https://img.shields.io/badge/Overall%20Installations-5000%2B-green)
 ![](https://img.shields.io/github/stars/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/forks/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/tag/ControlPanel-gg/dashboard) [![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/license/ControlPanel-gg/dashboard) ![](https://img.shields.io/discord/787829714483019826)
 ## About
 
@@ -31,15 +31,15 @@ ControlPanel's Dashboard is a dashboard application designed to offer clients a 
 
 This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customisation options and added discord Oauth verification to offer a solid link between your discord server and your dashboard. You can check our [Demo here](https://demo.controlpanel.gg "Demo").
 
-### [Installation](https://controlpanel.gg/docs/intro "Installation")
+### [Installation](https://ctrlpanel.gg/docs/intro "Installation")
 
-### [Updating](https://controlpanel.gg/docs/Installation/updating "Updating")
+### [Updating](https://ctrlpanel.gg/docs/Installation/updating "Updating")
 
 ### [Discord](https://discord.gg/4Y6HjD2uyU "Discord")
 
-### [Contributing](https://controlpanel.gg/docs/Contributing/contributing "Contributing")
+### [Contributing](https://ctrlpanel.gg/docs/Contributing/contributing "Contributing")
 
-### [Donating](https://controlpanel.gg/docs/Contributing/donating "Donating")
+### [Donating](https://ctrlpanel.gg/docs/Contributing/donating "Donating")
 
 
 

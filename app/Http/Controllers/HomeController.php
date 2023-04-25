@@ -27,6 +27,8 @@ class HomeController extends Controller
         $this->middleware('auth');
     }
 
+    /*
+    * TODO: This is commented due to the fact the market is a bad dependency, will be changed later.
     public function callHome()
     {
         if (Storage::exists('callHome')) {
@@ -36,7 +38,7 @@ class HomeController extends Controller
             'id' => Hash::make(URL::current()),
         ]);
         Storage::put('callHome', 'This is only used to count the installations of cpgg.');
-    }
+    }*/
 
     /**
      * @description Get the Background Color for the Days-Left-Box in HomeView
@@ -107,7 +109,7 @@ class HomeController extends Controller
             $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : __('hours')) : __('days');
         }
 
-        $this->callhome();
+        //$this->callhome(); TODO: Same as the function
 
         // RETURN ALL VALUES
         return view('home')->with([
