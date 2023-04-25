@@ -63,7 +63,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="price">{{__('Price in')}} {{ $credits_display_name }}</label>
+                                            <label for="price">{{__('Price in')}} {{CREDITS_DISPLAY_NAME}}</label>
                                             <input value="{{$product->price ??  old('price')}}" id="price" name="price" step=".01"
                                                    type="number"
                                                    class="form-control @error('price') is-invalid @enderror"
@@ -149,7 +149,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label for="minimum_credits">{{__('Minimum')}} {{ $credits_display_name }} <i
+                                            <label for="minimum_credits">{{__('Minimum')}} {{ CREDITS_DISPLAY_NAME }} <i
                                                     data-toggle="popover" data-trigger="hover"
                                                     data-content="{{__('Setting to -1 will use the value from configuration.')}}"
                                                     class="fas fa-info-circle"></i></label>

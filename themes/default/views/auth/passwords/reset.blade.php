@@ -81,14 +81,13 @@
         {{-- imprint and privacy policy --}}
         <div class="fixed-bottom ">
             <div class="container text-center">
-                @php($website_settings = app(App\Settings\WebsiteSettings::class))
-                @if ($website_settings->show_imprint)
+                @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT') == "true")
                     <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
                 @endif
-                @if ($website_settings->show_privacy)
+                @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY') == "true")
                     <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
-                @if ($website_settings->show_tos)
+                @if (config('SETTINGS::SYSTEM:SHOW_TOS') == "true")
                     | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>

@@ -2,23 +2,16 @@
 
 namespace App\Listeners;
 
-use App\Settings\UserSettings;
-
 class Verified
 {
-    private $server_limit_after_verify_email;
-
-    private $credits_reward_after_verify_email;
-
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(UserSettings $user_settings)
+    public function __construct()
     {
-        $this->server_limit_after_verify_email = $user_settings->server_limit_after_verify_email;
-        $this->credits_reward_after_verify_email = $user_settings->credits_reward_after_verify_email;
+        //
     }
 
     /**
@@ -30,8 +23,8 @@ class Verified
     public function handle($event)
     {
         if (! $event->user->email_verified_reward) {
-            $event->user->increment('server_limit', $this->server_limit_after_verify_email);
-            $event->user->increment('credits', $this->credits_reward_after_verify_email);
+            $event->user->increment('server_limit', config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL'));
+            $event->user->increment('credits', config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL'));
         }
     }
 }

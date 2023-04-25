@@ -2,12 +2,19 @@ import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import path from "path";
 
+
+
 export default defineConfig({
     plugins: [
         laravel({
-            input: ["themes/default/sass/app.scss", "themes/default/js/app.js"],
+            input: [
+                "themes/default/sass/app.scss",
+                "themes/default/js/app.js"
+            ],
             buildDirectory: "build",
         }),
+        
+        
         {
             name: "blade",
             handleHotUpdate({ file, server }) {
@@ -22,8 +29,9 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            "@": "/themes/default/js",
-            "~bootstrap": path.resolve("node_modules/bootstrap"),
-        },
+            '@': '/themes/default/js',
+            '~bootstrap': path.resolve('node_modules/bootstrap'),
+        }
     },
+    
 });

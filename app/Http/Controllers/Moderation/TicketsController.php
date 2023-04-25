@@ -10,23 +10,20 @@ use App\Models\TicketCategory;
 use App\Models\TicketComment;
 use App\Models\User;
 use App\Notifications\Ticket\User\ReplyNotification;
-use App\Settings\LocaleSettings;
-use App\Settings\PterodactylSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TicketsController extends Controller
 {
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
-        return view('moderator.ticket.index', [
-            'tickets' => Ticket::orderBy('id', 'desc')->paginate(10),
-            'ticketcategories' => TicketCategory::all(),
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        $tickets = Ticket::orderBy('id', 'desc')->paginate(10);
+        $ticketcategories = TicketCategory::all();
+
+        return view('moderator.ticket.index', compact('tickets', 'ticketcategories'));
     }
 
-    public function show($ticket_id, PterodactylSettings $ptero_settings)
+    public function show($ticket_id)
     {
         try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
@@ -37,9 +34,8 @@ class TicketsController extends Controller
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
-        $pterodactyl_url = $ptero_settings->panel_url;
 
-        return view('moderator.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
+        return view('moderator.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server'));
     }
 
     public function changeStatus($ticket_id)
@@ -168,11 +164,9 @@ class TicketsController extends Controller
             ->make(true);
     }
 
-    public function blacklist(LocaleSettings $locale_settings)
+    public function blacklist()
     {
-        return view('moderator.ticket.blacklist', [
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        return view('moderator.ticket.blacklist');
     }
 
     public function blacklistAdd(Request $request)

@@ -85,7 +85,7 @@
                                 class="fas fa-coins text-white"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{__('Total')}} {{ $credits_display_name }}</span>
+                            <span class="info-box-text">{{__('Total')}} {{CREDITS_DISPLAY_NAME}}</span>
                             <span class="info-box-number">{{$counters['credits']}}</span>
                         </div>
                         <!-- /.info-box-content -->
@@ -240,7 +240,7 @@
                                     <th>{{__('Node')}}</th>
                                     <th>{{__('Server count')}}</th>
                                     <th>{{__('Resource usage')}}</th>
-                                    <th>{{ $credits_display_name . ' ' . __('Usage')}}</th>
+                                    <th>{{CREDITS_DISPLAY_NAME . ' ' . __('Usage')}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>

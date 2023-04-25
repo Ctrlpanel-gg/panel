@@ -5,34 +5,32 @@ namespace App\Traits;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
-use App\Models\Invoice;
 use App\Notifications\InvoiceNotification;
-use App\Settings\InvoiceSettings;
 use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Buyer;
 use LaravelDaily\Invoices\Classes\InvoiceItem;
 use LaravelDaily\Invoices\Classes\Party;
-use LaravelDaily\Invoices\Invoice as DailyInvoice;
+use LaravelDaily\Invoices\Invoice;
 use Symfony\Component\Intl\Currencies;
 
 trait Invoiceable
 {
-    public function createInvoice(Payment $payment, ShopProduct $shopProduct, InvoiceSettings $invoice_settings)
+    public function createInvoice(Payment $payment, ShopProduct $shopProduct)
     {
         $user = $payment->user;
         //create invoice
-        $lastInvoiceID = Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
+        $lastInvoiceID = \App\Models\Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
         $newInvoiceID = $lastInvoiceID + 1;
         $logoPath = storage_path('app/public/logo.png');
 
         $seller = new Party([
-            'name' => $invoice_settings->company_name,
-            'phone' => $invoice_settings->company_phone,
-            'address' => $invoice_settings->company_address,
-            'vat' => $invoice_settings->company_vat,
+            'name' => config("SETTINGS::INVOICE:COMPANY_NAME"),
+            'phone' => config("SETTINGS::INVOICE:COMPANY_PHONE"),
+            'address' => config("SETTINGS::INVOICE:COMPANY_ADDRESS"),
+            'vat' => config("SETTINGS::INVOICE:COMPANY_VAT"),
             'custom_fields' => [
-                'E-Mail' => $invoice_settings->company_mail,
-                "Web" => $invoice_settings->company_website
+                'E-Mail' => config("SETTINGS::INVOICE:COMPANY_MAIL"),
+                "Web" => config("SETTINGS::INVOICE:COMPANY_WEBSITE")
             ],
         ]);
 
@@ -53,7 +51,7 @@ trait Invoiceable
         $notes = implode("<br>", $notes);
 
 
-        $invoice = DailyInvoice::make()
+        $invoice = Invoice::make()
             ->template('controlpanel')
             ->name(__("Invoice"))
             ->buyer($customer)
@@ -66,7 +64,7 @@ trait Invoiceable
             ->series(now()->format('mY'))
             ->delimiter("-")
             ->sequence($newInvoiceID)
-            ->serialNumberFormat($invoice_settings->prefix . '{DELIMITER}{SERIES}{SEQUENCE}')
+            ->serialNumberFormat(config("SETTINGS::INVOICE:PREFIX") . '{DELIMITER}{SERIES}{SEQUENCE}')
             ->currencyCode(strtoupper($payment->currency_code))
             ->currencySymbol(Currencies::getSymbol(strtoupper($payment->currency_code)))
             ->notes($notes);
@@ -80,7 +78,7 @@ trait Invoiceable
         $invoice->render();
         Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
 
-        Invoice::create([
+        \App\Models\Invoice::create([
             'invoice_user' => $user->id,
             'invoice_name' => $invoice->getSerialNumber(),
             'payment_id' => $payment->payment_id,

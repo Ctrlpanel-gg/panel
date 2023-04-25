@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PartnerDiscount;
 use App\Models\UsefulLink;
-use App\Settings\GeneralSettings;
-use App\Settings\WebsiteSettings;
-use App\Settings\ReferralSettings;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -91,7 +89,7 @@ class HomeController extends Controller
     }
 
     /** Show the application dashboard. */
-    public function index(GeneralSettings $general_settings, WebsiteSettings $website_settings, ReferralSettings $referral_settings)
+    public function index(Request $request)
     {
         $usage = Auth::user()->creditUsage();
         $credits = Auth::user()->Credits();
@@ -122,9 +120,6 @@ class HomeController extends Controller
             'numberOfReferrals' => DB::table('user_referrals')->where('referral_id', '=', Auth::user()->id)->count(),
             'partnerDiscount' => PartnerDiscount::where('user_id', Auth::user()->id)->first(),
             'myDiscount' => PartnerDiscount::getDiscount(),
-            'general_settings' => $general_settings,
-            'website_settings' => $website_settings,
-            'referral_settings' => $referral_settings
         ]);
     }
 }

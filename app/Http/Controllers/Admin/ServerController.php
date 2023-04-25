@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\Pterodactyl;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
-use App\Settings\LocaleSettings;
-use App\Settings\PterodactylSettings;
-use App\Classes\PterodactylClient;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -20,23 +18,14 @@ use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
 {
-    private $pterodactyl;
-
-    public function __construct(PterodactylSettings $ptero_settings)
-    {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
-        return view('admin.servers.index', [
-            'locale_datatables' => $locale_settings->datatables
-        ]);
+        return view('admin.servers.index');
     }
 
     /**
@@ -76,7 +65,7 @@ class ServerController extends Controller
 
             // try to update the owner on pterodactyl
             try {
-                $response = $this->pterodactyl->updateServerOwner($server, $user->pterodactyl_id);
+                $response = Pterodactyl::updateServerOwner($server, $user->pterodactyl_id);
                 if ($response->getStatusCode() != 200) {
                     return redirect()->back()->with('error', 'Failed to update server owner on pterodactyl');
                 }
@@ -129,6 +118,7 @@ class ServerController extends Controller
 
     public function syncServers()
     {
+        $pteroServers = Pterodactyl::getServers();
         $CPServers = Server::get();
 
         $CPIDArray = [];
@@ -139,7 +129,7 @@ class ServerController extends Controller
             }
         }
 
-        foreach ($this->pterodactyl->getServers() as $server) { //go thru all ptero servers, if server exists, change value to true in array.
+        foreach ($pteroServers as $server) { //go thru all ptero servers, if server exists, change value to true in array.
             if (isset($CPIDArray[$server['attributes']['id']])) {
                 $CPIDArray[$server['attributes']['id']] = true;
 
@@ -159,7 +149,7 @@ class ServerController extends Controller
         }, ARRAY_FILTER_USE_BOTH); //Array of servers, that dont exist on ptero (value == false)
         $deleteCount = 0;
         foreach ($filteredArray as $key => $CPID) { //delete servers that dont exist on ptero anymore
-            if (!$this->pterodactyl->getServerAttributes($key, true)) {
+            if (!Pterodactyl::getServerAttributes($key, true)) {
                 $deleteCount++;
             }
         }
@@ -226,8 +216,8 @@ class ServerController extends Controller
             ->editColumn('suspended', function (Server $server) {
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
-            ->editColumn('name', function (Server $server, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
+            ->editColumn('name', function (Server $server) {
+                return '<a class="text-info" target="_blank" href="' . config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();
