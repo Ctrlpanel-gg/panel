@@ -15,12 +15,7 @@ class MollieSettings extends Settings
         return 'mollie';
     }
 
-    public static function encrypted(): array
-    {
-        return [
-            'api_key',
-        ];
-    }
+
 
     public static function getOptionInputData()
     {

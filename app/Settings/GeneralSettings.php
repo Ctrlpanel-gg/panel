@@ -24,13 +24,7 @@ class GeneralSettings extends Settings
         return 'general';
     }
 
-    public static function encrypted(): array
-    {
-        return [
-            'recaptcha_site_key',
-            'recaptcha_secret_key'
-        ];
-    }
+
 
     /**
      * Summary of validations array

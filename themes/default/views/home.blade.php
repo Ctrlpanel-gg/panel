@@ -135,12 +135,12 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            @foreach ($useful_links as $useful_link)
+                            @foreach ($useful_links_dashboard as $useful_link)
                                 <div class="alert alert-dismissible">
                                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                                     <h5>
                                         <a class="alert-link text-decoration-none" target="__blank"
-                                            href="{{ $useful_link->link }}">
+                                           href="{{ $useful_link->link }}">
                                             <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
                                         </a>
                                     </h5>
@@ -150,22 +150,7 @@
                         </div>
                         <!-- /.card-body -->
                     </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        @foreach ($useful_links_dashboard as $useful_link)
-                            <div class="alert alert-dismissible">
-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                <h5>
-                                    <a class="alert-link text-decoration-none" target="__blank"
-                                        href="{{ $useful_link->link }}">
-                                        <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
-                                    </a>
-                                </h5>
-                                {!! $useful_link->description !!}
-                            </div>
-                        @endforeach
-                    </div>
-                    <!-- /.card-body -->
+
             </div>
             @endif
 

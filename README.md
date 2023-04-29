@@ -17,19 +17,19 @@
 -   Theme Support
 -   and so much more!
 
-# ControlPanel-gg
+# CtrlPanel-gg
 
-![controlpanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
+![ctrlpanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
 
 
 ![](https://img.shields.io/endpoint?label=v0.9%20Installations&url=https%3A%2F%2Fmarket.ctrlpanel.gg%2Fcallhome.php%3Fgetinstalls)
 ![](https://img.shields.io/badge/Overall%20Installations-5000%2B-green)
-![](https://img.shields.io/github/stars/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/forks/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/tag/ControlPanel-gg/dashboard) [![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ControlPanel-gg/dashboard) ![](https://img.shields.io/github/license/ControlPanel-gg/dashboard) ![](https://img.shields.io/discord/787829714483019826)
+![](https://img.shields.io/github/stars/ctrlpanel-gg/dashboard) ![](https://img.shields.io/github/forks/ctrlpanel-gg/panel) ![](https://img.shields.io/github/tag/ctrlpanel-gg/panel) [![Crowdin](https://badges.crowdin.com/project/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ctrlpanel-gg/panel) ![](https://img.shields.io/github/license/ctrlpanel-gg/panel) ![](https://img.shields.io/discord/787829714483019826)
 ## About
 
-ControlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that credits users hourly for each server they have and suspends them if they run out of credits.
+CtrlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that credits users hourly for each server they have and suspends them if they run out of credits.
 
-This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customisation options and added discord Oauth verification to offer a solid link between your discord server and your dashboard. You can check our [Demo here](https://demo.controlpanel.gg "Demo").
+This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customisation options and added discord Oauth verification to offer a solid link between your discord server and your dashboard. You can check our [Demo here](https://demo.CtrlPanel.gg "Demo").
 
 ### [Installation](https://ctrlpanel.gg/docs/intro "Installation")
 

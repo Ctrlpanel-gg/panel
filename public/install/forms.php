@@ -1,5 +1,6 @@
 <?php
 
+
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -32,7 +33,7 @@ if (isset($_POST['checkDB'])) {
         header('LOCATION: index.php?step=2&message=' . $e->getMessage());
         exit();
     }
-    
+
 
     foreach ($values as $key => $value) {
         $param = $_POST[$value];
@@ -131,7 +132,7 @@ if (isset($_POST['checkSMTP'])) {
         'mail_host' => $_POST['host'],
         'mail_port' => $_POST['port'],
         'mail_username' => $_POST['user'],
-        'mail_password' => encryptSettingsValue($_POST['pass']),
+        'mail_password' => $_POST['pass'],
         'mail_encryption' => $_POST['encryption'],
         'mail_from_address' => $_POST['user'],
     ];
@@ -196,8 +197,8 @@ if (isset($_POST['checkPtero'])) {
         wh_log('Pterodactyl Settings are correct', 'debug');
         wh_log('Updating Database', 'debug');
 
-        $key = encryptSettingsValue($key);
-        $clientkey = encryptSettingsValue($clientkey);
+        $key = $key;
+        $clientkey = $clientkey;
 
         $query1 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($url) . "' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
         $query2 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($key) . "' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
@@ -234,10 +235,10 @@ if (isset($_POST['createUser'])) {
     $repass = $_POST['repass'];
 
     $key = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
-    $key = encryptSettingsValue($key['value']);
+    $key = removeQuotes($key['payload']);
     $pterobaseurl = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
 
-    $pteroURL = $pterobaseurl['value'] . '/api/application/users/' . $pteroID;
+    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $pteroURL);
@@ -264,7 +265,7 @@ if (isset($_POST['createUser'])) {
     $name = $result['attributes']['username'];
     $pass = password_hash($pass, PASSWORD_DEFAULT);
 
-    $pteroURL = $pterobaseurl['value'] . '/api/application/users/' . $pteroID;
+    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $pteroURL);
@@ -272,7 +273,7 @@ if (isset($_POST['createUser'])) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key['value'],
+        'Authorization: Bearer ' . $key,
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, [
         'email' => $mail,

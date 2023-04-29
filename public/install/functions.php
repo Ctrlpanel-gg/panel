@@ -150,6 +150,10 @@ function checkExtensions(): array
     return $not_ok;
 }
 
+function removeQuotes($string){
+    return str_replace('"', "", $string);
+}
+
 /**
  * Sets the environment variable into the env file
  * @param string $envKey The environment key to set or modify

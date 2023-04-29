@@ -16,13 +16,7 @@ class PterodactylSettings extends Settings
         return 'pterodactyl';
     }
 
-    public static function encrypted(): array
-    {
-        return [
-            'admin_token',
-            'user_token'
-        ];
-    }
+
 
     /**
      * Get url with ensured ending backslash
