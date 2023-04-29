@@ -24,7 +24,7 @@
 
 ![](https://img.shields.io/endpoint?label=v0.9%20Installations&url=https%3A%2F%2Fmarket.ctrlpanel.gg%2Fcallhome.php%3Fgetinstalls)
 ![](https://img.shields.io/badge/Overall%20Installations-5000%2B-green)
-![](https://img.shields.io/github/stars/ctrlpanel-gg/dashboard) ![](https://img.shields.io/github/forks/ctrlpanel-gg/dashboard) ![](https://img.shields.io/github/tag/ctrlpanel-gg/dashboard) [![Crowdin](https://badges.crowdin.net/ctrlpanel/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ctrlpanel-gg/dashboard) ![](https://img.shields.io/github/license/ctrlpanel-gg/panel) ![](https://img.shields.io/discord/787829714483019826)
+![](https://img.shields.io/github/stars/ctrlpanel-gg/dashboard) ![](https://img.shields.io/github/forks/ctrlpanel-gg/panel) ![](https://img.shields.io/github/tag/ctrlpanel-gg/panel) [![Crowdin](https://badges.crowdin.com/project/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ctrlpanel-gg/panel) ![](https://img.shields.io/github/license/ctrlpanel-gg/panel) ![](https://img.shields.io/discord/787829714483019826)
 ## About
 
 CtrlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that credits users hourly for each server they have and suspends them if they run out of credits.
