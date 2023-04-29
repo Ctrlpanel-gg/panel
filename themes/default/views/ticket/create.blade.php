@@ -90,6 +90,17 @@
                                     </span>
                                     @endif
                                 </div>
+                                @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
+                                    <div class="input-group mb-3">
+                                        {!! htmlScriptTagJsApi() !!}
+                                        {!! htmlFormSnippet() !!}
+                                        @error('g-recaptcha-response')
+                                        <span class="text-danger" role="alert">
+                                            <small><strong>{{ $message }}</strong></small>
+                                        </span>
+                                        @enderror
+                                    </div>
+                                @endif
                             </div>
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary ticket-once">
