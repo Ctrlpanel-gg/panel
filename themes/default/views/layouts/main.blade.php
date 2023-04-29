@@ -472,7 +472,7 @@
     <!-- ./wrapper -->
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
+    <script src="{{ asset('plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 
     <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <!-- Summernote -->
