@@ -48,7 +48,7 @@
                 </div>
                 <div class="col-md-3">
                     <a href="https://CtrlPanel.gg/docs/Contributing/donating" class="btn btn-dark btn-block px-3"><i
-                            class="fas fa-money-bill mr-2"></i> {{__('Support ControlPanel')}}</a>
+                            class="fas fa-money-bill mr-2"></i> {{__('Support CtrlPanel')}}</a>
                 </div>
             </div>
 
@@ -227,7 +227,7 @@
                                     <p class="mb-2">
                                         {{ __('You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.') }}<br>
                                         {{ __('You can do that in settings.') }}<br><br>
-                                        {{ __('Note') }}: {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on ControlPanel. Try clicking the button below.') }}
+                                        {{ __('Note') }}: {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on CtrlPanel. Try clicking the button below.') }}
                                     </p>
                                     <a href="{{route('admin.servers.sync')}}" class="btn btn-primary btn-md"><i
                                         class="fas fa-sync mr-2"></i>{{__('Sync servers')}}</a>
