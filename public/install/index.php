@@ -327,7 +327,7 @@ function cardStart($title, $subtitle = null)
                             <div class="flex flex-col mb-3">
 
                                 <label for="url">Pterodactyl URL</label>
-                                <input id="url" name="url" type="text" required value="https://ptero.example.com" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                <input id="url" name="url" type="text" required placeholder="https://ptero.example.com" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             </div>
                         </div>
                         <div class="form-group">

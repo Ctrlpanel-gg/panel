@@ -39,6 +39,7 @@ class TicketsController extends Controller
                 'ticketcategory' => 'required',
                 'priority' => 'required',
                 'message' => 'required',
+                'g-recaptcha-response' => ['required', 'recaptcha'],
             ]
         );
         $ticket = new Ticket(
