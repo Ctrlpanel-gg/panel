@@ -6,7 +6,7 @@ class CreateMollieSettings extends SettingsMigration
 {
     public function up(): void
     {
-        $this->migrator->addEncrypted('mollie.api_key', null);
+        $this->migrator->add('mollie.api_key', null);
         $this->migrator->add('mollie.enabled', false);
     }
 
