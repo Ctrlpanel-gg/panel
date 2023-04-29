@@ -9,7 +9,7 @@ function cardStart($title, $subtitle = null)
 {
     return "
     <div class='flex flex-col gap-4 sm:w-auto w-full sm:min-w-[550px] my-6'>
-        <h1 class='text-center font-bold text-3xl'>ControlPanel.gg Installation</h1>
+        <h1 class='text-center font-bold text-3xl'>CtrlPanel.gg Installation</h1>
         <div class='border-4 border-[#2E373B] bg-[#242A2E] rounded-2xl p-6 pt-3 mx-2'>
             <h2 class='text-xl text-center mb-2'>$title</h2>"
         . (isset($subtitle) ? "<p class='text-neutral-400 mb-1'>$subtitle</p>" : "");
@@ -19,7 +19,7 @@ function cardStart($title, $subtitle = null)
 <html>
 
 <head>
-    <title>Controlpanel.gg installer Script</title>
+    <title>CtrlPanel.gg installer Script</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/install/styles.css" rel="stylesheet">
@@ -68,7 +68,7 @@ function cardStart($title, $subtitle = null)
     // Getting started
     if (!isset($_GET['step']) || $_GET['step'] == 1) {
     ?>
-        <?php echo cardStart($title = "Mandatory Checks before Installation", $subtitle = "This installer will lead you through the most crucial Steps of Controlpanel.gg's setup"); ?>
+        <?php echo cardStart($title = "Mandatory Checks before Installation", $subtitle = "This installer will lead you through the most crucial Steps of CtrlPanel.gg's setup"); ?>
 
         <ul class="list-none mb-2">
 

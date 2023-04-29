@@ -87,7 +87,7 @@ class PayPalExtension extends AbstractExtension
             "application_context" => [
                 "cancel_url" => route('payment.Cancel'),
                 "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id]),
-                'brand_name' =>  config('app.name', 'Controlpanel.GG'),
+                'brand_name' =>  config('app.name', 'CtrlPanel.GG'),
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
 

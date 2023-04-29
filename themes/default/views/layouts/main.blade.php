@@ -204,7 +204,7 @@
                     src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
                     alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">{{ config('app.name', 'Controlpanel.gg') }}</span>
+                <span class="brand-text font-weight-light">{{ config('app.name', 'CtrlPanel.gg') }}</span>
             </a>
 
             <!-- Sidebar -->
@@ -443,7 +443,7 @@
             <strong>Copyright &copy; 2021-{{ date('Y') }} <a
                     href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
             All rights
-            reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>.
+            reserved. Powered by <a href="https://CtrlPanel.gg">ControlPanel</a>.
             @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
                 Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
             @endif

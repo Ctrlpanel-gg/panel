@@ -16,7 +16,7 @@ class CreateMailSettings extends SettingsMigration
         $this->migrator->add('mail.mail_password', $table_exists ? $this->getOldValue('SETTINGS::MAIL:PASSWORD') : env('MAIL_PASSWORD', ''));
         $this->migrator->add('mail.mail_encryption', $table_exists ? $this->getOldValue('SETTINGS::MAIL:ENCRYPTION') : env('MAIL_ENCRYPTION', 'tls'));
         $this->migrator->add('mail.mail_from_address', $table_exists ? $this->getOldValue('SETTINGS::MAIL:FROM_ADDRESS') : env('MAIL_FROM_ADDRESS', 'example@example.com'));
-        $this->migrator->add('mail.mail_from_name', $table_exists ? $this->getOldValue('SETTINGS::MAIL:FROM_NAME') : env('APP_NAME', 'ControlPanel.gg'));
+        $this->migrator->add('mail.mail_from_name', $table_exists ? $this->getOldValue('SETTINGS::MAIL:FROM_NAME') : env('APP_NAME', 'CtrlPanel.gg'));
         $this->migrator->add('mail.mail_mailer', $table_exists ? $this->getOldValue('SETTINGS::MAIL:MAILER') : env('MAIL_MAILER', 'smtp'));
         $this->migrator->add('mail.mail_enabled', true);
     }
