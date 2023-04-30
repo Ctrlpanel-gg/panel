@@ -26,6 +26,7 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -108,9 +109,11 @@ class UserController extends Controller
      */
     public function edit(User $user, GeneralSettings $general_settings)
     {
+        $roles = Role::all();
         return view('admin.users.edit')->with([
             'user' => $user,
-            'credits_display_name' => $general_settings->credits_display_name
+            'credits_display_name' => $general_settings->credits_display_name,
+            'roles' => $roles
         ]);
     }
 
@@ -134,6 +137,11 @@ class UserController extends Controller
             'role' => Rule::in(['admin', 'moderator', 'client', 'member']),
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
+
+        //update roles
+        if ($request->roles) {
+            $user->syncRoles($request->roles);
+        }
 
         if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
@@ -166,7 +174,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->role === 'admin' && User::query()->where('role', 'admin')->count() === 1) {
+        if ($user->hasRole("Admin") && User::query()->where('role', 'admin')->count() === 1) {
             return redirect()->back()->with('error', __('You can not delete the last admin!'));
         }
 
@@ -329,22 +337,13 @@ class UserController extends Controller
                 ';
             })
             ->editColumn('role', function (User $user) {
-                switch ($user->role) {
-                    case 'admin':
-                        $badgeColor = 'badge-danger';
-                        break;
-                    case 'moderator':
-                        $badgeColor = 'badge-info';
-                        break;
-                    case 'client':
-                        $badgeColor = 'badge-success';
-                        break;
-                    default:
-                        $badgeColor = 'badge-secondary';
-                        break;
+                $html = '';
+
+                foreach ($user->roles as $role) {
+                    $html .= "<span style='background-color: $role->color' class='badge'>$role->name</span>";
                 }
 
-                return '<span class="badge ' . $badgeColor . '">' . $user->role . '</span>';
+                return $html;
             })
             ->editColumn('last_seen', function (User $user) {
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');

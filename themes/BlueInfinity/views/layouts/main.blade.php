@@ -253,7 +253,7 @@
                         </li>
                     @endif
 
-                    @if ((Auth::user()->role == 'admin' || Auth::user()->role == 'moderator') && config('SETTINGS::TICKET:ENABLED'))
+                    @if ((Auth::user()->hasRole("Admin") || Auth::user()->role == 'moderator') && config('SETTINGS::TICKET:ENABLED'))
                         <li class="nav-header">{{ __('Moderation') }}</li>
 
                         <li class="nav-item">
@@ -272,7 +272,7 @@
                         </li>
                     @endif
 
-                    @if (Auth::user()->role == 'admin')
+                    @if (Auth::user()->hasRole("Admin"))
                         <li class="nav-header">{{ __('Administration') }}</li>
 
                         <li class="nav-item">

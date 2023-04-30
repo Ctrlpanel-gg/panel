@@ -255,7 +255,7 @@
                             </li>
                         @endif
 
-                        @if ((Auth::user()->role == 'admin' || Auth::user()->role == 'moderator') && $ticket_enabled)
+                        @if ((Auth::user()->hasRole("Admin") || Auth::user()->role == 'moderator') && $ticket_enabled)
                             <li class="nav-header">{{ __('Moderation') }}</li>
 
                             <li class="nav-item">
@@ -274,7 +274,7 @@
                             </li>
                         @endif
 
-                        @if (Auth::user()->role == 'admin')
+                        @if (Auth::user()->hasRole("Admin"))
                             <li class="nav-header">{{ __('Administration') }}</li>
 
                             <li class="nav-item">
@@ -285,6 +285,13 @@
                                 </a>
                             </li>
 
+                            <li class="nav-item">
+                                <a href="{{ route('admin.roles.index') }}"
+                                   class="nav-link @if (Request::routeIs('admin.roles.*')) active @endif">
+                                    <i class="nav-icon fa fa-user-check"></i>
+                                    <p>{{ __('Role Management') }}</p>
+                                </a>
+                            </li>
 
                             <li class="nav-item">
                                 <a href="{{ route('admin.settings.index') }}"

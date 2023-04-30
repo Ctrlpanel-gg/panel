@@ -18,7 +18,7 @@
     </section>
     <!-- END CONTENT HEADER -->
 
-    @if (!file_exists(base_path() . '/install.lock') && Auth::User()->role == 'admin')
+    @if (!file_exists(base_path() . '/install.lock') && Auth::User()->hasRole("Admin"))
         <div class="callout callout-danger">
             <h4>{{ __('The installer is not locked!') }}</h4>
             <p>{{ __('please create a file called "install.lock" in your dashboard Root directory. Otherwise no settings will be loaded!') }}

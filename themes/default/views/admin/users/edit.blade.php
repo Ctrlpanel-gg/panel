@@ -97,25 +97,15 @@
                                 <div class="form-group">
                                     <label for="role">{{__('Role')}}</label>
                                     <div>
-                                        <select id="role" name="role"
+                                        <select id="roles" name="roles"
                                                 class="custom-select @error('role') is-invalid @enderror"
                                                 required="required">
-                                            <option @if($user->role == 'admin') selected @endif class="text-danger"
-                                                    value="admin">
-                                        {{__(' Administrator')}}
-                                     </option>
-                                     <option @if($user->role == 'moderator') selected @endif class="text-info" value="moderator">
-                                        {{__('Moderator')}}
-                                     </option>
-                                     <option @if($user->role == 'client') selected @endif class="text-success"
-                                             value="client">
-                                        {{__('Client')}}
-                                    </option>
-                                    <option @if($user->role == 'member') selected @endif class="text-secondary"
-                                            value="member">
-                                        {{__('Member')}}
-                                    </option>
-                                </select>
+                                            @foreach($roles as $role)
+                                                <option style="color: {{$role->color}}"
+                                                        @if(isset($user) && $user->roles->contains($role)) selected
+                                                        @endif value="{{$role->id}}">{{$role->name}}</option>
+                                            @endforeach
+                                        </select>
                             </div>
                                 </div>
                                     <div class="form-group">
