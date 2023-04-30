@@ -255,7 +255,7 @@
                             </li>
                         @endif
 
-                        @if ((Auth::user()->hasRole("Admin") || Auth::user()->role == 'moderator') && $ticket_enabled)
+                        @if ((Auth::user()->hasRole(1) || Auth::user()->role == 'moderator') && $ticket_enabled)
                             <li class="nav-header">{{ __('Moderation') }}</li>
 
                             <li class="nav-item">
@@ -274,7 +274,7 @@
                             </li>
                         @endif
 
-                        @if (Auth::user()->hasRole("Admin"))
+                        @if (Auth::user()->hasRole(1))
                             <li class="nav-header">{{ __('Administration') }}</li>
 
                             <li class="nav-item">
