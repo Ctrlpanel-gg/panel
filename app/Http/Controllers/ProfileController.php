@@ -26,27 +26,12 @@ class ProfileController extends Controller
     /** Display a listing of the resource. */
     public function index(UserSettings $user_settings, DiscordSettings $discord_settings, ReferralSettings $referral_settings)
     {
-        switch (Auth::user()->role) {
-            case 'admin':
-                $badgeColor = 'badge-danger';
-                break;
-            case 'mod':
-                $badgeColor = 'badge-info';
-                break;
-            case 'client':
-                $badgeColor = 'badge-success';
-                break;
-            default:
-                $badgeColor = 'badge-secondary';
-                break;
-        }
 
         return view('profile.index')->with([
             'user' => Auth::user(),
             'credits_reward_after_verify_discord' => $user_settings->credits_reward_after_verify_discord,
             'force_email_verification' => $user_settings->force_email_verification,
             'force_discord_verification' => $user_settings->force_discord_verification,
-            'badgeColor' => $badgeColor,
             'discord_client_id' => $discord_settings->client_id,
             'discord_client_secret' => $discord_settings->client_secret,
             'referral_enabled' => $referral_settings->enabled,

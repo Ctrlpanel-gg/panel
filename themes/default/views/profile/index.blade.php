@@ -118,8 +118,10 @@
                                         @endif
                                         </div>
 
-                                        <div class="text-center text-sm-right"><span
-                                                class="badge {{$badgeColor}}">{{ $user->role }}</span>
+                                        <div class="text-center text-sm-right">
+                                            @foreach ($user->roles as $role)
+                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                            @endforeach
                                             <div class="text-muted">
                                                 <small>{{ $user->created_at->isoFormat('LL') }}</small>
                                             </div>

@@ -105,7 +105,7 @@
                                                         @if(isset($user) && $user->roles->contains($role)) selected
                                                         @endif value="{{$role->id}}">{{$role->name}}</option>
                                             @endforeach
-                                </select>
+                                        </select>
                             </div>
                                 </div>
                                     <div class="form-group">
