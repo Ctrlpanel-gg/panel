@@ -106,26 +106,26 @@ class RoleController extends Controller
             }
         }
 
-        if($role->id == 1 || $role->id == 3 || $role->id == 4){ //dont let the user change the names of these roles
-            $role->update([
-                'color' => $request->color
-            ]);
-        }else{
+        //if($role->id == 1 || $role->id == 3 || $role->id == 4){ //dont let the user change the names of these roles
+        //    $role->update([
+        //        'color' => $request->color
+        //    ]);
+        //}else{
             $role->update([
                 'name' => $request->name,
                 'color' => $request->color
             ]);
-        }
+        //}
 
-        if($role->id == 1){
-            return redirect()->route('admin.roles.index')->with('success', __('Role updated. Name and Permissions of this Role cannot be changed'));
-        }elseif($role->id == 4 || $role->id == 3){
-            return redirect()->route('admin.roles.index')->with('success', __('Role updated. Name of this Role cannot be changed'));
-        }else{
+        //if($role->id == 1){
+        //    return redirect()->route('admin.roles.index')->with('success', __('Role updated. Name and Permissions of this Role cannot be changed'));
+        //}elseif($role->id == 4 || $role->id == 3){
+        //    return redirect()->route('admin.roles.index')->with('success', __('Role updated. Name of this Role cannot be changed'));
+       // }else{
             return redirect()
                 ->route('admin.roles.index')
                 ->with('success', __('Role saved'));
-        }
+        //}
     }
 
     /**
