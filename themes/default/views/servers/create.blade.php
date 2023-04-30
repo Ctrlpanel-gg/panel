@@ -45,7 +45,7 @@
                             <div class="alert alert-danger p-2 m-2">
                                 <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Error!') }}</h5>
                                 <p class="pl-4">
-                                    @if (Auth::user()->role == 'admin')
+                                    @if (Auth::user()->hasRole("Admin"))
                                         {{ __('Make sure to link your products to nodes and eggs.') }} <br>
                                         {{ __('There has to be at least 1 valid product for server creation') }}
                                         <a href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>

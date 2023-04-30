@@ -76,7 +76,7 @@
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;"
                                         class="d-inline-block text-truncate badge
-                                        @if ($user->role == 'admin') badge-danger
+                                        @if ($user->hasRole("Admin")) badge-danger
                                         @elseif ($user->role == 'moderator')
                                             badge-info
                                         @elseif ($user->role == 'client')

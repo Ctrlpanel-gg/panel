@@ -57,7 +57,7 @@ class ProfileController extends Controller
     public function selfDestroyUser()
     {
         $user = Auth::user();
-        if ($user->role == "admin") return back()->with("error", "You cannot delete yourself as an admin!");
+        if ($user->hasRole("Admin")) return back()->with("error", "You cannot delete yourself as an admin!");
 
         $user->delete();
 

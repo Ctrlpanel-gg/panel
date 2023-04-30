@@ -166,7 +166,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->role === 'admin' && User::query()->where('role', 'admin')->count() === 1) {
+        if ($user->hasRole("Admin") && User::query()->where('role', 'admin')->count() === 1) {
             return redirect()->back()->with('error', __('You can not delete the last admin!'));
         }
 
