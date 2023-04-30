@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -105,7 +106,7 @@ class RoleController extends Controller
             }
         }
 
-        if($role->id == 3 || $role->id == 1 || $role->id == 4){ //dont let the user change the names of these roles
+        if($role->id == 1 || $role->id == 3 || $role->id == 4){ //dont let the user change the names of these roles
             $role->update([
                 'color' => $request->color
             ]);
@@ -135,14 +136,15 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
 
-        if($role->id == 3 || $role->id == 1 || $role->id == 2){ //cannot delete the hard coded roles
+        if($role->id == 1 || $role->id == 3 || $role->id == 4){ //cannot delete the hard coded roles
             return back()->with("error","You cannot delete that role");
         }
 
         $users = User::role($role)->get();
 
         foreach($users as $user){
-            $user->syncRoles(['Member']);
+            //$user->syncRoles(['Member']);
+            $user->syncRoles(4);
         }
 
         $role->delete();
