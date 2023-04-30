@@ -32,9 +32,14 @@ class PermissionsSeeder extends Seeder
             $admin->syncRoles(1);
         }
 
-        $admins = User::where("role","client")->get();
-        foreach($admins as $admin) {
-            $admin->syncRoles(3);
+        $mods = User::where("role","moderator")->get();
+        foreach($mods as $mod) {
+            $mod->syncRoles(2);
+        }
+
+        $clients = User::where("role","client")->get();
+        foreach($clients as $client) {
+            $client->syncRoles(3);
         }
 
 

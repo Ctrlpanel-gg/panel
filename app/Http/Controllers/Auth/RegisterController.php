@@ -139,6 +139,8 @@ class RegisterController extends Controller
 
         ]);
 
+        $user->syncRoles(4);
+
         $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => $user->pterodactyl_id,
             'username' => $user->name,

@@ -1,5 +1,7 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -77,6 +79,7 @@ if (isset($_POST['feedDB'])) {
     $logs .= run_console('php artisan storage:link');
     $logs .= run_console('php artisan migrate --seed --force');
     $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
+    $logs .= run_console('php artisan db:seed --class=PermissionsSeeder --force');
 
     wh_log($logs, 'debug');
 
@@ -292,8 +295,9 @@ if (isset($_POST['createUser'])) {
     }
 
     $random = generateRandomString();
-    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
-    $query2 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\Models\User', '1')";
+
+    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
+    $query2 = "INSERT INTO `" . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\\\Models\\\User', '1')";
     if ($db->query($query1) && $db->query($query2)) {
         wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID, 'info');
         header('LOCATION: index.php?step=7');
