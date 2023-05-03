@@ -61,7 +61,7 @@
                                             {{ $product->display }}
                                         </td>
                                         <td><a href="{{ route('checkout', $product->id) }}"
-                                                class="btn btn-info">{{ __('Purchase') }}</a>
+                                                class="btn btn-info @cannot('user.shop.buy') disabled @endcannot">{{ __('Purchase') }}</a>
                                         </td>
                                     </tr>
                                 @endforeach

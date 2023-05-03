@@ -101,7 +101,7 @@
                                         </div>
 
                                     @if($referral_enabled)
-                                        @if(($referral_allowed === "client" && $user->role != "member") || $referral_allowed === "everyone")
+                                        @can("user.referral")
                                             <div class="mt-1">
                                                     <span class="badge badge-success"><i
                                                             class="fa fa-user-check mr-2"></i>
@@ -112,8 +112,8 @@
                                                 @else
                                                     <span class="badge badge-warning"><i
                                                             class="fa fa-user-check mr-2"></i>
-                                                        {{_("Make a purchase to reveal your referral-URL")}}</span>
-                                        @endif
+                                                        {{_("You can not see your Referral Code")}}</span>
+                                        @endcan
                                             </div>
                                         @endif
                                         </div>

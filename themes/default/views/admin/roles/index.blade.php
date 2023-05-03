@@ -18,6 +18,7 @@
                 <table id="datatable" class="table table-striped">
                     <thead>
                     <tr>
+                        <th>{{__("ID")}}</th>
                         <th>{{__("Name")}}</th>
                         <th>{{__("User count")}}</th>
                         <th>{{__("Permissions count")}}</th>
@@ -40,10 +41,11 @@
                 url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
             },
             processing: true,
-            serverSide: false, //increases loading times too much? change back to "true" if it does
+            serverSide: true, //increases loading times too much? change back to "true" if it does
             stateSave: true,
             ajax: "{{route('admin.roles.datatable')}}",
             columns: [
+                {data: 'id'},
                 {data: 'name'},
                 {data: 'usercount'},
                 {data: 'permissionscount'},

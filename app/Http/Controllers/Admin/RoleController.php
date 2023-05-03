@@ -164,6 +164,9 @@ class RoleController extends Controller
 
 
         return datatables($query)
+            ->editColumn('id', function (Role $role) {
+                return $role->id;
+            })
             ->addColumn('actions', function (Role $role) {
                 return '
                             <a title="Edit" href="'.route("admin.roles.edit", $role).'" class="btn btn-sm btn-info"><i
