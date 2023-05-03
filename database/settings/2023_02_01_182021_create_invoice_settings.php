@@ -16,7 +16,7 @@ class CreateInvoiceSettings extends SettingsMigration
         $this->migrator->add('invoice.company_phone', $table_exists ? $this->getOldValue('SETTINGS::INVOICE:COMPANY_PHONE') : '');
         $this->migrator->add('invoice.company_vat', $table_exists ? $this->getOldValue('SETTINGS::INVOICE:COMPANY_VAT') : '');
         $this->migrator->add('invoice.company_website', $table_exists ? $this->getOldValue('SETTINGS::INVOICE:COMPANY_WEBSITE') : '');
-        $this->migrator->add('invoice.enabled', $table_exists ? $this->getOldValue('SETTINGS::INVOICE:ENABLED') : true);
+        $this->migrator->add('invoice.enabled', $table_exists ? $this->getOldValue('SETTINGS::INVOICE:ENABLED') : false);
         $this->migrator->add('invoice.prefix', $table_exists ? $this->getOldValue('SETTINGS::INVOICE:PREFIX') : 'INV');
     }
 
