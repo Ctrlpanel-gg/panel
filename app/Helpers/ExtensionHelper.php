@@ -18,8 +18,9 @@ class ExtensionHelper
         foreach ($extensionNamespaces as $extensionNamespace) {
             $extensions = array_merge($extensions, glob($extensionNamespace . '/*', GLOB_ONLYDIR));
         }
+
         // remove base path from every extension but keep app/Extensions/...
-        $extensions = array_map(fn ($item) => str_replace('/', '\\', str_replace(app_path() . '/', 'App/', $item)), $extensions);
+        $extensions = array_map(fn ($item) => str_replace(app_path() . '/', 'App/', $item), $extensions);
 
         return $extensions;
     }
@@ -33,7 +34,7 @@ class ExtensionHelper
     {
         $extensions = glob(app_path() . '/Extensions/' . $namespace . '/*', GLOB_ONLYDIR);
         // remove base path from every extension but keep app/Extensions/...
-        $extensions = array_map(fn ($item) => str_replace('/', '\\', str_replace(app_path() . '/', 'App/', $item)), $extensions);
+        $extensions = array_map(fn ($item) => str_replace(app_path() . '/', 'App/', $item), $extensions);
 
         return $extensions;
     }
@@ -60,6 +61,9 @@ class ExtensionHelper
     public static function getAllExtensionClasses()
     {
         $extensions = self::getAllExtensions();
+
+        // replace all slashes with backslashes
+        $extensions = array_map(fn ($item) => str_replace('/', '\\', $item), $extensions);
         // add the ExtensionClass to the end of the namespace 
         $extensions = array_map(fn ($item) => $item . '\\' . basename($item) . 'Extension', $extensions);
         // filter out non existing extension classes
@@ -76,6 +80,9 @@ class ExtensionHelper
     public static function getAllExtensionClassesByNamespace(string $namespace)
     {
         $extensions = self::getAllExtensionsByNamespace($namespace);
+
+        // replace all slashes with backslashes
+        $extensions = array_map(fn ($item) => str_replace('/', '\\', $item), $extensions);
         // add the ExtensionClass to the end of the namespace
         $extensions = array_map(fn ($item) => $item . '\\' . basename($item) . 'Extension', $extensions);
         // filter out non existing extension classes
@@ -177,10 +184,13 @@ class ExtensionHelper
     {
         $extensions = self::getAllExtensions();
 
+
         $settings = [];
         foreach ($extensions as $extension) {
-
             $extensionName = basename($extension);
+
+            // replace all slashes with backslashes
+            $extension = str_replace('/', '\\', $extension);
             $settingsClass = $extension . '\\' . $extensionName . 'Settings';
             if (class_exists($settingsClass)) {
                 $settings[] = $settingsClass;
@@ -193,6 +203,9 @@ class ExtensionHelper
     public static function getExtensionSettings(string $extensionName)
     {
         $extension = self::getExtension($extensionName);
+        // replace all slashes with backslashes
+        $extension = str_replace('/', '\\', $extension);
+
         $settingClass = $extension . '\\' . $extensionName . 'Settings';
 
         if (class_exists($settingClass)) {
@@ -207,6 +220,6 @@ class ExtensionHelper
      */
     private static function extensionNameToPath(string $extensionName)
     {
-        return app_path() . '/' . str_replace('\\', '/', str_replace('App\\', '', $extensionName));
+        return app_path() . '/' .  str_replace('App/', '', $extensionName);
     }
 }
