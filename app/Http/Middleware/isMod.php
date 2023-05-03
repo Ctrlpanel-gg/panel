@@ -18,7 +18,7 @@ class isMod
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user() && Auth::user()->role == 'moderator' || Auth::user() && Auth::user()->hasRole("Admin")) {
+        if (Auth::user() && Auth::user()->role == 'moderator' || Auth::user() && Auth::user()->hasRole(1)) {
             return $next($request);
         }
 
