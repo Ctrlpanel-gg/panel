@@ -75,6 +75,10 @@ class CreateStripeSettings extends SettingsMigration
         // Always get the first value of the key.
         $old_value = DB::table('settings_old')->where('key', '=', $key)->get(['value', 'type'])->first();
 
+        if (is_null($old_value)) {
+            return null;
+        }
+
         // Handle the old values to return without it being a string in all cases.
         if ($old_value->type === "string" || $old_value->type === "text") {
             if (is_null($old_value->value)) {
