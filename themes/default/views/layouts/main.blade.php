@@ -246,6 +246,7 @@
                         @endif
                         @php($ticket_enabled = app(App\Settings\TicketSettings::class)->enabled)
                         @if ($ticket_enabled)
+                            @canany(["user.ticket.read", "user.ticket.write"])
                             <li class="nav-item">
                                 <a href="{{ route('ticket.index') }}"
                                     class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
@@ -253,6 +254,7 @@
                                     <p>{{ __('Support Ticket') }}</p>
                                 </a>
                             </li>
+                                @endcanany
                         @endif
 
                         @if ((Auth::user()->hasRole(1) || Auth::user()->role == 'moderator') && $ticket_enabled)

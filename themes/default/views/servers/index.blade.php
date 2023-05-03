@@ -27,17 +27,17 @@
 
             <!-- CUSTOM CONTENT -->
             <div class="d-flex justify-content-md-start justify-content-center mb-3 ">
-                <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit)
-                    disabled="disabled" title="Server limit reached!"
-                    @endif href="{{ route('servers.create') }}"
-                    class="btn
-                    @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled
-                    @endif btn-primary"><i
-                        class="fa fa-plus mr-2"></i>
+                <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled="disabled" title="Server limit reached!" @endif
+                   @cannot("user.server.create") disabled="disabled" title="No Permission!" @endcannot
+                    href="{{ route('servers.create') }}" class="btn
+                    @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled @endif
+                    @cannot("user.server.create") disabled @endcannot
+                    btn-primary">
+                    <i class="fa fa-plus mr-2"></i>
                     {{ __('Create Server') }}
                 </a>
                 @if (Auth::user()->Servers->count() > 0 && !empty($phpmyadmin_url))
-                    <a 
+                    <a
                         href="{{ $phpmyadmin_url }}" target="_blank"
                         class="btn btn-secondary ml-2"><i title="manage"
                         class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span>

@@ -159,6 +159,9 @@
                                                     </div>
                                                 </div>
                                             @endforeach
+
+                                            <!-- TODO: Display this only on the General tab
+
                                             <div class="row">
                                                 <div class="col-4 d-flex align-items-center">
                                                     <label for="recaptcha_preview">{{__("ReCAPTCHA Preview")}}</label>
@@ -179,6 +182,7 @@
                                                         </div>
                                                 </div>
                                             </div>
+                                               -->
 
 
                                             <div class="row">

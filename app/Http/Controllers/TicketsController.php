@@ -21,6 +21,8 @@ use Illuminate\Support\Str;
 
 class TicketsController extends Controller
 {
+    const READ_PERMISSION = 'user.ticket.read';
+    const WRITE_PERMISSION = 'user.ticket.write';
     public function index(LocaleSettings $locale_settings)
     {
         return view('ticket.index', [
@@ -74,6 +76,7 @@ class TicketsController extends Controller
 
     public function show($ticket_id, PterodactylSettings $ptero_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
         try {
             $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch (Exception $e) {
@@ -118,6 +121,7 @@ class TicketsController extends Controller
 
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         //check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
         if ($check && $check->status == 'True') {
