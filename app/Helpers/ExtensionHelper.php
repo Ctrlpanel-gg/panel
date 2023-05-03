@@ -64,7 +64,7 @@ class ExtensionHelper
 
         // replace all slashes with backslashes
         $extensions = array_map(fn ($item) => str_replace('/', '\\', $item), $extensions);
-        // add the ExtensionClass to the end of the namespace 
+        // add the ExtensionClass to the end of the namespace
         $extensions = array_map(fn ($item) => $item . '\\' . basename($item) . 'Extension', $extensions);
         // filter out non existing extension classes
         $extensions = array_filter($extensions, fn ($item) => class_exists($item));
@@ -104,7 +104,7 @@ class ExtensionHelper
             if (!(basename($extension) ==  $extensionName)) {
                 continue;
             }
-
+            $extension = str_replace('/', '\\', $extension);
             $extensionClass = $extension . '\\' . $extensionName . 'Extension';
             return $extensionClass;
         }

@@ -74,18 +74,9 @@
                                     <label>{{ __('Role') }}</label>
                                 </div>
                                 <div class="col-lg-8">
-                                    <span style="max-width: 250px;"
-                                        class="d-inline-block text-truncate badge
-                                        @if ($user->hasRole("Admin")) badge-danger
-                                        @elseif ($user->role == 'moderator')
-                                            badge-info
-                                        @elseif ($user->role == 'client')
-                                            badge-success
-                                        @else
-                                            badge-secondary @endif
-                                        ">
-                                        {{ $user->role }}
-                                    </span>
+                                    @foreach ($user->roles as $role)
+                                        <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
