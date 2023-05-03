@@ -35,7 +35,7 @@ class UserPayment
         $this->referral_always_give_commission = $referral_settings->always_give_commission;
         $this->credits_display_name = $general_settings->credits_display_name;
     }
-    
+
     /**
      * Handle the event.
      *
@@ -79,8 +79,8 @@ class UserPayment
             }
         }
         //update role give Referral-reward
-        if ($user->role == 'member') {
-            $user->update(['role' => 'client']);
+        if ($user->hasRole(4)) {
+            $user->syncRoles(3);
 
             //give referral commission only on first purchase
             if (($this->referral_mode === "commission" || $this->referral_mode === "both") && $shopProduct->type == "Credits" && !$this->referral_always_give_commission) {
