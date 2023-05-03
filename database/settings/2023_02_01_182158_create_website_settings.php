@@ -14,10 +14,7 @@ class CreateWebsiteSettings extends SettingsMigration
         $this->migrator->add(
             'website.motd_message',
             $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:MOTD_MESSAGE") :
-                '<h1 style="text-align: center;"><img style="display: block; margin-left: auto; margin-right: auto;" src="https://ctrlpanel.gg/img/controlpanel.png" alt="" width="200" height="200"><span style="font-size: 36pt;">Controlpanel.gg</span></h1>
- <p><span style="font-size: 18pt;">Thank you for using our Software</span></p>
- <p><span style="font-size: 18pt;">If you have any questions, make sure to join our <a href="https://discord.com/invite/4Y6HjD2uyU" target="_blank" rel="noopener">Discord</a></span></p>
- <p><span style="font-size: 10pt;">(you can change this message in the <a href="admin/settings#system">Settings</a> )</span></p>'
+                '<h1 style=\"text-align: center;\"><img style=\"display: block; margin-left: auto; margin-right: auto;\" src=\"https:\/\/ctrlpanel.gg\/img\/controlpanel.png\" alt=\"\" width=\"200\" height=\"200\"><span style=\"font-size: 36pt;\">Controlpanel.gg<\/span><\/h1>\r\n<p><span style=\"font-size: 18pt;\">Thank you for using our Software<\/span><\/p>\r\n<p><span style=\"font-size: 18pt;\">If you have any questions, make sure to join our <a href=\"https:\/\/discord.com\/invite\/4Y6HjD2uyU\" target=\"_blank\" rel=\"noopener\">Discord<\/a><\/span><\/p>\r\n<p><span style=\"font-size: 10pt;\">(you can change this message in the <a href=\"admin\/settings#system\">Settings<\/a> )<\/span><\/p>'
         );
         $this->migrator->add('website.show_imprint', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_IMPRINT") : false);
         $this->migrator->add('website.show_privacy', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_PRIVACY") : false);
