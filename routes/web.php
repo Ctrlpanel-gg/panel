@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShopProductController;
@@ -117,7 +118,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     //admin
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
-
+        //Roles
+        Route::get('roles/datatable', [RoleController::class, 'datatable'])->name('roles.datatable');
+        Route::resource('roles', RoleController::class);
         //overview
         Route::get('legal', [OverViewController::class, 'index'])->name('overview.index');
 

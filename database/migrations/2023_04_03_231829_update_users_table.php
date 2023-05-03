@@ -26,7 +26,6 @@ return new class extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            // make the column nullable again
             $table->integer('pterodactyl_id')->nullable()->change();
         });
     }

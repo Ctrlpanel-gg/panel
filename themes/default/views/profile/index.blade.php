@@ -101,7 +101,7 @@
                                         </div>
 
                                     @if($referral_enabled)
-                                        @if(($referral_allowed === "client" && $user->role != "member") || $referral_allowed === "everyone")
+                                        @can("user.referral")
                                             <div class="mt-1">
                                                     <span class="badge badge-success"><i
                                                             class="fa fa-user-check mr-2"></i>
@@ -112,14 +112,16 @@
                                                 @else
                                                     <span class="badge badge-warning"><i
                                                             class="fa fa-user-check mr-2"></i>
-                                                        {{_("Make a purchase to reveal your referral-URL")}}</span>
-                                        @endif
+                                                        {{_("You can not see your Referral Code")}}</span>
+                                        @endcan
                                             </div>
                                         @endif
                                         </div>
 
-                                        <div class="text-center text-sm-right"><span
-                                                class="badge {{$badgeColor}}">{{ $user->role }}</span>
+                                        <div class="text-center text-sm-right">
+                                            @foreach ($user->roles as $role)
+                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                            @endforeach
                                             <div class="text-muted">
                                                 <small>{{ $user->created_at->isoFormat('LL') }}</small>
                                             </div>

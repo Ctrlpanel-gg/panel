@@ -18,15 +18,7 @@ class PayPalSettings extends Settings
     }
 
 
-    public static function encrypted(): array
-    {
-        return [
-            'client_id',
-            'client_secret',
-            'sandbox_client_id',
-            'sandbox_client_secret'
-        ];
-    }
+
 
     /**
      * Summary of optionInputData array

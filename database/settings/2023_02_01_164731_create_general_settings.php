@@ -12,8 +12,8 @@ class CreateGeneralSettings extends SettingsMigration
         // Get the user-set configuration values from the old table.
         $this->migrator->add('general.store_enabled',  true);
         $this->migrator->add('general.credits_display_name', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME') : 'Credits');
-        $this->migrator->addEncrypted('general.recaptcha_site_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SITE_KEY") : env('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'));
-        $this->migrator->addEncrypted('general.recaptcha_secret_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SECRET_KEY") : env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'));
+        $this->migrator->add('general.recaptcha_site_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SITE_KEY") : env('RECAPTCHA_SITE_KEY', '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'));
+        $this->migrator->add('general.recaptcha_secret_key', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:SECRET_KEY") : env('RECAPTCHA_SECRET_KEY', '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'));
         $this->migrator->add('general.recaptcha_enabled', $table_exists ? $this->getOldValue("SETTINGS::RECAPTCHA:ENABLED") : true);
         $this->migrator->add('general.phpmyadmin_url', $table_exists ? $this->getOldValue("SETTINGS::MISC:PHPMYADMIN:URL") : env('PHPMYADMIN_URL', ''));
         $this->migrator->add('general.alert_enabled', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:ALERT_ENABLED") : false);

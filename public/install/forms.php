@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -32,7 +35,7 @@ if (isset($_POST['checkDB'])) {
         header('LOCATION: index.php?step=2&message=' . $e->getMessage());
         exit();
     }
-    
+
 
     foreach ($values as $key => $value) {
         $param = $_POST[$value];
@@ -76,6 +79,7 @@ if (isset($_POST['feedDB'])) {
     $logs .= run_console('php artisan storage:link');
     $logs .= run_console('php artisan migrate --seed --force');
     $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
+    $logs .= run_console('php artisan db:seed --class=PermissionsSeeder --force');
 
     wh_log($logs, 'debug');
 
@@ -131,7 +135,7 @@ if (isset($_POST['checkSMTP'])) {
         'mail_host' => $_POST['host'],
         'mail_port' => $_POST['port'],
         'mail_username' => $_POST['user'],
-        'mail_password' => encryptSettingsValue($_POST['pass']),
+        'mail_password' => $_POST['pass'],
         'mail_encryption' => $_POST['encryption'],
         'mail_from_address' => $_POST['user'],
     ];
@@ -196,8 +200,8 @@ if (isset($_POST['checkPtero'])) {
         wh_log('Pterodactyl Settings are correct', 'debug');
         wh_log('Updating Database', 'debug');
 
-        $key = encryptSettingsValue($key);
-        $clientkey = encryptSettingsValue($clientkey);
+        $key = $key;
+        $clientkey = $clientkey;
 
         $query1 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($url) . "' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
         $query2 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($key) . "' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
@@ -234,10 +238,10 @@ if (isset($_POST['createUser'])) {
     $repass = $_POST['repass'];
 
     $key = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
-    $key = encryptSettingsValue($key['value']);
+    $key = removeQuotes($key['payload']);
     $pterobaseurl = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
 
-    $pteroURL = $pterobaseurl['value'] . '/api/application/users/' . $pteroID;
+    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $pteroURL);
@@ -264,7 +268,7 @@ if (isset($_POST['createUser'])) {
     $name = $result['attributes']['username'];
     $pass = password_hash($pass, PASSWORD_DEFAULT);
 
-    $pteroURL = $pterobaseurl['value'] . '/api/application/users/' . $pteroID;
+    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $pteroURL);
@@ -272,7 +276,7 @@ if (isset($_POST['createUser'])) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key['value'],
+        'Authorization: Bearer ' . $key,
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, [
         'email' => $mail,
@@ -291,9 +295,10 @@ if (isset($_POST['createUser'])) {
     }
 
     $random = generateRandomString();
-    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
 
-    if ($db->query($query1)) {
+    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
+    $query2 = "INSERT INTO `" . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\\\Models\\\User', '1')";
+    if ($db->query($query1) && $db->query($query2)) {
         wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID, 'info');
         header('LOCATION: index.php?step=7');
     } else {

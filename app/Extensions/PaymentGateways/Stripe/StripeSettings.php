@@ -19,15 +19,7 @@ class StripeSettings extends Settings
         return 'stripe';
     }
 
-    public static function encrypted(): array
-    {
-        return [
-            "secret_key",
-            "endpoint_secret",
-            "test_secret_key",
-            "test_endpoint_secret"
-        ];
-    }
+
 
     public static function getOptionInputData()
     {

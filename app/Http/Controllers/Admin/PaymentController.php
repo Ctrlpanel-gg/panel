@@ -23,6 +23,7 @@ use App\Settings\LocaleSettings;
 
 class PaymentController extends Controller
 {
+    const BUY_PERMISSION = 'user.shop.buy';
     /**
      * @return Application|Factory|View
      */
@@ -41,6 +42,8 @@ class PaymentController extends Controller
      */
     public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::BUY_PERMISSION);
+
         $discount = PartnerDiscount::getDiscount();
         $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
 

@@ -34,7 +34,7 @@ class HomeController extends Controller
         if (Storage::exists('callHome')) {
             return;
         }
-        Http::asForm()->post('https://market.controlpanel.gg/callhome.php', [
+        Http::asForm()->post('https://market.CtrlPanel.gg/callhome.php', [
             'id' => Hash::make(URL::current()),
         ]);
         Storage::put('callHome', 'This is only used to count the installations of cpgg.');

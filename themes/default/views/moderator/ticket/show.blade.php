@@ -118,7 +118,7 @@
                                             <span class="badge badge-success"> Client </span>
                                         @elseif ($ticket->user->role === "moderator")
                                             <span class="badge badge-info"> Moderator </span>
-                                        @elseif ($ticket->user->role === "admin")
+                                        @elseif ($ticket->user->hasRole("Admin"))
                                             <span class="badge badge-danger"> Admin </span>
                                         @endif
                                     </h5>
@@ -141,7 +141,7 @@
                                             <span class="badge badge-success"> Client </span>
                                         @elseif ($ticketcomment->user->role === "moderator")
                                             <span class="badge badge-info"> Moderator </span>
-                                        @elseif ($ticketcomment->user->role === "admin")
+                                        @elseif ($ticketcomment->user->hasRole("Admin"))
                                             <span class="badge badge-danger"> Admin </span>
                                         @endif
                                     </h5>

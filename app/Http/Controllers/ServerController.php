@@ -15,6 +15,7 @@ use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
 use App\Settings\GeneralSettings;
 use Exception;
+use GuzzleHttp\Promise\Create;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
@@ -24,6 +25,9 @@ use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ServerController extends Controller
 {
+    const CREATE_PERMISSION = 'user.server.create';
+    const UPGRADE_PERMISSION = 'user.server.upgrade';
+
     private $pterodactyl;
 
     public function __construct(PterodactylSettings $ptero_settings)
@@ -81,6 +85,8 @@ class ServerController extends Controller
     /** Show the form for creating a new resource. */
     public function create(UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::CREATE_PERMISSION);
+
         $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings);
 
         if (!is_null($validate_configuration)) {
@@ -316,6 +322,8 @@ class ServerController extends Controller
 
     public function upgrade(Server $server, Request $request)
     {
+        $this->checkPermission(self::UPGRADE_PERMISSION);
+
         if ($server->user_id != Auth::user()->id) {
             return redirect()->route('servers.index');
         }
