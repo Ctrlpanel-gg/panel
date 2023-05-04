@@ -258,7 +258,7 @@
                         @endif
 
                     <!-- lol how do i make this shorter? -->
-                        @canany(['admin.overview.read','admin.overview.sync','admin.ticket.read','admin.tickets.write','admin.ticket_blacklist.read','admin.ticket_blacklist.write','admin.roles.read','admin.roles.write','admin.api.read','admin.api.write'])
+                        @canany(['admin.settings.read','admin.settings.write','admin.overview.read','admin.overview.sync','admin.ticket.read','admin.tickets.write','admin.ticket_blacklist.read','admin.ticket_blacklist.write','admin.roles.read','admin.roles.write','admin.api.read','admin.api.write'])
                             <li class="nav-header">{{ __('Administration') }}</li>
                         @endcanany
 
@@ -302,6 +302,7 @@
                             </li>
                             @endcanany
 
+                        @canany(['admin.settings.read','admin.settings.write'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.settings.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
@@ -309,6 +310,7 @@
                                     <p>{{ __('Settings') }}</p>
                                 </a>
                             </li>
+                        @endcanany
 
                         @canany(['admin.api.read','admin.api.write'])
                             <li class="nav-item">

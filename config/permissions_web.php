@@ -71,26 +71,8 @@ return [
 
     'admin.logs.read',
 
-    /*
-     * Permissions for settings
-     */
-    'settings.sidebar.read',
-
-    'settings.invoices.read',
-    'settings.invoices.write',
-
-    'settings.language.read',
-    'settings.language.write',
-
-    'settings.misc.read',
-    'settings.misc.write',
-
-    'settings.payment.read',
-    'settings.payment.write',
-
-    'settings.system.read',
-    'settings.system.write',
-
+    'admin.settings.read',
+    'admin.settings.write',
     /*
     * Permissions for users
     */
