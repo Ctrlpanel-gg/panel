@@ -257,9 +257,10 @@
                                 @endcanany
                         @endif
 
-
-
+                    <!-- lol how do i make this shorter? -->
+                        @canany(['admin.overview.read','admin.overview.sync','admin.ticket.read','admin.tickets.write','admin.ticket_blacklist.read','admin.ticket_blacklist.write','admin.roles.read','admin.roles.write','admin.api.read','admin.api.write'])
                             <li class="nav-header">{{ __('Administration') }}</li>
+                        @endcanany
 
                         @canany(['admin.overview.read','admin.overview.sync'])
                             <li class="nav-item">
@@ -318,7 +319,29 @@
                                 </a>
                             </li>
                         @endcanany
+
+                        <!-- good fuck do i shorten this lol -->
+                        @canany(['admin.users.read',
+                                'admin.users.write',
+                                'admin.users.suspend',
+                                'admin.users.write.credits',
+                                'admin.users.write.username',
+                                'admin.users.write.password',
+                                'admin.users.write.role',
+                                'admin.users.write.referal',
+                                'admin.users.write.pterodactyl','admin.servers.read',
+                                'admin.servers.write',
+                                'admin.servers.suspend',
+                                'admin.servers.write.owner',
+                                'admin.servers.write.identifier',
+                                'admin.servers.delete','admin.products.read',
+                                'admin.products.create',
+                                'admin.products.edit',
+                                'admin.products.delete',])
                             <li class="nav-header">{{ __('Management') }}</li>
+                        @endcanany
+
+
 
                         @canany(['admin.users.read',
                                 'admin.users.write',
@@ -354,7 +377,7 @@
                         @canany(['admin.products.read',
                                 'admin.products.create',
                                 'admin.products.edit',
-                                'admin.products.delete',])
+                                'admin.products.delete'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.products.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.products.*')) active @endif">
