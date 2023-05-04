@@ -183,7 +183,7 @@
 
                                         @foreach($tickets as $ticket_id => $ticket)
                                             <tr>
-                                                <td><a class="text-info"  href="{{route('moderator.ticket.show', ['ticket_id' => $ticket_id])}}">#{{$ticket_id}} - {{$ticket->title}}</td>
+                                                <td><a class="text-info"  href="{{route('admin.ticket.show', ['ticket_id' => $ticket_id])}}">#{{$ticket_id}} - {{$ticket->title}}</td>
                                                 <td><a href="{{route('admin.users.show', $ticket->user_id)}}">{{$ticket->user}}</a></td>
                                                 <td><span class="badge {{$ticket->statusBadgeColor}}">{{$ticket->status}}</span></td>
                                                 <td>{{$ticket->last_updated}}</td>

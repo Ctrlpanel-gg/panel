@@ -16,6 +16,10 @@ use Spatie\Permission\Models\Role;
 class RoleController extends Controller
 {
 
+    const READ_PERMISSION = "admin.roles.read";
+    const CREATE_PERMISSION = "admin.roles.create";
+    const EDIT_PERMISSION = "admin.roles.edit";
+    const DELETE_PERMISSION = "admin.roles.delete";
     /**
      * Display a listing of the resource.
      *
@@ -26,6 +30,7 @@ class RoleController extends Controller
     public function index(Request $request)
     {
 
+        $this->checkPermission(self::READ_PERMISSION);
 
         //datatables
         if ($request->ajax()) {
@@ -43,6 +48,7 @@ class RoleController extends Controller
      */
     public function create()
     {
+        $this->checkPermission(self::CREATE_PERMISSION);
 
         $permissions = Permission::all();
 
@@ -56,6 +62,8 @@ class RoleController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->checkPermission(self::CREATE_PERMISSION);
+
         $role = Role::create([
             'name' => $request->name,
             'color' => $request->color
@@ -86,6 +94,7 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
+        $this->checkPermission(self::EDIT_PERMISSION);
 
         $permissions = Permission::all();
 
@@ -100,6 +109,8 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+        $this->checkPermission(self::EDIT_PERMISSION);
+
         if ($request->permissions) {
             if($role->id != 1){ //disable admin permissions change
                 $role->syncPermissions($request->permissions);
@@ -135,6 +146,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
+        $this->checkPermission(self::DELETE_PERMISSION);
 
         if($role->id == 1 || $role->id == 3 || $role->id == 4){ //cannot delete the hard coded roles
             return back()->with("error","You cannot delete that role");

@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route("moderator.ticket.category.index") }}">{{ __('Ticket Categories') }}</a>
+                                                       href="{{ route("admin.ticket.category.index") }}">{{ __('Ticket Categories') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -56,7 +56,7 @@
                             <h5 class="card-title">{{__('Add Category')}}
                         </div>
                         <div class="card-body">
-                            <form action="{{route("moderator.ticket.category.store")}}" method="POST" class="ticket-form">
+                            <form action="{{route("admin.ticket.category.store")}}" method="POST" class="ticket-form">
                             @csrf
                                 <div class="form-group ">
                                     <label for="name" class="control-label">{{__("Name")}}</label>
@@ -73,7 +73,7 @@
                             <h5 class="card-title">{{__('Edit Category')}}
                         </div>
                         <div class="card-body">
-                            <form action="{{route("moderator.ticket.category.update","1")}}" method="POST" class="ticket-form">
+                            <form action="{{route("admin.ticket.category.update","1")}}" method="POST" class="ticket-form">
                                 @csrf
                                 @method('PATCH')
                                 <select id="category" style="width:100%" class="custom-select" name="category"
@@ -109,7 +109,7 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                ajax: "{{route('moderator.ticket.category.datatable')}}",
+                ajax: "{{route('admin.ticket.category.datatable')}}",
                 columns: [
                     {data: 'id'},
                     {data: 'name'},

@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('moderator.ticket.index') }}">{{ __('Ticket') }}</a>
+                                                       href="{{ route('admin.ticket.index') }}">{{ __('Ticket') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -74,7 +74,7 @@
                                     <p><b>{{__("Created on")}}:</b> {{ $ticket->created_at->diffForHumans() }}</p>
                                     @if($ticket->status=='Closed')
                                         <form class="d-inline" method="post"
-                                              action="{{route('moderator.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
+                                              action="{{route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
                                             {{csrf_field()}}
                                             {{method_field("POST") }}
                                             <button data-content="{{__("Reopen")}}" data-toggle="popover"
@@ -84,7 +84,7 @@
                                         </form>
                                     @else
                                         <form class="d-inline" method="post"
-                                              action="{{route('moderator.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
+                                              action="{{route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
                                             {{csrf_field()}}
                                             {{method_field("POST") }}
                                             <button data-content="{{__("Close")}}" data-toggle="popover"
@@ -140,7 +140,7 @@
                             </div>
                             @endforeach
                             <div class="comment-form">
-                                <form action="{{ route('moderator.ticket.reply')}}" method="POST" class="form">
+                                <form action="{{ route('admin.ticket.reply')}}" method="POST" class="form">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
                                     <div class="form-group{{ $errors->has('ticketcomment') ? ' has-error' : '' }}">

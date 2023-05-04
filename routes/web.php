@@ -17,13 +17,13 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\ServerController as AdminServerController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShopProductController;
+use App\Http\Controllers\Admin\TicketCategoryController;
+use App\Http\Controllers\Admin\TicketsController as AdminTicketsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Moderation\TicketCategoryController;
-use App\Http\Controllers\Moderation\TicketsController as ModTicketsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
@@ -117,7 +117,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
 
     //admin
-    Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
         //Roles
         Route::get('roles/datatable', [RoleController::class, 'datatable'])->name('roles.datatable');
         Route::resource('roles', RoleController::class);
@@ -199,28 +199,27 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::resource('api', ApplicationApiController::class)->parameters([
             'api' => 'applicationApi',
         ]);
-    });
 
-    //mod
-    Route::prefix('moderator')->name('moderator.')->middleware('moderator')->group(function () {
         //ticket moderation
-        Route::get('ticket', [ModTicketsController::class, 'index'])->name('ticket.index');
-        Route::get('ticket/datatable', [ModTicketsController::class, 'datatable'])->name('ticket.datatable');
-        Route::get('ticket/show/{ticket_id}', [ModTicketsController::class, 'show'])->name('ticket.show');
-        Route::post('ticket/reply', [ModTicketsController::class, 'reply'])->name('ticket.reply');
-        Route::post('ticket/status/{ticket_id}', [ModTicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
-        Route::post('ticket/delete/{ticket_id}', [ModTicketsController::class, 'delete'])->name('ticket.delete');
+        Route::get('ticket', [AdminTicketsController::class, 'index'])->name('ticket.index');
+        Route::get('ticket/datatable', [AdminTicketsController::class, 'datatable'])->name('ticket.datatable');
+        Route::get('ticket/show/{ticket_id}', [AdminTicketsController::class, 'show'])->name('ticket.show');
+        Route::post('ticket/reply', [AdminTicketsController::class, 'reply'])->name('ticket.reply');
+        Route::post('ticket/status/{ticket_id}', [AdminTicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
+        Route::post('ticket/delete/{ticket_id}', [AdminTicketsController::class, 'delete'])->name('ticket.delete');
         //ticket moderation blacklist
-        Route::get('ticket/blacklist', [ModTicketsController::class, 'blacklist'])->name('ticket.blacklist');
-        Route::post('ticket/blacklist', [ModTicketsController::class, 'blacklistAdd'])->name('ticket.blacklist.add');
-        Route::post('ticket/blacklist/delete/{id}', [ModTicketsController::class, 'blacklistDelete'])->name('ticket.blacklist.delete');
-        Route::post('ticket/blacklist/change/{id}', [ModTicketsController::class, 'blacklistChange'])->name('ticket.blacklist.change');
-        Route::get('ticket/blacklist/datatable', [ModTicketsController::class, 'dataTableBlacklist'])->name('ticket.blacklist.datatable');
+        Route::get('ticket/blacklist', [AdminTicketsController::class, 'blacklist'])->name('ticket.blacklist');
+        Route::post('ticket/blacklist', [AdminTicketsController::class, 'blacklistAdd'])->name('ticket.blacklist.add');
+        Route::post('ticket/blacklist/delete/{id}', [AdminTicketsController::class, 'blacklistDelete'])->name('ticket.blacklist.delete');
+        Route::post('ticket/blacklist/change/{id}', [AdminTicketsController::class, 'blacklistChange'])->name('ticket.blacklist.change');
+        Route::get('ticket/blacklist/datatable', [AdminTicketsController::class, 'dataTableBlacklist'])->name('ticket.blacklist.datatable');
 
 
         Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
         Route::resource("ticket/category", TicketCategoryController::class, ['as' => 'ticket']);
     });
+
+
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
