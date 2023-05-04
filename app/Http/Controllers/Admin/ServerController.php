@@ -20,6 +20,13 @@ use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
 {
+
+    const READ_PERMISSION = "admin.servers.read";
+    const WRITE_PERMISSION = "admin.servers.write";
+    const SUSPEND_PERMISSION = "admin.servers.suspend";
+    const CHANGEOWNER_PERMISSION = "admin.servers.write.owner";
+    const CHANGE_IDENTIFIER_PERMISSION ="admin.servers.write.identifier";
+    const DELETE_PERMISSION = "admin.servers.delete";
     private $pterodactyl;
 
     public function __construct(PterodactylSettings $ptero_settings)
@@ -34,6 +41,8 @@ class ServerController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.servers.index', [
             'locale_datatables' => $locale_settings->datatables
         ]);
@@ -47,6 +56,8 @@ class ServerController extends Controller
      */
     public function edit(Server $server)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         // get all users from the database
         $users = User::all();
 
@@ -70,7 +81,7 @@ class ServerController extends Controller
         ]);
 
 
-        if ($request->get('user_id') != $server->user_id) {
+        if ($request->get('user_id') != $server->user_id && $this->can(self::CHANGEOWNER_PERMISSION)) {
             // find the user
             $user = User::findOrFail($request->get('user_id'));
 
@@ -89,7 +100,10 @@ class ServerController extends Controller
         }
 
         // update the identifier
-        $server->identifier = $request->get('identifier');
+        if($this->can(self::CHANGE_IDENTIFIER_PERMISSION)) {
+
+            $server->identifier = $request->get('identifier');
+        }
         $server->save();
 
         return redirect()->route('admin.servers.index')->with('success', 'Server updated!');
@@ -103,6 +117,7 @@ class ServerController extends Controller
      */
     public function destroy(Server $server)
     {
+        $this->checkPermission(self::DELETE_PERMISSION);
         try {
             $server->delete();
 
@@ -118,6 +133,8 @@ class ServerController extends Controller
      */
     public function toggleSuspended(Server $server)
     {
+        $this->checkPermission(self::SUSPEND_PERMISSION);
+
         try {
             $server->isSuspended() ? $server->unSuspend() : $server->suspend();
         } catch (Exception $exception) {

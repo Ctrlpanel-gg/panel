@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('moderator.ticket.index')}}">{{__('Ticket List')}}</a></li>
+                                                       href="{{route('admin.ticket.index')}}">{{__('Ticket List')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -30,7 +30,7 @@
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title"><i class="fas fa-ticket-alt mr-2"></i>{{__('Ticket List')}}</h5>
                     </div>
-                    <a href="{{route("moderator.ticket.category.index")}}"><button class="btn btn-primary float-right">+ {{__("Add Category")}}</button></a>
+                    <a href="{{route("admin.ticket.category.index")}}"><button class="btn btn-primary float-right">+ {{__("Add Category")}}</button></a>
                 </div>
 
 
@@ -72,7 +72,7 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                ajax: "{{route('moderator.ticket.datatable')}}",
+                ajax: "{{route('admin.ticket.datatable')}}",
                 order: [[ 4, "desc" ]],
                 columns: [
                     {data: 'category'},

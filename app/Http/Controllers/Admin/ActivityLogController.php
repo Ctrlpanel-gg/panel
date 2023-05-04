@@ -14,6 +14,7 @@ use Spatie\Activitylog\Models\Activity;
 
 class ActivityLogController extends Controller
 {
+    const VIEW_PERMISSION = "admin.logs.read";
     /**
      * Display a listing of the resource.
      *
@@ -21,6 +22,9 @@ class ActivityLogController extends Controller
      */
     public function index(Request $request)
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
+
         $cronLogs = Storage::disk('logs')->exists('cron.log') ? Storage::disk('logs')->get('cron.log') : null;
 
         if ($request->input('search')) {

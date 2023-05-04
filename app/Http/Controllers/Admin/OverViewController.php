@@ -19,6 +19,8 @@ use Carbon\Carbon;
 
 class OverViewController extends Controller
 {
+    const READ_PERMISSION = "admin.overview.read";
+    const SYNC_PERMISSION = "admin.overview.sync";
     public const TTL = 86400;
 
     private $pterodactyl;
@@ -27,9 +29,11 @@ class OverViewController extends Controller
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
-    
+
     public function index(GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         //Get counters
         $counters = collect();
         //Set basic variables in the collection
@@ -225,6 +229,8 @@ class OverViewController extends Controller
      */
     public function syncPterodactyl()
     {
+        $this->checkPermission(self::SYNC_PERMISSION);
+
         Node::syncNodes();
         Egg::syncEggs();
 

@@ -16,6 +16,8 @@ use Illuminate\Http\Response;
 
 class ApplicationApiController extends Controller
 {
+    const READ_PERMISSION = "admin.api.read";
+    const WRITE_PERMISSION = "admin.api.write";
     /**
      * Display a listing of the resource.
      *
@@ -23,6 +25,8 @@ class ApplicationApiController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.api.index', [
             'locale_datatables' => $locale_settings->datatables
         ]);
@@ -35,6 +39,8 @@ class ApplicationApiController extends Controller
      */
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.api.create');
     }
 
@@ -76,6 +82,7 @@ class ApplicationApiController extends Controller
      */
     public function edit(ApplicationApi $applicationApi)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         return view('admin.api.edit', [
             'applicationApi' => $applicationApi,
         ]);
@@ -107,6 +114,8 @@ class ApplicationApiController extends Controller
      */
     public function destroy(ApplicationApi $applicationApi)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $applicationApi->delete();
 
         return redirect()->back()->with('success', __('api key has been removed!'));

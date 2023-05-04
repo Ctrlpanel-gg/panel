@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Moderation;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Moderation\Exception;
 use App\Models\Server;
 use App\Models\Ticket;
 use App\Models\TicketBlacklist;
@@ -17,9 +18,16 @@ use Illuminate\Support\Facades\Auth;
 
 class TicketsController extends Controller
 {
+    const READ_PERMISSION = "admin.tickets.read";
+    const WRITE_PERMISSION = "admin.tickets.write";
+
+    const BLACKLIST_READ_PERMISSION ='admin.ticket_blacklist.read';
+    const BLACKLIST_WRITE_PERMISSION ='admin.ticket_blacklist.write';
     public function index(LocaleSettings $locale_settings)
     {
-        return view('moderator.ticket.index', [
+        $this->checkPermission(self::READ_PERMISSION);
+
+        return view('admin.ticket.index', [
             'tickets' => Ticket::orderBy('id', 'desc')->paginate(10),
             'ticketcategories' => TicketCategory::all(),
             'locale_datatables' => $locale_settings->datatables
@@ -28,6 +36,7 @@ class TicketsController extends Controller
 
     public function show($ticket_id, PterodactylSettings $ptero_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
         try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch (Exception $e)
@@ -39,11 +48,12 @@ class TicketsController extends Controller
         $server = Server::where('id', $ticket->server)->first();
         $pterodactyl_url = $ptero_settings->panel_url;
 
-        return view('moderator.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
+        return view('admin.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
     }
 
     public function changeStatus($ticket_id)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch(Exception $e)
@@ -65,6 +75,7 @@ class TicketsController extends Controller
 
     public function delete($ticket_id)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch (Exception $e)
@@ -80,6 +91,9 @@ class TicketsController extends Controller
 
     public function reply(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+
         $this->validate($request, ['ticketcomment' => 'required']);
         try {
             $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
@@ -114,7 +128,7 @@ class TicketsController extends Controller
                 return $tickets->ticketcategory->name;
             })
             ->editColumn('title', function (Ticket $tickets) {
-                return '<a class="text-info"  href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'">'.'#'.$tickets->ticket_id.' - '.htmlspecialchars($tickets->title).'</a>';
+                return '<a class="text-info"  href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'">'.'#'.$tickets->ticket_id.' - '.htmlspecialchars($tickets->title).'</a>';
             })
             ->editColumn('user_id', function (Ticket $tickets) {
                 return '<a href="'.route('admin.users.show', $tickets->user->id).'">'.$tickets->user->name.'</a>';
@@ -125,13 +139,13 @@ class TicketsController extends Controller
                 $statusButtonText = ($tickets->status == "Closed") ? __('Reopen') : __('Close');
 
                 return '
-                            <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('moderator.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
-                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]).'">
+                            <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
+                            <form class="d-inline"  method="post" action="'.route('admin.ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
                             </form>
-                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
+                            <form class="d-inline"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-danger mr-1"><i class="fas fa-trash"></i></button>
@@ -170,13 +184,17 @@ class TicketsController extends Controller
 
     public function blacklist(LocaleSettings $locale_settings)
     {
-        return view('moderator.ticket.blacklist', [
+        $this->checkPermission(self::BLACKLIST_READ_PERMISSION);
+
+        return view('admin.ticket.blacklist', [
             'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
     public function blacklistAdd(Request $request)
     {
+        $this->checkPermission(self::BLACKLIST_WRITE_PERMISSION);
+
         try {
         $user = User::where('id', $request->user_id)->firstOrFail();
         $check = TicketBlacklist::where('user_id', $user->id)->first();
@@ -202,6 +220,8 @@ class TicketsController extends Controller
 
     public function blacklistDelete($id)
     {
+        $this->checkPermission(self::BLACKLIST_WRITE_PERMISSION);
+
         $blacklist = TicketBlacklist::where('id', $id)->first();
         $blacklist->delete();
 
@@ -210,6 +230,8 @@ class TicketsController extends Controller
 
     public function blacklistChange($id)
     {
+        $this->checkPermission(self::BLACKLIST_WRITE_PERMISSION);
+
         try {
             $blacklist = TicketBlacklist::where('id', $id)->first();
         }
@@ -254,12 +276,12 @@ class TicketsController extends Controller
             })
             ->addColumn('actions', function (TicketBlacklist $blacklist) {
                 return '
-                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.blacklist.change', ['id' => $blacklist->id]).'">
+                            <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.change', ['id' => $blacklist->id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-sync-alt"></i></button>
                             </form>
-                            <form class="d-inline"  method="post" action="'.route('moderator.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
+                            <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-danger mr-1"><i class="fas fa-trash"></i></button>
