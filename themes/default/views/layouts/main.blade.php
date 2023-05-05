@@ -18,7 +18,7 @@
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
-    <script src="{{ asset('plugins/alpinejs/3.12.0_cdn.min.js') }}"></script>
+    <script src="{{ asset('plugins/alpinejs/3.12.0_cdn.min.js') }}" defer></script>
 
     {{-- <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}"> --}}
     <link rel="stylesheet" href="{{ asset('plugins/datatables/jquery.dataTables.min.css') }}">

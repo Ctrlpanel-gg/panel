@@ -202,6 +202,12 @@
                                                     <span class="d-inline-block" x-text="product.databases"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
+                                                    <span class="d-inline-block"><i class="fas fa-skull-crossbones"></i>
+                                                        {{ __('OOM Killer') }}</span>
+                                                    <span class="d-inline-block"
+                                                          x-text="product.oom_killer == 1 ? 'enabled' : 'disabled'"></span>
+                                                </li>
+                                                <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-network-wired"></i>
                                                         {{ __('Allocations') }}
                                                         ({{ __('ports') }})</span>
