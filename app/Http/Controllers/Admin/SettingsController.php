@@ -16,8 +16,7 @@ use Qirolab\Theme\Theme;
 class SettingsController extends Controller
 {
 
-    const READ_PERMISSIONS = "admin.settings.read";
-    const WRITE_PERMISSIONS = "admin.settings.write";
+
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +25,6 @@ class SettingsController extends Controller
     public function index()
     {
 
-        $this->checkPermission(self::READ_PERMISSIONS);
 
         // get all other settings in app/Settings directory
         // group items by file name like $categories
@@ -96,9 +94,10 @@ class SettingsController extends Controller
      */
     public function update(Request $request)
     {
-        $this->checkPermission(self::WRITE_PERMISSIONS);
-
         $category = request()->get('category');
+
+        $this->checkPermission("settings.".strtolower($category).".write");
+
         $settings_class = request()->get('settings_class');
 
         if (method_exists($settings_class, 'getValidations')) {
