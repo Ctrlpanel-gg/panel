@@ -22,6 +22,7 @@
                         <th>{{__("Name")}}</th>
                         <th>{{__("User count")}}</th>
                         <th>{{__("Permissions count")}}</th>
+                        <th>{{__("Power")}}</th>
                         <th>{{__("Actions")}}</th>
                     </tr>
                     </thead>
@@ -49,6 +50,7 @@
                 {data: 'name'},
                 {data: 'usercount'},
                 {data: 'permissionscount'},
+                {data: 'power'},
                 {data: 'actions' , sortable : false},
             ],
             fnDrawCallback: function( oSettings ) {

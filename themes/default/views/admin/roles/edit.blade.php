@@ -25,6 +25,13 @@
                                       name="color"
                                       value="{{ isset($role) ? $role->color : null}}"/>
 
+                        <x-input.number label="{{(__('Power'))}}"
+                                      name="power"
+                                        min="1"
+                                        max="100"
+                                        step="1"
+                                      value="{{ isset($role) ? $role->power : 10}}"/>
+
                     </div>
 
                     <div class="col-lg-6">

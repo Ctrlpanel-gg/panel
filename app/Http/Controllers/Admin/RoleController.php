@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -66,7 +67,8 @@ class RoleController extends Controller
 
         $role = Role::create([
             'name' => $request->name,
-            'color' => $request->color
+            'color' => $request->color,
+            'power' => $request->power
         ]);
 
         if ($request->permissions) {
@@ -96,6 +98,10 @@ class RoleController extends Controller
     {
         $this->checkPermission(self::EDIT_PERMISSION);
 
+        if(Auth::user()->roles[0]->power < $role->power){
+            return back()->with("error","You dont have enough Power to edit that Role");
+        }
+
         $permissions = Permission::all();
 
         return view('admin.roles.edit', compact('role', 'permissions'));
@@ -110,6 +116,10 @@ class RoleController extends Controller
     public function update(Request $request, Role $role)
     {
         $this->checkPermission(self::EDIT_PERMISSION);
+
+        if(Auth::user()->roles[0]->power < $role->power){
+            return back()->with("error","You dont have enough Power to edit that Role");
+        }
 
         if ($request->permissions) {
             if($role->id != 1){ //disable admin permissions change
@@ -200,6 +210,9 @@ class RoleController extends Controller
             })
             ->editColumn('permissionscount', function ($query){
                 return $query->permissions_count;
+            })
+            ->editColumn('power', function (Role $role){
+                return $role->power;
             })
             ->rawColumns(['actions', 'name'])
             ->make(true);
