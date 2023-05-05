@@ -66,10 +66,10 @@ class PermissionsSeeder extends Seeder
             'user.referral',
         ];
         /** @var Role $adminRole */
-        $adminRole = Role::updateOrCreate(["name"=>"Admin","color"=>"#fa0000"]);
-        $supportRole = Role::updateOrCreate(["name"=>"Support-Team","color"=>"#00b0b3"]);
-        $clientRole = Role::updateOrCreate(["name"=>"Client","color"=>"#008009"]);
-        $userRole =  Role::updateOrCreate(["name"=>"User","color"=>"#0052a3"]);
+        $adminRole = Role::updateOrCreate(["name"=>"Admin","color"=>"#fa0000", "power"=>100]);
+        $supportRole = Role::updateOrCreate(["name"=>"Support-Team","color"=>"#00b0b3","power"=>50]);
+        $clientRole = Role::updateOrCreate(["name"=>"Client","color"=>"#008009","power"=>10]);
+        $userRole =  Role::updateOrCreate(["name"=>"User","color"=>"#0052a3","power"=>10]);
 
         $adminRole->givePermissionTo(Permission::findByName('*'));
 
