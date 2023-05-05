@@ -71,8 +71,52 @@ return [
 
     'admin.logs.read',
 
-    'admin.settings.read',
-    'admin.settings.write',
+    /*
+     * Settings Permissions
+     */
+    'settings.discord.read',
+    'settings.discord.write',
+
+    'settings.general.read',
+    'settings.general.write',
+
+    'settings.invoice.read',
+    'settings.invoice.write',
+
+    'settings.locale.read',
+    'settings.locale.write',
+
+    'settings.mail.read',
+    'settings.mail.write',
+
+    'settings.pterodactyl.read',
+    'settings.pterodactyl.write',
+
+    'settings.referral.read',
+    'settings.referral.write',
+
+    'settings.server.read',
+    'settings.server.write',
+
+    'settings.ticket.read',
+    'settings.ticket.write',
+
+    'settings.user.read',
+    'settings.user.write',
+
+    'settings.website.read',
+    'settings.website.write',
+
+    'settings.paypal.read',
+    'settings.paypal.write',
+
+    'settings.stripe.read',
+    'settings.stripe.write',
+
+    'settings.mollie.read',
+    'settings.mollie.write',
+
+
     /*
     * Permissions for users
     */
