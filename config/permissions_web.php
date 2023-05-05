@@ -15,6 +15,7 @@ return [
 
     'admin.ticket.read',
     'admin.tickets.write',
+    'admin.tickets.get_notification',
 
     'admin.ticket_blacklist.read',
     'admin.ticket_blacklist.write',
