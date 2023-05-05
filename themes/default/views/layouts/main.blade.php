@@ -18,7 +18,7 @@
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
-    <script src="{{ asset('plugins/alpinejs/3.12.0_cdn.min.js') }}"></script>
+    <script src="{{ asset('plugins/alpinejs/3.12.0_cdn.min.js') }}" defer></script>
 
     {{-- <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}"> --}}
     <link rel="stylesheet" href="{{ asset('plugins/datatables/jquery.dataTables.min.css') }}">
@@ -507,6 +507,7 @@
 
         <div class="content-wrapper">
 
+            <!--
             @if (!Auth::user()->hasVerifiedEmail())
                 @if (Auth::user()->created_at->diffInHours(now(), false) > 1)
                     <div class="alert alert-warning p-2 m-2">
@@ -518,6 +519,7 @@
                     </div>
                 @endif
             @endif
+            -->
 
             @yield('content')
 

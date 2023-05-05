@@ -139,6 +139,16 @@
                                             @enderror
                                         </div>
 
+                                        <div class="form-group">
+                                            <input type="checkbox" @if($product->oom_killer) checked @endif value="1"  id="oom" name="oom_killer"
+                                                   class="">
+
+                                            <label for="oom_killer">{{__('OOM Killer')}} <i
+                                                    data-toggle="popover" data-trigger="hover"
+                                                    data-content="{{__('Enable or Disable the OOM Killer for this Product.')}}"
+                                                    class="fas fa-info-circle"></i></label>
+                                        </div>
+
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">

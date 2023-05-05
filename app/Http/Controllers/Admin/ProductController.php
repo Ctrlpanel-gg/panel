@@ -87,6 +87,7 @@ class ProductController extends Controller
             'nodes.*' => 'required|exists:nodes,id',
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
+            'oom_killer' => 'nullable',
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -159,6 +160,7 @@ class ProductController extends Controller
             'nodes.*' => 'required|exists:nodes,id',
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
+            'oom_killer' => 'nullable',
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -255,6 +257,9 @@ class ProductController extends Controller
             })
             ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
                 return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
+            })
+            ->editColumn('oom_killer', function (Product $product, UserSettings $user_settings) {
+                return $product->oom_killer ? __("enabled") : __("disabled");
             })
             ->editColumn('created_at', function (Product $product) {
                 return $product->created_at ? $product->created_at->diffForHumans() : '';

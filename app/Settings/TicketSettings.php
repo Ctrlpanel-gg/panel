@@ -7,7 +7,6 @@ use Spatie\LaravelSettings\Settings;
 class TicketSettings extends Settings
 {
     public bool $enabled;
-    public string $notify;
 
     public static function group(): string
     {
@@ -22,7 +21,6 @@ class TicketSettings extends Settings
     {
         return [
             'enabled' => 'nullable|boolean',
-            'notify' => 'nullable|string',
         ];
     }
 
@@ -39,17 +37,6 @@ class TicketSettings extends Settings
                 'label' => 'Enabled',
                 'type' => 'boolean',
                 'description' => 'Enable or disable the ticket system.',
-            ],
-            'notify' => [
-                'label' => 'Notify',
-                'type' => 'select',
-                'description' => 'Who will receive an E-Mail when a new Ticket is created.',
-                'options' => [
-                    'admin' => 'Admins',
-                    'moderator' => 'Moderators',
-                    'all' => 'Admins and Moderators',
-                    'none' => 'Nobody',
-                ],
             ],
         ];
     }
