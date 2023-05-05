@@ -75,5 +75,19 @@ class AppServiceProvider extends ServiceProvider
 
         $settings = $this->app->make(MailSettings::class);
         $settings->setConfig();
+
+        try {
+            $stringfromfile = file(base_path() . '/.git/HEAD');
+
+            $firstLine = $stringfromfile[0]; //get the string from the array
+
+            $explodedstring = explode('/', $firstLine, 3); //seperate out by the "/" in the string
+
+            $branchname = $explodedstring[2]; //get the one that is always the branch name
+        } catch (Exception $e) {
+            $branchname = 'unknown';
+            Log::notice($e);
+        }
+        config(['BRANCHNAME' => $branchname]);
     }
 }
