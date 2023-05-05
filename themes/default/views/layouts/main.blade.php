@@ -507,6 +507,7 @@
 
         <div class="content-wrapper">
 
+            <!--
             @if (!Auth::user()->hasVerifiedEmail())
                 @if (Auth::user()->created_at->diffInHours(now(), false) > 1)
                     <div class="alert alert-warning p-2 m-2">
@@ -518,6 +519,7 @@
                     </div>
                 @endif
             @endif
+            -->
 
             @yield('content')
 
