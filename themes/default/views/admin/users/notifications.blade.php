@@ -33,13 +33,20 @@
                                 @method('POST')
 
                                 <div class="form-group">
-                                    <label>{{__('Users')}}</label><br>
                                     <input id="all" name="all"
                                            type="checkbox" value="1"
                                            onchange="toggleClass('users-form', 'd-none')">
-                                    <label for="all">{{__('All')}}</label>
+                                    <label for="all">{{__('All')}}</label><br>
                                     <div id="users-form">
+                                        <label>{{__('Users')}}</label><br>
                                         <select id="users" name="users[]" class="form-control" multiple></select>
+
+                                        <label>{{__('Roles')}}</label><br>
+                                        <select id="roles" name="roles[]" onchange="toggleClass('users', 'd-none')" class="form-control" multiple>
+                                            @foreach($roles as $role)
+                                                <option value="{{$role->id}}">{{$role->name}}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                     @error('all')
                                         <div class="invalid-feedback d-block">
@@ -126,6 +133,7 @@
             })
 
             function initUserSelect(data) {
+                $('#roles').select2();
                 $('#users').select2({
                     ajax: {
                         url: '/admin/users.json',

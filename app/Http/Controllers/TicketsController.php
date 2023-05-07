@@ -23,9 +23,10 @@ class TicketsController extends Controller
 {
     const READ_PERMISSION = 'user.ticket.read';
     const WRITE_PERMISSION = 'user.ticket.write';
-    public function index(LocaleSettings $locale_settings)
+    public function index(LocaleSettings $locale_settings, TicketSettings $ticketSettings)
     {
         return view('ticket.index', [
+            'ticketsettings' => $ticketSettings,
             'tickets' => Ticket::where('user_id', Auth::user()->id)->paginate(10),
             'ticketcategories' => TicketCategory::all(),
             'locale_datatables' => $locale_settings->datatables
