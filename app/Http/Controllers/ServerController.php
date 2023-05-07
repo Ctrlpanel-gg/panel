@@ -164,7 +164,7 @@ class ServerController extends Controller
         }
 
         //Required Verification for creating an server
-        if (!$server_settings->creation_enabled && Auth::user()->role != 'admin') {
+        if (!$server_settings->creation_enabled && Auth::user()->cannot("admin.servers.bypass_creation_enabled")) {
             return redirect()->route('servers.index')->with('error', __('The system administrator has blocked the creation of new servers.'));
         }
 

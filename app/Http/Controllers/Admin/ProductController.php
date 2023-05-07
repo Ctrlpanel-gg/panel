@@ -52,12 +52,13 @@ class ProductController extends Controller
         ]);
     }
 
-    public function clone(Product $product)
+    public function clone(Product $product, GeneralSettings $general_settings)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
         return view('admin.products.create', [
             'product' => $product,
+            'credits_display_name' =>  $general_settings->credits_display_name,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
         ]);
@@ -90,8 +91,10 @@ class ProductController extends Controller
             'oom_killer' => 'nullable',
         ]);
 
+
         $disabled = ! is_null($request->input('disabled'));
-        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled]));
+        $oomkiller = ! is_null($request->input('oom_killer'));
+        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
         //link nodes and eggs
         $product->eggs()->attach($request->input('eggs'));
@@ -164,7 +167,8 @@ class ProductController extends Controller
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
-        $product->update(array_merge($request->all(), ['disabled' => $disabled]));
+        $oomkiller = ! is_null($request->input('oom_killer'));
+        $product->update(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
         //link nodes and eggs
         $product->eggs()->detach();

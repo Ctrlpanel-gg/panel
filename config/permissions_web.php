@@ -46,6 +46,7 @@ return [
     'admin.servers.write.owner',
     'admin.servers.write.identifier',
     'admin.servers.delete',
+    'admin.servers.bypass_creation_enabled',
 
     'admin.products.read',
     'admin.products.create',
