@@ -52,12 +52,13 @@ class ProductController extends Controller
         ]);
     }
 
-    public function clone(Product $product)
+    public function clone(Product $product, GeneralSettings $general_settings)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
         return view('admin.products.create', [
             'product' => $product,
+            'credits_display_name' =>  $general_settings->credits_display_name,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
         ]);
