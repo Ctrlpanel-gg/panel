@@ -10,7 +10,6 @@ class CreateReferralSettings extends SettingsMigration
         $table_exists = DB::table('settings_old')->exists();
 
         // Get the user-set configuration values from the old table.
-        $this->migrator->add('referral.allowed', $table_exists ? $this->getOldValue('SETTINGS::REFERRAL::ALLOWED') : 'client');
         $this->migrator->add('referral.always_give_commission', $table_exists ? $this->getOldValue('SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION') : false);
         $this->migrator->add('referral.enabled', $table_exists ? $this->getOldValue('SETTINGS::REFERRAL::ENABLED') : false);
         $this->migrator->add('referral.reward', $table_exists ? $this->getOldValue('SETTINGS::REFERRAL::REWARD') : 100);
