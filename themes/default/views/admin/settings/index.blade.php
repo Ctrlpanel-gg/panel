@@ -132,11 +132,11 @@
 
                                                                     @case($value['type'] == 'multiselect')
                                                                         <select id="{{ $key }}"
-                                                                            class="custom-select w-100" name="{{ $key }}"
+                                                                            class="custom-select w-100" name="{{ $key }}[]"
                                                                             multiple>
                                                                             @foreach ($value['options'] as $option)
                                                                                 <option value="{{ $option }}"
-                                                                                    {{ $value['value'] == $option ? 'selected' : '' }}>
+                                                                                    {{ strpos($value['value'],$option) !== false  ? 'selected' : '' }}>
                                                                                     {{ __($option) }}
                                                                                 </option>
                                                                             @endforeach

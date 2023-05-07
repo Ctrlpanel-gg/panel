@@ -119,8 +119,13 @@ class SettingsController extends Controller
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
 
+
             if ($rpType == 'bool') {
                 $settingsClass->$key = $request->has($key);
+                continue;
+            }
+            if ($rp->name == 'available') {
+                $settingsClass->$key = implode(",",$request->$key);
                 continue;
             }
 
@@ -128,7 +133,6 @@ class SettingsController extends Controller
             if ($nullable) $settingsClass->$key = $request->input($key) ?? null;
             else $settingsClass->$key = $request->input($key);
         }
-
         $settingsClass->save();
 
 
