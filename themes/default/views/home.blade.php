@@ -203,9 +203,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body py-0 pb-2">
-                            @if (
-                                ($referral_settings->allowed == 'client' && Auth::user()->role != 'member') ||
-                                    $referral_settings->allowed == 'everyone')
+                            @if (Auth::user()->can("user.referral"))
                                 <div class="row">
                                     <div class="mt-3 col-md-8">
                                         <span class="badge badge-success" style="font-size: 14px">
@@ -254,15 +252,14 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>{{ __('Reward per registered user') }}</th>
-                                                <th>{{ __('New user payment commision') }}</th>
+                                                @if(in_array($referral_settings->mode, ["Commission","Both"]))<th>{{ __('Reward per registered user') }}</th> @endif
+                                                @if(in_array($referral_settings->mode, ["Sign-Up","Both"]))<th>{{ __('New user payment commision') }}</th> @endif
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{{ $referral_settings->reward }}
-                                                    {{ $general_settings->credits_display_name }}</td>
-                                                <td>{{ $referral_settings->percentage }}%</td>
+                                                @if(in_array($referral_settings->mode, ["Commission","Both"]))<td>{{ $referral_settings->reward }} {{ $general_settings->credits_display_name }}</td> @endif
+                                                @if(in_array($referral_settings->mode, ["Sign-Up","Both"]))<td>{{ $referral_settings->percentage }}%</td> @endif
                                             </tr>
                                         </tbody>
                                     </table>
