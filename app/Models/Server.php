@@ -69,6 +69,8 @@ class Server extends Model
 
     public function __construct()
     {
+        parent::__construct();
+
         $ptero_settings = new PterodactylSettings();
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }

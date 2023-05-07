@@ -93,6 +93,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function __construct()
     {
+        parent::__construct();
+
         $ptero_settings = new PterodactylSettings();
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
