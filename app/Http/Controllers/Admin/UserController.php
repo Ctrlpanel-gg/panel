@@ -272,7 +272,9 @@ class UserController extends Controller
     {
         $this->checkPermission(self::NOTIFY_PERMISSION);
 
-        return view('admin.users.notifications');
+        $roles = Role::all();
+
+        return view('admin.users.notifications')->with(["roles" => $roles]);
     }
 
     /**
@@ -288,12 +290,14 @@ class UserController extends Controller
     {
         $this->checkPermission(self::NOTIFY_PERMISSION);
 
+//TODO: reimplement the required validation on all,users and roles . didnt work -- required_without:users,roles
         $data = $request->validate([
             'via' => 'required|min:1|array',
             'via.*' => 'required|string|in:mail,database',
-            'all' => 'required_without:users|boolean',
-            'users' => 'required_without:all|min:1|array',
-            'users.*' => 'exists:users,id',
+            'all' => 'boolean',
+            'users' => 'min:1|array',
+            'roles' => 'min:1|array',
+            'roles.*' => 'required_without:all,users|exists:roles,id',
             'title' => 'required|string|min:1',
             'content' => 'required|string|min:1',
         ]);
@@ -312,7 +316,13 @@ class UserController extends Controller
                 ->line(new HtmlString($data['content']));
         }
         $all = $data['all'] ?? false;
-        $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
+        if(!$data["roles"]){
+            $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
+        } else{
+            $users = User::role($data["roles"])->get();
+        }
+
+
         try {
             Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
         } catch (Exception $e) {
