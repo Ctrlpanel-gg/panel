@@ -91,8 +91,10 @@ class ProductController extends Controller
             'oom_killer' => 'nullable',
         ]);
 
+
         $disabled = ! is_null($request->input('disabled'));
-        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled]));
+        $oomkiller = ! is_null($request->input('oom_killer'));
+        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
         //link nodes and eggs
         $product->eggs()->attach($request->input('eggs'));
@@ -165,7 +167,8 @@ class ProductController extends Controller
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
-        $product->update(array_merge($request->all(), ['disabled' => $disabled]));
+        $oomkiller = ! is_null($request->input('oom_killer'));
+        $product->update(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
         //link nodes and eggs
         $product->eggs()->detach();

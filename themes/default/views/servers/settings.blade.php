@@ -207,6 +207,18 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
+                                    <label>{{__('OOM Killer')}}</label>
+                                </div>
+                                <div class="col-lg-8">
+                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
+                                        {{ $server->product->oom_killer ? __("enabled") : __("disabled") }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-4">
                                     <label>{{__('MySQL Database')}}</label>
                                 </div>
                                 <div class="col-lg-8">
