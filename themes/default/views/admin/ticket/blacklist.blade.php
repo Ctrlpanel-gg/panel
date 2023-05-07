@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('moderator.ticket.blacklist') }}">{{ __('Ticket Blacklist') }}</a>
+                                                       href="{{ route('admin.ticket.blacklist') }}">{{ __('Ticket Blacklist') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -60,7 +60,7 @@
                                 class="fas fa-info-circle"></i></h5>
                         </div>
                         <div class="card-body">
-                            <form action="{{route('moderator.ticket.blacklist.add')}}" method="POST" class="ticket-form">
+                            <form action="{{route('admin.ticket.blacklist.add')}}" method="POST" class="ticket-form">
                             @csrf
                                 <div class="custom-control mb-3 p-0">
                                     <label for="user_id">{{ __('User') }}:
@@ -95,7 +95,7 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                ajax: "{{route('moderator.ticket.blacklist.datatable')}}",
+                ajax: "{{route('admin.ticket.blacklist.datatable')}}",
                 columns: [
                     {data: 'user' , name : 'user.name'},
                     {data: 'status'},

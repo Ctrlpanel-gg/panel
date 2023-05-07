@@ -19,6 +19,8 @@ use Illuminate\Validation\ValidationException;
 
 class VoucherController extends Controller
 {
+    const READ_PERMISSION = "admin.voucher.read";
+    const WRITE_PERMISSION = "admin.voucher.write";
     /**
      * Display a listing of the resource.
      *
@@ -26,6 +28,8 @@ class VoucherController extends Controller
      */
     public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.vouchers.index', [
             'locale_datatables' => $locale_settings->datatables,
             'credits_display_name' => $general_settings->credits_display_name
@@ -39,6 +43,7 @@ class VoucherController extends Controller
      */
     public function create(GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         return view('admin.vouchers.create', [
             'credits_display_name' => $general_settings->credits_display_name
         ]);
@@ -84,6 +89,7 @@ class VoucherController extends Controller
      */
     public function edit(Voucher $voucher, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         return view('admin.vouchers.edit', [
             'voucher' => $voucher,
             'credits_display_name' => $general_settings->credits_display_name
@@ -120,6 +126,7 @@ class VoucherController extends Controller
      */
     public function destroy(Voucher $voucher)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $voucher->delete();
 
         return redirect()->back()->with('success', __('voucher has been removed!'));
@@ -127,6 +134,8 @@ class VoucherController extends Controller
 
     public function users(Voucher $voucher, LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.vouchers.users', [
             'voucher' => $voucher,
             'locale_datatables' => $locale_settings->datatables,

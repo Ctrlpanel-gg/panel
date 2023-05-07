@@ -45,6 +45,7 @@
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
                                     @foreach ($settings as $category => $options)
+                                        @canany(["settings.".strtolower($category).".read","settings.".strtolower($category).".write"])
                                         <li class="nav-item border-bottom-0">
                                             <a href="#{{ $category }}"
                                                 class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="pill"
@@ -56,6 +57,7 @@
                                                 </p>
                                             </a>
                                         </li>
+                                        @endcanany
                                     @endforeach
                                 </ul>
                             </nav>
@@ -65,6 +67,7 @@
                         <div class="col-10 p-0">
                             <div class="tab-content ml-3" style="width: 100%;">
                                 @foreach ($settings as $category => $options)
+                                    @canany(["settings.".strtolower($category).".read","settings.".strtolower($category).".write"])
                                     <div container class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
                                         id="{{ $category }}" role="tabpanel">
 
@@ -129,11 +132,11 @@
 
                                                                     @case($value['type'] == 'multiselect')
                                                                         <select id="{{ $key }}"
-                                                                            class="custom-select w-100" name="{{ $key }}"
+                                                                            class="custom-select w-100" name="{{ $key }}[]"
                                                                             multiple>
                                                                             @foreach ($value['options'] as $option)
                                                                                 <option value="{{ $option }}"
-                                                                                    {{ $value['value'] == $option ? 'selected' : '' }}>
+                                                                                    {{ strpos($value['value'],$option) !== false  ? 'selected' : '' }}>
                                                                                     {{ __($option) }}
                                                                                 </option>
                                                                             @endforeach
@@ -158,7 +161,34 @@
 
                                                     </div>
                                                 </div>
+
                                             @endforeach
+
+                                            <!-- TODO: Display this only on the General tab
+
+                                            <div class="row">
+                                                <div class="col-4 d-flex align-items-center">
+                                                    <label for="recaptcha_preview">{{__("ReCAPTCHA Preview")}}</label>
+                                                </div>
+
+                                                <div class="col-8">
+
+                                                        <div class="w-100">
+                                                <div class="input-group mb-3">
+                                                    {!! htmlScriptTagJsApi() !!}
+                                                    {!! htmlFormSnippet() !!}
+                                                    @error('g-recaptcha-response')
+                                                    <span class="text-danger" role="alert">
+                                                                                <small><strong>{{ $message }}</strong></small>
+                                                                                </span>
+                                                    @enderror
+                                                </div>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                               -->
+
+
                                             <div class="row">
                                                 <div class="col-12 d-flex align-items-center justify-content-end">
                                                     <button type="submit"
@@ -169,6 +199,7 @@
                                             </div>
                                         </form>
                                     </div>
+                                    @endcanany
                                 @endforeach
 
                             </div>

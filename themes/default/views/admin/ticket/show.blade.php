@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('moderator.ticket.index') }}">{{ __('Ticket') }}</a>
+                                                       href="{{ route('admin.ticket.index') }}">{{ __('Ticket') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -74,7 +74,7 @@
                                     <p><b>{{__("Created on")}}:</b> {{ $ticket->created_at->diffForHumans() }}</p>
                                     @if($ticket->status=='Closed')
                                         <form class="d-inline" method="post"
-                                              action="{{route('moderator.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
+                                              action="{{route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
                                             {{csrf_field()}}
                                             {{method_field("POST") }}
                                             <button data-content="{{__("Reopen")}}" data-toggle="popover"
@@ -84,7 +84,7 @@
                                         </form>
                                     @else
                                         <form class="d-inline" method="post"
-                                              action="{{route('moderator.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
+                                              action="{{route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
                                             {{csrf_field()}}
                                             {{method_field("POST") }}
                                             <button data-content="{{__("Close")}}" data-toggle="popover"
@@ -112,15 +112,9 @@
                                             src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticket->user->email)) }}?s=25"
                                             class="user-image" alt="User Image">
                                         <a href="/admin/users/{{$ticket->user->id}}">{{ $ticket->user->name }}</a>
-                                        @if($ticket->user->role === "member")
-                                            <span class="badge badge-secondary"> Member </span>
-                                        @elseif ($ticket->user->role === "client")
-                                            <span class="badge badge-success"> Client </span>
-                                        @elseif ($ticket->user->role === "moderator")
-                                            <span class="badge badge-info"> Moderator </span>
-                                        @elseif ($ticket->user->role === "admin")
-                                            <span class="badge badge-danger"> Admin </span>
-                                        @endif
+                                            @foreach ($ticket->user->roles as $role)
+                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                            @endforeach
                                     </h5>
                                         <span class="badge badge-primary">{{ $ticket->created_at->diffForHumans() }}</span>
                                     </div>
@@ -135,15 +129,9 @@
                                             src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=25"
                                             class="user-image" alt="User Image">
                                         <a href="/admin/users/{{$ticketcomment->user->id}}">{{ $ticketcomment->user->name }}</a>
-                                        @if($ticketcomment->user->role === "member")
-                                            <span class="badge badge-secondary"> Member </span>
-                                        @elseif ($ticketcomment->user->role === "client")
-                                            <span class="badge badge-success"> Client </span>
-                                        @elseif ($ticketcomment->user->role === "moderator")
-                                            <span class="badge badge-info"> Moderator </span>
-                                        @elseif ($ticketcomment->user->role === "admin")
-                                            <span class="badge badge-danger"> Admin </span>
-                                        @endif
+                                            @foreach ($ticketcomment->user->roles as $role)
+                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                            @endforeach
                                     </h5>
                                         <span class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>
                                     </div>
@@ -152,7 +140,7 @@
                             </div>
                             @endforeach
                             <div class="comment-form">
-                                <form action="{{ route('moderator.ticket.reply')}}" method="POST" class="form">
+                                <form action="{{ route('admin.ticket.reply')}}" method="POST" class="form">
                                     {!! csrf_field() !!}
                                     <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
                                     <div class="form-group{{ $errors->has('ticketcomment') ? ' has-error' : '' }}">

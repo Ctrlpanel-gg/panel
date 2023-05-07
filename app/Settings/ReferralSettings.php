@@ -6,7 +6,6 @@ use Spatie\LaravelSettings\Settings;
 
 class ReferralSettings extends Settings
 {
-    public string $allowed;
     public bool $always_give_commission;
     public bool $enabled;
     public ?float $reward;
@@ -43,19 +42,10 @@ class ReferralSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-user-friends',
-            'allowed' => [
-                'label' => 'Allowed',
-                'type' => 'select',
-                'description' => 'Who is allowed to see their referral-URL',
-                'options' => [
-                    'everyone' => 'Everyone',
-                    'clients' => 'Clients',
-                ],
-            ],
             'always_give_commission' => [
                 'label' => 'Always Give Commission',
                 'type' => 'boolean',
-                'description' => 'Always give commission to the referrer.',
+                'description' => 'Always give commission to the referrer or only on the first Purchase.',
             ],
             'enabled' => [
                 'label' => 'Enabled',

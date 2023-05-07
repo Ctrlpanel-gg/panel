@@ -11,10 +11,10 @@ class CreatePayPalSettings extends SettingsMigration
         $table_exists = DB::table('settings_old')->exists();
 
 
-        $this->migrator->addEncrypted('paypal.client_id', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID') : null);
-        $this->migrator->addEncrypted('paypal.client_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SECRET') : null);
-        $this->migrator->addEncrypted('paypal.sandbox_client_id', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID') : null);
-        $this->migrator->addEncrypted('paypal.sandbox_client_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET') : null);
+        $this->migrator->add('paypal.client_id', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID') : null);
+        $this->migrator->add('paypal.client_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SECRET') : null);
+        $this->migrator->add('paypal.sandbox_client_id', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_CLIENT_ID') : null);
+        $this->migrator->add('paypal.sandbox_client_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET') : null);
         $this->migrator->add('paypal.enabled', false);
     }
 
@@ -76,6 +76,10 @@ class CreatePayPalSettings extends SettingsMigration
     {
         // Always get the first value of the key.
         $old_value = DB::table('settings_old')->where('key', '=', $key)->get(['value', 'type'])->first();
+
+        if (is_null($old_value)) {
+            return null;
+        }
 
         // Handle the old values to return without it being a string in all cases.
         if ($old_value->type === "string" || $old_value->type === "text") {

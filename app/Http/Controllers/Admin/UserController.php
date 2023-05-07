@@ -26,9 +26,24 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    const READ_PERMISSION = "admin.users.read";
+    const WRITE_PERMISSION = "admin.users.write";
+    const SUSPEND_PERMISSION = "admin.users.suspend";
+    const CHANGE_EMAIL_PERMISSION = "admin.users.write.email";
+    const CHANGE_CREDITS_PERMISSION = "admin.users.write.credits";
+    const CHANGE_USERNAME_PERMISSION = "admin.users.write.username";
+    const CHANGE_PASSWORD_PERMISSION = "admin.users.write.password";
+    const CHANGE_ROLE_PERMISSION ="admin.users.write.role";
+    const CHANGE_REFERAL_PERMISSION ="admin.users.write.referal";
+    const CHANGE_PTERO_PERMISSION = "admin.users.write.pterodactyl";
+    const DELETE_PERMISSION = "admin.users.delete";
+    const NOTIFY_PERMISSION = "admin.users.notify";
+    const LOGIN_PERMISSION = "admin.users.login_as";
+
     private $pterodactyl;
 
     public function __construct(PterodactylSettings $ptero_settings)
@@ -44,6 +59,8 @@ class UserController extends Controller
      */
     public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.users.index', [
             'locale_datatables' => $locale_settings->datatables,
             'credits_display_name' => $general_settings->credits_display_name
@@ -58,6 +75,8 @@ class UserController extends Controller
      */
     public function show(User $user, LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         //QUERY ALL REFERRALS A USER HAS
         //i am not proud of this at all.
         $allReferals = [];
@@ -108,9 +127,13 @@ class UserController extends Controller
      */
     public function edit(User $user, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $roles = Role::all();
         return view('admin.users.edit')->with([
             'user' => $user,
-            'credits_display_name' => $general_settings->credits_display_name
+            'credits_display_name' => $general_settings->credits_display_name,
+            'roles' => $roles
         ]);
     }
 
@@ -131,9 +154,13 @@ class UserController extends Controller
             'email' => 'required|string|email',
             'credits' => 'required|numeric|min:0|max:99999999',
             'server_limit' => 'required|numeric|min:0|max:1000000',
-            'role' => Rule::in(['admin', 'moderator', 'client', 'member']),
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
+
+        //update roles
+        if ($request->roles && $this->can(self::CHANGE_ROLE_PERMISSION)) {
+            $user->syncRoles($request->roles);
+        }
 
         if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
@@ -141,7 +168,7 @@ class UserController extends Controller
             ]);
         }
 
-        if (!is_null($request->input('new_password'))) {
+        if (!is_null($request->input('new_password')) && $this->can(self::CHANGE_PASSWORD_PERMISSION)) {
             $request->validate([
                 'new_password' => 'required|string|min:8',
                 'new_password_confirmation' => 'required|same:new_password',
@@ -152,7 +179,24 @@ class UserController extends Controller
             ]);
         }
 
-        $user->update($request->all());
+        if($this->can(self::CHANGE_USERNAME_PERMISSION)){
+           $user->name = $request->name;
+        }
+        if($this->can(self::CHANGE_CREDITS_PERMISSION)){
+            $user->credits = $request->credits;
+        }
+        if($this->can(self::CHANGE_PTERO_PERMISSION)){
+            $user->pterodactyl_id = $request->pterodactyl_id;
+        }
+        if($this->can(self::CHANGE_REFERAL_PERMISSION)){
+            $user->referral_code = $request->referral_code;
+        }
+        if($this->can(self::CHANGE_EMAIL_PERMISSION)){
+            $user->email = $request->email;
+        }
+
+        $user->save();
+
         event(new UserUpdateCreditsEvent($user));
 
         return redirect()->route('admin.users.index')->with('success', 'User updated!');
@@ -166,7 +210,9 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->role === 'admin' && User::query()->where('role', 'admin')->count() === 1) {
+        $this->checkPermission(self::DELETE_PERMISSION);
+
+        if ($user->hasRole(1) && User::role(1)->count() === 1) {
             return redirect()->back()->with('error', __('You can not delete the last admin!'));
         }
 
@@ -195,6 +241,8 @@ class UserController extends Controller
      */
     public function loginAs(Request $request, User $user)
     {
+        $this->checkPermission(self::LOGIN_PERMISSION);
+
         $request->session()->put('previousUser', Auth::user()->id);
         Auth::login($user);
 
@@ -207,6 +255,7 @@ class UserController extends Controller
      */
     public function logBackIn(Request $request)
     {
+
         Auth::loginUsingId($request->session()->get('previousUser'), true);
         $request->session()->remove('previousUser');
 
@@ -221,6 +270,8 @@ class UserController extends Controller
      */
     public function notifications()
     {
+        $this->checkPermission(self::NOTIFY_PERMISSION);
+
         return view('admin.users.notifications');
     }
 
@@ -235,6 +286,8 @@ class UserController extends Controller
      */
     public function notify(Request $request)
     {
+        $this->checkPermission(self::NOTIFY_PERMISSION);
+
         $data = $request->validate([
             'via' => 'required|min:1|array',
             'via.*' => 'required|string|in:mail,database',
@@ -275,6 +328,8 @@ class UserController extends Controller
      */
     public function toggleSuspended(User $user)
     {
+        $this->checkPermission(self::SUSPEND_PERMISSION);
+
         try {
             !$user->isSuspended() ? $user->suspend() : $user->unSuspend();
         } catch (Exception $exception) {
@@ -329,22 +384,13 @@ class UserController extends Controller
                 ';
             })
             ->editColumn('role', function (User $user) {
-                switch ($user->role) {
-                    case 'admin':
-                        $badgeColor = 'badge-danger';
-                        break;
-                    case 'moderator':
-                        $badgeColor = 'badge-info';
-                        break;
-                    case 'client':
-                        $badgeColor = 'badge-success';
-                        break;
-                    default:
-                        $badgeColor = 'badge-secondary';
-                        break;
+                $html = '';
+
+                foreach ($user->roles as $role) {
+                    $html .= "<span style='background-color: $role->color' class='badge'>$role->name</span>";
                 }
 
-                return '<span class="badge ' . $badgeColor . '">' . $user->role . '</span>';
+                return $html;
             })
             ->editColumn('last_seen', function (User $user) {
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');

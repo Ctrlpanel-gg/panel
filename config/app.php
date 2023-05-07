@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
-    'version' => '0.9.4',
+    'version' => '0.10',
 
     /*
     |--------------------------------------------------------------------------
@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Controlpanel.gg'),
+    'name' => env('APP_NAME', 'CtrlPanel.gg'),
 
     /*
     |--------------------------------------------------------------------------

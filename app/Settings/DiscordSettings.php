@@ -18,14 +18,7 @@ class DiscordSettings extends Settings
         return 'discord';
     }
 
-    public static function encrypted(): array
-    {
-        return [
-            'bot_token',
-            'client_id',
-            'client_secret'
-        ];
-    }
+
 
     /**
      * Summary of validations array

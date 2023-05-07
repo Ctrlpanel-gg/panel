@@ -266,6 +266,7 @@ class PterodactylClient
             'docker_image' => $egg->docker_image,
             'startup' => $egg->startup,
             'environment' => $egg->getEnvironmentVariables(),
+            'oom_disabled' => !$server->product->oom_killer,
             'limits' => [
                 'memory' => $server->product->memory,
                 'swap' => $server->product->swap,
@@ -378,6 +379,7 @@ class PterodactylClient
             'io' => $product->io,
             'cpu' => $product->cpu,
             'threads' => null,
+            'oom_disabled' => !$server->product->oom_killer,
             'feature_limits' => [
                 'databases' => $product->databases,
                 'backups' => $product->backups,

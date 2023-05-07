@@ -10,6 +10,8 @@ use Qirolab\Theme\Theme;
 
 class LegalController extends Controller
 {
+    const READ_PERMISSION = "admin.legal.read";
+    const WRITE_PERMISSION = "admin.legal.write";
     /**
      * Display
      *
@@ -17,6 +19,8 @@ class LegalController extends Controller
      */
     public function index()
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $tos = File::get(Theme::path($path = 'views', "default") . '/information/tos-content.blade.php');
         $privacy = File::get(Theme::path($path = 'views', "default") . '/information/privacy-content.blade.php');
         $imprint = File::get(Theme::path($path = 'views', "default") . '/information/imprint-content.blade.php');
@@ -29,6 +33,8 @@ class LegalController extends Controller
     }
 
     public function update(Request $request){
+        $this->checkPermission(self::READ_PERMISSION);
+
         $tos = $request->tos;
         $privacy = $request->privacy;
         $imprint = $request->imprint;

@@ -15,6 +15,8 @@ use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
 {
+
+
     /**
      * Display a listing of the resource.
      *
@@ -22,6 +24,7 @@ class SettingsController extends Controller
      */
     public function index()
     {
+
 
         // get all other settings in app/Settings directory
         // group items by file name like $categories
@@ -92,6 +95,9 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         $category = request()->get('category');
+
+        $this->checkPermission("settings.".strtolower($category).".write");
+
         $settings_class = request()->get('settings_class');
 
         if (method_exists($settings_class, 'getValidations')) {
@@ -113,8 +119,13 @@ class SettingsController extends Controller
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
 
+
             if ($rpType == 'bool') {
                 $settingsClass->$key = $request->has($key);
+                continue;
+            }
+            if ($rp->name == 'available') {
+                $settingsClass->$key = implode(",",$request->$key);
                 continue;
             }
 
@@ -122,7 +133,6 @@ class SettingsController extends Controller
             if ($nullable) $settingsClass->$key = $request->input($key) ?? null;
             else $settingsClass->$key = $request->input($key);
         }
-
         $settingsClass->save();
 
 

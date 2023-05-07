@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\ShopProduct;
 use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
@@ -11,11 +12,14 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
 use Illuminate\Validation\Rule;
 
 class ShopProductController extends Controller
 {
+
+    const READ_PERMISSION = 'admin.store.read';
+    const WRITE_PERMISSION = 'admin.store.write';
+    const DISABLE_PERMISSION = 'admin.store.disable';
 
     /**
      * Display a listing of the resource.
@@ -24,6 +28,8 @@ class ShopProductController extends Controller
      */
     public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $isStoreEnabled = $general_settings->store_enabled;
 
 
@@ -40,6 +46,8 @@ class ShopProductController extends Controller
      */
     public function create(GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.store.create', [
             'currencyCodes' => config('currency_codes'),
             'credits_display_name' => $general_settings->credits_display_name
@@ -78,6 +86,8 @@ class ShopProductController extends Controller
      */
     public function edit(ShopProduct $shopProduct, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.store.edit', [
             'currencyCodes' => config('currency_codes'),
             'shopProduct' => $shopProduct,
@@ -117,6 +127,8 @@ class ShopProductController extends Controller
      */
     public function disable(ShopProduct $shopProduct)
     {
+        $this->checkPermission(self::DISABLE_PERMISSION);
+
         $shopProduct->update(['disabled' => !$shopProduct->disabled]);
 
         return redirect()->route('admin.store.index')->with('success', __('Product has been updated!'));
@@ -130,6 +142,7 @@ class ShopProductController extends Controller
      */
     public function destroy(ShopProduct $shopProduct)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $shopProduct->delete();
 
         return redirect()->back()->with('success', __('Store item has been removed!'));

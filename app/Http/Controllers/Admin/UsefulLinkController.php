@@ -15,6 +15,8 @@ use Illuminate\Http\Response;
 
 class UsefulLinkController extends Controller
 {
+    const READ_PERMISSION = "admin.useful_links.read";
+    const WRITE_PERMISSION = "admin.useful_links.write";
     /**
      * Display a listing of the resource.
      *
@@ -22,6 +24,7 @@ class UsefulLinkController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
         return view('admin.usefullinks.index', [
             'locale_datatables' => $locale_settings->datatables
         ]);
@@ -34,6 +37,7 @@ class UsefulLinkController extends Controller
      */
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $positions = UsefulLinkLocation::cases();
         return view('admin.usefullinks.create')->with('positions', $positions);
     }
@@ -84,6 +88,8 @@ class UsefulLinkController extends Controller
      */
     public function edit(UsefulLink $usefullink)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $positions = UsefulLinkLocation::cases();
         return view('admin.usefullinks.edit', [
             'link' => $usefullink,
@@ -126,6 +132,7 @@ class UsefulLinkController extends Controller
      */
     public function destroy(UsefulLink $usefullink)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $usefullink->delete();
 
         return redirect()->back()->with('success', __('product has been removed!'));

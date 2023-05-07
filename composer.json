@@ -26,6 +26,7 @@
         "qirolab/laravel-themer": "^2.0.2",
         "socialiteproviders/discord": "^4.1.2",
         "spatie/laravel-activitylog": "^4.7.3",
+        "spatie/laravel-permission": "^5.10",
         "spatie/laravel-query-builder": "^5.1.2",
         "spatie/laravel-settings": "^2.7",
         "spatie/laravel-validation-rules": "^3.2.2",

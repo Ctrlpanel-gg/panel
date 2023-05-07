@@ -23,11 +23,16 @@ use App\Settings\LocaleSettings;
 
 class PaymentController extends Controller
 {
+    const BUY_PERMISSION = 'user.shop.buy';
+    const VIEW_PERMISSION = "admin.payments.read";
     /**
      * @return Application|Factory|View
      */
     public function index(LocaleSettings $locale_settings)
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
+
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15),
             'locale_datatables' => $locale_settings->datatables
@@ -41,6 +46,8 @@ class PaymentController extends Controller
      */
     public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::BUY_PERMISSION);
+
         $discount = PartnerDiscount::getDiscount();
         $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
 

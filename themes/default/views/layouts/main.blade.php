@@ -18,10 +18,10 @@
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="{{ asset('plugins/alpinejs/3.12.0_cdn.min.js') }}" defer></script>
 
     {{-- <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}"> --}}
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css" />
+    <link rel="stylesheet" href="{{ asset('plugins/datatables/jquery.dataTables.min.css') }}">
 
     {{-- summernote --}}
     <link rel="stylesheet" href="{{ asset('plugins/summernote/summernote-bs4.min.css') }}">
@@ -204,7 +204,7 @@
                     src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
                     alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">{{ config('app.name', 'Controlpanel.gg') }}</span>
+                <span class="brand-text font-weight-light">{{ config('app.name', 'CtrlPanel.gg') }}</span>
             </a>
 
             <!-- Sidebar -->
@@ -246,6 +246,7 @@
                         @endif
                         @php($ticket_enabled = app(App\Settings\TicketSettings::class)->enabled)
                         @if ($ticket_enabled)
+                            @canany(["user.ticket.read", "user.ticket.write"])
                             <li class="nav-item">
                                 <a href="{{ route('ticket.index') }}"
                                     class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
@@ -253,30 +254,15 @@
                                     <p>{{ __('Support Ticket') }}</p>
                                 </a>
                             </li>
+                                @endcanany
                         @endif
 
-                        @if ((Auth::user()->role == 'admin' || Auth::user()->role == 'moderator') && $ticket_enabled)
-                            <li class="nav-header">{{ __('Moderation') }}</li>
-
-                            <li class="nav-item">
-                                <a href="{{ route('moderator.ticket.index') }}"
-                                    class="nav-link @if (Request::routeIs('moderator.ticket.index')) active @endif">
-                                    <i class="nav-icon fas fa-ticket-alt"></i>
-                                    <p>{{ __('Ticket List') }}</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ route('moderator.ticket.blacklist') }}"
-                                    class="nav-link @if (Request::routeIs('moderator.ticket.blacklist')) active @endif">
-                                    <i class="nav-icon fas fa-user-times"></i>
-                                    <p>{{ __('Ticket Blacklist') }}</p>
-                                </a>
-                            </li>
-                        @endif
-
-                        @if (Auth::user()->role == 'admin')
+                    <!-- lol how do i make this shorter? -->
+                        @canany(['settings.discord.read','settings.discord.write','settings.general.read','settings.general.write','settings.invoice.read','settings.invoice.write','settings.locale.read','settings.locale.write','settings.mail.read','settings.mail.write','settings.pterodactyl.read','settings.pterodactyl.write','settings.referral.read','settings.referral.write','settings.server.read','settings.server.write','settings.ticket.read','settings.ticket.write','settings.user.read','settings.user.write','settings.website.read','settings.website.write','settings.paypal.read','settings.paypal.write','settings.stripe.read','settings.stripe.write','settings.mollie.read','settings.mollie.write','admin.overview.read','admin.overview.sync','admin.ticket.read','admin.tickets.write','admin.ticket_blacklist.read','admin.ticket_blacklist.write','admin.roles.read','admin.roles.write','admin.api.read','admin.api.write'])
                             <li class="nav-header">{{ __('Administration') }}</li>
+                        @endcanany
 
+                        @canany(['admin.overview.read','admin.overview.sync'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.overview.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.overview.*')) active @endif">
@@ -284,8 +270,66 @@
                                     <p>{{ __('Overview') }}</p>
                                 </a>
                             </li>
+                        @endcanany
 
+                        @canany(['admin.ticket.read','admin.tickets.write'])
+                            <li class="nav-item">
+                                <a href="{{ route('admin.ticket.index') }}"
+                                   class="nav-link @if (Request::routeIs('admin.ticket.index')) active @endif">
+                                    <i class="nav-icon fas fa-ticket-alt"></i>
+                                    <p>{{ __('Ticket List') }}</p>
+                                </a>
+                            </li>
+                        @endcanany
 
+                        @canany(['admin.ticket_blacklist.read','admin.ticket_blacklist.write'])
+                            <li class="nav-item">
+                                <a href="{{ route('admin.ticket.blacklist') }}"
+                                   class="nav-link @if (Request::routeIs('admin.ticket.blacklist')) active @endif">
+                                    <i class="nav-icon fas fa-user-times"></i>
+                                    <p>{{ __('Ticket Blacklist') }}</p>
+                                </a>
+                            </li>
+                        @endcanany
+
+                        @canany(['admin.roles.read','admin.roles.write'])
+                            <li class="nav-item">
+                                <a href="{{ route('admin.roles.index') }}"
+                                   class="nav-link @if (Request::routeIs('admin.roles.*')) active @endif">
+                                    <i class="nav-icon fa fa-user-check"></i>
+                                    <p>{{ __('Role Management') }}</p>
+                                </a>
+                            </li>
+                            @endcanany
+
+                        @canany(['settings.discord.read',
+                                'settings.discord.write',
+                                'settings.general.read',
+                                'settings.general.write',
+                                'settings.invoice.read',
+                                'settings.invoice.write',
+                                'settings.locale.read',
+                                'settings.locale.write',
+                                'settings.mail.read',
+                                'settings.mail.write',
+                                'settings.pterodactyl.read',
+                                'settings.pterodactyl.write',
+                                'settings.referral.read',
+                                'settings.referral.write',
+                                'settings.server.read',
+                                'settings.server.write',
+                                'settings.ticket.read',
+                                'settings.ticket.write',
+                                'settings.user.read',
+                                'settings.user.write',
+                                'settings.website.read',
+                                'settings.website.write',
+                                'settings.paypal.read',
+                                'settings.paypal.write',
+                                'settings.stripe.read',
+                                'settings.stripe.write',
+                                'settings.mollie.read',
+                                'settings.mollie.write',])
                             <li class="nav-item">
                                 <a href="{{ route('admin.settings.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
@@ -293,7 +337,9 @@
                                     <p>{{ __('Settings') }}</p>
                                 </a>
                             </li>
+                        @endcanany
 
+                        @canany(['admin.api.read','admin.api.write'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.api.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.api.*')) active @endif">
@@ -301,9 +347,40 @@
                                     <p>{{ __('Application API') }}</p>
                                 </a>
                             </li>
+                        @endcanany
 
+                        <!-- good fuck do i shorten this lol -->
+                        @canany(['admin.users.read',
+                                'admin.users.write',
+                                'admin.users.suspend',
+                                'admin.users.write.credits',
+                                'admin.users.write.username',
+                                'admin.users.write.password',
+                                'admin.users.write.role',
+                                'admin.users.write.referal',
+                                'admin.users.write.pterodactyl','admin.servers.read',
+                                'admin.servers.write',
+                                'admin.servers.suspend',
+                                'admin.servers.write.owner',
+                                'admin.servers.write.identifier',
+                                'admin.servers.delete','admin.products.read',
+                                'admin.products.create',
+                                'admin.products.edit',
+                                'admin.products.delete',])
                             <li class="nav-header">{{ __('Management') }}</li>
+                        @endcanany
 
+
+
+                        @canany(['admin.users.read',
+                                'admin.users.write',
+                                'admin.users.suspend',
+                                'admin.users.write.credits',
+                                'admin.users.write.username',
+                                'admin.users.write.password',
+                                'admin.users.write.role',
+                                'admin.users.write.referal',
+                                'admin.users.write.pterodactyl'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.users.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.users.*')) active @endif">
@@ -311,7 +388,13 @@
                                     <p>{{ __('Users') }}</p>
                                 </a>
                             </li>
-
+                        @endcanany
+                        @canany(['admin.servers.read',
+                                'admin.servers.write',
+                                'admin.servers.suspend',
+                                'admin.servers.write.owner',
+                                'admin.servers.write.identifier',
+                                'admin.servers.delete'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.servers.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.servers.*')) active @endif">
@@ -319,7 +402,11 @@
                                     <p>{{ __('Servers') }}</p>
                                 </a>
                             </li>
-
+                        @endcanany
+                        @canany(['admin.products.read',
+                                'admin.products.create',
+                                'admin.products.edit',
+                                'admin.products.delete'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.products.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.products.*')) active @endif">
@@ -327,7 +414,8 @@
                                     <p>{{ __('Products') }}</p>
                                 </a>
                             </li>
-
+                        @endcanany
+                        @canany(['admin.store.read','admin.store.write','admin.store.disable'])
                             <li class="nav-item">
                                 <a href="{{ route('admin.store.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
@@ -335,7 +423,8 @@
                                     <p>{{ __('Store') }}</p>
                                 </a>
                             </li>
-
+                        @endcanany
+                        @canany(["admin.voucher.read","admin.voucher.read"])
                             <li class="nav-item">
                                 <a href="{{ route('admin.vouchers.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.vouchers.*')) active @endif">
@@ -343,7 +432,8 @@
                                     <p>{{ __('Vouchers') }}</p>
                                 </a>
                             </li>
-
+                        @endcanany
+                        @canany(["admin.partners.read","admin.partners.read"])
                             <li class="nav-item">
                                 <a href="{{ route('admin.partners.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.partners.*')) active @endif">
@@ -351,28 +441,13 @@
                                     <p>{{ __('Partners') }}</p>
                                 </a>
                             </li>
+                        @endcanany
 
-                            {{-- <li class="nav-header">Pterodactyl</li> --}}
+                            @canany(["admin.useful_links.read","admin.legal.read"])
+                                <li class="nav-header">{{ __('Other') }}</li>
+                            @endcanany
 
-                            {{-- <li class="nav-item"> --}}
-                            {{-- <a href="{{route('admin.nodes.index')}}" --}}
-                            {{-- class="nav-link @if (Request::routeIs('admin.nodes.*')) active @endif"> --}}
-                            {{-- <i class="nav-icon fas fa-sitemap"></i> --}}
-                            {{-- <p>Nodes</p> --}}
-                            {{-- </a> --}}
-                            {{-- </li> --}}
-
-                            {{-- <li class="nav-item"> --}}
-                            {{-- <a href="{{route('admin.nests.index')}}" --}}
-                            {{-- class="nav-link @if (Request::routeIs('admin.nests.*')) active @endif"> --}}
-                            {{-- <i class="nav-icon fas fa-th-large"></i> --}}
-                            {{-- <p>Nests</p> --}}
-                            {{-- </a> --}}
-                            {{-- </li> --}}
-
-
-                            <li class="nav-header">{{ __('Other') }}</li>
-
+                        @canany(["admin.useful_links.read","admin.useful_links.write"])
                             <li class="nav-item">
                                 <a href="{{ route('admin.usefullinks.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.usefullinks.*')) active @endif">
@@ -380,7 +455,9 @@
                                     <p>{{ __('Useful Links') }}</p>
                                 </a>
                             </li>
+                            @endcanany
 
+                        @canany(["admin.legal.read","admin.legal.write"])
                             <li class="nav-item">
                                 <a href="{{ route('admin.legal.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.legal.*')) active @endif">
@@ -388,9 +465,14 @@
                                     <p>{{ __('Legal Sites') }}</p>
                                 </a>
                             </li>
+                            @endcanany
 
-                            <li class="nav-header">{{ __('Logs') }}</li>
 
+                            @canany(["admin.payments.read","admin.logs.read"])
+                                <li class="nav-header">{{ __('Logs') }}</li>
+                            @endcanany
+
+                        @can("admin.payments.read")
                             <li class="nav-item">
                                 <a href="{{ route('admin.payments.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.payments.*')) active @endif">
@@ -401,7 +483,9 @@
                                     </p>
                                 </a>
                             </li>
+                        @endcan
 
+                        @can("admin.logs.read")
                             <li class="nav-item">
                                 <a href="{{ route('admin.activitylogs.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.activitylogs.*')) active @endif">
@@ -409,7 +493,8 @@
                                     <p>{{ __('Activity Logs') }}</p>
                                 </a>
                             </li>
-                        @endif
+                        @endcan
+
 
                     </ul>
                 </nav>
@@ -422,6 +507,7 @@
 
         <div class="content-wrapper">
 
+            <!--
             @if (!Auth::user()->hasVerifiedEmail())
                 @if (Auth::user()->created_at->diffInHours(now(), false) > 1)
                     <div class="alert alert-warning p-2 m-2">
@@ -433,6 +519,7 @@
                     </div>
                 @endif
             @endif
+            -->
 
             @yield('content')
 
@@ -443,7 +530,7 @@
             <strong>Copyright &copy; 2021-{{ date('Y') }} <a
                     href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
             All rights
-            reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>.
+            reserved. Powered by <a href="https://CtrlPanel.gg">CtrlPanel</a>.
             @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
                 Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
             @endif
@@ -472,9 +559,9 @@
     <!-- ./wrapper -->
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
+    <script src="{{ asset('plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
+    <script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
     <!-- Summernote -->
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     <!-- select2 -->

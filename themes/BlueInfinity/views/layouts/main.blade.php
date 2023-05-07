@@ -199,7 +199,7 @@
                  src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
                  alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                  style="opacity: .8">
-            <span class="brand-text font-weight-light">{{ config('app.name', 'Controlpanel.gg') }}</span>
+            <span class="brand-text font-weight-light">{{ config('app.name', 'CtrlPanel.gg') }}</span>
         </a>
 
         <!-- Sidebar -->
@@ -253,26 +253,26 @@
                         </li>
                     @endif
 
-                    @if ((Auth::user()->role == 'admin' || Auth::user()->role == 'moderator') && config('SETTINGS::TICKET:ENABLED'))
+                    @if ((Auth::user()->hasRole("Admin") || Auth::user()->role == 'moderator') && config('SETTINGS::TICKET:ENABLED'))
                         <li class="nav-header">{{ __('Moderation') }}</li>
 
                         <li class="nav-item">
-                            <a href="{{ route('moderator.ticket.index') }}"
-                               class="nav-link @if (Request::routeIs('moderator.ticket.index')) active @endif">
+                            <a href="{{ route('admin.ticket.index') }}"
+                               class="nav-link @if (Request::routeIs('admin.ticket.index')) active @endif">
                                 <i class="nav-icon fas fa-ticket-alt"></i>
                                 <p>{{ __('Ticket List') }}</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('moderator.ticket.blacklist') }}"
-                               class="nav-link @if (Request::routeIs('moderator.ticket.blacklist')) active @endif">
+                            <a href="{{ route('admin.ticket.blacklist') }}"
+                               class="nav-link @if (Request::routeIs('admin.ticket.blacklist')) active @endif">
                                 <i class="nav-icon fas fa-user-times"></i>
                                 <p>{{ __('Ticket Blacklist') }}</p>
                             </a>
                         </li>
                     @endif
 
-                    @if (Auth::user()->role == 'admin')
+                    @if (Auth::user()->hasRole("Admin"))
                         <li class="nav-header">{{ __('Administration') }}</li>
 
                         <li class="nav-item">
@@ -441,7 +441,7 @@
         <strong>Copyright &copy; 2021-{{ date('Y') }} <a
                 href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
         All rights
-        reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>. | Theme by <a href="https://2icecube.de/cpgg">2IceCube</a>
+        reserved. Powered by <a href="https://CtrlPanel.gg">ControlPanel</a>. | Theme by <a href="https://2icecube.de/cpgg">2IceCube</a>
         @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
             Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
         @endif

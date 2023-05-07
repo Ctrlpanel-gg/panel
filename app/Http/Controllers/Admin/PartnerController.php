@@ -11,8 +11,12 @@ use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
+    const READ_PERMISSION = "admin.partners.read";
+    const WRITE_PERMISSION = "admin.partners.write";
     public function index(LocaleSettings $locale_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.partners.index', [
             'locale_datatables' => $locale_settings->datatables
         ]);
@@ -25,6 +29,8 @@ class PartnerController extends Controller
      */
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.partners.create', [
             'partners' => PartnerDiscount::get(),
             'users' => User::orderBy('name')->get(),
@@ -62,6 +68,8 @@ class PartnerController extends Controller
      */
     public function edit(PartnerDiscount $partner)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.partners.edit', [
             'partners' => PartnerDiscount::get(),
             'partner' => $partner,
@@ -98,6 +106,8 @@ class PartnerController extends Controller
      */
     public function destroy(PartnerDiscount $partner)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $partner->delete();
 
         return redirect()->back()->with('success', __('partner has been removed!'));

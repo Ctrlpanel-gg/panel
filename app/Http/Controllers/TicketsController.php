@@ -21,6 +21,8 @@ use Illuminate\Support\Str;
 
 class TicketsController extends Controller
 {
+    const READ_PERMISSION = 'user.ticket.read';
+    const WRITE_PERMISSION = 'user.ticket.write';
     public function index(LocaleSettings $locale_settings)
     {
         return view('ticket.index', [
@@ -39,6 +41,7 @@ class TicketsController extends Controller
                 'ticketcategory' => 'required',
                 'priority' => 'required',
                 'message' => 'required',
+                'g-recaptcha-response' => ['required', 'recaptcha'],
             ]
         );
         $ticket = new Ticket(
@@ -55,17 +58,13 @@ class TicketsController extends Controller
         );
         $ticket->save();
         $user = Auth::user();
-        switch ($ticket_settings->notify) {
-            case 'all':
-                $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();
-                Notification::send($admin, new AdminCreateNotification($ticket, $user));
-            case 'admin':
-                $admin = User::where('role', 'admin')->get();
-                Notification::send($admin, new AdminCreateNotification($ticket, $user));
-            case 'moderator':
-                $admin = User::where('role', 'mod')->get();
-                Notification::send($admin, new AdminCreateNotification($ticket, $user));
+
+        $staffNotify = User::permission('admin.tickets.get_notification')->get();
+        foreach($staffNotify as $staff){
+            Notification::send($staff, new AdminCreateNotification($ticket, $user));
         }
+
+
         $user->notify(new CreateNotification($ticket));
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #') . $ticket->ticket_id);
@@ -73,6 +72,7 @@ class TicketsController extends Controller
 
     public function show($ticket_id, PterodactylSettings $ptero_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
         try {
             $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch (Exception $e) {
@@ -108,15 +108,19 @@ class TicketsController extends Controller
             'message' => $request->input('message'),
         ]);
         $user = Auth::user();
-        $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();
         $newmessage = $request->input('ticketcomment');
-        Notification::send($admin, new AdminReplyNotification($ticket, $user, $newmessage));
+
+        $staffNotify = User::permission('admin.tickets.get_notification')->get();
+        foreach($staffNotify as $staff){
+            Notification::send($staff, new AdminReplyNotification($ticket, $user, $newmessage));
+        }
 
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         //check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
         if ($check && $check->status == 'True') {

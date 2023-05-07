@@ -18,7 +18,7 @@
     </section>
     <!-- END CONTENT HEADER -->
 
-    @if (!file_exists(base_path() . '/install.lock') && Auth::User()->role == 'admin')
+    @if (!file_exists(base_path() . '/install.lock') && Auth::User()->hasRole("Admin"))
         <div class="callout callout-danger">
             <h4>{{ __('The installer is not locked!') }}</h4>
             <p>{{ __('please create a file called "install.lock" in your dashboard Root directory. Otherwise no settings will be loaded!') }}
@@ -135,12 +135,12 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            @foreach ($useful_links as $useful_link)
+                            @foreach ($useful_links_dashboard as $useful_link)
                                 <div class="alert alert-dismissible">
                                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                                     <h5>
                                         <a class="alert-link text-decoration-none" target="__blank"
-                                            href="{{ $useful_link->link }}">
+                                           href="{{ $useful_link->link }}">
                                             <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
                                         </a>
                                     </h5>
@@ -150,22 +150,7 @@
                         </div>
                         <!-- /.card-body -->
                     </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        @foreach ($useful_links_dashboard as $useful_link)
-                            <div class="alert alert-dismissible">
-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                <h5>
-                                    <a class="alert-link text-decoration-none" target="__blank"
-                                        href="{{ $useful_link->link }}">
-                                        <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
-                                    </a>
-                                </h5>
-                                {!! $useful_link->description !!}
-                            </div>
-                        @endforeach
-                    </div>
-                    <!-- /.card-body -->
+
             </div>
             @endif
 
@@ -218,9 +203,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body py-0 pb-2">
-                            @if (
-                                ($referral_settings->allowed == 'client' && Auth::user()->role != 'member') ||
-                                    $referral_settings->allowed == 'everyone')
+                            @if (Auth::user()->can("user.referral"))
                                 <div class="row">
                                     <div class="mt-3 col-md-8">
                                         <span class="badge badge-success" style="font-size: 14px">
@@ -269,15 +252,14 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                <th>{{ __('Reward per registered user') }}</th>
-                                                <th>{{ __('New user payment commision') }}</th>
+                                                @if(in_array($referral_settings->mode, ["Commission","Both"]))<th>{{ __('Reward per registered user') }}</th> @endif
+                                                @if(in_array($referral_settings->mode, ["Sign-Up","Both"]))<th>{{ __('New user payment commision') }}</th> @endif
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>{{ $referral_settings->reward }}
-                                                    {{ $general_settings->credits_display_name }}</td>
-                                                <td>{{ $referral_settings->percentage }}%</td>
+                                                @if(in_array($referral_settings->mode, ["Commission","Both"]))<td>{{ $referral_settings->reward }} {{ $general_settings->credits_display_name }}</td> @endif
+                                                @if(in_array($referral_settings->mode, ["Sign-Up","Both"]))<td>{{ $referral_settings->percentage }}%</td> @endif
                                             </tr>
                                         </tbody>
                                     </table>

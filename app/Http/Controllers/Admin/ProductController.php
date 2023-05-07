@@ -19,6 +19,10 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    const READ_PERMISSION = "admin.products.read";
+    const WRITE_PERMISSION = "admin.products.write";
+    const EDIT_PERMISSION = "admin.products.edit";
+    const DELETE_PERMISSION = "admin.products.delete";
     /**
      * Display a listing of the resource.
      *
@@ -26,6 +30,8 @@ class ProductController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.products.index', [
             'locale_datatables' => $locale_settings->datatables
         ]);
@@ -38,6 +44,7 @@ class ProductController extends Controller
      */
     public function create(GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         return view('admin.products.create', [
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
@@ -47,6 +54,8 @@ class ProductController extends Controller
 
     public function clone(Product $product)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.products.create', [
             'product' => $product,
             'locations' => Location::with('nodes')->get(),
@@ -78,6 +87,7 @@ class ProductController extends Controller
             'nodes.*' => 'required|exists:nodes,id',
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
+            'oom_killer' => 'nullable',
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -98,6 +108,8 @@ class ProductController extends Controller
      */
     public function show(Product $product, UserSettings $user_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.products.show', [
             'product' => $product,
             'minimum_credits' => $user_settings->min_credits_to_make_server,
@@ -113,6 +125,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::EDIT_PERMISSION);
+
         return view('admin.products.edit', [
             'product' => $product,
             'locations' => Location::with('nodes')->get(),
@@ -146,6 +160,7 @@ class ProductController extends Controller
             'nodes.*' => 'required|exists:nodes,id',
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
+            'oom_killer' => 'nullable',
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -167,6 +182,8 @@ class ProductController extends Controller
      */
     public function disable(Product $product)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $product->update(['disabled' => ! $product->disabled]);
 
         return redirect()->route('admin.products.index')->with('success', 'Product has been updated!');
@@ -180,6 +197,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $this->checkPermission(self::DELETE_PERMISSION);
+
         $servers = $product->servers()->count();
         if ($servers > 0) {
             return redirect()->back()->with('error', "Product cannot be removed while it's linked to {$servers} servers");
@@ -238,6 +257,9 @@ class ProductController extends Controller
             })
             ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
                 return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
+            })
+            ->editColumn('oom_killer', function (Product $product, UserSettings $user_settings) {
+                return $product->oom_killer ? __("enabled") : __("disabled");
             })
             ->editColumn('created_at', function (Product $product) {
                 return $product->created_at ? $product->created_at->diffForHumans() : '';

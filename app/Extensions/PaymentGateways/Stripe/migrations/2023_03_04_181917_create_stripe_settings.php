@@ -9,10 +9,10 @@ class CreateStripeSettings extends SettingsMigration
     {
         $table_exists = DB::table('settings_old')->exists();
 
-        $this->migrator->addEncrypted('stripe.secret_key', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:SECRET') : null);
-        $this->migrator->addEncrypted('stripe.endpoint_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') : null);
-        $this->migrator->addEncrypted('stripe.test_secret_key', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET') : null);
-        $this->migrator->addEncrypted('stripe.test_endpoint_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET') : null);
+        $this->migrator->add('stripe.secret_key', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:SECRET') : null);
+        $this->migrator->add('stripe.endpoint_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') : null);
+        $this->migrator->add('stripe.test_secret_key', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:TEST_SECRET') : null);
+        $this->migrator->add('stripe.test_endpoint_secret', $table_exists ? $this->getOldValue('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_TEST_SECRET') : null);
         $this->migrator->add('stripe.enabled', false);
     }
 
@@ -74,6 +74,10 @@ class CreateStripeSettings extends SettingsMigration
     {
         // Always get the first value of the key.
         $old_value = DB::table('settings_old')->where('key', '=', $key)->get(['value', 'type'])->first();
+
+        if (is_null($old_value)) {
+            return null;
+        }
 
         // Handle the old values to return without it being a string in all cases.
         if ($old_value->type === "string" || $old_value->type === "text") {
