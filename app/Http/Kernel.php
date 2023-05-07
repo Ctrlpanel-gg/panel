@@ -4,7 +4,6 @@ namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
 use App\Http\Middleware\CheckSuspended;
-use App\Http\Middleware\GlobalNames;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\isMod;
 use App\Http\Middleware\LastSeen;
@@ -44,14 +43,12 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             LastSeen::class,
-            GlobalNames::class,
             \App\Http\Middleware\SetLocale::class,
         ],
 
         'api' => [
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            GlobalNames::class,
         ],
     ];
 
