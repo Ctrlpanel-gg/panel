@@ -142,7 +142,7 @@ class RegisterController extends Controller
         $user->syncRoles(4);
 
         $response = $this->pterodactyl->application->post('/application/users', [
-            'external_id' => $user->pterodactyl_id,
+            'external_id' => null,
             'username' => $user->name,
             'email' => $user->email,
             'first_name' => $user->name,
@@ -151,6 +151,14 @@ class RegisterController extends Controller
             'root_admin' => false,
             'language' => 'en',
         ]);
+        
+        $user->update([
+            'pterodactyl_id' => $response->json()['attributes']['id'],
+        ]);
+
+
+
+
 
         if ($response->failed()) {
             $user->delete();
