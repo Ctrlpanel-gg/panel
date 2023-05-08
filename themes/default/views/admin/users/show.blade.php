@@ -173,18 +173,6 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Usage') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-coins mr-2"></i>{{ $user->CreditUsage() }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
 
 
                         <div class="col-lg-6">
@@ -199,7 +187,30 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <label>{{ __('Usage') }}</label>
+                                </div>
+                                <div class="col-lg-8">
+                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
+                                        <i class="fas fa-coins mr-2"></i>{{ $user->CreditUsage() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <label>{{ __('Referred by') }}</label>
+                                </div>
+                                <div class="col-lg-8">
+                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
+                                        {{ $user->referredBy() != Null ? $user->referredBy()->name : "None" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
