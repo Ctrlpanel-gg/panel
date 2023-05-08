@@ -121,10 +121,11 @@
                                                                     @case($value['type'] == 'select')
                                                                         <select id="{{ $key }}"
                                                                             class="custom-select w-100" name="{{ $key }}">
-                                                                            @foreach ($value['options'] as $option)
+
+                                                                            @foreach ($value['options'] as $option=>$display)
                                                                                 <option value="{{ $option }}"
                                                                                     {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                                    {{ __($option) }}
+                                                                                    {{ __($display) }}
                                                                                 </option>
                                                                             @endforeach
                                                                         </select>
