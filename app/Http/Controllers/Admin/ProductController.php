@@ -89,6 +89,7 @@ class ProductController extends Controller
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
+            'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
         ]);
 
 
@@ -164,6 +165,7 @@ class ProductController extends Controller
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
+            'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
         ]);
 
         $disabled = ! is_null($request->input('disabled'));

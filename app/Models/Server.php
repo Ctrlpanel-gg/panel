@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Classes\PterodactylClient;
 use App\Settings\PterodactylSettings;
 use Exception;
@@ -52,12 +53,14 @@ class Server extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name',
-        'description',
-        'suspended',
-        'identifier',
-        'product_id',
-        'pterodactyl_id',
+        "name",
+        "description",
+        "suspended",
+        "identifier",
+        "product_id",
+        "pterodactyl_id",
+        "last_billed",
+        "cancelled"
     ];
 
     /**
@@ -138,8 +141,10 @@ class Server extends Model
         if ($response->successful()) {
             $this->update([
                 'suspended' => null,
+                'last_billed' => Carbon::now()->toDateTimeString(),
             ]);
         }
+
 
         return $this;
     }

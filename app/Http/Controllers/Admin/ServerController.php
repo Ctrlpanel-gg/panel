@@ -128,7 +128,25 @@ class ServerController extends Controller
     }
 
     /**
-     * @param  Server  $server
+     * Cancel the Server billing cycle.
+     *
+     * @param Server $server
+     * @return RedirectResponse|Response
+     */
+    public function cancel (Server $server)
+    {
+        try {
+            error_log($server->update([
+                'cancelled' => now(),
+            ]));
+            return redirect()->route('servers.index')->with('success', __('Server cancelled'));
+        } catch (Exception $e) {
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
+        }
+    }
+
+    /**
+     * @param Server $server
      * @return RedirectResponse
      */
     public function toggleSuspended(Server $server)
