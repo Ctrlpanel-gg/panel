@@ -126,7 +126,7 @@
                                         <span>{{ $server->product->name }}
                                         </span>
                                         <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/> {{ __('Billing Period') }}: {{$server->product->billing_period}}"
+                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>{{ __('OOM Killer') }}: {{ $server->product->oom_killer ? __("enabled") : __("disabled") }} <br/> {{ __('Billing Period') }}: {{$server->product->billing_period}}"
                                             class="fas fa-info-circle"></i>
                                     </div>
                                 </div>

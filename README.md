@@ -1,7 +1,7 @@
 ### Features
 
--   PayPal Integration
--   Stripe Integration
+-   PayPal, Stripe and Mollie Integration
+-   Hourly, Weekely, Monthly, Quarterly and Annual billing Cycles
 -   Referral System
 -   Partner System
 -   Ticket System
@@ -27,7 +27,7 @@
 ![](https://img.shields.io/github/stars/ctrlpanel-gg/dashboard) ![](https://img.shields.io/github/forks/ctrlpanel-gg/panel) ![](https://img.shields.io/github/tag/ctrlpanel-gg/panel) [![Crowdin](https://badges.crowdin.com/project/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ctrlpanel-gg/panel) ![](https://img.shields.io/github/license/ctrlpanel-gg/panel) ![](https://img.shields.io/discord/787829714483019826)
 ## About
 
-CtrlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that credits users hourly for each server they have and suspends them if they run out of credits.
+CtrlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that charges users depending on the billing cycle you chose for each server they have and suspends them if they run out of credits.
 
 This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customisation options and added discord Oauth verification to offer a solid link between your discord server and your dashboard. You can check our [Demo here](https://demo.CtrlPanel.gg "Demo").
 
