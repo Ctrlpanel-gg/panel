@@ -76,9 +76,11 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
     Route::resource('servers', ServerController::class);
 
-    $serverSettings = app(App\Settings\ServerSettings::class);
-    if ($serverSettings->enable_upgrade) {
-        Route::post('servers/{server}/upgrade', [ServerController::class, 'upgrade'])->name('servers.upgrade');
+    if (config('app.key')) {
+        $serverSettings = app(App\Settings\ServerSettings::class);
+        if ($serverSettings->enable_upgrade) {
+            Route::post('servers/{server}/upgrade', [ServerController::class, 'upgrade'])->name('servers.upgrade');
+        }
     }
 
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
