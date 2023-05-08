@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Extensions\PaymentGateways\PayPal\PayPalSettings;
 use App\Models\UsefulLink;
+use App\Settings\GeneralSettings;
 use App\Settings\MailSettings;
 use Exception;
 use Illuminate\Pagination\Paginator;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Qirolab\Theme\Theme;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -85,6 +87,17 @@ class AppServiceProvider extends ServiceProvider
             }
         } catch (Exception $e) {
             Log::error("Couldnt find useful_links. Probably the installation is not completet. " . $e);
+        }
+
+        $generalSettings = $this->app->make(GeneralSettings::class);
+        if (!file_exists(base_path('themes') . "/" . $generalSettings->theme)) {
+            $generalSettings->theme = "default";
+        }
+
+        if ($generalSettings->theme && $generalSettings->theme !== config('theme.active')) {
+            Theme::set($generalSettings->theme, "default");
+        } else {
+            Theme::set("default", "default");
         }
 
 
