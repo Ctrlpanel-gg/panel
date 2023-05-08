@@ -204,19 +204,17 @@
                         </div>
 
                         <div class="card-footer text-center">
-                            <a href="{{ config('SETTINGS::SYSTEM:PTERODACTYL:URL') }}/server/{{ $server->identifier }}"
+                            <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
                                 target="__blank"
                                 class="btn btn-info text-center float-left ml-2"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
                                 <i class="fas fa-tools mx-2"></i>
                             </a>
-                            @if(config("SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN"))
                             <a href="{{ route('servers.show', ['server' => $server->id])}}"
                             	class="btn btn-info text-center mr-3"
                             	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
                                 <i class="fas fa-cog mx-2"></i>
                             </a>
-                            @endif
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="btn btn-warning  text-center"
                                 {{ $server->suspended || $server->cancelled ? "disabled" : "" }}
@@ -260,7 +258,14 @@
                         }
                     }).then(() => {
                         window.location.reload();
-                    });
+                    }).catch((error) => {
+                        Swal.fire({
+                            title: "{{ __('Error') }}",
+                            text: "{{ __('Something went wrong, please try again later.') }}",
+                            icon: 'error',
+                            confirmButtonColor: '#d9534f',
+                        })
+                    })
                     return
                 }
             })
@@ -286,7 +291,14 @@
                         }
                     }).then(() => {
                         window.location.reload();
-                    });
+                    }).catch((error) => {
+                        Swal.fire({
+                            title: "{{ __('Error') }}",
+                            text: "{{ __('Something went wrong, please try again later.') }}",
+                            icon: 'error',
+                            confirmButtonColor: '#d9534f',
+                        })
+                    })
                     return
                 }
             });
