@@ -47,6 +47,7 @@
                                 <th>{{ __('Total Price') }}</th>
                                 <th>{{ __('Payment ID') }}</th>
                                 <th>{{ __('Payment Method') }}</th>
+                                <th>{{ __('Status') }}</th>
                                 <th>{{ __('Created at') }}</th>
                                 <th></th>
                             </tr>
@@ -85,6 +86,7 @@
                     {data: 'total_price'},
                     {data: 'payment_id'},
                     {data: 'payment_method'},
+                    {data: 'status'},
                     {data: 'created_at', type: 'num', render: {_: 'display', sort: 'raw'}},
                     {data: 'actions' , sortable : false},
                 ],
