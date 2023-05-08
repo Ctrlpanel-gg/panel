@@ -27,7 +27,7 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
-    @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
+    @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
         {!! htmlScriptTagJsApi() !!}
     @endif
     <link rel="stylesheet" href="{{ asset('themes/BlueInfinity/app.css') }}">

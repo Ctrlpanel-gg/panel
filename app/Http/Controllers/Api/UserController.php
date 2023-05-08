@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
+use App\Settings\UserSettings;
 use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -257,7 +258,7 @@ class UserController extends Controller
     /**
      * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request, UserSettings $userSettings)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
@@ -266,7 +267,7 @@ class UserController extends Controller
         ]);
 
         // Prevent the creation of new users via API if this is enabled.
-        if (! config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS', 'true')) {
+        if (! $userSettings->creation_enabled) {
             throw ValidationException::withMessages([
                 'error' => 'The creation of new users has been blocked by the system administrator.',
             ]);
