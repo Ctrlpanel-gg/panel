@@ -8,13 +8,13 @@ class GeneralSettings extends Settings
 {
     public bool $store_enabled;
     public string $credits_display_name;
-    public bool $recaptcha_enabled;
-    public string $recaptcha_site_key;
-    public string $recaptcha_secret_key;
-    public string $phpmyadmin_url;
-    public bool $alert_enabled;
+    public ?bool $recaptcha_enabled;
+    public ?string $recaptcha_site_key;
+    public ?string $recaptcha_secret_key;
+    public ?string $phpmyadmin_url;
+    public ?bool $alert_enabled;
     public string $alert_type;
-    public string $alert_message;
+    public ?string $alert_message;
     public string $theme;
 
     //public int $initial_user_role; wait for Roles & Permissions PR.
@@ -41,7 +41,7 @@ class GeneralSettings extends Settings
             'phpmyadmin_url' => 'nullable|string',
             'alert_enabled' => 'nullable|boolean',
             'alert_type' => 'required|in:primary,secondary,success,danger,warning,info',
-            'alert_message' => 'required|string',
+            'alert_message' => 'nullable|string',
             'theme' => 'required|in:default,BlueInfinity' // TODO: themes should be made/loaded dynamically
         ];
     }
