@@ -25,10 +25,10 @@ class LocaleSettings extends Settings
     {
         return [
             'available' => 'nullable|array',
-            'clients_can_change' => 'nullable|boolean',
+            'clients_can_change' => 'nullable|string',
             'datatables' => 'nullable|string',
             'default' => 'required|in:' . implode(',', config('app.available_locales')),
-            'dynamic' => 'nullable|boolean',
+            'dynamic' => 'nullable|string',
         ];
     }
 

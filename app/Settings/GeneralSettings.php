@@ -8,11 +8,11 @@ class GeneralSettings extends Settings
 {
     public bool $store_enabled;
     public string $credits_display_name;
-    public ?bool $recaptcha_enabled;
+    public bool $recaptcha_enabled;
     public ?string $recaptcha_site_key;
     public ?string $recaptcha_secret_key;
     public ?string $phpmyadmin_url;
-    public ?bool $alert_enabled;
+    public bool $alert_enabled;
     public string $alert_type;
     public ?string $alert_message;
     public string $theme;
@@ -33,13 +33,13 @@ class GeneralSettings extends Settings
     public static function getValidations()
     {
         return [
-            'store_enabled' => 'boolean',
+            'store_enabled' => 'nullable|string',
             'credits_display_name' => 'required|string',
-            'recaptcha_enabled' => 'nullable|boolean',
+            'recaptcha_enabled' => 'nullable|string',
             'recaptcha_site_key' => 'nullable|string',
             'recaptcha_secret_key' => 'nullable|string',
             'phpmyadmin_url' => 'nullable|string',
-            'alert_enabled' => 'nullable|boolean',
+            'alert_enabled' => 'nullable|string',
             'alert_type' => 'required|in:primary,secondary,success,danger,warning,info',
             'alert_message' => 'nullable|string',
             'theme' => 'required|in:default,BlueInfinity' // TODO: themes should be made/loaded dynamically

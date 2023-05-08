@@ -52,7 +52,7 @@ class MailSettings extends Settings
             'mail_from_address' => 'nullable|string',
             'mail_from_name' => 'nullable|string',
             'mail_mailer' => 'nullable|string',
-            'mail_enabled' => 'nullable|boolean',
+            'mail_enabled' => 'nullable|string',
         ];
     }
 
