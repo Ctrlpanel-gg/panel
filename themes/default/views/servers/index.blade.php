@@ -174,7 +174,7 @@
                                     <div class="col-4">
                                         {{ __('Price') }}:
                                         <span class="text-muted">
-                                            ({{ CREDITS_DISPLAY_NAME }})
+                                            ({{ $credits_display_name }})
                                         </span>
                                     </div>
                                     <div class="col-8 text-center">

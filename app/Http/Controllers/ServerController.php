@@ -48,7 +48,7 @@ class ServerController extends Controller
 
             //Get server infos from ptero
             $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-            if (! $serverAttributes) {
+            if (!$serverAttributes) {
                 continue;
             }
             $serverRelationships = $serverAttributes['relationships'];
@@ -90,7 +90,7 @@ class ServerController extends Controller
     {
         $this->checkPermission(self::CREATE_PERMISSION);
 
-        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings);
+        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings, $general_settings);
 
         if (!is_null($validate_configuration)) {
             return $validate_configuration;
@@ -132,7 +132,7 @@ class ServerController extends Controller
     /**
      * @return null|RedirectResponse
      */
-    private function validateConfigurationRules(UserSettings $user_settings, ServerSettings $server_settings)
+    private function validateConfigurationRules(UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $generalSettings)
     {
         //limit validation
         if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
@@ -157,7 +157,7 @@ class ServerController extends Controller
             if (Auth::user()->credits < ($product->minimum_credits == -1
                 ? $user_settings->min_credits_to_make_server
                 : $product->minimum_credits)) {
-                return redirect()->route('servers.index')->with('error', 'You do not have the required amount of '.CREDITS_DISPLAY_NAME.' to use this product!');
+                return redirect()->route('servers.index')->with('error', 'You do not have the required amount of ' . $generalSettings->credits_display_name . ' to use this product!');
             }
         }
 
@@ -180,12 +180,12 @@ class ServerController extends Controller
     }
 
     /** Store a newly created resource in storage. */
-    public function store(Request $request, UserSettings $user_settings, ServerSettings $server_settings)
+    public function store(Request $request, UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $generalSettings)
     {
         /** @var Node $node */
         /** @var Egg $egg */
         /** @var Product $product */
-        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings);
+        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings, $generalSettings);
 
         if (!is_null($validate_configuration)) {
             return $validate_configuration;
@@ -211,7 +211,7 @@ class ServerController extends Controller
 
         //get free allocation ID
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);
-        if (! $allocationId) {
+        if (!$allocationId) {
             return $this->noAllocationsError($server);
         }
 
@@ -338,7 +338,7 @@ class ServerController extends Controller
         if ($server->user_id != Auth::user()->id) {
             return redirect()->route('servers.index');
         }
-        if (! isset($request->product_upgrade)) {
+        if (!isset($request->product_upgrade)) {
             return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('this product is the only one'));
         }
         $user = Auth::user();
