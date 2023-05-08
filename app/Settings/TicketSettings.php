@@ -21,7 +21,7 @@ class TicketSettings extends Settings
     public static function getValidations()
     {
         return [
-            'enabled' => 'nullable|boolean',
+            'enabled' => 'nullable|string',
             'information' => 'nullable|string',
         ];
     }

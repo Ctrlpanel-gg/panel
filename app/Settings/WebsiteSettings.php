@@ -31,13 +31,13 @@ class WebsiteSettings extends Settings
     public static function getValidations()
     {
         return [
-            'motd_enabled' => 'nullable|boolean',
+            'motd_enabled' => 'nullable|string',
             'motd_message' => 'nullable|string',
-            'show_imprint' => 'nullable|boolean',
-            'show_privacy' => 'nullable|boolean',
-            'show_tos' => 'nullable|boolean',
-            'useful_links_enabled' => 'nullable|boolean',
-            'enable_login_logo' => 'nullable|boolean',
+            'show_imprint' => 'nullable|string',
+            'show_privacy' => 'nullable|string',
+            'show_tos' => 'nullable|string',
+            'useful_links_enabled' => 'nullable|string',
+            'enable_login_logo' => 'nullable|string',
             'seo_title' => 'nullable|string',
             'seo_description' => 'nullable|string',
         ];

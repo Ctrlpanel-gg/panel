@@ -33,7 +33,7 @@ class InvoiceSettings extends Settings
             'company_phone' => 'nullable|string',
             'company_vat' => 'nullable|string',
             'company_website' => 'nullable|string',
-            'enabled' => 'nullable|boolean',
+            'enabled' => 'nullable|string',
             'prefix' => 'nullable|string',
         ];
     }
