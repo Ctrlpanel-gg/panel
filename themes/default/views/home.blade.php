@@ -150,9 +150,8 @@
                         </div>
                         <!-- /.card-body -->
                     </div>
-
+                @endif
             </div>
-            @endif
 
             <div class="col-md-6">
                 <div class="card card-default">
