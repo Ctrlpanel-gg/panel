@@ -24,11 +24,10 @@ class ReferralSettings extends Settings
     public static function getValidations()
     {
         return [
-            'allowed' => 'required|in:Everyone,Clients',
             'always_give_commission' => 'nullable|boolean',
             'enabled' => 'nullable|boolean',
             'reward' => 'nullable|numeric',
-            'mode' => 'required|in:Commission,Sign-Up,Both',
+            'mode' => 'required|in:comission,sign-up,both',
             'percentage' => 'nullable|numeric',
         ];
     }

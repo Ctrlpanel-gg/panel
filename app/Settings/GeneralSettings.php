@@ -114,7 +114,7 @@ class GeneralSettings extends Settings
                 'description' => 'The type of alert to display.'
             ],
             'alert_message' => [
-                'type' => 'string',
+                'type' => 'textarea',
                 'label' => 'Alert Message',
                 'description' => 'The message to display in the alert.'
             ],
