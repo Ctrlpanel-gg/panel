@@ -1,7 +1,7 @@
 ### Features
 
--   PayPal Integration
--   Stripe Integration
+-   PayPal, Stripe and Mollie Integration
+-   Hourly, Weekely, Monthly, Quarterly and Annual billing Cycles
 -   Referral System
 -   Partner System
 -   Ticket System
