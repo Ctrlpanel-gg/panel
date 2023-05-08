@@ -52,7 +52,7 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'nullable|string|max:191',
+            'name' => 'required|string|max:191',
             'color' => [
                 'required',
                 'regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'
@@ -67,7 +67,10 @@ class RoleController extends Controller
         ]);
 
         if ($request->permissions) {
-            $role->givePermissionTo($request->permissions);
+            $permissions = explode(",",$request->permissions);
+            foreach($permissions as $permission){
+                $role->givePermissionTo($permission);
+            }
         }
 
         return $role;
@@ -111,20 +114,22 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         $request->validate([
-            'name' => 'nullable|string|max:191',
+            'name' => 'sometimes|string|max:191',
             'color' => [
-                'required',
+                'sometimes',
                 'regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'
             ],
-            'power' => 'required',
+            'power' => 'sometimes',
         ]);
 
         if ($request->permissions) {
-            $role->givePermissionTo($request->permissions);
+            $permissions = explode(",",$request->permissions);
+                $role->syncPermissions($permissions);
         }
 
-        $role->update($request->all());
-        //TODO PERMISSIONS?
+
+        $role->update($request->except('permissions'));
+
         return $role;
     }
 

@@ -104,7 +104,10 @@ class UserController extends Controller
                 'pterodactyl_error_status' => $response->toException()->getCode(),
             ]);
         }
-        $user->update($request->all());
+        if($request->has("role")){
+            $user->syncRoles($request->role);
+        }
+        $user->update($request->except('role'));
 
         return $user;
     }
