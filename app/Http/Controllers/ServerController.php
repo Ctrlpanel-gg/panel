@@ -276,7 +276,13 @@ class ServerController extends Controller
     /** Cancel Server */
     public function cancel(Server $server)
     {
+        if ($server->user_id != Auth::user()->id) {
+            return back()->with('error', __('This is not your Server!'));
+        }
         try {
+            $server->update([
+                'cancelled' => now(),
+            ]);
             return redirect()->route('servers.index')->with('success', __('Server cancelled'));
         } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
@@ -286,8 +292,6 @@ class ServerController extends Controller
     /** Show Server Settings */
     public function show(Server $server, ServerSettings $server_settings, GeneralSettings $general_settings)
     {
-
-
         if ($server->user_id != Auth::user()->id) {
             return back()->with('error', __('This is not your Server!'));
         }
