@@ -58,10 +58,15 @@ class CreateTicketSettings extends SettingsMigration
         $old_value = DB::table('settings_old')->where('key', '=', $key)->get(['value', 'type'])->first();
 
         // Handle the old values to return without it being a string in all cases.
+
+        if (is_null($old_value)) {
+            return '';
+        }
         if ($old_value->type === "string" || $old_value->type === "text") {
             if (is_null($old_value->value)) {
                 return '';
             }
+
 
             // Some values have the type string, but their values are boolean.
             if ($old_value->value === "false" || $old_value->value === "true") {
