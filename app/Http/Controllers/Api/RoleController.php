@@ -114,12 +114,12 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:191',
+            'name' => 'sometimes|string|max:191',
             'color' => [
-                'required',
+                'sometimes',
                 'regex:/^#([a-f0-9]{6}|[a-f0-9]{3})$/i'
             ],
-            'power' => 'required',
+            'power' => 'sometimes',
         ]);
 
         if ($request->permissions) {
