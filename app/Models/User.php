@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -97,6 +98,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $ptero_settings = new PterodactylSettings();
         $this->pterodactyl = new PterodactylClient($ptero_settings);
+
+
     }
 
     public static function boot()
@@ -283,6 +286,17 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->forceFill([
             'email_verified_at' => null,
         ])->save();
+    }
+
+    public function referredBy(){
+        $referee = DB::table('user_referrals')->where("registered_user_id",$this->id)->first();
+
+        if($referee){
+            $referee = User::where("id",$referee->referral_id)->firstOrFail();
+            return $referee;
+        }
+        return Null;
+
     }
 
     public function getActivitylogOptions(): LogOptions
