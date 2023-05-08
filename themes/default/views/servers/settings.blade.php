@@ -251,10 +251,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body card-body">
-                                        <strong>{{__("FOR DOWNGRADE PLEASE CHOOSE A PLAN BELOW YOUR PLAN")}}</strong>
-                                        <br>
-                                        <br>
-                                        <strong>{{__("YOUR PRODUCT")}} : </strong> {{ $server->product->name }}
+                                        <strong>{{__("Current Product")}}: </strong> {{ $server->product->name }}
                                         <br>
                                         <br>
 
@@ -269,7 +266,8 @@
                                                   @endif
                                               @endforeach
                                           </select>
-                                          <br> {{__("Once the Upgrade button is pressed, we will automatically deduct the amount for the first hour according to the new product from your credits")}}. <br>
+                                          
+                                          <br> <strong>{{__("Caution") }}:</strong> {{__("Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed")}}. <br>
                                           <br> {{__("Server will be automatically restarted once upgraded")}}
                                     </div>
                                     <div class="modal-footer card-body">

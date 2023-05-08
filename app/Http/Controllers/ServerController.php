@@ -8,7 +8,10 @@ use App\Models\Pterodactyl\Nest;
 use App\Models\Pterodactyl\Node;
 use App\Models\Product;
 use App\Models\Server;
+use App\Models\User;
+use App\Models\Settings;
 use App\Notifications\ServerCreationError;
+use Carbon\Carbon;
 use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
 use App\Settings\PterodactylSettings;
@@ -45,7 +48,7 @@ class ServerController extends Controller
 
             //Get server infos from ptero
             $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-            if (! $serverAttributes) {
+            if (!$serverAttributes) {
                 continue;
             }
             $serverRelationships = $serverAttributes['relationships'];
@@ -87,7 +90,7 @@ class ServerController extends Controller
     {
         $this->checkPermission(self::CREATE_PERMISSION);
 
-        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings);
+        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings, $general_settings);
 
         if (!is_null($validate_configuration)) {
             return $validate_configuration;
@@ -129,7 +132,7 @@ class ServerController extends Controller
     /**
      * @return null|RedirectResponse
      */
-    private function validateConfigurationRules(UserSettings $user_settings, ServerSettings $server_settings)
+    private function validateConfigurationRules(UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $generalSettings)
     {
         //limit validation
         if (Auth::user()->servers()->count() >= Auth::user()->server_limit) {
@@ -147,14 +150,14 @@ class ServerController extends Controller
             // Check if node has enough memory and disk space
             $checkResponse = $this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
             if ($checkResponse == false) {
-                return redirect()->route('servers.index')->with('error', __("The node '".$nodeName."' doesn't have the required memory or disk left to allocate this product."));
+                return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to allocate this product."));
             }
 
             // Min. Credits
             if (Auth::user()->credits < ($product->minimum_credits == -1
                 ? $user_settings->min_credits_to_make_server
                 : $product->minimum_credits)) {
-                return redirect()->route('servers.index')->with('error', 'You do not have the required amount of '.CREDITS_DISPLAY_NAME.' to use this product!');
+                return redirect()->route('servers.index')->with('error', 'You do not have the required amount of ' . $generalSettings->credits_display_name . ' to use this product!');
             }
         }
 
@@ -177,12 +180,12 @@ class ServerController extends Controller
     }
 
     /** Store a newly created resource in storage. */
-    public function store(Request $request, UserSettings $user_settings, ServerSettings $server_settings)
+    public function store(Request $request, UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $generalSettings)
     {
         /** @var Node $node */
         /** @var Egg $egg */
         /** @var Product $product */
-        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings);
+        $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings, $generalSettings);
 
         if (!is_null($validate_configuration)) {
             return $validate_configuration;
@@ -203,11 +206,12 @@ class ServerController extends Controller
         $server = $request->user()->servers()->create([
             'name' => $request->input('name'),
             'product_id' => $request->input('product'),
+            'last_billed' => Carbon::now()->toDateTimeString(),
         ]);
 
         //get free allocation ID
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);
-        if (! $allocationId) {
+        if (!$allocationId) {
             return $this->noAllocationsError($server);
         }
 
@@ -224,11 +228,8 @@ class ServerController extends Controller
             'identifier' => $serverAttributes['identifier'],
         ]);
 
-        if ($server_settings->charge_first_hour) {
-            if ($request->user()->credits >= $server->product->getHourlyPrice()) {
-                $request->user()->decrement('credits', $server->product->getHourlyPrice());
-            }
-        }
+        // Charge first billing cycle
+        $request->user()->decrement('credits', $server->product->price);
 
         return redirect()->route('servers.index')->with('success', __('Server created'));
     }
@@ -257,8 +258,6 @@ class ServerController extends Controller
      */
     private function serverCreationFailed(Response $response, Server $server)
     {
-        $server->delete();
-
         return redirect()->route('servers.index')->with('error', json_encode($response->json()));
     }
 
@@ -270,7 +269,23 @@ class ServerController extends Controller
 
             return redirect()->route('servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource "').$e->getMessage().'"');
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to remove a resource"') . $e->getMessage() . '"');
+        }
+    }
+
+    /** Cancel Server */
+    public function cancel(Server $server)
+    {
+        if ($server->user_id != Auth::user()->id) {
+            return back()->with('error', __('This is not your Server!'));
+        }
+        try {
+            $server->update([
+                'cancelled' => now(),
+            ]);
+            return redirect()->route('servers.index')->with('success', __('Server cancelled'));
+        } catch (Exception $e) {
+            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
         }
     }
 
@@ -299,10 +314,10 @@ class ServerController extends Controller
         $pteroNode = $this->pterodactyl->getNode($serverRelationships['node']['attributes']['id']);
 
         $products = Product::orderBy('created_at')
-        ->whereHas('nodes', function (Builder $builder) use ($serverRelationships) { //Only show products for that node
-            $builder->where('id', '=', $serverRelationships['node']['attributes']['id']);
-        })
-        ->get();
+            ->whereHas('nodes', function (Builder $builder) use ($serverRelationships) { //Only show products for that node
+                $builder->where('id', '=', $serverRelationships['node']['attributes']['id']);
+            })
+            ->get();
 
         // Set the each product eggs array to just contain the eggs name
         foreach ($products as $product) {
@@ -327,7 +342,7 @@ class ServerController extends Controller
         if ($server->user_id != Auth::user()->id) {
             return redirect()->route('servers.index');
         }
-        if (! isset($request->product_upgrade)) {
+        if (!isset($request->product_upgrade)) {
             return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('this product is the only one'));
         }
         $user = Auth::user();
@@ -346,17 +361,31 @@ class ServerController extends Controller
         $requiredisk = $newProduct->disk - $oldProduct->disk;
         $checkResponse = $this->pterodactyl->checkNodeResources($node, $requireMemory, $requiredisk);
         if ($checkResponse == false) {
-            return redirect()->route('servers.index')->with('error', __("The node '".$nodeName."' doesn't have the required memory or disk left to upgrade the server."));
+            return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server."));
         }
 
-        $priceupgrade = $newProduct->getHourlyPrice();
+        // calculate the amount of credits that the user overpayed for the old product when canceling the server right now
+        // billing periods are hourly, daily, weekly, monthly, quarterly, half-annually, annually
+        $billingPeriod = $oldProduct->billing_period;
+        // seconds
+        $billingPeriods = [
+            'hourly' => 3600,
+            'daily' => 86400,
+            'weekly' => 604800,
+            'monthly' => 2592000,
+            'quarterly' => 7776000,
+            'half-annually' => 15552000,
+            'annually' => 31104000
+        ];
+        // Get the amount of hours the user has been using the server
+        $billingPeriodMultiplier = $billingPeriods[$billingPeriod];
+        $timeDifference = now()->diffInSeconds($server->last_billed);
 
-        if ($priceupgrade < $oldProduct->getHourlyPrice()) {
-            $priceupgrade = 0;
-        }
-        if ($user->credits >= $priceupgrade && $user->credits >= $newProduct->minimum_credits) {
-            $server->product_id = $request->product_upgrade;
-            $server->update();
+        // Calculate the price for the time the user has been using the server
+        $overpayedCredits = $oldProduct->price - $oldProduct->price * ($timeDifference / $billingPeriodMultiplier);
+
+
+        if ($user->credits >= $newProduct->price && $user->credits >= $newProduct->minimum_credits) {
             $server->allocation = $serverAttributes['allocation'];
             $response = $this->pterodactyl->updateServer($server, $newProduct);
             if ($response->failed()) return redirect()->route('servers.index')->with('error', __("The system was unable to update your server product. Please try again later or contact support."));
@@ -368,6 +397,25 @@ class ServerController extends Controller
                 return redirect()->route('servers.index')->with('error', $response->json()['errors'][0]['detail']);
             }
 
+            // Remove the allocation property from the server object as it is not a column in the database
+            unset($server->allocation);
+            // Update the server on controlpanel
+            $server->update([
+                'product_id' => $newProduct->id,
+                'updated_at' => now(),
+                'last_billed' => now(),
+                'cancelled' => null,
+            ]);
+
+            // Refund the user the overpayed credits
+            if ($overpayedCredits > 0) $user->increment('credits', $overpayedCredits);
+
+            // Withdraw the credits for the new product
+            $user->decrement('credits', $newProduct->price);
+
+            //restart the server
+            $response = Pterodactyl::powerAction($server, "restart");
+            if ($response->failed()) return redirect()->route('servers.index')->with('error', 'Server upgraded successfully! Could not restart the server:   ' . $response->json()['errors'][0]['detail']);
             return redirect()->route('servers.show', ['server' => $server->id])->with('success', __('Server Successfully Upgraded'));
         } else {
             return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('Not Enough Balance for Upgrade'));

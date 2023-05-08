@@ -2,22 +2,26 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+    @php($website_settings = app(App\Settings\WebsiteSettings::class))
+    @php($general_settings = app(App\Settings\GeneralSettings::class))
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta content="{{ config('SETTINGS::SYSTEM:SEO_TITLE') }}" property="og:title">
-    <meta content="{{ config('SETTINGS::SYSTEM:SEO_DESCRIPTION') }}" property="og:description">
-    <meta content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}' property="og:image">
+    <meta content="{{ $website_settings->seo_title }}" property="og:title">
+    <meta content="{{ $website_settings->seo_description }}" property="og:description">
+    <meta
+        content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}'
+        property="og:image">
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
           href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
           type="image/x-icon">
 
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="{{ asset('plugins/alpinejs/3.12.0_cdn.min.js') }}" defer></script>
 
     {{-- <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}"> --}}
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css" />
+    <link rel="stylesheet" href="{{ asset('plugins/datatables/jquery.dataTables.min.css') }}">
 
     {{-- summernote --}}
     <link rel="stylesheet" href="{{ asset('plugins/summernote/summernote-bs4.min.css') }}">
@@ -36,7 +40,7 @@
     </noscript>
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- tinymce -->
-    <script src={{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}></script>
+    <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('themes/BlueInfinity/app.css') }}">
 </head>
 
@@ -54,15 +58,16 @@
                 <a href="{{ route('home') }}" class="nav-link"><i
                         class="fas fa-home mr-2"></i>{{ __('Home') }}</a>
             </li>
-            @if (config('SETTINGS::DISCORD:INVITE_URL'))
+            @if (!empty($discord_settings->invite_url))
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ config('SETTINGS::DISCORD:INVITE_URL') }}" class="nav-link" target="__blank"><i
+                    <a href="{{ $discord_settings->invite_url }}" class="nav-link" target="__blank"><i
                             class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
                 </li>
             @endif
 
             <!-- Language Selection -->
-            @if (config('SETTINGS::LOCALE:CLIENTS_CAN_CHANGE') == 'true')
+            @php($locale_settings = app(App\Settings\LocaleSettings::class))
+            @if ($locale_settings->clients_can_change)
                 <li class="nav-item dropdown">
                     <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
@@ -74,7 +79,7 @@
                          aria-labelledby="changeLocale">
                         <form method="post" action="{{ route('changeLocale') }}" class="nav-item text-center">
                             @csrf
-                            @foreach (explode(',', config('SETTINGS::LOCALE:AVAILABLE')) as $key)
+                            @foreach (explode(',', $locale_settings->available) as $key)
                                 <button class="dropdown-item" name="inputLocale" value="{{ $key }}">
                                     {{ __($key) }}
                                 </button>
@@ -85,10 +90,10 @@
                 </li>
                 <!-- End Language Selection -->
             @endif
-            @foreach($useful_links as $link)
+            @foreach ($useful_links as $link)
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
-                            class="{{$link->icon}}"></i> {{ $link->title }}</a>
+                            class="{{ $link->icon }}"></i> {{ $link->title }}</a>
                 </li>
             @endforeach
         </ul>
@@ -230,11 +235,7 @@
                         </a>
                     </li>
 
-                    @if (env('APP_ENV') == 'local' ||
-                        (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) ||
-                        (config('SETTINGS::PAYMENTS:STRIPE:SECRET') &&
-                            config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') &&
-                            config('SETTINGS::PAYMENTS:STRIPE:METHODS')))
+                    @if (env('APP_ENV') == 'local' || $general_settings->store_enabled)
                         <li class="nav-item">
                             <a href="{{ route('store.index') }}"
                                class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
@@ -243,38 +244,25 @@
                             </a>
                         </li>
                     @endif
-                    @if (config('SETTINGS::TICKET:ENABLED'))
-                        <li class="nav-item">
-                            <a href="{{ route('ticket.index') }}"
-                               class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
-                                <i class="nav-icon fas fas fa-ticket-alt"></i>
-                                <p>{{ __('Support Ticket') }}</p>
-                            </a>
-                        </li>
+                    @php($ticket_enabled = app(App\Settings\TicketSettings::class)->enabled)
+                    @if ($ticket_enabled)
+                        @canany(["user.ticket.read", "user.ticket.write"])
+                            <li class="nav-item">
+                                <a href="{{ route('ticket.index') }}"
+                                   class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
+                                    <i class="nav-icon fas fas fa-ticket-alt"></i>
+                                    <p>{{ __('Support Ticket') }}</p>
+                                </a>
+                            </li>
+                        @endcanany
                     @endif
 
-                    @if ((Auth::user()->hasRole("Admin") || Auth::user()->role == 'moderator') && config('SETTINGS::TICKET:ENABLED'))
-                        <li class="nav-header">{{ __('Moderation') }}</li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('admin.ticket.index') }}"
-                               class="nav-link @if (Request::routeIs('admin.ticket.index')) active @endif">
-                                <i class="nav-icon fas fa-ticket-alt"></i>
-                                <p>{{ __('Ticket List') }}</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('admin.ticket.blacklist') }}"
-                               class="nav-link @if (Request::routeIs('admin.ticket.blacklist')) active @endif">
-                                <i class="nav-icon fas fa-user-times"></i>
-                                <p>{{ __('Ticket Blacklist') }}</p>
-                            </a>
-                        </li>
-                    @endif
-
-                    @if (Auth::user()->hasRole("Admin"))
+                    <!-- lol how do i make this shorter? -->
+                    @canany(['settings.discord.read','settings.discord.write','settings.general.read','settings.general.write','settings.invoice.read','settings.invoice.write','settings.locale.read','settings.locale.write','settings.mail.read','settings.mail.write','settings.pterodactyl.read','settings.pterodactyl.write','settings.referral.read','settings.referral.write','settings.server.read','settings.server.write','settings.ticket.read','settings.ticket.write','settings.user.read','settings.user.write','settings.website.read','settings.website.write','settings.paypal.read','settings.paypal.write','settings.stripe.read','settings.stripe.write','settings.mollie.read','settings.mollie.write','admin.overview.read','admin.overview.sync','admin.ticket.read','admin.tickets.write','admin.ticket_blacklist.read','admin.ticket_blacklist.write','admin.roles.read','admin.roles.write','admin.api.read','admin.api.write'])
                         <li class="nav-header">{{ __('Administration') }}</li>
+                    @endcanany
 
+                    @canany(['admin.overview.read','admin.overview.sync'])
                         <li class="nav-item">
                             <a href="{{ route('admin.overview.index') }}"
                                class="nav-link @if (Request::routeIs('admin.overview.*')) active @endif">
@@ -282,8 +270,66 @@
                                 <p>{{ __('Overview') }}</p>
                             </a>
                         </li>
+                    @endcanany
 
+                    @canany(['admin.ticket.read','admin.tickets.write'])
+                        <li class="nav-item">
+                            <a href="{{ route('admin.ticket.index') }}"
+                               class="nav-link @if (Request::routeIs('admin.ticket.index')) active @endif">
+                                <i class="nav-icon fas fa-ticket-alt"></i>
+                                <p>{{ __('Ticket List') }}</p>
+                            </a>
+                        </li>
+                    @endcanany
 
+                    @canany(['admin.ticket_blacklist.read','admin.ticket_blacklist.write'])
+                        <li class="nav-item">
+                            <a href="{{ route('admin.ticket.blacklist') }}"
+                               class="nav-link @if (Request::routeIs('admin.ticket.blacklist')) active @endif">
+                                <i class="nav-icon fas fa-user-times"></i>
+                                <p>{{ __('Ticket Blacklist') }}</p>
+                            </a>
+                        </li>
+                    @endcanany
+
+                    @canany(['admin.roles.read','admin.roles.write'])
+                        <li class="nav-item">
+                            <a href="{{ route('admin.roles.index') }}"
+                               class="nav-link @if (Request::routeIs('admin.roles.*')) active @endif">
+                                <i class="nav-icon fa fa-user-check"></i>
+                                <p>{{ __('Role Management') }}</p>
+                            </a>
+                        </li>
+                    @endcanany
+
+                    @canany(['settings.discord.read',
+                            'settings.discord.write',
+                            'settings.general.read',
+                            'settings.general.write',
+                            'settings.invoice.read',
+                            'settings.invoice.write',
+                            'settings.locale.read',
+                            'settings.locale.write',
+                            'settings.mail.read',
+                            'settings.mail.write',
+                            'settings.pterodactyl.read',
+                            'settings.pterodactyl.write',
+                            'settings.referral.read',
+                            'settings.referral.write',
+                            'settings.server.read',
+                            'settings.server.write',
+                            'settings.ticket.read',
+                            'settings.ticket.write',
+                            'settings.user.read',
+                            'settings.user.write',
+                            'settings.website.read',
+                            'settings.website.write',
+                            'settings.paypal.read',
+                            'settings.paypal.write',
+                            'settings.stripe.read',
+                            'settings.stripe.write',
+                            'settings.mollie.read',
+                            'settings.mollie.write',])
                         <li class="nav-item">
                             <a href="{{ route('admin.settings.index') }}"
                                class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
@@ -291,7 +337,9 @@
                                 <p>{{ __('Settings') }}</p>
                             </a>
                         </li>
+                    @endcanany
 
+                    @canany(['admin.api.read','admin.api.write'])
                         <li class="nav-item">
                             <a href="{{ route('admin.api.index') }}"
                                class="nav-link @if (Request::routeIs('admin.api.*')) active @endif">
@@ -299,9 +347,40 @@
                                 <p>{{ __('Application API') }}</p>
                             </a>
                         </li>
+                    @endcanany
 
+                    <!-- good fuck do i shorten this lol -->
+                    @canany(['admin.users.read',
+                            'admin.users.write',
+                            'admin.users.suspend',
+                            'admin.users.write.credits',
+                            'admin.users.write.username',
+                            'admin.users.write.password',
+                            'admin.users.write.role',
+                            'admin.users.write.referal',
+                            'admin.users.write.pterodactyl','admin.servers.read',
+                            'admin.servers.write',
+                            'admin.servers.suspend',
+                            'admin.servers.write.owner',
+                            'admin.servers.write.identifier',
+                            'admin.servers.delete','admin.products.read',
+                            'admin.products.create',
+                            'admin.products.edit',
+                            'admin.products.delete',])
                         <li class="nav-header">{{ __('Management') }}</li>
+                    @endcanany
 
+
+
+                    @canany(['admin.users.read',
+                            'admin.users.write',
+                            'admin.users.suspend',
+                            'admin.users.write.credits',
+                            'admin.users.write.username',
+                            'admin.users.write.password',
+                            'admin.users.write.role',
+                            'admin.users.write.referal',
+                            'admin.users.write.pterodactyl'])
                         <li class="nav-item">
                             <a href="{{ route('admin.users.index') }}"
                                class="nav-link @if (Request::routeIs('admin.users.*')) active @endif">
@@ -309,7 +388,13 @@
                                 <p>{{ __('Users') }}</p>
                             </a>
                         </li>
-
+                    @endcanany
+                    @canany(['admin.servers.read',
+                            'admin.servers.write',
+                            'admin.servers.suspend',
+                            'admin.servers.write.owner',
+                            'admin.servers.write.identifier',
+                            'admin.servers.delete'])
                         <li class="nav-item">
                             <a href="{{ route('admin.servers.index') }}"
                                class="nav-link @if (Request::routeIs('admin.servers.*')) active @endif">
@@ -317,7 +402,11 @@
                                 <p>{{ __('Servers') }}</p>
                             </a>
                         </li>
-
+                    @endcanany
+                    @canany(['admin.products.read',
+                            'admin.products.create',
+                            'admin.products.edit',
+                            'admin.products.delete'])
                         <li class="nav-item">
                             <a href="{{ route('admin.products.index') }}"
                                class="nav-link @if (Request::routeIs('admin.products.*')) active @endif">
@@ -325,7 +414,8 @@
                                 <p>{{ __('Products') }}</p>
                             </a>
                         </li>
-
+                    @endcanany
+                    @canany(['admin.store.read','admin.store.write','admin.store.disable'])
                         <li class="nav-item">
                             <a href="{{ route('admin.store.index') }}"
                                class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
@@ -333,7 +423,8 @@
                                 <p>{{ __('Store') }}</p>
                             </a>
                         </li>
-
+                    @endcanany
+                    @canany(["admin.voucher.read","admin.voucher.read"])
                         <li class="nav-item">
                             <a href="{{ route('admin.vouchers.index') }}"
                                class="nav-link @if (Request::routeIs('admin.vouchers.*')) active @endif">
@@ -341,7 +432,8 @@
                                 <p>{{ __('Vouchers') }}</p>
                             </a>
                         </li>
-
+                    @endcanany
+                    @canany(["admin.partners.read","admin.partners.read"])
                         <li class="nav-item">
                             <a href="{{ route('admin.partners.index') }}"
                                class="nav-link @if (Request::routeIs('admin.partners.*')) active @endif">
@@ -349,28 +441,13 @@
                                 <p>{{ __('Partners') }}</p>
                             </a>
                         </li>
+                    @endcanany
 
-                        {{-- <li class="nav-header">Pterodactyl</li> --}}
-
-                        {{-- <li class="nav-item"> --}}
-                        {{-- <a href="{{route('admin.nodes.index')}}" --}}
-                        {{-- class="nav-link @if (Request::routeIs('admin.nodes.*')) active @endif"> --}}
-                        {{-- <i class="nav-icon fas fa-sitemap"></i> --}}
-                        {{-- <p>Nodes</p> --}}
-                        {{-- </a> --}}
-                        {{-- </li> --}}
-
-                        {{-- <li class="nav-item"> --}}
-                        {{-- <a href="{{route('admin.nests.index')}}" --}}
-                        {{-- class="nav-link @if (Request::routeIs('admin.nests.*')) active @endif"> --}}
-                        {{-- <i class="nav-icon fas fa-th-large"></i> --}}
-                        {{-- <p>Nests</p> --}}
-                        {{-- </a> --}}
-                        {{-- </li> --}}
-
-
+                    @canany(["admin.useful_links.read","admin.legal.read"])
                         <li class="nav-header">{{ __('Other') }}</li>
+                    @endcanany
 
+                    @canany(["admin.useful_links.read","admin.useful_links.write"])
                         <li class="nav-item">
                             <a href="{{ route('admin.usefullinks.index') }}"
                                class="nav-link @if (Request::routeIs('admin.usefullinks.*')) active @endif">
@@ -378,7 +455,9 @@
                                 <p>{{ __('Useful Links') }}</p>
                             </a>
                         </li>
+                    @endcanany
 
+                    @canany(["admin.legal.read","admin.legal.write"])
                         <li class="nav-item">
                             <a href="{{ route('admin.legal.index') }}"
                                class="nav-link @if (Request::routeIs('admin.legal.*')) active @endif">
@@ -386,9 +465,14 @@
                                 <p>{{ __('Legal Sites') }}</p>
                             </a>
                         </li>
+                    @endcanany
 
+
+                    @canany(["admin.payments.read","admin.logs.read"])
                         <li class="nav-header">{{ __('Logs') }}</li>
+                    @endcanany
 
+                    @can("admin.payments.read")
                         <li class="nav-item">
                             <a href="{{ route('admin.payments.index') }}"
                                class="nav-link @if (Request::routeIs('admin.payments.*')) active @endif">
@@ -399,7 +483,9 @@
                                 </p>
                             </a>
                         </li>
+                    @endcan
 
+                    @can("admin.logs.read")
                         <li class="nav-item">
                             <a href="{{ route('admin.activitylogs.index') }}"
                                class="nav-link @if (Request::routeIs('admin.activitylogs.*')) active @endif">
@@ -407,7 +493,8 @@
                                 <p>{{ __('Activity Logs') }}</p>
                             </a>
                         </li>
-                    @endif
+                    @endcan
+
 
                 </ul>
             </nav>
@@ -420,17 +507,19 @@
 
     <div class="content-wrapper">
 
-        @if (!Auth::user()->hasVerifiedEmail())
+        <!--
+            @if (!Auth::user()->hasVerifiedEmail())
             @if (Auth::user()->created_at->diffInHours(now(), false) > 1)
                 <div class="alert alert-warning p-2 m-2">
                     <h5><i class="icon fas fa-exclamation-circle"></i> {{ __('Warning!') }}</h5>
-                    {{ __('You have not yet verified your email address') }} <a class="text-primary"
-                                                                                href="{{ route('verification.send') }}">{{ __('Click here to resend verification email') }}</a>
-                    <br>
-                    {{ __('Please contact support If you didnt receive your verification email.') }}
+                        {{ __('You have not yet verified your email address') }} <a class="text-primary"
+                            href="{{ route('verification.send') }}">{{ __('Click here to resend verification email') }}</a>
+                        <br>
+                        {{ __('Please contact support If you didnt receive your verification email.') }}
                 </div>
-            @endif
+@endif
         @endif
+        -->
 
         @yield('content')
 
@@ -441,21 +530,22 @@
         <strong>Copyright &copy; 2021-{{ date('Y') }} <a
                 href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
         All rights
-        reserved. Powered by <a href="https://CtrlPanel.gg">ControlPanel</a>. | Theme by <a href="https://2icecube.de/cpgg">2IceCube</a>
+        reserved. Powered by <a href="https://CtrlPanel.gg">CtrlPanel</a>. | Theme by <a href="https://2icecube.de/cpgg">2IceCube</a>
         @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
             Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
         @endif
 
         {{-- Show imprint and privacy link --}}
         <div class="float-right d-none d-sm-inline-block">
-            @if (config('SETTINGS::SYSTEM:SHOW_IMPRINT') == "true")
+            @if ($website_settings->show_imprint)
                 <a target="_blank" href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
             @endif
-            @if (config('SETTINGS::SYSTEM:SHOW_PRIVACY') == "true")
+            @if ($website_settings->show_privacy)
                 <a target="_blank" href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
             @endif
-            @if (config('SETTINGS::SYSTEM:SHOW_TOS') == "true")
-                | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+            @if ($website_settings->show_tos)
+                | <a target="_blank"
+                     href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
             @endif
         </div>
     </footer>
@@ -469,9 +559,9 @@
 <!-- ./wrapper -->
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
+<script src="{{ asset('plugins/sweetalert2/sweetalert2.all.min.js') }}"></script>
 
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
+<script src="{{ asset('plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <!-- Summernote -->
 <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
 <!-- select2 -->
