@@ -13,6 +13,11 @@ class AddCancelationToServersTable extends Migration
      */
     public function up()
     {
+        // User already has installed the addon before
+        if (Schema::hasColumn("servers", "cancelled")) {
+            return;
+        }
+
         Schema::table('servers', function (Blueprint $table) {
             $table->dateTime('cancelled')->nullable();
         });

@@ -14,11 +14,16 @@ class AddBillingPeriodToProducts extends Migration
      */
     public function up()
     {
+        // User already has installed the addon before
+        if (Schema::hasColumn("products", "billing_period")) {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
+
             $table->string('billing_period')->default("hourly");
             $table->decimal('price', 15, 4)->change();
             $table->decimal('minimum_credits', 15, 4)->change();
-
         });
 
         DB::statement('UPDATE products SET billing_period="hourly"');
@@ -29,7 +34,6 @@ class AddBillingPeriodToProducts extends Migration
             $price = $price / 30 / 24;
             DB::table('products')->where('id', $product->id)->update(['price' => $price]);
         }
-
     }
 
     /**

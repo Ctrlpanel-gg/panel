@@ -2,10 +2,9 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class AddLastBilledFieldToServers extends Migration
+class UpdateUserCreditsDatatype extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +13,8 @@ class AddLastBilledFieldToServers extends Migration
      */
     public function up()
     {
-        Schema::table('servers', function (Blueprint $table) {
-            $table->dateTime('last_billed')->default(DB::raw('CURRENT_TIMESTAMP'))->nullable();
+        Schema::table('users', function (Blueprint $table) {
+            $table->decimal('credits', 15, 4)->default(0)->change();
         });
     }
 
@@ -26,8 +25,8 @@ class AddLastBilledFieldToServers extends Migration
      */
     public function down()
     {
-        Schema::table('servers', function (Blueprint $table) {
-            $table->dropColumn('last_billed');
+        Schema::table('users', function (Blueprint $table) {
+            $table->decimal('price', ['11', '2'])->change();
         });
     }
 }
