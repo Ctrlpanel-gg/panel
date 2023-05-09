@@ -19,6 +19,10 @@ class ReferralNotification extends Notification
 
     private $ref_user;
 
+    private $reward;
+
+    private $credits_display_name;
+
     /**
      * Create a new notification instance.
      *
@@ -26,6 +30,11 @@ class ReferralNotification extends Notification
      */
     public function __construct(int $user, int $ref_user)
     {
+        $general_settings= new GeneralSettings();
+        $referral_settings = new ReferralSettings();
+
+        $this->credits_display_name = $general_settings->credits_display_name;
+        $this->reward = $referral_settings->reward;
         $this->user = User::findOrFail($user);
         $this->ref_user = User::findOrFail($ref_user);
     }
@@ -47,12 +56,12 @@ class ReferralNotification extends Notification
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toArray($notifiable, GeneralSettings $general_settings, ReferralSettings $referral_settings)
+    public function toArray($notifiable)
     {
         return [
             'title' => __('Someone registered using your Code!'),
             'content' => '
-                <p>You received '. $referral_settings->reward . ' ' . $general_settings->credits_display_name . '</p>
+                <p>You received '. $this->reward . ' ' . $this->credits_display_name . '</p>
                 <p>because ' . $this->ref_user->name . ' registered with your Referral-Code!</p>
                 <p>Thank you very much for supporting us!.</p>
                 <p>'.config('app.name', 'Laravel').'</p>

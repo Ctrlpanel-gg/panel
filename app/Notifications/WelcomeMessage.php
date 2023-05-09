@@ -33,8 +33,11 @@ class WelcomeMessage extends Notification implements ShouldQueue
      *
      * @param  User  $user
      */
-    public function __construct(User $user, GeneralSettings $general_settings, UserSettings $user_settings)
+    public function __construct(User $user)
     {
+        $general_settings= new GeneralSettings();
+        $user_settings = new UserSettings();
+
         $this->user = $user;
         $this->credits_display_name = $general_settings->credits_display_name;
         $this->credits_reward_after_verify_discord = $user_settings->credits_reward_after_verify_discord;
