@@ -106,8 +106,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         parent::boot();
 
-        static::created(function (User $user, GeneralSettings $general_settings, UserSettings $user_settings) {
-            $user->notify(new WelcomeMessage($user, $general_settings, $user_settings));
+        static::created(function (User $user) {
+            $user->notify(new WelcomeMessage($user));
         });
 
         static::deleting(function (User $user) {
@@ -276,6 +276,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function verifyEmail()
     {
+
         $this->forceFill([
             'email_verified_at' => now(),
         ])->save();
