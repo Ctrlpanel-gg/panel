@@ -138,4 +138,25 @@ class SettingsController extends Controller
 
         return Redirect::to('admin/settings' . '#' . $category)->with('success', 'Settings updated successfully.');
     }
+
+    public function updateIcons(Request $request)
+    {
+        $request->validate([
+            'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
+            'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
+            'favicon' => 'nullable|max:10000|mimes:ico',
+        ]);
+
+        if ($request->hasFile('icon')) {
+            $request->file('icon')->storeAs('public', 'icon.png');
+        }
+        if ($request->hasFile('logo')) {
+            $request->file('logo')->storeAs('public', 'logo.png');
+        }
+        if ($request->hasFile('favicon')) {
+            $request->file('favicon')->storeAs('public', 'favicon.ico');
+        }
+
+        return Redirect::to('admin/settings')->with('success', 'Icons updated successfully.');
+    }
 }
