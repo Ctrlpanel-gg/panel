@@ -169,13 +169,12 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
         //settings
-        Route::get('settings/datatable', [SettingsController::class, 'datatable'])->name('settings.datatable');
-        Route::patch('settings/updatevalue', [SettingsController::class, 'updatevalue'])->name('settings.updatevalue');
-        Route::get('settings/checkPteroClientkey', [System::class, 'checkPteroClientkey'])->name('settings.checkPteroClientkey');
-        Route::redirect('settings#system', 'system')->name('settings.system');
+
 
         Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::post('settings/icons', [SettingsController::class, 'updateIcons'])->name('settings.updateIcons');
+
 
         //invoices
         Route::get('invoices/download-invoices', [InvoiceController::class, 'downloadAllInvoices'])->name('invoices.downloadAllInvoices');

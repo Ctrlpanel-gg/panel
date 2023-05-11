@@ -44,6 +44,17 @@
                             <nav class="mt-1">
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
+                                    <li class="nav-item border-bottom-0">
+                                        <a href="#icons"
+                                           class="nav-link" data-toggle="pill"
+                                           role="tab">
+                                            <i
+                                                class="nav-icon fas fa-image"></i>
+                                            <p>
+                                                {{ __("Images / Icons") }}
+                                            </p>
+                                        </a>
+                                    </li>
                                     @foreach ($settings as $category => $options)
                                         @canany(["settings.".strtolower($category).".read","settings.".strtolower($category).".write"])
                                         <li class="nav-item border-bottom-0">
@@ -66,6 +77,48 @@
                         <!-- Content in $settings -->
                         <div class="col-10 p-0">
                             <div class="tab-content ml-3" style="width: 100%;">
+                                <div container class="tab-pane fade container"
+                                     id="icons" role="tabpanel">
+
+                                    <form method="POST" enctype="multipart/form-data" class="mb-3"
+                                          action="{{ route('admin.settings.updateIcons') }}">
+                                        @csrf
+                                        @method('POST')
+                                        <div class="row">
+                                                <div class="card ml-5" style="width: 18rem;">
+                                                    <span class="h3 text-center">{{__("FavIcon")}} </span>
+                                                    <div class="card-body">
+
+                                                    </div>
+                                                    <input type="file" accept="image/x-icon" class="form-control" name="favicon"
+                                                           id="favicon">
+                                                </div>
+
+                                            <div class="card ml-5" style="width: 18rem;">
+                                                <span class="h3 text-center">{{__("Icon")}} </span>
+                                                <img src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}" style="width:5vw;display: block; margin-left: auto;margin-right: auto" class="card-img-top" alt="..." >
+                                                <div class="card-body">
+
+                                                </div>
+                                                <input type="file" accept="image/png,image/jpeg,image/jpg" class="form-control"
+                                                       name="icon" id="icon">
+                                            </div>
+
+                                            <div class="card ml-5" style="width: 18rem;">
+                                                <span class="h3 text-center">{{__("Login-page Logo")}} </span>
+                                                <img src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}" style="width:5vw;display: block; margin-left: auto;margin-right: auto" class="card-img-top" alt="..." >
+                                                <div class="card-body">
+
+                                                </div>
+                                                <input type="file" accept="image/png,image/jpeg,image/jpg" class="form-control"
+                                                       name="logo" id="logo">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <button class="btn btn-primary ml-3 mt-3">{{ __('Save') }}</button>
+                                        </div>
+                                    </form>
+                                </div>
                                 @foreach ($settings as $category => $options)
                                     @canany(["settings.".strtolower($category).".read","settings.".strtolower($category).".write"])
                                     <div container class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
@@ -207,6 +260,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
 
