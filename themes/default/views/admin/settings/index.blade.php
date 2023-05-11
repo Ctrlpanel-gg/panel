@@ -78,11 +78,13 @@
                                     @endforeach
                                 </ul>
 
+
                                     <button class="btn btn-outline-secondary" type="button" data-toggle="collapse"
                                             data-target="#collapseExtensions" aria-expanded="false"
                                             aria-controls="collapseExtensions">
                                         {{__("Extension Settings")}}
                                     </button>
+
 
                                     <div class="collapse" id="collapseExtensions">
                                         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
