@@ -389,13 +389,6 @@ class ServerController extends Controller
             $server->allocation = $serverAttributes['allocation'];
             $response = $this->pterodactyl->updateServer($server, $newProduct);
             if ($response->failed()) return redirect()->route('servers.index')->with('error', __("The system was unable to update your server product. Please try again later or contact support."));
-            //update user balance
-            $user->decrement('credits', $priceupgrade);
-            //restart the server
-            $response = $this->pterodactyl->powerAction($server, 'restart');
-            if ($response->failed()) {
-                return redirect()->route('servers.index')->with('error', $response->json()['errors'][0]['detail']);
-            }
 
             // Remove the allocation property from the server object as it is not a column in the database
             unset($server->allocation);
@@ -414,7 +407,7 @@ class ServerController extends Controller
             $user->decrement('credits', $newProduct->price);
 
             //restart the server
-            $response = Pterodactyl::powerAction($server, "restart");
+            $response = $this->pterodactyl->powerAction($server, 'restart');
             if ($response->failed()) return redirect()->route('servers.index')->with('error', 'Server upgraded successfully! Could not restart the server:   ' . $response->json()['errors'][0]['detail']);
             return redirect()->route('servers.show', ['server' => $server->id])->with('success', __('Server Successfully Upgraded'));
         } else {
