@@ -38,7 +38,7 @@ class OverViewController extends Controller
         $counters = collect();
         //Set basic variables in the collection
         $counters->put('users', User::query()->count());
-        $counters->put('credits', number_format(User::query()->where('role', '!=', 'admin')->sum('credits'), 2, '.', ''));
+        $counters->put('credits', number_format(User::query()->whereHas("roles", function($q){ $q->where("id", "!=", "1"); })->sum('credits'), 2, '.', ''));
         $counters->put('payments', Payment::query()->count());
         $counters->put('eggs', Egg::query()->count());
         $counters->put('nests', Nest::query()->count());
