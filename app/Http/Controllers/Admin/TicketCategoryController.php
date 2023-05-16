@@ -9,8 +9,8 @@ use Illuminate\Http\Request;
 
 class TicketCategoryController extends Controller
 {
-    const READ_PERMISSION = "admin.tickets.read";
-    const WRITE_PERMISSION = "admin.tickets.write";
+    const READ_PERMISSION = "admin.tickets.category.read";
+    const WRITE_PERMISSION = "admin.tickets.category.write";
     /**
      *
      * Display a listing of the resource.

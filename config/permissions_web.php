@@ -17,6 +17,9 @@ return [
     'admin.tickets.write',
     'admin.tickets.get_notification',
 
+    'admin.tickets.category.read',
+    'admin.tickets.category.write',
+
     'admin.ticket_blacklist.read',
     'admin.ticket_blacklist.write',
 
