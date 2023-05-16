@@ -393,6 +393,7 @@ class ServerController extends Controller
             $response = $this->pterodactyl->powerAction($server, 'restart');
             if ($response->failed()) return redirect()->route('servers.index')->with('error', 'Upgrade Failed! Could not restart the server:   ' . $response->json()['errors'][0]['detail']);
 
+
             // Remove the allocation property from the server object as it is not a column in the database
             unset($server->allocation);
             // Update the server on controlpanel
