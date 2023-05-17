@@ -58,4 +58,11 @@
         </div>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            $('#permissions').select2();
+        })
+    </script>
 @endsection
+
