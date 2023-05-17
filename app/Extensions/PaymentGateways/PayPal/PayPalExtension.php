@@ -10,6 +10,7 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -41,6 +42,17 @@ class PayPalExtension extends AbstractExtension
         $user = Auth::user();
         $shopProduct = ShopProduct::findOrFail($request->shopProduct);
         $discount = PartnerDiscount::getDiscount();
+        $discountPrice = $request->get('discountPrice');
+
+        dd($discountPrice);
+
+        // Partner Discount.
+        $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
+
+        // Coupon Discount.
+        // if ($discountPrice) {
+        //     $price = $price - ($price * floatval($coupon_percentage) / 100);
+        // }
 
         // create a new payment
         $payment = Payment::create([
@@ -50,7 +62,7 @@ class PayPalExtension extends AbstractExtension
             'type' => $shopProduct->type,
             'status' => 'open',
             'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * $discount / 100),
+            'price' => $price,
             'tax_value' => $shopProduct->getTaxValue(),
             'tax_percent' => $shopProduct->getTaxPercent(),
             'total_price' => $shopProduct->getTotalPrice(),
@@ -73,7 +85,7 @@ class PayPalExtension extends AbstractExtension
                             'item_total' =>
                             [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $shopProduct->getPriceAfterDiscount(),
+                                'value' => number_format($price, 2),
                             ],
                             'tax_total' =>
                             [
@@ -86,7 +98,7 @@ class PayPalExtension extends AbstractExtension
             ],
             "application_context" => [
                 "cancel_url" => route('payment.Cancel'),
-                "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id]),
+                "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id, 'couponCode' => $coupon_code]),
                 'brand_name' =>  config('app.name', 'CtrlPanel.GG'),
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
@@ -126,6 +138,7 @@ class PayPalExtension extends AbstractExtension
 
         $payment = Payment::findOrFail($laravelRequest->payment);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+				$coupon_code = $laravelRequest->input('couponCode');
 
         $request = new OrdersCaptureRequest($laravelRequest->input('token'));
         $request->prefer('return=representation');
@@ -139,6 +152,12 @@ class PayPalExtension extends AbstractExtension
                     'status' => 'paid',
                     'payment_id' => $response->result->id,
                 ]);
+
+								// increase the use of the coupon when the payment is confirmed.
+								if ($coupon_code) {
+									$coupon = new Coupon;
+									$coupon->incrementUses($coupon_code);
+								}
 
                 event(new UserUpdateCreditsEvent($user));
                 event(new PaymentEvent($user, $payment, $shopProduct));

@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\TicketsController as AdminTicketsController;
 use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
@@ -198,6 +199,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('partners/datatable', [PartnerController::class, 'datatable'])->name('partners.datatable');
         Route::get('partners/{voucher}/users', [PartnerController::class, 'users'])->name('partners.users');
         Route::resource('partners', PartnerController::class);
+
+        //coupons
+        Route::post('coupons/redeem', [CouponController::class, 'redeem'])->name('coupon.redeem');
+        Route::resource('coupons', CouponController::class);
 
         //api-keys
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');

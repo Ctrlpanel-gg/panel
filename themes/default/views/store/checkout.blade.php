@@ -24,7 +24,19 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
-            <form x-data="{ payment_method: '', clicked: false }" action="{{ route('payment.pay') }}" method="POST">
+            <form
+							id="payment_form"
+              action="{{ route('payment.pay') }}"
+              method="POST"
+              x-data="{
+                payment_method: '',
+                coupon_code: '',
+                clicked: false,
+                setCouponCode(event) {
+                  this.coupon_code = event.target.value
+                }
+              }"
+            >
                 @csrf
                 @method('post')
                 <div class="row d-flex justify-content-center flex-wrap">
@@ -67,6 +79,45 @@
                                 </div>
                             </div>
                         </div>
+												<div class="col-xl-4">
+													<div class="card">
+														<div class="card-header">
+															<h4 class="mb-0">
+																Coupon Code
+															</h4>
+														</div>
+														<div class="card-body">
+															<div class="d-flex">
+                                <input
+                                  type="text"
+                                  id="coupon_code"
+                                  name="coupon_code"
+                                  value="{{ old('coupon_code') }}"
+                                  :value="coupon_code"
+                                  class="form-control @error('coupon_code') is_invalid @enderror"
+                                  placeholder="SUMMER"
+                                  x-on:change.debounce="setCouponCode($event)"
+                                  x-model="coupon_code"
+                                />
+                              <button
+                                type="button"
+                                id="send_coupon_code"
+                                class="btn btn-success ml-3"
+                                :disabled="!coupon_code.length"
+                                :class="!coupon_code.length ? 'disabled' : ''"
+                                :value="coupon_code"
+                              >
+                                {{ __('Submit') }}
+                              </button>
+                              </div>
+                              @error('coupon_code')
+                                <div class="text-danger">
+                                  {{ $message }}
+                                </div>
+                              @enderror
+														</div>
+													</div>
+												</div>
                     @endif
                     <div class="col-xl-3">
                         <div class="card">
@@ -131,6 +182,12 @@
                                                 <span class="text-muted d-inline-block">
                                                     + {{ $product->formatToCurrency($taxvalue) }}</span>
                                             </div>
+                                            <div id="coupon_discount_details" class="d-flex justify-content-between" style="display: none !important;">
+                                              <span class="text-muted d-inline-block">
+                                                {{ __('Coupon Discount') }}
+
+                                              </span>
+                                            </div>
                                             @if ($discountpercent && $discountvalue)
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Discount') }}
@@ -155,9 +212,12 @@
                                     </li>
                                 </ul>
 
-                                <button :disabled="(!payment_method || !clicked) && {{ !$productIsFree }}"
-                                    :class="(!payment_method || !clicked) && {{ !$productIsFree }} ? 'disabled' : ''"
+                                <button :disabled="(!payment_method || !clicked || coupon_code ? true : false) && {{ !$productIsFree }}"
+                                    id="submit_form_button"
+                                    :class="(!payment_method || !clicked || coupon_code ? true : false) && {{ !$productIsFree }} ? 'disabled' : ''"
+                                    :x-text="coupon_code"
                                     class="btn btn-success float-right w-100">
+
                                     <i class="far fa-credit-card mr-2" @click="clicked == true"></i>
                                     @if ($productIsFree)
                                         {{ __('Get for free') }}
@@ -166,6 +226,8 @@
                                     @endif
 
                                 </button>
+                                <script>
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -175,4 +237,64 @@
 
     </section>
     <!-- END CONTENT -->
+
+    <script>
+      $(document).ready(function() {
+        let hasCouponCodeValue = $('#coupon_code').val().trim() !== ''
+
+        $('#coupon_code').on('change', function(e) {
+          hasCouponCodeValue = e.target.value !== ''
+        })
+
+				function checkCoupon() {
+					const couponCode = $('#coupon_code').val()
+
+					$.ajax({
+						url: "{{ route('admin.coupon.redeem') }}",
+						method: 'POST',
+						data: { coupon_code: couponCode },
+						success: function(response) {
+							if (response.isValid && response.couponCode) {
+                Swal.fire({
+                  icon: 'success',
+                  text: `The coupon '${response.couponCode}' was successfully inserted in your purchase.`,
+                }).then(function(isConfirmed) {
+                  console.log('confirmou')
+
+                  $('#submit_form_button').prop('disabled', false).removeClass('disabled')
+                  $('#send_coupon_code').prop('disabled', true)
+                  $('#coupon_discount_details').prop('disabled', false).show()
+                })
+
+							} else {
+								console.log('Invalid Coupon')
+							}
+						},
+						error: function(response) {
+              const responseJson = response.responseJSON
+
+              if (!responseJson.isValid) {
+                  Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: responseJson.error,
+                })
+              }
+						}
+					})
+				}
+
+				$('#payment_form').on('submit', function(e) {
+					if (hasCouponCodeValue) {
+						checkCoupon()
+					}
+				})
+
+        $('#send_coupon_code').click(function(e) {
+          if (hasCouponCodeValue) {
+						checkCoupon()
+					}
+        })
+      })
+    </script>
 @endsection

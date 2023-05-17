@@ -9,6 +9,8 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\ShopProduct;
+use App\Models\Coupon;
+use App\Traits\Coupon as CouponTrait;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -20,11 +22,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Helpers\ExtensionHelper;
 use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
     const BUY_PERMISSION = 'user.shop.buy';
     const VIEW_PERMISSION = "admin.payments.read";
+
+    use CouponTrait;
+
     /**
      * @return Application|Factory|View
      */
@@ -123,11 +130,29 @@ class PaymentController extends Controller
     {
         $product = ShopProduct::find($request->product_id);
         $paymentGateway = $request->payment_method;
+        $coupon_data = null;
+        $coupon_code = $request->coupon_code;
 
         // on free products, we don't need to use a payment gateway
         $realPrice = $product->price - ($product->price * PartnerDiscount::getDiscount() / 100);
         if ($realPrice <= 0) {
             return $this->handleFreeProduct($product);
+        }
+
+        if ($coupon_code) {
+            $isValidCoupon = $this->validateCoupon($request);
+
+            if ($isValidCoupon->getStatusCode() == 200) {
+                $coupon_data = $isValidCoupon;
+                $discountPrice = $this->calcDiscount($product, $isValidCoupon->getData());
+            }
+        }
+
+        if ($coupon_data) {
+            return redirect()->route('payment.' . $paymentGateway . 'Pay', [
+                'shopProduct' => $product->id,
+                'discountPrice' => $discountPrice
+            ]);
         }
 
         return redirect()->route('payment.' . $paymentGateway . 'Pay', ['shopProduct' => $product->id]);
@@ -139,6 +164,11 @@ class PaymentController extends Controller
     public function Cancel(Request $request)
     {
         return redirect()->route('store.index')->with('info', 'Payment was Canceled');
+    }
+
+    protected function getCouponDiscount(float $productPrice, string $discount)
+    {
+        return $productPrice - ($productPrice * $discount / 100);
     }
 
     /**
