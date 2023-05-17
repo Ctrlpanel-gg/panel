@@ -424,7 +424,7 @@
                                 </a>
                             </li>
                         @endcanany
-                        @canany(["admin.voucher.read","admin.voucher.read"])
+                        @canany(["admin.voucher.read","admin.voucher.write"])
                             <li class="nav-item">
                                 <a href="{{ route('admin.vouchers.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.vouchers.*')) active @endif">
@@ -433,12 +433,22 @@
                                 </a>
                             </li>
                         @endcanany
-                        @canany(["admin.partners.read","admin.partners.read"])
+                        @canany(["admin.partners.read","admin.partners.write"])
                             <li class="nav-item">
                                 <a href="{{ route('admin.partners.index') }}"
                                     class="nav-link @if (Request::routeIs('admin.partners.*')) active @endif">
                                     <i class="nav-icon fas fa-handshake"></i>
                                     <p>{{ __('Partners') }}</p>
+                                </a>
+                            </li>
+                        @endcanany
+
+												@canany(["admin.coupons.read", "admin.coupons.write"])
+                            <li class="nav-item">
+                                <a href="{{ route('admin.coupons.index') }}"
+                                    class="nav-link @if (Request::routeIs('admin.coupons.*')) active @endif">
+                                    <i class="nav-icon fas fa-ticket-alt"></i>
+                                    <p>{{ __('Coupons') }}</p>
                                 </a>
                             </li>
                         @endcanany

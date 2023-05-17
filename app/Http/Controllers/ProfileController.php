@@ -34,8 +34,7 @@ class ProfileController extends Controller
             'force_discord_verification' => $user_settings->force_discord_verification,
             'discord_client_id' => $discord_settings->client_id,
             'discord_client_secret' => $discord_settings->client_secret,
-            'referral_enabled' => $referral_settings->enabled,
-            'referral_allowed' => $referral_settings->allowed
+            'referral_enabled' => $referral_settings->enabled
         ]);
     }
 

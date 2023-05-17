@@ -4,8 +4,6 @@ namespace App\Models;
 
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
-use App\Settings\GeneralSettings;
-use App\Settings\UserSettings;
 use App\Classes\PterodactylClient;
 use App\Settings\PterodactylSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -170,6 +168,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function vouchers()
     {
         return $this->belongsToMany(Voucher::class);
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class, 'user_coupons');
     }
 
     /**
