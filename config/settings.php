@@ -12,6 +12,7 @@ use App\Settings\ServerSettings;
 use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
 use App\Settings\TicketSettings;
+use App\Settings\CouponSettings;
 
 return [
 
@@ -31,6 +32,7 @@ return [
         UserSettings::class,
         WebsiteSettings::class,
         TicketSettings::class,
+				CouponSettings::class,
     ],
 
     /*

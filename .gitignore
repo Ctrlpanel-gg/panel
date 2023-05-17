@@ -10,6 +10,7 @@ storage/debugbar
 .env.backup
 .idea
 .phpunit.result.cache
+.editorconfig
 docker-compose.override.yml
 Homestead.json
 Homestead.yaml
