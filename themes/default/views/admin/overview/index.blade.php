@@ -240,7 +240,7 @@
                                     <th>{{__('Node')}}</th>
                                     <th>{{__('Server count')}}</th>
                                     <th>{{__('Resource usage')}}</th>
-                                    <th>{{ $credits_display_name . ' ' . __('Usage')}}</th>
+                                    <th>{{ $credits_display_name . ' ' . __('Usage') ." (".__('per month').")"}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>

@@ -173,7 +173,8 @@ class OverViewController extends Controller
             $nodeId = $server['attributes']['node'];
 
             if ($CPServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first()) {
-                $price = Product::query()->where('id', $CPServer->product_id)->first()->price;
+                $product = Product::query()->where('id', $CPServer->product_id)->first();
+                $price = $product->getMonthlyPrice();
                 if (! $CPServer->suspended) {
                     $counters['earnings']->active += $price;
                     $counters['servers']->active++;
