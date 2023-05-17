@@ -62,8 +62,8 @@
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
                                             aria-labelledby="dropdownMenuLink">
-                                            @if (!empty(config('SETTINGS::MISC:PHPMYADMIN:URL')))
-                                                <a href="{{ config('SETTINGS::MISC:PHPMYADMIN:URL') }}"
+                                            @if (!empty($phpmyadmin_url)))
+                                                <a href="{{ $phpmyadmin_url }}"
                                                     class="dropdown-item text-info" target="__blank"><i title="manage"
                                                         class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span></a>
                                             @endif
@@ -194,6 +194,9 @@
                                         @elseif($server->product->billing_period == 'hourly')
                                             {{ __('per Hour') }}
                                         @endif
+                                            <i data-toggle="popover" data-trigger="hover"
+                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . number_format($server->product->getMonthlyPrice(),2,",",".") . " ". $credits_display_name . " ". __('per Month')}}"
+                                               class="fas fa-info-circle"></i>
                                             </div>
                                         <span>
                                             {{ $server->product->price == round($server->product->price) ? round($server->product->price) : $server->product->price }}
