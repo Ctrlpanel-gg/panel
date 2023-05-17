@@ -367,6 +367,10 @@ function checkPriceAmount($amount, $currencyCode, $payment_method)
         "THB" => [
             "paypal" => 0,
             "stripe" => 10
+        ],
+        "TRY" => [
+            "paypal" => 0,
+            "stripe" => 8
         ]
     ];
     return $amount >= $minimums[$currencyCode][$payment_method];
