@@ -47,13 +47,9 @@ class PayPalExtension extends AbstractExtension
         $discount = PartnerDiscount::getDiscount();
         $couponCode = $request->input('couponCode');
         $isValidCoupon = $this->validateCoupon($request->user(), $couponCode, $request->shopProduct);
-
-        if (is_string($shopProduct->price)) {
-            $shopProduct->price = floatval($shopProduct->price);
-        }
-
         $price = $shopProduct->price;
 
+		// Coupon Discount.
         if ($isValidCoupon->getStatusCode() == 200) {
             $price = $this->calcDiscount($price, $isValidCoupon->getData());
         }
