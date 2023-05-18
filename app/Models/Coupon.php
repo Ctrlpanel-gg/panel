@@ -54,7 +54,7 @@ class Coupon extends Model
         }
 
         if (!is_null($this->expires_at)) {
-            if ($this->expires_at <= Carbon::now()->timestamp) {
+            if ($this->expires_at <= Carbon::now(config('app.timezone'))->timestamp) {
                 return __('EXPIRED');
             }
         }
