@@ -201,6 +201,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::resource('partners', PartnerController::class);
 
         //coupons
+        Route::get('coupons/datatable', [CouponController::class, 'dataTable'])->name('coupons.datatable');
         Route::post('coupons/redeem', [CouponController::class, 'redeem'])->name('coupon.redeem');
         Route::resource('coupons', CouponController::class);
 

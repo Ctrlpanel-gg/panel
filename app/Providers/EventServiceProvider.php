@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
+use App\Events\CouponUsedEvent;
+use App\Listeners\CouponUsed;
 use App\Listeners\CreateInvoice;
 use App\Listeners\UnsuspendServers;
 use App\Listeners\UserPayment;
@@ -30,6 +32,9 @@ class EventServiceProvider extends ServiceProvider
         PaymentEvent::class => [
             CreateInvoice::class,
             UserPayment::class,
+        ],
+        CouponUsedEvent::class => [
+            CouponUsed::class
         ],
         SocialiteWasCalled::class => [
             // ... other providers

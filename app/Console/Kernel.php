@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\ChargeCreditsCommand::class,
         Commands\ChargeServers::class,
+        Commands\DeleteExpiredCoupons::class,
     ];
 
     /**
@@ -29,6 +30,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('servers:charge')->everyMinute();
         $schedule->command('cp:versioncheck:get')->daily();
         $schedule->command('payments:open:clear')->daily();
+        $schedule->command('coupons:delete')->daily();
 
         //log cronjob activity
         $schedule->call(function () {

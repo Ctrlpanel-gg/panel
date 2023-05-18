@@ -2,6 +2,7 @@
 
 namespace App\Extensions\PaymentGateways\PayPal;
 
+use App\Events\CouponUsedEvent;
 use App\Helpers\AbstractExtension;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
@@ -56,6 +57,7 @@ class PayPalExtension extends AbstractExtension
 
         // Partner Discount.
         $price = $price - ($price * $discount / 100);
+        $price = number_format($price, 2);
 
         // create a new payment
         $payment = Payment::create([
@@ -82,12 +84,12 @@ class PayPalExtension extends AbstractExtension
                     "reference_id" => uniqid(),
                     "description" => $shopProduct->display . ($discount ? (" (" . __('Discount') . " " . $discount . '%)') : ""),
                     "amount" => [
-                        "value" => $shopProduct->getTotalPrice(),
+                        "value" => $price,
                         'currency_code' => strtoupper($shopProduct->currency_code),
                         'breakdown' => [
                             'item_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => number_format($price, 2),
+                                'value' => $price
                             ],
                             'tax_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
@@ -158,6 +160,8 @@ class PayPalExtension extends AbstractExtension
                 if ($coupon_code) {
                     $coupon = new Coupon;
                     $coupon->incrementUses($coupon_code);
+
+                    event(new CouponUsedEvent($coupon));
                 }
 
                 event(new UserUpdateCreditsEvent($user));
