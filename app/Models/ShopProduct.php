@@ -36,6 +36,13 @@ class ShopProduct extends Model
         'disabled',
     ];
 
+    /**
+     * @var string[]
+     */
+    protected $casts = [
+        'price' => 'float'
+    ];
+
     public static function boot()
     {
         parent::boot();

@@ -22,14 +22,6 @@ trait Coupon
         ], 404);
 
         if (!is_null($coupon)) {
-            if (is_string($coupon->value)) {
-                $coupon->value = floatval($coupon->value);
-            }
-
-            if (is_string($shopProduct->price)) {
-                $shopProduct->price = floatval($shopProduct->price);
-            }
-
             if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
                 $response = response()->json([
                     'isValid' => false,
@@ -81,10 +73,6 @@ trait Coupon
     {
 
         if ($data->isValid) {
-            if (is_string($productPrice)) {
-                $productPrice = floatval($productPrice);
-            }
-
             if ($data->couponType === 'percentage') {
                 return $productPrice - ($productPrice * $data->couponValue / 100);
             }
