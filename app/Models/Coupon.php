@@ -10,6 +10,9 @@ class Coupon extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'code',
         'type',
@@ -17,6 +20,16 @@ class Coupon extends Model
         'uses',
         'max_uses',
         'expires_at'
+    ];
+
+    /**
+     * @var string[]
+     */
+    protected $casts = [
+        'value' => 'float',
+        'uses' => 'integer',
+        'max_uses' => 'integer',
+        'expires_at' => 'timestamp'
     ];
 
     /**
@@ -41,9 +54,7 @@ class Coupon extends Model
         }
 
         if (!is_null($this->expires_at)) {
-            $expires_at = Carbon::createFromTimeString($this->expires_at)->timestamp;
-
-            if ($expires_at <= Carbon::now()->timestamp) {
+            if ($this->expires_at <= Carbon::now()->timestamp) {
                 return __('EXPIRED');
             }
         }
