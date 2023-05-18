@@ -130,7 +130,6 @@ class PaymentController extends Controller
     {
         $product = ShopProduct::find($request->product_id);
         $paymentGateway = $request->payment_method;
-        $coupon_data = null;
         $coupon_code = $request->coupon_code;
 
         // on free products, we don't need to use a payment gateway
@@ -140,18 +139,9 @@ class PaymentController extends Controller
         }
 
         if ($coupon_code) {
-            $isValidCoupon = $this->validateCoupon($request);
-
-            if ($isValidCoupon->getStatusCode() == 200) {
-                $coupon_data = $isValidCoupon;
-                $discountPrice = $this->calcDiscount($product, $isValidCoupon->getData());
-            }
-        }
-
-        if ($coupon_data) {
             return redirect()->route('payment.' . $paymentGateway . 'Pay', [
                 'shopProduct' => $product->id,
-                'discountPrice' => $discountPrice
+                'couponCode' => $coupon_code
             ]);
         }
 
@@ -164,11 +154,6 @@ class PaymentController extends Controller
     public function Cancel(Request $request)
     {
         return redirect()->route('store.index')->with('info', 'Payment was Canceled');
-    }
-
-    protected function getCouponDiscount(float $productPrice, string $discount)
-    {
-        return $productPrice - ($productPrice * $discount / 100);
     }
 
     /**

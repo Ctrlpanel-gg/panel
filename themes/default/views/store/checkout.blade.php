@@ -185,6 +185,8 @@
                                             <div id="coupon_discount_details" class="d-flex justify-content-between" style="display: none !important;">
                                               <span class="text-muted d-inline-block">
                                                 {{ __('Coupon Discount') }}
+                                              </span>
+                                              <span id="coupon_discount_value" class="text-muted d-inline-block">
 
                                               </span>
                                             </div>
@@ -199,8 +201,13 @@
                                             <hr class="text-white border-secondary">
                                             <div class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Total') }}</span>
+                                                <input id="total_price_input" type="hidden" value="{{ $product->getTotalPrice() }}">
                                                 <span
-                                                    class="text-muted d-inline-block">{{ $product->formatToCurrency($total) }}</span>
+                                                  id="total_price"
+                                                  class="text-muted d-inline-block"
+                                                >
+                                                  {{ $product->formatToCurrency($total) }}
+                                                </span>
                                             </div>
                                             <template x-if="payment_method">
                                                 <div class="d-flex justify-content-between">
@@ -240,11 +247,31 @@
 
     <script>
       $(document).ready(function() {
+        const productId = $("[name='product_id']").val()
         let hasCouponCodeValue = $('#coupon_code').val().trim() !== ''
 
         $('#coupon_code').on('change', function(e) {
           hasCouponCodeValue = e.target.value !== ''
         })
+
+        function calcPriceWithCouponDiscount(couponValue, couponType) {
+          let totalPrice = $('#total_price_input').val()
+
+          if (typeof totalPrice == 'string') {
+            totalPrice = parseFloat(totalPrice)
+          }
+
+          if (couponType === 'percentage') {
+            totalPrice = totalPrice - (totalPrice * couponValue / 100)
+            $('#coupon_discount_value').text("- " + couponValue + "%")
+          } else if (couponType === 'amount') {
+            totalPrice = totalPrice - couponValue
+            $('#coupon_discount_value').text(totalPrice)
+          }
+
+          $('#total_price').text(totalPrice)
+          $('#total_price_input').val(totalPrice)
+        }
 
 				function checkCoupon() {
 					const couponCode = $('#coupon_code').val()
@@ -252,15 +279,14 @@
 					$.ajax({
 						url: "{{ route('admin.coupon.redeem') }}",
 						method: 'POST',
-						data: { coupon_code: couponCode },
+						data: { couponCode: couponCode, productId: productId },
 						success: function(response) {
 							if (response.isValid && response.couponCode) {
                 Swal.fire({
                   icon: 'success',
-                  text: `The coupon '${response.couponCode}' was successfully inserted in your purchase.`,
+                  text: 'The coupon was successfully added to your purchase.',
                 }).then(function(isConfirmed) {
-                  console.log('confirmou')
-
+                  calcPriceWithCouponDiscount(response.couponValue, response.couponType)
                   $('#submit_form_button').prop('disabled', false).removeClass('disabled')
                   $('#send_coupon_code').prop('disabled', true)
                   $('#coupon_discount_details').prop('disabled', false).show()
