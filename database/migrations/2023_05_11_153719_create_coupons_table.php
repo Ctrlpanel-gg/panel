@@ -17,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->string('code')->unique();
             $table->enum('type', ['percentage', 'amount']);
-            $table->integer('value');
+            $table->decimal('value', 10);
             $table->integer('uses')->default(0);
             $table->integer('max_uses');
-            $table->timestamp('expires_at');
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
     }

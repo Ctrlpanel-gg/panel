@@ -154,6 +154,6 @@ class CouponController extends Controller
 
     public function redeem(Request $request)
     {
-        return $this->validateCoupon($request);
+        return $this->validateCoupon($request->user(), $request->input('couponCode'), $request->input('productId'));
     }
 }

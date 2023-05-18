@@ -40,7 +40,7 @@ class Coupon extends Model
             return 'USES_LIMIT_REACHED';
         }
 
-        if (! is_null($this->expires_at)) {
+        if (!is_null($this->expires_at)) {
             $expires_at = Carbon::createFromTimeString($this->expires_at)->timestamp;
 
             if ($expires_at <= Carbon::now()->timestamp) {
@@ -59,9 +59,9 @@ class Coupon extends Model
      *
      * @return bool
      */
-    public function isLimitsUsesReached($request, $coupon_settings): bool
+    public function isLimitsUsesReached($requestUser, $coupon_settings): bool
     {
-        $coupon_uses = $request->user()->coupons()->where('id', $this->id)->count();
+        $coupon_uses = $requestUser->coupons()->where('id', $this->id)->count();
 
         return $coupon_uses >= $coupon_settings->max_uses_per_user ? true : false;
     }

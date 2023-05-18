@@ -11,9 +11,10 @@ use stdClass;
 
 trait Coupon
 {
-    public function validateCoupon(Request $request): JsonResponse
+    public function validateCoupon($requestUser, $couponCode, $productId): JsonResponse
     {
-        $coupon = CouponModel::where('code', $request->input('coupon_code'))->first();
+        $coupon = CouponModel::where('code', $couponCode)->first();
+        $shopProduct = ShopProduct::findOrFail($productId);
         $coupon_settings = new CouponSettings;
         $response = response()->json([
             'isValid' => false,
@@ -21,6 +22,14 @@ trait Coupon
         ], 404);
 
         if (!is_null($coupon)) {
+            if (is_string($coupon->value)) {
+                $coupon->value = floatval($coupon->value);
+            }
+
+            if (is_string($shopProduct->price)) {
+                $shopProduct->price = floatval($shopProduct->price);
+            }
+
             if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
                 $response = response()->json([
                     'isValid' => false,
@@ -39,10 +48,19 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->isLimitsUsesReached($request, $coupon_settings)) {
+            if ($coupon->isLimitsUsesReached($requestUser, $coupon_settings)) {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('You have reached the maximum uses of this coupon.')
+                ], 422);
+
+                return $response;
+            }
+
+            if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->price) {
+                $response = response()->json([
+                    'isValid' => false,
+                    'error' => __('The coupon you are trying to use would give you 100% off, so it cannot be used for this product, sorry.')
                 ], 422);
 
                 return $response;
@@ -59,14 +77,12 @@ trait Coupon
         return $response;
     }
 
-    public function calcDiscount(ShopProduct $product, stdClass $data)
+    public function calcDiscount($productPrice, stdClass $data)
     {
 
         if ($data->isValid) {
-            $productPrice = $product->price;
-
             if (is_string($productPrice)) {
-                $productPrice = floatval($product->price);
+                $productPrice = floatval($productPrice);
             }
 
             if ($data->couponType === 'percentage') {
@@ -82,5 +98,7 @@ trait Coupon
 
             return $productPrice - $data->couponValue;
         }
+
+        return $productPrice;
     }
 }
