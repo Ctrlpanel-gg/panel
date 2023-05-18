@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
+use App\Settings\LocaleSettings;
 use App\Traits\Coupon as CouponTrait;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -20,11 +21,13 @@ class CouponController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(LocaleSettings $localeSettings)
     {
         $this->checkPermission(self::READ_PERMISSION);
 
-        return view('admin.coupons.index');
+        return view('admin.coupons.index', [
+            'locale_datatables' => $localeSettings->datatables
+        ]);
     }
 
     /**
@@ -47,32 +50,17 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
-        $coupon_code = $request->input('coupon_code');
-        $coupon_type = $request->input('coupon_type');
-        $coupon_value = $request->input('coupon_value');
-        $coupon_max_uses = $request->input('coupon_uses');
-        $coupon_datepicker = $request->input('datepicker');
+        $coupon_code = $request->input('code');
         $random_codes_amount = $request->input('range_codes');
-        $rules = [
-            "coupon_type" => "required|string|in:percentage,amount",
-            "coupon_uses" => "required|integer|digits_between:1,100",
-            "coupon_value" => "required|numeric|between:0,100",
-            "datepicker" => "required|date|after:" . Carbon::now()->format(Coupon::formatDate())
-        ];
+        $rules = $this->requestRules($request);
 
-        // If for some reason you pass both fields at once.
-        if ($coupon_code && $random_codes_amount) {
+         // If for some reason you pass both fields at once.
+         if ($coupon_code && $random_codes_amount) {
             return redirect()->back()->with('error', __('Only one of the two code inputs must be provided.'))->withInput($request->all());
         }
 
         if (!$coupon_code && !$random_codes_amount) {
             return redirect()->back()->with('error', __('At least one of the two code inputs must be provided.'))->withInput($request->all());
-        }
-
-        if ($coupon_code) {
-            $rules['coupon_code'] = 'required|string|min:4';
-        } elseif ($random_codes_amount) {
-            $rules['range_codes'] = 'required|integer|digits_between:1,100';
         }
 
         $request->validate($rules);
@@ -85,23 +73,17 @@ class CouponController extends Controller
             foreach ($coupons as $coupon) {
                 $data[] = [
                     'code' => $coupon,
-                    'type' => $coupon_type,
-                    'value' => $coupon_value,
-                    'max_uses' => $coupon_max_uses,
-                    'expires_at' => $coupon_datepicker,
+                    'type' => $request->input('type'),
+                    'value' => $request->input('value'),
+                    'max_uses' => $request->input('max_uses'),
+                    'expires_at' => $request->input('expires_at'),
                     'created_at' => Carbon::now(), // Does not fill in by itself when using the 'insert' method.
                     'updated_at' => Carbon::now()
                 ];
             }
             Coupon::insert($data);
         } else {
-            Coupon::create([
-                'code' => $coupon_code,
-                'type' => $coupon_type,
-                'value' => $coupon_value,
-                'max_uses' => $coupon_max_uses,
-                'expires_at' => $coupon_datepicker,
-            ]);
+            Coupon::create($request->except('_token'));
         }
 
         return redirect()->route('admin.coupons.index')->with('success', __("The coupon's was registered successfully."));
@@ -126,7 +108,12 @@ class CouponController extends Controller
      */
     public function edit(Coupon $coupon)
     {
-        //
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        return view('admin.coupons.edit', [
+            'coupon' => $coupon,
+            'expired_at' => $coupon->expires_at ? Carbon::createFromTimestamp($coupon->expires_at) : null
+        ]);
     }
 
     /**
@@ -138,7 +125,23 @@ class CouponController extends Controller
      */
     public function update(Request $request, Coupon $coupon)
     {
-        //
+        $coupon_code = $request->input('code');
+        $random_codes_amount = $request->input('range_codes');
+        $rules = $this->requestRules($request);
+
+        // If for some reason you pass both fields at once.
+        if ($coupon_code && $random_codes_amount) {
+            return redirect()->back()->with('error', __('Only one of the two code inputs must be provided.'))->withInput($request->all());
+        }
+
+        if (!$coupon_code && !$random_codes_amount) {
+            return redirect()->back()->with('error', __('At least one of the two code inputs must be provided.'))->withInput($request->all());
+        }
+
+        $request->validate($rules);
+        $coupon->update($request->except('_token'));
+
+        return redirect()->route('admin.coupons.index')->with('success', __('coupon has been updated!'));
     }
 
     /**
@@ -149,11 +152,87 @@ class CouponController extends Controller
      */
     public function destroy(Coupon $coupon)
     {
-        //
+        $this->checkPermission(self::WRITE_PERMISSION);
+        $coupon->delete();
+
+        return redirect()->back()->with('success', __('coupon has been removed!'));
+    }
+
+    private function requestRules(Request $request)
+    {
+        $coupon_code = $request->input('code');
+        $random_codes_amount = $request->input('range_codes');
+        $rules = [
+            "type" => "required|string|in:percentage,amount",
+            "max_uses" => "required|integer|digits_between:1,100",
+            "value" => "required|numeric|between:0,100",
+            "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())
+        ];
+
+        if ($coupon_code) {
+            $rules['code'] = "required|string|min:4";
+        } elseif ($random_codes_amount) {
+            $rules['range_codes'] = 'required|integer|digits_between:1,100';
+        }
+
+        return $rules;
     }
 
     public function redeem(Request $request)
     {
         return $this->validateCoupon($request->user(), $request->input('couponCode'), $request->input('productId'));
+    }
+
+    public function dataTable()
+    {
+        $query = Coupon::query();
+
+        return datatables($query)
+            ->addColumn('actions', function(Coupon $coupon) {
+                return '
+                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.coupons.edit', $coupon->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.coupons.destroy', $coupon->id).'">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                    </form>
+                ';
+            })
+            ->addColumn('status', function(Coupon $coupon) {
+                $color = 'success';
+                $status = $coupon->getStatus();
+
+                if ($status != __('VALID')) {
+                    $color = 'danger';
+                }
+
+                return '<span class="badge badge-'.$color.'">'.str_replace('_', ' ', $status).'</span>';
+            })
+            ->editColumn('uses', function (Coupon $coupon) {
+                return "{$coupon->uses} / {$coupon->max_uses}";
+            })
+            ->editColumn('value', function (Coupon $coupon) {
+                if ($coupon->type === 'percentage') {
+                    return $coupon->value . "%";
+                }
+
+                return number_format($coupon->value, 2, '.', '');
+            })
+            ->editColumn('expires_at', function (Coupon $coupon) {
+                if (!$coupon->expires_at) {
+                    return __('Never');
+                }
+
+                return Carbon::createFromTimestamp($coupon->expires_at);
+            })
+            ->editColumn('created_at', function(Coupon $coupon) {
+                return Carbon::createFromTimeString($coupon->created_at);
+            })
+            ->editColumn('code', function (Coupon $coupon) {
+                return "<code>{$coupon->code}</code>";
+            })
+            ->rawColumns(['actions', 'code', 'status'])
+            ->make();
     }
 }

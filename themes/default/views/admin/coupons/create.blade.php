@@ -84,7 +84,7 @@
                   @enderror
                 </div>
                 <div id="coupon_code_element" class="form-group">
-                  <label for="coupon_code">
+                  <label for="code">
                     {{ __('Coupon Code') }}
                     <i
                       data-toggle="popover"
@@ -95,13 +95,13 @@
                   </label>
                   <input
                     type="text"
-                    id="coupon_code"
-                    name="coupon_code"
+                    id="code"
+                    name="code"
                     placeholder="SUMMER"
-                    class="form-control @error('coupon_code') is-invalid @enderror"
-                    value="{{ old('coupon_code') }}"
+                    class="form-control @error('code') is-invalid @enderror"
+                    value="{{ old('code') }}"
                   >
-                  @error('coupon_code')
+                  @error('code')
                     <div class="text-danger">
                       {{ $message }}
                     </div>
@@ -109,7 +109,7 @@
                 </div>
                 <div class="form-group">
                   <div class="custom-control mb-3 p-0">
-                    <label for="coupon_type">
+                    <label for="type">
                       {{ __('Coupon Type') }}
                       <i
                         data-toggle="popover"
@@ -119,17 +119,17 @@
                       </i>
                     </label>
                     <select
-                      name="coupon_type"
-                      id="coupon_type"
-                      class="custom-select @error('coupon_type') is_invalid @enderror"
+                      name="type"
+                      id="type"
+                      class="custom-select @error('type') is_invalid @enderror"
                       style="width: 100%; cursor: pointer;"
                       autocomplete="off"
                       required
                     >
-                      <option value="percentage" @if(old('coupon_type') == 'percentage') selected @endif>{{ __('Percentage') }}</option>
-                      <option value="amount" @if(old('coupon_type') == 'amount') selected @endif>{{ __('Amount') }}</option>
+                      <option value="percentage" @if(old('type') == 'percentage') selected @endif>{{ __('Percentage') }}</option>
+                      <option value="amount" @if(old('type') == 'amount') selected @endif>{{ __('Amount') }}</option>
                     </select>
-                    @error('coupon_type')
+                    @error('type')
                       <div class="text-danger">
                         {{ $message }}
                       </div>
@@ -138,7 +138,7 @@
                 </div>
                 <div class="form-group">
                   <div class="input-group d-flex flex-column">
-                    <label for="coupon_value">
+                    <label for="value">
                       {{ __('Coupon Value') }}
                       <i
                         data-toggle="popover"
@@ -149,18 +149,18 @@
                     </label>
                     <div class="d-flex">
                       <input
-                        name="coupon_value"
-                        id="coupon_value"
+                        name="value"
+                        id="value"
                         type="number"
                         step="any"
                         min="1"
                         max="100"
-                        class="form-control @error('coupon_value') is-invalid @enderror"
-                        value="{{ old('coupon_value') }}"
+                        class="form-control @error('value') is-invalid @enderror"
+                        value="{{ old('value') }}"
                       >
                       <span id="input_percentage" class="input-group-text">%</span>
                     </div>
-                    @error('coupon_value')
+                    @error('value')
                       <div class="text-danger">
                         {{ $message }}
                       </div>
@@ -168,7 +168,7 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <label for="coupon_uses">
+                  <label for="max_uses">
                     {{ __('Max uses') }}
                     <i
                       data-toggle="popover"
@@ -178,43 +178,43 @@
                     </i>
                   </label>
                   <input
-                    name="coupon_uses"
-                    id="coupon_uses"
+                    name="max_uses"
+                    id="max_uses"
                     type="number"
                     step="any"
                     min="1"
                     max="100"
-                    class="form-control @error('coupon_uses') is-invalid @enderror"
-                    value="{{ old('coupon_uses') }}"
+                    class="form-control @error('max_uses') is-invalid @enderror"
+                    value="{{ old('max_uses') }}"
                   >
-                  @error('coupon_uses')
+                  @error('max_uses')
                     <div class="text-danger">
                       {{ $message }}
                     </div>
                   @enderror
                 </div>
-                <div class="d-flex flex-column input-group form-group date" id="datepicker" data-target-input="nearest">
-                  <label for="datepicker">
+                <div class="d-flex flex-column input-group form-group date" id="expires_at" data-target-input="nearest">
+                  <label for="expires_at">
                     {{ __('Expires at') }}
                     <i
                       data-toggle="popover"
                       data-trigger="hover"
-                      data-content="{{__('The date when the coupon will expire.')}}"
+                      data-content="{{__('The date when the coupon will expire (If no date is provided, the coupon never expires).')}}"
                       class="fas fa-info-circle">
                     </i>
                   </label>
                   <div class="d-flex">
                     <input
-                      value="{{old('datepicker')}}"
-                      name="datepicker"
+                      value="{{ old('expires_at') }}"
+                      name="expires_at"
                       placeholder="yyyy-mm-dd hh:mm:ss"
                       type="text"
-                      class="form-control @error('datepicker') is-invalid @enderror datetimepicker-input"
-                      data-target="#datepicker"
+                      class="form-control @error('expires_at') is-invalid @enderror datetimepicker-input"
+                      data-target="#expires_at"
                     />
                     <div
                       class="input-group-append"
-                      data-target="#datepicker"
+                      data-target="#expires_at"
                       data-toggle="datetimepicker"
                     >
                       <div class="input-group-text">
@@ -222,7 +222,7 @@
                       </div>
                     </div>
                   </div>
-                  @error('datepicker')
+                  @error('expires_at')
                     <div class="text-danger">
                       {{ $message }}
                     </div>
@@ -244,7 +244,7 @@
 
   <script>
     $(document).ready(function() {
-      $('#datepicker').datetimepicker({
+      $('#expires_at').datetimepicker({
         format: 'Y-MM-DD HH:mm:ss',
         icons: {
           time: 'far fa-clock',
@@ -263,8 +263,8 @@
           $('#coupon_code_element').prop('disabled', true).hide()
           $('#range_codes_element').prop('disabled', false).show()
 
-          if ($('#coupon_code').val()) {
-            $('#coupon_code').prop('value', null)
+          if ($('#code').val()) {
+            $('#code').prop('value', null)
           }
 
         } else {
@@ -277,7 +277,7 @@
         }
       })
 
-      $('#coupon_type').change(function() {
+      $('#type').change(function() {
         if ($(this).val() == 'percentage') {
           $('#input_percentage').prop('disabled', false).show()
         } else {
