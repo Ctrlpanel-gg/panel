@@ -42,10 +42,12 @@
                 <table id="datatable" class="table table-striped">
                     <thead>
                     <tr>
-                        <th>{{__('Partner discount')}}</th>
-                        <th>{{__('Registered user discount')}}</th>
-                        <th>{{__('Referral system commission')}}</th>
-                        <th>{{__('Created')}}</th>
+                        <th>{{__('Status')}}</th>
+                        <th>{{__('Code')}}</th>
+                        <th>{{__('Value')}}</th>
+                        <th>{{__('Used / Max Uses')}}</th>
+                        <th>{{__('Expires')}}</th>
+                        <th>{{__('Created At')}}</th>
                         <th>{{__('Actions')}}</th>
                     </tr>
                     </thead>
@@ -62,4 +64,33 @@
 
 </section>
 <!-- END CONTENT -->
+<script>
+  function submitResult() {
+    return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+  }
+
+  $(document).ready(function() {
+    $('#datatable').DataTable({
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
+      },
+      processing: true,
+      serverSide: true,
+      stateSave: true,
+      ajax: "{{route('admin.coupons.datatable')}}",
+      columns: [
+        {data: 'status'},
+        {data: 'code'},
+        {data: 'value'},
+        {data: 'uses'},
+        {data: 'expires_at'},
+        {data: 'created_at'},
+        {data: 'actions', sortable: false},
+      ],
+      fnDrawCallback: function( oSettings ) {
+        $('[data-toggle="popover"]').popover();
+      }
+    });
+  })
+</script>
 @endsection

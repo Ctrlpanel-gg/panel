@@ -7,6 +7,8 @@ use Spatie\LaravelSettings\Settings;
 class CouponSettings extends Settings
 {
 	public ?int $max_uses_per_user;
+    public ?bool $delete_coupon_on_expires;
+    public ?bool $delete_coupon_on_uses_reached;
 
     public static function group(): string
     {
@@ -20,7 +22,9 @@ class CouponSettings extends Settings
     public static function getValidations()
     {
         return [
-            'max_uses_per_user' => 'required|integer'
+            'max_uses_per_user' => 'required|integer',
+            'delete_coupon_on_expires' => 'required|boolean',
+            'delete_coupon_on_uses_reached' => 'required|boolean',
         ];
     }
 
@@ -36,7 +40,17 @@ class CouponSettings extends Settings
             'max_uses_per_user' => [
                 'label' => 'Max Uses Per User',
                 'type' => 'number',
-                'description' => 'Maximum number of uses that a user can make of the same coupon.',
+                'description' => 'Maximum number of uses that a user can make of the same coupon.'
+            ],
+            'delete_coupon_on_expires' => [
+                'label' => 'Delete Coupon On Expires',
+                'type' => 'boolean',
+                'description' => 'Automatically deletes the coupon if it expires.'
+            ],
+            'delete_coupon_on_uses_reached' => [
+                'label' => 'Delete Coupon When Max Uses Reached',
+                'type' => 'boolean',
+                'description' => 'Delete a coupon as soon as its maximum usage is reached.'
             ]
         ];
     }
