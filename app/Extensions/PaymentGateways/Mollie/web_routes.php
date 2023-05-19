@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Extensions\PaymentGateways\Mollie\MollieExtension;
 
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('payment/MolliePay/{shopProduct}', function () {
-        MollieExtension::pay(request());
+    Route::get('payment/MolliePay/{shopProduct}', function (MollieExtension $mollieExtension) {
+        $mollieExtension->pay(request());
     })->name('payment.MolliePay');
 
     Route::get(

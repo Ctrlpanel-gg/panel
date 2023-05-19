@@ -4,11 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
 
 class Coupon extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty()
+            ->logOnly(['*'])
+            ->dontSubmitEmptyLogs();
+    }
 
     /**
      * @var string[]
@@ -98,66 +108,15 @@ class Coupon extends Model
     }
 
     /**
-     * Standardize queries into one single function.
-     *
-     * @param string $code Coupon Code.
-     * @param array $attributes Attributes to be returned.
-     *
-     * @return mixed
-     */
-    protected function getQueryData(string $code, array $attributes): mixed
-    {
-        $query = (Coupon::where('code', $code)
-            ->where('expires_at', '>', Carbon::now())
-            ->whereColumn('uses', '<=', 'max_uses')
-            ->get($attributes)->toArray()
-        );
-
-        // When there are results, it comes nested arrays, idk why. This is the solution for now.
-        $results = count($query) > 0 ? $query[0] : $query;
-
-        if (empty($results)) {
-            return [];
-        }
-
-        return $results;
-    }
-
-    /**
-     * Get the data from a coupon.
-     *
-     * @param string $code Coupon Code.
-     * @param array $attributes Attributes of a coupon.
-     *
-     * @return mixed
-     */
-    public function getCoupon(string $code, array $attributes = ['percentage']): mixed
-    {
-        $coupon = $this->getQueryData($code, $attributes);
-
-        if (is_null($coupon)) {
-            return null;
-        }
-
-        return $coupon;
-    }
-
-    /**
      * Increments the use of a coupon.
      *
      * @param string $code Coupon Code.
      * @param int $amount Amount to increment.
      *
-     * @return null|bool
+     * @return bool
      */
-    public function incrementUses(string $code, int $amount = 1): null|bool
+    public function incrementUses(string $code, int $amount = 1): bool
     {
-        $coupon = $this->getQueryData($code, ['uses', 'max_uses']);
-
-        if (empty($coupon) || $coupon['uses'] == $coupon['max_uses']) {
-            return null;
-        }
-
         $this->where('code', $code)->increment('uses', $amount);
 
         return true;
