@@ -9,10 +9,12 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Models\Coupon;
+use App\Traits\Coupon as CouponTrait;
+use App\Events\CouponUsedEvent;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +25,8 @@ use Illuminate\Support\Facades\Http;
  */
 class MollieExtension extends AbstractExtension
 {
+    use CouponTrait;
+
     public static function getConfig(): array
     {
         return [
@@ -33,7 +37,7 @@ class MollieExtension extends AbstractExtension
         ];
     }
 
-    static function pay(Request $request): void
+    public function pay(Request $request): void
     {
         $url = 'https://api.mollie.com/v2/payments';
         $settings = new MollieSettings();
@@ -41,6 +45,18 @@ class MollieExtension extends AbstractExtension
         $user = Auth::user();
         $shopProduct = ShopProduct::findOrFail($request->shopProduct);
         $discount = PartnerDiscount::getDiscount();
+        $couponCode = $request->input('couponCode');
+        $isValidCoupon = $this->validateCoupon($request->user(), $couponCode, $request->shopProduct);
+        $price = $shopProduct->price;
+
+        // Coupon Discount.
+        if ($isValidCoupon->getStatusCode() == 200) {
+            $price = $this->calcDiscount($price, $isValidCoupon->getData());
+        }
+
+        // Partner Discount.
+        $price = $price - ($price * $discount / 100);
+        $price = number_format($price, 2, thousands_separator: '');
 
         // create a new payment
         $payment = Payment::create([
@@ -50,7 +66,7 @@ class MollieExtension extends AbstractExtension
             'type' => $shopProduct->type,
             'status' => 'open',
             'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * $discount / 100),
+            'price' => $price,
             'tax_value' => $shopProduct->getTaxValue(),
             'tax_percent' => $shopProduct->getTaxPercent(),
             'total_price' => $shopProduct->getTotalPrice(),
@@ -65,10 +81,10 @@ class MollieExtension extends AbstractExtension
             ])->post($url, [
                 'amount' => [
                     'currency' => $shopProduct->currency_code,
-                    'value' => number_format($shopProduct->getTotalPrice(), 2, '.', ''),
+                    'value' => $price,
                 ],
                 'description' => "Order #{$payment->id} - " . $shopProduct->name,
-                'redirectUrl' => route('payment.MollieSuccess'),
+                'redirectUrl' => route('payment.MollieSuccess', ['couponCode' => $couponCode]),
                 'cancelUrl' => route('payment.Cancel'),
                 'webhookUrl' => url('/extensions/payment/MollieWebhook'),
                 'metadata' => [
@@ -103,6 +119,15 @@ class MollieExtension extends AbstractExtension
     {
         $payment = Payment::findOrFail($request->input('payment'));
         $payment->status = 'pending';
+        $coupon_code = $request->input('couponCode');
+
+        // increase the use of the coupon when the payment is confirmed.
+        if ($coupon_code) {
+            $coupon = new Coupon;
+            $coupon->incrementUses($coupon_code);
+
+            event(new CouponUsedEvent($coupon));
+        }
 
         Redirect::route('home')->with('success', 'Your payment is being processed')->send();
         return;
