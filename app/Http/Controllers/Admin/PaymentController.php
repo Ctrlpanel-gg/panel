@@ -9,7 +9,6 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\ShopProduct;
-use App\Models\Coupon;
 use App\Traits\Coupon as CouponTrait;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -20,10 +19,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ExtensionHelper;
+use App\Settings\CouponSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
-use Carbon\Carbon;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -51,7 +49,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View
      */
-    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings)
+    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings, CouponSettings $coupon_settings)
     {
         $this->checkPermission(self::BUY_PERMISSION);
 
@@ -87,7 +85,8 @@ class PaymentController extends Controller
             'total' => $shopProduct->getTotalPrice(),
             'paymentGateways'   => $paymentGateways,
             'productIsFree' => $price <= 0,
-            'credits_display_name' => $general_settings->credits_display_name
+            'credits_display_name' => $general_settings->credits_display_name,
+            'isCouponsEnabled' => $coupon_settings->enabled,
         ]);
     }
 

@@ -6,9 +6,10 @@ use Spatie\LaravelSettings\Settings;
 
 class CouponSettings extends Settings
 {
-	public ?int $max_uses_per_user;
-    public ?bool $delete_coupon_on_expires;
-    public ?bool $delete_coupon_on_uses_reached;
+    public bool $enabled;
+    public bool $delete_coupon_on_expires;
+    public bool $delete_coupon_on_uses_reached;
+    public ?int $max_uses_per_user;
 
     public static function group(): string
     {
@@ -22,9 +23,10 @@ class CouponSettings extends Settings
     public static function getValidations()
     {
         return [
-            'max_uses_per_user' => 'required|integer',
-            'delete_coupon_on_expires' => 'required|boolean',
-            'delete_coupon_on_uses_reached' => 'required|boolean',
+            'enabled' => "nullable|boolean",
+            'delete_coupon_on_expires' => 'nullable|boolean',
+            'delete_coupon_on_uses_reached' => 'nullable|boolean',
+            'max_uses_per_user' => 'nullable|integer',
         ];
     }
 
@@ -37,10 +39,10 @@ class CouponSettings extends Settings
     {
         return [
             "category_icon" => "fas fa-ticket-alt",
-            'max_uses_per_user' => [
-                'label' => 'Max Uses Per User',
-                'type' => 'number',
-                'description' => 'Maximum number of uses that a user can make of the same coupon.'
+            'enabled' => [
+                'label' => 'Enable Coupons',
+                'type' => 'boolean',
+                'description' => 'Enables coupons to be used in the store.'
             ],
             'delete_coupon_on_expires' => [
                 'label' => 'Auto Delete Expired Coupons',
@@ -51,7 +53,12 @@ class CouponSettings extends Settings
                 'label' => 'Delete Coupon When Max Uses Reached',
                 'type' => 'boolean',
                 'description' => 'Delete a coupon as soon as its maximum usage is reached.'
-            ]
+            ],
+            'max_uses_per_user' => [
+                'label' => 'Max Uses Per User',
+                'type' => 'number',
+                'description' => 'Maximum number of uses that a user can make of the same coupon.'
+            ],
         ];
     }
 }
