@@ -79,45 +79,47 @@
                                 </div>
                             </div>
                         </div>
-												<div class="col-xl-4">
-													<div class="card">
-														<div class="card-header">
-															<h4 class="mb-0">
-																Coupon Code
-															</h4>
-														</div>
-														<div class="card-body">
-															<div class="d-flex">
-                                <input
-                                  type="text"
-                                  id="coupon_code"
-                                  name="coupon_code"
-                                  value="{{ old('coupon_code') }}"
-                                  :value="coupon_code"
-                                  class="form-control @error('coupon_code') is_invalid @enderror"
-                                  placeholder="SUMMER"
-                                  x-on:change.debounce="setCouponCode($event)"
-                                  x-model="coupon_code"
-                                />
-                              <button
-                                type="button"
-                                id="send_coupon_code"
-                                class="btn btn-success ml-3"
-                                :disabled="!coupon_code.length"
-                                :class="!coupon_code.length ? 'disabled' : ''"
-                                :value="coupon_code"
-                              >
-                                {{ __('Submit') }}
-                              </button>
+                        @if ($isCouponsEnabled)
+                          <div class="col-xl-4">
+                            <div class="card">
+                              <div class="card-header">
+                                <h4 class="mb-0">
+                                  Coupon Code
+                                </h4>
                               </div>
-                              @error('coupon_code')
-                                <div class="text-danger">
-                                  {{ $message }}
+                              <div class="card-body">
+                                <div class="d-flex">
+                                  <input
+                                    type="text"
+                                    id="coupon_code"
+                                    name="coupon_code"
+                                    value="{{ old('coupon_code') }}"
+                                    :value="coupon_code"
+                                    class="form-control @error('coupon_code') is_invalid @enderror"
+                                    placeholder="SUMMER"
+                                    x-on:change.debounce="setCouponCode($event)"
+                                    x-model="coupon_code"
+                                  />
+                                <button
+                                  type="button"
+                                  id="send_coupon_code"
+                                  class="btn btn-success ml-3"
+                                  :disabled="!coupon_code.length"
+                                  :class="!coupon_code.length ? 'disabled' : ''"
+                                  :value="coupon_code"
+                                >
+                                  {{ __('Submit') }}
+                                </button>
                                 </div>
-                              @enderror
-														</div>
-													</div>
-												</div>
+                                @error('coupon_code')
+                                  <div class="text-danger">
+                                    {{ $message }}
+                                  </div>
+                                @enderror
+                              </div>
+                            </div>
+                          </div>
+                        @endif
                     @endif
                     <div class="col-xl-3">
                         <div class="card">
