@@ -4,12 +4,15 @@ namespace App\Extensions\PaymentGateways\Stripe;
 
 use App\Helpers\AbstractExtension;
 use App\Events\PaymentEvent;
+use App\Events\CouponUsedEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Extensions\PaymentGateways\Stripe\StripeSettings;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Models\Coupon;
+use App\Traits\Coupon as CouponTrait;
 use App\Notifications\ConfirmPaymentNotification;
 use Exception;
 use Illuminate\Http\Request;
@@ -21,6 +24,8 @@ use Stripe\StripeClient;
 
 class StripeExtension extends AbstractExtension
 {
+    use CouponTrait;
+
     public static function getConfig(): array
     {
         return [
@@ -35,10 +40,14 @@ class StripeExtension extends AbstractExtension
      * @param  Request  $request
      * @param  ShopProduct  $shopProduct
      */
-    public static function StripePay(Request $request)
+    public function StripePay(Request $request)
     {
         $user = Auth::user();
         $shopProduct = ShopProduct::findOrFail($request->shopProduct);
+        $discount = PartnerDiscount::getDiscount();
+        $couponCode = $request->input('couponCode');
+        $isValidCoupon = $this->validateCoupon($request->user(), $couponCode, $request->shopProduct);
+        $price = $shopProduct->price;
 
         // check if the price is valid for stripe
         if (!self::checkPriceAmount($shopProduct->getTotalPrice(), strtoupper($shopProduct->currency_code), 'stripe')) {
@@ -46,7 +55,14 @@ class StripeExtension extends AbstractExtension
             return;
         }
 
-        $discount = PartnerDiscount::getDiscount();
+        // Coupon Discount.
+        if ($isValidCoupon->getStatusCode() == 200) {
+            $price = $this->calcDiscount($price, $isValidCoupon->getData());
+        }
+
+        // Partner Discount.
+        $price = $price - ($price * $discount / 100);
+        $price = number_format($price, 2);
 
 
         // create payment
@@ -57,7 +73,7 @@ class StripeExtension extends AbstractExtension
             'type' => $shopProduct->type,
             'status' => 'open',
             'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * $discount / 100),
+            'price' => $price,
             'tax_value' => $shopProduct->getTaxValue(),
             'total_price' => $shopProduct->getTotalPrice(),
             'tax_percent' => $shopProduct->getTaxPercent(),
@@ -75,7 +91,7 @@ class StripeExtension extends AbstractExtension
                             'name' => $shopProduct->display . ($discount ? (' (' . __('Discount') . ' ' . $discount . '%)') : ''),
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => round($shopProduct->getPriceAfterDiscount() * 100, 2),
+                        'unit_amount_decimal' => $price,
                     ],
                     'quantity' => 1,
                 ],
@@ -93,7 +109,7 @@ class StripeExtension extends AbstractExtension
             ],
 
             'mode' => 'payment',
-            'success_url' => route('payment.StripeSuccess', ['payment' => $payment->id]) . '&session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('payment.StripeSuccess', ['payment' => $payment->id, 'couponCode' => $couponCode]) . '&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.Cancel'),
             'payment_intent_data' => [
                 'metadata' => [
@@ -114,7 +130,7 @@ class StripeExtension extends AbstractExtension
         $user = User::findOrFail($user->id);
         $payment = Payment::findOrFail($request->input('payment'));
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-
+        $couponCode = $request->input('couponCode');
 
         Redirect::route('home')->with('success', 'Please wait for success')->send();
 
@@ -135,6 +151,14 @@ class StripeExtension extends AbstractExtension
                     'payment_id' => $paymentSession->payment_intent,
                     'status' => 'paid',
                 ]);
+
+                 // increase the use of the coupon when the payment is confirmed.
+                 if ($couponCode) {
+                    $coupon = new Coupon;
+                    $coupon->incrementUses($couponCode);
+
+                    event(new CouponUsedEvent($coupon));
+                }
 
                 //payment notification
                 $user->notify(new ConfirmPaymentNotification($payment));

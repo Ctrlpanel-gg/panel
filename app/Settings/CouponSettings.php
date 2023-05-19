@@ -43,7 +43,7 @@ class CouponSettings extends Settings
                 'description' => 'Maximum number of uses that a user can make of the same coupon.'
             ],
             'delete_coupon_on_expires' => [
-                'label' => 'Delete Coupon On Expires',
+                'label' => 'Auto Delete Expired Coupons',
                 'type' => 'boolean',
                 'description' => 'Automatically deletes the coupon if it expires.'
             ],
