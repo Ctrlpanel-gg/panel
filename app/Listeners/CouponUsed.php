@@ -30,6 +30,14 @@ class CouponUsed
      */
     public function handle(CouponUsedEvent $event)
     {
+        // Always check the authenticity of the coupon.
+        if (!$this->isValidCoupon($event)) {
+            return;
+        }
+
+        // Automatically increments the coupon usage.
+        $this->incrementUses($event);
+
         if ($this->delete_coupon_on_expires) {
             if (!is_null($event->coupon->expired_at)) {
                 if ($event->coupon->expires_at <= Carbon::now()->timestamp) {
@@ -43,5 +51,27 @@ class CouponUsed
                 $event->coupon->delete();
             }
         }
+    }
+
+    /**
+     * Increments the use of a coupon.
+     *
+     * @param \App\Events\CouponUsedEvent  $event
+     */
+    private function incrementUses(CouponUsedEvent $event)
+    {
+        $event->coupon->where('code', $event->coupon->code)->increment('uses');
+    }
+
+    /**
+     * It checks that the coupon received from the request really exists.
+     *
+     * @param \App\Events\CouponUsedEvent  $event
+     *
+     * @return bool
+     */
+    private function isValidCoupon(CouponUsedEvent $event): bool
+    {
+        return $event->coupon->code === $event->couponCode ? true : false;
     }
 }
