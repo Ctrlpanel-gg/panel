@@ -44,9 +44,6 @@ class StripeExtension extends AbstractExtension
     {
         $user = Auth::user();
         $shopProduct = ShopProduct::findOrFail($request->shopProduct);
-        $discount = PartnerDiscount::getDiscount();
-        $couponCode = $request->input('couponCode');
-        $isValidCoupon = $this->validateCoupon($request->user(), $couponCode, $request->shopProduct);
         $price = $shopProduct->price;
 
         // check if the price is valid for stripe
@@ -54,6 +51,10 @@ class StripeExtension extends AbstractExtension
             Redirect::route('home')->with('error', __('The product you chose can\'t be purchased with this payment method. The total amount is too small. Please buy a bigger amount or try a different payment method.'))->send();
             return;
         }
+
+        $discount = PartnerDiscount::getDiscount();
+        $couponCode = $request->input('couponCode');
+        $isValidCoupon = $this->validateCoupon($request->user(), $couponCode, $request->shopProduct);
 
         // Coupon Discount.
         if ($isValidCoupon->getStatusCode() == 200) {
@@ -152,12 +153,8 @@ class StripeExtension extends AbstractExtension
                     'status' => 'paid',
                 ]);
 
-                 // increase the use of the coupon when the payment is confirmed.
-                 if ($couponCode) {
-                    $coupon = new Coupon;
-                    $coupon->incrementUses($couponCode);
-
-                    event(new CouponUsedEvent($coupon));
+                if ($couponCode) {
+                    event(new CouponUsedEvent(new Coupon, $couponCode));
                 }
 
                 //payment notification

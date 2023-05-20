@@ -119,14 +119,10 @@ class MollieExtension extends AbstractExtension
     {
         $payment = Payment::findOrFail($request->input('payment'));
         $payment->status = 'pending';
-        $coupon_code = $request->input('couponCode');
+        $couponCode = $request->input('couponCode');
 
-        // increase the use of the coupon when the payment is confirmed.
-        if ($coupon_code) {
-            $coupon = new Coupon;
-            $coupon->incrementUses($coupon_code);
-
-            event(new CouponUsedEvent($coupon));
+        if ($couponCode) {
+            event(new CouponUsedEvent(new Coupon, $couponCode));
         }
 
         Redirect::route('home')->with('success', 'Your payment is being processed')->send();
