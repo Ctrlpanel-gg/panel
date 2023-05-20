@@ -108,21 +108,6 @@ class Coupon extends Model
     }
 
     /**
-     * Increments the use of a coupon.
-     *
-     * @param string $code Coupon Code.
-     * @param int $amount Amount to increment.
-     *
-     * @return bool
-     */
-    public function incrementUses(string $code, int $amount = 1): bool
-    {
-        $this->where('code', $code)->increment('uses', $amount);
-
-        return true;
-    }
-
-    /**
      * @return BelongsToMany
      */
     public function users()

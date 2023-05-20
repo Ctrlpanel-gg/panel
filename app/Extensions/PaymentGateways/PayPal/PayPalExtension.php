@@ -141,7 +141,7 @@ class PayPalExtension extends AbstractExtension
 
         $payment = Payment::findOrFail($laravelRequest->payment);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-		$coupon_code = $laravelRequest->input('couponCode');
+		$couponCode = $laravelRequest->input('couponCode');
 
         $request = new OrdersCaptureRequest($laravelRequest->input('token'));
         $request->prefer('return=representation');
@@ -156,12 +156,8 @@ class PayPalExtension extends AbstractExtension
                     'payment_id' => $response->result->id,
                 ]);
 
-                // increase the use of the coupon when the payment is confirmed.
-                if ($coupon_code) {
-                    $coupon = new Coupon;
-                    $coupon->incrementUses($coupon_code);
-
-                    event(new CouponUsedEvent($coupon));
+                if ($couponCode) {
+                    event(new CouponUsedEvent(new Coupon, $couponCode));
                 }
 
                 event(new UserUpdateCreditsEvent($user));
