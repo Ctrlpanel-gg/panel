@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Settings\CouponSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Coupon extends Model
 {
@@ -75,16 +77,16 @@ class Coupon extends Model
     /**
      * Check if a user has already exceeded the uses of a coupon.
      *
-     * @param Request $request The request being made.
-     * @param CouponSettings $coupon_settings The instance of the coupon settings.
+     * @param User $user The request being made.
      *
      * @return bool
      */
-    public function isLimitsUsesReached($requestUser, $coupon_settings): bool
+    public function isMaxUsesReached($user): bool
     {
-        $coupon_uses = $requestUser->coupons()->where('id', $this->id)->count();
+        $coupon_settings = new CouponSettings;
+        $coupon_uses = $user->coupons()->where('id', $this->id)->count();
 
-        return $coupon_uses >= $coupon_settings->max_uses_per_user ? true : false;
+        return $coupon_uses >= $coupon_settings->max_uses_per_user;
     }
 
     /**

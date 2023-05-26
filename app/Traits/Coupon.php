@@ -5,7 +5,7 @@ namespace App\Traits;
 use App\Settings\CouponSettings;
 use App\Models\Coupon as CouponModel;
 use App\Models\ShopProduct;
-use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use stdClass;
 
@@ -40,7 +40,7 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->isLimitsUsesReached($requestUser, $coupon_settings)) {
+            if ($coupon->isMaxUsesReached($requestUser, $coupon_settings)) {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('You have reached the maximum uses of this coupon.')
@@ -69,6 +69,32 @@ trait Coupon
         return $response;
     }
 
+    public function isCouponValid(string $couponCode, User $user, string $productId): bool
+    {
+        if (is_null($couponCode)) return false;
+
+        $coupon = CouponModel::where('code', $couponCode)->first();
+        $shopProduct = ShopProduct::findOrFail($productId);
+
+        if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
+            return false;
+        }
+
+        if ($coupon->getStatus() == 'EXPIRED') {
+            return false;
+        }
+
+        if ($coupon->isMaxUsesReached($user)) {
+            return false;
+        }
+
+        if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->price) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function calcDiscount($productPrice, stdClass $data)
     {
 
@@ -88,5 +114,23 @@ trait Coupon
         }
 
         return $productPrice;
+    }
+
+    public function applyCoupon(string $couponCode, float $price)
+    {
+        $coupon = CouponModel::where('code', $couponCode)->first();
+
+        if ($coupon->type === 'percentage') {
+            return $price - ($price * $coupon->value / 100);
+        }
+
+        if ($coupon->type === 'amount') {
+            // There is no discount if the value of the coupon is greater than or equal to the value of the product.
+            if ($coupon->value >= $price) {
+                return $price;
+            }
+        }
+
+        return $price - $coupon->value;
     }
 }
