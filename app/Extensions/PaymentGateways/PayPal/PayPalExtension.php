@@ -3,10 +3,10 @@
 namespace App\Extensions\PaymentGateways\PayPal;
 
 use App\Events\CouponUsedEvent;
-use App\Helpers\AbstractExtension;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Extensions\PaymentGateways\PayPal\PayPalSettings;
+use App\Classes\PaymentExtension;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
@@ -28,7 +28,7 @@ use PayPalHttp\HttpException;
 /**
  * Summary of PayPalExtension
  */
-class PayPalExtension extends AbstractExtension
+class PayPalExtension extends PaymentExtension
 {
     use CouponTrait;
 
@@ -40,41 +40,8 @@ class PayPalExtension extends AbstractExtension
         ];
     }
 
-    public function PaypalPay(Request $request): void
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
     {
-        /** @var User $user */
-        $user = Auth::user();
-        $shopProduct = ShopProduct::findOrFail($request->shopProduct);
-        $discount = PartnerDiscount::getDiscount();
-        $couponCode = $request->input('couponCode');
-        $isValidCoupon = $this->validateCoupon($request->user(), $couponCode, $request->shopProduct);
-        $price = $shopProduct->price;
-
-		// Coupon Discount.
-        if ($isValidCoupon->getStatusCode() == 200) {
-            $price = $this->calcDiscount($price, $isValidCoupon->getData());
-        }
-
-        // Partner Discount.
-        $price = $price - ($price * $discount / 100);
-        $price = number_format($price, 2);
-
-        // create a new payment
-        $payment = Payment::create([
-            'user_id' => $user->id,
-            'payment_id' => null,
-            'payment_method' => 'paypal',
-            'type' => $shopProduct->type,
-            'status' => 'open',
-            'amount' => $shopProduct->quantity,
-            'price' => $price,
-            'tax_value' => $shopProduct->getTaxValue(),
-            'tax_percent' => $shopProduct->getTaxPercent(),
-            'total_price' => $shopProduct->getTotalPrice(),
-            'currency_code' => $shopProduct->currency_code,
-            'shop_item_product_id' => $shopProduct->id,
-        ]);
-
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -82,14 +49,14 @@ class PayPalExtension extends AbstractExtension
             "purchase_units" => [
                 [
                     "reference_id" => uniqid(),
-                    "description" => $shopProduct->display . ($discount ? (" (" . __('Discount') . " " . $discount . '%)') : ""),
+                    "description" => $shopProduct->display,
                     "amount" => [
-                        "value" => $price,
+                        "value" => $totalPriceString,
                         'currency_code' => strtoupper($shopProduct->currency_code),
                         'breakdown' => [
                             'item_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $price
+                                'value' => $totalPriceString
                             ],
                             'tax_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
@@ -101,12 +68,10 @@ class PayPalExtension extends AbstractExtension
             ],
             "application_context" => [
                 "cancel_url" => route('payment.Cancel'),
-                "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id, 'couponCode' => $couponCode]),
+                "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id]),
                 'brand_name' =>  config('app.name', 'CtrlPanel.GG'),
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
-
-
         ];
 
         try {
@@ -123,16 +88,14 @@ class PayPalExtension extends AbstractExtension
                 throw new \Exception('No redirect link found');
             }
 
-            Redirect::away($response->result->links[1]->href)->send();
-            return;
+            return $response->result->links[1]->href;
         } catch (HttpException $ex) {
             Log::error('PayPal Payment: ' . $ex->getMessage());
-            $payment->delete();
 
-            Redirect::route('store.index')->with('error', __('Payment failed'))->send();
-            return;
+            throw new \Exception('PayPal Payment: ' . $ex->getMessage());
         }
     }
+
 
     static function PaypalSuccess(Request $laravelRequest): void
     {
@@ -141,7 +104,7 @@ class PayPalExtension extends AbstractExtension
 
         $payment = Payment::findOrFail($laravelRequest->payment);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-		$couponCode = $laravelRequest->input('couponCode');
+        $couponCode = $laravelRequest->input('couponCode');
 
         $request = new OrdersCaptureRequest($laravelRequest->input('token'));
         $request->prefer('return=representation');
@@ -157,7 +120,7 @@ class PayPalExtension extends AbstractExtension
                 ]);
 
                 if ($couponCode) {
-                    event(new CouponUsedEvent(new Coupon, $couponCode));
+                    event(new CouponUsedEvent($couponCode));
                 }
 
                 event(new UserUpdateCreditsEvent($user));
@@ -193,7 +156,9 @@ class PayPalExtension extends AbstractExtension
 
     static function getPayPalClient(): PayPalHttpClient
     {
-        $environment = env('APP_ENV') == 'local'
+        error_log(config('app.env'));
+
+        $environment = config('app.env') == 'local'
             ? new SandboxEnvironment(self::getPaypalClientId(), self::getPaypalClientSecret())
             : new ProductionEnvironment(self::getPaypalClientId(), self::getPaypalClientSecret());
         return new PayPalHttpClient($environment);
@@ -204,7 +169,7 @@ class PayPalExtension extends AbstractExtension
     static function getPaypalClientId(): string
     {
         $settings = new PayPalSettings();
-        return env('APP_ENV') == 'local' ?  $settings->sandbox_client_id : $settings->client_id;
+        return config('app.env') == 'local' ?  $settings->sandbox_client_id : $settings->client_id;
     }
     /**
      * @return string
@@ -212,6 +177,6 @@ class PayPalExtension extends AbstractExtension
     static function getPaypalClientSecret(): string
     {
         $settings = new PayPalSettings();
-        return env('APP_ENV') == 'local' ? $settings->sandbox_client_secret : $settings->client_secret;
+        return config('app.env') == 'local' ? $settings->sandbox_client_secret : $settings->client_secret;
     }
 }
