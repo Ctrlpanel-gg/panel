@@ -30,11 +30,6 @@ class CouponUsed
      */
     public function handle(CouponUsedEvent $event)
     {
-        // Always check the authenticity of the coupon.
-        if (!$this->isValidCoupon($event)) {
-            return;
-        }
-
         // Automatically increments the coupon usage.
         $this->incrementUses($event);
 
@@ -60,18 +55,7 @@ class CouponUsed
      */
     private function incrementUses(CouponUsedEvent $event)
     {
-        $event->coupon->where('code', $event->coupon->code)->increment('uses');
-    }
-
-    /**
-     * It checks that the coupon received from the request really exists.
-     *
-     * @param \App\Events\CouponUsedEvent  $event
-     *
-     * @return bool
-     */
-    private function isValidCoupon(CouponUsedEvent $event): bool
-    {
-        return $event->coupon->code === $event->couponCode ? true : false;
+        $event->coupon->increment('uses');
+        $event->coupon->save();
     }
 }
