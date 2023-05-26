@@ -19,9 +19,10 @@ class CouponUsedEvent
      *
      * @return void
      */
-    public function __construct(Coupon $coupon, string $couponCode)
+    public function __construct(string $couponCode)
     {
-        $this->coupon = $coupon;
+
         $this->couponCode = $couponCode;
+        $this->coupon = Coupon::where('code', $couponCode)->first();
     }
 }
