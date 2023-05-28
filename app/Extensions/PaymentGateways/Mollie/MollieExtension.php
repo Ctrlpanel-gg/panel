@@ -2,7 +2,7 @@
 
 namespace App\Extensions\PaymentGateways\Mollie;
 
-use App\Helpers\AbstractExtension;
+use App\Classes\AbstractExtension;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\PartnerDiscount;
@@ -37,43 +37,10 @@ class MollieExtension extends AbstractExtension
         ];
     }
 
-    public function pay(Request $request): void
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
     {
         $url = 'https://api.mollie.com/v2/payments';
         $settings = new MollieSettings();
-
-        $user = Auth::user();
-        $shopProduct = ShopProduct::findOrFail($request->shopProduct);
-        $discount = PartnerDiscount::getDiscount();
-        $couponCode = $request->input('couponCode');
-        $isValidCoupon = $this->validateCoupon($request->user(), $couponCode, $request->shopProduct);
-        $price = $shopProduct->price;
-
-        // Coupon Discount.
-        if ($isValidCoupon->getStatusCode() == 200) {
-            $price = $this->calcDiscount($price, $isValidCoupon->getData());
-        }
-
-        // Partner Discount.
-        $price = $price - ($price * $discount / 100);
-        $price = number_format($price, 2, thousands_separator: '');
-
-        // create a new payment
-        $payment = Payment::create([
-            'user_id' => $user->id,
-            'payment_id' => null,
-            'payment_method' => 'mollie',
-            'type' => $shopProduct->type,
-            'status' => 'open',
-            'amount' => $shopProduct->quantity,
-            'price' => $price,
-            'tax_value' => $shopProduct->getTaxValue(),
-            'tax_percent' => $shopProduct->getTaxPercent(),
-            'total_price' => $shopProduct->getTotalPrice(),
-            'currency_code' => $shopProduct->currency_code,
-            'shop_item_product_id' => $shopProduct->id,
-        ]);
-
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -81,10 +48,10 @@ class MollieExtension extends AbstractExtension
             ])->post($url, [
                 'amount' => [
                     'currency' => $shopProduct->currency_code,
-                    'value' => $price,
+                    'value' => $totalPriceString,
                 ],
                 'description' => "Order #{$payment->id} - " . $shopProduct->name,
-                'redirectUrl' => route('payment.MollieSuccess', ['couponCode' => $couponCode]),
+                'redirectUrl' => route('payment.MollieSuccess'),
                 'cancelUrl' => route('payment.Cancel'),
                 'webhookUrl' => url('/extensions/payment/MollieWebhook'),
                 'metadata' => [
@@ -94,24 +61,13 @@ class MollieExtension extends AbstractExtension
 
             if ($response->status() != 201) {
                 Log::error('Mollie Payment: ' . $response->body());
-                $payment->delete();
-
-                Redirect::route('store.index')->with('error', __('Payment failed'))->send();
-                return;
+                throw new Exception('Payment failed');
             }
 
-            $payment->update([
-                'payment_id' => $response->json()['id'],
-            ]);
-
-            Redirect::away($response->json()['_links']['checkout']['href'])->send();
-            return;
+            return $response->json()['_links']['checkout']['href'];
         } catch (Exception $ex) {
             Log::error('Mollie Payment: ' . $ex->getMessage());
-            $payment->delete();
-
-            Redirect::route('store.index')->with('error', __('Payment failed'))->send();
-            return;
+            throw new Exception('Payment failed');
         }
     }
 
@@ -122,7 +78,7 @@ class MollieExtension extends AbstractExtension
         $couponCode = $request->input('couponCode');
 
         if ($couponCode) {
-            event(new CouponUsedEvent(new Coupon, $couponCode));
+            event(new CouponUsedEvent($couponCode));
         }
 
         Redirect::route('home')->with('success', 'Your payment is being processed')->send();

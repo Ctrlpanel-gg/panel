@@ -184,9 +184,6 @@ class PaymentController extends Controller
         return redirect()->away($redirectUrl);
     }
 
-
-
-
     /**
      * @param  Request  $request
      */

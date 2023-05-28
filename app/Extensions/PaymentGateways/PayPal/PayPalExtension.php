@@ -156,7 +156,6 @@ class PayPalExtension extends PaymentExtension
 
     static function getPayPalClient(): PayPalHttpClient
     {
-        error_log(config('app.env'));
 
         $environment = config('app.env') == 'local'
             ? new SandboxEnvironment(self::getPaypalClientId(), self::getPaypalClientSecret())
