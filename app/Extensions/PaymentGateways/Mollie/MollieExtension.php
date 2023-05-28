@@ -3,6 +3,7 @@
 namespace App\Extensions\PaymentGateways\Mollie;
 
 use App\Classes\AbstractExtension;
+use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\PartnerDiscount;
@@ -74,12 +75,8 @@ class MollieExtension extends AbstractExtension
     static function success(Request $request): void
     {
         $payment = Payment::findOrFail($request->input('payment'));
-        $payment->status = 'pending';
-        $couponCode = $request->input('couponCode');
-
-        if ($couponCode) {
-            event(new CouponUsedEvent($couponCode));
-        }
+        $payment->status = PaymentStatus::PROCESSING;
+        $payment->save();
 
         Redirect::route('home')->with('success', 'Your payment is being processed')->send();
         return;
@@ -100,16 +97,15 @@ class MollieExtension extends AbstractExtension
                 return response()->json(['success' => false]);
             }
 
-            $payment = Payment::findOrFail($response->json()['metadata']['payment_id']);
-            $payment->status->update([
-                'status' => $response->json()['status'],
-            ]);
 
+            $payment = Payment::findOrFail($response->json()['metadata']['payment_id']);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
             event(new PaymentEvent($payment, $payment, $shopProduct));
 
             if ($response->json()['status'] == 'paid') {
                 $user = User::findOrFail($payment->user_id);
+                $payment->status = PaymentStatus::PAID;
+                $payment->save();
                 event(new UserUpdateCreditsEvent($user));
             }
         } catch (Exception $ex) {
