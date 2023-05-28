@@ -7,6 +7,7 @@ use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Extensions\PaymentGateways\PayPal\PayPalSettings;
 use App\Classes\PaymentExtension;
+use App\Enums\PaymentStatus;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
@@ -104,7 +105,6 @@ class PayPalExtension extends PaymentExtension
 
         $payment = Payment::findOrFail($laravelRequest->payment);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-        $couponCode = $laravelRequest->input('couponCode');
 
         $request = new OrdersCaptureRequest($laravelRequest->input('token'));
         $request->prefer('return=representation');
@@ -115,13 +115,10 @@ class PayPalExtension extends PaymentExtension
             if ($response->statusCode == 201 || $response->statusCode == 200) {
                 //update payment
                 $payment->update([
-                    'status' => 'paid',
+                    'status' => PaymentStatus::PAID,
                     'payment_id' => $response->result->id,
                 ]);
 
-                if ($couponCode) {
-                    event(new CouponUsedEvent($couponCode));
-                }
 
                 event(new UserUpdateCreditsEvent($user));
                 event(new PaymentEvent($user, $payment, $shopProduct));
@@ -134,7 +131,7 @@ class PayPalExtension extends PaymentExtension
                 dd($response);
             } else {
                 $payment->update([
-                    'status' => 'cancelled',
+                    'status' => PaymentStatus::CANCELED,
                     'payment_id' => $response->result->id,
                 ]);
                 abort(500);
@@ -146,7 +143,7 @@ class PayPalExtension extends PaymentExtension
                 dd($ex->getMessage());
             } else {
                 $payment->update([
-                    'status' => 'cancelled',
+                    'status' => PaymentStatus::CANCELED,
                     'payment_id' => $response->result->id,
                 ]);
                 abort(422);

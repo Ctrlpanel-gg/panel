@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,7 @@ class UserPayment
         $shopProduct = $event->shopProduct;
 
         // only update user if payment is paid
-        if ($event->payment->status != "paid") {
+        if ($event->payment->status != PaymentStatus::PAID) {
             return;
         }
 

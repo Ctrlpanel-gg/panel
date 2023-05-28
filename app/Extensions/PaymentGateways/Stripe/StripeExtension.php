@@ -3,6 +3,7 @@
 namespace App\Extensions\PaymentGateways\Stripe;
 
 use App\Classes\AbstractExtension;
+use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\CouponUsedEvent;
 use App\Events\UserUpdateCreditsEvent;
@@ -93,7 +94,6 @@ class StripeExtension extends AbstractExtension
         $user = User::findOrFail($user->id);
         $payment = Payment::findOrFail($request->input('payment'));
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-        $couponCode = $request->input('couponCode');
 
         Redirect::route('home')->with('success', 'Please wait for success')->send();
 
@@ -112,16 +112,11 @@ class StripeExtension extends AbstractExtension
                 //update payment
                 $payment->update([
                     'payment_id' => $paymentSession->payment_intent,
-                    'status' => 'paid',
+                    'status' => PaymentStatus::PAID,
                 ]);
-
-                if ($couponCode) {
-                    event(new CouponUsedEvent(new Coupon, $couponCode));
-                }
 
                 //payment notification
                 $user->notify(new ConfirmPaymentNotification($payment));
-
                 event(new UserUpdateCreditsEvent($user));
                 event(new PaymentEvent($user, $payment, $shopProduct));
 
@@ -133,7 +128,7 @@ class StripeExtension extends AbstractExtension
                     //update payment
                     $payment->update([
                         'payment_id' => $paymentSession->payment_intent,
-                        'status' => 'processing',
+                        'status' => PaymentStatus::PROCESSING,
                     ]);
 
                     event(new PaymentEvent($user, $payment, $shopProduct));
@@ -174,7 +169,7 @@ class StripeExtension extends AbstractExtension
                 //update payment db entry status
                 $payment->update([
                     'payment_id' => $payment->payment_id ?? $paymentIntent->id,
-                    'status' => 'paid'
+                    'status' => PaymentStatus::PAID,
                 ]);
 
                 //payment notification
