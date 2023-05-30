@@ -34,7 +34,6 @@ class ServersSuspendedJob implements ShouldQueue
      */
     public function handle()
     {
-        //$users = User::whereIn('id', $this->usersToNotify)->get();
         User::whereIn('id', $this->usersToNotify)->chunk(100, function($users) {
             $users->each(function ($user) {
                 Notification::send($user, new ServersSuspendedNotification());
