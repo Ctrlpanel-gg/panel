@@ -172,7 +172,7 @@
                                                 <span class="text-muted d-inline-block">
                                                     {{ __('Coupon Discount') }}
                                                 </span>
-                                                <span id="coupon_discount_value" class="text-muted d-inline-block">
+                                                <span x-text="couponDiscountedValue" class="text-muted d-inline-block">
 
                                                 </span>
                                             </div>
@@ -188,7 +188,8 @@
                                             <div class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Total') }}</span>
                                                 <input id="total_price_input" type="hidden" x-model="totalPrice">
-                                                <span class="text-muted d-inline-block" x-text="totalPrice">
+                                                <span class="text-muted d-inline-block"
+                                                    x-text="formatToCurrency(totalPrice)">
                                                 </span>
                                             </div>
                                             <template x-if="payment_method">
@@ -229,8 +230,6 @@
 
     <script>
         function couponForm() {
-            console.log("{{ $discountedprice }}", " {{ $discountpercent }}", "{{ $discountvalue }}",
-                " {{ $taxpercent }}", "{{ $taxvalue }}", "{{ $productIsFree }}", "{{ $total }}")
             return {
                 // Get the product id from the url
                 productId: window.location.pathname.split('/').pop(),
@@ -238,15 +237,14 @@
                 coupon_code: '',
                 submitted: false,
                 totalPrice: {{ $discountedprice }},
+                couponDiscountedValue: 0,
 
 
                 setCouponCode(event) {
                     this.coupon_code = event.target.value
-                    console.log(event.target.value)
                 },
 
                 async checkCoupon() {
-                    console.log(this.coupon_code)
                     const response = await (fetch(
                             "{{ route('admin.coupon.redeem') }}", {
                                 method: 'POST',
@@ -291,34 +289,36 @@
                             text: "{{ __('The coupon code you entered is invalid.') }}"
                         })
                     }
-
-
                 },
+
+
 
                 calcPriceWithCouponDiscount(couponValue, couponType) {
                     let newTotalPrice = this.totalPrice
 
                     if (couponType === 'percentage') {
                         newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
-                        $('#coupon_discount_value').text("- " + couponValue + "%")
+                        this.couponDiscountedValue = "- " + couponValue + "%"
                     } else if (couponType === 'amount') {
                         newTotalPrice = totanewTotalPricelPrice - couponValue
-                        $('#coupon_discount_value').text(this.totalPrice)
+                        this.couponDiscountedValue = "- " + couponValue + " {{ $product->currency_code }}"
                     }
 
                     // get language for formatting currency
                     const lang = "{{ app()->getLocale() }}"
+                    // format totalPrice to currency
+                    this.totalPrice = this.formatToCurrency(newTotalPrice)
+                },
+
+                formatToCurrency(amount) {
+                    // get language for formatting currency
+                    const lang = "{{ app()->getLocale() }}"
                     console.log(lang)
                     // format totalPrice to currency
-                    this.totalPrice = newTotalPrice.toLocaleString(lang, {
+                    return amount.toLocaleString(lang, {
                         style: 'currency',
                         currency: "{{ $product->currency_code }}",
                     })
-
-                    console.log(newTotalPrice)
-                    console.log(this.totalPrice)
-
-                    $('#total_price_input').val(this.totalPrice)
                 },
 
             }
