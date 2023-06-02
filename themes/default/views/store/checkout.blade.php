@@ -22,104 +22,87 @@
     <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
-    <section class="content">
+    <section class="content" x-data="couponForm()">
         <div class="container-fluid">
-            <form
-							id="payment_form"
-              action="{{ route('payment.pay') }}"
-              method="POST"
-              x-data="{
-                payment_method: '',
-                coupon_code: '',
-                clicked: false,
-                setCouponCode(event) {
-                  this.coupon_code = event.target.value
-                }
-              }"
-            >
+            <form id="payment_form" action="{{ route('payment.pay') }}" method="POST">
                 @csrf
                 @method('post')
                 <div class="row d-flex justify-content-center flex-wrap">
                     @if (!$productIsFree)
                         <div class="col-xl-4">
                             <div class="card">
-                                <div class="card-header">
-                                    <h4 class="mb-0">
-                                        <i class="fas fa-money-check-alt"></i>
-                                        Payment Methods
-                                    </h4>
-                                </div>
-                                <div class="card-body">
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="payment_method" :value="payment_method"
-                                        x-model="payment_method">
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            @foreach ($paymentGateways as $gateway)
-                                                <div class="row checkout-gateways">
-                                                    <div class="col-12 d-flex justify-content-between">
-                                                        <label class="form-check-label h4 checkout-gateway-label"
-                                                            for="{{ $gateway->name }}">
-                                                            <span class="mr-3">{{ $gateway->name }}</span>
-                                                        </label>
-                                                        <button class="btn btn-primary rounded" type="button"
-                                                            name="payment-method" id="{{ $gateway->name }}"
-                                                            value="{{ $gateway->name }}"
-                                                            :class="payment_method === '{{ $gateway->name }}' ?
-                                                                'active' : ''"
-                                                            @click="payment_method = '{{ $gateway->name }}'; clicked = true;"
-                                                            x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">Select</button>
-                                                        </button>
 
+                                <div class="card-body">
+                                    <ul class="list-group ">
+                                        <li class="list-group-item">
+                                            <div class="row">
+                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                <input type="hidden" name="payment_method" :value="payment_method"
+                                                    x-model="payment_method">
+                                                <div class="col-lg-12">
+                                                    <span class="h4">{{ __('Payment Methods') }}</span>
+                                                    <div class="mt-2">
+                                                        @foreach ($paymentGateways as $gateway)
+                                                            <div
+                                                                class="row checkout-gateways @if (!$loop->last) mb-2 @endif">
+                                                                <div class="col-12 d-flex justify-content-between">
+                                                                    <label
+                                                                        class="form-check-label h5 checkout-gateway-label"
+                                                                        for="{{ $gateway->name }}">
+                                                                        <span class="mr-3">{{ $gateway->name }}</span>
+                                                                    </label>
+                                                                    <button class="btn btn-primary rounded" type="button"
+                                                                        name="payment-method" id="{{ $gateway->name }}"
+                                                                        value="{{ $gateway->name }}"
+                                                                        :class="payment_method === '{{ $gateway->name }}' ?
+                                                                            'active' : ''"
+                                                                        @click="payment_method = '{{ $gateway->name }}'; submitted = true;"
+                                                                        x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">Select</button>
+                                                                    </button>
+
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
                                                     </div>
                                                 </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
+                                            </div>
+                                        </li>
+
+                                        <li class="list-group-item">
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    @if ($isCouponsEnabled)
+                                                        <span class="h4">{{ __('Coupon') }}</span>
+
+                                                        <div class="d-flex mt-2">
+                                                            <input type="text" id="coupon_code" name="coupon_code"
+                                                                value="{{ old('coupon_code') }}" :value="coupon_code"
+                                                                class="form-control @error('coupon_code') is_invalid @enderror"
+                                                                placeholder="{{ __('Enter your coupon here...') }}"
+                                                                x-on:change.debounce="setCouponCode($event)"
+                                                                x-model="coupon_code" />
+                                                            <button type="button" id="send_coupon_code"
+                                                                @click="checkCoupon()" class="btn btn-success ml-3"
+                                                                :disabled="!coupon_code.length"
+                                                                :class="!coupon_code.length ? 'disabled' : ''"
+                                                                :value="coupon_code">
+                                                                {{ __('Submit') }}
+                                                            </button>
+
+                                                        </div>
+                                                        @error('coupon_code')
+                                                            <div class="text-danger">
+                                                                {{ $message }}
+                                                            </div>
+                                                        @enderror
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                        @if ($isCouponsEnabled)
-                          <div class="col-xl-4">
-                            <div class="card">
-                              <div class="card-header">
-                                <h4 class="mb-0">
-                                  Coupon Code
-                                </h4>
-                              </div>
-                              <div class="card-body">
-                                <div class="d-flex">
-                                  <input
-                                    type="text"
-                                    id="coupon_code"
-                                    name="coupon_code"
-                                    value="{{ old('coupon_code') }}"
-                                    :value="coupon_code"
-                                    class="form-control @error('coupon_code') is_invalid @enderror"
-                                    placeholder="SUMMER"
-                                    x-on:change.debounce="setCouponCode($event)"
-                                    x-model="coupon_code"
-                                  />
-                                <button
-                                  type="button"
-                                  id="send_coupon_code"
-                                  class="btn btn-success ml-3"
-                                  :disabled="!coupon_code.length"
-                                  :class="!coupon_code.length ? 'disabled' : ''"
-                                  :value="coupon_code"
-                                >
-                                  {{ __('Submit') }}
-                                </button>
-                                </div>
-                                @error('coupon_code')
-                                  <div class="text-danger">
-                                    {{ $message }}
-                                  </div>
-                                @enderror
-                              </div>
-                            </div>
-                          </div>
-                        @endif
                     @endif
                     <div class="col-xl-3">
                         <div class="card">
@@ -173,7 +156,7 @@
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Subtotal') }}</span>
                                                 <span class="text-muted d-inline-block">
-                                                    {{ $product->formatToCurrency($discountedprice) }}</span>
+                                                    {{ $product->formatToCurrency($product->price) }}</span>
                                             </li>
                                             <div class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Tax') }}
@@ -184,18 +167,19 @@
                                                 <span class="text-muted d-inline-block">
                                                     + {{ $product->formatToCurrency($taxvalue) }}</span>
                                             </div>
-                                            <div id="coupon_discount_details" class="d-flex justify-content-between" style="display: none !important;">
-                                              <span class="text-muted d-inline-block">
-                                                {{ __('Coupon Discount') }}
-                                              </span>
-                                              <span id="coupon_discount_value" class="text-muted d-inline-block">
+                                            <div id="coupon_discount_details" class="d-flex justify-content-between"
+                                                style="display: none !important;">
+                                                <span class="text-muted d-inline-block">
+                                                    {{ __('Coupon Discount') }}
+                                                </span>
+                                                <span id="coupon_discount_value" class="text-muted d-inline-block">
 
-                                              </span>
+                                                </span>
                                             </div>
                                             @if ($discountpercent && $discountvalue)
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Discount') }}
-                                                        ({{ $discountpercent }}%):</span>
+                                                        ({{ $discountpercent }}%)</span>
                                                     <span
                                                         class="text-muted d-inline-block">-{{ $product->formatToCurrency($discountvalue) }}</span>
                                                 </div>
@@ -203,40 +187,36 @@
                                             <hr class="text-white border-secondary">
                                             <div class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Total') }}</span>
-                                                <input id="total_price_input" type="hidden" value="{{ $product->getTotalPrice() }}">
-                                                <span
-                                                  id="total_price"
-                                                  class="text-muted d-inline-block"
-                                                >
-                                                  {{ $product->formatToCurrency($total) }}
+                                                <input id="total_price_input" type="hidden" x-model="totalPrice">
+                                                <span class="text-muted d-inline-block" x-text="totalPrice">
                                                 </span>
                                             </div>
                                             <template x-if="payment_method">
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Pay with') }}</span>
-                                                    <span class="text-muted d-inline-block" x-text="payment_method"></span>
+                                                    <span class="text-muted d-inline-block"
+                                                        x-text="payment_method"></span>
                                                 </div>
                                             </template>
                                         </ul>
                                     </li>
                                 </ul>
 
-                                <button :disabled="(!payment_method || !clicked || coupon_code ? true : false) && {{ !$productIsFree }}"
+                                <button
+                                    :disabled="(!payment_method || !clicked || coupon_code) &&
+                                    {{ !$productIsFree }}"
                                     id="submit_form_button"
-                                    :class="(!payment_method || !clicked || coupon_code ? true : false) && {{ !$productIsFree }} ? 'disabled' : ''"
-                                    :x-text="coupon_code"
-                                    class="btn btn-success float-right w-100">
-
+                                    :class="(!payment_method || !clicked || coupon_code) &&
+                                    {{ !$productIsFree }} ? 'disabled' : ''"
+                                    :x-text="coupon_code" class="btn btn-success float-right w-100">
                                     <i class="far fa-credit-card mr-2" @click="clicked == true"></i>
                                     @if ($productIsFree)
                                         {{ __('Get for free') }}
                                     @else
                                         {{ __('Submit Payment') }}
                                     @endif
-
                                 </button>
-                                <script>
-                                </script>
+                                <script></script>
                             </div>
                         </div>
                     </div>
@@ -248,81 +228,100 @@
     <!-- END CONTENT -->
 
     <script>
-      $(document).ready(function() {
-        const productId = $("[name='product_id']").val()
-        let hasCouponCodeValue = $('#coupon_code').val().trim() !== ''
+        function couponForm() {
+            console.log("{{ $discountedprice }}", " {{ $discountpercent }}", "{{ $discountvalue }}",
+                " {{ $taxpercent }}", "{{ $taxvalue }}", "{{ $productIsFree }}", "{{ $total }}")
+            return {
+                // Get the product id from the url
+                productId: window.location.pathname.split('/').pop(),
+                payment_method: '',
+                coupon_code: '',
+                submitted: false,
+                totalPrice: {{ $discountedprice }},
 
-        $('#coupon_code').on('change', function(e) {
-          hasCouponCodeValue = e.target.value !== ''
-        })
 
-        function calcPriceWithCouponDiscount(couponValue, couponType) {
-          let totalPrice = $('#total_price_input').val()
+                setCouponCode(event) {
+                    this.coupon_code = event.target.value
+                    console.log(event.target.value)
+                },
 
-          if (typeof totalPrice == 'string') {
-            totalPrice = parseFloat(totalPrice)
-          }
+                async checkCoupon() {
+                    console.log(this.coupon_code)
+                    const response = await (fetch(
+                            "{{ route('admin.coupon.redeem') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                        'content')
+                                },
+                                body: JSON.stringify({
+                                    couponCode: this.coupon_code,
+                                    productId: this.productId
+                                })
+                            }
+                        )
+                        .then(response => response.json()).catch((error) => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: "{{ __('The coupon code you entered is invalid.') }}"
+                            })
+                        }))
 
-          if (couponType === 'percentage') {
-            totalPrice = totalPrice - (totalPrice * couponValue / 100)
-            $('#coupon_discount_value').text("- " + couponValue + "%")
-          } else if (couponType === 'amount') {
-            totalPrice = totalPrice - couponValue
-            $('#coupon_discount_value').text(totalPrice)
-          }
+                    if (response.isValid && response.couponCode) {
+                        Swal.fire({
+                            icon: 'success',
+                            text: "{{ __('The coupon was successfully added to your purchase.') }}"
 
-          $('#total_price').text(totalPrice)
-          $('#total_price_input').val(totalPrice)
+                        })
+
+                        this.calcPriceWithCouponDiscount(response.couponValue, response
+                            .couponType)
+
+                        $('#submit_form_button').prop('disabled', false).removeClass(
+                            'disabled')
+                        $('#send_coupon_code').prop('disabled', true)
+                        $('#coupon_discount_details').prop('disabled', false).show()
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: "{{ __('The coupon code you entered is invalid.') }}"
+                        })
+                    }
+
+
+                },
+
+                calcPriceWithCouponDiscount(couponValue, couponType) {
+                    let newTotalPrice = this.totalPrice
+
+                    if (couponType === 'percentage') {
+                        newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
+                        $('#coupon_discount_value').text("- " + couponValue + "%")
+                    } else if (couponType === 'amount') {
+                        newTotalPrice = totanewTotalPricelPrice - couponValue
+                        $('#coupon_discount_value').text(this.totalPrice)
+                    }
+
+                    // get language for formatting currency
+                    const lang = "{{ app()->getLocale() }}"
+                    console.log(lang)
+                    // format totalPrice to currency
+                    this.totalPrice = newTotalPrice.toLocaleString(lang, {
+                        style: 'currency',
+                        currency: "{{ $product->currency_code }}",
+                    })
+
+                    console.log(newTotalPrice)
+                    console.log(this.totalPrice)
+
+                    $('#total_price_input').val(this.totalPrice)
+                },
+
+            }
         }
-
-				function checkCoupon() {
-					const couponCode = $('#coupon_code').val()
-
-					$.ajax({
-						url: "{{ route('admin.coupon.redeem') }}",
-						method: 'POST',
-						data: { couponCode: couponCode, productId: productId },
-						success: function(response) {
-							if (response.isValid && response.couponCode) {
-                Swal.fire({
-                  icon: 'success',
-                  text: 'The coupon was successfully added to your purchase.',
-                }).then(function(isConfirmed) {
-                  calcPriceWithCouponDiscount(response.couponValue, response.couponType)
-                  $('#submit_form_button').prop('disabled', false).removeClass('disabled')
-                  $('#send_coupon_code').prop('disabled', true)
-                  $('#coupon_discount_details').prop('disabled', false).show()
-                })
-
-							} else {
-								console.log('Invalid Coupon')
-							}
-						},
-						error: function(response) {
-              const responseJson = response.responseJSON
-
-              if (!responseJson.isValid) {
-                  Swal.fire({
-                  icon: 'error',
-                  title: 'Oops...',
-                  text: responseJson.error,
-                })
-              }
-						}
-					})
-				}
-
-				$('#payment_form').on('submit', function(e) {
-					if (hasCouponCodeValue) {
-						checkCoupon()
-					}
-				})
-
-        $('#send_coupon_code').click(function(e) {
-          if (hasCouponCodeValue) {
-						checkCoupon()
-					}
-        })
-      })
     </script>
 @endsection
