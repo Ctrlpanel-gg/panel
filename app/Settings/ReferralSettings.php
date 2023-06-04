@@ -27,7 +27,7 @@ class ReferralSettings extends Settings
             'always_give_commission' => 'nullable|string',
             'enabled' => 'nullable|string',
             'reward' => 'nullable|numeric',
-            'mode' => 'required|in:comission,sign-up,both',
+            'mode' => 'required|in:commission,sign-up,both',
             'percentage' => 'nullable|numeric',
         ];
     }
