@@ -18,7 +18,6 @@ class CreateMailSettings extends SettingsMigration
         $this->migrator->add('mail.mail_from_address', $table_exists ? $this->getOldValue('SETTINGS::MAIL:FROM_ADDRESS') : env('MAIL_FROM_ADDRESS', 'example@example.com'));
         $this->migrator->add('mail.mail_from_name', $table_exists ? $this->getOldValue('SETTINGS::MAIL:FROM_NAME') : env('APP_NAME', 'CtrlPanel.gg'));
         $this->migrator->add('mail.mail_mailer', $table_exists ? $this->getOldValue('SETTINGS::MAIL:MAILER') : env('MAIL_MAILER', 'smtp'));
-        $this->migrator->add('mail.mail_enabled', true);
     }
 
     public function down(): void
@@ -72,12 +71,7 @@ class CreateMailSettings extends SettingsMigration
                 'type' => 'string',
                 'description' => 'The mailer of the mail server.',
             ],
-            [
-                'key' => 'SETTINGS::MAIL:ENABLED',
-                'value' => $this->getNewValue('mail_enabled'),
-                'type' => 'boolean',
-                'description' => 'The enabled state of the mail server.',
-            ],
+
         ]);
 
         $this->migrator->delete('mail.mail_host');
@@ -88,7 +82,6 @@ class CreateMailSettings extends SettingsMigration
         $this->migrator->delete('mail.mail_from_address');
         $this->migrator->delete('mail.mail_from_name');
         $this->migrator->delete('mail.mail_mailer');
-        $this->migrator->delete('mail.mail_enabled');
     }
 
 

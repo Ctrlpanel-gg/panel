@@ -14,7 +14,6 @@ class MailSettings extends Settings
     public ?string $mail_from_address;
     public ?string $mail_from_name;
     public ?string $mail_mailer;
-    public bool $mail_enabled;
 
     public static function group(): string
     {
@@ -52,7 +51,6 @@ class MailSettings extends Settings
             'mail_from_address' => 'nullable|string',
             'mail_from_name' => 'nullable|string',
             'mail_mailer' => 'nullable|string',
-            'mail_enabled' => 'nullable|string',
         ];
     }
 
@@ -104,10 +102,6 @@ class MailSettings extends Settings
                 'label' => 'Mail Mailer',
                 'type' => 'string',
                 'description' => 'The mailer of your mail server.',
-            ],
-            'mail_enabled' => [
-                'label' => 'Mail Enabled',
-                'type' => 'boolean',
             ],
         ];
     }
