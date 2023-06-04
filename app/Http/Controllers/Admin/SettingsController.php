@@ -64,6 +64,7 @@ class SettingsController extends Controller
                     'type' => $optionInputData[$key]['type'] ?? 'string',
                     'description' => $optionInputData[$key]['description'] ?? '',
                     'options' => $optionInputData[$key]['options'] ?? [],
+                    'identifier' => $optionInputData[$key]['identifier'] ?? 'option'
                 ];
             }
 
@@ -96,7 +97,7 @@ class SettingsController extends Controller
     {
         $category = request()->get('category');
 
-        $this->checkPermission("settings.".strtolower($category).".write");
+        $this->checkPermission("settings." . strtolower($category) . ".write");
 
         $settings_class = request()->get('settings_class');
 
@@ -125,7 +126,7 @@ class SettingsController extends Controller
                 continue;
             }
             if ($rp->name == 'available') {
-                $settingsClass->$key = implode(",",$request->$key);
+                $settingsClass->$key = implode(",", $request->$key);
                 continue;
             }
 

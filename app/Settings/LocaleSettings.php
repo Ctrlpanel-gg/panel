@@ -62,6 +62,7 @@ class LocaleSettings extends Settings
                 'type' => 'select',
                 'description' => 'The default locale to use.',
                 'options' => config('app.available_locales'),
+                'identifier' => 'display'
             ],
             'dynamic' => [
                 'label' => 'Dynamic Locale',
