@@ -214,7 +214,6 @@
                                                                                 class="custom-select w-100"
                                                                                 name="{{ $key }}">
                                                                                 @if ($value['identifier'] == 'display')
-                                                                                    {{ error_log($key . 'True, IAM A DISPLAY') }}
                                                                                     @foreach ($value['options'] as $option => $display)
                                                                                         <option value="{{ $display }}"
                                                                                             {{ $value['value'] == $display ? 'selected' : '' }}>
@@ -267,27 +266,27 @@
 
                                                 <!-- TODO: Display this only on the General tab
 
-                                                                                                                                                            <div class="row">
-                                                                                                                                                                <div class="col-4 d-flex align-items-center">
-                                                                                                                                                                    <label for="recaptcha_preview">{{ __('ReCAPTCHA Preview') }}</label>
-                                                                                                                                                                </div>
-
-                                                                                                                                                                <div class="col-8">
-
-                                                                                                                                                                        <div class="w-100">
-                                                                                                                                                                <div class="input-group mb-3">
-                                                                                                                                                                    {!! htmlScriptTagJsApi() !!}
-                                                                                                                                                                {!! htmlFormSnippet() !!}
-                                                                                                                                                                @error('g-recaptcha-response')
-            <span class="text-danger" role="alert">
-                                                                                                                                                                                                                                                    <small><strong>{{ $message }}</strong></small>
-                                                                                                                                                                                                                                                        </span>
-        @enderror
-                                                                                                                                                                </div>
+                                                                                                                                                                    <div class="row">
+                                                                                                                                                                        <div class="col-4 d-flex align-items-center">
+                                                                                                                                                                            <label for="recaptcha_preview">{{ __('ReCAPTCHA Preview') }}</label>
                                                                                                                                                                         </div>
-                                                                                                                                                                </div>
-                                                                                                                                                            </div>
-                                                                                                                                                               -->
+
+                                                                                                                                                                        <div class="col-8">
+
+                                                                                                                                                                                <div class="w-100">
+                                                                                                                                                                        <div class="input-group mb-3">
+                                                                                                                                                                            {!! htmlScriptTagJsApi() !!}
+                                                                                                                                                                        {!! htmlFormSnippet() !!}
+                                                                                                                                                                        @error('g-recaptcha-response')
+            <span class="text-danger" role="alert">
+                                                                                                                                                                                                                                                                <small><strong>{{ $message }}</strong></small>
+                                                                                                                                                                                                                                                                    </span>
+        @enderror
+                                                                                                                                                                        </div>
+                                                                                                                                                                                </div>
+                                                                                                                                                                        </div>
+                                                                                                                                                                    </div>
+                                                                                                                                                                       -->
 
 
                                                 <div class="row">
