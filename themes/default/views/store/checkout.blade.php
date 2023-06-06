@@ -180,8 +180,9 @@
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Partner Discount') }}
                                                         ({{ $discountpercent }}%)</span>
-                                                    <span
-                                                        class="text-muted d-inline-block">-{{ $product->formatToCurrency($discountvalue) }}</span>
+                                                    <span class="text-muted d-inline-block">
+                                                        - {{ $product->formatToCurrency($discountvalue) }}
+                                                    </span>
                                                 </div>
                                             @endif
                                             <hr class="text-white border-secondary">
