@@ -263,7 +263,7 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
-                                text: "{{ __('The coupon code you entered is invalid.') }}"
+                                text: "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
                             })
                         }))
 
@@ -286,7 +286,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: "{{ __('The coupon code you entered is invalid.') }}"
+                            text: "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
                         })
                     }
                 },
