@@ -178,7 +178,7 @@
                                             </div>
                                             @if ($discountpercent && $discountvalue)
                                                 <div class="d-flex justify-content-between">
-                                                    <span class="text-muted d-inline-block">{{ __('Discount') }}
+                                                    <span class="text-muted d-inline-block">{{ __('Partner Discount') }}
                                                         ({{ $discountpercent }}%)</span>
                                                     <span
                                                         class="text-muted d-inline-block">-{{ $product->formatToCurrency($discountvalue) }}</span>
@@ -296,24 +296,26 @@
                 calcPriceWithCouponDiscount(couponValue, couponType) {
                     let newTotalPrice = this.totalPrice
 
+
+                    console.log(couponType)
                     if (couponType === 'percentage') {
                         newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
                         this.couponDiscountedValue = "- " + couponValue + "%"
                     } else if (couponType === 'amount') {
-                        newTotalPrice = totanewTotalPricelPrice - couponValue
-                        this.couponDiscountedValue = "- " + couponValue + " {{ $product->currency_code }}"
+
+                        newTotalPrice = newTotalPrice - couponValue
+                        this.couponDiscountedValue = "- " + this.formatToCurrency(couponValue)
                     }
 
-                    // get language for formatting currency
-                    const lang = "{{ app()->getLocale() }}"
                     // format totalPrice to currency
                     this.totalPrice = this.formatToCurrency(newTotalPrice)
                 },
 
                 formatToCurrency(amount) {
-                    // get language for formatting currency
-                    const lang = "{{ app()->getLocale() }}"
-                    console.log(lang)
+                    // get language for formatting currency - use en_US as product->formatToCurrency() uses it
+                    //const lang = "{{ app()->getLocale() }}"
+                    const lang = 'en-US'
+
                     // format totalPrice to currency
                     return amount.toLocaleString(lang, {
                         style: 'currency',
