@@ -442,6 +442,9 @@
     "zh": "Chinese",
     "tr": "Turkish",
     "ru": "Russian",
+    "sv": "Swedish",
+    "sk": "Slovakish",
+    "hu": "Hungarian",
     "Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed": "Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed",
     "Caution": "Caution"
 }

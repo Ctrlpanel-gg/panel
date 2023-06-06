@@ -646,5 +646,10 @@
     "Coupon Discount": "Coupon Discount",
     "Enter your coupon here...": "Enter your coupon here...",
     "Coupon": "Coupon",
-    "Checkout details": "Checkout details"
+    "Checkout details": "Checkout details",
+    "per 6 Months": "per 6 Months",
+    "per 3 Months": "per 3 Months",
+    "per Year": "per Year",
+    "per Week": "per Week",
+    "per Day": "per Day"
 }
