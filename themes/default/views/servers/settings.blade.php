@@ -33,7 +33,7 @@
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">SERVER NAME</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('SERVER NAME') }}</p>
                             <h5 class="font-weight-bolder" id="domain_text">
                               <span class="text-success text-sm font-weight-bolder">{{ $server->name }}</span>
                             </h5>
@@ -54,7 +54,7 @@
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">CPU</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('CPU') }}</p>
                             <h5 class="font-weight-bolder">
                               <span class="text-success text-sm font-weight-bolder">@if($server->product->cpu == 0)Unlimited @else {{$server->product->cpu}} % @endif</span>
                             </h5>
@@ -75,7 +75,7 @@
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">Memory</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('MEMORY') }}</p>
                             <h5 class="font-weight-bolder">
                               <span class="text-success text-sm font-weight-bolder">@if($server->product->memory == 0)Unlimited @else {{$server->product->memory}}MB @endif</span>
                             </h5>
@@ -96,7 +96,7 @@
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">STORAGE</p>
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('STORAGE') }}</p>
                             <h5 class="font-weight-bolder">
                               <span class="text-success text-sm font-weight-bolder">@if($server->product->disk == 0)Unlimited @else {{$server->product->disk}}MB @endif</span>
                             </h5>
@@ -292,7 +292,7 @@
                                 {{__("This is an irreversible action, all files of this server will be removed!")}}
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
                                 <form class="d-inline" method="post" action="{{ route('servers.destroy', ['server' => $server->id]) }}">
                                   @csrf
                                   @method('DELETE')
