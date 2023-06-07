@@ -63,7 +63,7 @@
                                         <div class="col-7 my-auto">
                                             <i
                                                 class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>
-                                            {{ $server->isSuspended() ? 'Suspended' : 'Active' }}
+                                            {{ $server->isSuspended() ? __('Suspended') : __('Active') }}
                                         </div>
                                     </div>
                                     <div class="row mb-2">
