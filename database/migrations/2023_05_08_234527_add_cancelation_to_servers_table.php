@@ -22,7 +22,7 @@ class AddCancelationToServersTable extends Migration
         }
 
         Schema::table('servers', function (Blueprint $table) {
-            $table->dateTime('cancelled')->nullable();
+            $table->dateTime('canceled')->nullable();
         });
     }
 
