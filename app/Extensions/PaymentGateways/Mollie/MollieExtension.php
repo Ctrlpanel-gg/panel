@@ -2,17 +2,20 @@
 
 namespace App\Extensions\PaymentGateways\Mollie;
 
-use App\Helpers\AbstractExtension;
+use App\Classes\AbstractExtension;
+use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Models\Coupon;
+use App\Traits\Coupon as CouponTrait;
+use App\Events\CouponUsedEvent;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +26,8 @@ use Illuminate\Support\Facades\Http;
  */
 class MollieExtension extends AbstractExtension
 {
+    use CouponTrait;
+
     public static function getConfig(): array
     {
         return [
@@ -33,31 +38,10 @@ class MollieExtension extends AbstractExtension
         ];
     }
 
-    static function pay(Request $request): void
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
     {
         $url = 'https://api.mollie.com/v2/payments';
         $settings = new MollieSettings();
-
-        $user = Auth::user();
-        $shopProduct = ShopProduct::findOrFail($request->shopProduct);
-        $discount = PartnerDiscount::getDiscount();
-
-        // create a new payment
-        $payment = Payment::create([
-            'user_id' => $user->id,
-            'payment_id' => null,
-            'payment_method' => 'mollie',
-            'type' => $shopProduct->type,
-            'status' => 'open',
-            'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * $discount / 100),
-            'tax_value' => $shopProduct->getTaxValue(),
-            'tax_percent' => $shopProduct->getTaxPercent(),
-            'total_price' => $shopProduct->getTotalPrice(),
-            'currency_code' => $shopProduct->currency_code,
-            'shop_item_product_id' => $shopProduct->id,
-        ]);
-
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
@@ -65,7 +49,7 @@ class MollieExtension extends AbstractExtension
             ])->post($url, [
                 'amount' => [
                     'currency' => $shopProduct->currency_code,
-                    'value' => number_format($shopProduct->getTotalPrice(), 2, '.', ''),
+                    'value' => $totalPriceString,
                 ],
                 'description' => "Order #{$payment->id} - " . $shopProduct->name,
                 'redirectUrl' => route('payment.MollieSuccess'),
@@ -78,31 +62,21 @@ class MollieExtension extends AbstractExtension
 
             if ($response->status() != 201) {
                 Log::error('Mollie Payment: ' . $response->body());
-                $payment->delete();
-
-                Redirect::route('store.index')->with('error', __('Payment failed'))->send();
-                return;
+                throw new Exception('Payment failed');
             }
 
-            $payment->update([
-                'payment_id' => $response->json()['id'],
-            ]);
-
-            Redirect::away($response->json()['_links']['checkout']['href'])->send();
-            return;
+            return $response->json()['_links']['checkout']['href'];
         } catch (Exception $ex) {
             Log::error('Mollie Payment: ' . $ex->getMessage());
-            $payment->delete();
-
-            Redirect::route('store.index')->with('error', __('Payment failed'))->send();
-            return;
+            throw new Exception('Payment failed');
         }
     }
 
     static function success(Request $request): void
     {
         $payment = Payment::findOrFail($request->input('payment'));
-        $payment->status = 'pending';
+        $payment->status = PaymentStatus::PROCESSING;
+        $payment->save();
 
         Redirect::route('home')->with('success', 'Your payment is being processed')->send();
         return;
@@ -123,16 +97,15 @@ class MollieExtension extends AbstractExtension
                 return response()->json(['success' => false]);
             }
 
-            $payment = Payment::findOrFail($response->json()['metadata']['payment_id']);
-            $payment->status->update([
-                'status' => $response->json()['status'],
-            ]);
 
+            $payment = Payment::findOrFail($response->json()['metadata']['payment_id']);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
             event(new PaymentEvent($payment, $payment, $shopProduct));
 
             if ($response->json()['status'] == 'paid') {
                 $user = User::findOrFail($payment->user_id);
+                $payment->status = PaymentStatus::PAID;
+                $payment->save();
                 event(new UserUpdateCreditsEvent($user));
             }
         } catch (Exception $ex) {

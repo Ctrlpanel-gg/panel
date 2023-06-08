@@ -60,7 +60,7 @@ class Server extends Model
         "product_id",
         "pterodactyl_id",
         "last_billed",
-        "cancelled"
+        "canceled"
     ];
 
     /**

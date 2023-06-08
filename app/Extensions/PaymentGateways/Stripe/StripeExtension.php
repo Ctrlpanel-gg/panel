@@ -2,14 +2,18 @@
 
 namespace App\Extensions\PaymentGateways\Stripe;
 
-use App\Helpers\AbstractExtension;
+use App\Classes\AbstractExtension;
+use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
+use App\Events\CouponUsedEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Extensions\PaymentGateways\Stripe\StripeSettings;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Models\Coupon;
+use App\Traits\Coupon as CouponTrait;
 use App\Notifications\ConfirmPaymentNotification;
 use Exception;
 use Illuminate\Http\Request;
@@ -21,6 +25,8 @@ use Stripe\StripeClient;
 
 class StripeExtension extends AbstractExtension
 {
+    use CouponTrait;
+
     public static function getConfig(): array
     {
         return [
@@ -31,39 +37,13 @@ class StripeExtension extends AbstractExtension
         ];
     }
 
-    /**
-     * @param  Request  $request
-     * @param  ShopProduct  $shopProduct
-     */
-    public static function StripePay(Request $request)
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
     {
-        $user = Auth::user();
-        $shopProduct = ShopProduct::findOrFail($request->shopProduct);
-
-        // check if the price is valid for stripe
-        if (!self::checkPriceAmount($shopProduct->getTotalPrice(), strtoupper($shopProduct->currency_code), 'stripe')) {
-            Redirect::route('home')->with('error', __('The product you chose can\'t be purchased with this payment method. The total amount is too small. Please buy a bigger amount or try a different payment method.'))->send();
-            return;
+        // check if the total price is valid for stripe
+        $totalPriceNumber = floatval($totalPriceString);
+        if (!self::checkPriceAmount($totalPriceNumber, strtoupper($shopProduct->currency_code), 'stripe')) {
+            throw new Exception('Invalid price amount');
         }
-
-        $discount = PartnerDiscount::getDiscount();
-
-
-        // create payment
-        $payment = Payment::create([
-            'user_id' => $user->id,
-            'payment_id' => null,
-            'payment_method' => 'stripe',
-            'type' => $shopProduct->type,
-            'status' => 'open',
-            'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * $discount / 100),
-            'tax_value' => $shopProduct->getTaxValue(),
-            'total_price' => $shopProduct->getTotalPrice(),
-            'tax_percent' => $shopProduct->getTaxPercent(),
-            'currency_code' => $shopProduct->currency_code,
-            'shop_item_product_id' => $shopProduct->id,
-        ]);
 
         $stripeClient = self::getStripeClient();
         $request = $stripeClient->checkout->sessions->create([
@@ -72,10 +52,10 @@ class StripeExtension extends AbstractExtension
                     'price_data' => [
                         'currency' => $shopProduct->currency_code,
                         'product_data' => [
-                            'name' => $shopProduct->display . ($discount ? (' (' . __('Discount') . ' ' . $discount . '%)') : ''),
+                            'name' => $shopProduct->display,
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => round($shopProduct->getPriceAfterDiscount() * 100, 2),
+                        'unit_amount_decimal' => $totalPriceString,
                     ],
                     'quantity' => 1,
                 ],
@@ -102,7 +82,7 @@ class StripeExtension extends AbstractExtension
             ],
         ]);
 
-        Redirect::to($request->url)->send();
+        return $request->url;
     }
 
     /**
@@ -114,7 +94,6 @@ class StripeExtension extends AbstractExtension
         $user = User::findOrFail($user->id);
         $payment = Payment::findOrFail($request->input('payment'));
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-
 
         Redirect::route('home')->with('success', 'Please wait for success')->send();
 
@@ -133,12 +112,11 @@ class StripeExtension extends AbstractExtension
                 //update payment
                 $payment->update([
                     'payment_id' => $paymentSession->payment_intent,
-                    'status' => 'paid',
+                    'status' => PaymentStatus::PAID,
                 ]);
 
                 //payment notification
                 $user->notify(new ConfirmPaymentNotification($payment));
-
                 event(new UserUpdateCreditsEvent($user));
                 event(new PaymentEvent($user, $payment, $shopProduct));
 
@@ -150,7 +128,7 @@ class StripeExtension extends AbstractExtension
                     //update payment
                     $payment->update([
                         'payment_id' => $paymentSession->payment_intent,
-                        'status' => 'processing',
+                        'status' => PaymentStatus::PROCESSING,
                     ]);
 
                     event(new PaymentEvent($user, $payment, $shopProduct));
@@ -191,7 +169,7 @@ class StripeExtension extends AbstractExtension
                 //update payment db entry status
                 $payment->update([
                     'payment_id' => $payment->payment_id ?? $paymentIntent->id,
-                    'status' => 'paid'
+                    'status' => PaymentStatus::PAID,
                 ]);
 
                 //payment notification
@@ -281,7 +259,7 @@ class StripeExtension extends AbstractExtension
      * @return bool
      * @description check if the amount is higher than the minimum amount for the stripe gateway
      */
-    public static function checkPriceAmount($amount, $currencyCode, $payment_method)
+    public static function checkPriceAmount(float $amount,  string $currencyCode, string $payment_method)
     {
         $minimums = [
             "USD" => [

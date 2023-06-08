@@ -9,7 +9,6 @@ class ServerSettings extends Settings
     public int $allocation_limit;
     public bool $creation_enabled;
     public bool $enable_upgrade;
-    public bool $charge_first_hour;
 
     public static function group(): string
     {
@@ -26,7 +25,6 @@ class ServerSettings extends Settings
             'allocation_limit' => 'required|integer|min:0',
             'creation_enabled' => 'nullable|string',
             'enable_upgrade' => 'nullable|string',
-            'charge_first_hour' => 'nullable|string',
         ];
     }
 
@@ -53,11 +51,6 @@ class ServerSettings extends Settings
                 'label' => 'Enable Upgrade',
                 'type' => 'boolean',
                 'description' => 'Whether or not users can upgrade their servers.',
-            ],
-            'charge_first_hour' => [
-                'label' => 'Charge First Hour',
-                'type' => 'boolean',
-                'description' => 'Whether or not the first hour of a server is charged.',
             ],
         ];
     }

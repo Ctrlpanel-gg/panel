@@ -13,7 +13,6 @@ class CreateServerSettings extends SettingsMigration
         $this->migrator->add('server.allocation_limit', $table_exists ? $this->getOldValue('SETTINGS::SERVER:ALLOCATION_LIMIT') : 200);
         $this->migrator->add('server.creation_enabled', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS') : true);
         $this->migrator->add('server.enable_upgrade', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:ENABLE_UPGRADE') : false);
-        $this->migrator->add('server.charge_first_hour', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR') : false);
     }
 
     public function down(): void
@@ -37,18 +36,11 @@ class CreateServerSettings extends SettingsMigration
                 'type' => 'boolean',
                 'description' => 'Whether or not users can upgrade their servers.',
             ],
-            [
-                'key' => 'SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR',
-                'value' => $this->getNewValue('charge_first_hour'),
-                'type' => 'boolean',
-                'description' => 'Whether or not to charge the user for the first hour of their server.',
-            ],
         ]);
 
         $this->migrator->delete('server.allocation_limit');
         $this->migrator->delete('server.creation_enabled');
         $this->migrator->delete('server.enable_upgrade');
-        $this->migrator->delete('server.charge_first_hour');
     }
 
     public function getNewValue(string $name)

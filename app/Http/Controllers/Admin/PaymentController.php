@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\CouponUsedEvent;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
@@ -9,6 +10,7 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\ShopProduct;
+use App\Traits\Coupon as CouponTrait;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -18,13 +20,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\ExtensionHelper;
+use App\Settings\CouponSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
     const BUY_PERMISSION = 'user.shop.buy';
     const VIEW_PERMISSION = "admin.payments.read";
+
+    use CouponTrait;
+
     /**
      * @return Application|Factory|View
      */
@@ -44,7 +51,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View
      */
-    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings)
+    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings, CouponSettings $coupon_settings)
     {
         $this->checkPermission(self::BUY_PERMISSION);
 
@@ -80,7 +87,8 @@ class PaymentController extends Controller
             'total' => $shopProduct->getTotalPrice(),
             'paymentGateways'   => $paymentGateways,
             'productIsFree' => $price <= 0,
-            'credits_display_name' => $general_settings->credits_display_name
+            'credits_display_name' => $general_settings->credits_display_name,
+            'isCouponsEnabled' => $coupon_settings->enabled,
         ]);
     }
 
@@ -121,16 +129,59 @@ class PaymentController extends Controller
 
     public function pay(Request $request)
     {
-        $product = ShopProduct::find($request->product_id);
-        $paymentGateway = $request->payment_method;
+        try {
+            $user = Auth::user();
+            $user = User::findOrFail($user->id);
+            $productId = $request->product_id;
+            $shopProduct = ShopProduct::findOrFail($productId);
+            $discount = PartnerDiscount::getDiscount();
 
-        // on free products, we don't need to use a payment gateway
-        $realPrice = $product->price - ($product->price * PartnerDiscount::getDiscount() / 100);
-        if ($realPrice <= 0) {
-            return $this->handleFreeProduct($product);
+
+            $paymentGateway = $request->payment_method;
+            $couponCode = $request->coupon_code;
+
+            $subtotal = $shopProduct->price;
+
+            // Apply Coupon
+            $isCouponValid = $this->isCouponValid($couponCode, $user, $shopProduct->id);
+            if ($isCouponValid) {
+                $subtotal = $this->applyCoupon($couponCode, $subtotal);
+            }
+
+            // Apply Partner Discount
+            $subtotal = $subtotal - ($subtotal * $discount / 100);
+            if ($subtotal <= 0) {
+                return $this->handleFreeProduct($shopProduct);
+            }
+
+            // Format the total price to a readable string
+            $totalPriceString = number_format($subtotal, 2, '.', '');
+
+            // create a new payment
+            $payment = Payment::create([
+                'user_id' => $user->id,
+                'payment_id' => null,
+                'payment_method' => $paymentGateway,
+                'type' => $shopProduct->type,
+                'status' => 'open',
+                'amount' => $shopProduct->quantity,
+                'price' => $totalPriceString,
+                'tax_value' => $shopProduct->getTaxValue(),
+                'tax_percent' => $shopProduct->getTaxPercent(),
+                'total_price' => $shopProduct->getTotalPrice(),
+                'currency_code' => $shopProduct->currency_code,
+                'shop_item_product_id' => $shopProduct->id,
+            ]);
+
+            $paymentGatewayExtension = ExtensionHelper::getExtensionClass($paymentGateway);
+            $redirectUrl = $paymentGatewayExtension::getRedirectUrl($payment, $shopProduct, $totalPriceString);
+            event(new CouponUsedEvent($couponCode));
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->route('store.index')->with('error', __('Oops, something went wrong! Please try again later.'));
         }
 
-        return redirect()->route('payment.' . $paymentGateway . 'Pay', ['shopProduct' => $product->id]);
+        return redirect()->away($redirectUrl);
     }
 
     /**

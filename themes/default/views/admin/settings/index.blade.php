@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('admin.settings.index') }}">{{ __('Settings') }}</a>
+                                href="{{ route('admin.settings.index') }}">{{ __('Settings') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -48,24 +48,21 @@
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
                                     <li class="nav-item border-bottom-0">
-                                        <a href="#icons"
-                                           class="nav-link" data-toggle="pill"
-                                           role="tab">
-                                            <i
-                                                class="nav-icon fas fa-image"></i>
+                                        <a href="#icons" class="nav-link" data-toggle="pill" role="tab">
+                                            <i class="nav-icon fas fa-image"></i>
                                             <p>
-                                                {{ __("Images / Icons") }}
+                                                {{ __('Images / Icons') }}
                                             </p>
                                         </a>
                                     </li>
                                     @foreach ($settings as $category => $options)
-                                        @if(!str_contains($options['settings_class'],"Extension"))
-                                            @canany(["settings.".strtolower($category).".read","settings.".strtolower($category).".write"])
+                                        @if (!str_contains($options['settings_class'], 'Extension'))
+                                            @canany(['settings.' . strtolower($category) . '.read', 'settings.' .
+                                                strtolower($category) . '.write'])
                                                 <li class="nav-item border-bottom-0">
                                                     <a href="#{{ $category }}"
-                                                       class="nav-link {{ $loop->first ? 'active' : '' }}"
-                                                       data-toggle="pill"
-                                                       role="tab">
+                                                        class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="pill"
+                                                        role="tab">
                                                         <i
                                                             class="nav-icon fas {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
                                                         <p>
@@ -79,35 +76,34 @@
                                 </ul>
 
 
-                                    <button class="btn btn-outline-secondary" type="button" data-toggle="collapse"
-                                            data-target="#collapseExtensions" aria-expanded="false"
-                                            aria-controls="collapseExtensions">
-                                        {{__("Extension Settings")}}
-                                    </button>
+                                <button class="btn btn-outline-secondary" type="button" data-toggle="collapse"
+                                    data-target="#collapseExtensions" aria-expanded="false"
+                                    aria-controls="collapseExtensions">
+                                    {{ __('Extension Settings') }}
+                                </button>
 
 
-                                    <div class="collapse" id="collapseExtensions">
-                                        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
-                                            data-accordion="false">
+                                <div class="collapse" id="collapseExtensions">
+                                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
+                                        data-accordion="false">
                                         @foreach ($settings as $category => $options)
-                                            @if(str_contains($options['settings_class'],"Extension"))
-
-                                                @canany(["settings.".strtolower($category).".read","settings.".strtolower($category).".write"])
-                                                        <li class="nav-item border-bottom-0">
-                                                            <a href="#{{ $category }}"
-                                                               class="nav-link"
-                                                               data-toggle="pill"
-                                                               role="tab">
-                                                                <i class="nav-icon fas {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
-                                                                <p>
-                                                                    {{ $category }}
-                                                                </p>
-                                                            </a>
-                                                        </li>
+                                            @if (str_contains($options['settings_class'], 'Extension'))
+                                                @canany(['settings.' . strtolower($category) . '.read', 'settings.' .
+                                                    strtolower($category) . '.write'])
+                                                    <li class="nav-item border-bottom-0">
+                                                        <a href="#{{ $category }}" class="nav-link" data-toggle="pill"
+                                                            role="tab">
+                                                            <i
+                                                                class="nav-icon fas {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
+                                                            <p>
+                                                                {{ $category }}
+                                                            </p>
+                                                        </a>
+                                                    </li>
                                                 @endcanany
                                             @endif
                                         @endforeach
-                                    </div>
+                                </div>
                                 </ul>
                             </nav>
                         </div>
@@ -115,50 +111,44 @@
                         <!-- Content in $settings -->
                         <div class="col-10 p-0">
                             <div class="tab-content ml-3" style="width: 100%;">
-                                <div container class="tab-pane fade container"
-                                     id="icons" role="tabpanel">
+                                <div container class="tab-pane fade container" id="icons" role="tabpanel">
 
                                     <form method="POST" enctype="multipart/form-data" class="mb-3"
-                                          action="{{ route('admin.settings.updateIcons') }}">
+                                        action="{{ route('admin.settings.updateIcons') }}">
                                         @csrf
                                         @method('POST')
                                         <div class="row">
                                             <div class="card ml-5" style="width: 18rem;">
-                                                <span class="h3 text-center">{{__("FavIcon")}} </span>
+                                                <span class="h3 text-center">{{ __('FavIcon') }} </span>
                                                 <div class="card-body">
 
                                                 </div>
                                                 <input type="file" accept="image/x-icon" class="form-control"
-                                                       name="favicon"
-                                                       id="favicon">
+                                                    name="favicon" id="favicon">
                                             </div>
 
                                             <div class="card ml-5" style="width: 18rem;">
-                                                <span class="h3 text-center">{{__("Icon")}} </span>
-                                                <img
-                                                    src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
+                                                <span class="h3 text-center">{{ __('Icon') }} </span>
+                                                <img src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                     class="card-img-top" alt="...">
                                                 <div class="card-body">
 
                                                 </div>
                                                 <input type="file" accept="image/png,image/jpeg,image/jpg"
-                                                       class="form-control"
-                                                       name="icon" id="icon">
+                                                    class="form-control" name="icon" id="icon">
                                             </div>
 
                                             <div class="card ml-5" style="width: 18rem;">
-                                                <span class="h3 text-center">{{__("Login-page Logo")}} </span>
-                                                <img
-                                                    src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}"
+                                                <span class="h3 text-center">{{ __('Login-page Logo') }} </span>
+                                                <img src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}"
                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                     class="card-img-top" alt="...">
                                                 <div class="card-body">
 
                                                 </div>
                                                 <input type="file" accept="image/png,image/jpeg,image/jpg"
-                                                       class="form-control"
-                                                       name="logo" id="logo">
+                                                    class="form-control" name="logo" id="logo">
                                             </div>
                                         </div>
                                         <div class="row">
@@ -167,16 +157,16 @@
                                     </form>
                                 </div>
                                 @foreach ($settings as $category => $options)
-                                    @canany(["settings.".strtolower($category).".read","settings.".strtolower($category).".write"])
-                                        <div
-                                             class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
-                                             id="{{ $category }}" role="tabpanel">
+                                    @canany(['settings.' . strtolower($category) . '.read', 'settings.' .
+                                        strtolower($category) . '.write'])
+                                        <div class="tab-pane fade container {{ $loop->first ? 'active show' : '' }}"
+                                            id="{{ $category }}" role="tabpanel">
 
                                             <form action="{{ route('admin.settings.update') }}" method="POST">
                                                 @csrf
                                                 @method('POST')
                                                 <input type="hidden" name="settings_class"
-                                                       value="{{ $options['settings_class'] }}">
+                                                    value="{{ $options['settings_class'] }}">
                                                 <input type="hidden" name="category" value="{{ $category }}">
 
                                                 @foreach ($options as $key => $value)
@@ -191,11 +181,10 @@
                                                         <div class="col-8">
                                                             <div class="custom-control mb-3 d-flex align-items-center">
                                                                 @if ($value['description'])
-                                                                    <i class="fas fa-info-circle mr-4"
-                                                                       data-toggle="popover"
-                                                                       data-trigger="hover" data-placement="top"
-                                                                       data-html="true"
-                                                                       data-content="{{ $value['description'] }}"></i>
+                                                                    <i class="fas fa-info-circle mr-4" data-toggle="popover"
+                                                                        data-trigger="hover" data-placement="top"
+                                                                        data-html="true"
+                                                                        data-content="{{ $value['description'] }}"></i>
                                                                 @else
                                                                     <i class="fas fa-info-circle mr-4 invisible"></i>
                                                                 @endif
@@ -204,62 +193,67 @@
                                                                     @switch($value)
                                                                         @case($value['type'] == 'string')
                                                                             <input type="text" class="form-control"
-                                                                                   name="{{ $key }}"
-                                                                                   value="{{ $value['value'] }}">
-                                                                            @break
+                                                                                name="{{ $key }}"
+                                                                                value="{{ $value['value'] }}">
+                                                                        @break
 
                                                                         @case($value['type'] == 'boolean')
                                                                             <input type="checkbox" name="{{ $key }}"
-                                                                                   value="{{ $value['value'] }}"
+                                                                                value="{{ $value['value'] }}"
                                                                                 {{ $value['value'] ? 'checked' : '' }}>
-                                                                            @break
+                                                                        @break
 
                                                                         @case($value['type'] == 'number')
                                                                             <input type="number" class="form-control"
-                                                                                   name="{{ $key }}"
-                                                                                   value="{{ $value['value'] }}">
-                                                                            @break
+                                                                                name="{{ $key }}"
+                                                                                value="{{ $value['value'] }}">
+                                                                        @break
 
                                                                         @case($value['type'] == 'select')
                                                                             <select id="{{ $key }}"
-                                                                                    class="custom-select w-100"
-                                                                                    name="{{ $key }}">
-
-                                                                                @foreach ($value['options'] as $option=>$display)
-                                                                                    <option value="{{ $option }}"
-                                                                                        {{ $value['value'] == $option ? 'selected' : '' }}>
-                                                                                        {{ __($display) }}
-                                                                                    </option>
-                                                                                @endforeach
+                                                                                class="custom-select w-100"
+                                                                                name="{{ $key }}">
+                                                                                @if ($value['identifier'] == 'display')
+                                                                                    @foreach ($value['options'] as $option => $display)
+                                                                                        <option value="{{ $display }}"
+                                                                                            {{ $value['value'] == $display ? 'selected' : '' }}>
+                                                                                            {{ __($display) }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                @else
+                                                                                    @foreach ($value['options'] as $option => $display)
+                                                                                        <option value="{{ $option }}"
+                                                                                            {{ $value['value'] == $option ? 'selected' : '' }}>
+                                                                                            {{ __($display) }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                @endif
                                                                             </select>
-                                                                            @break
+                                                                        @break
 
                                                                         @case($value['type'] == 'multiselect')
                                                                             <select id="{{ $key }}"
-                                                                                    class="custom-select w-100"
-                                                                                    name="{{ $key }}[]"
-                                                                                    multiple>
+                                                                                class="custom-select w-100"
+                                                                                name="{{ $key }}[]" multiple>
                                                                                 @foreach ($value['options'] as $option)
                                                                                     <option value="{{ $option }}"
-                                                                                        {{ strpos($value['value'],$option) !== false  ? 'selected' : '' }}>
+                                                                                        {{ strpos($value['value'], $option) !== false ? 'selected' : '' }}>
                                                                                         {{ __($option) }}
                                                                                     </option>
                                                                                 @endforeach
                                                                             </select>
-                                                                            @break
+                                                                        @break
 
                                                                         @case($value['type'] == 'textarea')
-                                                                            <textarea class="form-control"
-                                                                                      name="{{ $key }}"
-                                                                                      rows="3">{{ $value['value'] }}</textarea>
-                                                                            @break
+                                                                            <textarea class="form-control" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
+                                                                        @break
 
                                                                         @default
                                                                     @endswitch
                                                                     @error($key)
-                                                                    <div class="text-danger ">
-                                                                        {{ $message }}
-                                                                    </div>
+                                                                        <div class="text-danger ">
+                                                                            {{ $message }}
+                                                                        </div>
                                                                     @enderror
                                                                 </div>
 
@@ -268,41 +262,39 @@
 
                                                         </div>
                                                     </div>
-
                                                 @endforeach
 
                                                 <!-- TODO: Display this only on the General tab
 
-                                            <div class="row">
-                                                <div class="col-4 d-flex align-items-center">
-                                                    <label for="recaptcha_preview">{{__("ReCAPTCHA Preview")}}</label>
-                                                </div>
+                                                                                                                                                                    <div class="row">
+                                                                                                                                                                        <div class="col-4 d-flex align-items-center">
+                                                                                                                                                                            <label for="recaptcha_preview">{{ __('ReCAPTCHA Preview') }}</label>
+                                                                                                                                                                        </div>
 
-                                                <div class="col-8">
+                                                                                                                                                                        <div class="col-8">
 
-                                                        <div class="w-100">
-                                                <div class="input-group mb-3">
-                                                    {!! htmlScriptTagJsApi() !!}
-                                                {!! htmlFormSnippet() !!}
-                                                @error('g-recaptcha-response')
-                                                <span class="text-danger" role="alert">
-                                                                            <small><strong>{{ $message }}</strong></small>
-                                                                                </span>
-                                                    @enderror
-                                                </div>
-                                                        </div>
-                                                </div>
-                                            </div>
-                                               -->
+                                                                                                                                                                                <div class="w-100">
+                                                                                                                                                                        <div class="input-group mb-3">
+                                                                                                                                                                            {!! htmlScriptTagJsApi() !!}
+                                                                                                                                                                        {!! htmlFormSnippet() !!}
+                                                                                                                                                                        @error('g-recaptcha-response')
+            <span class="text-danger" role="alert">
+                                                                                                                                                                                                                                                                <small><strong>{{ $message }}</strong></small>
+                                                                                                                                                                                                                                                                    </span>
+        @enderror
+                                                                                                                                                                        </div>
+                                                                                                                                                                                </div>
+                                                                                                                                                                        </div>
+                                                                                                                                                                    </div>
+                                                                                                                                                                       -->
 
 
                                                 <div class="row">
                                                     <div class="col-12 d-flex align-items-center justify-content-end">
-                                                        <button type="submit"
-                                                                class="btn btn-primary float-right ">Save
+                                                        <button type="submit" class="btn btn-primary float-right ">Save
                                                         </button>
                                                         <button type="reset"
-                                                                class="btn btn-secondary float-right ml-2">Reset
+                                                            class="btn btn-secondary float-right ml-2">Reset
                                                         </button>
                                                     </div>
                                                 </div>
@@ -331,7 +323,7 @@
             $('.nav-item a[href="' + tabPaneHash + '"]').tab('show');
         }
 
-        $('.nav-pills a').click(function (e) {
+        $('.nav-pills a').click(function(e) {
             $(this).tab('show');
             const scrollmem = $('body').scrollTop();
             window.location.hash = this.hash;

@@ -74,6 +74,9 @@ return [
     'admin.partners.read',
     'admin.partners.write',
 
+    'admin.coupons.read',
+    'admin.coupons.write',
+
     'admin.logs.read',
 
     /*

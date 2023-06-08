@@ -52,27 +52,7 @@
                         style="max-width: 350px">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mt-1">{{ $server->name }}
-                                </h5>
-                                <div class="card-tools mt-1">
-                                    <div class="dropdown no-arrow">
-                                        <a href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-white-50"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                            aria-labelledby="dropdownMenuLink">
-                                            @if (!empty($phpmyadmin_url)))
-                                                <a href="{{ $phpmyadmin_url }}"
-                                                    class="dropdown-item text-info" target="__blank"><i title="manage"
-                                                        class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span></a>
-                                            @endif
-                                            <div class="dropdown-divider"></div>
-                                            <span class="dropdown-item"><i title="Created at"
-                                                    class="fas fa-sync-alt mr-2"></i><span>{{ $server->created_at->isoFormat('LL') }}</span></span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <h5 class="card-title mt-1">{{ $server->name }}</h5>
                             </div>
                         </div>
                         <div class="card-body">
@@ -82,8 +62,8 @@
                                     <div class="col-7 my-auto">
                                         @if($server->suspended)
                                             <span class="badge badge-danger">{{ __('Suspended') }}</span>
-                                        @elseif($server->cancelled)
-                                            <span class="badge badge-warning">{{ __('Cancelled') }}</span>
+                                        @elseif($server->canceled)
+                                            <span class="badge badge-warning">{{ __('Canceled') }}</span>
                                         @else
                                             <span class="badge badge-success">{{ __('Active') }}</span>
                                         @endif
@@ -220,7 +200,7 @@
                             </a>
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="btn btn-warning  text-center"
-                                {{ $server->suspended || $server->cancelled ? "disabled" : "" }}
+                                {{ $server->suspended || $server->canceled ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
                                 <i class="fas fa-ban mx-2"></i>
                             </button>
