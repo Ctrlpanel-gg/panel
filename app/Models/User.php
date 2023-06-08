@@ -256,7 +256,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->servers()
             ->whereNull('suspended')
-            ->whereNull('canceled')
+            ->whereNull('cancelled')
             ->with('product')
             ->get();
     }
