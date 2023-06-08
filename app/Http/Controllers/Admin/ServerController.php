@@ -25,7 +25,7 @@ class ServerController extends Controller
     const WRITE_PERMISSION = "admin.servers.write";
     const SUSPEND_PERMISSION = "admin.servers.suspend";
     const CHANGEOWNER_PERMISSION = "admin.servers.write.owner";
-    const CHANGE_IDENTIFIER_PERMISSION ="admin.servers.write.identifier";
+    const CHANGE_IDENTIFIER_PERMISSION = "admin.servers.write.identifier";
     const DELETE_PERMISSION = "admin.servers.delete";
     private $pterodactyl;
 
@@ -100,7 +100,7 @@ class ServerController extends Controller
         }
 
         // update the identifier
-        if($this->can(self::CHANGE_IDENTIFIER_PERMISSION)) {
+        if ($this->can(self::CHANGE_IDENTIFIER_PERMISSION)) {
 
             $server->identifier = $request->get('identifier');
         }
@@ -133,13 +133,13 @@ class ServerController extends Controller
      * @param Server $server
      * @return RedirectResponse|Response
      */
-    public function cancel (Server $server)
+    public function cancel(Server $server)
     {
         try {
-            error_log($server->update([
-                'cancelled' => now(),
-            ]));
-            return redirect()->route('servers.index')->with('success', __('Server cancelled'));
+            $server->update([
+                'canceled' => now(),
+            ]);
+            return redirect()->route('servers.index')->with('success', __('Server canceled'));
         } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
         }

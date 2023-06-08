@@ -24,7 +24,7 @@ class ChargeServers extends Command
      */
     protected $description = 'Charge all users with severs that are due to be charged';
 
-        /**
+    /**
      * A list of users that have to be notified
      * @var array
      */
@@ -60,7 +60,7 @@ class ChargeServers extends Command
 
                 // check if server is due to be charged by comparing its last_billed date with the current date and the billing period
                 $newBillingDate = null;
-                switch($billing_period) {
+                switch ($billing_period) {
                     case 'annually':
                         $newBillingDate = Carbon::parse($server->last_billed)->addYear();
                         break;
@@ -91,7 +91,7 @@ class ChargeServers extends Command
                 }
 
                 // check if the server is canceled or if user has enough credits to charge the server or
-                if ( $server->cancelled || $user->credits <= $product->price) {
+                if ($server->canceled || $user->credits <= $product->price) {
                     try {
                         // suspend server
                         $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> has been <fg=red>suspended!</>");

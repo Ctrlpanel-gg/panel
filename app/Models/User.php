@@ -98,8 +98,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $ptero_settings = new PterodactylSettings();
         $this->pterodactyl = new PterodactylClient($ptero_settings);
-
-
     }
 
     public static function boot()
@@ -252,7 +250,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->servers()
             ->whereNull('suspended')
-            ->whereNull('cancelled')
+            ->whereNull('canceled')
             ->with('product')
             ->get();
     }
@@ -289,15 +287,15 @@ class User extends Authenticatable implements MustVerifyEmail
         ])->save();
     }
 
-    public function referredBy(){
-        $referee = DB::table('user_referrals')->where("registered_user_id",$this->id)->first();
+    public function referredBy()
+    {
+        $referee = DB::table('user_referrals')->where("registered_user_id", $this->id)->first();
 
-        if($referee){
-            $referee = User::where("id",$referee->referral_id)->firstOrFail();
+        if ($referee) {
+            $referee = User::where("id", $referee->referral_id)->firstOrFail();
             return $referee;
         }
         return Null;
-
     }
 
     public function getActivitylogOptions(): LogOptions

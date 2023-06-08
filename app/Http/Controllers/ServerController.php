@@ -281,9 +281,9 @@ class ServerController extends Controller
         }
         try {
             $server->update([
-                'cancelled' => now(),
+                'canceled' => now(),
             ]);
-            return redirect()->route('servers.index')->with('success', __('Server cancelled'));
+            return redirect()->route('servers.index')->with('success', __('Server canceled'));
         } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
         }
@@ -401,7 +401,7 @@ class ServerController extends Controller
                 'product_id' => $newProduct->id,
                 'updated_at' => now(),
                 'last_billed' => now(),
-                'cancelled' => null,
+                'canceled' => null,
             ]);
 
             // Refund the user the overpayed credits
