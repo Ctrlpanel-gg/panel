@@ -257,7 +257,7 @@
         const handleServerDelete = (serverId) => {
             Swal.fire({
                 title: "{{ __('Delete Server?') }}",
-                html: "{{!! __('This is an irreversible action, all files of this server will be removed. <strong>No funds will get refunded</strong>. We recommend deleting the server when server is suspended.') !!}}",
+                html: "{!! __('This is an irreversible action, all files of this server will be removed. <strong>No funds will get refunded</strong>. We recommend deleting the server when server is suspended.') !!}",
                 icon: 'warning',
                 confirmButtonColor: '#d9534f',
                 showCancelButton: true,
