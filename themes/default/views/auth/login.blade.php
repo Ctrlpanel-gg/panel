@@ -32,7 +32,7 @@
                         <div class="form-group">
                             <div class="input-group mb-3">
                                 <input type="text" name="email"
-                                    class="form-control @error('email') is-invalid @enderror"
+                                    class="form-control @error('email') is-invalid @enderror @error('name') is-invalid @enderror"
                                     placeholder="{{ __('Email or Username') }}">
                                 <div class="input-group-append">
                                     <div class="input-group-text">
@@ -41,11 +41,11 @@
                                 </div>
 
                             </div>
-                            @error('email')
+                          @if ($errors->get("email") || $errors->get("name"))
                                 <span class="text-danger" role="alert">
-                                    <small><strong>{{ $message }}</strong></small>
+                                    <small><strong>{{ $errors->first('email') ? $errors->first('email') : $errors->first('name') }}</strong></small>
                                 </span>
-                            @enderror
+                            @endif
                         </div>
 
                         <div class="form-group">
