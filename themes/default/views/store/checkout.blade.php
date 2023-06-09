@@ -52,7 +52,7 @@
                                                                         <span class="mr-3">{{ $gateway->name }}</span>
                                                                     </label>
                                                                     <button class="btn btn-primary rounded" type="button"
-                                                                        name="payment-method" id="{{ $gateway->name }}"
+                                                                        name="payment_method" id="{{ $gateway->name }}"
                                                                         value="{{ $gateway->name }}"
                                                                         :class="payment_method === '{{ $gateway->name }}' ?
                                                                             'active' : ''"
