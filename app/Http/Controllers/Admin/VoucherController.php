@@ -245,10 +245,10 @@ class VoucherController extends Controller
             })
             ->editColumn('expires_at', function (Voucher $voucher) {
                 if (! $voucher->expires_at) {
-                    return '';
+                    return __("Never");
                 }
 
-                return $voucher->expires_at ? $voucher->expires_at->diffForHumans() : '';
+                return $voucher->expires_at ? $voucher->expires_at->diffForHumans() : __("Never");
             })
             ->editColumn('code', function (Voucher $voucher) {
                 return "<code>{$voucher->code}</code>";
