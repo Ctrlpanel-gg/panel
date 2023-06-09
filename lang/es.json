@@ -463,5 +463,9 @@
     "sk": "Slovakish",
     "hu": "Hungarian",
     "Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed": "Actualizar/Reducir el servidor restablecerá su ciclo de facturación a ahora. Se reembolsarán los créditos sobrepagados. El precio del nuevo ciclo de facturación se retirará",
-    "Caution": "Cuidado"
+    "Caution": "Cuidado",
+    "You can not see your Referral Code": "Не puedes ver tu Código de Referencia",
+    "SERVER NAME": "NOMBRE DEL SERVIDOR",
+    "STORAGE": "ALMACENAMIENTO",
+    "Cancel": "Cancelar"
 }

@@ -149,7 +149,6 @@
     "Will hide this option from being selected": "Скрывает эту опцию от выбора",
     "Price in": "Цена в",
     "Memory": "Оперативная память",
-    "Cpu": "Процессор",
     "Swap": "Файл подкачки",
     "This is what the users sees": "Вот что видят пользователи",
     "Disk": "Диск",
@@ -164,7 +163,6 @@
     "This product will only be available for these nodes": "Данный продукт будет доступен только для этих узлов",
     "This product will only be available for these eggs": "Этот продукт будет доступен только для этих яиц",
     "Product": "Продукт",
-    "CPU": "Процессор",
     "Updated at": "Обновлено",
     "User": "Пользователь",
     "Config": "Конфигурация",
@@ -463,5 +461,11 @@
     "ru": "Russian",
     "sv": "Swedish",
     "sk": "Slovakish",
-    "hu": "Hungarian"
+    "hu": "Hungarian",
+    "You can not see your Referral Code": "Вы не можете видеть свой реферельный код",
+    "SERVER NAME": "НАЗВАНИЕ СЕРВЕРА",
+    "CPU": "ЦПУ",
+    "MEMORY": "ОЗУ",
+    "STORAGE": "ХРАНИЛИЩЕ",
+    "Cancel": "Отменить"
 }

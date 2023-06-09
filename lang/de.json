@@ -486,5 +486,9 @@
     "No, abort!": "Abbrechen",
     "Billing period": "Abrechnungsperiode",
     "Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed": "Das Upgrade/Downgrade Ihres Servers wird Ihre Abrechnungsperiode auf \"jetzt\" zurücksetzen. Ihre überzahlten Credits werden erstattet. Der Preis für die neue Abrechnungsperiode wird abgebucht.",
-    "Caution": "Achtung"
+    "Caution": "Achtung",
+    "You can not see your Referral Code": "Sie können Ihren Empfehlungscode nicht sehen",
+    "SERVER NAME": "SERVERNAMEN",
+    "STORAGE": "STORAGE",
+    "Cancel": "Stornieren"
 }
