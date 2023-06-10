@@ -156,7 +156,7 @@
                                         @endif
                                     </div>
                                     <div class="form-group">
-                                        <button type="submit" class="btn btn-primary reply-once">Submit</button>
+                                        <button type="submit" class="btn btn-primary reply-once">{{ __('Submit') }}</button>
                                     </div>
                                 </form>
                             </div>

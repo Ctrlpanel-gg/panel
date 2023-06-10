@@ -57,7 +57,7 @@
                                                                         :class="payment_method === '{{ $gateway->name }}' ?
                                                                             'active' : ''"
                                                                         @click="payment_method = '{{ $gateway->name }}'; submitted = true;"
-                                                                        x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">Select</button>
+                                                                        x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">{{ __('Select')}}</button>
                                                                     </button>
 
                                                                 </div>
@@ -123,7 +123,11 @@
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Type') }}</span>
                                                 <span
-                                                    class="text-muted d-inline-block">{{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}</span>
+                                                    class="text-muted d-inline-block">
+                                                       @if (strtolower($product->type) == 'credits') {{ $credits_display_name }}
+                                                       @elseif (strtolower($product->type) == 'server slots') {{ __('Server Slots')}}
+                                                       @endif
+                                                </span>
                                             </li>
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Amount') }}</span>

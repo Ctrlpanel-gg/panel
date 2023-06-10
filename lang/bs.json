@@ -449,5 +449,7 @@
     "You can not see your Referral Code": "You can not see your Referral Code",
     "SERVER NAME": "SERVER NAME",
     "STORAGE": "STORAGE",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "Not verified":"Not verified",
+    "Server Slots": "Server Slots"
 }

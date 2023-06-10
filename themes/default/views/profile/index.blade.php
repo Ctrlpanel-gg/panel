@@ -86,11 +86,11 @@
                                         <h4 class="pt-sm-2 pb-1 mb-0 text-nowrap">{{ $user->name }}</h4>
                                         <p class="mb-0">{{ $user->email }}
                                             @if ($user->hasVerifiedEmail())
-                                                <i data-toggle="popover" data-trigger="hover" data-content="Verified"
+                                                <i data-toggle="popover" data-trigger="hover" data-content="{{ __('Verified') }}"
                                                    class="text-success fas fa-check-circle"></i>
                                             @else
                                                 <i data-toggle="popover" data-trigger="hover"
-                                                   data-content="Not verified"
+                                                   data-content="{{ __('Not verified') }}"
                                                    class="text-danger fas fa-exclamation-circle"></i>
                                             @endif
 

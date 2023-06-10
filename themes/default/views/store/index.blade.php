@@ -49,7 +49,10 @@
                                 @foreach ($products as $product)
                                     <tr>
                                         <td>{{ $product->formatToCurrency($product->price) }}</td>
-                                        <td>{{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}
+                                        <td>
+                                            @if (strtolower($product->type) == 'credits') {{ $credits_display_name }}
+                                            @elseif (strtolower($product->type) == 'server slots') {{ __('Server Slots')}}
+                                            @endif
                                         </td>
                                         <td>
                                             @if (strtolower($product->type) == 'credits')
