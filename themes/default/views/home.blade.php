@@ -249,16 +249,16 @@
                                     <hr
                                         style="width: 100%; height:1px; border-width:0; background-color:#6c757d; margin-bottom: 0px">
                                     <table class="table">
-                                        <thead>
+                                    <thead>
                                             <tr>
-                                                @if(in_array($referral_settings->mode, ["comission","both"]))<th>{{ __('Reward per registered user') }}</th> @endif
-                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<th>{{ __('New user payment commision') }}</th> @endif
+                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<th>{{ __('Reward per registered user') }}</th> @endif
+                                                @if(in_array($referral_settings->mode, ["commission","both"]))<th>{{ __('New user payment commision') }}</th> @endif
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                @if(in_array($referral_settings->mode, ["comission","both"]))<td>{{ $referral_settings->reward }} {{ $general_settings->credits_display_name }}</td> @endif
-                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<td>{{ $referral_settings->percentage }}%</td> @endif
+                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<td>{{ $referral_settings->reward }} {{ $general_settings->credits_display_name }}</td> @endif
+                                                @if(in_array($referral_settings->mode, ["commission","both"]))<td>{{ $referral_settings->percentage }}%</td> @endif
                                             </tr>
                                         </tbody>
                                     </table>
