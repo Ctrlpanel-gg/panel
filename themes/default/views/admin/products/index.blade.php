@@ -51,10 +51,10 @@
                             <th>{{__('Disk')}}</th>
                             <th>{{__('Databases')}}</th>
                             <th>{{__('Backups')}}</th>
+                            <th>{{__('OOM Killer')}}</th>
                             <th>{{__('Nodes')}}</th>
                             <th>{{__('Eggs')}}</th>
                             <th>{{__('Min Credits')}}</th>
-                            <th>{{__('OOM Killer')}}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Created at')}}</th>
                             <th>{{ __('Actions') }}</th>
@@ -101,10 +101,10 @@
                     {data: "disk"},
                     {data: "databases"},
                     {data: "backups"},
+                    {data: "oom_killer"},
                     {data: "nodes", sortable: false},
                     {data: "eggs", sortable: false},
                     {data: "minimum_credits"},
-                    {data: "oom_killer"},
                     {data: "servers", sortable: false},
                     {data: "created_at"},
                     {data: "actions", sortable: false}

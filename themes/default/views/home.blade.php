@@ -251,14 +251,14 @@
                                     <table class="table">
                                         <thead>
                                             <tr>
-                                                @if(in_array($referral_settings->mode, ["Commission","Both"]))<th>{{ __('Reward per registered user') }}</th> @endif
-                                                @if(in_array($referral_settings->mode, ["Sign-Up","Both"]))<th>{{ __('New user payment commision') }}</th> @endif
+                                                @if(in_array($referral_settings->mode, ["comission","both"]))<th>{{ __('Reward per registered user') }}</th> @endif
+                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<th>{{ __('New user payment commision') }}</th> @endif
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                @if(in_array($referral_settings->mode, ["Commission","Both"]))<td>{{ $referral_settings->reward }} {{ $general_settings->credits_display_name }}</td> @endif
-                                                @if(in_array($referral_settings->mode, ["Sign-Up","Both"]))<td>{{ $referral_settings->percentage }}%</td> @endif
+                                                @if(in_array($referral_settings->mode, ["comission","both"]))<td>{{ $referral_settings->reward }} {{ $general_settings->credits_display_name }}</td> @endif
+                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<td>{{ $referral_settings->percentage }}%</td> @endif
                                             </tr>
                                         </tbody>
                                     </table>

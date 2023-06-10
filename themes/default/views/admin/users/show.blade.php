@@ -100,7 +100,7 @@
                                     <label>{{ __('Email') }}</label>
                                 </div>
                                 <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
+                                    <span style="max-width: 400px;" class="d-inline-block text-truncate">
                                         {{ $user->email }}
                                     </span>
                                 </div>

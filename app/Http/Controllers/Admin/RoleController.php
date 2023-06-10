@@ -203,7 +203,7 @@ class RoleController extends Controller
             })
 
             ->editColumn('name', function (Role $role) {
-                return "<span style=\"color: $role->color\">$role->name</span>";
+                return "<span style='background-color: $role->color' class='badge'>$role->name</span>";
             })
             ->editColumn('usercount', function ($query) {
                 return $query->users_count;

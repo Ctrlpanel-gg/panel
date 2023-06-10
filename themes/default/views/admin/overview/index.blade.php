@@ -58,7 +58,12 @@
                         <span class="info-box-icon bg-info elevation-1"><i class="fas fa-server"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{__('Servers')}}</span>
+                            <span class="info-box-text">{{__('Servers')}}
+                          <i class="fas fa-info-circle mr-4" data-toggle="popover"
+                             data-trigger="hover" data-placement="top"
+                             data-html="true"
+                             data-content="{{ __("This shows the total active servers and the total servers. Total active servers are all servers which are not suspended") }}"></i>
+                            </span>
                             <span class="info-box-number">{{$counters['servers']->active}}/{{$counters['servers']->total}}</span>
                         </div>
                         <!-- /.info-box-content -->
@@ -71,8 +76,13 @@
                         <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-users"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{__('Users')}}</span>
-                            <span class="info-box-number">{{$counters['users']}}</span>
+                            <span class="info-box-text">{{__('Users')}}
+                              <i class="fas fa-info-circle mr-4" data-toggle="popover"
+                                  data-trigger="hover" data-placement="top"
+                                  data-html="true"
+                                  data-content="{{ __("This shows the total active Users and the total Users. Total active Users are all Users which are not suspended") }}"></i>
+                              </span>
+                          <span class="info-box-number">{{$counters['users']->active}}/{{$counters['users']->total}}</span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>
