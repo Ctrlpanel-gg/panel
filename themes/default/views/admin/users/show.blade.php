@@ -237,7 +237,7 @@
                                         @if ($user->last_seen)
                                             {{ $user->last_seen->diffForHumans() }}
                                         @else
-                                            <small class="text-muted">Null</small>
+                                            <small class="text-muted">{{ __('Null') }}</small>
                                         @endif
                                     </span>
                                 </div>
