@@ -656,5 +656,7 @@
     "SERVER NAME": "SERVER NAME",
     "STORAGE": "STORAGE",
     "Cancel": "Cancel",
-    "Not verified":"Not verified"
+    "Not verified":"Not verified",
+    "Input Some Reason": "Input Some Reason",
+    "Null": "Null"
 }
