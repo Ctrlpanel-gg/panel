@@ -106,7 +106,7 @@
                                         <span>{{ $server->product->name }}
                                         </span>
                                         <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>{{ __('OOM Killer') }}: {{ $server->product->oom_killer ? __("enabled") : __("disabled") }} <br/> {{ __('Billing Period') }}: {{$server->product->billing_period}}"
+                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>{{ __('OOM Killer') }}: {{ $server->product->oom_killer ? __("enabled") : __("disabled") }} <br/> {{ __('Billing Period') }}: {{ __($server->product->billing_period)}}"
                                             class="fas fa-info-circle"></i>
                                     </div>
                                 </div>
@@ -175,7 +175,7 @@
                                             {{ __('per Hour') }}
                                         @endif
                                             <i data-toggle="popover" data-trigger="hover"
-                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . number_format($server->product->getMonthlyPrice(),2,",",".") . " ". $credits_display_name . " ". __('per Month')}}"
+                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". __($server->product->billing_period) . ". " . __("This however calculates to ") . number_format($server->product->getMonthlyPrice(),2,",",".") . " ". $credits_display_name . " ". __('per Month')}}"
                                                class="fas fa-info-circle"></i>
                                             </div>
                                         <span>
