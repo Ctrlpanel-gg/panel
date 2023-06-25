@@ -109,7 +109,7 @@
                             <div class="card-header">
                                 <h4 class="mb-0 text-center">
                                     <i class="fas fa-shopping-cart"></i>
-                                    Checkout details
+                                    {{__("Checkout details")}}
                                 </h4>
                             </div>
 

@@ -58,7 +58,7 @@
                                             @break
                                     @endswitch
                                 </p>
-                                <p><b>Priority:</b>
+                                <p><b>{{__("Priority")}}:</b>
                                     @switch($ticket->priority)
                                         @case("Low")
                                             <span class="badge badge-success">{{__("Low")}}</span>

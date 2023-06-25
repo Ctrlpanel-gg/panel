@@ -66,7 +66,7 @@
                                                         <i
                                                             class="nav-icon fas {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
                                                         <p>
-                                                            {{ $category }}
+                                                            {{ __($category) }}
                                                         </p>
                                                     </a>
                                                 </li>
@@ -175,7 +175,7 @@
                                                     @endif
                                                     <div class="row">
                                                         <div class="col-4 d-flex align-items-center">
-                                                            <label for="{{ $key }}">{{ $value['label'] }}</label>
+                                                            <label for="{{ $key }}">{{ __($value['label']) }}</label>
                                                         </div>
 
                                                         <div class="col-8">
@@ -184,7 +184,7 @@
                                                                     <i class="fas fa-info-circle mr-4" data-toggle="popover"
                                                                         data-trigger="hover" data-placement="top"
                                                                         data-html="true"
-                                                                        data-content="{{ $value['description'] }}"></i>
+                                                                        data-content="{{ __($value['description']) }}"></i>
                                                                 @else
                                                                     <i class="fas fa-info-circle mr-4 invisible"></i>
                                                                 @endif
@@ -291,10 +291,10 @@
 
                                                 <div class="row">
                                                     <div class="col-12 d-flex align-items-center justify-content-end">
-                                                        <button type="submit" class="btn btn-primary float-right ">Save
+                                                        <button type="submit" class="btn btn-primary float-right ">{{__("Save")}}
                                                         </button>
                                                         <button type="reset"
-                                                            class="btn btn-secondary float-right ml-2">Reset
+                                                            class="btn btn-secondary float-right ml-2">{{__("Reset")}}
                                                         </button>
                                                     </div>
                                                 </div>

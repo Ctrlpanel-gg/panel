@@ -36,7 +36,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group col-sm-12 {{ $errors->has('title') ? ' has-error' : '' }}">
-                                    <label for="title" class="control-label">Title</label>
+                                    <label for="title" class="control-label">{{__("Title")}}</label>
                                     <input id="title" type="text" class="form-control" name="title" value="{{ old('title') }}">
                                     @if ($errors->has('title'))
                                     <span class="help-block">
@@ -79,7 +79,7 @@
                                     @endif
                                 </div>
                                 <div class="form-group col-sm-12 {{ $errors->has('priority') ? ' has-error' : '' }}">
-                                    <label for="priority" class="control-label">Priority</label>
+                                    <label for="priority" class="control-label">{{__("Priority")}}</label>
                                     <select id="priority" type="" class="form-control" name="priority">
                                         <option value="" disabled selected>{{__("Select Priority")}}</option>
                                         <option value="Low">{{__("Low")}}</option>
@@ -120,7 +120,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group col-sm-12 {{ $errors->has('message') ? ' has-error' : '' }}">
-                                    <label for="message" class="control-label">Message</label>
+                                    <label for="message" class="control-label">{{__("Message")}}</label>
                                     <textarea rows="8" id="message" class="form-control" name="message">{{old("message")}}</textarea>
                                     @if ($errors->has('message'))
                                     <span class="help-block">
