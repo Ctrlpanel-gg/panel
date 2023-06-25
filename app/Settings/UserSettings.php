@@ -106,14 +106,14 @@ class UserSettings extends Settings
                 'description' => 'The amount of servers a user can create after they verify their email.',
             ],
             'register_ip_check' => [
-                'label' => 'Register IP Check',
+                'label' => 'Register IP Check Enabled',
                 'type' => 'boolean',
                 'description' => 'Check if the IP a user is registering from is already in use.',
             ],
             'creation_enabled' => [
                 'label' => 'Creation Enabled',
                 'type' => 'boolean',
-                'description' => 'Whether or not users can create servers.',
+                'description' => 'Enable the user registration.',
             ],
         ];
     }
