@@ -91,9 +91,9 @@ class UserSettings extends Settings
                 'description' => 'The minimum amount of credits a user needs to create a server.',
             ],
             'server_limit_after_irl_purchase' => [
-                'label' => 'Server Limit After IRL Purchase',
+                'label' => 'Server Limit After first purchase',
                 'type' => 'number',
-                'description' => 'The amount of servers a user can create after they purchase a server.',
+                'description' => 'The amount of servers a user can create after they make their first purchase.',
             ],
             'server_limit_after_verify_discord' => [
                 'label' => 'Server Limit After Verify Discord',
@@ -106,14 +106,14 @@ class UserSettings extends Settings
                 'description' => 'The amount of servers a user can create after they verify their email.',
             ],
             'register_ip_check' => [
-                'label' => 'Register IP Check',
+                'label' => 'Register IP Check Enabled',
                 'type' => 'boolean',
                 'description' => 'Check if the IP a user is registering from is already in use.',
             ],
             'creation_enabled' => [
                 'label' => 'Creation Enabled',
                 'type' => 'boolean',
-                'description' => 'Whether or not users can create servers.',
+                'description' => 'Enable the user registration.',
             ],
         ];
     }

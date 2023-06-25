@@ -45,12 +45,12 @@ class ServerSettings extends Settings
             'creation_enabled' => [
                 'label' => 'Creation Enabled',
                 'type' => 'boolean',
-                'description' => 'Whether or not users can create servers.',
+                'description' => 'Enable the user server creation.',
             ],
             'enable_upgrade' => [
-                'label' => 'Enable Upgrade',
+                'label' => 'Server Upgrade Enabled',
                 'type' => 'boolean',
-                'description' => 'Whether or not users can upgrade their servers.',
+                'description' => 'Enable the server upgrade feature.',
             ],
         ];
     }
