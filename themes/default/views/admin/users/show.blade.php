@@ -137,11 +137,11 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{ __('Verified') }} {{ __('Email') }}</label>
+                                    <label>{{ __('Verified Email') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->email_verified_at ? 'True' : 'False' }}
+                                        {{ $user->email_verified_at ? __('True') : __('False') }}
                                     </span>
                                 </div>
                             </div>
@@ -163,11 +163,11 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{ __('Verified') }} {{ __('Discord') }}</label>
+                                    <label>{{ __('Verified Discord') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->discordUser ? 'True' : 'False' }}
+                                        {{ $user->discordUser ? __('True') : __('False') }}
                                     </span>
                                 </div>
                             </div>
@@ -206,7 +206,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->referredBy() != Null ? $user->referredBy()->name : "None" }}
+                                        {{ $user->referredBy() != Null ? $user->referredBy()->name : __("None") }}
                                     </span>
                                 </div>
                             </div>

@@ -45,7 +45,7 @@
                                            required="required">
                                     <div class="text-muted">
                                         {{__('You can find available free icons')}} <a target="_blank"
-                                                                                       href="https://fontawesome.com/v5.15/icons?d=gallery&p=2">here</a>
+                                                                                       href="https://fontawesome.com/v5.15/icons?d=gallery&p=2">{{__('here')}}</a>
                                     </div>
                                     @error('icon')
                                     <div class="invalid-feedback">

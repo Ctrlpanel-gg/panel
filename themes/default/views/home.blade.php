@@ -179,7 +179,7 @@
                                             <small><i class="fas text-info fa-pen mr-2"></i></small>
                                         @endif
                                         {{ explode('\\', $log->subject_type)[2] }}
-                                        {{ ucfirst($log->description) }}
+                                        {{ ucfirst(__($log->description)) }}
                                     </span>
                                     <small>
                                         {{ $log->created_at->diffForHumans() }}

@@ -51,7 +51,7 @@
                             <form method="get" action="{{route('admin.activitylogs.index')}}">
                                 @csrf
                                 <div class="input-group mb-3">
-                                    <input type="text" class="form-control form-control-sm" value="" name="search" placeholder="Search">
+                                    <input type="text" class="form-control form-control-sm" value="" name="search" placeholder="{{__('Search')}}">
                                     <div class="input-group-append">
                                         <button class="btn btn-light btn-sm" type="submit"><i class="fa fa-search"></i></button>
                                     </div>
@@ -73,7 +73,7 @@
                             <tr>
         <td> @if($log->causer) <a href='/admin/users/{{$log->causer_id}}'> {{json_decode($log->causer)->name}}
 		@else
-			System
+			{{__('System')}}
 		@endif</td>
                                 <td>
                                         <span>
@@ -89,7 +89,7 @@
                                                 <small><i class="fas text-info fa-pen mr-2"></i></small>
                                                 @endif
                                             {{ explode("\\" , $log->subject_type)[2]}}
-                                            {{$log->description}}
+                                            {{__($log->description)}}
 
 				            @php $first=true @endphp
 					    @foreach(json_decode($log->properties, true) as $properties)

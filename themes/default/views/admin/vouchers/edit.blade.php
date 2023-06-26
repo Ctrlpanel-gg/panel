@@ -42,7 +42,7 @@
 
                                 <div class="form-group">
                                     <label for="memo">{{__('Memo')}} <i data-toggle="popover" data-trigger="hover"
-                                                                        data-content="Only admins can see this"
+                                                                        data-content="{{__('Only admins can see this')}}"
                                                                         class="fas fa-info-circle"></i></label>
                                     <input value="{{ $voucher->memo }}" placeholder="{{__('Summer break voucher')}}"
                                            id="memo" name="memo" type="text"

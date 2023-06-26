@@ -41,7 +41,7 @@
 
                                 <div class="form-group">
                                     <label for="memo">{{__('Memo')}} <i data-toggle="popover" data-trigger="hover"
-                                                                        data-content="Only admins can see this"
+                                                                        data-content="{{__("Only admins can see this")}}"
                                                                         class="fas fa-info-circle"></i></label>
                                     <input value="{{old('memo')}}" placeholder="{{__('Summer break voucher')}}" id="memo"
                                            name="memo" type="text"
@@ -109,7 +109,7 @@
                                 <div class="form-group mb-3">
                                     <label for="expires_at">{{__('Expires at')}} <i data-toggle="popover"
                                                                                     data-trigger="hover"
-                                                                                    data-content="Timezone: {{ Config::get('app.timezone') }}"
+                                                                                    data-content="{{__('Timezone:')}} {{ Config::get('app.timezone') }}"
                                                                                     class="fas fa-info-circle"></i></label>
                                     <div class="input-group date" id="expires_at" data-target-input="nearest">
                                         <input value="{{old('expires_at')}}" name="expires_at"
