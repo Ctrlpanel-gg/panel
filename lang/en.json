@@ -177,7 +177,7 @@
     "Title": "Title",
     "User": "User",
     "Last updated": "Last updated",
-    "Controlpanel.gg": "Controlpanel.gg",
+    "Ctrlpanel.gg": "Ctrlpanel.gg",
     "Version": "Version",
     "Individual nodes": "Individual nodes",
     "You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.": "You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.",
@@ -652,6 +652,6 @@
     "tr": "Turkish",
     "ru": "Russian",
     "sv": "Swedish",
-    "sk": "Slovakish",
+    "sk": "Slovak",
     "hu": "Hungarian"
 }

@@ -11,7 +11,7 @@
                             class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
                     @if (config('SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO'))
                         <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}"
-                            alt="{{ config('app.name', 'Controlpanel.gg') }} Logo" style="opacity: .8;max-width:100%">
+                            alt="{{ config('app.name', 'Ctrlpanel.gg') }} Logo" style="opacity: .8;max-width:100%">
                     @endif
                 </div>
                 <div class="card-body">
