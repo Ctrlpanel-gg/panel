@@ -8,7 +8,7 @@ if (file_exists('../../install.lock')) {
 
 <html>
 <head>
-    <title>Controlpanel.gg installer Script</title>
+    <title>CtrlPanel installer Script</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <style>
@@ -48,7 +48,7 @@ if (file_exists('../../install.lock')) {
 $cardheader = '
         <div class="card card-outline-success bg-dark">
         <div class="card-header text-center">
-            <b class="mr-1 text-light">Controlpanel.GG</b>
+            <b class="mr-1 text-light">CtrlPanel.GG</b>
         </div>
         <div class="card-body bg-light">';
 
@@ -57,7 +57,7 @@ if (! isset($_GET['step'])) {
         echo run_console('cp .env.example .env');
     }
     echo $cardheader; ?>
-    <p class="login-box-msg">This installer will lead you through the most crucial Steps of Controlpanel.gg`s
+    <p class="login-box-msg">This installer will lead you through the most crucial Steps of CtrlPanel.gg`s
         setup</p>
     <p class="<?php echo checkHTTPS() == true ? 'ok' : 'notok'; ?>">HTTPS is required</p>
 
@@ -218,7 +218,7 @@ if (isset($_GET['step']) && $_GET['step'] == 2) {
                             <label for="name">Your Host-Name</label>
                             <input id="name" name="name" type="text"
                                    required
-                                   value="Controlpanel.gg" class="form-control">
+                                   value="CtrlPanel.gg" class="form-control">
                         </div>
                     </div>
 
