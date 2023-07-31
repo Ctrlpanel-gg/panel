@@ -120,6 +120,9 @@
                                         <div class="row">
                                             <div class="card ml-5" style="width: 18rem;">
                                                 <span class="h3 text-center">{{ __('FavIcon') }} </span>
+                                              <img src="{{ Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('images/controlpanel_logo.png') }}"
+                                                   style="width:5vw;display: block; margin-left: auto;margin-right: auto"
+                                                   class="card-img-top" alt="...">
                                                 <div class="card-body">
 
                                                 </div>

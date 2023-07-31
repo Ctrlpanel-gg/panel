@@ -7,14 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta content="{{ $website_settings->seo_title }}" property="og:title">
     <meta content="{{ $website_settings->seo_description }}" property="og:description">
-    <meta content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}' property="og:image">
+    <meta content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('/logo.png') : asset('images/controlpanel_logo.png') }}' property="og:image">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
-        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? \Illuminate\Support\Facades\Storage::disk('public')->url('favicon.ico') : asset('favicon.ico') }}"
+        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
     <script src="{{ asset('js/app.js') }}" defer></script>
