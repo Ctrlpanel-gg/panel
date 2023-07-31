@@ -24,7 +24,7 @@ class LocaleSettings extends Settings
     public static function getValidations()
     {
         return [
-            'available' => 'nullable|array',
+            'available' => 'array|required',
             'clients_can_change' => 'nullable|string',
             'datatables' => 'nullable|string',
             'default' => 'required|in:' . implode(',', config('app.available_locales')),

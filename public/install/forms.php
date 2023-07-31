@@ -141,7 +141,7 @@ if (isset($_POST['checkSMTP'])) {
     ];
 
     foreach ($values as $key => $value) {
-        $query = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = mail";
+        $query = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = 'mail'";
         $db->query($query);
     }
 

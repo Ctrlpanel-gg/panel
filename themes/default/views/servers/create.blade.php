@@ -38,7 +38,7 @@
                         @if (!$server_creation_enabled)
                             <div class="alert alert-warning p-2 m-2">
                                 {{ __('The creation of new servers has been disabled for regular users, enable it again') }}
-                                <a href="{{ route('admin.settings.system') }}">{{ __('here') }}</a>.
+                                <a href="{{ route('admin.settings.index', "#Server") }}">{{ __('here') }}</a>.
                             </div>
                         @endif
                         @if ($productCount === 0 || $nodeCount === 0 || count($nests) === 0 || count($eggs) === 0)
