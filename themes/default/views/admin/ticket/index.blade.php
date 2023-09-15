@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Ticket')}}</h1>
                 </div>
@@ -28,9 +28,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-ticket-alt mr-2"></i>{{__('Ticket List')}}</h5>
+                        <h5 class="card-title"><i class="mr-2 fas fa-ticket-alt"></i>{{__('Ticket List')}}</h5>
                     </div>
-                    <a href="{{route("admin.ticket.category.index")}}"><button class="btn btn-primary float-right">+ {{__("Add Category")}}</button></a>
+                    <a href="{{route("admin.ticket.category.index")}}"><button class="float-right btn btn-primary">+ {{__("Add Category")}}</button></a>
                 </div>
 
 

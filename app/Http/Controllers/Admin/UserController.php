@@ -38,7 +38,7 @@ class UserController extends Controller
     const CHANGE_USERNAME_PERMISSION = "admin.users.write.username";
     const CHANGE_PASSWORD_PERMISSION = "admin.users.write.password";
     const CHANGE_ROLE_PERMISSION ="admin.users.write.role";
-    const CHANGE_REFERAL_PERMISSION ="admin.users.write.referal";
+    const CHANGE_REFERAL_PERMISSION ="admin.users.write.referral";
     const CHANGE_PTERO_PERMISSION = "admin.users.write.pterodactyl";
     const DELETE_PERMISSION = "admin.users.delete";
     const NOTIFY_PERMISSION = "admin.users.notify";
@@ -361,10 +361,10 @@ class UserController extends Controller
 
         return datatables($query)
             ->addColumn('avatar', function (User $user) {
-                return '<img width="28px" height="28px" class="rounded-circle ml-1" src="' . $user->getAvatar() . '">';
+                return '<img width="28px" height="28px" class="ml-1 rounded-circle" src="' . $user->getAvatar() . '">';
             })
             ->addColumn('credits', function (User $user) {
-                return '<i class="fas fa-coins mr-2"></i> ' . $user->credits();
+                return '<i class="mr-2 fas fa-coins"></i> ' . $user->credits();
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
@@ -378,10 +378,10 @@ class UserController extends Controller
                 $suspendText = $user->isSuspended() ? __('Unsuspend') : __('Suspend');
 
                 return '
-                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="btn btn-sm btn-primary mr-1"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="btn btn-sm btn-secondary mr-1"><i class="fas fa-envelope"></i></a>
-                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
-                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-secondary"><i class="fas fa-envelope"></i></a>
+                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
                 <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
                              ' . csrf_field() . '
                             <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
@@ -389,7 +389,7 @@ class UserController extends Controller
                 <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
                              ' . csrf_field() . '
                              ' . method_field('DELETE') . '
-                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                         </form>
                 ';
             })

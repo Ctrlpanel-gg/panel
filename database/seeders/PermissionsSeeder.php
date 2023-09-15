@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -24,33 +23,29 @@ class PermissionsSeeder extends Seeder
 
         $users = User::all();
         foreach($users as $user){
-            $user->assignRole(4);
+            $user->assignRole(Role::findByName('user'));
         }
 
         $admins = User::where("role","admin")->get();
         foreach($admins as $admin) {
-            $admin->syncRoles(1);
+            $admin->syncRoles(Role::findByName('Admin'));
         }
 
         $mods = User::where("role","moderator")->get();
         foreach($mods as $mod) {
-            $mod->syncRoles(2);
+            $mod->syncRoles(Role::findByName('Support-Team'));
         }
 
         $clients = User::where("role","client")->get();
         foreach($clients as $client) {
-            $client->syncRoles(3);
+            $client->syncRoles(Role::findByName('Client'));
         }
-
-
-
-
     }
 
     public function createPermissions()
     {
-        foreach (config('permissions_web') as $name) {
-            Permission::findOrCreate($name);
+        foreach(config('permissions_web') as $permission_name => $permission_value) {
+            Permission::create(['name' => $permission_value, 'readable_name' => $permission_name]);
         }
     }
 
