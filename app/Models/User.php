@@ -286,8 +286,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function reVerifyEmail()
     {
         $this->forceFill([
-            'email_verified_at' => null,
-            'email_verified_reward' => true,
+            'email_verified_at' => null
         ])->save();
     }
 
