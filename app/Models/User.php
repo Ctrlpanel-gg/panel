@@ -61,6 +61,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'suspended',
         'referral_code',
+        'email_verified_reward'
     ];
 
     /**
@@ -83,6 +84,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_seen' => 'datetime',
         'credits' => 'float',
         'server_limit' => 'float',
+        'email_verified_reward' => 'boolean'
     ];
 
     public static function boot()
@@ -285,6 +287,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->forceFill([
             'email_verified_at' => null,
+            'email_verified_reward' => true,
         ])->save();
     }
 
