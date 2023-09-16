@@ -9,9 +9,10 @@ use App\Listeners\CouponUsed;
 use App\Listeners\CreateInvoice;
 use App\Listeners\UnsuspendServers;
 use App\Listeners\UserPayment;
-use App\Listeners\Verified;
+use App\Listeners\Verified as ListenerVerified;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
@@ -40,8 +41,8 @@ class EventServiceProvider extends ServiceProvider
             // ... other providers
             'SocialiteProviders\\Discord\\DiscordExtendSocialite@handle',
         ],
-        'Illuminate\Auth\Events\Verified' => [
-            Verified::class,
+        Verified::class => [
+            ListenerVerified::class,
         ],
     ];
 
