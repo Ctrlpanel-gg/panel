@@ -143,14 +143,19 @@ class PaymentController extends Controller
             $subtotal = $shopProduct->price;
 
             // Apply Coupon
-            $isCouponValid = $this->isCouponValid($couponCode, $user, $shopProduct->id);
-            if ($isCouponValid) {
-                $subtotal = $this->applyCoupon($couponCode, $subtotal);
+            if ($couponCode) {
+                if ($this->isCouponValid($couponCode, $user, $shopProduct->id)) {
+                    $subtotal = $this->applyCoupon($couponCode, $subtotal);
+                }
             }
 
             // Apply Partner Discount
             $subtotal = $subtotal - ($subtotal * $discount / 100);
             if ($subtotal <= 0) {
+                if ($couponCode) {
+                    event(new CouponUsedEvent($couponCode));
+                }
+
                 return $this->handleFreeProduct($shopProduct);
             }
 
