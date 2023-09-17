@@ -180,7 +180,10 @@ class PaymentController extends Controller
 
             $paymentGatewayExtension = ExtensionHelper::getExtensionClass($paymentGateway);
             $redirectUrl = $paymentGatewayExtension::getRedirectUrl($payment, $shopProduct, $totalPriceString);
-            event(new CouponUsedEvent($couponCode));
+
+            if ($couponCode) {
+                event(new CouponUsedEvent($couponCode));
+            }
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return redirect()->route('store.index')->with('error', __('Oops, something went wrong! Please try again later.'));
