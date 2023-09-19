@@ -11,8 +11,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Permission;
+use App\Models\Role;
 
 class RoleController extends Controller
 {
@@ -182,8 +182,7 @@ class RoleController extends Controller
      */
     public function dataTable()
     {
-        $query = Role::query()->withCount(['users', 'permissions']);
-
+        $query = Role::query()->withCount(['users', 'permissions'])->get();
 
         return datatables($query)
             ->editColumn('id', function (Role $role) {
@@ -205,10 +204,10 @@ class RoleController extends Controller
             ->editColumn('name', function (Role $role) {
                 return "<span style='background-color: $role->color' class='badge'>$role->name</span>";
             })
-            ->editColumn('usercount', function ($query) {
+            ->editColumn('users_count', function ($query) {
                 return $query->users_count;
             })
-            ->editColumn('permissionscount', function ($query){
+            ->editColumn('permissions_count', function ($query){
                 return $query->permissions_count;
             })
             ->editColumn('power', function (Role $role){

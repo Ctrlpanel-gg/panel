@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionsSeeder extends Seeder
 {
@@ -16,6 +17,8 @@ class PermissionsSeeder extends Seeder
      */
     public function run()
     {
+        // Reset cached roles and permissions.
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $this->createPermissions();
         $this->createRoles();
@@ -61,10 +64,10 @@ class PermissionsSeeder extends Seeder
             'user.referral',
         ];
         /** @var Role $adminRole */
-        $adminRole = Role::updateOrCreate(["name"=>"Admin","color"=>"#fa0000", "power"=>100]);
-        $supportRole = Role::updateOrCreate(["name"=>"Support-Team","color"=>"#00b0b3","power"=>50]);
-        $clientRole = Role::updateOrCreate(["name"=>"Client","color"=>"#008009","power"=>10]);
-        $userRole =  Role::updateOrCreate(["name"=>"User","color"=>"#0052a3","power"=>10]);
+        $adminRole = Role::create(["name"=>"Admin","color"=>"#fa0000", "power"=>100]);
+        $supportRole = Role::create(["name"=>"Support-Team","color"=>"#00b0b3","power"=>50]);
+        $clientRole = Role::create(["name"=>"Client","color"=>"#008009","power"=>10]);
+        $userRole =  Role::create(["name"=>"User","color"=>"#0052a3","power"=>10]);
 
         $adminRole->givePermissionTo(Permission::findByName('*'));
 

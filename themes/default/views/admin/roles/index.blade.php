@@ -69,10 +69,10 @@
                         data: 'name'
                     },
                     {
-                        data: 'usercount'
+                        data: 'users_count'
                     },
                     {
-                        data: 'permissionscount'
+                        data: 'permissions_count'
                     },
                     {
                         data: 'power'
