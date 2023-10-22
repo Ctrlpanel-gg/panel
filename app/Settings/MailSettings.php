@@ -80,12 +80,17 @@ class MailSettings extends Settings
             ],
             'mail_password' => [
                 'label' => 'Mail Password',
-                'type' => 'string',
+                'type' => 'password',
                 'description' => 'The password of your mail server.',
             ],
             'mail_encryption' => [
                 'label' => 'Mail Encryption',
-                'type' => 'string',
+                'type' => 'select',
+                'options' => [
+                    'null' => 'None',
+                    'tls' => 'TLS',
+                    'ssl' => 'SSL'
+                ],
                 'description' => 'The encryption of your mail server.',
             ],
             'mail_from_address' => [
