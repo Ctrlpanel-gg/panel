@@ -214,6 +214,8 @@ class RoleController extends Controller
             ->editColumn('power', function (Role $role){
                 return $role->power;
             })
+            ->orderColumn('usercount', 'users_count $1')
+            ->orderColumn('permissionscount', 'permissions_count $1')
             ->rawColumns(['actions', 'name'])
             ->make(true);
     }

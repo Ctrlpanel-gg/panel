@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Products')}}</h1>
                 </div>
@@ -30,9 +30,9 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
 
-                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Products')}}</h5>
+                        <h5 class="card-title"><i class="mr-2 fas fa-sliders-h"></i>{{__('Products')}}</h5>
                         <a href="{{route('admin.products.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
+                                class="mr-1 fas fa-plus"></i>{{__('Create new')}}</a>
                     </div>
                 </div>
 

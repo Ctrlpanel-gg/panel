@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Servers') }}</h1>
                 </div>
@@ -28,10 +28,10 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <div class="card-title ">
-                            <span><i class="fas fa-server mr-2"></i>{{ __('Servers') }}</span>
+                            <span><i class="mr-2 fas fa-server"></i>{{ __('Servers') }}</span>
                         </div>
                         <a href="{{ route('admin.servers.sync') }}" class="btn btn-primary btn-sm"><i
-                                class="fas fa-sync mr-2"></i>{{ __('Sync') }}</a>
+                                class="mr-2 fas fa-sync"></i>{{ __('Sync') }}</a>
                     </div>
                 </div>
                 <div class="card-body table-responsive">
@@ -93,7 +93,6 @@
                 },
                 {
                     data: 'product.name',
-                    sortable: false
                 },
                 {
                     data: 'suspended'
