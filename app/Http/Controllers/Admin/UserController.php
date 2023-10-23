@@ -26,7 +26,7 @@ use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 
 class UserController extends Controller
 {
@@ -38,7 +38,7 @@ class UserController extends Controller
     const CHANGE_USERNAME_PERMISSION = "admin.users.write.username";
     const CHANGE_PASSWORD_PERMISSION = "admin.users.write.password";
     const CHANGE_ROLE_PERMISSION ="admin.users.write.role";
-    const CHANGE_REFERAL_PERMISSION ="admin.users.write.referal";
+    const CHANGE_REFERAL_PERMISSION ="admin.users.write.referral";
     const CHANGE_PTERO_PERMISSION = "admin.users.write.pterodactyl";
     const DELETE_PERMISSION = "admin.users.delete";
     const NOTIFY_PERMISSION = "admin.users.notify";
