@@ -252,6 +252,10 @@ class ServerController extends Controller
     public function cancel(Server $server)
     {
         try {
+            $server->update([
+                'cancelled' => now(),
+            ]);
+
             return redirect()->route('servers.index')->with('success', __('Server cancelled'));
         } catch (Exception $e) {
             return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
