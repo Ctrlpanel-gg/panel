@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.1",
         "ext-intl": "*",
+        "bacon/bacon-qr-code": "^2.0",
         "biscolab/laravel-recaptcha": "^5.4",
         "doctrine/dbal": "^3.5.3",
         "guzzlehttp/guzzle": "^7.5",
@@ -22,6 +23,7 @@
         "league/flysystem-aws-s3-v3": "^3.12.2",
         "paypal/paypal-checkout-sdk": "^1.0.2",
         "paypal/rest-api-sdk-php": "^1.14.0",
+        "pragmarx/google2fa-laravel": "^2.1",
         "predis/predis": "*",
         "qirolab/laravel-themer": "^2.0.2",
         "socialiteproviders/discord": "^4.1.2",

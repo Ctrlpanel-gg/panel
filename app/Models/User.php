@@ -7,6 +7,7 @@ use App\Notifications\WelcomeMessage;
 use App\Classes\PterodactylClient;
 use App\Settings\PterodactylSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -67,6 +68,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'suspended',
         'referral_code',
         'email_verified_reward',
+        'use_totp',
+        'totp_secret',
+        'totp_authenticated_at',
     ];
 
     /**
@@ -77,6 +81,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'totp_secret',
+        'totp_authenticated_at'
     ];
 
     /**
@@ -89,7 +95,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_seen' => 'datetime',
         'credits' => 'float',
         'server_limit' => 'float',
-        'email_verified_reward' => 'boolean'
+        'email_verified_reward' => 'boolean',
+        'use_totp' => 'boolean',
+        'totp_secret' => 'nullable|string'
     ];
 
     public function __construct()
@@ -313,4 +321,24 @@ class User extends Authenticatable implements MustVerifyEmail
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
+    public function recoveryTokens(): HasMany
+    {
+        return $this->hasMany(RecoveryToken::class);
+    }
+
+     /**
+     * Interact with the 2fa secret attribute.
+     *
+     * @param  string  $value
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function google2faSecret(): Attribute
+    {
+        return new Attribute(
+            get: fn ($value) =>  decrypt($value),
+            set: fn ($value) =>  encrypt($value),
+        );
+    }
+
 }

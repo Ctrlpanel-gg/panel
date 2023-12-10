@@ -4,7 +4,7 @@
 /storage/*.key
 /vendor
 /storage/credit_deduction_log
-storage/debugbar
+/storage/debugbar
 .env
 .env.testing
 .env.backup
@@ -20,10 +20,10 @@ yarn.lock
 .gitignore
 .env.dev
 .env.testing
-storage/invoices.zip
-storage/app/public/logo.png
+/storage/invoices.zip
+/storage/app/public/logo.png
 *vscode
  - Kopie.env
-public/install/logs.txt
+/public/install/logs.txt
 install.lock
-public/install/logs/installer.log
+/public/install/logs/*.log

@@ -97,7 +97,7 @@ class UserController extends Controller
     /**
      * Get a JSON response of users.
      *
-     * @return \Illuminate\Support\Collection|\App\models\User
+     * @return \Illuminate\Support\Collection|\App\Models\User
      */
     public function json(Request $request)
     {

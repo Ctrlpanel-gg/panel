@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\UsefulLinkController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Auth\Login2FAController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
@@ -46,6 +47,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/2fa', [Login2FAController::class, 'Attempt2FA'])->name('2fa');
+Route::post('/2fa/authenticate', [Login2FAController::class, 'authenticate'])->name('2fa.authenticate');
 
 Route::middleware('guest')->get('/', function () {
     return redirect('login');
@@ -70,6 +73,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
         return back()->with('success', 'Verification link sent!');
     })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
+
 
     //normal routes
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
@@ -229,8 +233,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
         Route::resource("ticket/category", TicketCategoryController::class, ['as' => 'ticket']);
     });
-
-
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
