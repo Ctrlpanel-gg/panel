@@ -43,10 +43,11 @@ function MercadoPagoPay(Request $request)
     try {
         //basic restriction
         if (!str_contains(config('app.url'), 'https://')) {
-            throw new \Exception('It is not possible to purchase via MercadoPago: APP_URL does not have HTTPS, required by Mercado Pago.');
+            $payment->delete();
+            return Redirect::route('store.index')->with('error', __('It is not possible to purchase via MercadoPago: APP_URL does not have HTTPS, required by Mercado Pago'))->send();
         }
         // MercadoPago SDK
-        SDK::setAccessToken(MercadoPagoAccess());
+        SDK::setAccessToken(config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN'));
 
         // MercadoPago Payment
         $preference = new Preference();
@@ -92,8 +93,8 @@ function MercadoPagoChecker(Request $laravelRequest)
     $user = User::findOrFail($user->id);
 
     try {
-        SDK::setAccessToken(MercadoPagoAccess());
-        $MpagoPayment = MercadoPago\Payment::find_by_id($laravelRequest->input('payment_id'));
+        SDK::setAccessToken(config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN'));
+        $MpagoPayment = \MercadoPago\Payment::find_by_id($laravelRequest->input('payment_id'));
 
         $payment = Payment::findOrFail($MpagoPayment->metadata->crtl_panel_payment_id);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
@@ -146,6 +147,11 @@ function MercadoPagoChecker(Request $laravelRequest)
             event(new UserUpdateCreditsEvent($user));
             event(new PaymentEvent($user, $payment, $shopProduct));
             $Message = 'Sucesso - Créditos Adicionados';
+        } else {
+            $payment->update([
+                'status' => $status,
+                'payment_id' => $laravelRequest->input('payment_id'),
+            ]);
         }
 
         Redirect::route('home')->with('success', $Message)->send();
@@ -192,7 +198,7 @@ function MercadoPagoIpnProcess($notificationId)
 {
     $Response = 200;
     try {
-        SDK::setAccessToken(MercadoPagoAccess());
+        SDK::setAccessToken(config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN'));
         $MpagoPayment = MercadoPago\Payment::find_by_id($notificationId);
 
         $payment = Payment::findOrFail($MpagoPayment->metadata->crtl_panel_payment_id);
@@ -207,17 +213,15 @@ function MercadoPagoIpnProcess($notificationId)
             ]);
             event(new UserUpdateCreditsEvent($user));
             event(new PaymentEvent($user, $payment, $shopProduct));
+        } else {
+            $payment->update([
+                'status' => $status,
+                'payment_id' => $notificationId,
+            ]);
         }
     } catch (Exception $ex) {
         Log::error('Mercado Pago Payment IPN: ' . $e->getMessage());
         $Response = 500;
     }
     return $Response;
-}
-/**
- * Mercado Pago Access Token
- */
-function MercadoPagoAccess()
-{
-    return config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN');
 }
