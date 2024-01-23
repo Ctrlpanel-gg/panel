@@ -225,6 +225,7 @@
     "Who is allowed to see their referral-URL": "Quem tem permissão para ver o seu URL de indicação",
     "Everyone": "Todos",
     "Clients": "Clientes",
+    "Mercado Pago Access-Token":"Access Token do Mercado Pago",
     "PayPal Client-ID": "Cliente-ID PayPal",
     "PayPal Secret-Key": "Chave Secreta PayPal",
     "PayPal Sandbox Client-ID": "Cliente-ID Sandbox PayPal",

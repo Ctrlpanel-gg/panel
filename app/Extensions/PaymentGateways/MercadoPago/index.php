@@ -28,7 +28,7 @@ function MercadoPagoPay(Request $request)
     $payment = Payment::create([
         'user_id' => $user->id,
         'payment_id' => null,
-        'payment_method' => 'mpago',
+        'payment_method' => 'mercadopago',
         'type' => $shopProduct->type,
         'status' => 'open',
         'amount' => $shopProduct->quantity,

@@ -5,7 +5,7 @@ namespace App\Extensions\PaymentGateways\MercadoPago;
 function getConfig()
 {
     return [
-        "name" => "mpago",
+        "name" => "MercadoPago",
         "description" => "Mercado Pago payment gateway",
         "RoutesIgnoreCsrf" => [
             "payment/MercadoPagoIPN",
