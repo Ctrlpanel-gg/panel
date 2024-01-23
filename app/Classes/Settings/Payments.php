@@ -17,6 +17,7 @@ class Payments
     public function updateSettings(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'mpago-access_token' => 'nullable|string',
             'paypal-client_id' => 'nullable|string',
             'paypal-client-secret' => 'nullable|string',
             'paypal-sandbox-secret' => 'nullable|string',
@@ -34,6 +35,7 @@ class Payments
 
         $values = [
             //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
+            'SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN' => 'mpago-access_token',
             'SETTINGS::PAYMENTS:PAYPAL:SECRET' => 'paypal-client-secret',
             'SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID' => 'paypal-client-id',
             'SETTINGS::PAYMENTS:PAYPAL:SANDBOX_SECRET' => 'paypal-sandbox-secret',

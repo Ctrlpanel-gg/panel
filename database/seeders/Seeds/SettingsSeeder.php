@@ -261,6 +261,14 @@ class SettingsSeeder extends Seeder
         ]);
 
         Settings::firstOrCreate([
+            'key' => 'SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN',
+        ], [
+            'value' => env('MPAGO_ACCESS_TOKEN', ''),
+            'type' => 'string',
+            'description' => 'Your Mercado Pago Access Token.',
+        ]);
+
+        Settings::firstOrCreate([
             'key' => 'SETTINGS::PAYMENTS:PAYPAL:SECRET',
         ], [
             'value' => env('PAYPAL_SECRET', ''),

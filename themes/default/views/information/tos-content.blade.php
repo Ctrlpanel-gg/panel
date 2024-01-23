@@ -148,6 +148,10 @@
 
 <p></p>
 
+<p>- Mercado Pago</p>
+
+<p></p>
+
 <p>You agree to provide current, complete, and accurate purchase and account information for all purchases made via the Site. You further agree to promptly update account and payment information, including email address, payment method, and payment card expiration date, so that we can complete your transactions and contact you as needed. Sales tax will be added to the price of purchases as deemed required by us. We may change prices at any time. All payments shall beinU.S. dollars.</p>
 
 <p></p>

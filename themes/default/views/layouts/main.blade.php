@@ -231,6 +231,7 @@
                         </li>
 
                         @if (env('APP_ENV') == 'local' ||
+                            config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN') ||
                             (config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID')) ||
                             (config('SETTINGS::PAYMENTS:STRIPE:SECRET') &&
                                 config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') &&
