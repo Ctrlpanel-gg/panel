@@ -63,8 +63,8 @@ function MercadoPagoPay(Request $request)
         $item = new \MercadoPago\Item();
 
         $item->title = $shopProduct->display . ($discount ? (" (" . __('Discount') . " " . $discount . '%)') : "");
-        $item->quantity = $shopProduct->quantity;
-        $item->unit_price = $shopProduct->price - ($shopProduct->price * $discount / 100);
+        $item->quantity = 1;
+        $item->unit_price = $shopProduct->getTotalPrice();
         $item->currency = $shopProduct->currency_code;
         $preference->items = [$item];
         $preference->metadata = [
