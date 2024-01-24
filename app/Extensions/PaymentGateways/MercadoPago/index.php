@@ -140,13 +140,17 @@ function MercadoPagoChecker(Request $laravelRequest)
         }
 
         if ($status === 'approved') {
-            $payment->update([
-                'status' => 'paid',
-                'payment_id' => $laravelRequest->input('payment_id'),
-            ]);
-            event(new UserUpdateCreditsEvent($user));
-            event(new PaymentEvent($user, $payment, $shopProduct));
-            $Message = 'Sucesso - Créditos Adicionados';
+            if($payment->status === 'paid') {
+                $Message = 'Sucesso - Créditos Adicionados';
+            } else {
+                $payment->update([
+                    'status' => 'paid',
+                    'payment_id' => $laravelRequest->input('payment_id'),
+                ]);
+                event(new UserUpdateCreditsEvent($user));
+                event(new PaymentEvent($user, $payment, $shopProduct));
+                $Message = 'Sucesso - Créditos Adicionados';
+            }
         } else {
             $payment->update([
                 'status' => $status,
@@ -207,12 +211,18 @@ function MercadoPagoIpnProcess($notificationId)
 
         $status = $MpagoPayment->status;
         if ($status === 'approved') {
-            $payment->update([
-                'status' => 'paid',
-                'payment_id' => $notificationId,
-            ]);
-            event(new UserUpdateCreditsEvent($user));
-            event(new PaymentEvent($user, $payment, $shopProduct));
+            if($payment->status === 'paid') {
+                $Message = 'Sucesso - Créditos Adicionados';
+                return Redirect::route('home')->with('success', $Message)->send();
+            } else {
+                $payment->update([
+                    'status' => 'paid',
+                    'payment_id' => $notificationId,
+                ]);
+                event(new UserUpdateCreditsEvent($user));
+                event(new PaymentEvent($user, $payment, $shopProduct));
+            }
+            
         } else {
             $payment->update([
                 'status' => $status,
