@@ -20,6 +20,7 @@
         "laravel/ui": "^3.3",
         "laraveldaily/laravel-invoices": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
+        "mercadopago/dx-php": "^2.6",
         "paypal/paypal-checkout-sdk": "^1.0",
         "paypal/rest-api-sdk-php": "^1.14",
         "qirolab/laravel-themer": "^2.0",

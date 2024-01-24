@@ -6,13 +6,14 @@ use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Notifications\ConfirmPaymentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use MercadoPago\SDK;
 use MercadoPago\Preference;
-use MercadoPago;
+
 /**
  * @param Request $request
  * @param ShopProduct $shopProduct
@@ -101,64 +102,61 @@ function MercadoPagoChecker(Request $laravelRequest)
 
         $status = $MpagoPayment->status;
 
-        $Message = 'Payment successful';
+        $Message = __('Payment completed successfully.');
         // Inicia O Setamento do pagamento
         if ($status === 'created') {
-            $Message = 'O pagamento foi Criado.';
+            $Message = __('Payment has been created.');
         }
 
         if ($status === 'pending') {
-            $Message = 'O pagamento está pendente.';
+            $Message = __('Payment is pending.');
         }
 
         if ($status === 'rejected') {
-            $Message = 'O pagamento foi rejeitado.';
+            $Message = __('Payment has been rejected.');
         }
 
         if ($status === 'cancelled') {
-            $payment->update([
-                'status' => 'cancelled',
-                'payment_id' => $laravelRequest->input('payment_id'),
-            ]);
-            $Message = 'O pagamento foi cancelado.';
+            $Message = __('Payment has been cancelled.');
         }
 
         if ($status === 'refunded') {
-            $Message = 'O pagamento foi reembolsado.';
+            $Message = __('Payment has been refunded.');
         }
 
         if ($status === 'charged_back') {
-            $Message = 'O pagamento foi estornado.';
+            $Message = __('Payment has been charged back.');
         }
 
         if ($status === 'in_process') {
-            $Message = 'O pagamento está em processo de validação.';
+            $Message = __('Payment is in the process of validation.');
         }
 
         if ($status === 'in_mediation') {
-            $Message = 'O pagamento está em mediação.';
+            $Message = __('Payment is in mediation.');
         }
 
         if ($status === 'approved') {
-            if($payment->status === 'paid') {
-                $Message = 'Sucesso - Créditos Adicionados';
-            } else {
+            if ($payment->status !== 'paid') {
                 $payment->update([
                     'status' => 'paid',
                     'payment_id' => $laravelRequest->input('payment_id'),
                 ]);
                 event(new UserUpdateCreditsEvent($user));
                 event(new PaymentEvent($user, $payment, $shopProduct));
-                $Message = 'Sucesso - Créditos Adicionados';
             }
         } else {
             $payment->update([
                 'status' => $status,
                 'payment_id' => $laravelRequest->input('payment_id'),
             ]);
+            event(new PaymentEvent($user, $payment, $shopProduct));
         }
-
-        Redirect::route('home')->with('success', $Message)->send();
+        if ($payment->status == "paid") {
+            Redirect::route('home')->with('success', $Message)->send();
+        } else {
+            Redirect::route('home')->with('info', $Message)->send();
+        }
     } catch (Exception $e) {
         Log::error('Mercado Pago Payment: ' . $e->getMessage());
         abort(500);
@@ -177,10 +175,11 @@ function MercadoPagoIPN(Request $laravelRequest)
         $status = 200;
     } else {
         try {
-            $notificationId = $laravelRequest->input('data.id') ?? $laravelRequest->input('id') ?? $laravelRequest->input('payment_id') ?? 'error12011';
-            if ($notificationId == 'error12011') {
+            $notificationId = $laravelRequest->input('data.id') ?? $laravelRequest->input('id') ?? $laravelRequest->input('payment_id') ?? 'unknown';
+            if ($notificationId == 'unknown') {
                 $status = 400;
-            } elseif ($notificationId == '123456') {
+            } else if ($notificationId == '123456') {
+                // Mercado pago IPN test
                 $status = 200;
             } else {
                 $result = MercadoPagoIpnProcess($notificationId);
@@ -191,7 +190,7 @@ function MercadoPagoIPN(Request $laravelRequest)
             $status = 401;
         }
     }
-    if($status === 200) {
+    if ($status === 200) {
         return response()->json(['success' => true], 200);
     } else {
         abort($status);
@@ -203,7 +202,7 @@ function MercadoPagoIpnProcess($notificationId)
     $Response = 200;
     try {
         SDK::setAccessToken(config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN'));
-        $MpagoPayment = MercadoPago\Payment::find_by_id($notificationId);
+        $MpagoPayment = \MercadoPago\Payment::find_by_id($notificationId);
 
         $payment = Payment::findOrFail($MpagoPayment->metadata->crtl_panel_payment_id);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
@@ -211,26 +210,24 @@ function MercadoPagoIpnProcess($notificationId)
 
         $status = $MpagoPayment->status;
         if ($status === 'approved') {
-            if($payment->status === 'paid') {
-                $Message = 'Sucesso - Créditos Adicionados';
-                return Redirect::route('home')->with('success', $Message)->send();
-            } else {
+            if ($payment->status !== 'paid') {
                 $payment->update([
                     'status' => 'paid',
                     'payment_id' => $notificationId,
                 ]);
+                $user->notify(new ConfirmPaymentNotification($payment));
                 event(new UserUpdateCreditsEvent($user));
                 event(new PaymentEvent($user, $payment, $shopProduct));
             }
-            
         } else {
             $payment->update([
                 'status' => $status,
                 'payment_id' => $notificationId,
             ]);
+            event(new PaymentEvent($user, $payment, $shopProduct));
         }
     } catch (Exception $ex) {
-        Log::error('Mercado Pago Payment IPN: ' . $e->getMessage());
+        Log::error('Mercado Pago Payment IPN: ' . $ex->getMessage());
         $Response = 500;
     }
     return $Response;

@@ -10,6 +10,6 @@ function getConfig()
         "RoutesIgnoreCsrf" => [
             "payment/MercadoPagoIPN",
         ],
-        "enabled" => config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN'),
+        "enabled" => (config('SETTINGS::PAYMENTS:MPAGO:ACCESS_TOKEN') && env("APP_ENV") === "local"),
     ];
 }
