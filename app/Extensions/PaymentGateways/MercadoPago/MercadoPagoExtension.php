@@ -60,8 +60,8 @@ class MercadoPagoExtension extends AbstractExtension
                     [
                         'title' => "Order #{$payment->id} - " . $shopProduct->name,
                         'quantity' => 1,
-                        // convert shopProduct to float(this is string) 
-                        'unit_price' => floatval($shopProduct->getTotalPrice()),
+                        // convert to float
+                        'unit_price' => floatval($totalPriceString),
                         'currency_id' => $shopProduct->currency_code,
                     ],
                 ],
@@ -111,54 +111,29 @@ class MercadoPagoExtension extends AbstractExtension
     static function Webhook(Request $request): JsonResponse
     {
         $topic = $request->input('topic');
-        $msg = 'unset';
-        $status = 400;
         if ($topic === 'merchant_order') {
-            $msg = 'ignored';
-            $status = 200;
+            // ignore other types IPN 
+            return response()->json(['success' => true]);
         } else if ($topic === 'payment') {
-            $msg = 'ignored';
-            $status = 200;
+            // ignore other types IPN 
+            return response()->json(['success' => true]);
         } else {
             try {
                 $notificationId = $request->input('data.id') ?? $request->input('id') ?? $request->input('payment_id') ?? 'unknown';
                 if ($notificationId == 'unknown') {
-                    $msg = 'unknown payment.';
-                    $status = 400;
+                    return response()->json(['success' => false]);
                 } else if ($notificationId == '123456') {
-                    $msg = 'MercadoPago api test';
-                    $status = 200;
+                    // mercado pago api test
+                    return response()->json(['success' => true]);
                 } else {
-                    $MpPayment = self::MpPayment($notificationId, true);
-                    switch ($MpPayment) {
-                        case "paid":
-                            $msg = $MpPayment;
-                            $status = 200;
-                            break;
-
-                        case "cancelled":
-                            $msg = $MpPayment;
-                            $status = 200;
-                            break;
-
-                        case "processing":
-                            $msg = $MpPayment;
-                            $status = 200;
-                            break;
-                        default:
-                            $msg = 'unknown';
-                            $status = 400;
-                            break;
-                    }
+                    self::MpPayment($notificationId, true);
                 }
             } catch (Exception $ex) {
                 Log::error('MercadoPago Webhook(IPN) Payment: ' . $ex->getMessage());
-                $msg = 'error';
-                $status = 500;
+                return response()->json(['success' => false]);
             }
         }
-        $response = new JsonResponse($msg, $status);
-        return $response;
+        return response()->json(['success' => true]);
     }
     /**
      * Mercado Pago Payment checker 
@@ -166,7 +141,6 @@ class MercadoPagoExtension extends AbstractExtension
     private function MpPayment(string $paymentID, bool $notification): string
     {
         $MpResponse = "unknown";
-        $payment = "unknown";
         $url = "https://api.mercadopago.com/v1/payments/" . $paymentID;
         $settings = new MercadoPagoSettings();
         $response = Http::withHeaders([
