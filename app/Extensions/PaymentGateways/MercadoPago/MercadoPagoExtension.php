@@ -60,7 +60,8 @@ class MercadoPagoExtension extends AbstractExtension
                     [
                         'title' => "Order #{$payment->id} - " . $shopProduct->name,
                         'quantity' => 1,
-                        'unit_price' => $totalPriceString,
+                        // convert shopProduct to float(this is string) 
+                        'unit_price' => floatval($shopProduct->getTotalPrice()),
                         'currency_id' => $shopProduct->currency_code,
                     ],
                 ],
@@ -72,11 +73,8 @@ class MercadoPagoExtension extends AbstractExtension
             ]);
 
             if ($response->successful()) {
-                // preferenceID
-                $preferenceId = $response->json()['id'];
-
                 // Redirect link
-                return ("https://www.mercadopago.com/checkout/v1/redirect?preference-id=" . $preferenceId);
+                Redirect::to($response->json()['init_point'])->send();
             } else {
                 Log::error('MercadoPago Payment: ' . $response->body());
                 throw new Exception('Payment failed');
@@ -178,8 +176,8 @@ class MercadoPagoExtension extends AbstractExtension
 
         if ($response->successful()) {
             $mercado = $response->json();
-            $status = $mercado->status;
-            $payment = Payment::findOrFail($mercado->metadata->crtl_panel_payment_id);
+            $status = $mercado['status'];
+            $payment = Payment::findOrFail($mercado['metadata']['crtl_panel_payment_id']);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
             if ($status == "approved") {
