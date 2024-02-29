@@ -49,8 +49,8 @@
             Service or from the Service infrastructure itself (for example, the duration of a page visit).</p>
     </li>
     <li>
-        <p><strong>Website</strong> refers to CtrlPanel, accessible from <a href="controlpanel"
-                rel="external nofollow noopener" target="_blank">controlpanel</a></p>
+        <p><strong>Website</strong> refers to CtrlPanel, accessible from <a href="ctrlpanel"
+                rel="external nofollow noopener" target="_blank">ctrlpanel</a></p>
     </li>
     <li>
         <p><strong>You</strong> means the individual accessing or using the Service, or the company, or other legal

@@ -43,7 +43,7 @@
                             class="mr-2 fas fa-link"></i> {{__('Documentation')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://github.com/ControlPanel-gg/dashboard" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://github.com/Ctrlpanel-gg/panel" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fab fa-github"></i> {{__('Github')}}</a>
                 </div>
                 <div class="col-md-3">
