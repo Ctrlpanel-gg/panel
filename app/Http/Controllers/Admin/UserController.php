@@ -316,7 +316,8 @@ class UserController extends Controller
                 ->line(new HtmlString($data['content']));
         }
         $all = $data['all'] ?? false;
-        if(!$data["roles"]){
+        $roles = $data['roles'] ?? false;
+        if(!$roles){
             $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
         } else{
             $users = User::role($data["roles"])->get();
