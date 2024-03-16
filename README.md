@@ -1,6 +1,6 @@
 ### Features
 
--   PayPal, Stripe and Mollie Integration
+-   PayPal, Stripe, Mollie and MercadoPago Integration
 -   Hourly, Weekely, Monthly, Quarterly and Annual billing Cycles
 -   Referral System
 -   Partner System

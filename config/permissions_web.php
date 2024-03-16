@@ -118,6 +118,9 @@ return [
     'settings.paypal.read',
     'settings.paypal.write',
 
+    'settings.mercadopago.read',
+    'settings.mercadopago.write',
+
     'settings.stripe.read',
     'settings.stripe.write',
 
