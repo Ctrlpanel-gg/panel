@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\DynamicNotification;
+use App\Jobs\DynamicNotificationJob;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
@@ -325,7 +325,7 @@ class UserController extends Controller
 
 
         try {
-            Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
+            DynamicNotificationJob::dispatch($users, $data['via'], $database, $mail);
         } catch (Exception $e) {
             return redirect()->route('admin.users.notifications')->with('error', __('The attempt to send the email failed with the error: ' . $e->getMessage()));
         }

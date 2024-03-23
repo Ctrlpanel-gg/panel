@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Product;
 use App\Models\Server;
 use App\Models\User;
-use App\Notifications\ServersSuspendedNotification;
+use App\Jobs\ServersSuspendedJob;
 use Illuminate\Console\Command;
 
 class ChargeCreditsCommand extends Command
@@ -67,8 +67,8 @@ class ChargeCreditsCommand extends Command
                         $server->suspend();
 
                         //add user to notify list
-                        if (!in_array($user, $this->usersToNotify)) {
-                            array_push($this->usersToNotify, $user);
+                        if (!in_array($user->id, $this->usersToNotify)) {
+                            $this->usersToNotify[] = $user->id;
                         }
                     } catch (\Exception $exception) {
                         $this->error($exception->getMessage());
@@ -86,11 +86,7 @@ class ChargeCreditsCommand extends Command
     public function notifyUsers()
     {
         if (!empty($this->usersToNotify)) {
-            /** @var User $user */
-            foreach ($this->usersToNotify as $user) {
-                $this->line("<fg=yellow>Notified user:</> <fg=blue>{$user->name}</>");
-                $user->notify(new ServersSuspendedNotification());
-            }
+            ServersSuspendedJob::dispatch($this->usersToNotify);
         }
 
         //reset array
