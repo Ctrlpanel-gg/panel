@@ -24,7 +24,12 @@ class CryptoBotSettings extends Settings
             'api_key' => [
                 'type' => 'string',
                 'label' => 'API Key',
-                'description' => 'The API Key of your Mollie App',
+                'description' => 'The API Key of your CryptoPay app',
+            ],
+            'hidden_message' => [
+                'type' => 'string',
+                'label' => 'Hidden Message',
+                'description' => 'Message displayed after payment',
             ],
             'enabled' => [
                 'type' => 'boolean',

@@ -54,7 +54,7 @@ class CryptoBotExtension extends AbstractExtension
                 'description' => "Заказ #{$payment->id} - " . $shopProduct->name,
                 'currency_type' => 'fiat',
                 'fiat' => $shopProduct->currency_code,
-                'hidden_message' => 'Спасибо за перевод 💖',
+                'hidden_message' => $settings->hidden_message,
                 'paid_btn_name' => 'callback',
                 'paid_btn_url' => route('payment.CryptoBotSuccess').'?payment=YGqvOf4I'
             ]);
@@ -72,7 +72,7 @@ class CryptoBotExtension extends AbstractExtension
 
     static function success(Request $request): void
     {
-        Redirect::route('home')->with('success', 'Ваш платёж в обработке 💖')->send();
+        Redirect::route('home')->with('success', 'Your payment is processing')->send();
         return;
     }
 
