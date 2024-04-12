@@ -22,40 +22,44 @@ class CreateLocaleSettings extends LegacySettingsMigration
         DB::table('settings_old')->insert([
             [
                 'key' => 'SETTINGS::LOCALE:AVAILABLE',
-                'value' => $this->getNewValue('available'),
+                'value' => $this->getNewValue('available', 'locale'),
                 'type' => 'string',
                 'description' => 'The available locales.',
             ],
             [
                 'key' => 'SETTINGS::LOCALE:CLIENTS_CAN_CHANGE',
-                'value' => $this->getNewValue('clients_can_change'),
+                'value' => $this->getNewValue('clients_can_change', 'locale'),
                 'type' => 'boolean',
                 'description' => 'If clients can change their locale.',
             ],
             [
                 'key' => 'SETTINGS::LOCALE:DATATABLES',
-                'value' => $this->getNewValue('datatables'),
+                'value' => $this->getNewValue('datatables', 'locale'),
                 'type' => 'string',
                 'description' => 'The locale for datatables.',
             ],
             [
                 'key' => 'SETTINGS::LOCALE:DEFAULT',
-                'value' => $this->getNewValue('default'),
+                'value' => $this->getNewValue('default', 'locale'),
                 'type' => 'string',
                 'description' => 'The default locale.',
             ],
             [
                 'key' => 'SETTINGS::LOCALE:DYNAMIC',
-                'value' => $this->getNewValue('dynamic'),
+                'value' => $this->getNewValue('dynamic', 'locale'),
                 'type' => 'boolean',
                 'description' => 'If the locale should be dynamic.',
             ],
         ]);
 
-        $this->migrator->delete('locale.available');
-        $this->migrator->delete('locale.clients_can_change');
-        $this->migrator->delete('locale.datatables');
-        $this->migrator->delete('locale.default');
-        $this->migrator->delete('locale.dynamic');
+        try {
+            $this->migrator->delete('locale.available');
+            $this->migrator->delete('locale.clients_can_change');
+            $this->migrator->delete('locale.datatables');
+            $this->migrator->delete('locale.default');
+            $this->migrator->delete('locale.dynamic');
+        } catch (Exception $e) {
+            // Do nothing
+        }
     }
 }

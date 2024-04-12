@@ -20,26 +20,30 @@ class CreateServerSettings extends LegacySettingsMigration
         DB::table('settings_old')->insert([
             [
                 'key' => 'SETTINGS::SERVER:ALLOCATION_LIMIT',
-                'value' => $this->getNewValue('allocation_limit'),
+                'value' => $this->getNewValue('allocation_limit', 'server'),
                 'type' => 'integer',
                 'description' => 'The number of servers to show per page.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS',
-                'value' => $this->getNewValue('creation_enabled'),
+                'value' => $this->getNewValue('creation_enabled', 'server'),
                 'type' => 'boolean',
                 'description' => 'Whether or not users can create new servers.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:ENABLE_UPGRADE',
-                'value' => $this->getNewValue('enable_upgrade'),
+                'value' => $this->getNewValue('enable_upgrade', 'server'),
                 'type' => 'boolean',
                 'description' => 'Whether or not users can upgrade their servers.',
             ],
         ]);
 
-        $this->migrator->delete('server.allocation_limit');
-        $this->migrator->delete('server.creation_enabled');
-        $this->migrator->delete('server.enable_upgrade');
+        try {
+            $this->migrator->delete('server.allocation_limit');
+            $this->migrator->delete('server.creation_enabled');
+            $this->migrator->delete('server.enable_upgrade');
+        } catch (Exception $e) {
+            // Do nothing
+        }
     }
 }

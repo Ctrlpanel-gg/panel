@@ -25,61 +25,65 @@ class CreateInvoiceSettings extends LegacySettingsMigration
         DB::table('settings_old')->insert([
             [
                 'key' => 'SETTINGS::INVOICE:COMPANY_ADDRESS',
-                'value' => $this->getNewValue('company_address'),
+                'value' => $this->getNewValue('company_address', 'invoice'),
                 'type' => 'string',
                 'description' => 'The address of the company.',
             ],
             [
                 'key' => 'SETTINGS::INVOICE:COMPANY_MAIL',
-                'value' => $this->getNewValue('company_mail'),
+                'value' => $this->getNewValue('company_mail', 'invoice'),
                 'type' => 'string',
                 'description' => 'The email address of the company.',
             ],
             [
                 'key' => 'SETTINGS::INVOICE:COMPANY_NAME',
-                'value' => $this->getNewValue('company_name'),
+                'value' => $this->getNewValue('company_name', 'invoice'),
                 'type' => 'string',
                 'description' => 'The name of the company.',
             ],
             [
                 'key' => 'SETTINGS::INVOICE:COMPANY_PHONE',
-                'value' => $this->getNewValue('company_phone'),
+                'value' => $this->getNewValue('company_phone', 'invoice'),
                 'type' => 'string',
                 'description' => 'The phone number of the company.',
             ],
             [
                 'key' => 'SETTINGS::INVOICE:COMPANY_VAT',
-                'value' => $this->getNewValue('company_vat'),
+                'value' => $this->getNewValue('company_vat', 'invoice'),
                 'type' => 'string',
                 'description' => 'The VAT number of the company.',
             ],
             [
                 'key' => 'SETTINGS::INVOICE:COMPANY_WEBSITE',
-                'value' => $this->getNewValue('company_website'),
+                'value' => $this->getNewValue('company_website', 'invoice'),
                 'type' => 'string',
                 'description' => 'The website of the company.',
             ],
             [
                 'key' => 'SETTINGS::INVOICE:ENABLED',
-                'value' => $this->getNewValue('enabled'),
+                'value' => $this->getNewValue('enabled', 'invoice'),
                 'type' => 'boolean',
                 'description' => 'Enable or disable the invoice system.',
             ],
             [
                 'key' => 'SETTINGS::INVOICE:PREFIX',
-                'value' => $this->getNewValue('prefix'),
+                'value' => $this->getNewValue('prefix', 'invoice'),
                 'type' => 'string',
                 'description' => 'The prefix of the invoice.',
             ],
         ]);
 
-        $this->migrator->delete('invoice.company_address');
-        $this->migrator->delete('invoice.company_mail');
-        $this->migrator->delete('invoice.company_name');
-        $this->migrator->delete('invoice.company_phone');
-        $this->migrator->delete('invoice.company_vat');
-        $this->migrator->delete('invoice.company_website');
-        $this->migrator->delete('invoice.enabled');
-        $this->migrator->delete('invoice.prefix');
+        try {
+            $this->migrator->delete('invoice.company_address');
+            $this->migrator->delete('invoice.company_mail');
+            $this->migrator->delete('invoice.company_name');
+            $this->migrator->delete('invoice.company_phone');
+            $this->migrator->delete('invoice.company_vat');
+            $this->migrator->delete('invoice.company_website');
+            $this->migrator->delete('invoice.enabled');
+            $this->migrator->delete('invoice.prefix');
+        } catch (Exception $e) {
+            // Do nothing
+        }
     }
 }

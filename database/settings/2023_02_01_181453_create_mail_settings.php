@@ -25,62 +25,66 @@ class CreateMailSettings extends LegacySettingsMigration
         DB::table('settings_old')->insert([
             [
                 'key' => 'SETTINGS::MAIL:HOST',
-                'value' => $this->getNewValue('mail_host'),
+                'value' => $this->getNewValue('mail_host', 'mail'),
                 'type' => 'string',
                 'description' => 'The host of the mail server.',
             ],
             [
                 'key' => 'SETTINGS::MAIL:PORT',
-                'value' => $this->getNewValue('mail_port'),
+                'value' => $this->getNewValue('mail_port', 'mail'),
                 'type' => 'integer',
                 'description' => 'The port of the mail server.',
             ],
             [
                 'key' => 'SETTINGS::MAIL:USERNAME',
-                'value' => $this->getNewValue('mail_username'),
+                'value' => $this->getNewValue('mail_username', 'mail'),
                 'type' => 'string',
                 'description' => 'The username of the mail server.',
             ],
             [
                 'key' => 'SETTINGS::MAIL:PASSWORD',
-                'value' => $this->getNewValue('mail_password'),
+                'value' => $this->getNewValue('mail_password', 'mail'),
                 'type' => 'string',
                 'description' => 'The password of the mail server.',
             ],
             [
                 'key' => 'SETTINGS::MAIL:ENCRYPTION',
-                'value' => $this->getNewValue('mail_encryption'),
+                'value' => $this->getNewValue('mail_encryption', 'mail'),
                 'type' => 'string',
                 'description' => 'The encryption of the mail server.',
             ],
             [
                 'key' => 'SETTINGS::MAIL:FROM_ADDRESS',
-                'value' => $this->getNewValue('mail_from_address'),
+                'value' => $this->getNewValue('mail_from_address', 'mail'),
                 'type' => 'string',
                 'description' => 'The from address of the mail server.',
             ],
             [
                 'key' => 'SETTINGS::MAIL:FROM_NAME',
-                'value' => $this->getNewValue('mail_from_name'),
+                'value' => $this->getNewValue('mail_from_name', 'mail'),
                 'type' => 'string',
                 'description' => 'The from name of the mail server.',
             ],
             [
                 'key' => 'SETTINGS::MAIL:MAILER',
-                'value' => $this->getNewValue('mail_mailer'),
+                'value' => $this->getNewValue('mail_mailer', 'mail'),
                 'type' => 'string',
                 'description' => 'The mailer of the mail server.',
             ],
 
         ]);
 
-        $this->migrator->delete('mail.mail_host');
-        $this->migrator->delete('mail.mail_port');
-        $this->migrator->delete('mail.mail_username');
-        $this->migrator->delete('mail.mail_password');
-        $this->migrator->delete('mail.mail_encryption');
-        $this->migrator->delete('mail.mail_from_address');
-        $this->migrator->delete('mail.mail_from_name');
-        $this->migrator->delete('mail.mail_mailer');
+        try {
+            $this->migrator->delete('mail.mail_host');
+            $this->migrator->delete('mail.mail_port');
+            $this->migrator->delete('mail.mail_username');
+            $this->migrator->delete('mail.mail_password');
+            $this->migrator->delete('mail.mail_encryption');
+            $this->migrator->delete('mail.mail_from_address');
+            $this->migrator->delete('mail.mail_from_name');
+            $this->migrator->delete('mail.mail_mailer');
+        } catch (Exception $e) {
+            //
+        }
     }
 }

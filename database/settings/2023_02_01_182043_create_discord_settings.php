@@ -23,48 +23,52 @@ class CreateDiscordSettings extends LegacySettingsMigration
         DB::table('settings_old')->insert([
             [
                 'key' => 'SETTINGS::DISCORD:BOT_TOKEN',
-                'value' => $this->getNewValue('bot_token'),
+                'value' => $this->getNewValue('bot_token', 'discord'),
                 'type' => 'string',
                 'description' => 'The bot token for the Discord bot.',
             ],
             [
                 'key' => 'SETTINGS::DISCORD:CLIENT_ID',
-                'value' => $this->getNewValue('client_id'),
+                'value' => $this->getNewValue('client_id', 'discord'),
                 'type' => 'string',
                 'description' => 'The client ID for the Discord bot.',
 
             ],
             [
                 'key' => 'SETTINGS::DISCORD:CLIENT_SECRET',
-                'value' => $this->getNewValue('client_secret'),
+                'value' => $this->getNewValue('client_secret', 'discord'),
                 'type' => 'string',
                 'description' => 'The client secret for the Discord bot.',
             ],
             [
                 'key' => 'SETTINGS::DISCORD:GUILD_ID',
-                'value' => $this->getNewValue('guild_id'),
+                'value' => $this->getNewValue('guild_id', 'discord'),
                 'type' => 'string',
                 'description' => 'The guild ID for the Discord bot.',
             ],
             [
                 'key' => 'SETTINGS::DISCORD:INVITE_URL',
-                'value' => $this->getNewValue('invite_url'),
+                'value' => $this->getNewValue('invite_url', 'discord'),
                 'type' => 'string',
                 'description' => 'The invite URL for the Discord bot.',
             ],
             [
                 'key' => 'SETTINGS::DISCORD:ROLE_ID',
-                'value' => $this->getNewValue('role_id'),
+                'value' => $this->getNewValue('role_id', 'discord'),
                 'type' => 'string',
                 'description' => 'The role ID for the Discord bot.',
             ]
         ]);
 
-        $this->migrator->delete('discord.bot_token');
-        $this->migrator->delete('discord.client_id');
-        $this->migrator->delete('discord.client_secret');
-        $this->migrator->delete('discord.guild_id');
-        $this->migrator->delete('discord.invite_url');
-        $this->migrator->delete('discord.role_id');
+        try {
+            $this->migrator->delete('discord.bot_token');
+            $this->migrator->delete('discord.client_id');
+            $this->migrator->delete('discord.client_secret');
+            $this->migrator->delete('discord.guild_id');
+            $this->migrator->delete('discord.invite_url');
+            $this->migrator->delete('discord.role_id');
+        } catch (Exception $e) {
+            // Do nothing.
+        }
     }
 }

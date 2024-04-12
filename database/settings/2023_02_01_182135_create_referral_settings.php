@@ -22,47 +22,51 @@ class CreateReferralSettings extends LegacySettingsMigration
         DB::table('settings_old')->insert([
             [
                 'key' => 'SETTINGS::REFERRAL::ALLOWED',
-                'value' => $this->getNewValue('allowed'),
+                'value' => $this->getNewValue('allowed', 'referral'),
                 'type' => 'string',
                 'description' => 'The allowed referral types.',
             ],
             [
                 'key' => 'SETTINGS::REFERRAL::ALWAYS_GIVE_COMMISSION',
-                'value' => $this->getNewValue('always_give_commission'),
+                'value' => $this->getNewValue('always_give_commission', 'referral'),
                 'type' => 'boolean',
                 'description' => 'Whether to always give commission to the referrer.',
             ],
             [
                 'key' => 'SETTINGS::REFERRAL::ENABLED',
-                'value' => $this->getNewValue('enabled'),
+                'value' => $this->getNewValue('enabled', 'referral'),
                 'type' => 'boolean',
                 'description' => 'Whether to enable the referral system.',
             ],
             [
                 'key' => 'SETTINGS::REFERRAL::REWARD',
-                'value' => $this->getNewValue('reward'),
+                'value' => $this->getNewValue('reward', 'referral'),
                 'type' => 'integer',
                 'description' => 'The reward for the referral.',
             ],
             [
                 'key' => 'SETTINGS::REFERRAL:MODE',
-                'value' => $this->getNewValue('mode'),
+                'value' => $this->getNewValue('mode', 'referral'),
                 'type' => 'string',
                 'description' => 'The referral mode.',
             ],
             [
                 'key' => 'SETTINGS::REFERRAL:PERCENTAGE',
-                'value' => $this->getNewValue('percentage'),
+                'value' => $this->getNewValue('percentage', 'referral'),
                 'type' => 'integer',
                 'description' => 'The referral percentage.',
             ],
         ]);
 
-        $this->migrator->delete('referral.allowed');
-        $this->migrator->delete('referral.always_give_commission');
-        $this->migrator->delete('referral.enabled');
-        $this->migrator->delete('referral.reward');
-        $this->migrator->delete('referral.mode');
-        $this->migrator->delete('referral.percentage');
+        try {
+            $this->migrator->delete('referral.allowed');
+            $this->migrator->delete('referral.always_give_commission');
+            $this->migrator->delete('referral.enabled');
+            $this->migrator->delete('referral.reward');
+            $this->migrator->delete('referral.mode');
+            $this->migrator->delete('referral.percentage');
+        } catch (Exception $e) {
+            //
+        }
     }
 }

@@ -33,68 +33,72 @@ class CreateWebsiteSettings extends LegacySettingsMigration
         DB::table('settings_old')->insert([
             [
                 'key' => 'SETTINGS::SYSTEM:MOTD_ENABLED',
-                'value' => $this->getNewValue('motd_enabled'),
+                'value' => $this->getNewValue('motd_enabled', 'website'),
                 'type' => 'boolean',
                 'description' => 'Enable or disable the MOTD.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:MOTD_MESSAGE',
-                'value' => $this->getNewValue('motd_message'),
+                'value' => $this->getNewValue('motd_message', 'website'),
                 'type' => 'text',
                 'description' => 'The message that will be displayed in the MOTD.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:SHOW_IMPRINT',
-                'value' => $this->getNewValue('show_imprint'),
+                'value' => $this->getNewValue('show_imprint', 'website'),
                 'type' => 'boolean',
                 'description' => 'Enable or disable the imprint.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:SHOW_PRIVACY',
-                'value' => $this->getNewValue('show_privacy'),
+                'value' => $this->getNewValue('show_privacy', 'website'),
                 'type' => 'boolean',
                 'description' => 'Enable or disable the privacy policy.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:SHOW_TOS',
-                'value' => $this->getNewValue('show_tos'),
+                'value' => $this->getNewValue('show_tos', 'website'),
                 'type' => 'boolean',
                 'description' => 'Enable or disable the terms of service.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:USEFULLINKS_ENABLED',
-                'value' => $this->getNewValue('useful_links_enabled'),
+                'value' => $this->getNewValue('useful_links_enabled', 'website'),
                 'type' => 'boolean',
                 'description' => 'Enable or disable the useful links.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:SEO_TITLE',
-                'value' => $this->getNewValue('seo_title'),
+                'value' => $this->getNewValue('seo_title', 'website'),
                 'type' => 'string',
                 'description' => 'The title of the website.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:SEO_DESCRIPTION',
-                'value' => $this->getNewValue('seo_description'),
+                'value' => $this->getNewValue('seo_description', 'website'),
                 'type' => 'string',
                 'description' => 'The description of the website.',
             ],
             [
                 'key' => 'SETTINGS::SYSTEM:ENABLE_LOGIN_LOGO',
-                'value' => $this->getNewValue('enable_login_logo'),
+                'value' => $this->getNewValue('enable_login_logo', 'website'),
                 'type' => 'boolean',
                 'description' => 'Enable or disable the login logo.',
             ]
         ]);
 
-        $this->migrator->delete('website.motd_enabled');
-        $this->migrator->delete('website.motd_message');
-        $this->migrator->delete('website.show_imprint');
-        $this->migrator->delete('website.show_privacy');
-        $this->migrator->delete('website.show_tos');
-        $this->migrator->delete('website.useful_links_enabled');
-        $this->migrator->delete('website.seo_title');
-        $this->migrator->delete('website.seo_description');
-        $this->migrator->delete('website.enable_login_logo');
+        try {
+            $this->migrator->delete('website.motd_enabled');
+            $this->migrator->delete('website.motd_message');
+            $this->migrator->delete('website.show_imprint');
+            $this->migrator->delete('website.show_privacy');
+            $this->migrator->delete('website.show_tos');
+            $this->migrator->delete('website.useful_links_enabled');
+            $this->migrator->delete('website.seo_title');
+            $this->migrator->delete('website.seo_description');
+            $this->migrator->delete('website.enable_login_logo');
+        } catch (Exception $e) {
+            // Do nothing
+        }
     }
 }
