@@ -9,14 +9,19 @@ use Spatie\LaravelSettings\Migrations\SettingsMigration;
 
 abstract class LegacySettingsMigration extends SettingsMigration
 {
-    public function getNewValue(string $name)
+    public function getNewValue(string $name, string $group)
     {
-        $new_value = DB::table('settings')->where([['group', '=', 'general'], ['name', '=', $name]])->get(['payload'])->first();
+        $new_value = DB::table('settings')->where([['group', '=', $group], ['name', '=', $name]])->get(['payload'])->first();
+
+        if (is_null($new_value) || is_null($new_value->payload)) {
+            return null;
+        }
 
         // Some keys returns '""' as a value.
         if ($new_value->payload === '""') {
             return null;
         }
+
 
         // remove the quotes from the string
         if (substr($new_value->payload, 0, 1) === '"' && substr($new_value->payload, -1) === '"') {
@@ -35,7 +40,7 @@ abstract class LegacySettingsMigration extends SettingsMigration
     {
         $old_value = DB::table('settings_old')->where('key', '=', $key)->get(['value', 'type'])->first();
 
-        if (is_null($old_value->value)) {
+        if (is_null($old_value) || is_null($old_value->value)) {
             return $default;
         }
 
