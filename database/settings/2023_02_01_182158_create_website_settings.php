@@ -1,27 +1,28 @@
 <?php
 
-use Spatie\LaravelSettings\Migrations\SettingsMigration;
+use App\Classes\LegacySettingsMigration;
 use Illuminate\Support\Facades\DB;
 
-class CreateWebsiteSettings extends SettingsMigration
+class CreateWebsiteSettings extends LegacySettingsMigration
 {
     public function up(): void
     {
         $table_exists = DB::table('settings_old')->exists();
 
         // Get the user-set configuration values from the old table.
-        $this->migrator->add('website.motd_enabled', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:MOTD_ENABLED") : true);
+        $this->migrator->add('website.motd_enabled', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:MOTD_ENABLED", true) : true);
         $this->migrator->add(
             'website.motd_message',
             $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:MOTD_MESSAGE") :
                 "<h1 style='text-align: center;'><img style='display: block; margin-left: auto; margin-right: auto;' src='https://ctrlpanel.gg/img/controlpanel.png' alt=' width='200' height='200'><span style='font-size: 36pt;'>CtrlPanel.gg</span></h1>
  <p><span style='font-size: 18pt;'>Thank you for using our Software</span></p>
  <p><span style='font-size: 18pt;'>If you have any questions, make sure to join our <a href='https://discord.com/invite/4Y6HjD2uyU' target='_blank' rel='noopener'>Discord</a></span></p>
- <p><span style='font-size: 10pt;'>(you can change this message in the <a href='admin/settings#system'>Settings</a> )</span></p>");
-        $this->migrator->add('website.show_imprint', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_IMPRINT") : false);
-        $this->migrator->add('website.show_privacy', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_PRIVACY") : false);
-        $this->migrator->add('website.show_tos', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_TOS") : false);
-        $this->migrator->add('website.useful_links_enabled', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:USEFULLINKS_ENABLED") : true);
+ <p><span style='font-size: 10pt;'>(you can change this message in the <a href='admin/settings#system'>Settings</a> )</span></p>"
+        );
+        $this->migrator->add('website.show_imprint', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_IMPRINT", false) : false);
+        $this->migrator->add('website.show_privacy', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_PRIVACY", false) : false);
+        $this->migrator->add('website.show_tos', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SHOW_TOS", false) : false);
+        $this->migrator->add('website.useful_links_enabled', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:USEFULLINKS_ENABLED", true) : true);
         $this->migrator->add('website.seo_title', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SEO_TITLE") : 'CtrlPanel.gg');
         $this->migrator->add('website.seo_description', $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:SEO_DESCRIPTION") : 'Billing software for Pterodactyl Panel.');
         $this->migrator->add('website.enable_login_logo', true);
@@ -95,48 +96,5 @@ class CreateWebsiteSettings extends SettingsMigration
         $this->migrator->delete('website.seo_title');
         $this->migrator->delete('website.seo_description');
         $this->migrator->delete('website.enable_login_logo');
-    }
-
-    public function getNewValue(string $name)
-    {
-        $new_value = DB::table('settings')->where([['group', '=', 'website'], ['name', '=', $name]])->get(['payload'])->first();
-
-        // Some keys returns '""' as a value.
-        if ($new_value->payload === '""') {
-            return null;
-        }
-
-        // remove the quotes from the string
-        if (substr($new_value->payload, 0, 1) === '"' && substr($new_value->payload, -1) === '"') {
-            return substr($new_value->payload, 1, -1);
-        }
-
-        return $new_value->payload;
-    }
-
-    public function getOldValue(string $key)
-    {
-        // Always get the first value of the key.
-        $old_value = DB::table('settings_old')->where('key', '=', $key)->get(['value', 'type'])->first();
-
-        // Handle the old values to return without it being a string in all cases.
-        if ($old_value->type === "string" || $old_value->type === "text") {
-            if (is_null($old_value->value)) {
-                return '';
-            }
-
-            // Some values have the type string, but their values are boolean.
-            if ($old_value->value === "false" || $old_value->value === "true") {
-                return filter_var($old_value->value, FILTER_VALIDATE_BOOL);
-            }
-
-            return $old_value->value;
-        }
-
-        if ($old_value->type === "boolean") {
-            return filter_var($old_value->value, FILTER_VALIDATE_BOOL);
-        }
-
-        return filter_var($old_value->value, FILTER_VALIDATE_INT);
     }
 }
