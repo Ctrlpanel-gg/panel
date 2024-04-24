@@ -11,8 +11,6 @@ class CreatePterodactylSettings extends LegacySettingsMigration
 
         $this->migrator->addEncrypted('pterodactyl.admin_token', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:PTERODACTYL:TOKEN', '') : env('PTERODACTYL_TOKEN', ''));
         $this->migrator->addEncrypted('pterodactyl.user_token', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN', '') : '');
-        // $this->migrator->add('pterodactyl.admin_token', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:PTERODACTYL:TOKEN') : env('PTERODACTYL_TOKEN', ''));
-        // $this->migrator->add('pterodactyl.user_token', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN') : '');
         $this->migrator->add('pterodactyl.panel_url', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:PTERODACTYL:URL', '') : env('PTERODACTYL_URL', ''));
         $this->migrator->add('pterodactyl.per_page_limit', $table_exists ? $this->getOldValue('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT', 200) : 200);
     }
