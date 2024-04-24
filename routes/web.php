@@ -34,6 +34,7 @@ use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,10 +81,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     try {
         $serverSettings = app(App\Settings\ServerSettings::class);
         if ($serverSettings->creation_enabled) {
-            Route::resource('servers', ServerController::class);
+            Route::post('servers/{server}/upgrade', [ServerController::class, 'upgrade'])->name('servers.upgrade');
         }
     } catch (Exception $e) {
-        // Do nothing if the settings are not available.
+        Log::error("ServerSettings not found, skipping server upgrade route");
     }
 
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
