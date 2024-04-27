@@ -5,11 +5,11 @@ use App\Extensions\PaymentGateways\MercadoPago\MercadoPagoExtension;
 
 Route::middleware(['web', 'auth'])->group(function () {
     Route::get(
-        'payment/MercadoPagoChecker',
+        'payment/MercadoPagoSuccess',
         function () {
-            MercadoPagoExtension::Checker(request());
+            MercadoPagoExtension::Success(request());
         }
-    )->name('payment.MercadoPagoChecker');
+    )->name('payment.MercadoPagoSuccess');
 });
 
 

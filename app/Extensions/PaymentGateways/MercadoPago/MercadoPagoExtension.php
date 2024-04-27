@@ -48,9 +48,9 @@ class MercadoPagoExtension extends AbstractExtension
                 'Authorization' => 'Bearer ' . $settings->access_token,
             ])->post($url, [
                 'back_urls' => [
-                    'success' => route('payment.MercadoPagoChecker'),
+                    'success' => route('payment.MercadoPagoSuccess'),
                     'failure' => route('payment.Cancel'),
-                    'pending' => route('payment.MercadoPagoChecker'),
+                    'pending' => route('payment.MercadoPagoSuccess'),
                 ],
                 'notification_url' => route('payment.MercadoPagoWebhook'),
                 'payer' => [
@@ -73,8 +73,7 @@ class MercadoPagoExtension extends AbstractExtension
             ]);
 
             if ($response->successful()) {
-                // Redirect link
-                Redirect::to($response->json()['init_point'])->send();
+                return $response->json()['init_point'];
             } else {
                 Log::error('MercadoPago Payment: ' . $response->body());
                 throw new Exception('Payment failed');
@@ -85,27 +84,13 @@ class MercadoPagoExtension extends AbstractExtension
         }
     }
 
-    static function Checker(Request $request): void
+    static function Success(Request $request): void
     {
-        // paymentID (not is preferenceID or paymentID for store)
-        $paymentId = $request->input('payment_id');
-
-        $MpPayment = self::MpPayment($paymentId, false);
-
-        switch ($MpPayment) {
-            case "paid":
-                Redirect::route('home')->with('success', 'Payment successful')->send();
-                break;
-            case "cancelled":
-                Redirect::route('home')->with('info', 'Your canceled the payment')->send();
-                break;
-            case "processing":
-                Redirect::route('home')->with('info', 'Your payment is being processed')->send();
-                break;
-            default:
-                Redirect::route('home')->with('error', 'Your payment is unknown')->send();
-                break;
-        }
+        $payment = Payment::findOrFail($request->input('payment'));
+        $payment->status = PaymentStatus::PROCESSING;
+        $payment->save();
+        Redirect::route('home')->with('success', 'Your payment is being processed')->send();
+        return;
     }
 
     static function Webhook(Request $request): JsonResponse
@@ -126,7 +111,40 @@ class MercadoPagoExtension extends AbstractExtension
                     // mercado pago api test
                     return response()->json(['success' => true]);
                 } else {
-                    self::MpPayment($notificationId, true);
+                    $url = "https://api.mercadopago.com/v1/payments/" . $notificationId;
+                    $settings = new MercadoPagoSettings();
+                    $response = Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer ' . $settings->access_token,
+                    ])->get($url);
+
+                    if ($response->successful()) {
+                        $mercado = $response->json();
+                        $status = $mercado['status'];
+                        $payment = Payment::findOrFail($mercado['metadata']['crtl_panel_payment_id']);
+                        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+                        if ($status == "approved") {
+                            // avoids double additions, if the user enters after the webhook has already added the credits
+                            if ($payment->status !== PaymentStatus::PAID) {
+                                $user = User::findOrFail($payment->user_id);
+                                $payment->status = PaymentStatus::PAID;
+                                $payment->save();
+                                $user->notify(new ConfirmPaymentNotification($payment));
+                                event(new PaymentEvent($user, $payment, $shopProduct));
+                                event(new UserUpdateCreditsEvent($user));
+                            }
+                        } else {
+                            if ($status == "cancelled") {
+                                $user = User::findOrFail($payment->user_id);
+                                $payment->status = PaymentStatus::CANCELED;
+                            } else {
+                                $user = User::findOrFail($payment->user_id);
+                                $payment->status = PaymentStatus::PROCESSING;
+                            }
+                            $payment->save();
+                            event(new PaymentEvent($user, $payment, $shopProduct));
+                        }
+                    }
                 }
             } catch (Exception $ex) {
                 Log::error('MercadoPago Webhook(IPN) Payment: ' . $ex->getMessage());
@@ -134,64 +152,5 @@ class MercadoPagoExtension extends AbstractExtension
             }
         }
         return response()->json(['success' => true]);
-    }
-    /**
-     * Mercado Pago Payment checker 
-     */
-    private function MpPayment(string $paymentID, bool $notification): string
-    {
-        $MpResponse = "unknown";
-        $url = "https://api.mercadopago.com/v1/payments/" . $paymentID;
-        $settings = new MercadoPagoSettings();
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $settings->access_token,
-        ])->get($url);
-
-        if ($response->successful()) {
-            $mercado = $response->json();
-            $status = $mercado['status'];
-            $payment = Payment::findOrFail($mercado['metadata']['crtl_panel_payment_id']);
-            $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-
-            if ($status == "approved") {
-                // avoids double additions, if the user enters after the webhook has already added the credits
-                if ($payment->status !== PaymentStatus::PAID) {
-                    $user = User::findOrFail($payment->user_id);
-                    $payment->update([
-                        'status' => PaymentStatus::PAID,
-                        'payment_id' => $paymentID,
-                    ]);
-                    $payment->save();
-                    if ($notification) {
-                        $user->notify(new ConfirmPaymentNotification($payment));
-                    }
-                    event(new PaymentEvent($user, $payment, $shopProduct));
-                    event(new UserUpdateCreditsEvent($user));
-                }
-                $MpResponse = "paid";
-            } else {
-                if ($status == "cancelled") {
-                    $user = User::findOrFail($payment->user_id);
-                    $payment->update([
-                        'status' => PaymentStatus::CANCELED,
-                        'payment_id' => $paymentID,
-                    ]);
-                    $payment->save();
-                    event(new PaymentEvent($user, $payment, $shopProduct));
-                    $MpResponse = "cancelled";
-                } else {
-                    $user = User::findOrFail($payment->user_id);
-                    $payment->update([
-                        'status' => PaymentStatus::PROCESSING,
-                        'payment_id' => $paymentID,
-                    ]);
-                    $payment->save();
-                    event(new PaymentEvent($user, $payment, $shopProduct));
-                    $MpResponse = "processing";
-                }
-            }
-        }
-        return $MpResponse;
     }
 }
