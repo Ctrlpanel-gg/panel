@@ -6,13 +6,13 @@ networks:
 services:
   nginx:
     build:
-      context: ../
-      dockerfile: docker/nginx/Dockerfile
+      context: ../../
+      dockerfile: docker/developement/nginx/Dockerfile
     container_name: controlpanel_nginx
     ports:
       - 80:80
     volumes:
-      - "../:/var/www/html"
+      - "../../:/var/www/html"
     depends_on:
       - php
       - mysql
@@ -38,11 +38,11 @@ services:
 
   php:
     build:
-      context: ../
-      dockerfile: docker/php/Dockerfile
+      context: ../../
+      dockerfile: docker/developement/php/Dockerfile
     container_name: controlpanel_php
     volumes:
-      - "../:/var/www/html"
+      - "../../:/var/www/html"
     networks:
       - laravel
 
