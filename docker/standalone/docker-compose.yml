@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: ../../
+      dockerfile: ./docker/standalone/Dockerfile
+    container_name: controlpanel_web
+    ports:
+      - "80:80"
+    volumes:
+      - "../../:/var/www/html:delegated"
+    environment:
+      - DB_HOST=10.0.0.16
+      - DB_PORT=3306
+      - DB_DATABASE=controlpanel
+      - DB_USERNAME=controlpaneluser
+      - DB_PASSWORD=pass
