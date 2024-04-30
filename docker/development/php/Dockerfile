@@ -4,7 +4,7 @@ RUN apt-get update \
 
 RUN docker-php-ext-install mysqli pdo pdo_mysql intl zip gd bcmath
 
-ADD ./docker/php/www.conf /usr/local/etc/php-fpm.d/
+ADD ./docker/development/php/www.conf /usr/local/etc/php-fpm.d/
 
 RUN mkdir -p /var/www/html
 
