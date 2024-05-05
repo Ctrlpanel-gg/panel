@@ -16,20 +16,19 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql intl zip
 ADD ./docker/standalone/php/www.conf /usr/local/etc/php-fpm.d/
 
 # Create directory for application and set ownership
-RUN mkdir -p /var/www/html && \
+RUN mkdir -p /var/default && \
     groupadd -g 1000 laravel && \
     useradd -u 1000 -g laravel -ms /bin/bash laravel && \
-    chown laravel:laravel /var/www/html
+    chown laravel:laravel /var/default
 
-# Set the working directory
-WORKDIR /var/www/html
+# Copy application files into the container
+COPY . /var/default
 
 # Copy Composer binary from Composer image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Configure Nginx
 COPY ./docker/standalone/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY ./docker/standalone/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Create directory for Nginx logs and set ownership
 RUN mkdir -p /var/log/nginx && \
@@ -38,8 +37,11 @@ RUN mkdir -p /var/log/nginx && \
 # Expose ports
 EXPOSE 80
 
-# Run composer install if composer.json is present
-RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader; fi
+# Copy startup script
+COPY ./docker/standalone/scripts/startup.sh /usr/local/bin/startup-script.sh
 
-# Start both PHP-FPM and Nginx
-CMD ["sh", "-c", "service nginx start && php-fpm -F"]
+# Make startup script executable
+RUN chmod +x /usr/local/bin/startup-script.sh
+
+# Start the startup script
+CMD ["/usr/local/bin/startup-script.sh"]
