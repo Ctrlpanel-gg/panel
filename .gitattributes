@@ -1,5 +1,10 @@
+# Automatically detect text files
 * text=auto
+
+# Vendored files for specific languages
 *.css linguist-vendored
 *.scss linguist-vendored
 *.js linguist-vendored
+
+# Ignore CHANGELOG.md when exporting
 CHANGELOG.md export-ignore
