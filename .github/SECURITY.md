@@ -2,16 +2,16 @@
 
 ## Reporting a Vulnerability
 
-Please report security issues to ...
+🛡️ If you discover a security vulnerability, please report it to us via GitHub Advisories.
 
-Do not use the public issue tracker or discuss it in public as it will cause more damage.
+⚠️ Please refrain from using the public issue tracker or discussing the vulnerability in public channels, as it may exacerbate the issue.
 
-## Do you accept other 3rd-party bug bounty platforms?
+## Acceptance of Bug Bounty Platforms
 
-At this moment, we do not accept other bug bounty platforms, please report through GitHub Advisories only. We will ignore all 3rd-party bug bounty platforms emails.
+At this time, we only accept vulnerability reports through GitHub Advisories. We kindly ask that you do not submit reports via other third-party bug bounty platforms, as they will be disregarded.
 
 ## Supported Versions
 
 ### ControlPanel Versions
 
-You should use or upgrade to the latest version of ControlPanel.
+We strongly recommend using or upgrading to the latest version of ControlPanel to ensure you have access to the latest security fixes and enhancements.
