@@ -8,7 +8,7 @@ Check the open issues to see if there's something you can contribute to. If you 
 
 ## 🤝 Code of Conduct
 
-Please adhere to our [Code of Conduct](link-to-code-of-conduct) in all your interactions with the project.
+Please adhere to our [Code of Conduct](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/CODE_OF_CONDUCT.md) in all your interactions with the project.
 
 ## 🌍 Localization
 
