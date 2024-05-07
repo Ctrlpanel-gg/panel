@@ -1,17 +1,34 @@
-# Contributing
+# Contributing Guidelines
 
-When contributing to this repository, please go through the open issues to see if you can contribute to something. If you want to contribute something that is not in the issues you can make an issue and wait for response from the dev team.
+Thank you for considering contributing to this repository! Before making a contribution, please take a moment to review the following guidelines.
 
-Please note we have a code of conduct, please follow it in all your interactions with the project.
+## 🕵️‍♂️ Finding Tasks
 
-If you added any Strings which are displayed at the frontend please localize them (e.g. "New String" -> {{ __('New String') }}) and run the localization string generation:
+Check the open issues to see if there's something you can contribute to. If you have an idea or encounter a bug that's not already listed, feel free to create a new issue and wait for feedback from the development team.
 
+## 🤝 Code of Conduct
+
+Please adhere to our [Code of Conduct](link-to-code-of-conduct) in all your interactions with the project.
+
+## 🌍 Localization
+
+If you add any strings that are displayed on the frontend, please localize them using the following format:
+```
+"New String" -> {{ __('New String') }}
+```
+After adding localized strings, run the following command to generate localization files:
 ```cmd
 php artisan translatable:export en
 ```
 
-## Pull request process
+## 🚀 Pull Request Process
 
-1. Give your PR a good descriptive title, so we can view immediately what the PR is about.
-2. The dev team will look at your code and approve / merge when possible.
-3. Make sure your PR follows our code of conduct and coding style.
+1. Give your pull request (PR) a clear and descriptive title that summarizes the changes.
+2. The development team will review your code and provide feedback or approve/merge it when appropriate.
+3. Ensure that your PR follows our Code of Conduct and coding style guidelines.
+
+### 💻 Coding Style
+
+We follow the PSR12 code standard for PHP.
+
+Thank you for your contributions! 🎉
