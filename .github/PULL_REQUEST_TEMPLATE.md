@@ -1,31 +1,35 @@
-⚠️ Please be sure that you have read pull request rules.
+✨ Thank you for your contribution to our project! Before you submit your pull request, please take a moment to review and complete the following
 
-Tick the checkbox if you understand [x]:
-- [ ] I have read and understand the pull request rules.
+⚠️ Please modify this template below and if not already one, read our pull request rules, Thanks!
 
-# Description
+Ensure that your pull request meets the following criteria:
 
-Fixes #(issue)
+- The code follows the style guidelines of this project
+- You have performed a self-review of your own code and tested it
+- You have commented your code, particularly in hard-to-understand areas
+- Your changes generate no new warnings
 
-## Type of change
+---
 
-Please delete any options that are not relevant.
+💡 **Description**
+
+Briefly describe the purpose of your pull request, including any relevant issue numbers it addresses.
+
+---
+
+🛠️ **Type of Change**
+
+Please select the appropriate type of change:
 
 - Bug fix (non-breaking change which fixes an issue)
-- User interface (UI)
+- User interface (UI) improvement
 - New feature (non-breaking change which adds functionality)
 - Breaking change (a fix or feature that would cause existing functionality to not work as expected)
 - Other
 - This change requires a documentation update
 
-## Checklist
+---
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code and tested it
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] My changes generates no new warnings
-- [ ] My code needed automated testing. I have added them (this is optional task)
+🖼️ **Screenshots (if applicable)**
 
-## Screenshots (if any)
-
-Please do not use any external image service. Instead, just paste in or drag and drop the image here, and it will be uploaded automatically.
+If your pull request includes any visual changes, please provide screenshots here, do not use any external link.
