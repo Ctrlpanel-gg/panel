@@ -1,13 +1,15 @@
 version: '3'
 
 services:
-  controlpanel_web:
+  controlpanel_standalone:
     build:
       context: ../../
       dockerfile: ./docker/standalone/Dockerfile
-    container_name: controlpanel
+    container_name: controlpanel_standalone
+    restart: on-failure
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - '/mnt/user/appdata/ctrlpanel/www/:/var/www/html:rw'
-      - '/mnt/user/appdata/ctrlpanel/nginx/:/etc/nginx/conf.d/:rw'
+      - './website_files:/var/www/html:rw' # change it
+      - './nginx_config:/etc/nginx/conf.d/:rw' # change it
