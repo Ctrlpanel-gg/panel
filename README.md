@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="./public/favicon" width="128" alt="" />
+    <img src="https://ctrlpanel.gg/img/controlpanel.png" width="128" alt="" />
 </div>
 
 # CtrlPanel-gg
@@ -34,19 +34,21 @@ Try it!
 
 Demo Server: [demo.CtrlPanel.gg](https://demo.CtrlPanel.gg)
 
-It is a temporary live demo; all data will be deleted.
+<!-- It is a temporary live demo; all data will be deleted. -->
 
 ## 🔧 How to Install
 
 ### 🐳 Docker
 
-```bash
+Soon...
+
+<!-- ```bash
 docker run ...
 ```
 
 CtrlPanel is now running on [0.0.0.0:3001](http://0.0.0.0:3001). Don't forget to configure the database and Pterodactyl. [Documentation](documentation link here)
 
-more info: [Docker](docker documentation link here)
+more info: [Docker](docker documentation link here) -->
 
 ### 💪🏻 Non-Docker
 
@@ -56,7 +58,7 @@ Requirements:
   - Major Linux distros such as Debian, Ubuntu, CentOS, Fedora, and ArchLinux etc.
   - Windows 10 (x64), Windows Server ...
 
-Follow the [documentation](documentation link here) to know how to install.
+Follow the [documentation](https://ctrlpanel.gg/docs/intro) to know how to install.
 
 ### MarketPlace
 
@@ -76,6 +78,6 @@ For any general or technical questions, join CtrlPanel Discord for finding answe
 
 ## 🤝 Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 Thanks to all contributors and supporters!
