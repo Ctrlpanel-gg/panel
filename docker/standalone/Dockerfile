@@ -7,10 +7,11 @@ RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libicu-dev \
     libzip-dev \
+    libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install mysqli pdo pdo_mysql intl zip
+RUN docker-php-ext-install mysqli pdo pdo_mysql intl zip gd bcmath
 
 # Copy the custom PHP-FPM configuration
 ADD ./docker/standalone/php/www.conf /usr/local/etc/php-fpm.d/
