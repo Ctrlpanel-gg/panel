@@ -10,8 +10,9 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install mysqli pdo pdo_mysql intl zip gd bcmath
+# Install PHP extensions including Redis
+RUN pecl install redis && docker-php-ext-enable redis \
+    && docker-php-ext-install mysqli pdo pdo_mysql intl zip gd bcmath
 
 # Copy the custom PHP-FPM configuration
 ADD ./docker/standalone/php/www.conf /usr/local/etc/php-fpm.d/
