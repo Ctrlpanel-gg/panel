@@ -1,6 +1,6 @@
 ✨ Thank you for your contribution to our project! Before you submit your pull request, please take a moment to review and complete the following
 
-⚠️ Please modify this template below and if not already one, read our pull request rules, Thanks!
+⚠️ Please modify this template below and if not already done, read our pull request rules, Thanks!
 
 Ensure that your pull request meets the following criteria:
 
@@ -8,6 +8,8 @@ Ensure that your pull request meets the following criteria:
 - You have performed a self-review of your own code and tested it
 - You have commented your code, particularly in hard-to-understand areas
 - Your changes generate no new warnings
+
+Delete the above text and the following sections before submitting your pull request.
 
 ---
 
