@@ -37,6 +37,7 @@ RUN mkdir -p /var/log/nginx && \
 
 # Expose ports
 EXPOSE 80
+EXPOSE 443
 
 # Copy startup script
 COPY ./docker/standalone/scripts/startup.sh /usr/local/bin/startup-script.sh
