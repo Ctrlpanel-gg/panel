@@ -23,7 +23,7 @@
                 <b><i class="fas fa-shield-alt"></i> {{__("Version Outdated:")}}</b></br>
                 {{__("You are running on")}} v{{config("app.version")}}-{{config("BRANCHNAME")}}.
                     {{__("The latest Version is")}} v{{Storage::get('latestVersion')}}</br>
-                <a href="https://controlpanel.gg/docs/Installation/updating">{{__("Consider updating now")}}</a>
+                <a href="https://ctrlpanel.gg/docs/Installation/updating">{{__("Consider updating now")}}</a>
             </div>
         @endif
     </section>
@@ -39,16 +39,16 @@
                             class="fab fa-discord mr-2"></i> {{__('Support server')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://controlpanel.gg/docs/intro" class="btn btn-dark btn-block px-3"><i
+                    <a href="https://ctrlpanel.gg/docs/intro" class="btn btn-dark btn-block px-3"><i
                             class="fas fa-link mr-2"></i> {{__('Documentation')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://github.com/ControlPanel-gg/dashboard" class="btn btn-dark btn-block px-3"><i
+                    <a href="https://github.com/CtrlPanel-gg/panel" class="btn btn-dark btn-block px-3"><i
                             class="fab fa-github mr-2"></i> {{__('Github')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://controlpanel.gg/docs/Contributing/donating" class="btn btn-dark btn-block px-3"><i
-                            class="fas fa-money-bill mr-2"></i> {{__('Support ControlPanel')}}</a>
+                    <a href="https://ctrlpanel.gg/docs/Contributing/donating" class="btn btn-dark btn-block px-3"><i
+                            class="fas fa-money-bill mr-2"></i> {{__('Support CtrlPanel')}}</a>
                 </div>
             </div>
 
@@ -199,7 +199,7 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
                                 <div class="card-title ">
-                                    <span><i class="fas fa-server mr-2"></i>{{__('Controlpanel.gg')}}</span>
+                                    <span><i class="fas fa-server mr-2"></i>{{__('Ctrlpanel.gg')}}</span>
                                 </div>
                             </div>
                             <div class="card-body py-1">
@@ -227,7 +227,7 @@
                                     <p class="mb-2">
                                         {{ __('You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.') }}<br>
                                         {{ __('You can do that in settings.') }}<br><br>
-                                        {{ __('Note') }}: {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on ControlPanel. Try clicking the button below.') }}
+                                        {{ __('Note') }}: {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on CtrlPanel. Try clicking the button below.') }}
                                     </p>
                                     <a href="{{route('admin.servers.sync')}}" class="btn btn-primary btn-md"><i
                                         class="fas fa-sync mr-2"></i>{{__('Sync servers')}}</a>
