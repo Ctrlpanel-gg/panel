@@ -81,3 +81,7 @@ For any general or technical questions, join CtrlPanel Discord for finding answe
 Please read [CONTRIBUTING.md](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 Thanks to all contributors and supporters!
+
+## ♥️ Donations
+
+If you like what we do, please consider [supporting](https://ctrlpanel.gg/docs/Contributing/donating) us.
