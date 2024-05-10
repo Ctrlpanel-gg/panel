@@ -36,6 +36,9 @@ COPY ./docker/standalone/nginx/nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /var/log/nginx && \
     chown -R laravel:laravel /var/log/nginx
 
+# Set permissions for Laravel directories
+RUN chown -R www-data:www-data /var/default/storage /var/default/bootstrap/cache
+
 # Expose ports
 EXPOSE 80
 EXPOSE 443
