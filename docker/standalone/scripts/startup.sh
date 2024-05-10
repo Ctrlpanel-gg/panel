@@ -16,6 +16,9 @@ if [ -z "$(ls -A /var/www/html)" ] || [ ! -f "/var/www/html/.env" ]; then
     fi
 fi
 
+# Start the queue worker service
+php /var/www/html/artisan queue:work --sleep=3 --tries=3 &
+
 # Start Nginx
 service nginx start
 
