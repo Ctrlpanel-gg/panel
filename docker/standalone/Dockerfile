@@ -37,8 +37,8 @@ COPY ./docker/standalone/nginx/nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /var/log/nginx && \
     chown -R laravel:laravel /var/log/nginx
 
-# Set permissions for Laravel directories
-RUN chown -R www-data:www-data /var/default/storage /var/default/bootstrap/cache
+# Set permissions (i don't know why but this is necessary, otherwise the panel won't work properly)
+RUN chown -R 777 /var/default/
 
 # Expose ports
 EXPOSE 80
