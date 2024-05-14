@@ -1,3 +1,5 @@
+⚠ Caution: These instructions have not been updated since before version 1.0 of the project. Therefore, there may be inaccuracies, instability, or non-functional aspects. Proceed with care. (you may want to take a look at the standalone docker instread)
+
 # Building the development environment
 
 cd into the project directory and run the following command: `sh bin/startdocker.sh`
@@ -31,5 +33,3 @@ php artisan migrate:fresh --seed --env=testing
 Now when running tests with PHPUnit it will use your testing database and not your local development one.
 This is configured in the __phpunit.xml__. You can run your tests by running the command like this. Just type and enter.
 `php artisan test`.
-
-
