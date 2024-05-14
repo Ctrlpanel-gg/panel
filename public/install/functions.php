@@ -15,7 +15,7 @@ if (!file_exists('../../.env')) {
 
 (new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
-$required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
+$required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl', 'redis'];
 
 $requirements = [
     'minPhp' => '8.1',
