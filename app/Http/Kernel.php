@@ -5,8 +5,6 @@ namespace App\Http;
 use App\Http\Middleware\ApiAuthToken;
 use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\InstallerLock;
-use App\Http\Middleware\isAdmin;
-use App\Http\Middleware\isMod;
 use App\Http\Middleware\LastSeen;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -72,8 +70,6 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'admin' => isAdmin::class,
-        'moderator' => isMod::class,
         'api.token' => ApiAuthToken::class,
         'checkSuspended' => CheckSuspended::class,
         'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
