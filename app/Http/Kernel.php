@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
 use App\Http\Middleware\CheckSuspended;
+use App\Http\Middleware\InstallerLock;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\isMod;
 use App\Http\Middleware\LastSeen;
@@ -36,6 +37,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            InstallerLock::class,
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
