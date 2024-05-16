@@ -29,8 +29,7 @@ if (isset($_POST['checkDB'])) {
 
     try {
         $db = new mysqli($_POST['databasehost'], $_POST['databaseuser'], $_POST['databaseuserpass'], $_POST['database'], $_POST['databaseport']);
-    }
-    catch (mysqli_sql_exception $e) {
+    } catch (mysqli_sql_exception $e) {
         wh_log($e->getMessage(), 'error');
         header('LOCATION: index.php?step=2&message=' . $e->getMessage());
         exit();
@@ -69,26 +68,26 @@ if (isset($_POST['feedDB'])) {
     wh_log('Feeding the Database', 'debug');
     $logs = '';
 
-    //$logs .= run_console(setenv('COMPOSER_HOME', dirname(__FILE__, 3) . '/vendor/bin/composer'));
-    //$logs .= run_console('composer install --no-dev --optimize-autoloader');
-    if (!str_contains(getenv('APP_KEY'), 'base64')) {
-        $logs .= run_console('php artisan key:generate --force');
-    } else {
-        $logs .= "Key already exists. Skipping\n";
-    }
-    $logs .= run_console('php artisan storage:link');
-    $logs .= run_console('php artisan migrate --seed --force');
-    $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
-    $logs .= run_console('php artisan db:seed --class=PermissionsSeeder --force');
+    try {
+        //$logs .= run_console(setenv('COMPOSER_HOME', dirname(__FILE__, 3) . '/vendor/bin/composer'));
+        //$logs .= run_console('composer install --no-dev --optimize-autoloader');
+        if (!str_contains(getenv('APP_KEY'), 'base64')) {
+            $logs .= run_console('php artisan key:generate --force');
+        } else {
+            $logs .= "Key already exists. Skipping\n";
+        }
+        $logs .= run_console('php artisan storage:link');
+        $logs .= run_console('php artisan migrate --seed --force');
+        $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
+        $logs .= run_console('php artisan db:seed --class=PermissionsSeeder --force');
 
-    wh_log($logs, 'debug');
+        wh_log($logs, 'debug');
 
-    if (str_contains(getenv('APP_KEY'), 'base64')) {
         wh_log('Feeding the Database successful', 'debug');
         header('LOCATION: index.php?step=3');
-    } else {
-        wh_log('Feeding the Database failed', 'debug');
-        header('LOCATION: index.php?step=2.5&message=There was an error. Please check the installer.log file in /var/www/controlpanel/storage/logs !');
+    } catch (\Throwable $th) {
+        wh_log('Feeding the Database failed', 'error');
+        header("LOCATION: index.php?step=2.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
     }
 }
 
