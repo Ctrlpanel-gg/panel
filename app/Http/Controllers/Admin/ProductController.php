@@ -223,17 +223,18 @@ class ProductController extends Controller
     public function dataTable()
     {
         $query = Product::with(['servers']);
+
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
                 return '
-                            <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-eye"></i></a>
-                            <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="btn btn-sm text-white btn-primary mr-1"><i class="fas fa-clone"></i></a>
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
+                            <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="mr-1 text-white btn btn-sm btn-primary"><i class="fas fa-clone"></i></a>
+                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.destroy', $product->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })
@@ -247,7 +248,7 @@ class ProductController extends Controller
             ->addColumn('eggs', function (Product $product) {
                 return $product->eggs()->count();
             })
-            ->addColumn('disabled', function (Product $product) {
+            ->editColumn('disabled', function (Product $product) {
                 $checked = $product->disabled == false ? 'checked' : '';
 
                 return '
@@ -264,7 +265,7 @@ class ProductController extends Controller
             ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
                 return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
             })
-            ->editColumn('oom_killer', function (Product $product, UserSettings $user_settings) {
+            ->editColumn('oom_killer', function (Product $product) {
                 return $product->oom_killer ? __("enabled") : __("disabled");
             })
             ->editColumn('created_at', function (Product $product) {

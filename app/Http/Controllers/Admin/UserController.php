@@ -148,7 +148,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|min:4|max:30',
             'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
             'email' => 'required|string|email',
@@ -179,23 +179,23 @@ class UserController extends Controller
             ]);
         }
 
-        if($this->can(self::CHANGE_USERNAME_PERMISSION)){
-           $user->name = $request->name;
-        }
-        if($this->can(self::CHANGE_CREDITS_PERMISSION)){
-            $user->credits = $request->credits;
-        }
-        if($this->can(self::CHANGE_PTERO_PERMISSION)){
-            $user->pterodactyl_id = $request->pterodactyl_id;
-        }
-        if($this->can(self::CHANGE_REFERAL_PERMISSION)){
-            $user->referral_code = $request->referral_code;
-        }
-        if($this->can(self::CHANGE_EMAIL_PERMISSION)){
-            $user->email = $request->email;
-        }
+        // if($this->can(self::CHANGE_USERNAME_PERMISSION)){
+        //    $user->name = $request->name;
+        // }
+        // if($this->can(self::CHANGE_CREDITS_PERMISSION)){
+        //     $user->credits = $request->credits;
+        // }
+        // if($this->can(self::CHANGE_PTERO_PERMISSION)){
+        //     $user->pterodactyl_id = $request->pterodactyl_id;
+        // }
+        // if($this->can(self::CHANGE_REFERAL_PERMISSION)){
+        //     $user->referral_code = $request->referral_code;
+        // }
+        // if($this->can(self::CHANGE_EMAIL_PERMISSION)){
+        //     $user->email = $request->email;
+        // }
 
-        $user->save();
+        $user->update($data);
 
         event(new UserUpdateCreditsEvent($user));
 
@@ -316,7 +316,8 @@ class UserController extends Controller
                 ->line(new HtmlString($data['content']));
         }
         $all = $data['all'] ?? false;
-        if(!$data["roles"]){
+        $roles = $data['roles'] ?? false;
+        if(!$roles){
             $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
         } else{
             $users = User::role($data["roles"])->get();
@@ -340,6 +341,10 @@ class UserController extends Controller
     {
         $this->checkPermission(self::SUSPEND_PERMISSION);
 
+        if (Auth::user()->id === $user->id) {
+            return redirect()->back()->with('error', __('You can not suspend yourself!'));
+        }
+
         try {
             !$user->isSuspended() ? $user->suspend() : $user->unSuspend();
         } catch (Exception $exception) {
@@ -354,10 +359,12 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $query =  User::with('discordUser')->withCount('servers');
-        // manually count referrals in user_referrals table
-        $query->selectRaw('users.*, (SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count');
-
+        $query = User::query()
+            ->withCount('servers')
+            ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+            ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->selectRaw('users.*, roles.name as role_name, (SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count')
+            ->where('model_has_roles.model_type', User::class);
 
         return datatables($query)
             ->addColumn('avatar', function (User $user) {
@@ -408,6 +415,7 @@ class UserController extends Controller
             ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
                 return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
+            ->orderColumn('role', 'role_name $1')
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
             ->make();
     }

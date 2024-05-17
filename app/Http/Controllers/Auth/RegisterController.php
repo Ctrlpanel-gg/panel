@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
 {
@@ -139,7 +140,7 @@ class RegisterController extends Controller
 
         ]);
 
-        $user->syncRoles(4);
+        $user->syncRoles(Role::findByName('User'));
 
         $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => null,
@@ -151,14 +152,10 @@ class RegisterController extends Controller
             'root_admin' => false,
             'language' => 'en',
         ]);
-        
+
         $user->update([
             'pterodactyl_id' => $response->json()['attributes']['id'],
         ]);
-
-
-
-
 
         if ($response->failed()) {
             $user->delete();

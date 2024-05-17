@@ -121,11 +121,12 @@ class TicketsController extends Controller
 
     public function dataTable()
     {
-        $query = Ticket::query();
+        $query = Ticket::leftJoin('ticket_categories', 'tickets.ticketcategory_id', '=', 'ticket_categories.id')
+            ->select(['tickets.*', 'ticket_categories.name as category_name']);
 
         return datatables($query)
-            ->addColumn('category', function (Ticket $tickets) {
-                return $tickets->ticketcategory->name;
+            ->addColumn('category', function (Ticket $ticket) {
+                return $ticket->category_name;
             })
             ->editColumn('title', function (Ticket $tickets) {
                 return '<a class="text-info"  href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'">'.'#'.$tickets->ticket_id.' - '.htmlspecialchars($tickets->title).'</a>';
@@ -139,16 +140,16 @@ class TicketsController extends Controller
                 $statusButtonText = ($tickets->status == "Closed") ? __('Reopen') : __('Close');
 
                 return '
-                            <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
+                            <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                             <form class="d-inline"  method="post" action="'.route('admin.ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
-                            <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
+                            <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="text-white btn btn-sm '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
                             </form>
                             <form class="d-inline"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
-                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                             </form>
                 ';
             })
@@ -178,7 +179,8 @@ class TicketsController extends Controller
                 return ['display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
                         'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
             })
-            ->rawColumns(['category', 'title', 'user_id', 'status', 'priority', 'updated_at', 'actions'])
+            ->orderColumn('category', 'category_name $1')
+            ->rawColumns(['title', 'user_id', 'status', 'priority', 'updated_at', 'actions'])
             ->make(true);
     }
 
@@ -279,12 +281,12 @@ class TicketsController extends Controller
                             <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.change', ['id' => $blacklist->id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
-                            <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-warning mr-1"><i class="fas fa-sync-alt"></i></button>
+                            <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-sync-alt"></i></button>
                             </form>
                             <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
-                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                             </form>
                 ';
             })

@@ -4,7 +4,7 @@
   <!-- CONTENT HEADER -->
   <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
+        <div class="mb-2 row">
             <div class="col-sm-6">
                 <h1>{{__('Coupons')}}</h1>
             </div>
@@ -31,7 +31,7 @@
                       {{__('Coupons')}}
                     </h5>
                     <a href="{{route('admin.coupons.create')}}" class="btn btn-sm btn-primary">
-                      <i class="fas fa-plus mr-1"></i>
+                      <i class="mr-1 fas fa-plus"></i>
                       {{__('Create new')}}
                     </a>
                 </div>
@@ -82,7 +82,7 @@
         {data: 'status'},
         {data: 'code'},
         {data: 'value'},
-        {data: 'uses'},
+        {data: 'uses', sortable: false},
         {data: 'expires_at'},
         {data: 'created_at'},
         {data: 'actions', sortable: false},

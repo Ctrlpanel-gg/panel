@@ -18,6 +18,18 @@
     </div>
 </section>
 
+    <div class="py-4 main">
+
+        @can('admin.roles.write')
+            <div class="my-3 d-flex justify-content-end">
+                <a href="{{route('admin.roles.create')}}" class="btn btn-primary"><i
+                        class="fa fas fa-shield-alt pe-2"></i>{{__('Create role')}}</a>
+            </div>
+        @endcan
+
+        <div class="border-0 shadow card card-body table-wrapper table-responsive">
+            <h2 class="mb-4 h5">{{ __('Roles') }}</h2>
+
 <section class="content">
     <div class="container-fluid">
         <div class="card">
@@ -86,6 +98,5 @@
                     $('[data-toggle="popover"]').popover();
                 }
             });
-        });
 
     </script>

@@ -95,27 +95,6 @@ trait Coupon
         return true;
     }
 
-    public function calcDiscount($productPrice, stdClass $data)
-    {
-
-        if ($data->isValid) {
-            if ($data->couponType === 'percentage') {
-                return $productPrice - ($productPrice * $data->couponValue / 100);
-            }
-
-            if ($data->couponType === 'amount') {
-                // There is no discount if the value of the coupon is greater than or equal to the value of the product.
-                if ($data->couponValue >= $productPrice) {
-                    return $productPrice;
-                }
-            }
-
-            return $productPrice - $data->couponValue;
-        }
-
-        return $productPrice;
-    }
-
     public function applyCoupon(string $couponCode, float $price)
     {
         $coupon = CouponModel::where('code', $couponCode)->first();

@@ -32,7 +32,7 @@ return [
         UserSettings::class,
         WebsiteSettings::class,
         TicketSettings::class,
-				CouponSettings::class,
+        CouponSettings::class,
     ],
 
     /*
