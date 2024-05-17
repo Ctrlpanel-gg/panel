@@ -96,6 +96,8 @@
                 <div class="row">
                     <button class="btn btn-primary ml-3 mt-3">{{ __('Save') }}</button>
                 </div>
+
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
             </form>
         </div>
         <!-- END CUSTOM CONTENT -->
