@@ -18,8 +18,6 @@ class DiscordSettings extends Settings
         return 'discord';
     }
 
-
-
     /**
      * Summary of validations array
      * @return array<string, string>

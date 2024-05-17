@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Extensions\PaymentGateways\PayPal\PayPalSettings;
 use App\Models\UsefulLink;
 use App\Settings\GeneralSettings;
 use App\Settings\MailSettings;
@@ -89,20 +88,23 @@ class AppServiceProvider extends ServiceProvider
             Log::error("Couldnt find useful_links. Probably the installation is not completet. " . $e);
         }
 
-        $generalSettings = $this->app->make(GeneralSettings::class);
-        if (!file_exists(base_path('themes') . "/" . $generalSettings->theme)) {
-            $generalSettings->theme = "default";
+
+        try {
+            $generalSettings = $this->app->make(GeneralSettings::class);
+            if (!file_exists(base_path('themes') . "/" . $generalSettings->theme)) {
+                $generalSettings->theme = "default";
+            }
+
+            if ($generalSettings->theme && $generalSettings->theme !== config('theme.active')) {
+                Theme::set($generalSettings->theme, "default");
+            } else {
+                Theme::set("default", "default");
+            }
+
+            $settings = $this->app->make(MailSettings::class);
+            $settings->setConfig();
+        } catch (Exception $e) {
+            Log::error("Couldnt load Settings. Probably the installation is not completet. " . $e);
         }
-
-        if ($generalSettings->theme && $generalSettings->theme !== config('theme.active')) {
-            Theme::set($generalSettings->theme, "default");
-        } else {
-            Theme::set("default", "default");
-        }
-
-
-        $settings = $this->app->make(MailSettings::class);
-        $settings->setConfig();
-
     }
 }

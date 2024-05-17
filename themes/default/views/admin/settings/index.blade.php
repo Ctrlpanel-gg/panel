@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Settings') }}</h1>
                 </div>
@@ -37,13 +37,13 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-tools mr-2"></i>{{ __('Settings') }}</h5>
+                        <h5 class="card-title"><i class="mr-2 fas fa-tools"></i>{{ __('Settings') }}</h5>
                     </div>
                 </div>
                 <div class="card-body">
                     <!-- Sidebar Menu -->
                     <div class="d-flex w-100">
-                        <div class="col-2 p-0">
+                        <div class="p-0 col-2">
                             <nav class="mt-1">
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
@@ -109,17 +109,17 @@
                         </div>
                         <!-- /.sidebar-menu -->
                         <!-- Content in $settings -->
-                        <div class="col-10 p-0">
-                            <div class="tab-content ml-3" style="width: 100%;">
-                                <div container class="tab-pane fade container" id="icons" role="tabpanel">
+                        <div class="p-0 col-10">
+                            <div class="ml-3 tab-content" style="width: 100%;">
+                                <div container class="container tab-pane fade" id="icons" role="tabpanel">
 
                                     <form method="POST" enctype="multipart/form-data" class="mb-3"
                                         action="{{ route('admin.settings.updateIcons') }}">
                                         @csrf
                                         @method('POST')
                                         <div class="row">
-                                            <div class="card ml-5" style="width: 18rem;">
-                                                <span class="h3 text-center">{{ __('FavIcon') }} </span>
+                                            <div class="ml-5 card" style="width: 18rem;">
+                                                <span class="text-center h3">{{ __('FavIcon') }} </span>
                                               <img src="{{ Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('images/controlpanel_logo.png') }}"
                                                    style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                    class="card-img-top" alt="...">
@@ -130,8 +130,8 @@
                                                     name="favicon" id="favicon">
                                             </div>
 
-                                            <div class="card ml-5" style="width: 18rem;">
-                                                <span class="h3 text-center">{{ __('Icon') }} </span>
+                                            <div class="ml-5 card" style="width: 18rem;">
+                                                <span class="text-center h3">{{ __('Icon') }} </span>
                                                 <img src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                     class="card-img-top" alt="...">
@@ -142,8 +142,8 @@
                                                     class="form-control" name="icon" id="icon">
                                             </div>
 
-                                            <div class="card ml-5" style="width: 18rem;">
-                                                <span class="h3 text-center">{{ __('Login-page Logo') }} </span>
+                                            <div class="ml-5 card" style="width: 18rem;">
+                                                <span class="text-center h3">{{ __('Login-page Logo') }} </span>
                                                 <img src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}"
                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                     class="card-img-top" alt="...">
@@ -155,7 +155,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <button class="btn btn-primary ml-3 mt-3">{{ __('Save') }}</button>
+                                            <button class="mt-3 ml-3 btn btn-primary">{{ __('Save') }}</button>
                                         </div>
                                     </form>
                                 </div>
@@ -182,20 +182,26 @@
                                                         </div>
 
                                                         <div class="col-8">
-                                                            <div class="custom-control mb-3 d-flex align-items-center">
+                                                            <div class="mb-3 custom-control d-flex align-items-center">
                                                                 @if ($value['description'])
-                                                                    <i class="fas fa-info-circle mr-4" data-toggle="popover"
+                                                                    <i class="mr-4 fas fa-info-circle" data-toggle="popover"
                                                                         data-trigger="hover" data-placement="top"
                                                                         data-html="true"
                                                                         data-content="{{ $value['description'] }}"></i>
                                                                 @else
-                                                                    <i class="fas fa-info-circle mr-4 invisible"></i>
+                                                                    <i class="invisible mr-4 fas fa-info-circle"></i>
                                                                 @endif
 
                                                                 <div class="w-100">
                                                                     @switch($value)
                                                                         @case($value['type'] == 'string')
                                                                             <input type="text" class="form-control"
+                                                                                name="{{ $key }}"
+                                                                                value="{{ $value['value'] }}">
+                                                                        @break
+
+                                                                        @case($value['type'] == 'password')
+                                                                            <input type="password" class="form-control"
                                                                                 name="{{ $key }}"
                                                                                 value="{{ $value['value'] }}">
                                                                         @break
@@ -277,7 +283,7 @@
                                                                                                                                                                         <div class="col-8">
 
                                                                                                                                                                                 <div class="w-100">
-                                                                                                                                                                        <div class="input-group mb-3">
+                                                                                                                                                                        <div class="mb-3 input-group">
                                                                                                                                                                             {!! htmlScriptTagJsApi() !!}
                                                                                                                                                                         {!! htmlFormSnippet() !!}
                                                                                                                                                                         @error('g-recaptcha-response')
@@ -294,10 +300,10 @@
 
                                                 <div class="row">
                                                     <div class="col-12 d-flex align-items-center justify-content-end">
-                                                        <button type="submit" class="btn btn-primary float-right ">Save
+                                                        <button type="submit" class="float-right btn btn-primary ">Save
                                                         </button>
                                                         <button type="reset"
-                                                            class="btn btn-secondary float-right ml-2">Reset
+                                                            class="float-right ml-2 btn btn-secondary">Reset
                                                         </button>
                                                     </div>
                                                 </div>

@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Products')}}</h1>
                 </div>
@@ -28,17 +28,17 @@
 
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
-                    <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Product')}}</h5>
+                    <h5 class="card-title"><i class="mr-2 fas fa-sliders-h"></i>{{__('Product')}}</h5>
                     <div class="ml-auto">
                         <a data-content="Edit" data-trigger="hover" data-toggle="tooltip"
-                            href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-sm btn-info mr-1"><i
+                            href="{{ route('admin.products.edit', $product->id) }}" class="mr-1 btn btn-sm btn-info"><i
                                 class="fas fa-pen"></i></a>
                         <form class="d-inline" onsubmit="return submitResult();" method="post"
                             action="{{ route('admin.products.destroy', $product->id) }}">
                             {{ csrf_field() }}
                             {{ method_field('DELETE') }}
                             <button data-content="Delete" data-trigger="hover" data-toggle="tooltip"
-                                class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                                class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                         </form>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-coins mr-1"></i>{{ $product->price }}
+                                        <i class="mr-1 fas fa-coins"></i>{{ $product->price }}
                                     </span>
                                 </div>
                             </div>
@@ -92,9 +92,9 @@
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
                                         @if ($product->minimum_credits == -1)
-                                            <i class="fas fa-coins mr-1"></i>{{ $minimum_credits }}
+                                            <i class="mr-1 fas fa-coins"></i>{{ $minimum_credits }}
                                         @else
-                                            <i class="fas fa-coins mr-1"></i>{{ $product->minimum_credits }}
+                                            <i class="mr-1 fas fa-coins"></i>{{ $product->minimum_credits }}
                                         @endif
                                     </span>
                                 </div>
@@ -213,7 +213,7 @@
                                     <label>{{__('Description')}}</label>
                                 </div>
                                 <div class="col-lg-8">
-                                    <span class="d-inline-block text-truncate">
+                                    <span class="d-block text-truncate">
                                         {{ $product->description }}
                                     </span>
                                 </div>
@@ -240,7 +240,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-server mr-2"></i>{{__('Servers')}}</h5>
+                    <h5 class="card-title"><i class="mr-2 fas fa-server"></i>{{__('Servers')}}</h5>
                 </div>
                 <div class="card-body table-responsive">
 

@@ -122,11 +122,11 @@ class PartnerController extends Controller
         return datatables($query)
             ->addColumn('actions', function (PartnerDiscount $partner) {
                 return '
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.partners.edit', $partner->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.partners.edit', $partner->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.partners.destroy', $partner->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })
@@ -145,6 +145,7 @@ class PartnerController extends Controller
             ->editColumn('referral_system_commission', function (PartnerDiscount $partner, ReferralSettings $referral_settings) {
                 return $partner->referral_system_commission >= 0 ? $partner->referral_system_commission . '%' : __('Default') . ' ('.$referral_settings->percentage . '%)';
             })
+            ->orderColumn('user', 'user_id $1')
             ->rawColumns(['user', 'actions'])
             ->make();
     }

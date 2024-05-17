@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Ticket Blacklist') }}</h1>
                 </div>
@@ -29,7 +29,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
-                                <h5 class="card-title"><i class="fas fas fa-users mr-2"></i>{{__('Blacklist List')}}</h5>
+                                <h5 class="card-title"><i class="mr-2 fas fa-users"></i>{{__('Blacklist List')}}</h5>
                             </div>
                         </div>
                         <div class="card-body table-responsive">
@@ -62,7 +62,7 @@
                         <div class="card-body">
                             <form action="{{route('admin.ticket.blacklist.add')}}" method="POST" class="ticket-form">
                             @csrf
-                                <div class="custom-control mb-3 p-0">
+                                <div class="p-0 mb-3 custom-control">
                                     <label for="user_id">{{ __('User') }}:
                                         <i data-toggle="popover" data-trigger="hover"
                                         data-content="{{ __('Please note, the blacklist will make the user unable to make a ticket/reply again') }}" class="fas fa-info-circle"></i>
@@ -100,7 +100,7 @@
                     {data: 'user' , name : 'user.name'},
                     {data: 'status'},
                     {data: 'reason'},
-                    {data: 'created_at', sortable: false},
+                    {data: 'created_at'},
                     {data: 'actions', sortable: false},
                 ],
                 fnDrawCallback: function( oSettings ) {

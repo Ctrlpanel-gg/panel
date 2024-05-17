@@ -10,7 +10,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 if (!file_exists('../../.env')) {
-        echo run_console('cp .env.example .env');
+    echo run_console('cp .env.example .env');
 }
 
 (new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
@@ -19,7 +19,7 @@ $required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer'
 
 $requirements = [
     'minPhp' => '8.1',
-    'maxPhp' => '8.3', // This version is not supported
+    'maxPhp' => '8.4', // This version is not supported
     'mysql' => '5.7.22',
 ];
 
@@ -150,7 +150,8 @@ function checkExtensions(): array
     return $not_ok;
 }
 
-function removeQuotes($string){
+function removeQuotes($string)
+{
     return str_replace('"', "", $string);
 }
 
@@ -162,7 +163,7 @@ function removeQuotes($string){
  */
 function setenv($envKey, $envValue)
 {
-    $envFile = dirname(__FILE__, 3).'/.env';
+    $envFile = dirname(__FILE__, 3) . '/.env';
     $str = file_get_contents($envFile);
 
     $str .= "\n"; // In case the searched variable is in the last line without \n
@@ -236,9 +237,16 @@ function run_console(string $command, array $descriptors = null, string $cwd = n
     $path = dirname(__FILE__, 3);
     $descriptors = $descriptors ?? [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
     $handle = proc_open("cd '$path' && bash -c 'exec -a ServerCPP $command'", $descriptors, $pipes, $cwd, null, $options);
+    $output = stream_get_contents($pipes[1]);
+    $exit_code = proc_close($handle);
 
-    wh_log('command result: ' . stream_get_contents($pipes[1]), 'debug');
-    return stream_get_contents($pipes[1]);
+    if ($exit_code > 0) {
+        wh_log('command result: ' . $output, 'error');
+        throw new Exception("There was an error after running command `$command`", $exit_code);
+        return $output;
+    } else {
+        return $output;
+    }
 }
 
 /**
@@ -259,7 +267,7 @@ function wh_log(string $message, string $level = 'info', array $context = []): v
 
     switch (strtolower($level)) {
         case 'debug': // Only log debug messages if APP_DEBUG is true
-            if(getenv('APP_DEBUG') === false) return;
+            if (getenv('APP_DEBUG') === false) return;
             $log->debug($message, $context);
             break;
         case 'info':

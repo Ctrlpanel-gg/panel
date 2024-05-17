@@ -185,29 +185,32 @@ class CouponController extends Controller
 
     public function dataTable()
     {
-        $query = Coupon::query();
+        $query = Coupon::selectRaw('
+            coupons.*,
+            CASE
+                WHEN coupons.uses >= coupons.max_uses THEN "USES_LIMIT_REACHED"
+                WHEN coupons.expires_at IS NOT NULL AND coupons.expires_at < NOW() THEN "EXPIRED"
+                ELSE "VALID"
+            END as derived_status
+        ');
 
         return datatables($query)
             ->addColumn('actions', function(Coupon $coupon) {
                 return '
-                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.coupons.edit', $coupon->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.coupons.edit', $coupon->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
 
                     <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.coupons.destroy', $coupon->id).'">
                         '.csrf_field().'
                         '.method_field('DELETE').'
-                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                     </form>
                 ';
             })
-            ->addColumn('status', function(Coupon $coupon) {
-                $color = 'success';
-                $status = $coupon->getStatus();
+            ->addColumn('status', function (Coupon $coupon) {
+                $color = ($coupon->derived_status == 'VALID') ? 'success' : 'danger';
+                $status = str_replace('_', ' ', $coupon->derived_status);
 
-                if ($status != __('VALID')) {
-                    $color = 'danger';
-                }
-
-                return '<span class="badge badge-'.$color.'">'.str_replace('_', ' ', $status).'</span>';
+                return '<span class="badge badge-'.$color.'">'.$status.'</span>';
             })
             ->editColumn('uses', function (Coupon $coupon) {
                 return "{$coupon->uses} / {$coupon->max_uses}";
@@ -232,6 +235,7 @@ class CouponController extends Controller
             ->editColumn('code', function (Coupon $coupon) {
                 return "<code>{$coupon->code}</code>";
             })
+            ->orderColumn('status', 'derived_status $1')
             ->rawColumns(['actions', 'code', 'status'])
             ->make();
     }
