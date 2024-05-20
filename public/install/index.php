@@ -76,29 +76,36 @@ function cardStart($title, $subtitle = null)
 
             <li class="<?php echo checkWriteable() == true ? 'ok' : 'not-ok'; ?> check">Write-permissions on .env-file</li>
 
-            <li class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> php
-                version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)</li>
+            <li class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
+                php version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)
+            </li>
 
-            <li class="<?php echo getMySQLVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> mysql
-                version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements['mysql']; ?>)</li>
+            <li class="<?php echo getMySQLVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
+                mysql version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements['mysql']; ?>)
+            </li>
 
-            <li class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'not-ok'; ?> check"> Missing
-                php-extentions: <?php echo count(checkExtensions()) == 0 ? 'none' : '';
-                                foreach (checkExtensions() as $ext) {
-                                    echo $ext . ', ';
-                                }
-
-                                echo count(checkExtensions()) == 0 ? '' : '(Proceed anyway)'; ?></li>
+            <li class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'not-ok'; ?> check">
+                Missing php-extentions:
+                <?php echo count(checkExtensions()) == 0 ? 'none' : '';
+                foreach (checkExtensions() as $ext) {
+                    echo $ext . ', ';
+                }
+                echo count(checkExtensions()) == 0 ? '' : '(Proceed anyway)'; ?>
+            </li>
 
 
             <!-- <li class="<?php echo getZipVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> Zip
                     version: <?php echo getZipVersion(); ?> </li> -->
 
-            <li class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> Git
-                version: <?php echo getGitVersion(); ?> </li>
+            <li class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
+                Git version:
+                <?php echo getGitVersion(); ?>
+            </li>
 
-            <li class="<?php echo getTarVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> Tar
-                version: <?php echo getTarVersion(); ?> </li>
+            <li class="<?php echo getTarVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
+                Tar version:
+                <?php echo getTarVersion(); ?>
+            </li>
         </ul>
 
         </div>
@@ -143,7 +150,7 @@ function cardStart($title, $subtitle = null)
                     <div class="form-group">
                         <div class="flex flex-col mb-3">
                             <label for="databaseuser">Database User</label>
-                            <input x-model="databaseuser" id="databaseuser" name="databaseuser" type="text" required value="controlpaneluser" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                            <input x-model="databaseuser" id="databaseuser" name="databaseuser" type="text" required value="ctrlpaneluser" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                         </div>
                     </div>
                     <div class="form-group">
@@ -156,7 +163,7 @@ function cardStart($title, $subtitle = null)
                     <div class="form-group">
                         <div class="flex flex-col">
                             <label for="database">Database</label>
-                            <input x-model="database" id="database" name="database" type="text" required value="controlpanel" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                            <input x-model="database" id="database" name="database" type="text" required value="ctrlpanel" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                         </div>
                     </div>
 
@@ -213,8 +220,8 @@ function cardStart($title, $subtitle = null)
                         </div>
                         <div class="form-group">
                             <div class="flex flex-col">
-                                <label for="name">Host Name</label>
-                                <input id="name" name="name" type="text" required value="" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                <label for="name">Dashboard Name</label>
+                                <input id="name" name="name" type="text" required value="CtrlPanel" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             </div>
                         </div>
 
@@ -248,8 +255,9 @@ function cardStart($title, $subtitle = null)
                         <div class="form-group">
                             <div class="flex flex-col mb-3">
                                 <label for="method">Your E-Mail Method</label>
-                                <input id="method" name="method" type="text" required value="smtp" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
-
+                                <select id="method" name="method" required class="px-2 py-2 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                    <option value="smtp" selected>SMTP</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -284,7 +292,11 @@ function cardStart($title, $subtitle = null)
                         <div class="form-group">
                             <div class="flex flex-col">
                                 <label for="encryption">Your Mail encryption method</label>
-                                <input id="encryption" name="encryption" type="text" required value="tls" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                <select id="encryption" name="encryption" required class="px-2 py-2 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                    <option value="tls" selected>TLS</option>
+                                    <option value="ssl">SSL</option>
+                                    <option value="null">None</option>
+                                </select>
                             </div>
                         </div>
 

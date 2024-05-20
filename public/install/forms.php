@@ -97,27 +97,30 @@ if (isset($_POST['checkSMTP'])) {
         $mail = new PHPMailer(true);
 
         //Server settings
-        $mail->isSMTP();                                            // Send using SMTP
-        $mail->Host = $_POST['host'];                    // Set the SMTP server to send through
-        $mail->SMTPAuth = true;                                   // Enable SMTP authentication
-        $mail->Username = $_POST['user'];                     // SMTP username
-        $mail->Password = $_POST['pass'];                               // SMTP password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
-        $mail->Port = $_POST['port'];                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS`
+        // Send using SMTP
+        $mail->isSMTP();
+        $mail->Host = $_POST['host'];
+        // Enable SMTP authentication
+        $mail->SMTPAuth = true;
+        $mail->Username = $_POST['user'];
+        $mail->Password = $_POST['pass'];
+        $mail->SMTPSecure = $_POST['encryption'];
+        $mail->Port = (int) $_POST['port'];
 
-        //Recipients
+        // Test E-mail metadata
         $mail->setFrom($_POST['user'], $_POST['user']);
-        $mail->addAddress($_POST['user'], $_POST['user']);     // Add a recipient
+        $mail->addAddress($_POST['user'], $_POST['user']);
 
         // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
-        $mail->Subject = 'It Worked!';
+        // Set email format to HTML
+        $mail->isHTML(true);
+        $mail->Subject = 'It Worked! - Test E-Mail from Ctrlpanel.gg';
         $mail->Body = 'Your E-Mail Settings are correct!';
 
         $mail->send();
     } catch (Exception $e) {
         wh_log($mail->ErrorInfo, 'error');
-        header('LOCATION: index.php?step=4&message=Something wasnt right when sending the E-Mail!');
+        header('LOCATION: index.php?step=4&message=Something went wrong while sending test E-Mail!<br>' . $mail->ErrorInfo);
         exit();
     }
 
@@ -140,8 +143,7 @@ if (isset($_POST['checkSMTP'])) {
     ];
 
     foreach ($values as $key => $value) {
-        $query = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = 'mail'";
-        $db->query($query);
+        run_console("php artisan settings:set 'MailSettings' '$key' '$value'");
     }
 
     wh_log('Database updated', 'debug');
@@ -197,34 +199,22 @@ if (isset($_POST['checkPtero'])) {
         exit();
     } else {
         wh_log('Pterodactyl Settings are correct', 'debug');
-        wh_log('Updating Database', 'debug');
 
-        $key = $key;
-        $clientkey = $clientkey;
-
-        $query1 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($url) . "' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
-        $query2 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($key) . "' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
-        $query3 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($clientkey) . "' WHERE (`name` = 'user_token' AND `group` = 'pterodactyl')";
-
-        $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
-        if ($db->connect_error) {
-            wh_log($db->connect_error, 'error');
-            header('LOCATION: index.php?step=5&message=Could not connect to the Database');
-            exit();
-        }
-
-        if ($db->query($query1) && $db->query($query2) && $db->query($query3)) {
+        try {
+            run_console("php artisan settings:set 'PterodactylSettings' 'panel_url' '$url'");
+            run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'");
+            run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'");
             wh_log('Database updated', 'debug');
             header('LOCATION: index.php?step=6');
-        } else {
-            wh_log($db->error, 'error');
-            header('LOCATION: index.php?step=5&message=Something went wrong when communicating with the Database!');
+        } catch (\Throwable $th) {
+            wh_log("Setting Pterodactyl information failed.", 'error');
+            header("LOCATION: index.php?step=5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
         }
     }
 }
 
 if (isset($_POST['createUser'])) {
-    wh_log('Creating User', 'debug');
+    wh_log('Getting Pterodactyl User', 'debug');
     $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     if ($db->connect_error) {
         wh_log($db->connect_error, 'error');
@@ -236,19 +226,26 @@ if (isset($_POST['createUser'])) {
     $pass = $_POST['pass'];
     $repass = $_POST['repass'];
 
-    $key = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
-    $key = removeQuotes($key['payload']);
-    $pterobaseurl = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
+    try {
+        $panel_url = run_console("php artisan settings:get 'PterodactylSettings' 'panel_url' --sameline");
+        $admin_token = run_console("php artisan settings:get 'PterodactylSettings' 'admin_token' --sameline");
+        wh_log('Database updated', 'debug');
+        header('LOCATION: index.php?step=6');
+    } catch (\Throwable $th) {
+        wh_log("Getting Pterodactyl information failed.", 'error');
+        header("LOCATION: index.php?step=5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
+    }
 
-    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
+    $panel_api_url = $panel_url . '/api/application/users/' . $pteroID;
+
     $ch = curl_init();
 
-    curl_setopt($ch, CURLOPT_URL, $pteroURL);
+    curl_setopt($ch, CURLOPT_URL, $panel_api_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
+        'Authorization: Bearer ' . $admin_token,
     ]);
     $response = curl_exec($ch);
     $result = json_decode($response, true);
@@ -267,15 +264,14 @@ if (isset($_POST['createUser'])) {
     $name = $result['attributes']['username'];
     $pass = password_hash($pass, PASSWORD_DEFAULT);
 
-    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
     $ch = curl_init();
 
-    curl_setopt($ch, CURLOPT_URL, $pteroURL);
+    curl_setopt($ch, CURLOPT_URL, $panel_api_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
+        'Authorization: Bearer ' . $admin_token,
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, [
         'email' => $mail,
