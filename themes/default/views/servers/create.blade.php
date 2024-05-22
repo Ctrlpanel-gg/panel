@@ -135,11 +135,15 @@
 
                               <div class="form-group">
                                 <label for="location">{{ __('Location') }}</label>
+                                @if($location_description_enabled)
+                                  <i x-show="locationDescription != null" data-toggle="popover" data-trigger="click"
+                                     x-bind:data-content="locationDescription"
+                                     class="fas fa-info-circle"></i>
+                                @endif
                                 <select name="location" required id="location" x-model="selectedLocation" :disabled="!fetchedLocations"
                                         @change="fetchProducts();" class="custom-select">
                                   <option x-text="getLocationInputText()" disabled selected hidden value="null">
                                   </option>
-
                                   <template x-for="location in locations" :key="location.id">
                                     <option x-text="location.name" :value="location.id">
                                     </option>
@@ -273,6 +277,7 @@
                 selectedEgg: null,
                 selectedLocation: null,
                 selectedProduct: null,
+                locationDescription: null,
 
                 //selected objects based on input
                 selectedNestObject: {},
@@ -304,6 +309,7 @@
                     this.selectedEgg = 'null';
                     this.selectedLocation = 'null';
                     this.selectedProduct = 'null';
+                    this.locationDescription = 'null';
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)
 
@@ -338,6 +344,7 @@
                     this.products = [];
                     this.selectedLocation = 'null';
                     this.selectedProduct = 'null';
+                    this.locationDescription = null;
 
                     let response = await axios.get(`{{ route('products.locations.egg') }}/${this.selectedEgg}`)
                         .catch(console.error)
@@ -348,6 +355,7 @@
                     //automatically select the first entry if there is only 1
                     if (this.locations.length === 1 && this.locations[0]?.nodes?.length === 1) {
                         this.selectedLocation = this.locations[0]?.id;
+
                         await this.fetchProducts();
                         return;
                     }
@@ -365,7 +373,7 @@
                     this.loading = true;
                     this.fetchedProducts = false;
                     this.products = [];
-                    this.selectedProduct = 'null';
+                    this.selectedProduct = null;
 
                     let response = await axios.get(
                             `{{ route('products.products.location') }}/${this.selectedEgg}/${this.selectedLocation}`)
@@ -389,7 +397,7 @@
                         }
                     })
 
-
+                    this.locationDescription = this.locations.find(location => location.id == this.selectedLocation).description ?? null;
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
