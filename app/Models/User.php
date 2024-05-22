@@ -200,7 +200,7 @@ class User extends Authenticatable implements MustVerifyEmail
         );
 
         if (! $executed) {
-            return response()->json(['message' => 'Too many requests, try again in: ' . RateLimiter::availableIn('send-message:'. $this->id) . ' seconds'], 429);
+            return response()->json(['message' => 'Too many requests, try again in: ' . RateLimiter::availableIn('verify-mail:'. $this->id) . ' seconds'], 429);
         }
     }
 
