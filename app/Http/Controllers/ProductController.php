@@ -104,10 +104,12 @@ class ProductController extends Controller
                 key: 'nodes-full-warning',
                 maxAttempts: 1,
                 callback: function() {
-                    $user = User::find(1); // Get the first user, should be the admin
-                    Notification::send($user,new DynamicNotification(['mail'], [], mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
+                    // get admin role and check users
+                    $users = User::query()->where('role', '=', '1')->get();
+                    Notification::send($users,new DynamicNotification(['mail'],[],
+                   mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
                 },
-                decaySeconds: 1800
+                decaySeconds: 5
             );
         }
 
