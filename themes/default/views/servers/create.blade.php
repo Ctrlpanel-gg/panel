@@ -150,6 +150,9 @@
                                   </template>
                                 </select>
                               </div>
+                              <div class="alert alert-danger p-2 m-2" x-show="selectedProduct != null && locations.length == 0">
+                                {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
+                              </div>
                         </div>
                     </div>
                 </div>
