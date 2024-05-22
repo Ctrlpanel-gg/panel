@@ -34,7 +34,7 @@ class TicketsController extends Controller
         ]);
     }
 
-    public function store(Request $request, TicketSettings $ticket_settings)
+    public function store(Request $request, TicketSettings $ticket_settings, GeneralSettings $generalSettings)
     {
         if (RateLimiter::tooManyAttempts('ticket-send:'.Auth::user()->id, $perMinute = 1)) {
             return redirect()->back()->with('error', __('Please wait before creating a new Ticket'));
@@ -46,7 +46,7 @@ class TicketsController extends Controller
                 'ticketcategory' => 'required',
                 'priority' => 'required',
                 'message' => 'required',
-                'g-recaptcha-response' => ['required', 'recaptcha'],
+                'g-recaptcha-response' => [$generalSettings->recaptcha_enabled ? 'required' : null, 'recaptcha'],
             ]
         );
         $ticket = new Ticket(
