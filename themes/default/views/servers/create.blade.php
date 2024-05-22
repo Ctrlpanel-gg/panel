@@ -250,6 +250,15 @@
                                             class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
                                             x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ $credits_display_name }}!' : '{{ __('Create server') }}')">
                                         </button>
+                                        @if (env('APP_ENV') == 'local' || $store_enabled)
+                                        <template x-if="product.price > user.credits">
+                                            <a href="{{ route('store.index') }}">
+                                                <button type="button" class="btn btn-warning btn-block mt-2">
+                                                    {{ __('Buy more') }} {{ $credits_display_name }}
+                                                </button>
+                                            </a>
+                                        </template>
+                                        @endif
                                     </div>
 
                                 </div>
