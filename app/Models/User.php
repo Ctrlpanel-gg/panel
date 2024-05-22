@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -188,7 +189,19 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new QueuedVerifyEmail);
+        // Rate limit the email verification notification to 1 attempt per 30 minutes
+        $executed = RateLimiter::attempt(
+            key: 'verify-mail'. $this->id,
+            maxAttempts: 1,
+            callback: function() {
+                $this->notify(new QueuedVerifyEmail);
+            },
+            decaySeconds: 1800
+        );
+
+        if (! $executed) {
+            return response()->json(['message' => 'Too many requests, try again in: ' . RateLimiter::availableIn('send-message:'. $this->id) . ' seconds'], 429);
+        }
     }
 
     /**
