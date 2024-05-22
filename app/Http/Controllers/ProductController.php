@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class ProductController extends Controller
-{   
+{
     private $pterodactyl;
 
     public function __construct(PterodactylSettings $ptero_settings)
@@ -97,30 +97,41 @@ class ProductController extends Controller
     }
 
     /**
-     * @param  Node  $node
+     * @param  Int $location
      * @param  Egg  $egg
      * @return Collection|JsonResponse
      */
-    public function getProductsBasedOnNode(Egg $egg, Node $node)
+    public function getProductsBasedOnLocation(Egg $egg, Int $location)
     {
-        if (is_null($egg->id) || is_null($node->id)) {
-            return response()->json('node and egg id is required', '400');
+        if (is_null($egg->id) || is_null($location)) {
+            return response()->json('location and egg id is required', '400');
         }
+
+        // Get all nodes in this location
+        $nodes = Node::query()
+            ->where('location_id', '=', $location)
+            ->get();
 
         $products = Product::query()
             ->where('disabled', '=', false)
-            ->whereHas('nodes', function (Builder $builder) use ($node) {
-                $builder->where('id', '=', $node->id);
+            ->whereHas('nodes', function (Builder $builder) use ($nodes) {
+                $builder->whereIn('id', $nodes->map(function ($node) {
+                    return $node->id;
+                }));
             })
             ->whereHas('eggs', function (Builder $builder) use ($egg) {
                 $builder->where('id', '=', $egg->id);
             })
             ->get();
 
-        $pteroNode = $this->pterodactyl->getNode($node->id);
+        // Instead of the old node check, we will check if the product fits in any given node in the location
         foreach ($products as $key => $product) {
-            if ($product->memory > ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'] || $product->disk > ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk']) {
-                $product->doesNotFit = true;
+            $product->doesNotFit = false;
+            foreach ($nodes as $node) {
+                $pteroNode = $this->pterodactyl->getNode($node->id);
+                if ($product->memory > ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'] || $product->disk > ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk']) {
+                    $product->doesNotFit = true;
+                }
             }
         }
 
