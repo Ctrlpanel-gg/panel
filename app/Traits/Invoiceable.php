@@ -54,7 +54,7 @@ trait Invoiceable
 
 
         $invoice = DailyInvoice::make()
-            ->template('controlpanel')
+            ->template('CtrlPanel')
             ->name(__("Invoice"))
             ->buyer($customer)
             ->seller($seller)

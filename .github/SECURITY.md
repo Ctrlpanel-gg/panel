@@ -12,6 +12,6 @@ At this time, we only accept vulnerability reports through GitHub Advisories. We
 
 ## Supported Versions
 
-### ControlPanel Versions
+### CtrlPanel Versions
 
-We strongly recommend using or upgrading to the latest version of ControlPanel to ensure you have access to the latest security fixes and enhancements.
+We strongly recommend using or upgrading to the latest version of CtrlPanel to ensure you have access to the latest security fixes and enhancements.

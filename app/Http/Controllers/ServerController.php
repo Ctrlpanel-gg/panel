@@ -398,7 +398,7 @@ class ServerController extends Controller
 
             // Remove the allocation property from the server object as it is not a column in the database
             unset($server->allocation);
-            // Update the server on controlpanel
+            // Update the server on CtrlPanel
             $server->update([
                 'product_id' => $newProduct->id,
                 'updated_at' => now(),
