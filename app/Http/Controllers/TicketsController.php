@@ -17,6 +17,7 @@ use App\Settings\TicketSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
 class TicketsController extends Controller
@@ -35,6 +36,9 @@ class TicketsController extends Controller
 
     public function store(Request $request, TicketSettings $ticket_settings)
     {
+        if (RateLimiter::tooManyAttempts('ticket-send:'.Auth::user()->id, $perMinute = 1)) {
+            return redirect()->back()->with('error', __('Please wait before creating a new Ticket'));
+        }
         $this->validate(
             $request,
             [
@@ -67,6 +71,7 @@ class TicketsController extends Controller
 
 
         $user->notify(new CreateNotification($ticket));
+        RateLimiter::hit('ticket-send:'.Auth::user()->id);
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #') . $ticket->ticket_id);
     }
@@ -89,6 +94,9 @@ class TicketsController extends Controller
 
     public function reply(Request $request)
     {
+        if (RateLimiter::tooManyAttempts('ticket-reply:'.Auth::user()->id, $perMinute = 1)) {
+            return redirect()->back()->with('error', __('Please wait before answering a Ticket'));
+        }
         //check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
         if ($check && $check->status == 'True') {
@@ -101,6 +109,7 @@ class TicketsController extends Controller
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
         $ticket->status = 'Client Reply';
+        $ticket->updated_at = now();
         $ticket->update();
         $ticketcomment = TicketComment::create([
             'ticket_id' => $request->input('ticket_id'),
@@ -115,7 +124,7 @@ class TicketsController extends Controller
         foreach($staffNotify as $staff){
             Notification::send($staff, new AdminReplyNotification($ticket, $user, $newmessage));
         }
-
+        RateLimiter::hit('ticket-reply:'.Auth::user()->id);
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 
