@@ -7,11 +7,16 @@ use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Node;
 use App\Models\Product;
+use App\Models\User;
+use App\Notifications\DynamicNotification;
 use App\Settings\PterodactylSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 
 class ProductController extends Controller
 {
@@ -92,6 +97,19 @@ class ProductController extends Controller
                 $locations->add($location);
             }
         });
+
+        if($locations->isEmpty()){
+            // Rate limit the node full notification to 1 attempt per 30 minutes
+            RateLimiter::attempt(
+                key: 'nodes-full-warning',
+                maxAttempts: 1,
+                callback: function() {
+                    $user = User::find(1); // Get the first user, should be the admin
+                    Notification::send($user,new DynamicNotification(['mail'], [], mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
+                },
+                decaySeconds: 1800
+            );
+        }
 
         return $locations;
     }
