@@ -92,6 +92,8 @@ class ShopProduct extends Model
     {
         return $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
 
+    }
+
     /**
      * @description Returns the full price of a Product including tax
      *
