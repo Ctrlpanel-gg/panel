@@ -14,9 +14,9 @@ class ShopProduct extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            -> logOnlyDirty()
-            -> logOnly(['*'])
-            -> dontSubmitEmptyLogs();
+            ->logOnlyDirty()
+            ->logOnly(['*'])
+            ->dontSubmitEmptyLogs();
     }
     /**
      * @var bool
@@ -62,7 +62,7 @@ class ShopProduct extends Model
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-    
+
         return $formatter->formatCurrency((float) $value, $this->currency_code);
     }
 
@@ -80,7 +80,7 @@ class ShopProduct extends Model
 
     public function getPriceAfterDiscount()
     {
-         return (float) $this->price - ($this->price * PartnerDiscount::getDiscount() / 100);
+        return (float) $this->price - ($this->price * PartnerDiscount::getDiscount() / 100);
     }
 
     /**
@@ -89,7 +89,7 @@ class ShopProduct extends Model
      * @return float
      */
     public function getTaxValue()
-    {    
+    {
         return (float) $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
     }
 
