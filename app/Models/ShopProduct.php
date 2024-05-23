@@ -14,9 +14,9 @@ class ShopProduct extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnlyDirty()
-            ->logOnly(['*'])
-            ->dontSubmitEmptyLogs();
+            -> logOnlyDirty()
+            -> logOnly(['*'])
+            -> dontSubmitEmptyLogs();
     }
     /**
      * @var bool
@@ -63,7 +63,7 @@ class ShopProduct extends Model
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
 
-        return $formatter->formatCurrency((float) $value, $this->currency_code);
+        return $formatter->formatCurrency($value, $this->currency_code);
     }
 
     /**
@@ -80,7 +80,7 @@ class ShopProduct extends Model
 
     public function getPriceAfterDiscount()
     {
-        return (float) $this->price - ($this->price * PartnerDiscount::getDiscount() / 100);
+        return $this->price - ($this->price * PartnerDiscount::getDiscount() / 100);
     }
 
     /**
@@ -90,8 +90,7 @@ class ShopProduct extends Model
      */
     public function getTaxValue()
     {
-        return (float) $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
-    }
+        return $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
 
     /**
      * @description Returns the full price of a Product including tax
@@ -100,6 +99,6 @@ class ShopProduct extends Model
      */
     public function getTotalPrice()
     {
-        return (float) $this->getPriceAfterDiscount() + $this->getTaxValue();
+        return $this->getPriceAfterDiscount() + $this->getTaxValue();
     }
 }
