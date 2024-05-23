@@ -105,7 +105,7 @@ class MercadoPagoExtension extends AbstractExtension
             return response()->json(['success' => true]);
         } else {
             try {
-                $notificationId = $laravelRequest->input('data_id') || $laravelRequest->input('data.id') || "unknown";
+                $notificationId = $request->input('data_id') || $request->input('data.id') || "unknown";
                 if ($notificationId == 'unknown') {
                     return response()->json(['success' => false]);
                 } else if ($notificationId == '123456') {
