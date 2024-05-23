@@ -62,8 +62,8 @@ class ShopProduct extends Model
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-
-        return $formatter->formatCurrency($value, $this->currency_code);
+    
+        return $formatter->formatCurrency((float) $value, $this->currency_code);
     }
 
     /**
@@ -80,7 +80,7 @@ class ShopProduct extends Model
 
     public function getPriceAfterDiscount()
     {
-        return number_format($this->price - ($this->price * PartnerDiscount::getDiscount() / 100), 2);
+         return (float) $this->price - ($this->price * PartnerDiscount::getDiscount() / 100);
     }
 
     /**
@@ -89,8 +89,8 @@ class ShopProduct extends Model
      * @return float
      */
     public function getTaxValue()
-    {
-        return number_format($this->getPriceAfterDiscount() * $this->getTaxPercent() / 100, 2);
+    {    
+        return (float) $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
     }
 
     /**
@@ -100,6 +100,6 @@ class ShopProduct extends Model
      */
     public function getTotalPrice()
     {
-        return number_format($this->getPriceAfterDiscount() + $this->getTaxValue(), 2);
+        return (float) $this->getPriceAfterDiscount() + $this->getTaxValue();
     }
 }
