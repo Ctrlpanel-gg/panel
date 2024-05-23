@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Notifications\ConfirmPaymentNotification;
+use App\Extensions\PaymentGateways\MercadoPago\MercadoPagoSettings;
 
 /**
  * Summary of MercadoPagoExtension
@@ -104,7 +105,7 @@ class MercadoPagoExtension extends AbstractExtension
             return response()->json(['success' => true]);
         } else {
             try {
-                $notificationId = $request->input('data.id') ?? $request->input('id') ?? $request->input('payment_id') ?? 'unknown';
+                $notificationId = $laravelRequest->input('data_id') || $laravelRequest->input('data.id') || "unknown";
                 if ($notificationId == 'unknown') {
                     return response()->json(['success' => false]);
                 } else if ($notificationId == '123456') {
