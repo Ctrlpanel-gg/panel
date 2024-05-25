@@ -39,6 +39,15 @@ class MercadoPagoExtension extends AbstractExtension
 
     public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
     {
+        /**
+         * For Mercado Pago to work correctly,
+         * it is necessary to use SSL and the app.url must start with "https://",
+         * this is necessary so that the webhook receives the information and not an error.
+         */
+        if (!str_contains(config('app.url'), 'https://')) {
+            throw new Exception(__('It is not possible to purchase via MercadoPago: APP_URL does not have HTTPS, required by Mercado Pago.'));
+        }
+
         $user = Auth::user();
         $user = User::findOrFail($user->id);
         $url = 'https://api.mercadopago.com/checkout/preferences';
@@ -61,7 +70,6 @@ class MercadoPagoExtension extends AbstractExtension
                     [
                         'title' => "Order #{$payment->id} - " . $shopProduct->name,
                         'quantity' => 1,
-                        // convert to float
                         'unit_price' => floatval($totalPriceString),
                         'currency_id' => $shopProduct->currency_code,
                     ],
@@ -90,42 +98,50 @@ class MercadoPagoExtension extends AbstractExtension
         $payment = Payment::findOrFail($request->input('payment'));
         $payment->status = PaymentStatus::PROCESSING;
         $payment->save();
-        Redirect::route('home')->with('success', 'Your payment is being processed')->send();
+        Redirect::route('home')->with('success', 'Your payment is being processed!')->send();
         return;
     }
 
     static function Webhook(Request $request): JsonResponse
     {
         $topic = $request->input('topic');
-        if ($topic === 'merchant_order') {
-            // ignore other types IPN 
+        $action = $request->input('action');
+
+        /**
+         * Mercado Pago sends several requests for information in the webhook,
+         *  but most are for other types of API, and that is why it is filtered here.
+         */
+        if ($topic && ($topic === 'merchant_order' || $topic === 'payment')) {
             return response()->json(['success' => true]);
-        } else if ($topic === 'payment') {
-            // ignore other types IPN 
-            return response()->json(['success' => true]);
-        } else {
-            try {
-                $notificationId = $request->input('data_id') || $request->input('data.id') || "unknown";
-                if ($notificationId == 'unknown') {
-                    return response()->json(['success' => false]);
-                } else if ($notificationId == '123456') {
-                    // mercado pago api test
-                    return response()->json(['success' => true]);
-                } else {
+        }
+
+        try {
+            if($action) {
+                $notification = $request['data']['id'];
+
+                // Filter the API for payments
+                if (!$notification || !$action) return response()->json(['success' => false], 400);
+                // Mercado pago test api, for testing webhook request
+                if ($notification == '123456') return response()->json(['success' => true], 200);
+
+                /**
+                 * Check action have payment.*, 
+                 * what is expected for this type of api
+                 */
+                if (str_contains($action, 'payment')) {
                     $url = "https://api.mercadopago.com/v1/payments/" . $notificationId;
                     $settings = new MercadoPagoSettings();
                     $response = Http::withHeaders([
                         'Content-Type' => 'application/json',
                         'Authorization' => 'Bearer ' . $settings->access_token,
                     ])->get($url);
-
                     if ($response->successful()) {
                         $mercado = $response->json();
                         $status = $mercado['status'];
                         $payment = Payment::findOrFail($mercado['metadata']['crtl_panel_payment_id']);
                         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
                         if ($status == "approved") {
-                            // avoids double additions, if the user enters after the webhook has already added the credits
+                            // Avoid double addition of credits, whether due to double requests from the paid market, or a malicious user
                             if ($payment->status !== PaymentStatus::PAID) {
                                 $user = User::findOrFail($payment->user_id);
                                 $payment->status = PaymentStatus::PAID;
@@ -145,12 +161,17 @@ class MercadoPagoExtension extends AbstractExtension
                             $payment->save();
                             event(new PaymentEvent($user, $payment, $shopProduct));
                         }
+                        return response()->json(['success' => true]);
+                    } else {
+                        return response()->json(['success' => false]);
                     }
+                } else {
+                    return response()->json(['success' => false]);
                 }
-            } catch (Exception $ex) {
-                Log::error('MercadoPago Webhook(IPN) Payment: ' . $ex->getMessage());
-                return response()->json(['success' => false]);
             }
+        } catch (Exception $ex) {
+            Log::error('MercadoPago Webhook(IPN) Payment: ' . $ex->getMessage());
+            return response()->json(['success' => false]);
         }
         return response()->json(['success' => true]);
     }
