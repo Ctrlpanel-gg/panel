@@ -29,7 +29,6 @@ Please read our [Localization Guide](https://github.com/Ctrlpanel-gg/panel/blob/
 We adhere to the PSR12 code standard for PHP.
 
 - Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) commit norms.
-- Make clear and concise commits.
 - Name your PR branch as [action]/what-you-are-doing.
 - Make clear commits, one per action, and include comments.
 
