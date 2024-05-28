@@ -26,7 +26,8 @@ CtrlPanel offers an easy-to-use and free billing solution for all starting and e
 - Account Management
 - Admin Dashboard and Tools
 - Addon Support
-- and more!
+- Multiple Languages Supported
+- and More!
 
 ## ⛰️ Live Demo
 
