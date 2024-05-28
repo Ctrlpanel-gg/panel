@@ -6,6 +6,8 @@
 # Ignore public assets
 /public/hot
 /public/storage
+/storage/credit_deduction_log
+/storage/debugbar
 /storage/app/public/logo.png
 
 # Ignore environment files and configuration
@@ -31,4 +33,4 @@ Homestead.yaml
 # Ignore installation logs and locks
 public/install/logs.txt
 install.lock
-public/install/logs/installer.log
+/public/install/logs/*.log
