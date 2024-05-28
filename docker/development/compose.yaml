@@ -1,20 +1,17 @@
-version: '3'
-
-// TODO: add wings and pterodactyl
 services:
-
+  # TODO: add wings and pterodactyl
   controlpanel_standalone:
     build:
       context: ../../
       dockerfile: ./docker/standalone/Dockerfile
-    container_name: controlpanel_standalone
+    container_name: controlpanel_development
     restart: on-failure
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - './website_files:/var/www/html:rw' # change it to your project
-      - './nginx_config:/etc/nginx/conf.d/:rw' # change it
+      - '../..:/var/www/html:rw'
+      - './nginx_config:/etc/nginx/conf.d/:rw'
     networks:
       - laravel
 
@@ -31,7 +28,7 @@ services:
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
     volumes:
-      - "mysql:/var/lib/mysql:delegated"
+      - "./mysql:/var/lib/mysql:delegated"
     networks:
       - laravel
 
