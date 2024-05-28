@@ -1,21 +1,20 @@
 version: '3'
 
-networks:
-  laravel:
-
+// TODO: add wings and pterodactyl
 services:
-  nginx:
+
+  controlpanel_standalone:
     build:
       context: ../../
-      dockerfile: docker/development/nginx/Dockerfile
-    container_name: controlpanel_nginx
+      dockerfile: ./docker/standalone/Dockerfile
+    container_name: controlpanel_standalone
+    restart: on-failure
     ports:
-      - 80:80
+      - "80:80"
+      - "443:443"
     volumes:
-      - "../../:/var/www/html"
-    depends_on:
-      - php
-      - mysql
+      - './website_files:/var/www/html:rw' # change it to your project
+      - './nginx_config:/etc/nginx/conf.d/:rw' # change it
     networks:
       - laravel
 
@@ -36,16 +35,6 @@ services:
     networks:
       - laravel
 
-  php:
-    build:
-      context: ../../
-      dockerfile: docker/development/php/Dockerfile
-    container_name: controlpanel_php
-    volumes:
-      - "../../:/var/www/html"
-    networks:
-      - laravel
-
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: controlpanel_phpmyadmin
@@ -61,5 +50,14 @@ services:
     networks:
       - laravel
 
-volumes:
-  mysql:
+  redis:
+    image: redis
+    container_name: controlpanel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
+
+networks:
+  laravel:
