@@ -1,35 +1,23 @@
-⚠ Caution: These instructions have not been updated since before version 1.0 of the project. Therefore, there may be inaccuracies, instability, or non-functional aspects. Proceed with care. (you may want to take a look at the standalone docker instread)
+# 🐳 Docker Development Environment
 
-# Building the development environment
+This development environment utilizes standalone Docker with necessary tools pre-configured.
 
-cd into the project directory and run the following command: `sh bin/startdocker.sh`
-This should start building the images and start the containers.
+## Included Services
+- Redis
+- MySQL
+- Tools like phpMyAdmin
 
-After that you need to go into the controlpanel_php container and run some commands:
+## Not Included Services (for the moment)
+- Pterodactyl
+- Wings
 
-Type `docker exec -it controlpanel_php ash` to go into the container and run the following commands:
+Feel free to modify the Docker Compose file to remove any services you already have.
 
-```shell
-composer install
-cp .env.example .env
-php artisan key:generate --force
-php artisan storage:link
-php artisan migrate --seed --force
-```
+## Setting Up the Testing Environment
 
-## Setting up testing environment
+1. **Manual Setup:** As mentioned in the standalone Docker guide, you will need to manually set up some components.
+2. **Custom Configuration:** Modify the CtrlPanel Docker Compose configuration to use your current project as a base. If you point it to an empty folder, it will clone the repository, and you won't see your changes immediately.
 
-Create the .env.testing file to your needs. Then once done you need to go into your phpmyadmin to create a new database named __controlpanel_test__.
-Visit http://127.0.0.1:8080/ and create your database.
+For detailed setup instructions, refer to the standalone Docker documentation.
 
-Now you're ready to run the following commands which switches to the testing config, migrates the test database and seeds it.
-After that you can switch back to your dev environment again. Clear the config from cache so changes will be instantly available.
-
-```shell
-php artisan key:generate --force --env=testing
-php artisan migrate:fresh --seed --env=testing
-```
-
-Now when running tests with PHPUnit it will use your testing database and not your local development one.
-This is configured in the __phpunit.xml__. You can run your tests by running the command like this. Just type and enter.
-`php artisan test`.
+⚠ Caution: These instructions have not been finished. Therefore, there may be inaccuracies, instability, or non-functional aspects. Proceed with care.
