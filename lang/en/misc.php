@@ -1,0 +1,10 @@
+"Edit": "Edit",
+"Delete": "Delete",
+"Created at": "Created at",
+"Error!": "Error!",
+"unknown": "unknown",
+"Download": "Download",
+"Show": "Show",
+"Clone": "Clone",
+
+"Everything is good!": "Everything is good!",
