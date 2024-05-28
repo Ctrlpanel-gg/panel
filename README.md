@@ -75,7 +75,7 @@ Roadmap: [CtrlPanel Roadmap](https://github.com/orgs/Ctrlpanel-gg/projects/1)
 
 ## 🗣️ Discussion / Ask for Help
 
-For any general or technical questions, join CtrlPanel Discord for finding answers to your question. If you cannot find the information you need, feel free to ask.
+For any general or technical questions, join CtrlPanel [Discord](https://discord.gg/4Y6HjD2uyU) for finding answers to your question. If you cannot find the information you need, feel free to ask.
 
 ## 🤝 Contributing
 
