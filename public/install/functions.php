@@ -236,11 +236,11 @@ function run_console(string $command, array $descriptors = null, string $cwd = n
 
     $path = dirname(__FILE__, 3);
     $descriptors = $descriptors ?? [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-    if (file_exists('/.dockerenv')) {
+//    if (file_exists('/.dockerenv')) {
         $handle = proc_open("cd '$path' && bash -c '$command'", $descriptors, $pipes, $cwd, null, $options);
-    } else {
-        $handle = proc_open("cd '$path' && bash -c 'exec -a ServerCPP $command'", $descriptors, $pipes, $cwd, null, $options);
-    }
+//    } else {
+//        $handle = proc_open("cd '$path' && bash -c 'exec -a ServerCPP $command'", $descriptors, $pipes, $cwd, null, $options);
+//    }
 
     $output = stream_get_contents($pipes[1]);
     $exit_code = proc_close($handle);
