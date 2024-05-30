@@ -1,6 +1,6 @@
 services:
   controlpanel:
-    image: ghcr.io/jameskitt616/panel:latest
+    image: ghcr.io/ctrlpanel-gg/panel:latest
     container_name: controlpanel_panel
     restart: unless-stopped
     depends_on:
