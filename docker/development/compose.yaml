@@ -12,6 +12,8 @@ services:
     volumes:
       - '../..:/var/www/html:rw'
       - './nginx_config:/etc/nginx/conf.d/:rw'
+    networks:
+      - controlpanel
 
   mysql:
     image: mysql
