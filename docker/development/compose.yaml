@@ -23,8 +23,8 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: controlpanel
-      MYSQL_USER: controlpanel
+      MYSQL_DATABASE: ctrlpanel
+      MYSQL_USER: ctrlpaneluser
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
     volumes:
