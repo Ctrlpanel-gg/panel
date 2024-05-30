@@ -1,15 +1,60 @@
-version: '3'
-
 services:
-  controlpanel_standalone:
-    build:
-      context: ../../
-      dockerfile: ./docker/standalone/Dockerfile
-    container_name: controlpanel_standalone
-    restart: on-failure
+  controlpanel:
+    image: ghcr.io/jameskitt616/panel:latest
+    container_name: controlpanel_panel
+    restart: unless-stopped
+    depends_on:
+      - redis
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - './website_files:/var/www/html:rw' # change it
       - './nginx_config:/etc/nginx/conf.d/:rw' # change it
+    networks:
+      - controlpanel
+
+  mysql:
+    image: mysql
+    container_name: controlpanel_mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: controlpanel
+      MYSQL_USER: controlpaneluser
+      MYSQL_PASSWORD: root # change it
+      MYSQL_ROOT_PASSWORD: root # change it
+    volumes:
+      - "./mysql:/var/lib/mysql:delegated"
+    networks:
+      - controlpanel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: controlpanel_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - '8080:80'
+    environment:
+      - PMA_HOST=controlpanel_mysql
+      - PMA_USER=root # change it
+      - PMA_PASSWORD=root # change it
+      - PMA_ARBITRARY=1
+    networks:
+      - controlpanel
+
+  redis:
+    image: redis
+    container_name: controlpanel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - controlpanel
+
+networks:
+  controlpanel:

@@ -1,6 +1,6 @@
 services:
   # TODO: add wings and pterodactyl
-  controlpanel_standalone:
+  controlpanel_panel:
     build:
       context: ../../
       dockerfile: ./docker/standalone/Dockerfile
@@ -13,7 +13,7 @@ services:
       - '../..:/var/www/html:rw'
       - './nginx_config:/etc/nginx/conf.d/:rw'
     networks:
-      - laravel
+      - controlpanel
 
   mysql:
     image: mysql
@@ -30,7 +30,7 @@ services:
     volumes:
       - "./mysql:/var/lib/mysql:delegated"
     networks:
-      - laravel
+      - controlpanel
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -45,7 +45,7 @@ services:
       - PMA_PASSWORD=root
       - PMA_ARBITRARY=1
     networks:
-      - laravel
+      - controlpanel
 
   redis:
     image: redis
@@ -54,7 +54,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - laravel
+      - controlpanel
 
 networks:
-  laravel:
+  controlpanel:
