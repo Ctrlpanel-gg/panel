@@ -258,7 +258,7 @@ function run_console(string $command, array $descriptors = null, string $cwd = n
 function wh_log(string $message, string $level = 'info', array $context = []): void
 {
     $formatter = new LineFormatter(null, null, true, true);
-    $stream = new StreamHandler(dirname(__FILE__, 3) . '/storage/logs/installer.log', Logger::DEBUG, true, 664);
+    $stream = new StreamHandler(dirname(__FILE__, 3) . '/storage/logs/installer.log', Logger::DEBUG);
     $stream->setFormatter($formatter);
 
     $log = new Logger('ControlPanel');
