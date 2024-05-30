@@ -18,6 +18,8 @@ Running as commandline command:
 docker run -p 80:80 -p 443:443 -v /path/to/website_files:/var/www/html -v /path/to/nginx_config:/etc/nginx/conf.d/ ghcr.io/ctrlpanel-gg/panel:latest
 ```
 
+When installing you need to update the `.env` file. Change those two variables to: `MEMCACHED_HOST=redis` and `REDIS_HOST=redis`, to use the Redis server which comes with the docker compose installation.
+
 This command will run the latest CtrlPanel Docker image from Docker Hub and run it.
 
 The control panel will be available at http://localhost/install and will be a completely fresh installation.
