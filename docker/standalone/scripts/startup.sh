@@ -30,12 +30,12 @@ if [ -z "$(ls -A /var/www/html)" ]; then
     log_message "Warning: project folder is empty. Copying default files..."
     # Copy everything from /var/default to /var/www/html
     cp -nr /var/default/. /var/www/html   # Use -n to avoid overwriting existing files
-#    chown -R laravel:laravel /var/www/html/
-#    chmod -R 755 /var/www/html
+    chown -R laravel:laravel /var/www/html/
+    chmod -R 755 /var/www/html/
 fi
 
-chown -R laravel:laravel /var/www/html/
-chmod -R 755 /var/www/html
+#chown -R laravel:laravel /var/www/html/
+#chmod -R 755 /var/www/html/
 
 # Check and copy default Nginx configuration if not exists
 if [ ! -f "/etc/nginx/conf.d/default.conf" ]; then
