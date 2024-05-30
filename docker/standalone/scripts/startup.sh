@@ -32,8 +32,9 @@ if [ -z "$(ls -A /var/www/html)" ]; then
     cp -nr /var/default/. /var/www/html   # Use -n to avoid overwriting existing files
     chown -R laravel:laravel /var/www/html/
     chmod -R 755 /var/www/html
-    chmod -R 644 $LOG_DIR
 fi
+
+chmod -R 777 $LOG_DIR
 
 # Check and copy default Nginx configuration if not exists
 if [ ! -f "/etc/nginx/conf.d/default.conf" ]; then
