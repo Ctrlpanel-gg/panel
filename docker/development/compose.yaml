@@ -5,15 +5,13 @@ services:
       context: ../../
       dockerfile: ./docker/standalone/Dockerfile
     container_name: controlpanel_development
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - '../..:/var/www/html:rw'
       - './nginx_config:/etc/nginx/conf.d/:rw'
-    networks:
-      - controlpanel
 
   mysql:
     image: mysql

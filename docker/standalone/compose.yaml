@@ -9,10 +9,12 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - './website_files:/var/www/html:rw' # change it
-      - './nginx_config:/etc/nginx/conf.d/:rw' # change it
-    networks:
-      - controlpanel
+      - './env:/var/www/html/.env:rw'
+      - './logs:/var/www/html/storage/logs:rw'
+#      - './website_files:/var/www/html:rw' # change it
+#      - './nginx_config:/etc/nginx/conf.d/:rw' # change it
+#    networks:
+#      - controlpanel
 
   mysql:
     image: mysql
