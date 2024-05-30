@@ -7,8 +7,15 @@ If you're using a different operating system, you can follow the official Docker
 
 Once you have Docker installed, you can run CtrlPanel standalone Docker by executing the following command:
 
+Recommended way via Docker Compose:
+
+Get the Compose file [here](https://github.com/Ctrlpanel-gg/panel/blob/docker-github-workflow/docker/standalone/compose.yaml).
+This also includes all necessaries like a Database, Redis and optionally phpmyadmin to manage the Database.
+
+Running as commandline command:
+
 ```bash
-docker run -p 80:80 -p 443:443 -v /path/to/website_files:/var/www/html -v /path/to/nginx_config:/etc/nginx/conf.d/ ctrlpanel/ctrlpanel
+docker run -p 80:80 -p 443:443 -v /path/to/website_files:/var/www/html -v /path/to/nginx_config:/etc/nginx/conf.d/ ghcr.io/ctrlpanel-gg/panel:latest
 ```
 
 This command will run the latest CtrlPanel Docker image from Docker Hub and run it.
