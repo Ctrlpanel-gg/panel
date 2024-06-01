@@ -50,8 +50,8 @@ RUN mkdir -p /var/log/nginx && chown -R laravel:laravel /var/log/nginx
 # Expose ports
 EXPOSE 80 443
 
-# Copy .env file for it to be availbe when starting the Docker container (to be able to bind-mount it to the host, instead of the entire project folder)
-COPY --chown=laravel:laravel ./.env.example /var/www/html/.env
+# Copy .env file for it to be available when starting the Docker container (to be able to bind-mount it to the host, instead of the entire project folder)
+#COPY --chown=laravel:laravel /var/default/.env.example /var/www/html/.env
 
 # Copy startup script
 COPY --chown=laravel:laravel ./docker/standalone/scripts/startup.sh /usr/local/bin/startup-script.sh
@@ -60,7 +60,6 @@ RUN chmod +x /usr/local/bin/startup-script.sh
 
 # Set the working directory
 WORKDIR /var/www/html
-
 
 # Start the startup script
 CMD ["/usr/local/bin/startup-script.sh"]

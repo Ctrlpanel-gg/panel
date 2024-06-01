@@ -34,6 +34,9 @@ if [ -z "$(ls -A /var/www/html)" ]; then
     chmod -R 755 /var/www/html
 fi
 
+# Copy .env file for it to be available when starting the Docker container (to be able to bind-mount it to the host, instead of the entire project folder)
+cp -nr /var/www/html/.env.example /var/www/html/.env   # Use -n to avoid overwriting existing files
+
 # Check and copy default Nginx configuration if not exists
 if [ ! -f "/etc/nginx/conf.d/default.conf" ]; then
     log_message "Warning: Nginx configuration not found. Copying default configuration..."
