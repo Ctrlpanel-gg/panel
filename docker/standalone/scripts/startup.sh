@@ -31,16 +31,24 @@ ls -la /var/default
 log_message "Permissions of /var/www/html:"
 ls -la /var/www/html
 
+chown -R laravel:laravel /var/www/html/
+chmod -R 777 /var/www/html/
+log_message "Warning: project folder is empty. Copying default files..."
+# Copy everything from /var/default to /var/www/html
+cp -nr /var/default/. /var/www/html   # Use -n to avoid overwriting existing files
+chown -R laravel:laravel /var/www/html/
+chmod -R 755 /var/www/html/
+
 # Check if project folder is empty.
-if [ -z "$(ls -A /var/www/html)" ]; then
-    chown -R laravel:laravel /var/www/html/
-    chmod -R 777 /var/www/html/
-    log_message "Warning: project folder is empty. Copying default files..."
-    # Copy everything from /var/default to /var/www/html
-    cp -nr /var/default/. /var/www/html   # Use -n to avoid overwriting existing files
-    chown -R laravel:laravel /var/www/html/
-    chmod -R 755 /var/www/html/
-fi
+#if [ -z "$(ls -A /var/www/html)" ]; then
+#    chown -R laravel:laravel /var/www/html/
+#    chmod -R 777 /var/www/html/
+#    log_message "Warning: project folder is empty. Copying default files..."
+#    # Copy everything from /var/default to /var/www/html
+#    cp -nr /var/default/. /var/www/html   # Use -n to avoid overwriting existing files
+#    chown -R laravel:laravel /var/www/html/
+#    chmod -R 755 /var/www/html/
+#fi
 
 log_message "Contents of /var/www/html:"
 ls -la /var/www/html
