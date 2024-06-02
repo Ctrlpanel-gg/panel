@@ -25,6 +25,8 @@ log_message() {
     echo "$1"
 }
 
+mkdir /var/www/html/
+
 # Check if project folder is empty.
 if [ -z "$(ls -A /var/www/html)" ]; then
     log_message "Warning: project folder is empty. Copying default files..."
