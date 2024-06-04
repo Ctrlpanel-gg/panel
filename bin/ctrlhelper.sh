@@ -4,7 +4,6 @@
 readonly SCRIPT_VER="0.0.1"
 readonly DEFAULT_DIR="/var/www/controlpanel/"
 cpgg_dir=""
-dir_null=""
 cli_mode="false"
 
 # Logo for CLI-GUI
@@ -66,50 +65,60 @@ if [ "$cli_mode" == "false" ]; then
     tput smcup
 fi
 
-if [ "$cli_mode" == "false" ]; then
-    # Set root CtrlPanel directory using CLI-GUI
-    ## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
-    if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
-        while true; do
-            # If $cpgg_dir var isn't specified, show "Default not exists"
-            if [ -z "$cpgg_dir" ] && [ ! "$dir_null" == "true" ]; then
-                logo
-                echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed (e.g. /var/www/controlpanel)"
-            fi
-            # If $dir_null is true, show "Cannot be empty"
-            if [ "$dir_null" == "true" ]; then
-                logo
-                echo " You have not specified a directory, it cannot be empty!"
-            fi
-            # Reading directory specified by the user
-            read -rp " > " cpgg_dir
+set_cpgg_dir() {
 
-            # If $cpgg_dir var isn't specified set $dir_null to true
-            if [ -z "$cpgg_dir" ]; then
-                dir_null="true"
-                continue
-            fi
+    local is_exists=""
+    local is_cpgg_root=""
+    local is_null=""
 
-            # If $cpgg_dir exists set $dir_null to null and continue script
-            if [ -d "$cpgg_dir" ]; then
-                dir_null=""
-                break
-            # If $cpgg_dir doesn't exists, show logo with "Directory does not exist" message
-            else
+    if [ "$cli_mode" == "false" ]; then
+        # Set root CtrlPanel directory using CLI-GUI
+        ## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
+        if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
+            while true; do
                 logo
-                echo " $cpgg_dir directory does not exist. Try again"
-                dir_null=""
-            fi
-        done
+                if [ -z "$is_exists" ] && [ -z "$is_cpgg_root" ] || [ "$is_null" == "true" ]; then
+                    echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed (e.g. /var/www/controlpanel)"
+                elif [[ $is_exists == false ]]; then
+                    echo " $cpgg_dir directory does not exist. Try again"
+                elif [[ $is_cpgg_root == false ]]; then
+                    echo " $cpgg_dir is not a root CtrlPanel directory. Try again"
+                fi
+                read -rp " > " cpgg_dir
+
+                is_null=""
+                is_exists=""
+                is_cpgg_root=""
+
+                if [ "$cpgg_dir" != "" ]; then
+                    if [ ! -d "$cpgg_dir" ]; then
+                        is_null=""
+                        is_exists="false"
+                    else
+                        if [ ! -f "$cpgg_dir/config/app.php" ]; then
+                            is_null=""
+                            is_cpgg_root="false"
+                        else
+                            break
+                        fi
+                    fi
+                else
+                    is_null="true"
+                fi
+
+            done
+        fi
+    else
+        # Set root CtrlPanel directory using in CLI mode
+        ## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
+        if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
+            echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed using --cpgg-dir=/path/to/cpgg argument"
+            exit 1
+        fi
     fi
-else
-    # Set root CtrlPanel directory using in CLI mode
-    ## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
-    if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
-        echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed using --cpgg-dir=/path/to/cpgg argument"
-        exit 1
-    fi
-fi
+}
+
+set_cpgg_dir
 
 # Getting curent CtrlPanel version
 PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
