@@ -112,9 +112,11 @@ else
 fi
 
 # Getting curent CtrlPanel version
-readonly PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
+PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
+readonly PANEL_VER
 # Getting latest CtrlPanel version
-readonly PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags | jq -r '.[0].name')
+PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags | jq -r '.[0].name')
+readonly PANEL_LATEST_VER
 
 # Comparing current and latest versions
 ## -1 => Version above the latest one is installed
@@ -148,7 +150,8 @@ version_compare() {
     return 0 # Latest version is installed
 }
 
-readonly is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
+is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
+readonly is_update_needed
 
 # Logo with versions for CLI-GUI
 logo_version() {
