@@ -92,5 +92,69 @@ if [ ! -d "$DEFAULT_DIR" ] && [ -z "$CPGG_DIR" ]; then
     done
 fi
 
+# Getting curent CtrlPanel version
+PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${CPGG_DIR:-$DEFAULT_DIR}/config/app.php")
+# Getting latest CtrlPanel version
+PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags | jq -r '.[0].name')
+
+# Comparing current and latest versions
+## -1 => Version above the latest one is installed
+##  0 => Latest version is installed
+##  1 => Update available
+version_compare() {
+    local current_version="$1"
+    local latest_version="$2"
+
+    # Break down versions into components
+    IFS='.' read -r -a current_parts <<<"$current_version"
+    IFS='.' read -r -a latest_parts <<<"$latest_version"
+
+    # Add zeros to the shorter version (e.g. 0.10 => 0.10.0)
+    while ((${#current_parts[@]} < ${#latest_parts[@]})); do
+        current_parts+=("0")
+    done
+
+    # Compare components one by one
+    for ((i = 0; i < ${#current_parts[@]}; i++)); do
+        if ((${current_parts[i]} < ${latest_parts[i]})); then
+            echo "1"
+            return 1 # Update needed
+        elif ((${current_parts[i]} > ${latest_parts[i]})); then
+            echo "-1"
+            return -1 # A newer version is installed
+        fi
+    done
+
+    echo "0"
+    return 0 # Latest version is installed
+}
+
+UPDATE_NEEDED=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
+
+# Logo with versions for CLI-GUI
+logo_version() {
+    clear
+    echo "    ________       ______                   __            "
+    echo "   / ____/ /______/ / __ \____ _____  ___  / /____ _____ _"
+    echo "  / /   / __/ ___/ / /_/ / __ \`/ __ \/ _ \/ // __ \`/ __ \`/"
+    echo " / /___/ /_/ /  / / ____/ /_/ / / / /  __/ // /_/ / /_/ / "
+    echo " \____/\__/_/  /_/_/    \__,_/_/ /_/\___/_(_)__, /\__, /  "
+    echo "                                           /____//____/   "
+    echo " Script    version: $SCRIPT_VER"
+    echo " CtrlPanel version: $PANEL_VER"
+    echo ""
+}
+
+# Message about available Update
+logo_version_message() {
+    if [[ $UPDATE_NEEDED == 1 ]]; then
+        echo " New version available! You can update right now by selecting \"Update\" option."
+        echo ""
+    elif [[ $UPDATE_NEEDED == -1 ]]; then
+        echo " You are using a newer version! Most likely you have a development branch installed."
+        echo ""
+    fi
+}
+
 # Restoring terminal after succes
 restore_terminal
