@@ -3,8 +3,8 @@
 # System vars | DO NOT TOUCH!!!
 SCRIPT_VER="0.0.1"
 DEFAULT_DIR="/var/www/controlpanel/"
-CPGG_DIR=""
-DIR_NULL=""
+cpgg_dir=""
+dir_null=""
 
 # Logo for CLI-GUI
 logo() {
@@ -37,16 +37,16 @@ tput smcup
 while [[ $# -gt 0 ]]; do
     case "$1" in
     --cpgg-dir=*)
-        CPGG_DIR="${1#*=}"
+        cpgg_dir="${1#*=}"
         shift
 
         # Check if directory exists
-        if [ ! -d "$CPGG_DIR" ]; then
-            CPGGDIR_SET_ERR="echo $CPGG_DIR directory does not exist. Try again"
+        if [ ! -d "$cpgg_dir" ]; then
+            CPGGDIR_SET_ERR="echo $cpgg_dir directory does not exist. Try again"
             restore_terminal "$CPGGDIR_SET_ERR"
         fi
-        if [ ! -f "$CPGG_DIR/config/app.php" ]; then
-            NOT_CPGG_ROOT_ERR="echo $CPGG_DIR is not a root CtrlPanel directory. Try again"
+        if [ ! -f "$cpgg_dir/config/app.php" ]; then
+            NOT_CPGG_ROOT_ERR="echo $cpgg_dir is not a root CtrlPanel directory. Try again"
             restore_terminal "$NOT_CPGG_ROOT_ERR"
         fi
         ;;
@@ -57,43 +57,43 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Set root CtrlPanel directory using CLI-GUI
-## If $DEFAULT_DIR doesn't exists and $CPGG_DIR var isn't specified
-if [ ! -d "$DEFAULT_DIR" ] && [ -z "$CPGG_DIR" ]; then
+## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
+if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
     while true; do
-        # If $CPGG_DIR var isn't specified, show "Default not exists"
-        if [ -z "$CPGG_DIR" ]; then
+        # If $cpgg_dir var isn't specified, show "Default not exists"
+        if [ -z "$cpgg_dir" ]; then
             logo
             echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed (e.g. /var/www/controlpanel)"
         fi
-        # If $DIR_NULL is true, show "Cannot be empty"
-        if [ "$DIR_NULL" == "true" ]; then
+        # If $dir_null is true, show "Cannot be empty"
+        if [ "$dir_null" == "true" ]; then
             logo
             echo " You have not specified a directory, it cannot be empty!"
         fi
         # Reading directory specified by the user
-        read -rp " > " CPGG_DIR
+        read -rp " > " cpgg_dir
 
-        # If $CPGG_DIR var isn't specified set $DIR_NULL to true
-        if [ -z "$CPGG_DIR" ]; then
-            DIR_NULL="true"
+        # If $cpgg_dir var isn't specified set $dir_null to true
+        if [ -z "$cpgg_dir" ]; then
+            dir_null="true"
             continue
         fi
 
-        # If $CPGG_DIR exists set $DIR_NULL to null and continue script
-        if [ -d "$CPGG_DIR" ]; then
-            DIR_NULL=""
+        # If $cpgg_dir exists set $dir_null to null and continue script
+        if [ -d "$cpgg_dir" ]; then
+            dir_null=""
             break
-        # If $CPGG_DIR doesn't exists, show logo with "Directory does not exist" message
+        # If $cpgg_dir doesn't exists, show logo with "Directory does not exist" message
         else
             logo
-            echo " $CPGG_DIR directory does not exist. Try again"
-            DIR_NULL=""
+            echo " $cpgg_dir directory does not exist. Try again"
+            dir_null=""
         fi
     done
 fi
 
 # Getting curent CtrlPanel version
-PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${CPGG_DIR:-$DEFAULT_DIR}/config/app.php")
+PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
 # Getting latest CtrlPanel version
 PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags | jq -r '.[0].name')
 
@@ -129,7 +129,7 @@ version_compare() {
     return 0 # Latest version is installed
 }
 
-UPDATE_NEEDED=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
+is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
 
 # Logo with versions for CLI-GUI
 logo_version() {
@@ -147,10 +147,10 @@ logo_version() {
 
 # Message about available Update
 logo_version_message() {
-    if [[ $UPDATE_NEEDED == 1 ]]; then
+    if [[ $is_update_needed == 1 ]]; then
         echo " New version available! You can update right now by selecting \"Update\" option."
         echo ""
-    elif [[ $UPDATE_NEEDED == -1 ]]; then
+    elif [[ $is_update_needed == -1 ]]; then
         echo " You are using a newer version! Most likely you have a development branch installed."
         echo ""
     fi
@@ -167,9 +167,9 @@ main_menu() {
     echo " 4. Info & Help"
     echo " 0. Exit"
     echo ""
-    read -rp " > " MAIN_MENU_CHOICE
+    read -rp " > " main_menu_choice
 
-    case $MAIN_MENU_CHOICE in
+    case $main_menu_choice in
     1)
         menu_1
         ;;
