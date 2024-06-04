@@ -18,6 +18,29 @@ logo() {
     echo ""
 }
 
+# Setting root CtrlPanel directory using the --cpgg-dir=/path/to/folder parameter
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --cpgg-dir=*)
+        CPGG_DIR="${1#*=}"
+        shift
+
+        # Check if directory exists
+        if [ ! -d "$CPGG_DIR" ]; then
+            CPGGDIR_SET_ERR="echo $CPGG_DIR directory does not exist. Try again"
+            restore_terminal "$CPGGDIR_SET_ERR"
+        fi
+        if [ ! -f "$CPGG_DIR/config/app.php" ]; then
+            NOT_CPGG_ROOT_ERR="echo $CPGG_DIR is not a root CtrlPanel directory. Try again"
+            restore_terminal "$NOT_CPGG_ROOT_ERR"
+        fi
+        ;;
+    *)
+        shift
+        ;;
+    esac
+done
+
 # Set root CtrlPanel directory using CLI-GUI
 ## If $DEFAULT_DIR doesn't exists and $CPGG_DIR var isn't specified
 if [ ! -d "$DEFAULT_DIR" ] && [ -z "$CPGG_DIR" ]; then
