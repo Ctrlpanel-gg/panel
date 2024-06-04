@@ -72,7 +72,7 @@ if [ "$cli_mode" == "false" ]; then
     if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
         while true; do
             # If $cpgg_dir var isn't specified, show "Default not exists"
-            if [ -z "$cpgg_dir" ]; then
+            if [ -z "$cpgg_dir" ] && [ ! "$dir_null" == "true" ]; then
                 logo
                 echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed (e.g. /var/www/controlpanel)"
             fi
