@@ -5,6 +5,7 @@ readonly SCRIPT_VER="0.0.1"
 readonly DEFAULT_DIR="/var/www/controlpanel/"
 cpgg_dir=""
 dir_null=""
+cli_mode="false"
 
 # Logo for CLI-GUI
 logo() {
@@ -27,15 +28,13 @@ restore_terminal() {
     exit
 }
 
-# Restoring terminal content after ^C
-trap restore_terminal SIGINT
-
-# Save terminal
-tput smcup
-
 # Setting root CtrlPanel directory using the --cpgg-dir=/path/to/folder parameter
 while [[ $# -gt 0 ]]; do
     case "$1" in
+    --cli)
+        cli_mode="true"
+        shift
+        ;;
     --cpgg-dir=*)
         cpgg_dir="${1#*=}"
         shift
@@ -56,40 +55,58 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# Set root CtrlPanel directory using CLI-GUI
-## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
-if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
-    while true; do
-        # If $cpgg_dir var isn't specified, show "Default not exists"
-        if [ -z "$cpgg_dir" ]; then
-            logo
-            echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed (e.g. /var/www/controlpanel)"
-        fi
-        # If $dir_null is true, show "Cannot be empty"
-        if [ "$dir_null" == "true" ]; then
-            logo
-            echo " You have not specified a directory, it cannot be empty!"
-        fi
-        # Reading directory specified by the user
-        read -rp " > " cpgg_dir
+# Do terminal actions only if $cli_mode = false
+if [ "$cli_mode" == "false" ]; then
+    # Restoring terminal content after ^C
+    trap restore_terminal SIGINT
 
-        # If $cpgg_dir var isn't specified set $dir_null to true
-        if [ -z "$cpgg_dir" ]; then
-            dir_null="true"
-            continue
-        fi
+    # Save terminal
+    tput smcup
+fi
 
-        # If $cpgg_dir exists set $dir_null to null and continue script
-        if [ -d "$cpgg_dir" ]; then
-            dir_null=""
-            break
-        # If $cpgg_dir doesn't exists, show logo with "Directory does not exist" message
-        else
-            logo
-            echo " $cpgg_dir directory does not exist. Try again"
-            dir_null=""
-        fi
-    done
+if [ "$cli_mode" == "false" ]; then
+    # Set root CtrlPanel directory using CLI-GUI
+    ## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
+    if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
+        while true; do
+            # If $cpgg_dir var isn't specified, show "Default not exists"
+            if [ -z "$cpgg_dir" ]; then
+                logo
+                echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed (e.g. /var/www/controlpanel)"
+            fi
+            # If $dir_null is true, show "Cannot be empty"
+            if [ "$dir_null" == "true" ]; then
+                logo
+                echo " You have not specified a directory, it cannot be empty!"
+            fi
+            # Reading directory specified by the user
+            read -rp " > " cpgg_dir
+
+            # If $cpgg_dir var isn't specified set $dir_null to true
+            if [ -z "$cpgg_dir" ]; then
+                dir_null="true"
+                continue
+            fi
+
+            # If $cpgg_dir exists set $dir_null to null and continue script
+            if [ -d "$cpgg_dir" ]; then
+                dir_null=""
+                break
+            # If $cpgg_dir doesn't exists, show logo with "Directory does not exist" message
+            else
+                logo
+                echo " $cpgg_dir directory does not exist. Try again"
+                dir_null=""
+            fi
+        done
+    fi
+else
+    # Set root CtrlPanel directory using in CLI mode
+    ## If $DEFAULT_DIR doesn't exists and $cpgg_dir var isn't specified
+    if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
+        echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed using --cpgg-dir=/path/to/cpgg argument"
+        exit 1
+    fi
 fi
 
 # Getting curent CtrlPanel version
@@ -149,71 +166,74 @@ logo_message() {
     fi
 }
 
-# Main menu
-main_menu() {
-    logo
-    logo_version
-    logo_message
-    echo " Select an option:"
-    echo " 1. Install dependencies"
-    echo " 2. Update"
-    echo " 3. Uninstall"
-    echo " 4. Info & Help"
-    echo " 0. Exit"
-    echo ""
-    read -rp " > " main_menu_choice
+if [ "$cli_mode" == "false" ]; then
+    # Main menu
+    main_menu() {
+        logo
+        logo_version
+        logo_message
+        echo " Select an option:"
+        echo " 1. Install dependencies"
+        echo " 2. Update"
+        echo " 3. Uninstall"
+        echo " 4. Info & Help"
+        echo " 0. Exit"
+        echo ""
+        read -rp " > " main_menu_choice
 
-    case $main_menu_choice in
-    1)
-        menu_1
-        ;;
-    2)
-        menu_2
-        ;;
-    3)
-        menu_3
-        ;;
-    4)
-        menu_4
-        ;;
-    0)
-        restore_terminal
-        ;;
-    *)
+        case $main_menu_choice in
+        1)
+            menu_1
+            ;;
+        2)
+            menu_2
+            ;;
+        3)
+            menu_3
+            ;;
+        4)
+            menu_4
+            ;;
+        0)
+            restore_terminal
+            ;;
+        *)
+            main_menu
+            ;;
+        esac
+    }
+
+    menu_1() {
+        logo
+        echo " In dev"
+        sleep 3
         main_menu
-        ;;
-    esac
-}
+    }
 
-menu_1() {
-    logo
-    echo " In dev"
-    sleep 3
+    menu_2() {
+        logo
+        echo " In dev"
+        sleep 3
+        main_menu
+    }
+
+    menu_3() {
+        logo
+        echo " In dev"
+        sleep 3
+        main_menu
+    }
+
+    menu_4() {
+        logo
+        echo " In dev"
+        sleep 3
+        main_menu
+    }
+
     main_menu
-}
-
-menu_2() {
-    logo
-    echo " In dev"
-    sleep 3
-    main_menu
-}
-
-menu_3() {
-    logo
-    echo " In dev"
-    sleep 3
-    main_menu
-}
-
-menu_4() {
-    logo
-    echo " In dev"
-    sleep 3
-    main_menu
-}
-
-main_menu
-
-# Restoring terminal after succes
-restore_terminal
+fi
+# Restoring terminal after succes if $cli_mode = false
+if [ "$cli_mode" == "false" ]; then
+    restore_terminal
+fi
