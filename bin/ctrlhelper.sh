@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # System vars | DO NOT TOUCH!!!
-SCRIPT_VER="0.0.1"
-DEFAULT_DIR="/var/www/controlpanel/"
+readonly SCRIPT_VER="0.0.1"
+readonly DEFAULT_DIR="/var/www/controlpanel/"
 cpgg_dir=""
 dir_null=""
 
@@ -93,9 +93,9 @@ if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
 fi
 
 # Getting curent CtrlPanel version
-PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
+readonly PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
 # Getting latest CtrlPanel version
-PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags | jq -r '.[0].name')
+readonly PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags | jq -r '.[0].name')
 
 # Comparing current and latest versions
 ## -1 => Version above the latest one is installed
@@ -129,7 +129,7 @@ version_compare() {
     return 0 # Latest version is installed
 }
 
-is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
+readonly is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
 
 # Logo with versions for CLI-GUI
 logo_version() {
