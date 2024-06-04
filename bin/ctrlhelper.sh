@@ -156,5 +156,70 @@ logo_version_message() {
     fi
 }
 
+# Main menu
+main_menu() {
+    logo_version
+    logo_version_message
+    echo " Select an option:"
+    echo " 1. Install dependencies"
+    echo " 2. Update"
+    echo " 3. Uninstall"
+    echo " 4. Info & Help"
+    echo " 0. Exit"
+    echo ""
+    read -rp " > " MAIN_MENU_CHOICE
+
+    case $MAIN_MENU_CHOICE in
+    1)
+        menu_1
+        ;;
+    2)
+        menu_2
+        ;;
+    3)
+        menu_3
+        ;;
+    4)
+        menu_4
+        ;;
+    0)
+        restore_terminal
+        ;;
+    *)
+        main_menu
+        ;;
+    esac
+}
+
+menu_1() {
+    logo
+    echo " In dev"
+    sleep 3
+    main_menu
+}
+
+menu_2() {
+    logo
+    echo " In dev"
+    sleep 3
+    main_menu
+}
+
+menu_3() {
+    logo
+    echo " In dev"
+    sleep 3
+    main_menu
+}
+
+menu_4() {
+    logo
+    echo " In dev"
+    sleep 3
+    main_menu
+}
+
+main_menu
+
 # Restoring terminal after succes
 restore_terminal
