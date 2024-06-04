@@ -22,9 +22,6 @@ logo() {
 # Function for restoring terminal content after the script is completed or closed
 restore_terminal() {
     tput rmcup
-    if [[ -n $1 ]]; then
-        $1
-    fi
     exit
 }
 
@@ -46,12 +43,12 @@ while [[ $# -gt 0 ]]; do
         fi
         # Check if directory exists
         if [ ! -d "$cpgg_dir" ]; then
-            CPGGDIR_SET_ERR="echo $cpgg_dir directory does not exist. Try again"
-            restore_terminal "$CPGGDIR_SET_ERR"
+            echo " $cpgg_dir directory does not exist. Try again"
+            exit 1
         fi
         if [ ! -f "$cpgg_dir/config/app.php" ]; then
-            NOT_CPGG_ROOT_ERR="echo $cpgg_dir is not a root CtrlPanel directory. Try again"
-            restore_terminal "$NOT_CPGG_ROOT_ERR"
+            echo " $cpgg_dir is not a root CtrlPanel directory. Try again"
+            exit 1
         fi
         ;;
     *)
