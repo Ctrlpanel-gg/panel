@@ -133,20 +133,13 @@ is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
 
 # Logo with versions for CLI-GUI
 logo_version() {
-    clear
-    echo "    ________       ______                   __            "
-    echo "   / ____/ /______/ / __ \____ _____  ___  / /____ _____ _"
-    echo "  / /   / __/ ___/ / /_/ / __ \`/ __ \/ _ \/ // __ \`/ __ \`/"
-    echo " / /___/ /_/ /  / / ____/ /_/ / / / /  __/ // /_/ / /_/ / "
-    echo " \____/\__/_/  /_/_/    \__,_/_/ /_/\___/_(_)__, /\__, /  "
-    echo "                                           /____//____/   "
     echo " Script    version: $SCRIPT_VER"
     echo " CtrlPanel version: $PANEL_VER"
     echo ""
 }
 
 # Message about available Update
-logo_version_message() {
+logo_message() {
     if [[ $is_update_needed == 1 ]]; then
         echo " New version available! You can update right now by selecting \"Update\" option."
         echo ""
@@ -158,8 +151,9 @@ logo_version_message() {
 
 # Main menu
 main_menu() {
+    logo
     logo_version
-    logo_version_message
+    logo_message
     echo " Select an option:"
     echo " 1. Install dependencies"
     echo " 2. Update"
