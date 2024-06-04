@@ -39,6 +39,11 @@ while [[ $# -gt 0 ]]; do
         cpgg_dir="${1#*=}"
         shift
 
+        # Check if --cpgg-dir not empty
+        if [ -z "$cpgg_dir" ]; then
+            echo " Argument --cpgg-dir can't be empty!"
+            exit 1
+        fi
         # Check if directory exists
         if [ ! -d "$cpgg_dir" ]; then
             CPGGDIR_SET_ERR="echo $cpgg_dir directory does not exist. Try again"
