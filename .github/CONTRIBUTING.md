@@ -16,7 +16,7 @@ Please read our [Localization Guide](https://github.com/Ctrlpanel-gg/panel/blob/
 
 ## 🚀 Pull Request Process
 
-1. Provide a clear and descriptive title for your pull request (PR) summarizing the changes.
+1. Provide a clear and descriptive title for your pull request (PR) summarizing the changes in this format : 'commit-norms-action: what-you-are-doing'.
 2. If your PR is not yet finished, correctly mark it as a draft and mention any errors it's correcting.
 3. The development team will review your code and offer feedback or approve/merge it as necessary.
 4. Ensure that your PR adheres to our Code of Conduct and coding style guidelines.
@@ -29,7 +29,7 @@ Please read our [Localization Guide](https://github.com/Ctrlpanel-gg/panel/blob/
 We adhere to the PSR12 code standard for PHP.
 
 - Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) commit norms.
-- Name your PR branch as [action]/what-you-are-doing.
+- Name your PR branch as [commit-norms-action]/what-you-are-doing.
 - Make clear commits, one per action, and include comments.
 
 ⚠️ **Important Note:** The owner of the project has the final decision, and the development team of CtrlPanel reserves the right to close incorrect PRs. PRs that remain inactive or invalid for an extended period may also be subject to closure.
