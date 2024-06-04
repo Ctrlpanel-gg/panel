@@ -18,6 +18,21 @@ logo() {
     echo ""
 }
 
+# Function for restoring terminal content after the script is completed or closed
+restore_terminal() {
+    tput rmcup
+    if [[ -n $1 ]]; then
+        $1
+    fi
+    exit
+}
+
+# Restoring terminal content after ^C
+trap restore_terminal SIGINT
+
+# Save terminal
+tput smcup
+
 # Setting root CtrlPanel directory using the --cpgg-dir=/path/to/folder parameter
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -76,3 +91,6 @@ if [ ! -d "$DEFAULT_DIR" ] && [ -z "$CPGG_DIR" ]; then
         fi
     done
 fi
+
+# Restoring terminal after succes
+restore_terminal
