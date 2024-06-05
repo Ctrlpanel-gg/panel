@@ -134,9 +134,9 @@ PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags 
 readonly PANEL_LATEST_VER
 
 # Comparing current and latest versions
-## -1 => Version above the latest one is installed
-##  0 => Latest version is installed
-##  1 => Update available
+## 0 => Latest version is installed
+## 1 => Update available
+## 2 => Version above the latest one is installed
 version_compare() {
     local current_version="$1"
     local latest_version="$2"
@@ -156,8 +156,8 @@ version_compare() {
             echo "1"
             return 1 # Update needed
         elif ((${current_parts[i]} > ${latest_parts[i]})); then
-            echo "-1"
-            return -1 # A newer version is installed
+            echo "2"
+            return 2 # A newer version is installed
         fi
     done
 
@@ -180,7 +180,7 @@ logo_message() {
     if [[ $is_update_needed == 1 ]]; then
         echo " New version available! You can update right now by selecting \"Update\" option."
         echo ""
-    elif [[ $is_update_needed == -1 ]]; then
+    elif [[ $is_update_needed == 2 ]]; then
         echo " You are using a newer version! Most likely you have a development branch installed."
         echo ""
     fi
