@@ -152,10 +152,10 @@ version_compare() {
 
     # Compare components one by one
     for ((i = 0; i < ${#current_parts[@]}; i++)); do
-        if ((${current_parts[i]} < ${latest_parts[i]})); then
+        if ((current_parts[i] < latest_parts[i])); then
             echo "1"
             return 1 # Update needed
-        elif ((${current_parts[i]} > ${latest_parts[i]})); then
+        elif ((current_parts[i] > latest_parts[i])); then
             echo "2"
             return 2 # A newer version is installed
         fi
