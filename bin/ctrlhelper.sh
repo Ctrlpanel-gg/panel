@@ -153,16 +153,16 @@ version_compare() {
     # Compare components one by one
     for ((i = 0; i < ${#current_parts[@]}; i++)); do
         if ((current_parts[i] < latest_parts[i])); then
-            echo "1"
-            return 1 # Update needed
+            echo "1" # Update needed
+            return 0
         elif ((current_parts[i] > latest_parts[i])); then
-            echo "2"
-            return 2 # A newer version is installed
+            echo "2" # A newer version is installed
+            return 0
         fi
     done
 
-    echo "0"
-    return 0 # Latest version is installed
+    echo "0" # Latest version is installed
+    return 0 
 }
 
 is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
