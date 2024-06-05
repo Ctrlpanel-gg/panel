@@ -42,7 +42,7 @@ while [[ $# -gt 0 ]]; do
         fi
         # Check if directory exists
         if [ ! -d "$cpgg_dir" ]; then
-            echo " $cpgg_dir directory does not exist. Try again"
+            echo " $cpgg_dir directory doesn't exist. Try again"
             exit 1
         fi
         if [ ! -f "$cpgg_dir/config/app.php" ]; then
@@ -77,15 +77,21 @@ set_cpgg_dir() {
         if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
             while true; do
                 logo
+                # If $is_exists and $is_cpgg_root = null or $is_null = true show "Default wasn't found"
                 if [ -z "$is_exists" ] && [ -z "$is_cpgg_root" ] || [ "$is_null" == "true" ]; then
                     echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed (e.g. /var/www/controlpanel)"
+                # If $is_exists = false show "Directory not exist"
                 elif [[ $is_exists == false ]]; then
-                    echo " $cpgg_dir directory does not exist. Try again"
+                    echo " $cpgg_dir directory doesn't exist. Try again"
+                # If $is_cpgg_root = false show "Not a root CtrlPanel"
                 elif [[ $is_cpgg_root == false ]]; then
                     echo " $cpgg_dir is not a root CtrlPanel directory. Try again"
                 fi
+
+                # Read specified directory
                 read -rp " > " cpgg_dir
 
+                # Set all validation vars to null
                 is_null=""
                 is_exists=""
                 is_cpgg_root=""
