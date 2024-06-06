@@ -206,7 +206,7 @@ fi
 set_cpgg_dir
 
 # Moving to the CtrlPanel directory
-cd "${cpgg_dir:-$DEFAULT_DIR}" || { echo " ERROR: An error occurred while trying to switch to the working directory. Please try to run the script again, if the error persists, inform the developers!"; exit 1; }
+cd "${cpgg_dir:-$DEFAULT_DIR}" || { echo " ERROR: An error occurred while trying to switch to the working directory. Please try to run the script again, if the error persists, create support forum post on CtrlPanel's Discord server!"; exit 1; }
 
 # Main functions
 if [ "$cli_mode" == "false" ]; then

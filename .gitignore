@@ -31,4 +31,5 @@ Homestead.yaml
 # Ignore installation logs and locks
 public/install/logs.txt
 install.lock
+/bin/.CHdeps.lock
 public/install/logs/installer.log
