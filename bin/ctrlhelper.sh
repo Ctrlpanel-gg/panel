@@ -62,20 +62,14 @@ set_cpgg_dir() {
                 is_cpgg_root=""
 
                 # Validation of the entered directory
-                if [ "$cpgg_dir" != "" ]; then
-                    if [ ! -d "$cpgg_dir" ]; then
-                        is_null=""
-                        is_exists="false"
-                    else
-                        if [ ! -f "$cpgg_dir/config/app.php" ]; then
-                            is_null=""
-                            is_cpgg_root="false"
-                        else
-                            break
-                        fi
-                    fi
-                else
+                if [ "$cpgg_dir" == "" ]; then
                     is_null="true"
+                elif [ ! -d "$cpgg_dir" ]; then
+                    is_exists="false"
+                elif [ ! -f "$cpgg_dir/config/app.php" ]; then
+                    is_cpgg_root="false"
+                else
+                    break
                 fi
 
             done
@@ -177,25 +171,21 @@ while [[ $# -gt 0 ]]; do
         shift
 
         # Validation of specified directory
-        if [ "$cpgg_dir" != "" ]; then
-            if [ ! -d "$cpgg_dir" ]; then
-                echo " ERROR: Directory $cpgg_dir doesn't exist."
-                exit 1
-            else
-                if [ ! -f "$cpgg_dir/config/app.php" ]; then
-                    echo " ERROR: $cpgg_dir is not a root CtrlPanel directory."
-                    exit 1
-                else
-                    continue
-                fi
-            fi
-        else
+        if [ "$cpgg_dir" == "" ]; then
             echo " ERROR: Argument --cpgg-dir can't be empty!"
             exit 1
+        elif [ ! -d "$cpgg_dir" ]; then
+            echo " ERROR: Directory $cpgg_dir doesn't exist."
+            exit 1
+        elif [ ! -f "$cpgg_dir/config/app.php" ]; then
+            echo " ERROR: $cpgg_dir is not a root CtrlPanel directory."
+            exit 1
+        else
+            continue
         fi
         ;;
     *)
-        echo "ERROR: Argument $1 not exists. Use --help to display help menu"
+        echo " ERROR: Argument $1 not exists. Use --help to display help menu"
         exit 1
         ;;
     esac
