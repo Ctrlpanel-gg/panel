@@ -95,7 +95,11 @@ get_version() {
     PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
     readonly PANEL_VER
     # Latest CtrlPanel version
-    PANEL_LATEST_VER=$(curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags | jq -r '.[0].name')
+    PANEL_LATEST_VER=$(
+        curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags |
+        sed -n 's/.*"name": "\([^"]*\)".*/\1/p' |
+        head -n 1
+    )
     readonly PANEL_LATEST_VER
 }
 
