@@ -3,6 +3,7 @@
 # System vars | DO NOT TOUCH!!!
 readonly SCRIPT_VER="0.0.1"
 readonly DEFAULT_DIR="/var/www/controlpanel/"
+readonly DEPENDENCIES_INSTALLED_FILE="/bin/.CHdeps.lock"
 cpgg_dir=""
 cli_mode="false"
 
@@ -207,6 +208,12 @@ set_cpgg_dir
 
 # Moving to the CtrlPanel directory
 cd "${cpgg_dir:-$DEFAULT_DIR}" || { echo " ERROR: An error occurred while trying to switch to the working directory. Please try to run the script again, if the error persists, create support forum post on CtrlPanel's Discord server!"; exit 1; }
+
+# Install script dependencies on first run
+if [ ! -f "${cpgg_dir:-$DEFAULT_DIR}$DEPENDENCIES_INSTALLED_FILE" ]; then
+    sudo apt-get install -y curl jq grep > /dev/null 2>&1 || { echo " ERROR: An error occurred while trying to install script dependencies. Please try to run the script again, if the error persists, create support forum post on CtrlPanel's Discord server!"; exit 1; }
+    touch "${cpgg_dir:-$DEFAULT_DIR}$DEPENDENCIES_INSTALLED_FILE"
+fi
 
 # Main functions
 if [ "$cli_mode" == "false" ]; then
