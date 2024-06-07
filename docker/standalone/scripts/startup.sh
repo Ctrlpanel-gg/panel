@@ -35,7 +35,7 @@ log_message "Permissions of /var/www/html:"
 ls -la /var/www/html
 
 # Check if project folder is empty.
-if [ -z "$(ls -A /var/www/html)" ]; then
+if [ ! -d "/var/www/html/public" ]; then
     chown -R laravel:laravel /var/www/html/
     chmod -R 777 /var/www/html/
     log_message "Warning: project folder is empty. Copying default files..."
