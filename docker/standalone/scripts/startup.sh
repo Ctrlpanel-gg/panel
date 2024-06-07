@@ -25,8 +25,14 @@ log_message() {
     echo "$1"
 }
 
+log_message "Permissions of /var/www/html:"
+ls -la /var/www/html
+
 # The issue seems that "index.nginx-debian.html" seems to be in the folder, hence the next check will always fail.
 rm /var/www/html/index.nginx-debian.html
+
+log_message "Permissions of /var/www/html:"
+ls -la /var/www/html
 
 # Check if project folder is empty.
 if [ -z "$(ls -A /var/www/html)" ]; then
