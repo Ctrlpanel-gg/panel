@@ -9,7 +9,7 @@ Once you have Docker installed, you can run CtrlPanel standalone Docker by execu
 
 Recommended way via Docker Compose:
 
-1. Copy and configure your docker compose file to your needs `curl -L -o docker-compose.yml https://raw.githubusercontent.com/Ctrlpanel-gg/panel/blob/main/docker/standalone/compose.yaml`.
+1. Copy and configure your docker compose file to your needs `curl -L -o compose.yaml https://raw.githubusercontent.com/Ctrlpanel-gg/panel/blob/main/docker/standalone/compose.yaml`.
 2. Create the env file in the same directory as the compose file `touch env_file`.
 3. When installing you need to update the `env_file` file. Change those two variables to: `MEMCACHED_HOST=redis` and `REDIS_HOST=redis`, to use the Redis server which comes with the docker compose installation.
 
