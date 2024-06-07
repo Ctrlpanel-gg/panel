@@ -27,8 +27,6 @@ log_message() {
 
 # Check if public folder is exists. If not, copy project.
 if [ ! -d "/var/www/html/public" ]; then
-#    chown -R laravel:laravel /var/www/html/
-#    chmod -R 777 /var/www/html/
     log_message "Warning: project folder is empty. Copying default files..."
     # Copy everything from /var/default to /var/www/html
     cp -nr /var/default/. /var/www/html   # Use -n to avoid overwriting existing files
