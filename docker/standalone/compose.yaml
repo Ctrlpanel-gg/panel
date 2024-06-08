@@ -11,6 +11,7 @@ services:
     volumes:
       - './logs:/var/www/html/storage/logs:w'
       - './env_file:/var/www/html/.env'
+      #- './website_files:/var/www/html:rw' # optionally use this, in case you want/need access to all project files, to use like addons/plugins.
     networks:
       - ctrlpanel
 

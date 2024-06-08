@@ -7,19 +7,19 @@ If you're using a different operating system, you can follow the official Docker
 
 Once you have Docker installed, you can run CtrlPanel standalone Docker by executing the following command:
 
+Running as commandline command:
+
+```bash
+docker run -p 80:80 -p 443:443 -v /path/to/website_files:/var/www/html ghcr.io/ctrlpanel-gg/panel:latest
+```
+
+This command will run the latest CtrlPanel Docker image from GitHub Container Registry and run it.
+
 Recommended way via Docker Compose:
 
 1. Copy and configure your docker compose file to your needs `curl -L -o compose.yaml https://raw.githubusercontent.com/Ctrlpanel-gg/panel/blob/main/docker/standalone/compose.yaml`.
 2. Create the env file in the same directory as the compose file `touch env_file`.
 3. When installing you need to update the `env_file` file. Change those two variables to: `MEMCACHED_HOST=redis` and `REDIS_HOST=redis`, to use the Redis server which comes with the docker compose installation.
-
-Running as commandline command:
-
-```bash
-docker run -p 80:80 -p 443:443 -v /path/to/website_files:/var/www/html -v /path/to/nginx_config:/etc/nginx/conf.d/ ghcr.io/ctrlpanel-gg/panel:latest
-```
-
-This command will run the latest CtrlPanel Docker image from Docker Hub and run it.
 
 The control panel will be available at http://localhost/install and will be a completely fresh installation.
 
