@@ -12,6 +12,7 @@ services:
       - './logs:/var/www/html/storage/logs:w'
       - './env_file:/var/www/html/.env'
       - './website_files:/var/www/html:rw' # optionally remove this bind mount, it's not needed unless you want access to all project files, to modify the project with addons/plugins.
+      - './nginx_config:/etc/nginx/conf.d/:rw' # optionally remove this bind mount, it's not needed unless you want to modify the project with addons/plugins. (dangerous to edit)
     networks:
       - ctrlpanel
 
