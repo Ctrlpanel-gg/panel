@@ -1,10 +1,10 @@
 services:
   # TODO: add wings and pterodactyl
-  controlpanel_panel:
+  ctrlpanel_panel:
     build:
       context: ../../
       dockerfile: ./docker/standalone/Dockerfile
-    container_name: controlpanel_development
+    container_name: ctrlpanel_development
     restart: unless-stopped
     ports:
       - "80:80"
@@ -13,11 +13,11 @@ services:
       - '../..:/var/www/html:rw'
       - './nginx_config:/etc/nginx/conf.d/:rw'
     networks:
-      - controlpanel
+      - ctrlpanel
 
   mysql:
     image: mysql
-    container_name: controlpanel_mysql
+    container_name: ctrlpanel_mysql
     restart: unless-stopped
     tty: true
     ports:
@@ -30,31 +30,31 @@ services:
     volumes:
       - "./mysql:/var/lib/mysql:delegated"
     networks:
-      - controlpanel
+      - ctrlpanel
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: controlpanel_phpmyadmin
+    container_name: ctrlpanel_phpmyadmin
     depends_on:
       - mysql
     ports:
       - '8080:80'
     environment:
-      - PMA_HOST=controlpanel_mysql
+      - PMA_HOST=ctrlpanel_mysql
       - PMA_USER=root
       - PMA_PASSWORD=root
       - PMA_ARBITRARY=1
     networks:
-      - controlpanel
+      - ctrlpanel
 
   redis:
     image: redis
-    container_name: controlpanel_redis
+    container_name: ctrlpanel_redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     networks:
-      - controlpanel
+      - ctrlpanel
 
 networks:
-  controlpanel:
+  ctrlpanel:

@@ -1,7 +1,7 @@
 services:
-  controlpanel:
+  ctrlpanel:
     image: ghcr.io/ctrlpanel-gg/panel:latest
-    container_name: controlpanel_panel
+    container_name: ctrlpanel_panel
     restart: unless-stopped
     depends_on:
       - redis
@@ -12,11 +12,11 @@ services:
       - './logs:/var/www/html/storage/logs:w'
       - './env_file:/var/www/html/.env'
     networks:
-      - controlpanel
+      - ctrlpanel
 
   mysql:
     image: mysql
-    container_name: controlpanel_mysql
+    container_name: ctrlpanel_mysql
     restart: unless-stopped
     tty: true
     ports:
@@ -29,32 +29,32 @@ services:
     volumes:
       - "./mysql:/var/lib/mysql:delegated"
     networks:
-      - controlpanel
+      - ctrlpanel
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: controlpanel_phpmyadmin
+    container_name: ctrlpanel_phpmyadmin
     restart: unless-stopped
     depends_on:
       - mysql
     ports:
       - '8080:80'
     environment:
-      - PMA_HOST=controlpanel_mysql
+      - PMA_HOST=ctrlpanel_mysql
       - PMA_USER=root # change it
       - PMA_PASSWORD=root # change it
       - PMA_ARBITRARY=1
     networks:
-      - controlpanel
+      - ctrlpanel
 
   redis:
     image: redis
-    container_name: controlpanel_redis
+    container_name: ctrlpanel_redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     networks:
-      - controlpanel
+      - ctrlpanel
 
 networks:
-  controlpanel:
+  ctrlpanel:
