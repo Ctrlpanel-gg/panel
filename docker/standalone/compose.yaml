@@ -11,7 +11,7 @@ services:
     volumes:
       - './logs:/var/www/html/storage/logs:w'
       - './env_file:/var/www/html/.env'
-      - './website_files:/var/www/html:rw' # optionally use remove this bind mount, it's not needed unless you want access to all project files, to modify the project with addons/plugins.
+      - './website_files:/var/www/html:rw' # optionally remove this bind mount, it's not needed unless you want access to all project files, to modify the project with addons/plugins.
     networks:
       - ctrlpanel
 
