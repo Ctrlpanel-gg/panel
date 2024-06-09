@@ -14,4 +14,6 @@ At this time, we only accept vulnerability reports through GitHub Advisories. We
 
 ### CtrlPanel Versions
 
+- Latests
+
 We strongly recommend using or upgrading to the latest version of CtrlPanel to ensure you have access to the latest security fixes and enhancements.

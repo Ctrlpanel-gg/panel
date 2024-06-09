@@ -26,7 +26,8 @@ CtrlPanel offers an easy-to-use and free billing solution for all starting and e
 - Account Management
 - Admin Dashboard and Tools
 - Addon Support
-- and more!
+- Multiple Languages Supported
+- and More!
 
 ## ⛰️ Live Demo
 
@@ -74,7 +75,7 @@ Roadmap: [CtrlPanel Roadmap](https://github.com/orgs/Ctrlpanel-gg/projects/1)
 
 ## 🗣️ Discussion / Ask for Help
 
-For any general or technical questions, join CtrlPanel Discord for finding answers to your question. If you cannot find the information you need, feel free to ask.
+For any general or technical questions, join CtrlPanel [Discord](https://discord.gg/4Y6HjD2uyU) for finding answers to your question. If you cannot find the information you need, feel free to ask.
 
 ## 🤝 Contributing
 
