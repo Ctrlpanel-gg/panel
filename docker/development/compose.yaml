@@ -1,6 +1,6 @@
 services:
   # TODO: add wings and pterodactyl
-  ctrlpanel_panel:
+  ctrlpanel_development:
     build:
       context: ../../
       dockerfile: ./docker/standalone/Dockerfile
