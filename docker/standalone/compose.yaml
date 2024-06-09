@@ -1,0 +1,62 @@
+services:
+  ctrlpanel_standalone:
+    image: ghcr.io/ctrlpanel-gg/panel:latest
+    container_name: ctrlpanel_standalone
+    restart: unless-stopped
+    depends_on:
+      - redis
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - './logs:/var/www/html/storage/logs:w'
+      - './env_file:/var/www/html/.env'
+      - './website_files:/var/www/html:rw' # optionally remove this bind mount, it's not needed unless you want access to all project files, to modify the project with addons/plugins.
+      - './nginx_config:/etc/nginx/conf.d/:rw' # optionally remove this bind mount, it's not needed unless you want to modify the project with addons/plugins. (dangerous to edit)
+    networks:
+      - ctrlpanel
+
+  mysql:
+    image: mysql
+    container_name: ctrlpanel_mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ctrlpanel
+      MYSQL_USER: ctrlpaneluser
+      MYSQL_PASSWORD: root # change it
+      MYSQL_ROOT_PASSWORD: root # change it
+    volumes:
+      - "./mysql:/var/lib/mysql:delegated"
+    networks:
+      - ctrlpanel
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: ctrlpanel_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - '8080:80'
+    environment:
+      - PMA_HOST=ctrlpanel_mysql
+      - PMA_USER=root # change it
+      - PMA_PASSWORD=root # change it
+      - PMA_ARBITRARY=1
+    networks:
+      - ctrlpanel
+
+  redis:
+    image: redis
+    container_name: ctrlpanel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - ctrlpanel
+
+networks:
+  ctrlpanel:
