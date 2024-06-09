@@ -72,16 +72,10 @@ function cardStart($title, $subtitle = null)
 
         <ul class="list-none mb-2">
 
-            <li class="<?php echo checkHTTPS() == true ? 'ok' : 'not-ok'; ?> check">HTTPS is required</li>
-
             <li class="<?php echo checkWriteable() == true ? 'ok' : 'not-ok'; ?> check">Write-permissions on .env-file</li>
 
             <li class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
                 php version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)
-            </li>
-
-            <li class="<?php echo getMySQLVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
-                mysql version: <?php echo getMySQLVersion(); ?> (minimum required <?php echo $requirements['mysql']; ?>)
             </li>
 
             <li class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'not-ok'; ?> check">
@@ -93,10 +87,6 @@ function cardStart($title, $subtitle = null)
                 echo count(checkExtensions()) == 0 ? '' : '(Proceed anyway)'; ?>
             </li>
 
-
-            <!-- <li class="<?php echo getZipVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check"> Zip
-                    version: <?php echo getZipVersion(); ?> </li> -->
-
             <li class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
                 Git version:
                 <?php echo getGitVersion(); ?>
@@ -106,6 +96,16 @@ function cardStart($title, $subtitle = null)
                 Tar version:
                 <?php echo getTarVersion(); ?>
             </li>
+
+            <li>
+                <p class="text-neutral-400 mb-1">
+                    <br>
+                    <span style="color: #eab308;">Important:</span>
+                    CtrlPanel.gg requires a MySQL-Database, Redis-Server, and Pterodactyl-Panel to work.<br>
+                    Please make sure you have these installed and running before you continue.
+                </p>
+            </li>
+
         </ul>
 
         </div>
