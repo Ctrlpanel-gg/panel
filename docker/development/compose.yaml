@@ -1,11 +1,11 @@
 services:
   # TODO: add wings and pterodactyl
-  controlpanel_standalone:
+  ctrlpanel_development:
     build:
       context: ../../
       dockerfile: ./docker/standalone/Dockerfile
-    container_name: controlpanel_development
-    restart: on-failure
+    container_name: ctrlpanel_development
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
@@ -13,48 +13,48 @@ services:
       - '../..:/var/www/html:rw'
       - './nginx_config:/etc/nginx/conf.d/:rw'
     networks:
-      - laravel
+      - ctrlpanel
 
   mysql:
     image: mysql
-    container_name: controlpanel_mysql
+    container_name: ctrlpanel_mysql
     restart: unless-stopped
     tty: true
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: controlpanel
-      MYSQL_USER: controlpanel
+      MYSQL_DATABASE: ctrlpanel
+      MYSQL_USER: ctrlpaneluser
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - "./mysql:/var/lib/mysql:delegated"
     networks:
-      - laravel
+      - ctrlpanel
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: controlpanel_phpmyadmin
+    container_name: ctrlpanel_phpmyadmin
     depends_on:
       - mysql
     ports:
       - '8080:80'
     environment:
-      - PMA_HOST=controlpanel_mysql
+      - PMA_HOST=ctrlpanel_mysql
       - PMA_USER=root
       - PMA_PASSWORD=root
       - PMA_ARBITRARY=1
     networks:
-      - laravel
+      - ctrlpanel
 
   redis:
     image: redis
-    container_name: controlpanel_redis
+    container_name: ctrlpanel_redis
     restart: unless-stopped
     ports:
       - "6379:6379"
     networks:
-      - laravel
+      - ctrlpanel
 
 networks:
-  laravel:
+  ctrlpanel:

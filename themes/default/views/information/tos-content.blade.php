@@ -18,7 +18,7 @@
 
 <ol>
     <li>AGREEMENT TO TERMS</li>
-    <li>NTELLECTUAL PROPERTY RIGHTS</li>
+    <li>INTELLECTUAL PROPERTY RIGHTS</li>
     <li>USER REPRESENTATIONS</li>
     <li>USER REGISTRATION</li>
     <li>PRODUCTS</li>

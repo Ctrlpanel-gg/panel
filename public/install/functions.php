@@ -243,7 +243,6 @@ function run_console(string $command, array $descriptors = null, string $cwd = n
     if ($exit_code > 0) {
         wh_log('command result: ' . $output, 'error');
         throw new Exception("There was an error after running command `$command`", $exit_code);
-        return $output;
     } else {
         return $output;
     }

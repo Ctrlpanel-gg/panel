@@ -25,14 +25,17 @@ log_message() {
     echo "$1"
 }
 
-# Check if project folder is empty.
-if [ -z "$(ls -A /var/www/html)" ]; then
+# Check if public folder is exists. If not, copy project.
+if [ ! -d "/var/www/html/public" ]; then
     log_message "Warning: project folder is empty. Copying default files..."
     # Copy everything from /var/default to /var/www/html
     cp -nr /var/default/. /var/www/html   # Use -n to avoid overwriting existing files
     chown -R laravel:laravel /var/www/html/
-    chmod -R 755 /var/www/html
+    chmod -R 755 /var/www/html/
 fi
+
+# Copy .env file for it to be available when starting the Docker container (to be able to bind-mount it to the host, instead of the entire project folder).
+cp -n /var/default/.env.example /var/www/html/.env   # Use -n to avoid overwriting existing files
 
 # Check and copy default Nginx configuration if not exists
 if [ ! -f "/etc/nginx/conf.d/default.conf" ]; then
