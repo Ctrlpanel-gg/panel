@@ -239,7 +239,7 @@
                 payment_method: '',
                 coupon_code: '',
                 submitted: false,
-                totalPrice: {{ $discountedprice }},
+                totalPrice: {{ $total }},
                 couponDiscountedValue: 0,
 
 
