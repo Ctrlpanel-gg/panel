@@ -12,6 +12,8 @@ At this time, we only accept vulnerability reports through GitHub Advisories. We
 
 ## Supported Versions
 
+- Latests
+
 ### ControlPanel Versions
 
 We strongly recommend using or upgrading to the latest version of ControlPanel to ensure you have access to the latest security fixes and enhancements.
