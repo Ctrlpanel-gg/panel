@@ -1,7 +1,7 @@
 services:
-  ctrlpanel:
+  ctrlpanel_standalone:
     image: ghcr.io/ctrlpanel-gg/panel:latest
-    container_name: ctrlpanel_panel
+    container_name: ctrlpanel_standalone
     restart: unless-stopped
     depends_on:
       - redis
