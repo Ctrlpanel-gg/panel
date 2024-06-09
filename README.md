@@ -1,67 +1,88 @@
-### Features
-
--   PayPal, Stripe and Mollie Integration
--   Hourly, Weekely, Monthly, Quarterly and Annual billing Cycles
--   Referral System
--   Partner System
--   Ticket System
--   Upgrade/Downgrade Server Resources
--   Store (credit system with hourly billing and invoices)
--   Email Verification
--   Audit Log
--   Admin Dashboard
--   User/Server Management
--   Customisable server plans
--   Vouchers
--   Alert System
--   Theme Support
--   and so much more!
+<div align="center">
+    <img src="https://ctrlpanel.gg/img/controlpanel.png" width="128" alt="" />
+</div>
 
 # CtrlPanel-gg
 
-![ctrlpanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
+CtrlPanel offers an easy-to-use and free billing solution for all starting and experienced hosting providers that seamlessly integrates with the Pterodactyl panel. It facilitates account creation, server ordering, and management, while offering addons, multiple payment methods, and customizable themes for a comprehensive solution.
 
+![GitHub tag](https://img.shields.io/github/tag/ControlPanel-gg/dashboard)
+![Overall Installations](https://img.shields.io/badge/Overall%20Installations-5000%2B-green)
+![GitHub stars](https://img.shields.io/github/stars/ControlPanel-gg/dashboard)
+[![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg)
+![License](https://img.shields.io/github/license/ControlPanel-gg/dashboard)
+![Discord](https://img.shields.io/discord/787829714483019826)
 
-![](https://img.shields.io/endpoint?label=v0.9%20Installations&url=https%3A%2F%2Fmarket.ctrlpanel.gg%2Fcallhome.php%3Fgetinstalls)
-![](https://img.shields.io/badge/Overall%20Installations-5000%2B-green)
-![](https://img.shields.io/github/stars/ctrlpanel-gg/dashboard) ![](https://img.shields.io/github/forks/ctrlpanel-gg/panel) ![](https://img.shields.io/github/tag/ctrlpanel-gg/panel) [![Crowdin](https://badges.crowdin.com/project/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) ![](https://img.shields.io/github/issues/ctrlpanel-gg/panel) ![](https://img.shields.io/github/license/ctrlpanel-gg/panel) ![](https://img.shields.io/discord/787829714483019826)
-## About
+![CtrlPanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
 
-CtrlPanel's Dashboard is a dashboard application designed to offer clients a management tool to manage their pterodactyl servers. This dashboard comes with a credit-based billing solution that charges users depending on the billing cycle you chose for each server they have and suspends them if they run out of credits.
+## ⭐ Features
 
-This dashboard offers an easy to use and free billing solution for all starting and experienced hosting providers. This dashboard has many customisation options and added discord Oauth verification to offer a solid link between your discord server and your dashboard. You can check our [Demo here](https://demo.CtrlPanel.gg "Demo").
+- Store (credit system with hourly billing and invoices)
+- Many Popular Payment Methods
+- Referral
+- Partner
+- Vouchers
+- Ticket
+- Account Management
+- Admin Dashboard and Tools
+- Addon Support
+- Multiple Languages Supported
+- and More!
 
-### [Installation](https://ctrlpanel.gg/docs/intro "Installation")
+## ⛰️ Live Demo
 
-### [Updating](https://ctrlpanel.gg/docs/Installation/updating "Updating")
+Try it!
 
-### [Discord](https://discord.gg/4Y6HjD2uyU "Discord")
+Demo Server: [demo.CtrlPanel.gg](https://demo.CtrlPanel.gg)
 
-### [Contributing](https://ctrlpanel.gg/docs/Contributing/contributing "Contributing")
+<!-- It is a temporary live demo; all data will be deleted. -->
 
-### [Donating](https://ctrlpanel.gg/docs/Contributing/donating "Donating")
+## 🔧 How to Install
 
+### 🐳 Docker
 
+Soon...
 
-# Preview
+<!-- ```bash
+docker run ...
+```
 
-### Server Creation
-![image](https://user-images.githubusercontent.com/67899387/214687234-d1ae58c0-5667-4e99-ac39-adeaabfcc7f2.png)
+CtrlPanel is now running on [0.0.0.0:3001](http://0.0.0.0:3001). Don't forget to configure the database and Pterodactyl. [Documentation](documentation link here)
 
-### Overview
-![image](https://user-images.githubusercontent.com/67899387/214685859-03c8d9e1-c685-4a07-979f-df2e88ec3931.png)
+more info: [Docker](docker documentation link here) -->
 
-### Example server products
-![image](https://user-images.githubusercontent.com/67899387/214686950-218e1ede-6a1f-4e53-b3f4-fe1abc371a9c.png)
+### 💪🏻 Non-Docker
 
-### Ticket System
-![image](https://user-images.githubusercontent.com/67899387/214687123-0a3d0f8f-b53c-4b0d-869a-4d5df45f5184.png)
+Requirements:
 
-### Voucher System
-![image](https://user-images.githubusercontent.com/67899387/214686578-ec9f0b0f-6047-4665-835f-70594b56dfd5.png)
+- Platform
+  - Major Linux distros such as Debian, Ubuntu, CentOS, Fedora, and ArchLinux etc.
+  - Windows 10 (x64), Windows Server ...
 
-### Partner System
-![image](https://user-images.githubusercontent.com/67899387/214686321-36ba97a3-4181-4e60-9ba3-c9b318fe66a8.png)
+Follow the [documentation](https://ctrlpanel.gg/docs/intro) to know how to install.
 
+### MarketPlace
 
+If you need more functionality, check out [Marketplace](https://market.ctrlpanel.gg/resources/).
 
+## 🆙 How to Update
+
+Please read: [Update Instructions](https://ctrlpanel.gg/docs/Installation/updating)
+
+## 🆕 What's Next?
+
+Roadmap: [CtrlPanel Roadmap](https://github.com/orgs/Ctrlpanel-gg/projects/1)
+
+## 🗣️ Discussion / Ask for Help
+
+For any general or technical questions, join CtrlPanel [Discord](https://discord.gg/4Y6HjD2uyU) for finding answers to your question. If you cannot find the information you need, feel free to ask.
+
+## 🤝 Contributing
+
+Please read [CONTRIBUTING.md](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+Thanks to all contributors and supporters!
+
+## ♥️ Donations
+
+If you like what we do, please consider [supporting](https://ctrlpanel.gg/docs/Contributing/donating) us.
