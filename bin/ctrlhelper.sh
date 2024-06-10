@@ -75,7 +75,7 @@ set_cpgg_dir() {
             done
         fi
     else
-        if [ -z "$cpgg_dir" ]; then
+        if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
             # If user uses --cli flag, default directory doesn't exists and user did not specify the directory using --cpgg-dir then return an error and stop script
             echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed using --cpgg-dir argument"
             exit 1
