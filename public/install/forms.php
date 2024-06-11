@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
+use Predis\Client;
 
 require 'phpmailer/Exception.php';
 require 'phpmailer/PHPMailer.php';
@@ -69,7 +70,7 @@ if (isset($_POST['feedDB'])) {
 
         wh_log('Feeding the Database successful', 'debug');
         header('LOCATION: index.php?step=2.6');
-    } catch (\Throwable $th) {
+    } catch (Throwable $th) {
         wh_log('Feeding the Database failed', 'error');
         header("LOCATION: index.php?step=2.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
     }
@@ -81,13 +82,27 @@ if (isset($_POST['redisSetup'])) {
     $redisPort = $_POST['redisport'];
     $redisPassword = $_POST['redispassword'];
 
-    setenv('MEMCACHED_HOST', $redisHost);
-    setenv('REDIS_HOST', $redisHost);
-    setenv('REDIS_PORT', $redisPort);
-    setenv('REDIS_PASSWORD', ($redisPassword === '' ? 'null' : $redisPassword));
+    $redisClient = new Client([
+        'host'     => $redisHost,
+        'port'     => $redisPort,
+        'password' => $redisPassword,
+        'timeout'  => 1.0,
+    ]);
 
-    wh_log('Redis settings set', 'debug');
-    header('LOCATION: index.php?step=3');
+    try {
+        $redisClient->ping();
+
+        setenv('MEMCACHED_HOST', $redisHost);
+        setenv('REDIS_HOST', $redisHost);
+        setenv('REDIS_PORT', $redisPort);
+        setenv('REDIS_PASSWORD', ($redisPassword === '' ? 'null' : $redisPassword));
+
+        wh_log('Redis connection successful. Settings updated.', 'debug');
+        header('LOCATION: index.php?step=3');
+    } catch (Throwable $th) {
+        wh_log('Redis connection failed. Settings updated.', 'debug');
+        header("LOCATION: index.php?step=2.6&message=Please check your credentials!<br>" . $th->getMessage());
+    }
 }
 
 if (isset($_POST['checkGeneral'])) {
@@ -221,7 +236,7 @@ if (isset($_POST['checkPtero'])) {
             run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'");
             wh_log('Database updated', 'debug');
             header('LOCATION: index.php?step=6');
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             wh_log("Setting Pterodactyl information failed.", 'error');
             header("LOCATION: index.php?step=5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
         }
@@ -246,7 +261,7 @@ if (isset($_POST['createUser'])) {
         $admin_token = run_console("php artisan settings:get 'PterodactylSettings' 'admin_token' --sameline");
         wh_log('Database updated', 'debug');
         header('LOCATION: index.php?step=6');
-    } catch (\Throwable $th) {
+    } catch (Throwable $th) {
         wh_log("Getting Pterodactyl information failed.", 'error');
         header("LOCATION: index.php?step=5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
     }
