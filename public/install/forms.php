@@ -48,22 +48,6 @@ if (isset($_POST['checkDB'])) {
     header('LOCATION: index.php?step=2.5');
 }
 
-if (isset($_POST['checkGeneral'])) {
-    wh_log('setting app settings', 'debug');
-    $appname = '"' . $_POST['name'] . '"';
-    $appurl = $_POST['url'];
-
-    if (substr($appurl, -1) === '/') {
-        $appurl = substr_replace($appurl, '', -1);
-    }
-
-    setenv('APP_NAME', $appname);
-    setenv('APP_URL', $appurl);
-
-    wh_log('App settings set', 'debug');
-    header('LOCATION: index.php?step=4');
-}
-
 if (isset($_POST['feedDB'])) {
     wh_log('Feeding the Database', 'debug');
     $logs = '';
@@ -84,11 +68,42 @@ if (isset($_POST['feedDB'])) {
         wh_log($logs, 'debug');
 
         wh_log('Feeding the Database successful', 'debug');
-        header('LOCATION: index.php?step=3');
+        header('LOCATION: index.php?step=2.6');
     } catch (\Throwable $th) {
         wh_log('Feeding the Database failed', 'error');
         header("LOCATION: index.php?step=2.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
     }
+}
+
+if (isset($_POST['redisSetup'])) {
+    wh_log('Setting up Redis', 'debug');
+    $redisHost = $_POST['redishost'];
+    $redisPort = $_POST['redisport'];
+    $redisPassword = $_POST['redispassword'];
+
+    setenv('MEMCACHED_HOST', $redisHost);
+    setenv('REDIS_HOST', $redisHost);
+    setenv('REDIS_PORT', $redisPort);
+    setenv('REDIS_PASSWORD', ($redisPassword === '' ? 'null' : $redisPassword));
+
+    wh_log('Redis settings set', 'debug');
+    header('LOCATION: index.php?step=3');
+}
+
+if (isset($_POST['checkGeneral'])) {
+    wh_log('setting app settings', 'debug');
+    $appname = '"' . $_POST['name'] . '"';
+    $appurl = $_POST['url'];
+
+    if (substr($appurl, -1) === '/') {
+        $appurl = substr_replace($appurl, '', -1);
+    }
+
+    setenv('APP_NAME', $appname);
+    setenv('APP_URL', $appurl);
+
+    wh_log('App settings set', 'debug');
+    header('LOCATION: index.php?step=4');
 }
 
 if (isset($_POST['checkSMTP'])) {
