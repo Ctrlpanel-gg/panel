@@ -138,7 +138,7 @@ function cardStart($title, $subtitle = null)
                     <div class="form-group">
                         <div class="flex flex-col mb-3">
                             <label for="databasehost">Database Host</label>
-                            <input x-model="databasehost" id="databasehost" name="databasehost" type="text" required value="127.0.0.1" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                            <input x-model="databasehost" id="databasehost" name="databasehost" type="text" required value="<?php echo (determineIfRunningInDocker() ? 'mysql' : '127.0.0.1')?>" class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                         </div>
                     </div>
                     <div class="form-group">
