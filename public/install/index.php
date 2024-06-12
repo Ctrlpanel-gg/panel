@@ -135,7 +135,7 @@ if (isset($_GET['step']) && $_GET['step'] == 2) {
                                 class="px-2 py-2 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             <?php
                             foreach (DateTimeZone::listIdentifiers() as $timezoneIdentifier) {
-                                if ($timezoneIdentifier == 'UTC') {
+                                if ($timezoneIdentifier === 'UTC') {
                                     continue;
                                 }
 
@@ -147,7 +147,7 @@ if (isset($_GET['step']) && $_GET['step'] == 2) {
             </div>
         </div>
 
-        <div class="w-full flex justify-center ">
+        <div class="w-full flex justify-center">
             <button
                 class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
                 name="timezoneConfig">Submit
@@ -205,7 +205,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3) {
                         <label for="databaseuserpass">Database User Password</label>
                         <input x-model="databaseuserpass" id="databaseuserpass" name="databaseuserpass" type="text"
                                required
-                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none ">
+                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                     </div>
                 </div>
 
@@ -219,7 +219,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3) {
             </div>
         </div>
 
-        <div class="w-full flex justify-center ">
+        <div class="w-full flex justify-center">
             <button
                 class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
                 name="checkDB">Submit
@@ -240,7 +240,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
             echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
         } ?>
 
-        <div class="w-full flex justify-center ">
+        <div class="w-full flex justify-center">
             <button
                 class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
                 name="feedDB">Submit
@@ -330,7 +330,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
                 </div>
             </div>
 
-            <div class="w-full flex justify-center ">
+            <div class="w-full flex justify-center">
                 <button
                     class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
                     name="checkGeneral">Submit
@@ -468,7 +468,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
                     </div>
                 </div>
             </div>
-            <div class="w-full flex justify-center ">
+            <div class="w-full flex justify-center">
                 <button
                     class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
                     name="checkPtero">Submit
@@ -516,7 +516,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
                 </div>
             </div>
 
-            <div class="w-full flex justify-center ">
+            <div class="w-full flex justify-center">
                 <button
                     class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
                     name="createUser">Submit
@@ -537,7 +537,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
         echo cardStart($title = "Installation Complete!", $subtitle = "You may navigate to your Dashboard now and log in!");
         ?>
 
-        <a href="<?php echo getenv('APP_URL'); ?>" class="w-full flex justify-center ">
+        <a href="<?php echo getenv('APP_URL'); ?>" class="w-full flex justify-center">
             <button
                 class="mt-2 px-4 py-2 font-bold rounded-md bg-green-500/90 hover:bg-green-600 shadow-green-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-green-500">
                 Lets Go!
