@@ -87,7 +87,7 @@ if (isset($_POST['feedDB'])) {
         header('LOCATION: index.php?step=3');
     } catch (\Throwable $th) {
         wh_log('Feeding the Database failed', 'error');
-        header("LOCATION: index.php?step=2.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
+        header("LOCATION: index.php?step=2.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/ctrlpanel/storage/logs !");
     }
 }
 

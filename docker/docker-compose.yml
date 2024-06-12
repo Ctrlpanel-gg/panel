@@ -8,7 +8,7 @@ services:
     build:
       context: ../
       dockerfile: docker/nginx/Dockerfile
-    container_name: controlpanel_nginx
+    container_name: ctrlpanel_nginx
     ports:
       - 80:80
     volumes:
@@ -21,14 +21,14 @@ services:
 
   mysql:
     image: mysql
-    container_name: controlpanel_mysql
+    container_name: ctrlpanel_mysql
     restart: unless-stopped
     tty: true
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: controlpanel
-      MYSQL_USER: controlpanel
+      MYSQL_DATABASE: ctrlpanel
+      MYSQL_USER: ctrlpanel
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
     volumes:
@@ -40,7 +40,7 @@ services:
     build:
       context: ../
       dockerfile: docker/php/Dockerfile
-    container_name: controlpanel_php
+    container_name: ctrlpanel_php
     volumes:
       - "../:/var/www/html"
     networks:
@@ -48,13 +48,13 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: controlpanel_phpmyadmin
+    container_name: ctrlpanel_phpmyadmin
     depends_on:
       - mysql
     ports:
       - '8080:80'
     environment:
-      - PMA_HOST=controlpanel_mysql
+      - PMA_HOST=ctrlpanel_mysql
       - PMA_USER=root
       - PMA_PASSWORD=root
       - PMA_ARBITRARY=1
