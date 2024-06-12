@@ -30,10 +30,10 @@ body:
     validations:
       required: false
   - type: textarea
-    id: controlpanel-logs
+    id: ctrlpanel-logs
     attributes:
-      label: Controlpanel Logs
-      description: Please copy and paste your laravel-log output. You may also provide a link to it using the following command `tail -n 100 /var/www/controlpanel/storage/logs/laravel.log | nc pteropaste.com 99`
+      label: CtrlPanel Logs
+      description: Please copy and paste your laravel-log output. You may also provide a link to it using the following command `tail -n 100 /var/www/ctrlpanel/storage/logs/laravel.log | nc pteropaste.com 99`
       render: Shell
   - type: textarea
     id: additional-info

@@ -123,6 +123,7 @@ class ServerController extends Controller
             'server_creation_enabled' => $server_settings->creation_enabled,
             'min_credits_to_make_server' => $user_settings->min_credits_to_make_server,
             'credits_display_name' => $general_settings->credits_display_name,
+            'location_description_enabled' => $server_settings->location_description_enabled,
             'store_enabled' => $general_settings->store_enabled
         ]);
     }
@@ -142,13 +143,10 @@ class ServerController extends Controller
             $product = Product::findOrFail(FacadesRequest::input('product'));
 
             // Get node resource allocation info
-            $node = $product->nodes()->findOrFail(FacadesRequest::input('node'));
-            $nodeName = $node->name;
-
-            // Check if node has enough memory and disk space
-            $checkResponse = $this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
-            if ($checkResponse == false) {
-                return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to allocate this product."));
+            $location = FacadesRequest::input('location');
+            $availableNode = $this->getAvailableNode($location, $product);
+            if (!$availableNode) {
+                return redirect()->route('servers.index')->with('error', __("The chosen location doesn't have the required memory or disk left to allocate this product."));
             }
 
             // Min. Credits
@@ -180,7 +178,7 @@ class ServerController extends Controller
     /** Store a newly created resource in storage. */
     public function store(Request $request, UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $generalSettings)
     {
-        /** @var Node $node */
+        /** @var Location $location */
         /** @var Egg $egg */
         /** @var Product $product */
         $validate_configuration = $this->validateConfigurationRules($user_settings, $server_settings, $generalSettings);
@@ -191,15 +189,23 @@ class ServerController extends Controller
 
         $request->validate([
             'name' => 'required|max:191',
-            'node' => 'required|exists:nodes,id',
+            'location' => 'required|exists:locations,id',
             'egg' => 'required|exists:eggs,id',
             'product' => 'required|exists:products,id',
         ]);
 
-        //get required resources
+        // Get the product and egg
         $product = Product::query()->findOrFail($request->input('product'));
         $egg = $product->eggs()->findOrFail($request->input('egg'));
-        $node = $product->nodes()->findOrFail($request->input('node'));
+
+        // Get an available node
+        $location = $request->input('location');
+        $availableNode = $this->getAvailableNode($location, $product);
+        $node = Node::query()->find($availableNode);
+
+        if(!$node) {
+            return redirect()->route('servers.index')->with('error', __("No nodes satisfying the requirements for automatic deployment on this location were found."));
+        }
 
         $server = $request->user()->servers()->create([
             'name' => $request->input('name'),
@@ -317,7 +323,7 @@ class ServerController extends Controller
             })
             ->get();
 
-        // Set the each product eggs array to just contain the eggs name
+        // Set each product eggs array to just contain the eggs name
         foreach ($products as $product) {
             $product->eggs = $product->eggs->pluck('name')->toArray();
             if ($product->memory - $currentProduct->memory > ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'] || $product->disk - $currentProduct->disk > ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk']) {
@@ -329,7 +335,8 @@ class ServerController extends Controller
             'server' => $server,
             'products' => $products,
             'server_enable_upgrade' => $server_settings->enable_upgrade,
-            'credits_display_name' => $general_settings->credits_display_name
+            'credits_display_name' => $general_settings->credits_display_name,
+            'location_description_enabled' => $server_settings->location_description_enabled,
         ]);
     }
 
@@ -357,8 +364,8 @@ class ServerController extends Controller
         // Check if node has enough memory and disk space
         $requireMemory = $newProduct->memory - $oldProduct->memory;
         $requiredisk = $newProduct->disk - $oldProduct->disk;
-        $checkResponse = $this->pterodactyl->checkNodeResources($node, $requireMemory, $requiredisk);
-        if ($checkResponse == false) {
+        $nodeFree = $this->pterodactyl->checkNodeResources($node, $requireMemory, $requiredisk);
+        if (!$nodeFree) {
             return redirect()->route('servers.index')->with('error', __("The node '" . $nodeName . "' doesn't have the required memory or disk left to upgrade the server."));
         }
 
@@ -394,7 +401,7 @@ class ServerController extends Controller
 
             // Remove the allocation property from the server object as it is not a column in the database
             unset($server->allocation);
-            // Update the server on controlpanel
+            // Update the server on CtrlPanel
             $server->update([
                 'product_id' => $newProduct->id,
                 'updated_at' => now(),
@@ -412,5 +419,31 @@ class ServerController extends Controller
         } else {
             return redirect()->route('servers.show', ['server' => $server->id])->with('error', __('Not Enough Balance for Upgrade'));
         }
+    }
+
+    /**
+     * @param string $location
+     * @param Product $product
+     * @return int | null Node ID
+     */
+    private function getAvailableNode(string $location, Product $product)
+    {
+        $collection = Node::query()->where('location_id', $location)->get();
+
+        // loop through nodes and check if the node has enough resources
+        foreach ($collection as $node) {
+            // Check if the node has enough memory and disk space
+            $freeNode = $this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
+            // Remove the node from the collection if it doesn't have enough resources
+            if (!$freeNode) {
+                $collection->forget($node['id']);
+            }
+        }
+
+        if($collection->isEmpty()) {
+            return null;
+        }
+
+        return $collection->first()['id'];
     }
 }
