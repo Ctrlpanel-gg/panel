@@ -134,8 +134,7 @@ if (isset($_GET['step']) && $_GET['step'] == 2) {
                         <select id="timezone" name="timezone" required
                                 class="px-2 py-2 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                             <?php
-                            $timezoneIdentifiers = DateTimeZone::listIdentifiers();
-                            foreach ($timezoneIdentifiers as $timezoneIdentifier) {
+                            foreach (DateTimeZone::listIdentifiers() as $timezoneIdentifier) {
                                 if ($timezoneIdentifier == 'UTC') {
                                     continue;
                                 }
