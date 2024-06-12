@@ -13,6 +13,16 @@ require 'phpmailer/SMTP.php';
 
 include 'functions.php';
 
+if (isset($_POST['timezoneConfig'])) {
+    wh_log('Setting up Timezone', 'debug');
+    $timezone = $_POST['timezone'];
+
+    setenv('APP_TIMEZONE', $timezone);
+
+    wh_log('Timezone set: ' . $timezone, 'debug');
+    header('LOCATION: index.php?step=3');
+}
+
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
 
 if (isset($_POST['checkDB'])) {
@@ -32,7 +42,7 @@ if (isset($_POST['checkDB'])) {
         $db = new mysqli($_POST['databasehost'], $_POST['databaseuser'], $_POST['databaseuserpass'], $_POST['database'], $_POST['databaseport']);
     } catch (mysqli_sql_exception $e) {
         wh_log($e->getMessage(), 'error');
-        header('LOCATION: index.php?step=2&message=' . $e->getMessage());
+        header('LOCATION: index.php?step=3&message=' . $e->getMessage());
         exit();
     }
 
@@ -46,7 +56,7 @@ if (isset($_POST['checkDB'])) {
     }
 
     wh_log('Database connection successful', 'debug');
-    header('LOCATION: index.php?step=2.5');
+    header('LOCATION: index.php?step=3.5');
 }
 
 if (isset($_POST['feedDB'])) {
@@ -69,10 +79,10 @@ if (isset($_POST['feedDB'])) {
         wh_log($logs, 'debug');
 
         wh_log('Feeding the Database successful', 'debug');
-        header('LOCATION: index.php?step=3');
+        header('LOCATION: index.php?step=4');
     } catch (Throwable $th) {
         wh_log('Feeding the Database failed', 'error');
-        header("LOCATION: index.php?step=2.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
+        header("LOCATION: index.php?step=3.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
     }
 }
 
@@ -98,10 +108,10 @@ if (isset($_POST['redisSetup'])) {
         setenv('REDIS_PASSWORD', ($redisPassword === '' ? 'null' : $redisPassword));
 
         wh_log('Redis connection successful. Settings updated.', 'debug');
-        header('LOCATION: index.php?step=4');
+        header('LOCATION: index.php?step=5');
     } catch (Throwable $th) {
         wh_log('Redis connection failed. Settings updated.', 'debug');
-        header("LOCATION: index.php?step=3&message=Please check your credentials!<br>" . $th->getMessage());
+        header("LOCATION: index.php?step=4&message=Please check your credentials!<br>" . $th->getMessage());
     }
 }
 
@@ -110,15 +120,25 @@ if (isset($_POST['checkGeneral'])) {
     $appname = '"' . $_POST['name'] . '"';
     $appurl = $_POST['url'];
 
-    if (substr($appurl, -1) === '/') {
-        $appurl = substr_replace($appurl, '', -1);
+    $parsedUrl = parse_url($appurl);
+
+    if (!isset($parsedUrl['scheme'])) {
+        header('LOCATION: index.php?step=5&message=Please set an URL Scheme like "https://"!');
+        exit();
     }
+
+    if (!isset($parsedUrl['host'])) {
+        header('LOCATION: index.php?step=5&message=Please set an valid URL host like "https://ctrlpanel.example.com"!');
+        exit();
+    }
+
+    $appurl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
 
     setenv('APP_NAME', $appname);
     setenv('APP_URL', $appurl);
 
     wh_log('App settings set', 'debug');
-    header('LOCATION: index.php?step=5');
+    header('LOCATION: index.php?step=6');
 }
 
 if (isset($_POST['checkSMTP'])) {
@@ -150,7 +170,7 @@ if (isset($_POST['checkSMTP'])) {
         $mail->send();
     } catch (Exception $e) {
         wh_log($mail->ErrorInfo, 'error');
-        header('LOCATION: index.php?step=5&message=Something went wrong while sending test E-Mail!<br>' . $mail->ErrorInfo);
+        header('LOCATION: index.php?step=6&message=Something went wrong while sending test E-Mail!<br>' . $mail->ErrorInfo);
         exit();
     }
 
@@ -159,7 +179,7 @@ if (isset($_POST['checkSMTP'])) {
     $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     if ($db->connect_error) {
         wh_log($db->connect_error, 'error');
-        header('LOCATION: index.php?step=5&message=Could not connect to the Database: ');
+        header('LOCATION: index.php?step=6&message=Could not connect to the Database: ');
         exit();
     }
     $values = [
@@ -177,7 +197,7 @@ if (isset($_POST['checkSMTP'])) {
     }
 
     wh_log('Database updated', 'debug');
-    header('LOCATION: index.php?step=6');
+    header('LOCATION: index.php?step=7');
 }
 
 if (isset($_POST['checkPtero'])) {
@@ -190,12 +210,12 @@ if (isset($_POST['checkPtero'])) {
     $parsedUrl = parse_url($url);
 
     if (!isset($parsedUrl['scheme'])) {
-        header('LOCATION: index.php?step=6&message=Please set an URL Scheme like "https://"!');
+        header('LOCATION: index.php?step=7&message=Please set an URL Scheme like "https://"!');
         exit();
     }
 
     if (!isset($parsedUrl['host'])) {
-        header('LOCATION: index.php?step=6&message=Please set an valid URL host like "https://panel.example.com"!');
+        header('LOCATION: index.php?step=7&message=Please set an valid URL host like "https://panel.example.com"!');
         exit();
     }
 
@@ -231,18 +251,18 @@ if (isset($_POST['checkPtero'])) {
 
     if (!is_array($result)) {
         wh_log('No array in response found', 'error');
-        header('LOCATION: index.php?step=6&message=An unknown Error occured, please try again!');
+        header('LOCATION: index.php?step=7&message=An unknown Error occured, please try again!');
     }
 
     if (array_key_exists('errors', $result) && $result['errors'][0]['detail'] === 'This action is unauthorized.') {
         wh_log('API CALL ERROR: ' . $result['errors'][0]['code'], 'error');
-        header('LOCATION: index.php?step=6&message=Couldn\'t connect to Pterodactyl. Make sure your Application API key has all read and write permissions!');
+        header('LOCATION: index.php?step=7&message=Couldn\'t connect to Pterodactyl. Make sure your Application API key has all read and write permissions!');
         exit();
     }
 
     if (array_key_exists('errors', $callresult) && $callresult['errors'][0]['detail'] === 'Unauthenticated.') {
         wh_log('API CALL ERROR: ' . $callresult['errors'][0]['code'], 'error');
-        header('LOCATION: index.php?step=6&message=Your ClientAPI Key is wrong or the account is not an admin!');
+        header('LOCATION: index.php?step=7&message=Your ClientAPI Key is wrong or the account is not an admin!');
         exit();
     }
 
@@ -251,10 +271,10 @@ if (isset($_POST['checkPtero'])) {
         run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'");
         run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'");
         wh_log('Database updated', 'debug');
-        header('LOCATION: index.php?step=7');
+        header('LOCATION: index.php?step=8');
     } catch (Throwable $th) {
         wh_log("Setting Pterodactyl information failed.", 'error');
-        header("LOCATION: index.php?step=6&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
+        header("LOCATION: index.php?step=7&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
         exit();
     }
 }
@@ -266,7 +286,7 @@ if (isset($_POST['createUser'])) {
         $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     } catch (Throwable $th) {
         wh_log($th->getMessage(), 'error');
-        header('LOCATION: index.php?step=7&message=Could not connect to the Database');
+        header('LOCATION: index.php?step=8&message=Could not connect to the Database');
         exit();
     }
 
@@ -279,7 +299,7 @@ if (isset($_POST['createUser'])) {
         $adminToken = run_console("php artisan settings:get 'PterodactylSettings' 'admin_token' --sameline");
     } catch (Throwable $th) {
         wh_log("Getting Pterodactyl information failed.", 'error');
-        header("LOCATION: index.php?step=6&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
+        header("LOCATION: index.php?step=7&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
         exit();
     }
 
@@ -299,12 +319,12 @@ if (isset($_POST['createUser'])) {
     curl_close($ch);
 
     if ($pass !== $repass) {
-        header('LOCATION: index.php?step=7&message=The Passwords did not match!');
+        header('LOCATION: index.php?step=8&message=The Passwords did not match!');
         exit();
     }
 
     if (array_key_exists('errors', $result)) {
-        header('LOCATION: index.php?step=7&message=Could not find the user with pterodactyl ID ' . $pteroID);
+        header('LOCATION: index.php?step=8&message=Could not find the user with pterodactyl ID ' . $pteroID);
         exit();
     }
 
@@ -341,13 +361,13 @@ if (isset($_POST['createUser'])) {
         $db->query($query2);
 
         wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID);
-        header('LOCATION: index.php?step=8');
+        header('LOCATION: index.php?step=9');
     } catch (Throwable $th) {
         wh_log($th->getMessage(), 'error');
         if (str_contains($th->getMessage(), 'Duplicate entry')) {
-            header('LOCATION: index.php?step=7&message=User already exists in CtrlPanel\'s Database.');
+            header('LOCATION: index.php?step=8&message=User already exists in CtrlPanel\'s Database.');
         } else {
-            header('LOCATION: index.php?step=7&message=Something went wrong when communicating with the Database.');
+            header('LOCATION: index.php?step=8&message=Something went wrong when communicating with the Database.');
         }
         exit();
     }
