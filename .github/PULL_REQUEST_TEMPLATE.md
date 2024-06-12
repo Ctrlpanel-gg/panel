@@ -1,6 +1,6 @@
 ✨ Thank you for your contribution to our project! Before you submit your pull request, please take a moment to review and complete the following
 
-⚠️ Please modify this template below and if not already done, read our pull request rules, Thanks!
+⚠️ Please modify this template below and if not already done, read our contributing rules in .github folder, Thanks!
 
 Ensure that your pull request meets the following criteria:
 

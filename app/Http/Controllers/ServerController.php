@@ -122,7 +122,8 @@ class ServerController extends Controller
             'user' => Auth::user(),
             'server_creation_enabled' => $server_settings->creation_enabled,
             'min_credits_to_make_server' => $user_settings->min_credits_to_make_server,
-            'credits_display_name' => $general_settings->credits_display_name
+            'credits_display_name' => $general_settings->credits_display_name,
+            'store_enabled' => $general_settings->store_enabled
         ]);
     }
 

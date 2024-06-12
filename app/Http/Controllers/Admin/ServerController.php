@@ -228,7 +228,7 @@ class ServerController extends Controller
                 return '<a href="' . route('admin.users.show', $server->user->id) . '">' . $server->user->name . '</a>';
             })
             ->addColumn('resources', function (Server $server) {
-                return $server->product->description;
+                return $server->product->name;
             })
             ->addColumn('actions', function (Server $server) {
                 $suspendColor = $server->isSuspended() ? 'btn-success' : 'btn-warning';
