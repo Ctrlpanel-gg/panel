@@ -15,6 +15,7 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
+use Illuminate\Auth\Events\Verified;
 
 class EventServiceProvider extends ServiceProvider
 {

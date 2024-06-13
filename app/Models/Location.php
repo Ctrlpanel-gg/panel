@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models\Pterodactyl;
+namespace App\Models;
 
-use App\Classes\PterodactylClient;
+use App\Classes\Pterodactyl;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,8 +33,7 @@ class Location extends Model
      */
     public static function syncLocations()
     {
-        $client = app(PterodactylClient::class);
-        $locations = $client->getLocations();
+        $locations = Pterodactyl::getLocations();
 
         //map response
         $locations = array_map(function ($val) {

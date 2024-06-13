@@ -35,7 +35,7 @@
                             <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{ __('Server configuration') }}
                             </div>
                         </div>
-                        @if (!$server_creation_enabled)
+                        @if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_SERVERS'))
                             <div class="alert alert-warning p-2 m-2">
                                 {{ __('The creation of new servers has been disabled for regular users, enable it again') }}
                                 <a href="{{ route('admin.settings.index', "#Server") }}">{{ __('here') }}</a>.
@@ -217,7 +217,7 @@
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
                                                         {{ __('Minimum') }} {{ $credits_display_name }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="product.minimum_credits == -1 ? {{ $min_credits_to_make_server }} : product.minimum_credits"></span>
+                                                        x-text="product.minimum_credits == -1 ? {{ config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') }} : product.minimum_credits"></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -233,7 +233,7 @@
                                                 x-text="'{{ __('Price') }}' + ' (' + product.billing_period + ')'">
                                             </span>
                                             <span class="d-inline-block"
-                                                x-text="product.price + ' {{ $credits_display_name }}'"></span>
+                                                x-text="product.price + ' {{ CREDITS_DISPLAY_NAME }}'"></span>
                                         </div>
                                     </div>
                                     <div>

@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\ExtensionHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
 use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
@@ -83,7 +79,8 @@ class SettingsController extends Controller
         $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
 
         return view('admin.settings.index', [
-            'settings' => $settings->all(),
+            'tabs' => $tabs,
+            'tabListItems' => $tabListItems,
             'themes' => $themes,
             'active_theme' => Theme::active(),
         ]);

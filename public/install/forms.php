@@ -3,16 +3,18 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+use DevCoder\DotEnv;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
+require 'dotenv.php';
 require 'phpmailer/Exception.php';
 require 'phpmailer/PHPMailer.php';
 require 'phpmailer/SMTP.php';
 
-include 'functions.php';
+(new DotEnv(dirname(__FILE__, 3).'/.env'))->load();
 
-mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
+include 'functions.php';
 
 if (isset($_POST['checkDB'])) {
     $values = [
@@ -41,31 +43,27 @@ if (isset($_POST['checkDB'])) {
         // if ($key == "DB_PASSWORD") {
         //    $param = '"' . $_POST[$value] . '"';
         // }
-        setenv($key, $param);
+        setEnvironmentValue($key, $param);
     }
 
-    wh_log('Database connection successful', 'debug');
     header('LOCATION: index.php?step=2.5');
 }
 
 if (isset($_POST['checkGeneral'])) {
-    wh_log('setting app settings', 'debug');
-    $appname = '"' . $_POST['name'] . '"';
+    $appname = '"'.$_POST['name'].'"';
     $appurl = $_POST['url'];
 
     if (substr($appurl, -1) === '/') {
         $appurl = substr_replace($appurl, '', -1);
     }
 
-    setenv('APP_NAME', $appname);
-    setenv('APP_URL', $appurl);
+    setEnvironmentValue('APP_NAME', $appname);
+    setEnvironmentValue('APP_URL', $appurl);
 
-    wh_log('App settings set', 'debug');
     header('LOCATION: index.php?step=4');
 }
 
 if (isset($_POST['feedDB'])) {
-    wh_log('Feeding the Database', 'debug');
     $logs = '';
 
     try {
@@ -92,7 +90,6 @@ if (isset($_POST['feedDB'])) {
 }
 
 if (isset($_POST['checkSMTP'])) {
-    wh_log('Checking SMTP Settings', 'debug');
     try {
         $mail = new PHPMailer(true);
 
@@ -116,16 +113,13 @@ if (isset($_POST['checkSMTP'])) {
 
         $mail->send();
     } catch (Exception $e) {
-        wh_log($mail->ErrorInfo, 'error');
         header('LOCATION: index.php?step=4&message=Something wasnt right when sending the E-Mail!');
         exit();
     }
 
-    wh_log('SMTP Settings are correct', 'debug');
-    wh_log('Updating Database', 'debug');
-    $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+    $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
     if ($db->connect_error) {
-        wh_log($db->connect_error, 'error');
+        wh_log($db->connect_error);
         header('LOCATION: index.php?step=4&message=Could not connect to the Database: ');
         exit();
     }
@@ -144,13 +138,10 @@ if (isset($_POST['checkSMTP'])) {
         $db->query($query);
     }
 
-    wh_log('Database updated', 'debug');
     header('LOCATION: index.php?step=5');
 }
 
 if (isset($_POST['checkPtero'])) {
-    wh_log('Checking Pterodactyl Settings', 'debug');
-
     $url = $_POST['url'];
     $key = $_POST['key'];
     $clientkey = $_POST['clientkey'];
@@ -159,41 +150,41 @@ if (isset($_POST['checkPtero'])) {
         $url = substr_replace($url, '', -1);
     }
 
-    $callpteroURL = $url . '/api/client/account';
+    $callpteroURL = $url.'/api/client/account';
     $call = curl_init();
 
     curl_setopt($call, CURLOPT_URL, $callpteroURL);
     curl_setopt($call, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($call, CURLOPT_HTTPHEADER, [
-        'Accept: Application/vnd.pterodactyl.v1+json',
+        'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $clientkey,
+        'Authorization: Bearer '.$clientkey,
     ]);
     $callresponse = curl_exec($call);
     $callresult = json_decode($callresponse, true);
     curl_close($call); // Close the connection
 
-    $pteroURL = $url . '/api/application/users';
+    $pteroURL = $url.'/api/application/users';
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $pteroURL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Accept: Application/vnd.pterodactyl.v1+json',
+        'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
+        'Authorization: Bearer '.$key,
     ]);
     $response = curl_exec($ch);
     $result = json_decode($response, true);
     curl_close($ch); // Close the connection
 
-    if (!is_array($result) and $result['errors'][0] !== null) {
-        header('LOCATION: index.php?step=5&message=Couldn\'t connect to Pterodactyl. Make sure your API key has all read and write permissions!');
-        wh_log('API CALL ERROR: ' . $result['errors'][0]['code'], 'error');
+    if (! is_array($result) or in_array($result['errors'][0]['code'], $result)) {
+        header('LOCATION: index.php?step=5&message=Couldnt connect to Pterodactyl. Make sure your API key has all read and write permissions!');
+        wh_log('API CALL ERROR: '.$result['errors'][0]['code']);
         exit();
-    } elseif (!is_array($callresult) and $callresult['errors'][0] !== null or $callresult['attributes']['admin'] == false) {
+    } elseif (! is_array($callresult) or in_array($result['errors'][0]['code'], $result) or $callresult['attributes']['admin'] == false) {
         header('LOCATION: index.php?step=5&message=Your ClientAPI Key is wrong or the account is not an admin!');
-        wh_log('API CALL ERROR: ' . $callresult['errors'][0]['code'], 'error');
+        wh_log('API CALL ERROR: '.$result['errors'][0]['code']);
         exit();
     } else {
         wh_log('Pterodactyl Settings are correct', 'debug');
@@ -206,28 +197,26 @@ if (isset($_POST['checkPtero'])) {
         $query2 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($key) . "' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
         $query3 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($clientkey) . "' WHERE (`name` = 'user_token' AND `group` = 'pterodactyl')";
 
-        $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+        $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
         if ($db->connect_error) {
-            wh_log($db->connect_error, 'error');
+            wh_log($db->connect_error);
             header('LOCATION: index.php?step=5&message=Could not connect to the Database');
             exit();
         }
 
         if ($db->query($query1) && $db->query($query2) && $db->query($query3)) {
-            wh_log('Database updated', 'debug');
             header('LOCATION: index.php?step=6');
         } else {
-            wh_log($db->error, 'error');
+            wh_log($db->error);
             header('LOCATION: index.php?step=5&message=Something went wrong when communicating with the Database!');
         }
     }
 }
 
 if (isset($_POST['createUser'])) {
-    wh_log('Creating User', 'debug');
-    $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+    $db = new mysqli(getEnvironmentValue('DB_HOST'), getEnvironmentValue('DB_USERNAME'), getEnvironmentValue('DB_PASSWORD'), getEnvironmentValue('DB_DATABASE'), getEnvironmentValue('DB_PORT'));
     if ($db->connect_error) {
-        wh_log($db->connect_error, 'error');
+        wh_log($db->connect_error);
         header('LOCATION: index.php?step=6&message=Could not connect to the Database');
         exit();
     }
@@ -248,14 +237,14 @@ if (isset($_POST['createUser'])) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
+        'Authorization: Bearer '.$key['value'],
     ]);
     $response = curl_exec($ch);
     $result = json_decode($response, true);
     curl_close($ch); // Close the connection
 
-    if (!$result['attributes']['email']) {
-        header('LOCATION: index.php?step=6&message=Could not find the user with pterodactyl ID ' . $pteroID);
+    if (! $result['attributes']['email']) {
+        header('LOCATION: index.php?step=6&message=Could not find the user with pterodactyl ID '.$pteroID);
         exit();
     }
     if ($pass !== $repass) {
@@ -288,8 +277,8 @@ if (isset($_POST['createUser'])) {
     $result = json_decode($response, true);
     curl_close($ch); // Close the connection
 
-    if (!is_array($result) or in_array($result['errors'][0]['code'], $result)) {
-        header('LOCATION: index.php?step=5&message=Couldn\'t connect to Pterodactyl. Make sure your API key has all read and write permissions!');
+    if (! is_array($result) or in_array($result['errors'][0]['code'], $result)) {
+        header('LOCATION: index.php?step=5&message=Couldnt connect to Pterodactyl. Make sure your API key has all read and write permissions!');
         exit();
     }
 
@@ -301,7 +290,7 @@ if (isset($_POST['createUser'])) {
         wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID, 'info');
         header('LOCATION: index.php?step=7');
     } else {
-        wh_log($db->error, 'error');
+        wh_log($db->error);
         header('LOCATION: index.php?step=6&message=Something went wrong when communicating with the Database');
     }
 }

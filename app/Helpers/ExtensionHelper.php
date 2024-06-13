@@ -2,9 +2,6 @@
 
 namespace App\Helpers;
 
-/**
- * Summary of ExtensionHelper
- */
 class ExtensionHelper
 {
     /**
@@ -120,45 +117,58 @@ class ExtensionHelper
      */
     public static function getExtensionConfig(string $extensionName, string $configname)
     {
+        $extensions = ExtensionHelper::getAllExtensions();
 
-        $extension = self::getExtensionClass($extensionName);
+        // call the getConfig function of the config file of the extension like that
+        // call_user_func("App\\Extensions\\PaymentGateways\\Stripe" . "\\getConfig");
+        foreach ($extensions as $extension) {
+            if (!(basename($extension) ==  $extensionName)) {
+                continue;
+            }
 
-        $config = $extension::getConfig();
+            $configFile = $extension . '/config.php';
+            if (file_exists($configFile)) {
+                include_once $configFile;
+                $config = call_user_func('App\\Extensions\\' . basename(dirname($extension)) . '\\' . basename($extension) . "\\getConfig");
+            }
 
 
-
-        if (isset($config[$configname])) {
-            return $config[$configname];
+            if (isset($config[$configname])) {
+                return $config[$configname];
+            }
         }
-
 
         return null;
     }
 
     public static function getAllCsrfIgnoredRoutes()
     {
-        $extensions = self::getAllExtensionClasses();
+        $extensions = ExtensionHelper::getAllExtensions();
 
         $routes = [];
-
         foreach ($extensions as $extension) {
-            $config = $extension::getConfig();
+            $configFile = $extension . '/config.php';
+            if (file_exists($configFile)) {
+                include_once $configFile;
+                $config = call_user_func('App\\Extensions\\' . basename(dirname($extension)) . '\\' . basename($extension) . "\\getConfig");
+            }
 
             if (isset($config['RoutesIgnoreCsrf'])) {
                 $routes = array_merge($routes, $config['RoutesIgnoreCsrf']);
             }
+
+            // map over the routes and add the extension name as prefix
+            $result = array_map(fn ($item) => "extensions/{$item}", $routes);
         }
-        // map over the routes and add the extension name as prefix
-        $result = array_map(fn ($item) => "extensions/{$item}", $routes);
 
         return $result;
     }
 
     /**
-     * Summary of getAllExtensionMigrations
-     * @return array of all migration paths look like: app/Extensions/ExtensionNamespace/ExtensionName/migrations/
+     * Get all extensions
+     * @return array
      */
-    public static function getAllExtensionMigrations()
+    public static function getAllExtensions()
     {
         $extensions = self::getAllExtensions();
         // Transform the extensions to a path
@@ -197,10 +207,10 @@ class ExtensionHelper
             }
         }
 
-        return $settings;
+        return $extensions;
     }
 
-    public static function getExtensionSettings(string $extensionName)
+    public static function getAllExtensionsByNamespace(string $namespace)
     {
         $extension = self::getExtension($extensionName);
         // replace all slashes with backslashes

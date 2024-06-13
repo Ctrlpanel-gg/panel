@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShopProduct;
-use App\Settings\GeneralSettings;
-use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -26,16 +24,22 @@ class ShopProductController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
+    public function index(Request $request)
     {
         $this->checkPermission(self::READ_PERMISSION);
 
         $isStoreEnabled = $general_settings->store_enabled;
 
+        if (
+            env('APP_ENV') == 'local' ||
+            config('SETTINGS::PAYMENTS:PAYPAL:SECRET') && config('SETTINGS::PAYMENTS:PAYPAL:CLIENT_ID') ||
+            config('SETTINGS::PAYMENTS:STRIPE:SECRET') && config('SETTINGS::PAYMENTS:STRIPE:ENDPOINT_SECRET') && config('SETTINGS::PAYMENTS:STRIPE:METHODS')
+        ) {
+            $isPaymentSetup = true;
+        }
 
         return view('admin.store.index', [
-            'isStoreEnabled' => $isStoreEnabled,
-            'locale_datatables' => $locale_settings->datatables
+            'isPaymentSetup' => $isPaymentSetup,
         ]);
     }
 
@@ -44,13 +48,12 @@ class ShopProductController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function create(GeneralSettings $general_settings)
+    public function create()
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
         return view('admin.store.create', [
             'currencyCodes' => config('currency_codes'),
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -84,14 +87,13 @@ class ShopProductController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View|Response
      */
-    public function edit(ShopProduct $shopProduct, GeneralSettings $general_settings)
+    public function edit(ShopProduct $shopProduct)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
         return view('admin.store.edit', [
             'currencyCodes' => config('currency_codes'),
             'shopProduct' => $shopProduct,
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -125,7 +127,7 @@ class ShopProductController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function disable(ShopProduct $shopProduct)
+    public function disable(Request $request, ShopProduct $shopProduct)
     {
         $this->checkPermission(self::DISABLE_PERMISSION);
 

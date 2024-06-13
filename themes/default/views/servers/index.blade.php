@@ -47,38 +47,35 @@
 
             <div class="row d-flex flex-row justify-content-center justify-content-md-start">
                 @foreach ($servers as $server)
-                 @if($server->location && $server->node && $server->nest && $server->egg)
-                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
-                        style="max-width: 350px">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mt-1">{{ $server->name }}</h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="container mt-1">
-                                <div class="row mb-3">
-                                    <div class="col my-auto">{{ __('Status') }}:</div>
-                                    <div class="col-7 my-auto">
-                                        @if($server->suspended)
-                                            <span class="badge badge-danger">{{ __('Suspended') }}</span>
-                                        @elseif($server->canceled)
-                                            <span class="badge badge-warning">{{ __('Canceled') }}</span>
-                                        @else
-                                            <span class="badge badge-success">{{ __('Active') }}</span>
-                                        @endif
-                                    </div>
+                    @if($server->location && $server->node && $server->nest && $server->egg)
+                        <div class="col-xl-4 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
+                            style="max-width: 350px">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mt-1">{{ $server->name }}
+                                    </h5>
                                 </div>
-                                <div class="row mb-2">
-                                    <div class="col-5">
-                                        {{ __('Location') }}:
+                            </div>
+                            <div class="card-body">
+                                <div class="container mt-1">
+                                    <div class="row mb-3">
+                                        <div class="col my-auto">{{ __('Status') }}:</div>
+                                        <div class="col-7 my-auto">
+                                            <i
+                                                class="fas {{ $server->isSuspended() ? 'text-danger' : 'text-success' }} fa-circle mr-2"></i>
+                                            {{ $server->isSuspended() ? 'Suspended' : 'Active' }}
+                                        </div>
                                     </div>
-                                    <div class="col-7 d-flex justify-content-between align-items-center">
-                                        <span class="">{{ $server->location }}</span>
-                                        <i data-toggle="popover" data-trigger="hover"
-                                            data-content="{{ __('Node') }}: {{ $server->node }}"
-                                            class="fas fa-info-circle"></i>
-                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-5">
+                                            {{ __('Location') }}:
+                                        </div>
+                                        <div class="col-7 d-flex justify-content-between align-items-center">
+                                            <span class="">{{ $server->location }}</span>
+                                            <i data-toggle="popover" data-trigger="hover"
+                                                data-content="{{ __('Node') }}: {{ $server->node }}"
+                                                class="fas fa-info-circle"></i>
+                                        </div>
 
                                 </div>
                                 <div class="row mb-2">
@@ -148,35 +145,28 @@
                                         @endif
                                         </span>
                                     </div>
-                                </div>
-
-                                <div class="row mb-2">
-                                    <div class="col-4">
-                                        {{ __('Price') }}:
-                                        <span class="text-muted">
-                                            ({{ $credits_display_name }})
-                                        </span>
-                                    </div>
-                                    <div class="col-8 text-center">
-                                        <div class="text-muted">
-                                        @if($server->product->billing_period == 'monthly')
-                                            {{ __('per Month') }}
-                                        @elseif($server->product->billing_period == 'half-annually')
-                                            {{ __('per 6 Months') }}
-                                        @elseif($server->product->billing_period == 'quarterly')
-                                            {{ __('per 3 Months') }}
-                                        @elseif($server->product->billing_period == 'annually')
-                                            {{ __('per Year') }}
-                                        @elseif($server->product->billing_period == 'weekly')
-                                            {{ __('per Week') }}
-                                        @elseif($server->product->billing_period == 'daily')
-                                            {{ __('per Day') }}
-                                        @elseif($server->product->billing_period == 'hourly')
-                                            {{ __('per Hour') }}
-                                        @endif
-                                            <i data-toggle="popover" data-trigger="hover"
-                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . number_format($server->product->getMonthlyPrice(),2,",",".") . " ". $credits_display_name . " ". __('per Month')}}"
-                                               class="fas fa-info-circle"></i>
+                                    <div class="row mb-2">
+                                        <div class="col-4">
+                                            {{ __('Price') }}:
+                                            <span class="text-muted">
+                                                {{ $credits_display_name }}
+                                            </span>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="row">
+                                                <div class="col-6  text-center">
+                                                    <div class="text-muted">{{ __('per Hour') }}</div>
+                                                    <span>
+                                                        {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
+                                                    </span>
+                                                </div>
+                                                <div class="col-6  text-center">
+                                                    <div class="text-muted">{{ __('per Month') }}
+                                                    </div>
+                                                    <span>
+                                                        {{ $server->product->getHourlyPrice() * 24 * 30 }}
+                                                    </span>
+                                                </div>
                                             </div>
                                         <span>
                                             {{ $server->product->price == round($server->product->price) ? round($server->product->price) : $server->product->price }}
@@ -186,32 +176,22 @@
                             </div>
                         </div>
 
-                        <div class="card-footer text-center">
-                            <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
-                                target="__blank"
-                                class="btn btn-info text-center float-left ml-2"
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
-                                <i class="fas fa-tools mx-2"></i>
-                            </a>
-                            <a href="{{ route('servers.show', ['server' => $server->id])}}"
-                            	class="btn btn-info text-center mr-3"
-                            	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
-                                <i class="fas fa-cog mx-2"></i>
-                            </a>
-                            <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
-                                class="btn btn-warning  text-center"
-                                {{ $server->suspended || $server->canceled ? "disabled" : "" }}
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
-                                <i class="fas fa-ban mx-2"></i>
-                            </button>
-                            <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
-                                class="btn btn-danger  text-center float-right mr-2"
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
-                                <i class="fas fa-trash mx-2"></i>
-                            </button>
+                            <div class="card-footer d-flex align-items-center justify-content-center w-auto">
+                                <div class="d-flex w-100" style="justify-content: space-evenly">
+                                    <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
+                                        target="__blank"
+                                        class="btn btn-info align-items-center justify-content-center d-flex">
+                                        <i class="fas fa-tools mr-2"></i>
+                                        <span>{{ __('Manage') }}</span>
+                                    </a>
+                                    <a href="{{ route('servers.show', ['server' => $server->id])}}" class="btn btn-warning align-items-center justify-content-center d-flex">
+                                        <i class="fas fa-cog mr-2"></i>
+                                        <span>{{ __('Settings') }}</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                 @endif
+                    @endif
                 @endforeach
             </div>
             <!-- END CUSTOM CONTENT -->

@@ -35,14 +35,13 @@ class PaymentController extends Controller
     /**
      * @return Application|Factory|View
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
         $this->checkPermission(self::VIEW_PERMISSION);
 
 
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15),
-            'locale_datatables' => $locale_settings->datatables
         ]);
     }
 
@@ -65,10 +64,7 @@ class PaymentController extends Controller
             // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
             foreach ($extensions as $extension) {
                 $extensionName = basename($extension);
-
-                $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
-                if ($extensionSettings->enabled == false) continue;
-
+                if (!ExtensionHelper::getExtensionConfig($extensionName, 'enabled')) continue; // skip if not enabled
 
                 $payment = new \stdClass();
                 $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
@@ -76,6 +72,11 @@ class PaymentController extends Controller
                 $paymentGateways[] = $payment;
             }
         }
+
+
+
+
+
 
         return view('store.checkout')->with([
             'product' => $shopProduct,

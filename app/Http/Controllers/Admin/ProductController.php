@@ -3,12 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pterodactyl\Location;
-use App\Models\Pterodactyl\Nest;
+use App\Models\Location;
+use App\Models\Nest;
 use App\Models\Product;
-use App\Settings\GeneralSettings;
-use App\Settings\LocaleSettings;
-use App\Settings\UserSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -28,7 +25,7 @@ class ProductController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
         $this->checkPermission(self::READ_PERMISSION);
 
@@ -42,13 +39,12 @@ class ProductController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create(GeneralSettings $general_settings)
+    public function create()
     {
         $this->checkPermission(self::WRITE_PERMISSION);
         return view('admin.products.create', [
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -110,14 +106,13 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return Application|Factory|View
      */
-    public function show(Product $product, UserSettings $user_settings, GeneralSettings $general_settings)
+    public function show(Product $product)
     {
         $this->checkPermission(self::READ_PERMISSION);
 
         return view('admin.products.show', [
             'product' => $product,
-            'minimum_credits' => $user_settings->min_credits_to_make_server,
-            'credits_display_name' => $general_settings->credits_display_name
+            'minimum_credits' => config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER'),
         ]);
     }
 
@@ -127,7 +122,7 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return Application|Factory|View
      */
-    public function edit(Product $product, GeneralSettings $general_settings)
+    public function edit(Product $product)
     {
         $this->checkPermission(self::EDIT_PERMISSION);
 
@@ -135,7 +130,6 @@ class ProductController extends Controller
             'product' => $product,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -186,7 +180,7 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return RedirectResponse
      */
-    public function disable(Product $product)
+    public function disable(Request $request, Product $product)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
@@ -252,18 +246,18 @@ class ProductController extends Controller
                 $checked = $product->disabled == false ? 'checked' : '';
 
                 return '
-                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.disable', $product->id).'">
-                        '.csrf_field().'
-                        '.method_field('PATCH').'
-                        <div class="custom-control custom-switch">
-                        <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
-                        <label class="custom-control-label" for="switch'.$product->id.'"></label>
-                        </div>
-                    </form>
+                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.disable', $product->id).'">
+                            '.csrf_field().'
+                            '.method_field('PATCH').'
+                            <div class="custom-control custom-switch">
+                            <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
+                            <label class="custom-control-label" for="switch'.$product->id.'"></label>
+                          </div>
+                       </form>
                 ';
             })
-            ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
-                return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
+            ->editColumn('minimum_credits', function (Product $product) {
+                return $product->minimum_credits==-1 ? config('SETTINGS::USER:MINIMUM_REQUIRED_CREDITS_TO_MAKE_SERVER') : $product->minimum_credits;
             })
             ->editColumn('oom_killer', function (Product $product) {
                 return $product->oom_killer ? __("enabled") : __("disabled");

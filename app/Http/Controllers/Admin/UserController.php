@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\Pterodactyl;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
-use App\Settings\LocaleSettings;
-use App\Settings\PterodactylSettings;
-use App\Classes\PterodactylClient;
-use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -46,9 +43,11 @@ class UserController extends Controller
 
     private $pterodactyl;
 
-    public function __construct(PterodactylSettings $ptero_settings)
+    private Pterodactyl $pterodactyl;
+
+    public function __construct(Pterodactyl $pterodactyl)
     {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->pterodactyl = $pterodactyl;
     }
 
     /**
@@ -57,7 +56,7 @@ class UserController extends Controller
      * @param  Request  $request
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
+    public function index(Request $request)
     {
         $this->checkPermission(self::READ_PERMISSION);
 
@@ -73,7 +72,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function show(User $user, LocaleSettings $locale_settings, GeneralSettings $general_settings)
+    public function show(User $user)
     {
         $this->checkPermission(self::READ_PERMISSION);
 
@@ -89,8 +88,6 @@ class UserController extends Controller
         return view('admin.users.show')->with([
             'user' => $user,
             'referrals' => $allReferals,
-            'locale_datatables' => $locale_settings->datatables,
-            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -125,7 +122,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function edit(User $user, GeneralSettings $general_settings)
+    public function edit(User $user)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
@@ -227,7 +224,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return RedirectResponse
      */
-    public function verifyEmail(User $user)
+    public function verifyEmail(Request $request, User $user)
     {
         $user->verifyEmail();
 
@@ -268,7 +265,7 @@ class UserController extends Controller
      * @param  User  $user
      * @return Application|Factory|View|Response
      */
-    public function notifications()
+    public function notifications(User $user)
     {
         $this->checkPermission(self::NOTIFY_PERMISSION);
 
@@ -412,8 +409,8 @@ class UserController extends Controller
             ->editColumn('last_seen', function (User $user) {
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');
             })
-            ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
+            ->editColumn('name', function (User $user) {
+                return '<a class="text-info" target="_blank" href="' . config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])

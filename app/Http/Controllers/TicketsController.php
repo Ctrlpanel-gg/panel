@@ -11,9 +11,6 @@ use App\Models\User;
 use App\Notifications\Ticket\Admin\AdminCreateNotification;
 use App\Notifications\Ticket\Admin\AdminReplyNotification;
 use App\Notifications\Ticket\User\CreateNotification;
-use App\Settings\LocaleSettings;
-use App\Settings\PterodactylSettings;
-use App\Settings\TicketSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -33,11 +30,9 @@ class TicketsController extends Controller
         ]);
     }
 
-    public function store(Request $request, TicketSettings $ticket_settings)
+    public function store(Request $request)
     {
-        $this->validate(
-            $request,
-            [
+        $this->validate($request, [
                 'title' => 'required',
                 'ticketcategory' => 'required',
                 'priority' => 'required',
@@ -45,8 +40,7 @@ class TicketsController extends Controller
                 'g-recaptcha-response' => ['required', 'recaptcha'],
             ]
         );
-        $ticket = new Ticket(
-            [
+        $ticket = new Ticket([
                 'title' => $request->input('title'),
                 'user_id' => Auth::user()->id,
                 'ticket_id' => strtoupper(Str::random(8)),
@@ -54,8 +48,7 @@ class TicketsController extends Controller
                 'priority' => $request->input('priority'),
                 'message' => $request->input('message'),
                 'status' => 'Open',
-                'server' => $request->input('server'),
-            ]
+                'server' => $request->input('server'),]
         );
         $ticket->save();
         $user = Auth::user();
@@ -67,11 +60,14 @@ class TicketsController extends Controller
 
 
         $user->notify(new CreateNotification($ticket));
+        if (config('SETTINGS::TICKET:NOTIFY') != "none") {
+            Notification::send($admin, new AdminCreateNotification($ticket, $user));
+        }
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #') . $ticket->ticket_id);
     }
 
-    public function show($ticket_id, PterodactylSettings $ptero_settings)
+    public function show($ticket_id)
     {
         $this->checkPermission(self::READ_PERMISSION);
         try {
@@ -82,9 +78,8 @@ class TicketsController extends Controller
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
-        $pterodactyl_url = $ptero_settings->panel_url;
 
-        return view('ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
+        return view('ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server'));
     }
 
     public function reply(Request $request)
@@ -184,10 +179,8 @@ class TicketsController extends Controller
                 return __($tickets->priority);
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
-                return [
-                    'display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
-                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''
-                ];
+                return ['display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
+                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
             })
             ->addColumn('actions', function (Ticket $tickets) {
                 $statusButtonColor = ($tickets->status == "Closed") ? 'btn-success' : 'btn-warning';

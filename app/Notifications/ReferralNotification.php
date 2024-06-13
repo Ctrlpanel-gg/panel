@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\User;
-use App\Settings\GeneralSettings;
-use App\Settings\ReferralSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -56,6 +54,7 @@ class ReferralNotification extends Notification
      * @param  mixed  $notifiable
      * @return array
      */
+    public function toArray($notifiable)
     public function toArray($notifiable)
     {
         return [

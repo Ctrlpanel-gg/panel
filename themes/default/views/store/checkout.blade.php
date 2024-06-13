@@ -101,6 +101,24 @@
                                         </li>
                                     </ul>
                                 </div>
+                                <!-- /.col -->
+                            </div>
+                            <!-- /.row -->
+
+                            <!-- this row will not appear when printing -->
+                            <div class="row no-print">
+                                <div class="col-12">
+                                    <button :disabled="(!payment_method || clicked) && {{ !$productIsFree }}"
+                                        :class="(!payment_method || clicked) && {{ !$productIsFree }} ? 'disabled' : ''"
+                                        class="btn btn-success float-right"><i class="far fa-credit-card mr-2"
+                                            @click="clicked = true"></i>
+                                        @if ($productIsFree)
+                                            {{ __('Get for free') }}
+                                        @else
+                                            {{ __('Submit Payment') }}
+                                        @endif
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @endif
@@ -225,7 +243,6 @@
                 </div>
             </form>
         </div>
-
     </section>
     <!-- END CONTENT -->
 

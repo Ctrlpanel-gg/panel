@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Models\Pterodactyl;
+namespace App\Models;
 
-use App\Classes\PterodactylClient;
+use App\Classes\Pterodactyl;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\Product;
 
 class Node extends Model
 {
@@ -33,8 +32,7 @@ class Node extends Model
     public static function syncNodes()
     {
         Location::syncLocations();
-        $client = app(PterodactylClient::class);
-        $nodes = $client->getNodes();
+        $nodes = Pterodactyl::getNodes();
 
         //map response
         $nodes = array_map(function ($node) {

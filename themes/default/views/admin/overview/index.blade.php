@@ -95,7 +95,7 @@
                                 class="text-white fas fa-coins"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">{{__('Total')}} {{ $credits_display_name }}</span>
+                            <span class="info-box-text">{{__('Total')}} {{CREDITS_DISPLAY_NAME}}</span>
                             <span class="info-box-number">{{$counters['credits']}}</span>
                         </div>
                         <!-- /.info-box-content -->

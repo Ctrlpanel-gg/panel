@@ -10,7 +10,7 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
                                 href="{{ route('admin.settings.index') }}">{{ __('Settings') }}</a>
                         </li>
@@ -20,7 +20,7 @@
         </div>
     </section>
     <!-- END CONTENT HEADER -->
-    @if (!file_exists(base_path() . '/install.lock'))
+    @if(!file_exists(base_path()."/install.lock"))
         <div class="callout callout-danger">
             <h4>{{ __('The installer is not locked!') }}</h4>
             <p>{{ __('please create a file called "install.lock" in your dashboard Root directory. Otherwise no settings will be loaded!') }}
@@ -35,6 +35,7 @@
     <section class="content">
         <div class="container-fluid">
             <div class="card">
+
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title"><i class="mr-2 fas fa-tools"></i>{{ __('Settings') }}</h5>
@@ -315,6 +316,10 @@
                             </div>
                         </div>
                     </div>
+
+
+                    </form>
+
                 </div>
             </div>
         </div>
@@ -327,31 +332,27 @@
     <!-- END CONTENT -->
 
     <script>
+        // Add the following code if you want the name of the file appear on select
+
+        document.addEventListener('DOMContentLoaded', () => {
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+        })
+
         const tabPaneHash = window.location.hash;
         if (tabPaneHash) {
-            $('.nav-item a[href="' + tabPaneHash + '"]').tab('show');
+            $('.nav-tabs a[href="' + tabPaneHash + '"]').tab('show');
         }
 
-        $('.nav-pills a').click(function(e) {
+        $('.nav-tabs a').click(function(e) {
             $(this).tab('show');
             const scrollmem = $('body').scrollTop();
             window.location.hash = this.hash;
             $('html,body').scrollTop(scrollmem);
         });
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
-        })
-
-        tinymce.init({
-            selector: 'textarea',
-            promotion: false,
-            skin: "oxide-dark",
-            content_css: "dark",
-            branding: false,
-            height: 500,
-            width: '100%',
-            plugins: ['image', 'link'],
-        });
     </script>
+
+
 @endsection

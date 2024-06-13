@@ -6,13 +6,12 @@
         <div class="container-fluid">
             <div class="mb-2 row">
                 <div class="col-sm-6">
-                    <h1>{{ __('Servers') }}</h1>
+                    <h1>{{__('Servers')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('admin.servers.index') }}">{{ __('Servers') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.servers.index')}}">{{__('Servers')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -35,24 +34,17 @@
                     </div>
                 </div>
                 <div class="card-body table-responsive">
-                    <table id="datatable" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th width="20">{{ __('Status') }}</th>
-                                <th>{{ __('Name') }}</th>
-                                <th>{{ __('User') }}</th>
-                                <th>{{ __('Server id') }}</th>
-                                <th>{{ __('Product') }}</th>
-                                <th>{{ __('Suspended at') }}</th>
-                                <th>{{ __('Created at') }}</th>
-                                <th>{{ __('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+
+                    @include('admin.servers.table')
+
+{{--                    <div class="float-right">--}}
+{{--                        {!!  $servers->links() !!}--}}
+{{--                    </div>--}}
+
                 </div>
             </div>
+
+
         </div>
         <!-- END CUSTOM CONTENT -->
         </div>

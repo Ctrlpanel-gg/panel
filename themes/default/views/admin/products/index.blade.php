@@ -57,7 +57,7 @@
                             <th>{{__('Min Credits')}}</th>
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Created at')}}</th>
-                            <th>{{ __('Actions') }}</th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody></tbody>
@@ -81,7 +81,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             $("#datatable").DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
                 },
                 processing: true,
                 serverSide: true,

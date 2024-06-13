@@ -2,8 +2,6 @@
 
 namespace App\Listeners;
 
-use App\Settings\UserSettings;
-
 class Verified
 {
     private $server_limit_after_verify_email;
@@ -14,10 +12,9 @@ class Verified
      *
      * @return void
      */
-    public function __construct(UserSettings $user_settings)
+    public function __construct()
     {
-        $this->server_limit_after_verify_email = $user_settings->server_limit_after_verify_email;
-        $this->credits_reward_after_verify_email = $user_settings->credits_reward_after_verify_email;
+        //
     }
 
     /**

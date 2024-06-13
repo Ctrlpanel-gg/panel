@@ -2,7 +2,6 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
-    @php($website_settings = app(App\Settings\WebsiteSettings::class))
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta content="{{ $website_settings->seo_title }}" property="og:title">
@@ -28,7 +27,7 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
-    @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
+    @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
         {!! htmlScriptTagJsApi() !!}
     @endif
     @vite('themes/default/sass/app.scss')

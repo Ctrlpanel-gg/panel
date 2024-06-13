@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ApplicationApi;
-use App\Settings\LocaleSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -23,7 +22,7 @@ class ApplicationApiController extends Controller
      *
      * @return Application|Factory|View|Response
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index()
     {
         $this->checkPermission(self::READ_PERMISSION);
 

@@ -42,7 +42,7 @@
                             <th>{{__('Status')}}</th>
                             <th>{{__('Code')}}</th>
                             <th>{{__('Memo')}}</th>
-                            <th>{{ $credits_display_name }}</th>
+                            <th>{{CREDITS_DISPLAY_NAME}}</th>
                             <th>{{__('Used / Uses')}}</th>
                             <th>{{__('Expires')}}</th>
                             <th></th>
@@ -70,7 +70,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
+                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
                 },
                 processing: true,
                 serverSide: true,
