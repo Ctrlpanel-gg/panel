@@ -9,7 +9,7 @@ function send_error_message(string $message): void
 
 function next_step(): void
 {
-    $_SESSION['installation_step']++;
+    $_SESSION['current_installation_step']++;
     header("LOCATION: index.php");
 }
 

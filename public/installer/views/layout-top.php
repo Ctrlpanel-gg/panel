@@ -42,18 +42,31 @@
 </head>
 
 <body class="w-full flex items-center justify-center bg-[#1D2125] text-white">
-    <?php
-        function cardStart($title, $subtitle = null): string
-        {
-            return "
-            <div class='flex flex-col gap-4 sm:w-auto w-full sm:min-w-[550px] my-6'>
-                <h1 class='text-center font-bold text-3xl'>CtrlPanel.gg Installation</h1>
-                <div class='border-4 border-[#2E373B] bg-[#242A2E] rounded-2xl p-6 pt-3 mx-2'>
-                    <h2 class='text-xl text-center mb-2'>$title</h2>"
-                . (isset($subtitle) ? "<p class='text-neutral-400 mb-1'>$subtitle</p>" : "");
-        }
-    ?>
+<?php
 
+
+    function cardStart($title, $subtitle = null): string
+    {
+        // Get total number of steps (you'll need to define this)
+        $totalSteps = $_SESSION['last_installation_step']; // Assuming you have your $viewNames array defined
+
+        // Get current step from session (or default to 1 if not set)
+        $currentStep = $_SESSION['current_installation_step'] ?? 1;
+
+        // Calculate progress percentage
+        $progressValue = round(($currentStep / $totalSteps) * 100);
+
+        return "
+        <div class='flex flex-col gap-4 sm:w-auto w-full sm:min-w-[550px] my-6'>
+            <h1 class='text-center font-bold text-3xl'>CtrlPanel.gg Installation</h1>
+            <div class='border-2 border-[#2E373B] bg-[#242A2E] rounded-2xl mx-2'>
+                <div class='bg-sky-600 text-xs font-medium text-sky-100 text-center p-0.5 leading-none rounded-full' style='width: {$progressValue}%'>Step {$currentStep}</div>
+            </div>
+            <div class='border-4 border-[#2E373B] bg-[#242A2E] rounded-2xl p-6 pt-3 mx-2'>
+                <h2 class='text-xl text-center mb-2'>$title</h2>"
+                . (isset($subtitle) ? "<p class='text-neutral-400 mb-1'>$subtitle</p>" : "");
+}
+?>
 <!-- any middle view here -->
 
 <!-- bottom layout here -->

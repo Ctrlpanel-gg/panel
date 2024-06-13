@@ -1,6 +1,5 @@
 <?php
 
-
 if (isset($_POST['checkGeneral'])) {
     wh_log('setting app settings', 'debug');
     $appname = '"' . $_POST['name'] . '"';
@@ -26,4 +25,5 @@ if (isset($_POST['checkGeneral'])) {
     wh_log('App settings set', 'debug');
     next_step();
 }
+
 ?>

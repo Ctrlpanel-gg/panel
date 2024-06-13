@@ -1,4 +1,5 @@
 <?php
+// repport all error
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -6,17 +7,16 @@ error_reporting(E_ALL);
 session_start();
 
 use DevCoder\DotEnv;
-// use Illuminate\Encryption\Encrypter;
-// use Illuminate\Support\Str;
 
-require '../../vendor/autoload.php';
-require 'dotenv.php';
+// Include systems
+require_once '../../vendor/autoload.php';
+require_once 'dotenv.php';
+require_once './src/functions/installer.php';
 
 // Include the function files
-require_once './src/functions/installer.php'; // very important
+require_once './src/functions/logging.php';
 require_once './src/functions/environment.php';
 require_once './src/functions/shell.php';
-require_once './src/functions/logging.php';
 require_once './src/functions/utils.php';
 
 // Include the form files
@@ -33,35 +33,52 @@ if (file_exists('../../install.lock')) {
 }
 
 if (!file_exists('../../.env')) {
-    echo run_console('cp .env.example .env');
+    echo run_console('cp ../../.env.example ../../.env');
 }
 
+// load all the .env value in php env
 (new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
-$viewNames = [
-    1 => 'mandatory-checks',
-    2 => 'timezone-configuration',
-    3 => 'database-configuration',
-    4 => 'database-migration',
-    5 => 'redis-configuration',
-    6 => 'dashboard-configuration',
-    7 => 'email-configuration',
-    8 => 'pterodactyl-configuration',
-    9 => 'admin-creation',
-    10 => 'installation-complete',
+$stepConfig = [
+    1 => ['view' => 'mandatory-checks', 'is_revertable' => false],
+    2 => ['view' => 'timezone-configuration', 'is_revertable' => true],
+    3 => ['view' => 'database-configuration', 'is_revertable' => true],
+    4 => ['view' => 'database-migration', 'is_revertable' => false],
+    5 => ['view' => 'redis-configuration', 'is_revertable' => true],
+    6 => ['view' => 'dashboard-configuration', 'is_revertable' => true],
+    7 => ['view' => 'email-configuration', 'is_revertable' => true],
+    8 => ['view' => 'pterodactyl-configuration', 'is_revertable' => false],
+    9 => ['view' => 'admin-creation', 'is_revertable' => false],
+    10 => ['view' => 'installation-complete', 'is_revertable' => false],
 ];
 
-// Prioritize $_GET['step'], then session, then default to 1
-$step = isset($_GET['step'])
-    ? (int)$_GET['step']  // Convert to integer for safety
-    : (isset($_SESSION['installation_step'])
-        ? $_SESSION['installation_step']
-        : 1);
+$_SESSION['last_installation_step'] = count($stepConfig);
 
-// Update session with the current step
-$_SESSION['installation_step'] = $step;
+// Initialize or get the current step:
+if (!isset($_SESSION['current_installation_step'])) {
+    // Session variable is not set, initialize it in the SESSION
+    $_SESSION['current_installation_step'] = 1;
+}
 
-$viewName = $viewNames[$step];  // Get the appropriate view name
+if (isset($_GET['step'])) {
+    $stepValue = $_GET['step'];
+
+    if (is_numeric($stepValue) && $stepValue >= 1 && $stepValue <= $_SESSION['last_installation_step']) {
+        // Step is valid numeric within range:
+        $_SESSION['current_installation_step'] = $stepValue;
+    } elseif (strtolower($stepValue) === 'next' && $_SESSION['current_installation_step'] < $_SESSION['last_installation_step']) {
+        // Move to next step:
+        $_SESSION['current_installation_step']++;
+    } elseif (strtolower($stepValue) === 'previous' && $_SESSION['current_installation_step'] > 1) {
+        // Move to previous step:
+        $_SESSION['current_installation_step']--;
+    }
+}
+
+$viewName = $stepConfig[$_SESSION['current_installation_step']]['view'];
+
+// Set previous button availability based on step reversibility
+$_SESSION['is_previous_button_available'] = $_SESSION['current_installation_step'] > 1 && $stepConfig[$_SESSION['current_installation_step'] - 1]['is_revertable'];
 
 // Load the layout and the specific view file
 include './views/layout-top.php';

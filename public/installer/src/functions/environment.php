@@ -8,7 +8,9 @@
  */
 function setenv($envKey, $envValue)
 {
-    $envFile = dirname(__FILE__, 3) . '/.env';
+    $rootDirectory = dirname(__DIR__, 4);
+    $envFile = $rootDirectory . '/.env';
+
     $str = file_get_contents($envFile);
 
     $str .= "\n"; // In case the searched variable is in the last line without \n
@@ -22,7 +24,6 @@ function setenv($envKey, $envValue)
     fwrite($fp, $str);
     fclose($fp);
 }
-
 
 $required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl', 'redis'];
 

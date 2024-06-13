@@ -1,6 +1,5 @@
 <?php
 
-
 if (isset($_POST['redisSetup'])) {
     wh_log('Setting up Redis', 'debug');
     $redisHost = $_POST['redishost'];
@@ -29,4 +28,5 @@ if (isset($_POST['redisSetup'])) {
         send_error_message("Please check your credentials!<br>" . $th->getMessage());
     }
 }
+
 ?>

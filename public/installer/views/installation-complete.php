@@ -2,7 +2,7 @@
 <!-- top layout here -->
 
 <?php
-$lockfile = fopen('../../installer.lock', 'w') or exit('Unable to open file!');
+$lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
 fwrite($lockfile, 'the installation is locked, delete this file to unlock it');
 fclose($lockfile);
 
