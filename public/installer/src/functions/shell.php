@@ -23,7 +23,7 @@ function run_console(string $command, array $descriptors = null, string $cwd = n
 {
     wh_log('running command: ' . $command, 'debug');
 
-    $path = dirname(__FILE__, 3);
+    $path = dirname(__DIR__, 4);
     $descriptors = $descriptors ?? [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
     $handle = proc_open("cd '$path' && bash -c 'exec -a ServerCPP $command'", $descriptors, $pipes, $cwd, null, $options);
     $output = stream_get_contents($pipes[1]);

@@ -1,9 +1,6 @@
 <?php
 
-function determineIfRunningInDocker(): bool
-{
-    return file_exists('/.dockerenv');
-}
+use Illuminate\Encryption\Encrypter;
 
 /**
  * Encrypt the given value
@@ -36,6 +33,11 @@ function decryptSettingsValue(mixed $payload, $unserialize = true)
     $decryptedKey = $encrypter->decrypt($payload, $unserialize);
 
     return $decryptedKey;
+}
+
+function determineIfRunningInDocker(): bool
+{
+    return file_exists('/.dockerenv');
 }
 
 ?>

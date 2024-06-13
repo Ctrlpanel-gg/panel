@@ -14,7 +14,7 @@ use Monolog\Logger;
 function wh_log(string $message, string $level = 'info', array $context = []): void
 {
     $formatter = new LineFormatter(null, null, true, true);
-    $stream = new StreamHandler(dirname(__FILE__, 3) . '../../storage/logs/installer.log', Logger::DEBUG);
+    $stream = new StreamHandler(dirname(__DIR__, 4) . '/storage/logs/installer.log', Logger::DEBUG);
     $stream->setFormatter($formatter);
 
     $log = new Logger('CtrlPanel');

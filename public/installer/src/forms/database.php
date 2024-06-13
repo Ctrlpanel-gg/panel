@@ -37,8 +37,6 @@ if (isset($_POST['feedDB'])) {
     $logs = '';
 
     try {
-        //$logs .= run_console(setenv('COMPOSER_HOME', dirname(__FILE__, 3) . '/vendor/bin/composer'));
-        //$logs .= run_console('composer install --no-dev --optimize-autoloader');
         if (!str_contains(getenv('APP_KEY'), 'base64')) {
             $logs .= run_console('php artisan key:generate --force');
         } else {

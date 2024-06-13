@@ -63,17 +63,36 @@
         </div>
     </div>
 
-    <div class="flex w-full justify-around mt-4 gap-8 px-8">
-        <button type="submit"
-                class="w-full px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
-                name="checkSMTP">Submit
-        </button>
+    <hr style="border: none; height: 3px; background-color: rgba(0, 0, 0, 0.3); border-bottom: 1px; border-radius: 1px; ; margin-top: 30px !important; margin-bottom: 30px">
 
-        <a href="?step=7" class="w-full">
+    <div class="w-full flex justify-between items-center mt-4">
+        <?php
+        if ($_SESSION['is_previous_button_available'] == true) {
+            ?>
+            <a href="?step=previous">
+                <button type="button" id="backButton" class="px-4 py-2 font-bold rounded-md bg-red-300 hover:bg-red-400 shadow-red-200 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-red-500">
+                    &#8592; Back
+                </button>
+            </a>
+            <?php
+        } else {
+            ?>
+            <button type="button" id="backButton" class="px-4 py-2 font-bold rounded-md bg-gray-200 text-gray-500 shadow-inner cursor-not-allowed" disabled>
+                &#8592; Back
+            </button>
+            <?php
+        }
+        ?>
+
+        <a href="?step=next">
             <button type="button" class="w-full px-4 py-2 font-bold rounded-md bg-yellow-500/90 hover:bg-yellow-600 shadow-yellow-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-yellow-600">
                 Skip For Now
             </button>
         </a>
+
+        <button type="submit" class="px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500" name="checkSMTP">
+            Next &#8594;
+        </button>
     </div>
 </form>
 
