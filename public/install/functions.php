@@ -273,3 +273,8 @@ function generateRandomString(int $length = 8): string
 
     return $randomString;
 }
+
+function determineIfRunningInDocker(): bool
+{
+    return file_exists('/.dockerenv');
+}
