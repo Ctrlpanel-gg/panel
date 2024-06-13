@@ -1,7 +1,7 @@
 <?php
 include 'functions.php';
 
-if (file_exists('../../install.lock')) {
+if (file_exists('../../installer.lock')) {
     exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
 }
 
@@ -21,7 +21,7 @@ function cardStart($title, $subtitle = null): string
 <head>
     <title>CtrlPanel.gg installer Script</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/install/styles.css" rel="stylesheet">
+    <link href="/installer/styles.css" rel="stylesheet">
     <style>
         body {
             color-scheme: dark;
@@ -121,7 +121,7 @@ if (!isset($_GET['step']) || $_GET['step'] == 1) {
 if (isset($_GET['step']) && $_GET['step'] == 2) {
     echo cardStart($title = "Timezone Configuration"); ?>
 
-    <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="timezoneConfig">
+    <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="timezoneConfig">
         <?php if (isset($_GET['message'])) {
             echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
         } ?>
@@ -161,7 +161,7 @@ if (isset($_GET['step']) && $_GET['step'] == 2) {
 if (isset($_GET['step']) && $_GET['step'] == 3) {
     echo cardStart($title = "Database Configuration"); ?>
 
-    <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkDB">
+    <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="checkDB">
         <?php if (isset($_GET['message'])) {
             echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
         } ?>
@@ -234,7 +234,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3) {
 if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
 
     <?php echo cardStart($title = "Database Migration and Encryption Key Generation", $subtitle = "Lets feed your Database and generate some security keys! <br> This process might take a while. Please do not refresh or close this page!"); ?>
-    <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="feedDB">
+    <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="feedDB">
 
         <?php if (isset($_GET['message'])) {
             echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
@@ -254,7 +254,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
     if (isset($_GET['step']) && $_GET['step'] == 4) {
         echo cardStart($title = "Redis Configuration"); ?>
 
-        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="redisSetup">
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="redisSetup">
             <?php if (isset($_GET['message'])) {
                 echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
             } ?>
@@ -303,7 +303,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
     if (isset($_GET['step']) && $_GET['step'] == 5) {
         echo cardStart($title = "Dashboard Configuration"); ?>
 
-        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkGeneral">
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="checkGeneral">
 
             <?php if (isset($_GET['message'])) {
                 echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
@@ -346,7 +346,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
     if (isset($_GET['step']) && $_GET['step'] == 6) {
         echo cardStart($title = "E-Mail Configuration", $subtitle = "This process might take a few seconds when submitted.<br>Please do not refresh or close this page!"); ?>
 
-        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkSMTP">
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="checkSMTP">
             <?php if (isset($_GET['message'])) {
                 echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
             } ?>
@@ -433,7 +433,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
     if (isset($_GET['step']) && $_GET['step'] == 7) {
         echo cardStart($title = "Pterodactyl Configuration", $subtitle = "Lets get some info about your Pterodactyl Installation!"); ?>
 
-        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkPtero">
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="checkPtero">
             <?php if (isset($_GET['message'])) {
                 echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
             } ?>
@@ -484,7 +484,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
     if (isset($_GET['step']) && $_GET['step'] == 8) {
         echo cardStart($title = "First Admin Creation", $subtitle = "Lets create the first admin user!"); ?>
 
-        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="createUser">
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="createUser">
 
             <?php if (isset($_GET['message'])) {
                 echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
@@ -530,7 +530,7 @@ if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
 
     // Install Finished
     if (isset($_GET['step']) && $_GET['step'] == 9) {
-        $lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
+        $lockfile = fopen('../../installer.lock', 'w') or exit('Unable to open file!');
         fwrite($lockfile, 'locked');
         fclose($lockfile);
 
