@@ -11,7 +11,7 @@
 At this time, we only accept vulnerability reports through GitHub Advisories. We kindly ask that you do not submit reports via other third-party bug bounty platforms, as they will be disregarded.
 
 ## Supported Versions
+- Latests
 
-### ControlPanel Versions
-
-We strongly recommend using or upgrading to the latest version of ControlPanel to ensure you have access to the latest security fixes and enhancements.
+### CtrlPanel Versions
+We strongly recommend using or upgrading to the latest version of CtrlPanel to ensure you have access to the latest security fixes and enhancements.
