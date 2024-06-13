@@ -7,11 +7,9 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use Predis\Client;
 
-require 'phpmailer/Exception.php';
-require 'phpmailer/PHPMailer.php';
-require 'phpmailer/SMTP.php';
-
-include 'functions.php';
+require './src/phpmailer/Exception.php';
+require './src/phpmailer/PHPMailer.php';
+require './src/phpmailer/SMTP.php';
 
 if (isset($_POST['timezoneConfig'])) {
     wh_log('Setting up Timezone', 'debug');
