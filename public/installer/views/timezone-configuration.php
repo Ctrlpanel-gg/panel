@@ -4,10 +4,10 @@
     $title = "Timezone Configuration"
 ); ?>
 
-<form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="timezoneConfig">
+<form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/index.php" name="timezoneConfig">
 
-    <?php if (isset($_GET['message'])) {
-        echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+    <?php if (isset($_SESSION['error-message'])) {
+        echo "<p class='not-ok check'>" . $_SESSION['error-message'] . '</p>';
     } ?>
 
     <div class="row">

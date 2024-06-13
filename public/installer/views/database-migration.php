@@ -6,10 +6,10 @@
     $subtitle = "Lets feed your Database and generate some security keys! <br> This process might take a while. Please do not refresh or close this page!"
 ); ?>
 
-<form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="feedDB">
+<form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/index.php" name="feedDB">
 
-    <?php if (isset($_GET['message'])) {
-        echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+    <?php if (isset($_SESSION['error-message'])) {
+        echo "<p class='not-ok check'>" . $_SESSION['error-message'] . '</p>';
     } ?>
 
     <div class="w-full flex justify-center">
