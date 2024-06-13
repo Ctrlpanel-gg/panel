@@ -6,10 +6,10 @@
     $subtitle = "This process might take a few seconds when submitted.<br>Please do not refresh or close this page!"
 ); ?>
 
-<form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/forms.php" name="checkSMTP">
+<form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/index.php" name="checkSMTP">
 
-    <?php if (isset($_GET['message'])) {
-        echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+    <?php if (isset($_SESSION['error-message'])) {
+        echo "<p class='not-ok check'>" . $_SESSION['error-message'] . '</p>';
     } ?>
 
     <div class="row">
