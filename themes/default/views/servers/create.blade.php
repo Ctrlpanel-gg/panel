@@ -133,32 +133,32 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="node">{{ __('Node') }}</label>
-                                <select name="node" required id="node" x-model="selectedNode"
-                                    :disabled="!fetchedLocations" @change="fetchProducts();" class="custom-select">
-                                    <option x-text="getNodeInputText()" disabled selected hidden value="null">
+                              <div class="form-group">
+                                <label for="location">{{ __('Location') }}</label>
+                                @if($location_description_enabled)
+                                  <i x-show="locationDescription != null" data-toggle="popover" data-trigger="click"
+                                     x-bind:data-content="locationDescription"
+                                     class="fas fa-info-circle"></i>
+                                @endif
+                                <select name="location" required id="location" x-model="selectedLocation" :disabled="!fetchedLocations"
+                                        @change="fetchProducts();" class="custom-select">
+                                  <option x-text="getLocationInputText()" disabled selected hidden value="null">
+                                  </option>
+                                  <template x-for="location in locations" :key="location.id">
+                                    <option x-text="location.name" :value="location.id">
                                     </option>
-
-                                    <template x-for="location in locations" :key="location.id">
-                                        <optgroup :label="location.name">
-
-                                            <template x-for="node in location.nodes" :key="node.id">
-                                                <option x-text="node.name" :value="node.id">
-
-                                                </option>
-                                            </template>
-                                        </optgroup>
-                                    </template>
-
+                                  </template>
                                 </select>
-                            </div>
+                              </div>
+                              <div class="alert alert-danger p-2 m-2" x-show="selectedProduct != null && locations.length == 0">
+                                {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
+                              </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="w-100"></div>
-                <div class="col" x-show="selectedNode != null">
+                <div class="col" x-show="selectedLocation != null">
                     <div class="row mt-4 justify-content-center">
                         <template x-for="product in products" :key="product.id">
                             <div class="card  col-xl-3 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
@@ -248,7 +248,7 @@
                                                 product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
-                                            x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Node') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ $credits_display_name }}!' : '{{ __('Create server') }}')">
+                                            x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Location') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ $credits_display_name }}!' : '{{ __('Create server') }}')">
                                         </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
                                         <template x-if="product.price > user.credits">
@@ -288,13 +288,14 @@
                 name: null,
                 selectedNest: null,
                 selectedEgg: null,
-                selectedNode: null,
+                selectedLocation: null,
                 selectedProduct: null,
+                locationDescription: null,
 
                 //selected objects based on input
                 selectedNestObject: {},
                 selectedEggObject: {},
-                selectedNodeObject: {},
+                selectedLocationObject: {},
                 selectedProductObject: {},
 
                 //values
@@ -319,8 +320,9 @@
                     this.locations = [];
                     this.products = [];
                     this.selectedEgg = 'null';
-                    this.selectedNode = 'null';
+                    this.selectedLocation = 'null';
                     this.selectedProduct = 'null';
+                    this.locationDescription = 'null';
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)
 
@@ -353,8 +355,9 @@
                     this.fetchedProducts = false;
                     this.locations = [];
                     this.products = [];
-                    this.selectedNode = 'null';
+                    this.selectedLocation = 'null';
                     this.selectedProduct = 'null';
+                    this.locationDescription = null;
 
                     let response = await axios.get(`{{ route('products.locations.egg') }}/${this.selectedEgg}`)
                         .catch(console.error)
@@ -364,7 +367,8 @@
 
                     //automatically select the first entry if there is only 1
                     if (this.locations.length === 1 && this.locations[0]?.nodes?.length === 1) {
-                        this.selectedNode = this.locations[0]?.nodes[0]?.id;
+                        this.selectedLocation = this.locations[0]?.id;
+
                         await this.fetchProducts();
                         return;
                     }
@@ -376,16 +380,16 @@
                 /**
                  * @description fetch all available products based on the selected node
                  * @note called whenever a node is selected
-                 * @see selectedNode
+                 * @see selectedLocation
                  */
                 async fetchProducts() {
                     this.loading = true;
                     this.fetchedProducts = false;
                     this.products = [];
-                    this.selectedProduct = 'null';
+                    this.selectedProduct = null;
 
                     let response = await axios.get(
-                            `{{ route('products.products.node') }}/${this.selectedEgg}/${this.selectedNode}`)
+                            `{{ route('products.products.location') }}/${this.selectedEgg}/${this.selectedLocation}`)
                         .catch(console.error)
 
                     this.fetchedProducts = true;
@@ -406,7 +410,7 @@
                         }
                     })
 
-
+                    this.locationDescription = this.locations.find(location => location.id == this.selectedLocation).description ?? null;
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
@@ -420,10 +424,10 @@
                     this.selectedNestObject = this.nests.find(nest => nest.id == this.selectedNest) ?? {}
                     this.selectedEggObject = this.eggs.find(egg => egg.id == this.selectedEgg) ?? {}
 
-                    this.selectedNodeObject = {};
+                    this.selectedLocationObject = {};
                     this.locations.forEach(location => {
-                        if (!this.selectedNodeObject?.id) {
-                            this.selectedNodeObject = location.nodes.find(node => node.id == this.selectedNode) ??
+                        if (!this.selectedLocationObject?.id) {
+                            this.selectedLocationObject = location.nodes.find(node => node.id == this.selectedLocation) ??
                                 {};
                         }
                     })
@@ -439,17 +443,17 @@
                 isFormValid() {
                     if (Object.keys(this.selectedNestObject).length === 0) return false;
                     if (Object.keys(this.selectedEggObject).length === 0) return false;
-                    if (Object.keys(this.selectedNodeObject).length === 0) return false;
+                    if (Object.keys(this.selectedLocationObject).length === 0) return false;
                     if (Object.keys(this.selectedProductObject).length === 0) return false;
                     return !!this.name;
                 },
 
-                getNodeInputText() {
+                getLocationInputText() {
                     if (this.fetchedLocations) {
                         if (this.locations.length > 0) {
-                            return '{{ __('Please select a node ...') }}';
+                            return '{{ __('Please select a location ...') }}';
                         }
-                        return '{{ __('No nodes found matching current configuration') }}'
+                        return '{{ __('No location found matching current configuration') }}'
                     }
                     return '{{ __('---') }}';
                 },
