@@ -13,9 +13,9 @@ function generateRandomString($length = 8) {
     for ($i = 0; $i < $length; $i++) {
         $randomString .= $characters[rand(0, $charactersLength - 1)];
     }
+
     return $randomString;
 }
-
 
 echo "ENTER YOUR PTERODACTYL DATABASE HOST: ";
 $PTERODACTYL_HOST = trim(fgets(STDIN));
@@ -45,8 +45,6 @@ if (!$cpggdb) {
         . mysqli_connect_error());
 }
 
-
-
 echo "ENTER THE AMOUNT OF CREDITS A USER SHOULD START WITH (default: 250)";
 $init_credits = trim(fgets(STDIN));
 if (empty($init_credits)) {
@@ -57,7 +55,6 @@ $serverlimit = trim(fgets(STDIN));
 if (empty($serverlimit)) {
     $serverlimit = 2;
 }
-
 
 $userSQL = "SELECT * FROM `users`";
 $pteroUserResult = mysqli_query($pterodb, $userSQL);
@@ -77,19 +74,14 @@ while ($pterouser = $pteroUserResult->fetch_assoc()) {
         }
         $checkusersql = mysqli_query($cpggdb, "SELECT * FROM `users` WHERE `email` = '$email'");
         if (mysqli_num_rows($checkusersql) > 0) {
-            echo "User ".$email." exists. Skipping! \n";
+            echo "User " . $email . " exists. Skipping! \n";
         } else {
-
-
             $sql = "INSERT INTO `users` (`id`, `name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `avatar`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `ip`, `last_seen`, `discord_verified_at`, `suspended`, `referral_code`) VALUES (NULL, '$username', '$role', '$init_credits', '$serverlimit', '$id', NULL, '$email', NULL, '$password', NULL, '$now', NULL, NULL, NULL, NULL, '0', '$referral_code')";
             $res = mysqli_query($cpggdb, $sql);
-            echo "User ".$email."  created \n";
+            echo "User " . $email . "  created \n";
         }
-
     } catch (Exception $e) {
         echo "Fail: " . $e;
     }
 }
-
-
 ?>
