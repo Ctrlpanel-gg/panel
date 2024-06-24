@@ -2,9 +2,9 @@
 
 # System vars | DO NOT TOUCH!!!
 readonly SCRIPT_VER="0.0.1"
-readonly DEFAULT_DIR="/var/www/controlpanel/"
+readonly DEFAULT_DIR="/var/www/controlpanel"
 cpgg_dir=""
-cli_mode="false"
+force="false"
 
 # CtrlPanel logo
 logo() {
@@ -39,7 +39,7 @@ set_cpgg_dir() {
     local is_cpgg_root=""
     local is_null=""
 
-    if [ "$cli_mode" == "false" ]; then
+    if [ -z "$cli_mode" ]; then
         if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
             while true; do
                 logo
@@ -55,6 +55,9 @@ set_cpgg_dir() {
 
                 # Reading specified directory
                 read -rep " > " cpgg_dir
+
+                # Remove / at the end
+                cpgg_dir="${cpgg_dir%/}"
 
                 # Set all validation vars to null
                 is_null=""
@@ -77,7 +80,7 @@ set_cpgg_dir() {
     else
         if [ ! -d "$DEFAULT_DIR" ] && [ -z "$cpgg_dir" ]; then
             # If user uses --cli flag, default directory doesn't exists and user did not specify the directory using --cpgg-dir then return an error and stop script
-            echo " Default directory wasn't found. Specify directory where your CtrlPanel is installed using --cpgg-dir argument"
+            echo " ERROR: Default directory wasn't found. Specify directory where your CtrlPanel is installed using --cpgg-dir argument"
             exit 1
         fi
     fi
@@ -126,7 +129,7 @@ version_compare() {
     done
 
     echo "0" # Latest version is installed
-    return 0 
+    return 0
 }
 
 # Checking if an update is needed
@@ -159,6 +162,125 @@ logo_message() {
     fi
 }
 
+# Confirm dialog menu in CLI mode
+confirm_dialog() {
+    local message_line1="$1"
+    local message_line2="$2"
+    local function="$3"
+
+    echo " $message_line1"
+    if [[ -n "$message_line2" ]]; then
+        echo " $message_line2"
+    fi
+    echo " Do you want to continue? (Y/n)"
+    read -rp " > " choice
+
+    case "$choice" in
+    y | Y)
+        $function
+        ;;
+    n | N)
+        exit 0
+        ;;
+    *)
+        echo " ERROR: Unknown choice $choice"
+        echo ""
+        confirm_dialog "$message_line1" "$message_line2" "$function"
+        ;;
+    esac
+}
+
+# === ACTIONS SECTION START ===
+
+# Install dependencies function
+install_deps() {
+    local minimal="$1"
+
+    if [[ -z "$cli_mode" ]]; then
+        logo
+    fi
+
+    echo " Adding \"add-apt-repository\" command and additional dependencies"
+    sudo apt -y install software-properties-common curl apt-transport-https ca-certificates gnupg
+
+    echo " Adding PHP repository"
+    LC_ALL=C.UTF-8 sudo add-apt-repository -y ppa:ondrej/php
+
+    if [[ ! -f "/usr/share/keyrings/redis-archive-keyring.gpg" ]]; then
+        echo " Adding Redis repository"
+        curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+    fi
+
+    if [[ -z "$minimal" ]]; then
+        echo " Adding MariaDB repository"
+        curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+    elif [[ -n "$minimal" && "$minimal" != "true" ]]; then
+        echo " ERROR: Invalid argument $minimal for install_deps function. Please, report to developers!"
+        exit 1
+    fi
+
+    echo " Running \"apt update\""
+    sudo apt update
+
+    echo " Installing dependencies"
+    if [[ "$minimal" ]]; then
+        sudo apt -y install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} redis-server tar unzip git
+    elif [[ -z "$minimal" ]]; then
+        sudo apt -y install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} mariadb-server nginx redis-server tar unzip git
+    else
+        echo " ERROR: Invalid argument $minimal for install_deps function. Please, report to developers!"
+        exit 1
+    fi
+
+    echo " Installing Composer"
+    curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+
+    echo " Installing Composer dependencies to the CtrlPanel"
+    sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
+}
+
+# Update CtrlPanel function
+update() {
+    if [ -z "$cli_mode" ]; then
+        logo
+    fi
+
+    echo " Enabling maintenance mode"
+    sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan down
+
+    if ! sudo git config --global --get-all safe.directory | grep -q -w "${cpgg_dir:-$DEFAULT_DIR}"; then
+        echo " Adding CtrlPanel directory to the git save.directory list"
+        sudo git config --global --add safe.directory "${cpgg_dir:-$DEFAULT_DIR}"
+    fi
+
+    echo " Downloading file updates"
+    sudo git stash
+    sudo git pull
+
+    echo " Installing Composer dependencies"
+    sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
+
+    echo " Migrating database updates"
+    sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan migrate --seed --force
+
+    echo " Clearing the cache"
+    sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan view:clear
+    sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan config:clear
+
+    echo " Setting permissions"
+    sudo chown -R www-data:www-data "${cpgg_dir:-$DEFAULT_DIR}"
+    sudo chmod -R 755 "${cpgg_dir:-$DEFAULT_DIR}"
+
+    echo " Restarting Queue Workers"
+    sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan queue:restart
+
+    echo " Disabling maintenance mode"
+    sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan up
+}
+
+# === ACTIONS SECTION END ===
+
 # Handling arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -168,6 +290,7 @@ while [[ $# -gt 0 ]]; do
         ;;
     --cpgg-dir=*)
         cpgg_dir="${1#*=}"
+        cpgg_dir="${cpgg_dir%/}"
         shift
 
         # Validation of specified directory
@@ -184,15 +307,45 @@ while [[ $# -gt 0 ]]; do
             continue
         fi
         ;;
+    --force)
+        force="true"
+        shift
+        ;;
+    --install=*)
+        if [[ -n "$update" ]]; then
+            echo " ERROR: You can't use --install with --update argument"
+            exit 1
+        fi
+
+        install="${1#*=}"
+        shift
+
+        if [[ "$install" == "" ]]; then
+            echo " ERROR: Argument --install can't be empty!"
+            exit 1
+        elif [[ "$install" != "full" && "$install" != "min" ]]; then
+            echo " ERROR: Invalid option $install for --install argument. Valid values are only full or min"
+            exit 1
+        fi
+        ;;
+    --update)
+        if [[ -n "$install" ]]; then
+            echo " ERROR: You can't use --update with --install argument"
+            exit 1
+        fi
+
+        update="true"
+        shift
+        ;;
     *)
-        echo " ERROR: Argument $1 not exists. Use --help to display help menu"
+        echo " ERROR: Argument $1 not exists. Use --help to display all available arguments"
         exit 1
         ;;
     esac
 done
 
 # Save terminal only if $cli_mode = false
-if [ "$cli_mode" == "false" ]; then
+if [ -z "$cli_mode" ]; then
     save_terminal
 fi
 
@@ -200,29 +353,33 @@ fi
 set_cpgg_dir
 
 # Moving to the CtrlPanel directory
-cd "${cpgg_dir:-$DEFAULT_DIR}" || { echo " ERROR: An error occurred while trying to switch to the working directory. Please try to run the script again, if the error persists, create support forum post on CtrlPanel's Discord server!"; exit 1; }
+cd "${cpgg_dir:-$DEFAULT_DIR}" || {
+    echo " ERROR: An error occurred while trying to switch to the working directory. Please try to run the script again, if the error persists, create support forum post on CtrlPanel's Discord server!"
+    exit 1
+}
 
 # Main functions
-if [ "$cli_mode" == "false" ]; then
+if [ -z "$cli_mode" ]; then
 
     get_version
     update_needed_checker
 
     # Main menu
     main_menu() {
+        local choice=""
+
         logo
         logo_version
         logo_message
         echo " Select an option:"
         echo " 1. Install dependencies"
         echo " 2. Update"
-        echo " 3. Uninstall"
-        echo " 4. Info & Help"
+        echo " 3. Info & Help"
         echo " 0. Exit"
         echo ""
-        read -rp " > " main_menu_choice
+        read -rp " > " choice
 
-        case $main_menu_choice in
+        case $choice in
         1)
             menu_1
             ;;
@@ -231,9 +388,6 @@ if [ "$cli_mode" == "false" ]; then
             ;;
         3)
             menu_3
-            ;;
-        4)
-            menu_4
             ;;
         0)
             restore_terminal
@@ -246,30 +400,58 @@ if [ "$cli_mode" == "false" ]; then
 
     # Install dependencies menu
     menu_1() {
+        local choice=""
+
         logo
-        echo " In dev"
-        sleep 3
-        main_menu
+        echo " This action will install all the necessary dependencies such as PHP, Redis, MariaDB and others, as well as install composer files."
+        echo " You will still have to create MySQL user and configure nginx yourself."
+        echo ""
+        echo " Select the installation option:"
+        echo " 1. Full install"
+        echo " 2. Minimal install (Not include MariaDB and nginx)"
+        echo " 0. Exit to main menu"
+        read -rp " > " choice
+
+        case "$choice" in
+        1)
+            install_deps
+            ;;
+        2)
+            install_deps "true"
+            ;;
+        0)
+            main_menu
+            ;;
+        *)
+            menu_1
+            ;;
+        esac
     }
 
     # Update menu
     menu_2() {
-        logo
-        echo " In dev"
-        sleep 3
-        main_menu
-    }
+        local choice=""
 
-    # Uninstall menu
-    menu_3() {
         logo
-        echo " In dev"
-        sleep 3
-        main_menu
+        echo " This action cannot be undone, create backup of the database before updating! It will also remove all installed themes and addons."
+        echo " Do you want to continue? (Y/n)"
+        read -rp " > " choice
+
+        case "$choice" in
+        y | Y)
+            update
+            ;;
+        n | N)
+            main_menu
+            ;;
+        *)
+            menu_2
+            ;;
+        esac
     }
 
     # Info & Help menu
-    menu_4() {
+    menu_3() {
         logo
         echo " In dev"
         sleep 3
@@ -282,6 +464,26 @@ if [ "$cli_mode" == "false" ]; then
     # Restoring terminal after script end
     restore_terminal
 else
-    # Temporary function. In the future, all necessary actions in CLI mode will be performed here
-    echo " CLI mode commands"
+    if [[ "$install" == "full" ]]; then
+        if [[ "$force" == "true" ]]; then
+            install_deps
+        else
+            confirm_dialog "This action will install all the necessary dependencies such as PHP, Redis, MariaDB and others, as well as install composer files." "You will still have to create MySQL user and configure nginx yourself." "install_deps"
+        fi
+    elif [[ "$install" == "min" ]]; then
+        if [[ "$force" == "true" ]]; then
+            install_deps "true"
+        else
+            confirm_dialog "This action will install all the necessary dependencies such as PHP, Redis, Composer and others, as well as install composer files." "" "install_deps \"true\""
+        fi
+    elif [[ "$update" == "true" ]]; then
+        if [[ "$force" == "true" ]]; then
+            update
+        else
+            confirm_dialog "This action cannot be undone, create backup of the database before updating! It will also remove all installed themes and addons." "" "update"
+        fi
+    else
+        echo " ERROR: You have not specified the action you want to do! Use --help to display all available arguments"
+        exit 1
+    fi
 fi
