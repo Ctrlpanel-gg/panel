@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('roles', function (Blueprint $table) {
-            $table->integer('power')->after("color")->default(50);
+        Schema::table('permissions', function (Blueprint $table) {
+            $table->string('readable_name')->after('name');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('roles', function (Blueprint $table) {
-            $table->dropColumn('power');
+        Schema::table('permissions', function (Blueprint $table) {
+            $table->removeColumn('readable_name');
         });
     }
 };
