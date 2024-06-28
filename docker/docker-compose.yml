@@ -12,7 +12,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - "../:/var/www/html:delegated"
+      - "../:/var/www/html"
     depends_on:
       - php
       - mysql
@@ -42,7 +42,7 @@ services:
       dockerfile: docker/php/Dockerfile
     container_name: controlpanel_php
     volumes:
-      - "../:/var/www/html:delegated"
+      - "../:/var/www/html"
     networks:
       - laravel
 

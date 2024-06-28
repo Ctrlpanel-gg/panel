@@ -14,7 +14,7 @@
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {{-- <link rel="stylesheet" href="{{asset('css/adminlte.min.css')}}"> --}}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css" />
@@ -199,7 +199,7 @@
                     src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
                     alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                     style="opacity: .8">
-                <span class="brand-text font-weight-light">{{ config('app.name', 'Controlpanel.gg') }}</span>
+                <span class="brand-text font-weight-light">{{ config('app.name', 'Ctrlpanel.gg') }}</span>
             </a>
 
             <!-- Sidebar -->
@@ -441,7 +441,7 @@
             <strong>Copyright &copy; 2021-{{ date('Y') }} <a
                     href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
             All rights
-            reserved. Powered by <a href="https://controlpanel.gg">ControlPanel</a>.
+            reserved. Powered by <a href="https://ctrlpanel.gg">CtrlPanel</a>.
             @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
                 Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
             @endif
