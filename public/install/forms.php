@@ -60,14 +60,14 @@ if (isset($_POST['checkDB'])) {
 }
 
 if (isset($_POST['generateKey'])) {
-    wh_log('Feeding the Database', 'debug');
+    wh_log('Start APP_KEY generation', 'debug');
 
     try {
         if (!str_contains(getenv('APP_KEY'), 'base64')) {
             $logs = run_console('php artisan key:generate --force');
             wh_log($logs, 'debug');
 
-            wh_log('Creating APP_KEY successful', 'debug');
+            wh_log('Created APP_KEY successful', 'debug');
             header('LOCATION: index.php?step=3.6');
         } else {
             wh_log('Key already exists. Skipping', 'debug');
