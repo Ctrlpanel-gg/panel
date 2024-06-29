@@ -2,8 +2,8 @@
 <!-- top layout here -->
 
 <?php echo cardStart(
-    $title = "Database Migration and Encryption Key Generation",
-    $subtitle = "Lets feed your Database and generate some security keys! <br> This process might take a while. Please do not refresh or close this page!"
+    $title = "Database Migration",
+    $subtitle = "Lets feed your Database! <br> This process might take a while. Please do not refresh or close this page!"
 ); ?>
 
 <form method="POST" enctype="multipart/form-data" class="m-0" action="/installer/index.php" name="feedDB">
