@@ -35,10 +35,6 @@
 
             <div class="mb-3 row">
                 <div class="col-md-3">
-                    <a href="https://discord.gg/4Y6HjD2uyU" class="px-3 btn btn-dark btn-block"><i
-                            class="mr-2 fab fa-discord"></i> {{__('Support server')}}</a>
-                </div>
-                <div class="col-md-3">
                     <a href="https://CtrlPanel.gg/docs/intro" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-link"></i> {{__('Documentation')}}</a>
                 </div>

@@ -28,12 +28,5 @@ class UsefulLinksSeeder extends Seeder
             'description' => 'View your database online using phpMyAdmin',
             'position' => 'dashboard,topbar',
         ]);
-        UsefulLink::create([
-            'icon' => 'fab fa-discord',
-            'title' => 'Discord',
-            'link' => env('DISCORD_INVITE_URL', 'https://discord.gg/4Y6HjD2uyU'),
-            'description' => 'Need a helping hand? Want to chat? Got any questions? Join our discord!',
-            'position' => 'dashboard',
-        ]);
     }
 }
