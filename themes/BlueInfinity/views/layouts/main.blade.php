@@ -85,6 +85,7 @@
                                 </button>
                             @endforeach
 
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         </form>
                     </div>
                 </li>
@@ -190,6 +191,8 @@
                             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                             {{ __('Logout') }}
                         </button>
+
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     </form>
                 </div>
             </li>

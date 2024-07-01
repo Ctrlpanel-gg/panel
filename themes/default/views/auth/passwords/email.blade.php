@@ -56,6 +56,7 @@
                             <!-- /.col -->
                         </div>
 
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     </form>
                     <p class="mt-3 mb-1">
                         <a href="{{ route('login') }}">{{ __('Login') }}</a>

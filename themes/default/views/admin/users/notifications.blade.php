@@ -104,6 +104,8 @@
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </form>
                         </div>
                     </div>

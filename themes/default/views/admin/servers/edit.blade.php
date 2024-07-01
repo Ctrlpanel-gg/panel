@@ -80,6 +80,8 @@
 
                                 <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
 
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            </form>
                         </div>
                     </div>
                 </div>

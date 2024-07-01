@@ -157,6 +157,8 @@
                                         <div class="row">
                                             <button class="mt-3 ml-3 btn btn-primary">{{ __('Save') }}</button>
                                         </div>
+
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     </form>
                                 </div>
                                 @foreach ($settings as $category => $options)
@@ -307,6 +309,8 @@
                                                         </button>
                                                     </div>
                                                 </div>
+
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             </form>
                                         </div>
                                     @endcanany

@@ -154,8 +154,10 @@
                             <button type="submit" class="btn btn-primary">{{ __('Register') }}</button>
                         </div>
                         <!-- /.col -->
-            </div>
-            </form>
+                    </div>
+
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                </form>
             <a href="{{ route('login') }}" class="text-center">{{ __('I already have a membership') }}</a>
         </div>
         <!-- /.form-box -->

@@ -53,6 +53,8 @@
                 <div class="form-group d-flex justify-content-end mt-3">
                     <button name="submit" type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                 </div>
+
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
             </form>
 
         </div>
@@ -65,4 +67,3 @@
         })
     </script>
 @endsection
-

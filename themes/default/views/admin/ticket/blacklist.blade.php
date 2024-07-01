@@ -61,7 +61,7 @@
                         </div>
                         <div class="card-body">
                             <form action="{{route('admin.ticket.blacklist.add')}}" method="POST" class="ticket-form">
-                            @csrf
+                                @csrf
                                 <div class="p-0 mb-3 custom-control">
                                     <label for="user_id">{{ __('User') }}:
                                         <i data-toggle="popover" data-trigger="hover"
@@ -78,6 +78,8 @@
                                 <button type="submit" class="btn btn-primary ticket-once">
                                     {{__('Submit')}}
                                 </button>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </form>
                         </div>
                     </div>
@@ -179,4 +181,3 @@
         });
     </script>
 @endsection
-

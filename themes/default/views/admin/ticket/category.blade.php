@@ -57,7 +57,7 @@
                         </div>
                         <div class="card-body">
                             <form action="{{route("admin.ticket.category.store")}}" method="POST" class="ticket-form">
-                            @csrf
+                                @csrf
                                 <div class="form-group ">
                                     <label for="name" class="control-label">{{__("Name")}}</label>
                                     <input id="name" type="text" class="form-control" name="name" required>
@@ -65,6 +65,8 @@
                                 <button type="submit" class="btn btn-primary">
                                     {{__('Submit')}}
                                 </button>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </form>
                         </div>
                     </div>
@@ -90,6 +92,8 @@
                                 <button type="submit" class="btn btn-primary">
                                     {{__('Submit')}}
                                 </button>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </form>
                         </div>
                     </div>
@@ -129,4 +133,3 @@
 
     </script>
 @endsection
-
