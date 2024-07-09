@@ -64,189 +64,189 @@ function cardStart($title, $subtitle = null): string
 
 <?php
 
-// Getting started
-if (!isset($_GET['step']) || $_GET['step'] == 1) {
-    ?>
-    <?php echo cardStart($title = "Mandatory Checks before Installation", $subtitle = "This installer will lead you through the most crucial Steps of CtrlPanel.gg's setup"); ?>
+    // Getting started
+    if (!isset($_GET['step']) || $_GET['step'] == 1) {
+        ?>
+        <?php echo cardStart($title = "Mandatory Checks before Installation", $subtitle = "This installer will lead you through the most crucial Steps of CtrlPanel.gg's setup"); ?>
 
-    <ul class="list-none mb-2">
+        <ul class="list-none mb-2">
 
-        <li class="<?php echo checkWriteable() ? 'ok' : 'not-ok'; ?> check">Write-permissions on .env-file</li>
+            <li class="<?php echo checkWriteable() ? 'ok' : 'not-ok'; ?> check">Write-permissions on .env-file</li>
 
-        <li class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
-            php version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)
-        </li>
+            <li class="<?php echo checkPhpVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
+                php version: <?php echo phpversion(); ?> (minimum required <?php echo $requirements['minPhp']; ?>)
+            </li>
 
-        <li class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'not-ok'; ?> check">
-            Missing php-extentions:
-            <?php echo count(checkExtensions()) == 0 ? 'none' : '';
-            foreach (checkExtensions() as $ext) {
-                echo $ext . ', ';
-            }
-            echo count(checkExtensions()) === 0 ? '' : '(Proceed anyway)'; ?>
-        </li>
+            <li class="<?php echo count(checkExtensions()) == 0 ? 'ok' : 'not-ok'; ?> check">
+                Missing php-extentions:
+                <?php echo count(checkExtensions()) == 0 ? 'none' : '';
+                foreach (checkExtensions() as $ext) {
+                    echo $ext . ', ';
+                }
+                echo count(checkExtensions()) === 0 ? '' : '(Proceed anyway)'; ?>
+            </li>
 
-        <li class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
-            Git version:
-            <?php echo getGitVersion(); ?>
-        </li>
+            <li class="<?php echo getGitVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
+                Git version:
+                <?php echo getGitVersion(); ?>
+            </li>
 
-        <li class="<?php echo getTarVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
-            Tar version:
-            <?php echo getTarVersion(); ?>
-        </li>
+            <li class="<?php echo getTarVersion() === 'OK' ? 'ok' : 'not-ok'; ?> check">
+                Tar version:
+                <?php echo getTarVersion(); ?>
+            </li>
 
-        <li>
-            <p class="text-neutral-400 mb-1">
-                <br>
-                <span style="color: #eab308;">Important:</span>
-                CtrlPanel.gg requires a MySQL-Database, Redis-Server, and Pterodactyl-Panel to work.<br>
-                Please make sure you have these installed and running before you continue.
-            </p>
-        </li>
+            <li>
+                <p class="text-neutral-400 mb-1">
+                    <br>
+                    <span style="color: #eab308;">Important:</span>
+                    CtrlPanel.gg requires a MySQL-Database, Redis-Server, and Pterodactyl-Panel to work.<br>
+                    Please make sure you have these installed and running before you continue.
+                </p>
+            </li>
 
-    </ul>
+        </ul>
 
-    <a href="?step=2" class="w-full flex justify-center">
-        <button
-            class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500">
-            Lets go!
-        </button>
-    </a>
+        <a href="?step=2" class="w-full flex justify-center">
+            <button
+                class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500">
+                Lets go!
+            </button>
+        </a>
 
-    <?php
-}
+        <?php
+    }
 
-// Timezone Config
-if (isset($_GET['step']) && $_GET['step'] == 2) {
-    echo cardStart($title = "Timezone Configuration"); ?>
+    // Timezone Config
+    if (isset($_GET['step']) && $_GET['step'] == 2) {
+        echo cardStart($title = "Timezone Configuration"); ?>
 
-    <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="timezoneConfig">
-        <?php if (isset($_GET['message'])) {
-            echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
-        } ?>
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="timezoneConfig">
+            <?php if (isset($_GET['message'])) {
+                echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+            } ?>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <div class="flex flex-col mb-3">
-                        <label for="timezone">Timezone</label>
-                        <select id="timezone" name="timezone" required
-                                class="px-2 py-2 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
-                            <?php
-                            foreach (DateTimeZone::listIdentifiers() as $timezoneIdentifier) {
-                                if ($timezoneIdentifier === 'UTC') {
-                                    continue;
-                                }
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="timezone">Timezone</label>
+                            <select id="timezone" name="timezone" required
+                                    class="px-2 py-2 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                                <?php
+                                foreach (DateTimeZone::listIdentifiers() as $timezoneIdentifier) {
+                                    if ($timezoneIdentifier === 'UTC') {
+                                        continue;
+                                    }
 
-                                echo '<option value="' . $timezoneIdentifier . '">' . $timezoneIdentifier . '</option>';
-                            } ?>
-                        </select>
+                                    echo '<option value="' . $timezoneIdentifier . '">' . $timezoneIdentifier . '</option>';
+                                } ?>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="w-full flex justify-center">
-            <button
-                class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
-                name="timezoneConfig">Submit
-            </button>
-        </div>
-    </form>
-    <?php
-}
+            <div class="w-full flex justify-center">
+                <button
+                    class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
+                    name="timezoneConfig">Submit
+                </button>
+            </div>
+        </form>
+        <?php
+    }
 
-// DB Config
-if (isset($_GET['step']) && $_GET['step'] == 3) {
-    echo cardStart($title = "Database Configuration"); ?>
+    // DB Config
+    if (isset($_GET['step']) && $_GET['step'] == 3) {
+        echo cardStart($title = "Database Configuration"); ?>
 
-    <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkDB">
-        <?php if (isset($_GET['message'])) {
-            echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
-        } ?>
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="checkDB">
+            <?php if (isset($_GET['message'])) {
+                echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+            } ?>
 
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group">
-                    <div class="flex flex-col mb-3">
-                        <label for="databasedriver">Database Driver</label>
-                        <input x-model="databasedriver" id="databasedriver" name="databasedriver" type="text" required
-                               value="mysql"
-                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databasedriver">Database Driver</label>
+                            <input x-model="databasedriver" id="databasedriver" name="databasedriver" type="text" required
+                                   value="mysql"
+                                   class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="flex flex-col mb-3">
-                        <label for="databasehost">Database Host</label>
-                        <input x-model="databasehost" id="databasehost" name="databasehost" type="text" required
-                               value="<?php echo(determineIfRunningInDocker() ? 'mysql' : '127.0.0.1') ?>"
-                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databasehost">Database Host</label>
+                            <input x-model="databasehost" id="databasehost" name="databasehost" type="text" required
+                                   value="<?php echo(determineIfRunningInDocker() ? 'mysql' : '127.0.0.1') ?>"
+                                   class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="flex flex-col mb-3">
-                        <label for="databaseport">Database Port</label>
-                        <input x-model="databaseport" id="databaseport" name="databaseport" type="number" required
-                               value="3306"
-                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databaseport">Database Port</label>
+                            <input x-model="databaseport" id="databaseport" name="databaseport" type="number" required
+                                   value="3306"
+                                   class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="flex flex-col mb-3">
-                        <label for="databaseuser">Database User</label>
-                        <input x-model="databaseuser" id="databaseuser" name="databaseuser" type="text" required
-                               value="ctrlpaneluser"
-                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databaseuser">Database User</label>
+                            <input x-model="databaseuser" id="databaseuser" name="databaseuser" type="text" required
+                                   value="ctrlpaneluser"
+                                   class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="flex flex-col mb-3">
-                        <label for="databaseuserpass">Database User Password</label>
-                        <input x-model="databaseuserpass" id="databaseuserpass" name="databaseuserpass" type="text"
-                               required
-                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                    <div class="form-group">
+                        <div class="flex flex-col mb-3">
+                            <label for="databaseuserpass">Database User Password</label>
+                            <input x-model="databaseuserpass" id="databaseuserpass" name="databaseuserpass" type="text"
+                                   required
+                                   class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <div class="flex flex-col">
-                        <label for="database">Database</label>
-                        <input x-model="database" id="database" name="database" type="text" required value="ctrlpanel"
-                               class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                    <div class="form-group">
+                        <div class="flex flex-col">
+                            <label for="database">Database</label>
+                            <input x-model="database" id="database" name="database" type="text" required value="ctrlpanel"
+                                   class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="w-full flex justify-center">
-            <button
-                class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
-                name="checkDB">Submit
-            </button>
-        </div>
-    </form>
+            <div class="w-full flex justify-center">
+                <button
+                    class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
+                    name="checkDB">Submit
+                </button>
+            </div>
+        </form>
 
-    <?php
-}
+        <?php
+    }
 
-// DB Migration & APP_KEY Generation
-if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
+    // DB Migration
+    if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
 
-    <?php echo cardStart($title = "Database Migration and Encryption Key Generation", $subtitle = "Lets feed your Database and generate some security keys! <br> This process might take a while. Please do not refresh or close this page!"); ?>
-    <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="feedDB">
+        <?php echo cardStart($title = "Database Migration", $subtitle = "Lets feed your Database! <br> This process might take a while. Please do not refresh or close this page!"); ?>
+        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="feedDB">
 
-        <?php if (isset($_GET['message'])) {
-            echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
-        } ?>
+            <?php if (isset($_GET['message'])) {
+                echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
+            } ?>
 
-        <div class="w-full flex justify-center">
-            <button
-                class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
-                name="feedDB">Submit
-            </button>
-        </div>
-    </form>
+            <div class="w-full flex justify-center">
+                <button
+                    class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
+                    name="feedDB">Submit
+                </button>
+            </div>
+        </form>
     <?php
     }
 

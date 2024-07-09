@@ -55,6 +55,23 @@ if (isset($_POST['checkDB'])) {
         setenv($key, $param);
     }
 
+    wh_log('Start APP_KEY generation', 'debug');
+
+    try {
+        if (!str_contains(getenv('APP_KEY'), 'base64')) {
+            $logs = run_console('php artisan key:generate --force');
+            wh_log($logs, 'debug');
+
+            wh_log('Created APP_KEY successful', 'debug');
+        } else {
+            wh_log('Key already exists. Skipping', 'debug');
+        }
+    } catch (Throwable $th) {
+        wh_log('Creating APP_KEY failed', 'error');
+        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
+        exit();
+    }
+
     wh_log('Database connection successful', 'debug');
     header('LOCATION: index.php?step=3.5');
 }
@@ -66,11 +83,6 @@ if (isset($_POST['feedDB'])) {
     try {
         //$logs .= run_console(setenv('COMPOSER_HOME', dirname(__FILE__, 3) . '/vendor/bin/composer'));
         //$logs .= run_console('composer install --no-dev --optimize-autoloader');
-        if (!str_contains(getenv('APP_KEY'), 'base64')) {
-            $logs .= run_console('php artisan key:generate --force');
-        } else {
-            $logs .= "Key already exists. Skipping\n";
-        }
         $logs .= run_console('php artisan storage:link');
         $logs .= run_console('php artisan migrate --seed --force');
         $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
