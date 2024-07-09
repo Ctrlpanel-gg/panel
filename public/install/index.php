@@ -230,28 +230,8 @@ function cardStart($title, $subtitle = null): string
         <?php
     }
 
-    // APP_KEY Generation
-    if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
-
-        <?php echo cardStart($title = "Encryption Key Generation", $subtitle = "Lets generate some security keys!"); ?>
-        <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="generateKey">
-
-            <?php if (isset($_GET['message'])) {
-                echo "<p class='not-ok check'>" . $_GET['message'] . '</p>';
-            } ?>
-
-            <div class="w-full flex justify-center">
-                <button
-                    class="w-1/3 min-w-fit mt-2 px-4 py-2 font-bold rounded-md bg-sky-500 hover:bg-sky-600 shadow-sky-400 focus:outline-2 focus:outline focus:outline-offset-2 focus:outline-sky-500"
-                    name="generateKey">Submit
-                </button>
-            </div>
-        </form>
-    <?php
-    }
-
     // DB Migration
-    if (isset($_GET['step']) && $_GET['step'] == 3.6) { ?>
+    if (isset($_GET['step']) && $_GET['step'] == 3.5) { ?>
 
         <?php echo cardStart($title = "Database Migration", $subtitle = "Lets feed your Database! <br> This process might take a while. Please do not refresh or close this page!"); ?>
         <form method="POST" enctype="multipart/form-data" class="m-0" action="/install/forms.php" name="feedDB">

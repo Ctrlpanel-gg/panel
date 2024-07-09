@@ -55,11 +55,6 @@ if (isset($_POST['checkDB'])) {
         setenv($key, $param);
     }
 
-    wh_log('Database connection successful', 'debug');
-    header('LOCATION: index.php?step=3.5');
-}
-
-if (isset($_POST['generateKey'])) {
     wh_log('Start APP_KEY generation', 'debug');
 
     try {
@@ -68,14 +63,17 @@ if (isset($_POST['generateKey'])) {
             wh_log($logs, 'debug');
 
             wh_log('Created APP_KEY successful', 'debug');
-            header('LOCATION: index.php?step=3.6');
         } else {
             wh_log('Key already exists. Skipping', 'debug');
         }
     } catch (Throwable $th) {
         wh_log('Creating APP_KEY failed', 'error');
-        header("LOCATION: index.php?step=3.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
+        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
+        exit();
     }
+
+    wh_log('Database connection successful', 'debug');
+    header('LOCATION: index.php?step=3.5');
 }
 
 if (isset($_POST['feedDB'])) {
