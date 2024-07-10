@@ -15,7 +15,7 @@ if (!file_exists('../../.env')) {
 
 (new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
-$required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl'];
+$required_extensions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer', 'bcmath', 'xml', 'curl', 'zip', 'intl', 'redis'];
 
 $requirements = [
     'minPhp' => '8.1',
@@ -46,36 +46,6 @@ function checkPhpVersion(): string
 function checkWriteable(): bool
 {
     return is_writable('../../.env');
-}
-
-/**
- * Check if the server runs using HTTPS
- * @return bool Returns true on HTTPS or false on HTTP.
- */
-function checkHTTPS(): bool
-{
-    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
-    wh_log('https:', 'debug', (array)$isHttps);
-    return $isHttps;
-}
-
-/**
- * Check if MySQL is installed and runs the correct version using a shell command
- * @return mixed|string 'OK' if required version is met, returns MySQL version if not met.
- */
-function getMySQLVersion(): mixed
-{
-    global $requirements;
-
-    wh_log('attempting to get mysql version', 'debug');
-
-    $output = shell_exec('mysql -V') ?? '';
-    preg_match('@[0-9]+\.[0-9]+\.[0-9]+@', $output, $version);
-
-    $versionoutput = $version[0] ?? '0';
-    wh_log('mysql version: ' . $versionoutput, 'debug');
-
-    return intval($versionoutput) > intval($requirements['mysql']) ? 'OK' : $versionoutput;
 }
 
 /**
@@ -302,4 +272,9 @@ function generateRandomString(int $length = 8): string
     }
 
     return $randomString;
+}
+
+function determineIfRunningInDocker(): bool
+{
+    return file_exists('/.dockerenv');
 }
