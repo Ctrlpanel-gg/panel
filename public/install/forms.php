@@ -5,12 +5,23 @@ error_reporting(E_ALL);
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
+use Predis\Client;
 
 require 'phpmailer/Exception.php';
 require 'phpmailer/PHPMailer.php';
 require 'phpmailer/SMTP.php';
 
 include 'functions.php';
+
+if (isset($_POST['timezoneConfig'])) {
+    wh_log('Setting up Timezone', 'debug');
+    $timezone = $_POST['timezone'];
+
+    setenv('APP_TIMEZONE', $timezone);
+
+    wh_log('Timezone set: ' . $timezone, 'debug');
+    header('LOCATION: index.php?step=3');
+}
 
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
 
@@ -31,7 +42,7 @@ if (isset($_POST['checkDB'])) {
         $db = new mysqli($_POST['databasehost'], $_POST['databaseuser'], $_POST['databaseuserpass'], $_POST['database'], $_POST['databaseport']);
     } catch (mysqli_sql_exception $e) {
         wh_log($e->getMessage(), 'error');
-        header('LOCATION: index.php?step=2&message=' . $e->getMessage());
+        header('LOCATION: index.php?step=3&message=' . $e->getMessage());
         exit();
     }
 
@@ -44,24 +55,25 @@ if (isset($_POST['checkDB'])) {
         setenv($key, $param);
     }
 
-    wh_log('Database connection successful', 'debug');
-    header('LOCATION: index.php?step=2.5');
-}
+    wh_log('Start APP_KEY generation', 'debug');
 
-if (isset($_POST['checkGeneral'])) {
-    wh_log('setting app settings', 'debug');
-    $appname = '"' . $_POST['name'] . '"';
-    $appurl = $_POST['url'];
+    try {
+        if (!str_contains(getenv('APP_KEY'), 'base64')) {
+            $logs = run_console('php artisan key:generate --force');
+            wh_log($logs, 'debug');
 
-    if (substr($appurl, -1) === '/') {
-        $appurl = substr_replace($appurl, '', -1);
+            wh_log('Created APP_KEY successful', 'debug');
+        } else {
+            wh_log('Key already exists. Skipping', 'debug');
+        }
+    } catch (Throwable $th) {
+        wh_log('Creating APP_KEY failed', 'error');
+        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
+        exit();
     }
 
-    setenv('APP_NAME', $appname);
-    setenv('APP_URL', $appurl);
-
-    wh_log('App settings set', 'debug');
-    header('LOCATION: index.php?step=4');
+    wh_log('Database connection successful', 'debug');
+    header('LOCATION: index.php?step=3.5');
 }
 
 if (isset($_POST['feedDB'])) {
@@ -71,11 +83,6 @@ if (isset($_POST['feedDB'])) {
     try {
         //$logs .= run_console(setenv('COMPOSER_HOME', dirname(__FILE__, 3) . '/vendor/bin/composer'));
         //$logs .= run_console('composer install --no-dev --optimize-autoloader');
-        if (!str_contains(getenv('APP_KEY'), 'base64')) {
-            $logs .= run_console('php artisan key:generate --force');
-        } else {
-            $logs .= "Key already exists. Skipping\n";
-        }
         $logs .= run_console('php artisan storage:link');
         $logs .= run_console('php artisan migrate --seed --force');
         $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
@@ -84,11 +91,66 @@ if (isset($_POST['feedDB'])) {
         wh_log($logs, 'debug');
 
         wh_log('Feeding the Database successful', 'debug');
-        header('LOCATION: index.php?step=3');
-    } catch (\Throwable $th) {
+        header('LOCATION: index.php?step=4');
+    } catch (Throwable $th) {
         wh_log('Feeding the Database failed', 'error');
-        header("LOCATION: index.php?step=2.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/ctrlpanel/storage/logs !");
+        header("LOCATION: index.php?step=3.5&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
     }
+}
+
+if (isset($_POST['redisSetup'])) {
+    wh_log('Setting up Redis', 'debug');
+    $redisHost = $_POST['redishost'];
+    $redisPort = $_POST['redisport'];
+    $redisPassword = $_POST['redispassword'];
+
+    $redisClient = new Client([
+        'host'     => $redisHost,
+        'port'     => $redisPort,
+        'password' => $redisPassword,
+        'timeout'  => 1.0,
+    ]);
+
+    try {
+        $redisClient->ping();
+
+        setenv('MEMCACHED_HOST', $redisHost);
+        setenv('REDIS_HOST', $redisHost);
+        setenv('REDIS_PORT', $redisPort);
+        setenv('REDIS_PASSWORD', ($redisPassword === '' ? 'null' : $redisPassword));
+
+        wh_log('Redis connection successful. Settings updated.', 'debug');
+        header('LOCATION: index.php?step=5');
+    } catch (Throwable $th) {
+        wh_log('Redis connection failed. Settings updated.', 'debug');
+        header("LOCATION: index.php?step=4&message=Please check your credentials!<br>" . $th->getMessage());
+    }
+}
+
+if (isset($_POST['checkGeneral'])) {
+    wh_log('setting app settings', 'debug');
+    $appname = '"' . $_POST['name'] . '"';
+    $appurl = $_POST['url'];
+
+    $parsedUrl = parse_url($appurl);
+
+    if (!isset($parsedUrl['scheme'])) {
+        header('LOCATION: index.php?step=5&message=Please set an URL Scheme like "https://"!');
+        exit();
+    }
+
+    if (!isset($parsedUrl['host'])) {
+        header('LOCATION: index.php?step=5&message=Please set an valid URL host like "https://ctrlpanel.example.com"!');
+        exit();
+    }
+
+    $appurl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+
+    setenv('APP_NAME', $appname);
+    setenv('APP_URL', $appurl);
+
+    wh_log('App settings set', 'debug');
+    header('LOCATION: index.php?step=6');
 }
 
 if (isset($_POST['checkSMTP'])) {
@@ -97,27 +159,30 @@ if (isset($_POST['checkSMTP'])) {
         $mail = new PHPMailer(true);
 
         //Server settings
-        $mail->isSMTP();                                            // Send using SMTP
-        $mail->Host = $_POST['host'];                    // Set the SMTP server to send through
-        $mail->SMTPAuth = true;                                   // Enable SMTP authentication
-        $mail->Username = $_POST['user'];                     // SMTP username
-        $mail->Password = $_POST['pass'];                               // SMTP password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
-        $mail->Port = $_POST['port'];                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS`
+        // Send using SMTP
+        $mail->isSMTP();
+        $mail->Host = $_POST['host'];
+        // Enable SMTP authentication
+        $mail->SMTPAuth = true;
+        $mail->Username = $_POST['user'];
+        $mail->Password = $_POST['pass'];
+        $mail->SMTPSecure = $_POST['encryption'];
+        $mail->Port = (int) $_POST['port'];
 
-        //Recipients
+        // Test E-mail metadata
         $mail->setFrom($_POST['user'], $_POST['user']);
-        $mail->addAddress($_POST['user'], $_POST['user']);     // Add a recipient
+        $mail->addAddress($_POST['user'], $_POST['user']);
 
         // Content
-        $mail->isHTML(true);                                  // Set email format to HTML
-        $mail->Subject = 'It Worked!';
+        // Set email format to HTML
+        $mail->isHTML(true);
+        $mail->Subject = 'It Worked! - Test E-Mail from Ctrlpanel.gg';
         $mail->Body = 'Your E-Mail Settings are correct!';
 
         $mail->send();
     } catch (Exception $e) {
         wh_log($mail->ErrorInfo, 'error');
-        header('LOCATION: index.php?step=4&message=Something wasnt right when sending the E-Mail!');
+        header('LOCATION: index.php?step=6&message=Something went wrong while sending test E-Mail!<br>' . $mail->ErrorInfo);
         exit();
     }
 
@@ -126,7 +191,7 @@ if (isset($_POST['checkSMTP'])) {
     $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
     if ($db->connect_error) {
         wh_log($db->connect_error, 'error');
-        header('LOCATION: index.php?step=4&message=Could not connect to the Database: ');
+        header('LOCATION: index.php?step=6&message=Could not connect to the Database: ');
         exit();
     }
     $values = [
@@ -140,12 +205,11 @@ if (isset($_POST['checkSMTP'])) {
     ];
 
     foreach ($values as $key => $value) {
-        $query = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '$value' WHERE `name` = '$key' AND `group` = 'mail'";
-        $db->query($query);
+        run_console("php artisan settings:set 'MailSettings' '$key' '$value'");
     }
 
     wh_log('Database updated', 'debug');
-    header('LOCATION: index.php?step=5');
+    header('LOCATION: index.php?step=7');
 }
 
 if (isset($_POST['checkPtero'])) {
@@ -155,9 +219,19 @@ if (isset($_POST['checkPtero'])) {
     $key = $_POST['key'];
     $clientkey = $_POST['clientkey'];
 
-    if (substr($url, -1) === '/') {
-        $url = substr_replace($url, '', -1);
+    $parsedUrl = parse_url($url);
+
+    if (!isset($parsedUrl['scheme'])) {
+        header('LOCATION: index.php?step=7&message=Please set an URL Scheme like "https://"!');
+        exit();
     }
+
+    if (!isset($parsedUrl['host'])) {
+        header('LOCATION: index.php?step=7&message=Please set an valid URL host like "https://panel.example.com"!');
+        exit();
+    }
+
+    $url = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
 
     $callpteroURL = $url . '/api/client/account';
     $call = curl_init();
@@ -171,7 +245,7 @@ if (isset($_POST['checkPtero'])) {
     ]);
     $callresponse = curl_exec($call);
     $callresult = json_decode($callresponse, true);
-    curl_close($call); // Close the connection
+    curl_close($call);
 
     $pteroURL = $url . '/api/application/users';
     $ch = curl_init();
@@ -185,50 +259,46 @@ if (isset($_POST['checkPtero'])) {
     ]);
     $response = curl_exec($ch);
     $result = json_decode($response, true);
-    curl_close($ch); // Close the connection
+    curl_close($ch);
 
-    if (!is_array($result) and $result['errors'][0] !== null) {
-        header('LOCATION: index.php?step=5&message=Couldn\'t connect to Pterodactyl. Make sure your API key has all read and write permissions!');
+    if (!is_array($result)) {
+        wh_log('No array in response found', 'error');
+        header('LOCATION: index.php?step=7&message=An unknown Error occured, please try again!');
+    }
+
+    if (array_key_exists('errors', $result) && $result['errors'][0]['detail'] === 'This action is unauthorized.') {
         wh_log('API CALL ERROR: ' . $result['errors'][0]['code'], 'error');
+        header('LOCATION: index.php?step=7&message=Couldn\'t connect to Pterodactyl. Make sure your Application API key has all read and write permissions!');
         exit();
-    } elseif (!is_array($callresult) and $callresult['errors'][0] !== null or $callresult['attributes']['admin'] == false) {
-        header('LOCATION: index.php?step=5&message=Your ClientAPI Key is wrong or the account is not an admin!');
+    }
+
+    if (array_key_exists('errors', $callresult) && $callresult['errors'][0]['detail'] === 'Unauthenticated.') {
         wh_log('API CALL ERROR: ' . $callresult['errors'][0]['code'], 'error');
+        header('LOCATION: index.php?step=7&message=Your ClientAPI Key is wrong or the account is not an admin!');
         exit();
-    } else {
-        wh_log('Pterodactyl Settings are correct', 'debug');
-        wh_log('Updating Database', 'debug');
+    }
 
-        $key = $key;
-        $clientkey = $clientkey;
-
-        $query1 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($url) . "' WHERE (`name` = 'panel_url' AND `group` = 'pterodactyl')";
-        $query2 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($key) . "' WHERE (`name` = 'admin_token' AND `group` = 'pterodactyl')";
-        $query3 = 'UPDATE `' . getenv('DB_DATABASE') . "`.`settings` SET `payload` = '" . json_encode($clientkey) . "' WHERE (`name` = 'user_token' AND `group` = 'pterodactyl')";
-
-        $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
-        if ($db->connect_error) {
-            wh_log($db->connect_error, 'error');
-            header('LOCATION: index.php?step=5&message=Could not connect to the Database');
-            exit();
-        }
-
-        if ($db->query($query1) && $db->query($query2) && $db->query($query3)) {
-            wh_log('Database updated', 'debug');
-            header('LOCATION: index.php?step=6');
-        } else {
-            wh_log($db->error, 'error');
-            header('LOCATION: index.php?step=5&message=Something went wrong when communicating with the Database!');
-        }
+    try {
+        run_console("php artisan settings:set 'PterodactylSettings' 'panel_url' '$url'");
+        run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'");
+        run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'");
+        wh_log('Database updated', 'debug');
+        header('LOCATION: index.php?step=8');
+    } catch (Throwable $th) {
+        wh_log("Setting Pterodactyl information failed.", 'error');
+        header("LOCATION: index.php?step=7&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
+        exit();
     }
 }
 
 if (isset($_POST['createUser'])) {
-    wh_log('Creating User', 'debug');
-    $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
-    if ($db->connect_error) {
-        wh_log($db->connect_error, 'error');
-        header('LOCATION: index.php?step=6&message=Could not connect to the Database');
+    wh_log('Getting Pterodactyl User', 'debug');
+
+    try {
+        $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
+    } catch (Throwable $th) {
+        wh_log($th->getMessage(), 'error');
+        header('LOCATION: index.php?step=8&message=Could not connect to the Database');
         exit();
     }
 
@@ -236,30 +306,37 @@ if (isset($_POST['createUser'])) {
     $pass = $_POST['pass'];
     $repass = $_POST['repass'];
 
-    $key = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'admin_token' AND `group` = 'pterodactyl'")->fetch_assoc();
-    $key = removeQuotes($key['payload']);
-    $pterobaseurl = $db->query('SELECT `payload` FROM `' . getenv('DB_DATABASE') . "`.`settings` WHERE `name` = 'panel_url' AND `group` = 'pterodactyl'")->fetch_assoc();
+    try {
+        $panelUrl = run_console("php artisan settings:get 'PterodactylSettings' 'panel_url' --sameline");
+        $adminToken = run_console("php artisan settings:get 'PterodactylSettings' 'admin_token' --sameline");
+    } catch (Throwable $th) {
+        wh_log("Getting Pterodactyl information failed.", 'error');
+        header("LOCATION: index.php?step=7&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
+        exit();
+    }
 
-    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
+    $panelApiUrl = $panelUrl . '/api/application/users/' . $pteroID;
+
     $ch = curl_init();
 
-    curl_setopt($ch, CURLOPT_URL, $pteroURL);
+    curl_setopt($ch, CURLOPT_URL, $panelApiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
+        'Authorization: Bearer ' . $adminToken,
     ]);
     $response = curl_exec($ch);
     $result = json_decode($response, true);
-    curl_close($ch); // Close the connection
+    curl_close($ch);
 
-    if (!$result['attributes']['email']) {
-        header('LOCATION: index.php?step=6&message=Could not find the user with pterodactyl ID ' . $pteroID);
+    if ($pass !== $repass) {
+        header('LOCATION: index.php?step=8&message=The Passwords did not match!');
         exit();
     }
-    if ($pass !== $repass) {
-        header('LOCATION: index.php?step=6&message=The Passwords did not match!');
+
+    if (array_key_exists('errors', $result)) {
+        header('LOCATION: index.php?step=8&message=Could not find the user with pterodactyl ID ' . $pteroID);
         exit();
     }
 
@@ -267,15 +344,14 @@ if (isset($_POST['createUser'])) {
     $name = $result['attributes']['username'];
     $pass = password_hash($pass, PASSWORD_DEFAULT);
 
-    $pteroURL = removeQuotes($pterobaseurl['payload']) . '/api/application/users/' . $pteroID;
     $ch = curl_init();
 
-    curl_setopt($ch, CURLOPT_URL, $pteroURL);
+    curl_setopt($ch, CURLOPT_URL, $panelApiUrl);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Accept: application/json',
         'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
+        'Authorization: Bearer ' . $adminToken,
     ]);
     curl_setopt($ch, CURLOPT_POSTFIELDS, [
         'email' => $mail,
@@ -286,22 +362,25 @@ if (isset($_POST['createUser'])) {
     ]);
     $response = curl_exec($ch);
     $result = json_decode($response, true);
-    curl_close($ch); // Close the connection
-
-    if (!is_array($result) or in_array($result['errors'][0]['code'], $result)) {
-        header('LOCATION: index.php?step=5&message=Couldn\'t connect to Pterodactyl. Make sure your API key has all read and write permissions!');
-        exit();
-    }
+    curl_close($ch);
 
     $random = generateRandomString();
 
     $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
     $query2 = "INSERT INTO `" . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\\\Models\\\User', '1')";
-    if ($db->query($query1) && $db->query($query2)) {
-        wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID, 'info');
-        header('LOCATION: index.php?step=7');
-    } else {
-        wh_log($db->error, 'error');
-        header('LOCATION: index.php?step=6&message=Something went wrong when communicating with the Database');
+    try {
+        $db->query($query1);
+        $db->query($query2);
+
+        wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID);
+        header('LOCATION: index.php?step=9');
+    } catch (Throwable $th) {
+        wh_log($th->getMessage(), 'error');
+        if (str_contains($th->getMessage(), 'Duplicate entry')) {
+            header('LOCATION: index.php?step=8&message=User already exists in CtrlPanel\'s Database.');
+        } else {
+            header('LOCATION: index.php?step=8&message=Something went wrong when communicating with the Database.');
+        }
+        exit();
     }
 }
