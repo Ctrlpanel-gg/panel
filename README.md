@@ -1,27 +1,6 @@
-<<<<<<< mercadopago-implementation
-### Features
-
--   PayPal, Stripe, Mollie and MercadoPago Integration
--   Hourly, Weekely, Monthly, Quarterly and Annual billing Cycles
--   Referral System
--   Partner System
--   Ticket System
--   Upgrade/Downgrade Server Resources
--   Store (credit system with hourly billing and invoices)
--   Email Verification
--   Audit Log
--   Admin Dashboard
--   User/Server Management
--   Customisable server plans
--   Vouchers
--   Alert System
--   Theme Support
--   and so much more!
-=======
 <div align="center">
     <img src="https://ctrlpanel.gg/img/controlpanel.png" width="128" alt="" />
 </div>
->>>>>>> development
 
 # CtrlPanel-gg
 
