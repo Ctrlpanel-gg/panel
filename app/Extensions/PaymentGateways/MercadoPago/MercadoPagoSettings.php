@@ -15,6 +15,13 @@ class MercadoPagoSettings extends Settings
         return 'mercadopago';
     }
 
+    public static function encrypted(): array
+    {
+        return [
+            'access_token'
+        ];
+    }
+
     public static function getOptionInputData()
     {
         return [
