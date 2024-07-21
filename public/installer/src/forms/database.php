@@ -19,16 +19,12 @@ if (isset($_POST['checkDB'])) {
         $db = new mysqli($_POST['databasehost'], $_POST['databaseuser'], $_POST['databaseuserpass'], $_POST['database'], $_POST['databaseport']);
     } catch (mysqli_sql_exception $e) {
         wh_log($e->getMessage(), 'error');
-        header('LOCATION: index.php?step=3&message=' . $e->getMessage());
+        send_error_message($e->getMessage());
         exit();
     }
 
-
     foreach ($values as $key => $value) {
         $param = $_POST[$value];
-        // if ($key == "DB_PASSWORD") {
-        //    $param = '"' . $_POST[$value] . '"';
-        // }
         setenv($key, $param);
     }
 
@@ -50,7 +46,7 @@ if (isset($_POST['checkDB'])) {
     }
 
     wh_log('Database connection successful', 'debug');
-    header('LOCATION: index.php?step=3.5');
+    next_step();
 }
 
 if (isset($_POST['feedDB'])) {
