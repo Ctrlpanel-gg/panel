@@ -71,7 +71,7 @@
     "Change Status": "Change Status",
     "Profile updated": "Profile updated",
     "Server limit reached!": "Server limit reached!",
-    "The node '\" . $nodeName . \"' doesn't have the required memory or disk left to allocate this product.": "The node '\" . $nodeName . \"' doesn't have the required memory or disk left to allocate this product.",
+    "The chosen location doesn't have the required memory or disk left to allocate this product.": "The chosen location doesn't have the required memory or disk left to allocate this product.",
     "You are required to verify your email address before you can create a server.": "You are required to verify your email address before you can create a server.",
     "You are required to link your discord account before you can create a server.": "You are required to link your discord account before you can create a server.",
     "Server created": "Server created",
@@ -145,7 +145,7 @@
     "Support server": "Support server",
     "Documentation": "Documentation",
     "Github": "Github",
-    "Support ControlPanel": "Support ControlPanel",
+    "Support CtrlPanel": "Support CtrlPanel",
     "Servers": "Servers",
     "Total": "Total",
     "Payments": "Payments",
@@ -166,7 +166,7 @@
     "You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.": "You reached the Pterodactyl perPage limit. Please make sure to set it higher than your server count.",
     "You can do that in settings.": "You can do that in settings.",
     "Note": "Note",
-    "If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on ControlPanel. Try clicking the button below.": "If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on ControlPanel. Try clicking the button below.",
+    "If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on CtrlPanel. Try clicking the button below.": "If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on CtrlPanel. Try clicking the button below.",
     "Sync servers": "Sync servers",
     "Node": "Node",
     "Server count": "Server count",
@@ -656,5 +656,6 @@
     "You can not see your Referral Code": "You can not see your Referral Code",
     "SERVER NAME": "SERVER NAME",
     "STORAGE": "STORAGE",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "Buy more": "Buy more"
 }
