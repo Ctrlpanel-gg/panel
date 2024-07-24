@@ -20,7 +20,12 @@ class MailSettings extends Settings
         return 'mail';
     }
 
-
+    public static function encrypted(): array
+    {
+        return [
+            'mail_password',
+        ];
+    }
 
     public function setConfig()
     {

@@ -34,6 +34,7 @@ use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -77,11 +78,13 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
     Route::resource('servers', ServerController::class);
 
-    if (config('app.key')) {
+    try {
         $serverSettings = app(App\Settings\ServerSettings::class);
-        if ($serverSettings->enable_upgrade) {
+        if ($serverSettings->creation_enabled) {
             Route::post('servers/{server}/upgrade', [ServerController::class, 'upgrade'])->name('servers.upgrade');
         }
+    } catch (Exception $e) {
+        Log::error("ServerSettings not found, skipping server upgrade route");
     }
 
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
@@ -92,7 +95,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //routes made for server create page to fetch product info
     Route::get('/products/nodes/egg/{egg?}', [FrontProductController::class, 'getNodesBasedOnEgg'])->name('products.nodes.egg');
     Route::get('/products/locations/egg/{egg?}', [FrontProductController::class, 'getLocationsBasedOnEgg'])->name('products.locations.egg');
-    Route::get('/products/products/{egg?}/{node?}', [FrontProductController::class, 'getProductsBasedOnNode'])->name('products.products.node');
+    Route::get('/products/products/{egg?}/{location?}', [FrontProductController::class, 'getProductsBasedOnLocation'])->name('products.products.location');
 
     //payments
     Route::get('checkout/{shopProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
