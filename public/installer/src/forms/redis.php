@@ -1,5 +1,7 @@
 <?php
 
+use Predis\Client;
+
 if (isset($_POST['redisSetup'])) {
     wh_log('Setting up Redis', 'debug');
     $redisHost = $_POST['redishost'];

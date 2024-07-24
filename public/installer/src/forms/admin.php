@@ -1,5 +1,9 @@
 <?php
 
+use DevCoder\DotEnv;
+
+(new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
+
 if (isset($_POST['createUser'])) {
     wh_log('Getting Pterodactyl User', 'debug');
 
