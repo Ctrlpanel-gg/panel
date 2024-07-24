@@ -10,6 +10,8 @@
     "require": {
         "php": "^8.1",
         "ext-intl": "*",
+        "ext-mysqli": "*",
+        "ext-curl": "*",
         "biscolab/laravel-recaptcha": "^5.4",
         "doctrine/dbal": "^3.5.3",
         "guzzlehttp/guzzle": "^7.5",

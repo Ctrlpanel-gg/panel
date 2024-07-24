@@ -9,6 +9,7 @@ class ServerSettings extends Settings
     public int $allocation_limit;
     public bool $creation_enabled;
     public bool $enable_upgrade;
+    public bool $location_description_enabled;
 
     public static function group(): string
     {
@@ -25,6 +26,7 @@ class ServerSettings extends Settings
             'allocation_limit' => 'required|integer|min:0',
             'creation_enabled' => 'nullable|string',
             'enable_upgrade' => 'nullable|string',
+            'location_description_enabled' => 'nullable|string',
         ];
     }
 
@@ -51,6 +53,11 @@ class ServerSettings extends Settings
                 'label' => 'Server Upgrade Enabled',
                 'type' => 'boolean',
                 'description' => 'Enable the server upgrade feature.',
+            ],
+            'location_description_enabled' => [
+                'label' => 'Enable Location Description',
+                'type' => 'boolean',
+                'description' => 'Enable the location description field on the server creation page.',
             ],
         ];
     }

@@ -10,7 +10,7 @@
                     <a href="{{ route('welcome') }}" class="h1 mb-2"><b
                             class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
                     @if ($website_settings->enable_login_logo)
-                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}"
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}"
                             alt="{{ config('app.name', 'CtrlPanel.gg') }} Logo" style="opacity: .8; max-width:100%; height: 150px; margin-top: 10px;">
                     @endif
                 </div>

@@ -32,13 +32,15 @@ class ForgotPasswordController extends Controller
         $this->middleware('guest');
     }
 
-    protected function validateEmail(Request $request, GeneralSettings $general_settings)
+    protected function validateEmail(Request $request)
     {
         $this->validate($request, [
             'email' => ['required', 'string', 'email', 'max:255'],
         ]);
 
-        if ($general_settings->recaptcha_enabled) {
+        $recaptcha_enabled = app(GeneralSettings::class)->recaptcha_enabled;
+
+        if ($recaptcha_enabled) {
             $this->validate($request, [
                 'g-recaptcha-response' => 'required|recaptcha',
             ]);

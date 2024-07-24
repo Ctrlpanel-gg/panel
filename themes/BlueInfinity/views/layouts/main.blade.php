@@ -11,7 +11,7 @@
     <meta content="{{ $website_settings->seo_title }}" property="og:title">
     <meta content="{{ $website_settings->seo_description }}" property="og:description">
     <meta
-        content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}'
+        content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}'
         property="og:image">
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
@@ -56,12 +56,12 @@
             </li>
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{ route('home') }}" class="nav-link"><i
-                        class="fas fa-home mr-2"></i>{{ __('Home') }}</a>
+                        class="mr-2 fas fa-home"></i>{{ __('Home') }}</a>
             </li>
             @if (!empty($discord_settings->invite_url))
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ $discord_settings->invite_url }}" class="nav-link" target="__blank"><i
-                            class="fab fa-discord mr-2"></i>{{ __('Discord') }}</a>
+                            class="mr-2 fab fa-discord"></i>{{ __('Discord') }}</a>
                 </li>
             @endif
 
@@ -71,13 +71,13 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-1 d-lg-inline text-gray-600">
-                                <small><i class="fa fa-language mr-2"></i></small>{{ __('Language') }}
+                            <span class="mr-1 text-gray-600 d-lg-inline">
+                                <small><i class="mr-2 fa fa-language"></i></small>{{ __('Language') }}
                             </span>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                    <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
                          aria-labelledby="changeLocale">
-                        <form method="post" action="{{ route('changeLocale') }}" class="nav-item text-center">
+                        <form method="post" action="{{ route('changeLocale') }}" class="text-center nav-item">
                             @csrf
                             @foreach (explode(',', $locale_settings->available) as $key)
                                 <button class="dropdown-item" name="inputLocale" value="{{ $key }}">
@@ -99,7 +99,7 @@
         </ul>
 
         <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
+        <ul class="ml-auto navbar-nav">
             <!-- Notifications Dropdown Menu -->
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
@@ -117,9 +117,9 @@
                     @foreach (Auth::user()->unreadNotifications->sortBy('created_at')->take(5) as $notification)
                         <a href="{{ route('notifications.show', $notification->id) }}" class="dropdown-item">
                                 <span class="d-inline-block text-truncate" style="max-width: 150px;"><i
-                                        class="fas fa-envelope mr-2"></i>{{ $notification->data['title'] }}</span>
+                                        class="mr-2 fas fa-envelope"></i>{{ $notification->data['title'] }}</span>
                             <span
-                                class="float-right text-muted text-sm">{{ $notification->created_at->longAbsoluteDiffForHumans() }}
+                                class="float-right text-sm text-muted">{{ $notification->created_at->longAbsoluteDiffForHumans() }}
                                     ago</span>
                         </a>
                     @endforeach
@@ -136,20 +136,20 @@
             <li class="nav-item dropdown">
                 <a class="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                    aria-haspopup="true" aria-expanded="false">
-                        <span class="mr-1 d-lg-inline text-gray-600">
-                            <small><i class="fas fa-coins mr-2"></i></small>{{ Auth::user()->credits() }}
+                        <span class="mr-1 text-gray-600 d-lg-inline">
+                            <small><i class="mr-2 fas fa-coins"></i></small>{{ Auth::user()->credits() }}
                         </span>
                 </a>
-                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
                      aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="{{ route('store.index') }}">
-                        <i class="fas fa-coins fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <i class="mr-2 text-gray-400 fas fa-coins fa-sm fa-fw"></i>
                         {{ __('Store') }}
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" data-toggle="modal" data-target="#redeemVoucherModal"
                        href="javascript:void(0)">
-                        <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <i class="mr-2 text-gray-400 fas fa-money-check-alt fa-sm fa-fw"></i>
                         {{ __('Redeem code') }}
                     </a>
                 </div>
@@ -158,27 +158,27 @@
             <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="mr-1 d-lg-inline text-gray-600 small">
+                        <span class="mr-1 text-gray-600 d-lg-inline small">
                             {{ Auth::user()->name }}
-                            <img width="28px" height="28px" class="rounded-circle ml-1"
+                            <img width="28px" height="28px" class="ml-1 rounded-circle"
                                  src="{{ Auth::user()->getAvatar() }}">
                         </span>
                 </a>
                 <!-- Dropdown - User Information -->
-                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
                      aria-labelledby="userDropdown">
                     <a class="dropdown-item" href="{{ route('profile.index') }}">
-                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                        <i class="mr-2 text-gray-400 fas fa-user fa-sm fa-fw"></i>
                         {{ __('Profile') }}
                     </a>
                     {{-- <a class="dropdown-item" href="#"> --}}
-                    {{-- <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i> --}}
+                    {{-- <i class="mr-2 text-gray-400 fas fa-list fa-sm fa-fw"></i> --}}
                     {{-- Activity Log --}}
                     {{-- </a> --}}
                     @if (session()->get('previousUser'))
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ route('users.logbackin') }}">
-                            <i class="fas fa-sign-in-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            <i class="mr-2 text-gray-400 fas fa-sign-in-alt fa-sm fa-fw"></i>
                             {{ __('Log back in') }}
                         </a>
                     @endif
@@ -187,7 +187,7 @@
                         @csrf
                         <button class="dropdown-item" href="#" data-toggle="modal"
                                 data-target="#logoutModal">
-                            <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                            <i class="mr-2 text-gray-400 fas fa-sign-out-alt fa-sm fa-fw"></i>
                             {{ __('Logout') }}
                         </button>
                     </form>
@@ -201,7 +201,7 @@
         <!-- Brand Logo -->
         <a href="{{ route('home') }}" class="brand-link">
             <img width="64" height="64"
-                 src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
+                 src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/ctrlpanel_logo.png') }}"
                  alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
                  style="opacity: .8">
             <span class="brand-text font-weight-light">{{ config('app.name', 'CtrlPanel.gg') }}</span>
@@ -250,7 +250,7 @@
                             <li class="nav-item">
                                 <a href="{{ route('ticket.index') }}"
                                    class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
-                                    <i class="nav-icon fas fas fa-ticket-alt"></i>
+                                    <i class="nav-icon fas fa-ticket-alt"></i>
                                     <p>{{ __('Support Ticket') }}</p>
                                 </a>
                             </li>
@@ -357,7 +357,7 @@
                             'admin.users.write.username',
                             'admin.users.write.password',
                             'admin.users.write.role',
-                            'admin.users.write.referal',
+                            'admin.users.write.referral',
                             'admin.users.write.pterodactyl','admin.servers.read',
                             'admin.servers.write',
                             'admin.servers.suspend',
@@ -379,7 +379,7 @@
                             'admin.users.write.username',
                             'admin.users.write.password',
                             'admin.users.write.role',
-                            'admin.users.write.referal',
+                            'admin.users.write.referral',
                             'admin.users.write.pterodactyl'])
                         <li class="nav-item">
                             <a href="{{ route('admin.users.index') }}"
@@ -510,7 +510,7 @@
         <!--
             @if (!Auth::user()->hasVerifiedEmail())
             @if (Auth::user()->created_at->diffInHours(now(), false) > 1)
-                <div class="alert alert-warning p-2 m-2">
+                <div class="p-2 m-2 alert alert-warning">
                     <h5><i class="icon fas fa-exclamation-circle"></i> {{ __('Warning!') }}</h5>
                         {{ __('You have not yet verified your email address') }} <a class="text-primary"
                             href="{{ route('verification.send') }}">{{ __('Click here to resend verification email') }}</a>
