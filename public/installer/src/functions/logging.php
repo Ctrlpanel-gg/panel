@@ -1,8 +1,11 @@
 <?php
 
+use DevCoder\DotEnv;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+
+(new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
 
 /**
  * Log to the default laravel.log file
