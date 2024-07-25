@@ -72,7 +72,8 @@ class RoleController extends Controller
         ]);
 
         if ($request->permissions) {
-            $role->givePermissionTo($request->permissions);
+            $collectedPermissions = collect($request->permissions)->map(fn($val)=>(int)$val);
+            $role->givePermissionTo($collectedPermissions);
         }
 
         return redirect()
@@ -123,7 +124,8 @@ class RoleController extends Controller
 
         if ($request->permissions) {
             if($role->id != 1){ //disable admin permissions change
-                $role->syncPermissions($request->permissions);
+                $collectedPermissions = collect($request->permissions)->map(fn($val)=>(int)$val);
+                $role->syncPermissions($collectedPermissions);
             }
         }
 
