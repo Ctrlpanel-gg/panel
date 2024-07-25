@@ -11,10 +11,10 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->float('credits', 10)->change()->unsigned();
+        Schema::table('settings', function (Blueprint $table) {
+            $table->boolean('locked')->default(false)->change();
         });
     }
 
@@ -23,10 +23,10 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->float('credits')->change()->unsigned();
+        Schema::table('settings', function (Blueprint $table) {
+            $table->boolean('locked')->default(null)->change();
         });
     }
 };
