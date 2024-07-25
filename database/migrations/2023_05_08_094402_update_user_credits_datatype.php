@@ -26,7 +26,7 @@ class UpdateUserCreditsDatatype extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->decimal('credits', ['11', '2'])->change();
+            $table->decimal('credits', 11, 2)->change();
         });
     }
 }

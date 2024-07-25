@@ -1,9 +1,9 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="main py-4">
+    <div class="py-4 main">
 
-        <div class="card card-body border-0 shadow table-wrapper table-responsive">
+        <div class="border-0 shadow card card-body table-wrapper table-responsive">
             <h2 class="mb-4 h5">{{ isset($role) ?  __('Edit role') : __('Create role') }}</h2>
 
             <form method="post"
@@ -43,14 +43,14 @@
                             multiple>
                             @foreach($permissions as $permission)
                                 <option @if(isset($role) && $role->permissions->contains($permission)) selected
-                                        @endif value="{{$permission->id}}">{{$permission->name}}</option>
+                                        @endif value="{{$permission->id}}">{{$permission->readable_name}}</option>
                             @endforeach
                         </x-input.select>
 
                     </div>
                 </div>
 
-                <div class="form-group d-flex justify-content-end mt-3">
+                <div class="mt-3 form-group d-flex justify-content-end">
                     <button name="submit" type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                 </div>
 
@@ -63,7 +63,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            $('#permissions').select2();
+            $('#permissions').select2({
+              closeOnSelect: false
+            });
         })
     </script>
 @endsection
