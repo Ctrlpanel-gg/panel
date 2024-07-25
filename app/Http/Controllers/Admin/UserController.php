@@ -159,7 +159,8 @@ class UserController extends Controller
 
         //update roles
         if ($request->roles && $this->can(self::CHANGE_ROLE_PERMISSION)) {
-            $user->syncRoles($request->roles);
+            $collectedRoles = collect($request->roles)->map(fn($val)=>(int)$val);
+            $user->syncRoles($collectedRoles);
         }
 
         if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
