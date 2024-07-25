@@ -1,5 +1,9 @@
 <?php
 
+use DevCoder\DotEnv;
+
+(new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
+
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
 
 if (isset($_POST['checkDB'])) {
