@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('settings', function (Blueprint $table): void {
+        Schema::table('settings', function (Blueprint $table) {
             $table->boolean('locked')->default(false)->change();
             $table->unique(['group', 'name']);
             $table->dropIndex(['group']);
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('settings', function (Blueprint $table): void {
+        Schema::table('settings', function (Blueprint $table) {
             $table->boolean('locked')->default(null)->change();
             $table->dropUnique(['group', 'name']);
             $table->index('group');
