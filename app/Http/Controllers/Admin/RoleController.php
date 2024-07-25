@@ -136,7 +136,8 @@ class RoleController extends Controller
         //}else{
             $role->update([
                 'name' => $request->name,
-                'color' => $request->color
+                'color' => $request->color,
+                'power' => $request->power
             ]);
         //}
 
