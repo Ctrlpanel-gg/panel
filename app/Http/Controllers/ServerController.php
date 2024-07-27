@@ -262,6 +262,9 @@ class ServerController extends Controller
     /** Remove the specified resource from storage. */
     public function destroy(Server $server)
     {
+        if ($server->user_id != Auth::user()->id) {
+            return back()->with('error', __('This is not your Server!'));
+        }
         try {
             $server->delete();
 
