@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
+use App\Settings\DiscordSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
@@ -73,7 +74,7 @@ class ServerController extends Controller
      * @param  Request  $request
      * @param  Server  $server
      */
-    public function update(Request $request, Server $server)
+    public function update(Request $request, Server $server, DiscordSettings $discord_settings)
     {
         $request->validate([
             'identifier' => 'required|string',
@@ -92,8 +93,29 @@ class ServerController extends Controller
                     return redirect()->back()->with('error', 'Failed to update server owner on pterodactyl');
                 }
 
+                // Attempt to remove/add roles respectively
+                try {
+                    if($discord_settings->role_on_purchase) {
+                        // remove the role from the old owner
+                        $oldOwner = User::findOrFail($server->user_id);
+                        $discordUser = $oldOwner->discordUser;
+                        if ($discordUser && $oldOwner->servers->count() <= 1) {
+                            $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_on_purchase);
+                        }
+
+                        // add the role to the new owner
+                        $discordUser = $user->discordUser;
+                        if ($discordUser && $user->servers->count() >= 1) {
+                            $discordUser->addOrRemoveRole('add', $discord_settings->role_id_on_purchase);
+                        }
+                    }
+                } catch (Exception $e) {
+                    log::debug('Failed to update discord roles' . $e->getMessage());
+                }
+
                 // update the owner on the database
                 $server->user_id = $user->id;
+
             } catch (Exception $e) {
                 return redirect()->back()->with('error', 'Internal Server Error');
             }
@@ -115,10 +137,24 @@ class ServerController extends Controller
      * @param  Server  $server
      * @return RedirectResponse|Response
      */
-    public function destroy(Server $server)
+    public function destroy(Server $server, DiscordSettings $discord_settings)
     {
         $this->checkPermission(self::DELETE_PERMISSION);
         try {
+            // Remove role from discord
+            try {
+                if($discord_settings->role_on_purchase) {
+                    $user = User::findOrFail($server->user_id);
+                    $discordUser = $user->discordUser;
+                    if($discordUser && $user->servers->count() <= 1) {
+                        $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_on_purchase);
+                    }
+                }
+            } catch (Exception $e) {
+                log::debug('Failed to update discord roles' . $e->getMessage());
+            }
+
+            // Attempt to remove the server from pterodactyl
             $server->delete();
 
             return redirect()->route('admin.servers.index')->with('success', __('Server removed'));
