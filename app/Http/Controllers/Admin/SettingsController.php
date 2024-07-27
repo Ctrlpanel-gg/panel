@@ -62,6 +62,7 @@ class SettingsController extends Controller
                     'value' => $value,
                     'label' => $optionInputData[$key]['label'] ?? ucwords(str_replace('_', ' ', $key)),
                     'type' => $optionInputData[$key]['type'] ?? 'string',
+                    'tooltip' => $optionInputData[$key]['tooltip'] ?? '',
                     'description' => $optionInputData[$key]['description'] ?? '',
                     'options' => $optionInputData[$key]['options'] ?? [],
                     'identifier' => $optionInputData[$key]['identifier'] ?? 'option'

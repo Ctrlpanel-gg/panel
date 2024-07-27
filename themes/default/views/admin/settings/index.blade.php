@@ -254,7 +254,16 @@
                                                                         @break
 
                                                                         @case($value['type'] == 'textarea')
-                                                                            <textarea class="form-control" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
+                                                                          <!-- hide the textarea and use a button to reopen it -->
+                                                                            <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#{{ $key }}Collapse">
+                                                                                {{ __('Edit') }}
+                                                                            </button><br />
+                                                                            <div id="{{ $key }}Collapse" class="collapse">
+                                                                              <textarea class="form-control" name="{{ $key }}" rows="3">{{ $value['value'] }}</textarea>
+                                                                              @if ($value['tooltip'])
+                                                                                <small class="text-muted">{{ $value['tooltip'] }}</small>
+                                                                              @endif
+                                                                            </div>
                                                                         @break
 
                                                                         @default
@@ -349,7 +358,7 @@
             skin: "oxide-dark",
             content_css: "dark",
             branding: false,
-            height: 500,
+            height: 350,
             width: '100%',
             plugins: ['image', 'link'],
         });
