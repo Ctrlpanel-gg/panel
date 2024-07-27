@@ -31,6 +31,8 @@ class DiscordSettings extends Settings
             'guild_id' => 'nullable|string',
             'invite_url' => 'nullable|string|url',
             'role_id' => 'nullable|string',
+            'role_on_purchase' => 'nullable|boolean',
+            'role_id_on_purchase' => 'nullable|string',
         ];
     }
 
