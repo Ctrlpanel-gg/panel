@@ -6,6 +6,7 @@ use App\Settings\DiscordSettings;
 use App\Settings\InvoiceSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\MailSettings;
+use App\Settings\MailTemplatesSettings;
 use App\Settings\PterodactylSettings;
 use App\Settings\ReferralSettings;
 use App\Settings\ServerSettings;
@@ -26,6 +27,7 @@ return [
         InvoiceSettings::class,
         LocaleSettings::class,
         MailSettings::class,
+        MailTemplatesSettings::class,
         PterodactylSettings::class,
         ReferralSettings::class,
         ServerSettings::class,

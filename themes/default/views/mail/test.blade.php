@@ -1,5 +1,5 @@
 @component('mail::message')
-  {{$body}}
+  {!! $body !!}
 
   <br>
   {{__('Thanks')}},<br>

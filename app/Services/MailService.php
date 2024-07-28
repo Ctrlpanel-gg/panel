@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Mail;
 
 class MailService
 {
-    public function sendTestMail($user, MailTemplatesSettings $mailTemplatesSettings): void
+    public function sendTestMail($user): void
     {
+        $mailTemplatesSettings = (new MailTemplatesSettings());
         // Fetch the mail template from the database
         $template = [
             'subject' => $mailTemplatesSettings->mail_welcome_subject,
