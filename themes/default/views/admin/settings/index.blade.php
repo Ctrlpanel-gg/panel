@@ -120,7 +120,7 @@
                                         <div class="row">
                                             <div class="ml-5 card" style="width: 18rem;">
                                                 <span class="text-center h3">{{ __('FavIcon') }} </span>
-                                              <img src="{{ Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('images/controlpanel_logo.png') }}"
+                                              <img src="{{ Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('images/ctrlpanel_logo.png') }}"
                                                    style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                    class="card-img-top" alt="...">
                                                 <div class="card-body">
@@ -132,7 +132,7 @@
 
                                             <div class="ml-5 card" style="width: 18rem;">
                                                 <span class="text-center h3">{{ __('Icon') }} </span>
-                                                <img src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/controlpanel_logo.png') }}"
+                                                <img src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/ctrlpanel_logo.png') }}"
                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                     class="card-img-top" alt="...">
                                                 <div class="card-body">
@@ -144,7 +144,7 @@
 
                                             <div class="ml-5 card" style="width: 18rem;">
                                                 <span class="text-center h3">{{ __('Login-page Logo') }} </span>
-                                                <img src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}"
+                                                <img src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}"
                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
                                                     class="card-img-top" alt="...">
                                                 <div class="card-body">

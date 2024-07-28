@@ -1,137 +1,140 @@
 <?php
 
 return [
-    '*',
-
     /*
-        * Permissions for admin
-        */
+     * Permissions for admin
+    */
 
-    'admin.roles.read',
-    'admin.roles.create',
-    'admin.roles.edit',
-    'admin.roles.delete',
+    'All Permissions' => '*',
+
+    'View Roles' => 'admin.roles.read',
+    'Create Role' => 'admin.roles.create',
+    'Edit Role' => 'admin.roles.edit',
+    'Delete Role' => 'admin.roles.delete',
 
 
-    'admin.ticket.read',
-    'admin.tickets.write',
-    'admin.tickets.get_notification',
+    'View Tickets' => 'admin.ticket.read',
+    'Manage Ticket' => 'admin.tickets.write',
+    'Receive Ticket Notifications' => 'admin.tickets.get_notification',
 
-    'admin.tickets.category.read',
-    'admin.tickets.category.write',
+    'Create Ticket Category' => 'admin.tickets.category.read',
+    'Manage Ticket Category' => 'admin.tickets.category.write',
 
-    'admin.ticket_blacklist.read',
-    'admin.ticket_blacklist.write',
+    'View Blacklist Tickets' => 'admin.ticket_blacklist.read',
+    'Manage Blacklist Tickets' => 'admin.ticket_blacklist.write',
 
-    'admin.overview.read',
-    'admin.overview.sync',
+    'View Overview' => 'admin.overview.read',
+    'Overview Sync' => 'admin.overview.sync',
 
-    'admin.api.read',
-    'admin.api.write',
+    'View Api Keys' => 'admin.api.read',
+    'Manage Api Keys' => 'admin.api.write',
 
-    'admin.users.read',
-    'admin.users.write',
-    'admin.users.suspend',
-    'admin.users.write.credits',
-    'admin.users.write.username',
-    'admin.users.write.password',
-    'admin.users.write.role',
-    'admin.users.write.referal',
-    'admin.users.write.pterodactyl',
-    'admin.users.write.email',
-    'admin.users.notify',
-    'admin.users.login_as',
-    'admin.users.delete',
+    'View Users' => 'admin.users.read',
+    'Manage Users' => 'admin.users.write',
+    'Suspend Users' => 'admin.users.suspend',
+    'Manage User Credits' => 'admin.users.write.credits',
+    'Manage User Name' => 'admin.users.write.username',
+    'Manage User Email' => 'admin.users.write.email',
+    'Manage User Password' => 'admin.users.write.password',
+    'Manage User Role' => 'admin.users.write.role',
+    'Manage User Referral' => 'admin.users.write.referral',
+    'Manage User Pterodactyl' => 'admin.users.write.pterodactyl',
 
-    'admin.servers.read',
-    'admin.servers.write',
-    'admin.servers.suspend',
-    'admin.servers.write.owner',
-    'admin.servers.write.identifier',
-    'admin.servers.delete',
-    'admin.servers.bypass_creation_enabled',
+    'Notify Users' => 'admin.users.notify',
+    'Login As User' => 'admin.users.login_as',
+    'Delete User' => 'admin.users.delete',
 
-    'admin.products.read',
-    'admin.products.create',
-    'admin.products.edit',
-    'admin.products.delete',
+    'View Servers' => 'admin.servers.read',
+    'Manage Servers' => 'admin.servers.write',
+    'Suspend Server' => 'admin.servers.suspend',
+    'Change Server Owner' => 'admin.servers.write.owner',
+    'Manage Server Identifier' => 'admin.servers.write.identifier',
+    'Create Server' => 'admin.servers.bypass_creation_enabled',
+    'Delete Server' => 'admin.servers.delete',
 
-    'admin.store.read',
-    'admin.store.write',
-    'admin.store.disable',
+    'View Products' => 'admin.products.read',
+    'Create Product' => 'admin.products.create',
+    'Edit Product' => 'admin.products.edit',
+    'Delete Product' => 'admin.products.delete',
 
-    'admin.voucher.read',
-    'admin.voucher.write',
+    'View Store' => 'admin.store.read',
+    'Manage Store' => 'admin.store.write',
+    'Disable Store' => 'admin.store.disable',
 
-    'admin.useful_links.read',
-    'admin.useful_links.write',
+    'View Vouchers' => 'admin.voucher.read',
+    'Manage Voucher' => 'admin.voucher.write',
 
-    'admin.legal.read',
-    'admin.legal.write',
+    'View Useful Links' => 'admin.useful_links.read',
+    'Manage Useful Links' => 'admin.useful_links.write',
 
-    'admin.payments.read',
+    'View Legal' => 'admin.legal.read',
+    'Manage Legal' => 'admin.legal.write',
 
-    'admin.partners.read',
-    'admin.partners.write',
+    'View Payments' => 'admin.payments.read',
 
-    'admin.coupons.read',
-    'admin.coupons.write',
+    'View Partners' => 'admin.partners.read',
+    'Manage Partners' => 'admin.partners.write',
 
-    'admin.logs.read',
+    'View Coupons' => 'admin.coupons.read',
+    'Manage Coupons' => 'admin.coupons.write',
+
+    'View Logs' => 'admin.logs.read',
 
     /*
      * Settings Permissions
-     */
-    'settings.discord.read',
-    'settings.discord.write',
+    */
+    'View Discord Settings' => 'settings.discord.read',
+    'Manage Discord Settings' => 'settings.discord.write',
 
-    'settings.general.read',
-    'settings.general.write',
+    'View General Settings' => 'settings.general.read',
+    'Manage General Settings' => 'settings.general.write',
 
-    'settings.invoice.read',
-    'settings.invoice.write',
+    'View Invoice Settings' => 'settings.invoice.read',
+    'Manage Invoice Settings' => 'settings.invoice.write',
 
-    'settings.locale.read',
-    'settings.locale.write',
+    'View Locale Settings' => 'settings.locale.read',
+    'Manage Locale Settings' => 'settings.locale.write',
 
-    'settings.mail.read',
-    'settings.mail.write',
+    'View Mail Settings' => 'settings.mail.read',
+    'Manage Mail Settings' => 'settings.mail.write',
 
-    'settings.pterodactyl.read',
-    'settings.pterodactyl.write',
+    'View Pterodactyl Settings' => 'settings.pterodactyl.read',
+    'Manage Pterodactyl Settings' => 'settings.pterodactyl.write',
 
-    'settings.referral.read',
-    'settings.referral.write',
+    'View Referral Settings' => 'settings.referral.read',
+    'Manage Referral Settings' => 'settings.referral.write',
 
-    'settings.server.read',
-    'settings.server.write',
+    'View Server Settings' => 'settings.server.read',
+    'Manage Server Settings' => 'settings.server.write',
 
-    'settings.ticket.read',
-    'settings.ticket.write',
+    'View Ticket Settings' => 'settings.ticket.read',
+    'Manage Ticket Settings' => 'settings.ticket.write',
 
-    'settings.user.read',
-    'settings.user.write',
+    'View User Settings' => 'settings.user.read',
+    'Manage User Settings' => 'settings.user.write',
 
-    'settings.website.read',
-    'settings.website.write',
+    'View Website Settings' => 'settings.website.read',
+    'Manage Website Settings' => 'settings.website.write',
 
-    'settings.paypal.read',
-    'settings.paypal.write',
+    'View Paypal Settings' => 'settings.paypal.read',
+    'Manage Paypal Settings' => 'settings.paypal.write',
 
-    'settings.stripe.read',
-    'settings.stripe.write',
+    'View Mercado Pago Settings' => 'settings.mercadopago.read',
+    'Manage Mercado Pago Settings' => 'settings.mercadopago.write',
+  
+    'View Stripe Settings' => 'settings.stripe.read',
+    'Manage Stripe Settings' => 'settings.stripe.write',
 
-    'settings.mollie.read',
-    'settings.mollie.write',
-
+    'View Mollie Settings' => 'settings.mollie.read',
+    'Manage Mollie Settings' => 'settings.mollie.write',
 
     /*
-    * Permissions for users
+     * Permissions for users
     */
-    'user.server.create',
-    'user.server.upgrade',
-    'user.shop.buy',
-    'user.ticket.read',
-    'user.ticket.write',
-    'user.referral',
+    'User Create Server' => 'user.server.create',
+    'User Upgrade Server' => 'user.server.upgrade',
+    'User Shop Buy' => 'user.shop.buy',
+    'User View Tickets' => 'user.ticket.read',
+    'User Manage Ticket' => 'user.ticket.write',
+    'User View Referral' => 'user.referral',
 ];

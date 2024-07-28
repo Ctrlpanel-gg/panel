@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('code', 36)->unique();
             $table->string('memo')->nullable();
-            $table->unsignedFloat('credits', 10);
+            $table->float('credits', 10)->unsigned();
             $table->unsignedInteger('uses')->default(1);
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
