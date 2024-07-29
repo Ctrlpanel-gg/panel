@@ -13,7 +13,7 @@ return [
     'Delete Role' => 'admin.roles.delete',
 
 
-    'View Tickets' => 'admin.ticket.read',
+    'View Tickets' => 'admin.tickets.read',
     'Manage Ticket' => 'admin.tickets.write',
     'Receive Ticket Notifications' => 'admin.tickets.get_notification',
 

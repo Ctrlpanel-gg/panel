@@ -68,7 +68,8 @@ class RoleController extends Controller
 
         if ($request->permissions) {
             $permissions = explode(",",$request->permissions);
-            foreach($permissions as $permission){
+            $collectedPermissions = collect($permissions)->map(fn($val)=>(int)$val);
+            foreach($collectedPermissions as $permission){
                 $role->givePermissionTo($permission);
             }
         }
@@ -124,7 +125,8 @@ class RoleController extends Controller
 
         if ($request->permissions) {
             $permissions = explode(",",$request->permissions);
-                $role->syncPermissions($permissions);
+            $collectedPermissions = collect($permissions)->map(fn($val)=>(int)$val);
+            $role->syncPermissions($collectedPermissions);
         }
 
 

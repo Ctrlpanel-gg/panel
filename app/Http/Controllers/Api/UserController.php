@@ -106,7 +106,8 @@ class UserController extends Controller
             ]);
         }
         if($request->has("role")){
-            $user->syncRoles($request->role);
+            $collectedRoles = collect($request->role)->map(fn($val)=>(int)$val);
+            $user->syncRoles($collectedRoles);
         }
         $user->update($request->except('role'));
 
