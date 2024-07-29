@@ -39,14 +39,14 @@ set_cpgg_dir() {
         # Message that the user will see by default, if he specifies a
         # non-existent directory or not root CtrlPanel directory
         if [[ -z "$is_exists" ]] && [[ -z "$is_cpgg_root" ]] || [[ "$is_null" == "true" ]]; then
-          echo " Default directory wasn't found. Specify directory where your 
-          CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
+          echo " Default directory wasn't found. Specify directory where your \
+CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
         elif [[ $is_exists == false ]]; then
-          echo " Directory $cpgg_dir doesn't exist. Specify directory where 
-          your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
+          echo " Directory $cpgg_dir doesn't exist. Specify directory where \
+your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
         elif [[ $is_cpgg_root == false ]]; then
-          echo " $cpgg_dir is not a root CtrlPanel directory. Specify 
-          directory where your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
+          echo " $cpgg_dir is not a root CtrlPanel directory. Specify \
+directory where your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
         fi
 
         read -rep " > " cpgg_dir
@@ -76,8 +76,8 @@ set_cpgg_dir() {
     # Error if default directory is not found and CtrlPanel root directory is
     # not specified when using the CLI mode
     if [[ ! -d "$DEFAULT_DIR" ]] && [[ -z "$cpgg_dir" ]]; then
-      error_out " ERROR: Default directory wasn't found. Specify directory 
-      where your CtrlPanel is installed using --cpgg-dir argument"
+      error_out " ERROR: Default directory wasn't found. Specify directory \
+where your CtrlPanel is installed using --cpgg-dir argument"
       exit 1
     fi
   fi
@@ -102,8 +102,8 @@ while [[ $# -gt 0 ]]; do
       error_out " ERROR: Directory $cpgg_dir doesn't exist."
       exit 1
     elif [[ ! -f "$cpgg_dir/config/app.php" ]]; then
-      error_out " ERROR: $cpgg_dir is not a root CtrlPanel 
-      directory."
+      error_out " ERROR: $cpgg_dir is not a root CtrlPanel \
+directory."
       exit 1
     else
       continue
@@ -115,8 +115,8 @@ while [[ $# -gt 0 ]]; do
     ;;
   --install=*)
     if [[ -n "$update" ]]; then
-      error_out " ERROR: You can't use --install with --update 
-      argument"
+      error_out " ERROR: You can't use --install with --update \
+argument"
       exit 1
     fi
 
@@ -127,15 +127,15 @@ while [[ $# -gt 0 ]]; do
       error_out " ERROR: Argument --install can't be empty!"
       exit 1
     elif [[ "$install" != "full" && "$install" != "min" ]]; then
-      error_out " ERROR: Invalid option $install for --install 
-      argument. Valid values are only full or min"
+      error_out " ERROR: Invalid option $install for --install \
+argument. Valid values are only full or min"
       exit 1
     fi
     ;;
   --update)
     if [[ -n "$install" ]]; then
-      error_out " ERROR: You can't use --update with --install 
-      argument"
+      error_out " ERROR: You can't use --update with --install \
+argument"
       exit 1
     fi
 
@@ -145,21 +145,21 @@ while [[ $# -gt 0 ]]; do
   --help)
     echo " Usage: $0 [options]"
     echo " Options:"
-    echo "   --cli                   Use CLI mode. It does not have CLI-GUI 
-    interface, and all actions are specified using action arguments"
-    echo "   --cpgg-dir=<dir>        Allows you to specify the root directory 
-    of the CtrlPanel"
-    echo "   --force                 Performs an action without confirmation 
-    (applicable for --install and --update arguments)"
-    echo "   --install=<full|min>    Perform installation. Valid values are 
-    full or min"
+    echo "   --cli                   Use CLI mode. It does not have CLI-GUI \
+interface, and all actions are specified using action arguments"
+    echo "   --cpgg-dir=<dir>        Allows you to specify the root directory \
+of the CtrlPanel"
+    echo "   --force                 Performs an action without confirmation \
+(applicable for --install and --update arguments)"
+    echo "   --install=<full|min>    Perform installation. Valid values are \
+full or min"
     echo "   --update                Perform an update"
     echo "   --help                  Display this help message"
     exit 0
     ;;
   *)
-    error_out " ERROR: Argument $1 not exists.
-    Use --help to display all available arguments"
+    error_out " ERROR: Argument $1 not exists. \
+Use --help to display all available arguments"
     exit 1
     ;;
   esac
@@ -170,27 +170,27 @@ set_cpgg_dir
 # shellcheck source=/dev/null
 source "${cpgg_dir:-$DEFAULT_DIR}/bin/ctrlhelper_sub_scripts/menus.sh" \
   || {
-    error_out " ERROR: Source files could not be added! Are you sure you are 
-    using script for version 0.10 or above of CtrlPanel? Please try to run the 
-    script again, if the error persists, create support forum post on 
-    CtrlPanel's Discord server!"
+    error_out " ERROR: Source files could not be added! Are you sure you are \
+using script for version 0.10 or above of CtrlPanel? Please try to run the \
+script again, if the error persists, create support forum post on \
+CtrlPanel's Discord server!"
     exit 1
 }
 # shellcheck source=/dev/null
 source "${cpgg_dir:-$DEFAULT_DIR}/bin/ctrlhelper_sub_scripts/functions.sh" \
     || {
-    error_out " ERROR: Source files could not be added! Are you sure you are 
-    using script for version 0.10 or above of CtrlPanel? Please try to run the 
-    script again, if the error persists, create support forum post on 
-    CtrlPanel's Discord server!"
+    error_out " ERROR: Source files could not be added! Are you sure you are \
+using script for version 0.10 or above of CtrlPanel? Please try to run the \
+script again, if the error persists, create support forum post on \
+CtrlPanel's Discord server!"
     exit 1
 }
 
 cd "${cpgg_dir:-$DEFAULT_DIR}" \
   || {
-    error_out " ERROR: An error occurred while trying to switch to the working 
-    directory. Please try to run the script again, if the error persists, 
-    create support forum post on CtrlPanel's Discord server!"
+    error_out " ERROR: An error occurred while trying to switch to the working \
+directory. Please try to run the script again, if the error persists, \
+create support forum post on CtrlPanel's Discord server!"
     exit 1
 }
 
@@ -210,30 +210,30 @@ else
     if [[ "$force" == "true" ]]; then
       install_deps
     else
-      confirm_dialog "This action will install all the necessary dependencies 
-      such as PHP, Redis, MariaDB and others, as well as install composer 
-      files." "You will still have to create MySQL user and configure nginx 
-      yourself." "install_deps"
+      confirm_dialog "This action will install all the necessary dependencies \
+such as PHP, Redis, MariaDB and others, as well as install composer \
+files." "You will still have to create MySQL user and configure nginx \
+yourself." "install_deps"
     fi
   elif [[ "$install" == "min" ]]; then
     if [[ "$force" == "true" ]]; then
       install_deps "true"
     else
-      confirm_dialog "This action will install all the necessary dependencies 
-      such as PHP, Redis, Composer and others, as well as install composer 
-      files." "" "install_deps \"true\""
+      confirm_dialog "This action will install all the necessary dependencies \
+such as PHP, Redis, Composer and others, as well as install composer \
+files." "" "install_deps \"true\""
     fi
   elif [[ "$update" == "true" ]]; then
     if [[ "$force" == "true" ]]; then
       update
     else
-      confirm_dialog "This action cannot be undone, create backup of the 
-      database before updating! It will also remove all installed themes 
-      and addons." "" "update"
+      confirm_dialog "This action cannot be undone, create backup of the \
+database before updating! It will also remove all installed themes \
+and addons." "" "update"
     fi
   else
-    echo " ERROR: You have not specified the action you want to do! 
-    Use --help to display all available arguments"
+    echo " ERROR: You have not specified the action you want to do! \
+Use --help to display all available arguments"
     exit 1
   fi
 fi

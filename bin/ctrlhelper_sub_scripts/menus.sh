@@ -47,12 +47,12 @@ logo_message() {
     echo " You are using the latest version! No update required."
     echo ""
   elif [[ $is_update_needed == 1 ]]; then
-    echo " New version available! You can update right now by selecting 
-    \"Update\" option."
+    echo " New version available! You can update right now by selecting \
+\"Update\" option."
     echo ""
   elif [[ $is_update_needed == 2 ]]; then
-    echo " You are using a newer version! Most likely you have a development 
-    branch installed."
+    echo " You are using a newer version! Most likely you have a development \
+branch installed."
     echo ""
   fi
 }
@@ -120,10 +120,10 @@ install_menu() {
   local choice=""
 
   logo
-  echo " This action will install all the necessary dependencies such as PHP, 
-  Redis, MariaDB and others, as well as install composer files."
-  echo " You will still have to create MySQL user and configure nginx 
-  yourself."
+  echo " This action will install all the necessary dependencies such as PHP, \
+Redis, MariaDB and others, as well as install composer files."
+  echo " You will still have to create MySQL user and configure nginx \
+yourself."
   echo ""
   echo " Select the installation option:"
   echo " 1. Full install"
@@ -146,8 +146,8 @@ update_menu() {
   local choice=""
 
   logo
-  echo " This action cannot be undone, create backup of the database before 
-  updating! It will also remove all installed themes and addons."
+  echo " This action cannot be undone, create backup of the database before \
+updating! It will also remove all installed themes and addons."
   echo " Do you want to continue? (Y/n)"
   read -rp " > " choice
 

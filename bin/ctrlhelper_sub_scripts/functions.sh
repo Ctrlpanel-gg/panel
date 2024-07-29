@@ -129,7 +129,8 @@ install_deps() {
     echo " Adding MariaDB repository"
     curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
   elif [[ -n "$minimal" && "$minimal" != "true" ]]; then
-    error_out " ERROR: Invalid argument $minimal for install_deps function. Please, report to developers!"
+    error_out " ERROR: Invalid argument $minimal for install_deps function. \
+Please, report to developers!"
     exit 1
   fi
 
@@ -142,7 +143,8 @@ install_deps() {
   elif [[ -z "$minimal" ]]; then
     sudo apt -y install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} mariadb-server nginx redis-server tar unzip git
   else
-    error_out " ERROR: Invalid argument $minimal for install_deps function. Please, report to developers!"
+    error_out " ERROR: Invalid argument $minimal for install_deps function. \
+Please, report to developers!"
     exit 1
   fi
 
