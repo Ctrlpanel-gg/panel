@@ -73,15 +73,8 @@ class SocialiteController extends Controller
 
             //give user a role in the discord server
             if (! empty($roleId)) {
-                $response = Http::withHeaders(
-                    [
-                        'Authorization' => 'Bot '.$botToken,
-                        'Content-Type' => 'application/json',
-                    ]
-                )->put(
-                    "https://discord.com/api/guilds/{$guildId}/members/{$discord->id}/roles/{$roleId}",
-                    ['access_token' => $discord->token]
-                );
+                // Function addOrRemoveRole is defined in app/Models/DiscordUser.php
+                $user->discordUser->addOrRemoveRole('add', $roleId);
             }
         }
 

@@ -8,7 +8,9 @@ use App\Models\Pterodactyl\Nest;
 use App\Models\Pterodactyl\Node;
 use App\Models\Product;
 use App\Models\Server;
+use App\Models\User;
 use App\Notifications\ServerCreationError;
+use App\Settings\DiscordSettings;
 use Carbon\Carbon;
 use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
@@ -21,6 +23,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class ServerController extends Controller
@@ -176,7 +179,7 @@ class ServerController extends Controller
     }
 
     /** Store a newly created resource in storage. */
-    public function store(Request $request, UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $generalSettings)
+    public function store(Request $request, UserSettings $user_settings, ServerSettings $server_settings, GeneralSettings $generalSettings, DiscordSettings $discord_settings)
     {
         /** @var Location $location */
         /** @var Egg $egg */
@@ -235,6 +238,20 @@ class ServerController extends Controller
         // Charge first billing cycle
         $request->user()->decrement('credits', $server->product->price);
 
+        // Add role from discord
+        try {
+            if($discord_settings->role_on_purchase) {
+                $user = $request->user();
+                $discordUser = $user->discordUser;
+                if($discordUser && $user->servers->count() >= 1) {
+                    $discordUser->addOrRemoveRole('add', $discord_settings->role_id_on_purchase);
+                }
+            }
+        } catch (Exception $e) {
+            log::debug('Failed to update discord roles' . $e->getMessage());
+        }
+
+
         return redirect()->route('servers.index')->with('success', __('Server created'));
     }
 
@@ -266,9 +283,22 @@ class ServerController extends Controller
     }
 
     /** Remove the specified resource from storage. */
-    public function destroy(Server $server)
+    public function destroy(Server $server, DiscordSettings $discord_settings)
     {
         try {
+            // Remove role from discord
+            try {
+                if($discord_settings->role_on_purchase) {
+                    $user = User::findOrFail($server->user_id);
+                    $discordUser = $user->discordUser;
+                    if($discordUser && $user->servers->count() <= 1) {
+                        $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_on_purchase);
+                    }
+                }
+            } catch (Exception $e) {
+                log::debug('Failed to update discord roles' . $e->getMessage());
+            }
+
             $server->delete();
 
             return redirect()->route('servers.index')->with('success', __('Server removed'));
