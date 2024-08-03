@@ -176,7 +176,7 @@ install_deps() {
 
   if [[ -z "${cli_mode}" ]]; then
     echo ""
-    echo " Installation finished. Press any key to exit"
+    echo -e " ${BB_GR}${T_BL} Done! ${NC} ${BT_GR}Installation finished. Press any key to exit${NC}"
     read -rsn 1 -p " "
   fi
 }
@@ -225,7 +225,7 @@ update() {
 
   if [[ -z "${cli_mode}" ]]; then
     echo ""
-    echo " Update finished. Press any key to exit"
+    echo -e " ${BB_GR}${T_BL} Done! ${NC} ${BT_GR}Update finished. Press any key to exit${NC}"
     read -rsn 1 -p " "
   fi
 }

@@ -30,6 +30,7 @@ readonly BT_WH="\033[97m" # Bright white text
 
 readonly B_RE="\033[41m" # Red background
 
+readonly BB_GR="\033[102m" # Green bright background
 readonly BB_YE="\033[103m" # Yellow bright background
 readonly BB_BLU="\033[104m" # Blue bright background
 readonly BB_CY="\033[106m" # Cyan bright background
