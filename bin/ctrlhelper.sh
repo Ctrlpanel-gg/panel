@@ -44,6 +44,8 @@ readonly TU="\033[4m" # Underline
 #######################################
 readonly CHECK="${BT_YE}${TB}(${BT_GR}✓${BT_YE})${NC}"
 readonly WARN="${BT_YE}${TB}(${BT_RE}!!${BT_YE})${NC}"
+readonly INFO="${BB_BLU}${BT_WH} INFO ${NC}"
+readonly ERROR="${B_RE}${BT_WH} ERROR ${NC}"
 
 #######################################
 # Return an error message in STDERR
@@ -51,7 +53,7 @@ readonly WARN="${BT_YE}${TB}(${BT_RE}!!${BT_YE})${NC}"
 #   Error message
 #######################################
 error_out() {
-  echo -e " ${B_RE}${BT_WH} ERROR ${NC} ${T_RE}$*${NC}" >&2
+  echo -e " ${ERROR} ${T_RE}$*${NC}" >&2
 }
 
 #######################################
@@ -132,10 +134,10 @@ while [[ $# -gt 0 ]]; do
     cpgg_dir="${cpgg_dir%/}"
     shift
 
-    if [[ "$cpgg_dir" == "" ]]; then
+    if [[ "${cpgg_dir}" == "" ]]; then
       error_out "Argument ${BT_YE}--cpgg-dir${T_RE} can't be empty!"
       exit 1
-    elif [[ ! -d "$cpgg_dir" ]]; then
+    elif [[ ! -d "${cpgg_dir}" ]]; then
       error_out "Directory ${BT_YE}${cpgg_dir}${T_RE} doesn't exist."
       exit 1
     elif [[ ! -f "${cpgg_dir}/config/app.php" ]]; then

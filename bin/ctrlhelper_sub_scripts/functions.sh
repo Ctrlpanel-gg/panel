@@ -31,7 +31,7 @@ restore_terminal() {
 #   Info message
 #######################################
 info_out() {
-  echo -e " ${BB_BLU}${BT_WH} INFO ${NC} ${BT_WH}$*${NC}"
+  echo -e " ${INFO} ${BT_WH}$*${NC}"
 }
 
 #######################################
@@ -112,6 +112,45 @@ update_needed_checker() {
 }
 
 #######################################
+# 
+#######################################
+check_distro() {
+  local choice
+  local unknown_choice="$1"
+  local previous_choice="$2"
+  # distro=$(lsb_release -is)
+  distro="Mint"
+  distro="${distro,,}"
+
+  if [[ "${distro}" != "debian" && "${distro}" != "ubuntu" ]]; then
+    logo
+
+    error_out "Your OS is not supported! You can continue the installation in compatibility mode, but in this case it is not guaranteed that all packages will be installed successfully"
+    echo -e ""
+    echo -e " So that we can add support for your OS, please let us know the information below"
+    echo -e "   Detected OS: ${distro}"
+    echo -e "   Detected OS (full): $(lsb_release -sd)"
+    echo ""
+    echo -e " ${BB_CY} ${T_BL}Select an option: ${NC}"
+    echo -e "   ${BT_WH}1. Continue in Debian compatibility mode${NC}"
+    echo -e "   ${BT_WH}2. Continue in Ubuntu compatibility mode${NC}"
+    echo -e "   ${BT_WH}q. Quit${NC}"
+    echo ""
+    if [[ "${unknown_choice}" == "true" ]]; then
+      echo -e " ${T_RE}Unknown choice ${BT_YE}${TU}${previous_choice}${NC}"
+    fi
+    read -rp " > " choice
+
+    case ${choice} in
+    1) distro="debian" ;;
+    2) distro="ubuntu" ;;
+    q) restore_terminal ;;
+    *) check_distro "true" "${choice}" ;;
+    esac
+  fi
+}
+
+#######################################
 # Installing dependencies
 # Globals:
 #   cli_mode
@@ -130,14 +169,21 @@ install_deps() {
   info_out "Adding \"add-apt-repository\" command and additional dependencies"
   sudo apt -y -qq install software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
 
-  if [[ ! -f "/etc/apt/trusted.gpg.d/deb.sury.org-php.gpg" ]]; then
-    info_out "Adding PHP repository keyring"
-    sudo curl -sSLo /etc/apt/trusted.gpg.d/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
-  fi
+  check_distro
 
-  if [[ ! -f "/etc/apt/sources.list.d/deb.sury.org-php.list" ]]; then
+  if [[ "$distro" == "debian" ]]; then
+    if [[ ! -f "/usr/share/keyrings/deb.sury.org-php.gpg" ]]; then
+      info_out "Adding PHP repository keyring"
+      sudo curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+    fi
+
+    if [[ ! -f "/etc/apt/sources.list.d/deb.sury.org-php.list" ]]; then
+      info_out "Adding PHP repository"
+      sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/deb.sury.org-php.list'
+    fi
+  elif [[ "$distro" == "ubuntu" ]]; then
     info_out "Adding PHP repository"
-    sudo sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/deb.sury.org-php.list'
+    LC_ALL=C.UTF-8 sudo add-apt-repository -y ppa:ondrej/php
   fi
 
   if [[ ! -f "/usr/share/keyrings/redis-archive-keyring.gpg" ]]; then
