@@ -26,6 +26,15 @@ restore_terminal() {
 }
 
 #######################################
+# Return an info message in STDOUT
+# Arguments:
+#   Info message
+#######################################
+info_out() {
+  echo -e " ${BB_BLU}${BT_WH} INFO ${NC} ${BT_WH}$*${NC}"
+}
+
+#######################################
 # Getting current and latest version of CtrlPanel
 # Globals:
 #   PANEL_VER
@@ -34,7 +43,9 @@ restore_terminal() {
 #   cpgg_dir
 #######################################
 get_version() {
-  PANEL_VER=$(grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php")
+  PANEL_VER=$(
+    grep -oP "'version' => '\K[^']+" "${cpgg_dir:-$DEFAULT_DIR}/config/app.php"
+    )
   readonly PANEL_VER
   PANEL_LATEST_VER=$(
     curl -s https://api.github.com/repos/ctrlpanel-gg/panel/tags \
@@ -56,7 +67,9 @@ get_version() {
 #######################################
 version_compare() {
   local current_version="$1"
+  readonly current_version
   local latest_version="$2"
+  readonly latest_version
 
   # Break down versions into components
   IFS='.' read -r -a current_parts <<<"$current_version"
@@ -107,52 +120,65 @@ update_needed_checker() {
 #######################################
 install_deps() {
   local minimal="$1"
+  # Removing double quotes at the beginning and end
+  minimal=${minimal#\"}
+  minimal=${minimal%\"}
+  readonly minimal
 
-  if [[ -z "$cli_mode" ]]; then
-    logo
+  logo
+
+  info_out "Adding \"add-apt-repository\" command and additional dependencies"
+  sudo apt -y -qq install software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
+
+  if [[ ! -f "/etc/apt/trusted.gpg.d/deb.sury.org-php.gpg" ]]; then
+    info_out "Adding PHP repository keyring"
+    sudo curl -sSLo /etc/apt/trusted.gpg.d/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
   fi
 
-  echo " Adding \"add-apt-repository\" command and additional dependencies"
-  sudo apt -y install software-properties-common curl apt-transport-https ca-certificates gnupg
-
-  echo " Adding PHP repository"
-  LC_ALL=C.UTF-8 sudo add-apt-repository -y ppa:ondrej/php
+  if [[ ! -f "/etc/apt/sources.list.d/deb.sury.org-php.list" ]]; then
+    info_out "Adding PHP repository"
+    sudo sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/deb.sury.org-php.list'
+  fi
 
   if [[ ! -f "/usr/share/keyrings/redis-archive-keyring.gpg" ]]; then
-    echo " Adding Redis repository"
+    info_out "Adding Redis repository"
     curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
     echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" \
       | sudo tee /etc/apt/sources.list.d/redis.list
   fi
 
   if [[ -z "$minimal" ]]; then
-    echo " Adding MariaDB repository"
+    info_out "Adding MariaDB repository"
     curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
   elif [[ -n "$minimal" && "$minimal" != "true" ]]; then
-    error_out " ERROR: Invalid argument $minimal for install_deps function. \
-Please, report to developers!"
+    error_out "Invalid argument $minimal for install_deps function. Please, report to developers!"
     exit 1
   fi
 
-  echo " Running \"apt update\""
+  info_out "Running \"apt update\""
   sudo apt update
 
-  echo " Installing dependencies"
+  info_out "Installing dependencies"
   if [[ "$minimal" ]]; then
-    sudo apt -y install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} redis-server tar unzip git
+    sudo apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} redis-server tar unzip git
   elif [[ -z "$minimal" ]]; then
-    sudo apt -y install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} mariadb-server nginx redis-server tar unzip git
+    sudo apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} mariadb-server nginx redis-server tar unzip git
   else
-    error_out " ERROR: Invalid argument $minimal for install_deps function. \
-Please, report to developers!"
+    error_out "Invalid argument $minimal for install_deps function. Please, report to developers!"
     exit 1
   fi
 
-  echo " Installing Composer"
+  info_out "Installing Composer"
   curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 
-  echo " Installing Composer dependencies to the CtrlPanel"
+  info_out "Installing Composer dependencies to the CtrlPanel"
   sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
+
+  if [[ -z "$cli_mode" ]]; then
+    echo ""
+    echo " Installation finished. Press any key to exit"
+    read -rsn 1 -p " "
+  fi
 }
 
 #######################################
@@ -163,39 +189,43 @@ Please, report to developers!"
 #   cli_mode
 #######################################
 update() {
-  if [[ -z "$cli_mode" ]]; then
-    logo
-  fi
+  logo
 
-  echo " Enabling maintenance mode"
+  info_out "Enabling maintenance mode"
   sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan down
 
   if ! sudo git config --global --get-all safe.directory | grep -q -w "${cpgg_dir:-$DEFAULT_DIR}"; then
-    echo " Adding CtrlPanel directory to the git save.directory list"
+    info_out "Adding CtrlPanel directory to the git save.directory list"
     sudo git config --global --add safe.directory "${cpgg_dir:-$DEFAULT_DIR}"
   fi
 
-  echo " Downloading file updates"
+  info_out "Downloading file updates"
   sudo git stash
   sudo git pull
 
-  echo " Installing Composer dependencies"
+  info_out "Installing Composer dependencies"
   sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
 
-  echo " Migrating database updates"
+  info_out "Migrating database updates"
   sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan migrate --seed --force
 
-  echo " Clearing the cache"
+  info_out "Clearing the cache"
   sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan view:clear
   sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan config:clear
 
-  echo " Setting permissions"
+  info_out "Setting permissions"
   sudo chown -R www-data:www-data "${cpgg_dir:-$DEFAULT_DIR}"
   sudo chmod -R 755 "${cpgg_dir:-$DEFAULT_DIR}"
 
-  echo " Restarting Queue Workers"
+  info_out "Restarting Queue Workers"
   sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan queue:restart
 
-  echo " Disabling maintenance mode"
+  info_out "Disabling maintenance mode"
   sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan up
+
+  if [[ -z "$cli_mode" ]]; then
+    echo ""
+    echo " Update finished. Press any key to exit"
+    read -rsn 1 -p " "
+  fi
 }

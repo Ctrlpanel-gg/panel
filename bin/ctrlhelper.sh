@@ -10,8 +10,39 @@
 #   Email: contact@mrweez.dev
 
 # shellcheck disable=SC2034
-readonly SCRIPT_VER="0.5.12-dev"
+readonly SCRIPT_VER="0.6.3"
 readonly DEFAULT_DIR="/var/www/ctrlpanel"
+
+#######################################
+# Colors
+#######################################
+readonly T_BL="\033[30m" # Blue text
+readonly T_RE="\033[31m" # Red text
+readonly T_CY="\033[36m" # Cyan text
+readonly T_WH="\033[37m" # White text
+
+readonly BT_RE="\033[91m" # Bright red text
+readonly BT_GR="\033[92m" # Bright green text
+readonly BT_YE="\033[93m" # Bright yellow text
+readonly BT_BLU="\033[94m" # Bright blue text
+readonly BT_CY="\033[96m" # Bright cyan text
+readonly BT_WH="\033[97m" # Bright white text
+
+readonly B_RE="\033[41m" # Red background
+
+readonly BB_YE="\033[103m" # Yellow bright background
+readonly BB_BLU="\033[104m" # Blue bright background
+readonly BB_CY="\033[106m" # Cyan bright background
+
+readonly NC="\033[0m" # Reset
+readonly TB="\033[1m" # Bold
+readonly TU="\033[4m" # Underline
+
+#######################################
+# Visual blocks
+#######################################
+readonly CHECK="${BT_YE}${TB}(${BT_GR}✓${BT_YE})${NC}"
+readonly WARN="${BT_YE}${TB}(${BT_RE}!!${BT_YE})${NC}"
 
 #######################################
 # Return an error message in STDERR
@@ -19,7 +50,7 @@ readonly DEFAULT_DIR="/var/www/ctrlpanel"
 #   Error message
 #######################################
 error_out() {
-  echo "$*" >&2
+  echo -e " ${B_RE}${BT_WH} ERROR ${NC} ${T_RE}$*${NC}" >&2
 }
 
 #######################################
@@ -38,15 +69,18 @@ set_cpgg_dir() {
       while true; do
         # Message that the user will see by default, if he specifies a
         # non-existent directory or not root CtrlPanel directory
+        echo ""
         if [[ -z "$is_exists" ]] && [[ -z "$is_cpgg_root" ]] || [[ "$is_null" == "true" ]]; then
-          echo " Default directory wasn't found. Specify directory where your \
-CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
+          echo -e " ${T_CY}Default directory wasn't found. Specify directory \
+where your CtrlPanel is installed (e.g. /var/www/ctrlpanel)${NC}"
         elif [[ $is_exists == false ]]; then
-          echo " Directory $cpgg_dir doesn't exist. Specify directory where \
-your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
+          echo -e " ${T_CY}Directory ${BT_YE}$cpgg_dir${T_CY} doesn't exist. \
+Specify directory where your CtrlPanel is installed \
+(e.g. /var/www/ctrlpanel)${NC}"
         elif [[ $is_cpgg_root == false ]]; then
-          echo " $cpgg_dir is not a root CtrlPanel directory. Specify \
-directory where your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
+          echo -e " ${BT_YE}$cpgg_dir${T_CY} is not a root CtrlPanel \
+directory. Specify directory where your CtrlPanel is installed \
+(e.g. /var/www/ctrlpanel)${NC}"
         fi
 
         read -rep " > " cpgg_dir
@@ -54,7 +88,7 @@ directory where your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
         # Deleting / at the end of the specified directory
         cpgg_dir="${cpgg_dir%/}"
 
-        # Resetting values before validation
+        # Resetting validation values before validation
         is_null=""
         is_exists=""
         is_cpgg_root=""
@@ -76,14 +110,16 @@ directory where your CtrlPanel is installed (e.g. /var/www/ctrlpanel)"
     # Error if default directory is not found and CtrlPanel root directory is
     # not specified when using the CLI mode
     if [[ ! -d "$DEFAULT_DIR" ]] && [[ -z "$cpgg_dir" ]]; then
-      error_out " ERROR: Default directory wasn't found. Specify directory \
-where your CtrlPanel is installed using --cpgg-dir argument"
+      error_out "Default directory wasn't found. Specify directory where your \
+CtrlPanel is installed using ${BT_YE}--cpgg-dir${T_RE} argument"
       exit 1
     fi
   fi
 }
 
+#######################################
 # Handling startup arguments
+#######################################
 while [[ $# -gt 0 ]]; do
   case "$1" in
   --cli)
@@ -96,14 +132,13 @@ while [[ $# -gt 0 ]]; do
     shift
 
     if [[ "$cpgg_dir" == "" ]]; then
-      error_out " ERROR: Argument --cpgg-dir can't be empty!"
+      error_out "Argument ${BT_YE}--cpgg-dir${T_RE} can't be empty!"
       exit 1
     elif [[ ! -d "$cpgg_dir" ]]; then
-      error_out " ERROR: Directory $cpgg_dir doesn't exist."
+      error_out "Directory ${BT_YE}$cpgg_dir${T_RE} doesn't exist."
       exit 1
     elif [[ ! -f "$cpgg_dir/config/app.php" ]]; then
-      error_out " ERROR: $cpgg_dir is not a root CtrlPanel \
-directory."
+      error_out "${BT_YE}$cpgg_dir${T_RE} is not a root CtrlPanel directory."
       exit 1
     else
       continue
@@ -115,8 +150,8 @@ directory."
     ;;
   --install=*)
     if [[ -n "$update" ]]; then
-      error_out " ERROR: You can't use --install with --update \
-argument"
+      error_out "You can't use ${BT_YE}--install${T_RE} with \
+${BT_YE}--update${T_RE} argument"
       exit 1
     fi
 
@@ -124,18 +159,19 @@ argument"
     shift
 
     if [[ "$install" == "" ]]; then
-      error_out " ERROR: Argument --install can't be empty!"
+      error_out "Argument ${BT_YE}--install${T_RE} can't be empty!"
       exit 1
     elif [[ "$install" != "full" && "$install" != "min" ]]; then
-      error_out " ERROR: Invalid option $install for --install \
-argument. Valid values are only full or min"
+      error_out "Invalid option ${BT_YE}$install${T_RE} for \
+${BT_YE}--install${T_RE} argument. Valid values are only \
+${BT_YE}${TU}full${NC}${T_RE} or ${BT_YE}${TU}min"
       exit 1
     fi
     ;;
   --update)
     if [[ -n "$install" ]]; then
-      error_out " ERROR: You can't use --update with --install \
-argument"
+      error_out "You can't use ${BT_YE}--update${T_RE} with \
+${BT_YE}--install${T_RE} argument"
       exit 1
     fi
 
@@ -143,23 +179,27 @@ argument"
     shift
     ;;
   --help)
-    echo " Usage: $0 [options]"
-    echo " Options:"
-    echo "   --cli                   Use CLI mode. It does not have CLI-GUI \
-interface, and all actions are specified using action arguments"
-    echo "   --cpgg-dir=<dir>        Allows you to specify the root directory \
-of the CtrlPanel"
-    echo "   --force                 Performs an action without confirmation \
-(applicable for --install and --update arguments)"
-    echo "   --install=<full|min>    Perform installation. Valid values are \
-full or min"
-    echo "   --update                Perform an update"
-    echo "   --help                  Display this help message"
+    echo -e " ${BT_WH}Usage: ${T_CY}$0 ${BT_CY}[options]${NC}"
+    echo -e " ${BT_WH}Options:${NC}"
+    echo -e "   ${BT_CY}--cli                   \
+${BT_WH}Use CLI mode. It does not have CLI-GUI interface, and all actions are \
+specified using action arguments${NC}"
+    echo -e "   ${BT_CY}--cpgg-dir=<dir>        \
+${BT_WH}Allows you to specify the root directory of the CtrlPanel${NC}"
+    echo -e "   ${BT_CY}--force                 \
+${BT_WH}Performs an action without confirmation (applicable for --install and \
+--update arguments in CLI mode)${NC}"
+    echo -e "   ${BT_CY}--install=<full|min>    \
+${BT_WH}Perform installation. Valid values are full or min${NC}"
+    echo -e "   ${BT_CY}--update                \
+${BT_WH}Perform an update${NC}"
+    echo -e "   ${BT_CY}--help                  \
+${BT_WH}Display this help message${NC}"
     exit 0
     ;;
   *)
-    error_out " ERROR: Argument $1 not exists. \
-Use --help to display all available arguments"
+    error_out "Argument ${BT_YE}$1${T_RE} not exists. Use \
+${BT_YE}--help${T_RE} to display all available arguments"
     exit 1
     ;;
   esac
@@ -170,27 +210,27 @@ set_cpgg_dir
 # shellcheck source=/dev/null
 source "${cpgg_dir:-$DEFAULT_DIR}/bin/ctrlhelper_sub_scripts/menus.sh" \
   || {
-    error_out " ERROR: Source files could not be added! Are you sure you are \
-using script for version 0.10 or above of CtrlPanel? Please try to run the \
-script again, if the error persists, create support forum post on \
-CtrlPanel's Discord server!"
+    error_out "Source files could not be added! Are you sure you are using \
+script for version 0.10 or above of CtrlPanel? Please try to run the script \
+again, if the error persists, create support forum post on CtrlPanel's \
+Discord server!"
     exit 1
 }
 # shellcheck source=/dev/null
 source "${cpgg_dir:-$DEFAULT_DIR}/bin/ctrlhelper_sub_scripts/functions.sh" \
     || {
-    error_out " ERROR: Source files could not be added! Are you sure you are \
-using script for version 0.10 or above of CtrlPanel? Please try to run the \
-script again, if the error persists, create support forum post on \
-CtrlPanel's Discord server!"
+    error_out "Source files could not be added! Are you sure you are using \
+script for version 0.10 or above of CtrlPanel? Please try to run the script \
+again, if the error persists, create support forum post on CtrlPanel's \
+Discord server!"
     exit 1
 }
 
 cd "${cpgg_dir:-$DEFAULT_DIR}" \
   || {
-    error_out " ERROR: An error occurred while trying to switch to the working \
-directory. Please try to run the script again, if the error persists, \
-create support forum post on CtrlPanel's Discord server!"
+    error_out "An error occurred while trying to switch to the working \
+directory. Please try to run the script again, if the error persists, create \
+support forum post on CtrlPanel's Discord server!"
     exit 1
 }
 
@@ -210,30 +250,50 @@ else
     if [[ "$force" == "true" ]]; then
       install_deps
     else
-      confirm_dialog "This action will install all the necessary dependencies \
-such as PHP, Redis, MariaDB and others, as well as install composer \
-files." "You will still have to create MySQL user and configure nginx \
-yourself." "install_deps"
+      confirm_dialog \
+      "${BT_YE}This action will install all the necessary dependencies such as \
+PHP, Redis, MariaDB and others, as well as install composer files.
+ You will still have to create MySQL user and configure nginx yourself.
+
+ ${BT_GR}Below is a list of all packages that will be installed${NE}" \
+      "${T_WH}software-properties-common curl apt-transport-https \
+ca-certificates gnupg lsb-release php8.3 \
+php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} \
+mariadb-server nginx redis-server tar unzip git${NC}" \
+      "install_deps" \
+      "exit 0"
     fi
   elif [[ "$install" == "min" ]]; then
     if [[ "$force" == "true" ]]; then
       install_deps "true"
     else
-      confirm_dialog "This action will install all the necessary dependencies \
-such as PHP, Redis, Composer and others, as well as install composer \
-files." "" "install_deps \"true\""
+      confirm_dialog \
+      "${BT_YE}This action will install all the necessary dependencies such as \
+PHP, Redis, Composer and others, as well as install composer files.
+
+ ${BT_GR}Below is a list of all packages that will be installed${NE}" \
+      "${T_WH}software-properties-common curl apt-transport-https \
+ca-certificates gnupg lsb-release php8.3 \
+php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} \
+redis-server tar unzip git${NC}" \
+      "install_deps \"true\"" \
+      "exit 0"
     fi
   elif [[ "$update" == "true" ]]; then
     if [[ "$force" == "true" ]]; then
       update
     else
-      confirm_dialog "This action cannot be undone, create backup of the \
-database before updating! It will also remove all installed themes \
-and addons." "" "update"
+      confirm_dialog \
+      "${B_RE}${BT_WH} This action cannot be undone, create backup of the \
+database before updating! ${NC}" \
+      "${B_RE}${BT_WH} It will also remove all installed themes and addons. ${NC}" \
+      "update" \
+      "exit 0"
     fi
   else
-    echo " ERROR: You have not specified the action you want to do! \
-Use --help to display all available arguments"
+    error_out \
+    "You have not specified the action you want to do! Use \
+${BT_YE}--help${T_RE} to display all available arguments"
     exit 1
   fi
 fi
