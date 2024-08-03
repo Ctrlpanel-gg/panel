@@ -192,12 +192,14 @@ install_deps() {
       | sudo tee /etc/apt/sources.list.d/redis.list
   fi
 
-  if [[ -z "${minimal}" ]]; then
-    info_out "Adding MariaDB repository"
-    curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
-  elif [[ -n "${minimal}" && "${minimal}" != "true" ]]; then
-    error_out "Invalid argument ${minimal} for install_deps function. Please, report to developers!"
-    exit 1
+  if [[ "$distro" == "ubuntu" && "$(grep '^VERSION_ID=' /etc/os-release | cut -d'=' -f2 | tr -d '"')" != "24.04"  ]]; then
+    if [[ -z "${minimal}" ]]; then
+      info_out "Adding MariaDB repository"
+      curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+    elif [[ -n "${minimal}" && "${minimal}" != "true" ]]; then
+      error_out "Invalid argument ${minimal} for install_deps function. Please, report to developers!"
+      exit 1
+    fi
   fi
 
   info_out "Running \"apt update\""
