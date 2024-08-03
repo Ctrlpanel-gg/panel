@@ -118,8 +118,7 @@ check_distro() {
   local choice
   local unknown_choice="$1"
   local previous_choice="$2"
-  # distro=$(lsb_release -is)
-  distro="Mint"
+  distro=$(lsb_release -is)
   distro="${distro,,}"
 
   if [[ "${distro}" != "debian" && "${distro}" != "ubuntu" ]]; then
