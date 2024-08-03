@@ -10,7 +10,7 @@
 #   Email: contact@mrweez.dev
 
 # shellcheck disable=SC2034
-readonly SCRIPT_VER="0.6.3"
+readonly SCRIPT_VER="1.0.0"
 readonly DEFAULT_DIR="/var/www/ctrlpanel"
 
 #######################################
