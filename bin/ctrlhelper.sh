@@ -64,21 +64,21 @@ set_cpgg_dir() {
   local is_cpgg_root=""
   local is_null=""
 
-  if [[ -z "$cli_mode" ]]; then
-    if [[ ! -d "$DEFAULT_DIR" ]] && [[ -z "$cpgg_dir" ]]; then
+  if [[ -z "${cli_mode}" ]]; then
+    if [[ ! -d "${DEFAULT_DIR}" ]] && [[ -z "${cpgg_dir}" ]]; then
       while true; do
         # Message that the user will see by default, if he specifies a
         # non-existent directory or not root CtrlPanel directory
         echo ""
-        if [[ -z "$is_exists" ]] && [[ -z "$is_cpgg_root" ]] || [[ "$is_null" == "true" ]]; then
+        if [[ -z "${is_exists}" ]] && [[ -z "${is_cpgg_root}" ]] || [[ "${is_null}" == "true" ]]; then
           echo -e " ${T_CY}Default directory wasn't found. Specify directory \
 where your CtrlPanel is installed (e.g. /var/www/ctrlpanel)${NC}"
-        elif [[ $is_exists == false ]]; then
-          echo -e " ${T_CY}Directory ${BT_YE}$cpgg_dir${T_CY} doesn't exist. \
+        elif [[ ${is_exists} == false ]]; then
+          echo -e " ${T_CY}Directory ${BT_YE}${cpgg_dir}${T_CY} doesn't exist. \
 Specify directory where your CtrlPanel is installed \
 (e.g. /var/www/ctrlpanel)${NC}"
-        elif [[ $is_cpgg_root == false ]]; then
-          echo -e " ${BT_YE}$cpgg_dir${T_CY} is not a root CtrlPanel \
+        elif [[ ${is_cpgg_root} == false ]]; then
+          echo -e " ${BT_YE}${cpgg_dir}${T_CY} is not a root CtrlPanel \
 directory. Specify directory where your CtrlPanel is installed \
 (e.g. /var/www/ctrlpanel)${NC}"
         fi
@@ -94,11 +94,11 @@ directory. Specify directory where your CtrlPanel is installed \
         is_cpgg_root=""
 
         # Validation of directory specified by user
-        if [[ "$cpgg_dir" == "" ]]; then
+        if [[ "${cpgg_dir}" == "" ]]; then
           is_null="true"
-        elif [[ ! -d "$cpgg_dir" ]]; then
+        elif [[ ! -d "${cpgg_dir}" ]]; then
           is_exists="false"
-        elif [[ ! -f "$cpgg_dir/config/app.php" ]]; then
+        elif [[ ! -f "${cpgg_dir}/config/app.php" ]]; then
           is_cpgg_root="false"
         else
           break
@@ -109,7 +109,7 @@ directory. Specify directory where your CtrlPanel is installed \
   else
     # Error if default directory is not found and CtrlPanel root directory is
     # not specified when using the CLI mode
-    if [[ ! -d "$DEFAULT_DIR" ]] && [[ -z "$cpgg_dir" ]]; then
+    if [[ ! -d "${DEFAULT_DIR}" ]] && [[ -z "${cpgg_dir}" ]]; then
       error_out "Default directory wasn't found. Specify directory where your \
 CtrlPanel is installed using ${BT_YE}--cpgg-dir${T_RE} argument"
       exit 1
@@ -135,10 +135,10 @@ while [[ $# -gt 0 ]]; do
       error_out "Argument ${BT_YE}--cpgg-dir${T_RE} can't be empty!"
       exit 1
     elif [[ ! -d "$cpgg_dir" ]]; then
-      error_out "Directory ${BT_YE}$cpgg_dir${T_RE} doesn't exist."
+      error_out "Directory ${BT_YE}${cpgg_dir}${T_RE} doesn't exist."
       exit 1
-    elif [[ ! -f "$cpgg_dir/config/app.php" ]]; then
-      error_out "${BT_YE}$cpgg_dir${T_RE} is not a root CtrlPanel directory."
+    elif [[ ! -f "${cpgg_dir}/config/app.php" ]]; then
+      error_out "${BT_YE}${cpgg_dir}${T_RE} is not a root CtrlPanel directory."
       exit 1
     else
       continue
@@ -149,7 +149,7 @@ while [[ $# -gt 0 ]]; do
     shift
     ;;
   --install=*)
-    if [[ -n "$update" ]]; then
+    if [[ -n "${update}" ]]; then
       error_out "You can't use ${BT_YE}--install${T_RE} with \
 ${BT_YE}--update${T_RE} argument"
       exit 1
@@ -158,18 +158,18 @@ ${BT_YE}--update${T_RE} argument"
     install="${1#*=}"
     shift
 
-    if [[ "$install" == "" ]]; then
+    if [[ "${install}" == "" ]]; then
       error_out "Argument ${BT_YE}--install${T_RE} can't be empty!"
       exit 1
-    elif [[ "$install" != "full" && "$install" != "min" ]]; then
-      error_out "Invalid option ${BT_YE}$install${T_RE} for \
+    elif [[ "${install}" != "full" && "${install}" != "min" ]]; then
+      error_out "Invalid option ${BT_YE}${install}${T_RE} for \
 ${BT_YE}--install${T_RE} argument. Valid values are only \
 ${BT_YE}${TU}full${NC}${T_RE} or ${BT_YE}${TU}min"
       exit 1
     fi
     ;;
   --update)
-    if [[ -n "$install" ]]; then
+    if [[ -n "${install}" ]]; then
       error_out "You can't use ${BT_YE}--update${T_RE} with \
 ${BT_YE}--install${T_RE} argument"
       exit 1
@@ -234,11 +234,9 @@ support forum post on CtrlPanel's Discord server!"
     exit 1
 }
 
-if [[ -z "$cli_mode" ]]; then
+if [[ -z "${cli_mode}" ]]; then
   save_terminal
-fi
 
-if [[ -z "$cli_mode" ]]; then
   get_version
   update_needed_checker
 
@@ -246,8 +244,8 @@ if [[ -z "$cli_mode" ]]; then
 
   restore_terminal
 else
-  if [[ "$install" == "full" ]]; then
-    if [[ "$force" == "true" ]]; then
+  if [[ "${install}" == "full" ]]; then
+    if [[ "${force}" == "true" ]]; then
       install_deps
     else
       confirm_dialog \
@@ -263,8 +261,8 @@ mariadb-server nginx redis-server tar unzip git${NC}" \
       "install_deps" \
       "exit 0"
     fi
-  elif [[ "$install" == "min" ]]; then
-    if [[ "$force" == "true" ]]; then
+  elif [[ "${install}" == "min" ]]; then
+    if [[ "${force}" == "true" ]]; then
       install_deps "true"
     else
       confirm_dialog \
@@ -279,8 +277,8 @@ redis-server tar unzip git${NC}" \
       "install_deps \"true\"" \
       "exit 0"
     fi
-  elif [[ "$update" == "true" ]]; then
-    if [[ "$force" == "true" ]]; then
+  elif [[ "${update}" == "true" ]]; then
+    if [[ "${force}" == "true" ]]; then
       update
     else
       confirm_dialog \

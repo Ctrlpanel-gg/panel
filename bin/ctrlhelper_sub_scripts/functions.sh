@@ -72,8 +72,8 @@ version_compare() {
   readonly latest_version
 
   # Break down versions into components
-  IFS='.' read -r -a current_parts <<<"$current_version"
-  IFS='.' read -r -a latest_parts <<<"$latest_version"
+  IFS='.' read -r -a current_parts <<<"${current_version}"
+  IFS='.' read -r -a latest_parts <<<"${latest_version}"
 
   # Add zeros to the shorter version (e.g. 0.10 => 0.10.0)
   while ((${#current_parts[@]} < ${#latest_parts[@]})); do
@@ -106,7 +106,7 @@ version_compare() {
 #   2 if current version is newer than the latest one
 #######################################
 update_needed_checker() {
-  is_update_needed=$(version_compare "$PANEL_VER" "$PANEL_LATEST_VER")
+  is_update_needed=$(version_compare "${PANEL_VER}" "${PANEL_LATEST_VER}")
   # shellcheck disable=SC2034
   readonly is_update_needed
 }
@@ -147,11 +147,11 @@ install_deps() {
       | sudo tee /etc/apt/sources.list.d/redis.list
   fi
 
-  if [[ -z "$minimal" ]]; then
+  if [[ -z "${minimal}" ]]; then
     info_out "Adding MariaDB repository"
     curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
-  elif [[ -n "$minimal" && "$minimal" != "true" ]]; then
-    error_out "Invalid argument $minimal for install_deps function. Please, report to developers!"
+  elif [[ -n "${minimal}" && "${minimal}" != "true" ]]; then
+    error_out "Invalid argument ${minimal} for install_deps function. Please, report to developers!"
     exit 1
   fi
 
@@ -159,12 +159,12 @@ install_deps() {
   sudo apt update
 
   info_out "Installing dependencies"
-  if [[ "$minimal" ]]; then
+  if [[ "${minimal}" ]]; then
     sudo apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} redis-server tar unzip git
-  elif [[ -z "$minimal" ]]; then
+  elif [[ -z "${minimal}" ]]; then
     sudo apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} mariadb-server nginx redis-server tar unzip git
   else
-    error_out "Invalid argument $minimal for install_deps function. Please, report to developers!"
+    error_out "Invalid argument ${minimal} for install_deps function. Please, report to developers!"
     exit 1
   fi
 
@@ -174,7 +174,7 @@ install_deps() {
   info_out "Installing Composer dependencies to the CtrlPanel"
   sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
 
-  if [[ -z "$cli_mode" ]]; then
+  if [[ -z "${cli_mode}" ]]; then
     echo ""
     echo " Installation finished. Press any key to exit"
     read -rsn 1 -p " "
@@ -223,7 +223,7 @@ update() {
   info_out "Disabling maintenance mode"
   sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan up
 
-  if [[ -z "$cli_mode" ]]; then
+  if [[ -z "${cli_mode}" ]]; then
     echo ""
     echo " Update finished. Press any key to exit"
     read -rsn 1 -p " "

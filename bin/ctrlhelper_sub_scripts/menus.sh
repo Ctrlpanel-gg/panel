@@ -13,7 +13,7 @@
 # Logo to display in the CLI-GUI
 #######################################
 logo() {
-  if [[ -z "$cli_mode" ]]; then
+  if [[ -z "${cli_mode}" ]]; then
     clear
   fi
   echo -e "${BT_CY}    ________       ______                   __            ${NC}"
@@ -32,8 +32,8 @@ logo() {
 #   PANEL_VER
 #######################################
 logo_version() {
-  echo -e " ${BT_YE}Script    version:${NC}${BT_WH} $SCRIPT_VER${NC}"
-  echo -e " ${BT_YE}CtrlPanel version:${NC}${BT_WH} $PANEL_VER${NC}"
+  echo -e " ${BT_YE}Script    version:${NC}${BT_WH} ${SCRIPT_VER}${NC}"
+  echo -e " ${BT_YE}CtrlPanel version:${NC}${BT_WH} ${PANEL_VER}${NC}"
   echo ""
 }
 
@@ -45,15 +45,15 @@ logo_version() {
 #######################################
 logo_message() {
   # shellcheck disable=SC2154
-  if [[ $is_update_needed == 0 ]]; then
+  if [[ ${is_update_needed} == 0 ]]; then
     echo -e " ${CHECK} ${BT_GR}You are using the latest version! \
 No update required.${NC}"
     echo ""
-  elif [[ $is_update_needed == 1 ]]; then
+  elif [[ ${is_update_needed} == 1 ]]; then
     echo -e " ${WARN} ${BT_RE}New version available! You can update right now \
 by selecting ${BT_YE}${TU}Update${NC} ${BT_RE}option.${NC}"
     echo ""
-  elif [[ $is_update_needed == 2 ]]; then
+  elif [[ ${is_update_needed} == 2 ]]; then
     echo -e " ${CHECK} ${BT_GR}You are using a newer version! Most likely you \
 have a development version installed.${NC}"
     echo ""
@@ -80,28 +80,28 @@ confirm_dialog() {
   local previous_choice="$6"
 
   logo
-  echo -e " $message_line1"
-  if [[ -n "$message_line2" ]]; then
-    echo -e " $message_line2"
+  echo -e " ${message_line1}"
+  if [[ -n "${message_line2}" ]]; then
+    echo -e " ${message_line2}"
   fi
   echo ""
   echo -e " ${BT_WH}Continue? (Y/n)${NC}"
-  if [[ "$unknown_choice" == "true" ]]; then
-    echo -e " ${T_RE}Unknown choice ${BT_YE}${TU}$previous_choice${NC}"
+  if [[ "${unknown_choice}" == "true" ]]; then
+    echo -e " ${T_RE}Unknown choice ${BT_YE}${TU}${previous_choice}${NC}"
   fi
   read -rp " > " choice
 
-  case "$choice" in
-  y | Y) $action ;;
-  n | N) $exit_action ;;
+  case "${choice}" in
+  y | Y) ${action} ;;
+  n | N) ${exit_action} ;;
   *)
     confirm_dialog \
-    "$message_line1" \
-    "$message_line2" \
-    "$action" \
-    "$exit_action" \
+    "${message_line1}" \
+    "${message_line2}" \
+    "${action}" \
+    "${exit_action}" \
     "true" \
-    "$choice"
+    "${choice}"
     ;;
   esac
 }
@@ -123,7 +123,7 @@ main_menu() {
   echo ""
   read -rp " > " choice
 
-  case $choice in
+  case ${choice} in
   1) install_menu ;;
   2)
     confirm_dialog "${B_RE}${BT_WH} This action cannot be undone, create \
@@ -157,7 +157,7 @@ configure nginx yourself.${NC}"
   echo ""
   read -rp " > " choice
 
-  case "$choice" in
+  case "${choice}" in
   1)
     confirm_dialog \
     "${BT_YE}You are going to install full set of dependencies, below is a \
@@ -194,7 +194,7 @@ info_help_menu() {
 
   logo
   logo_version
-  if [[ "$easter_egg" == "unlocked" ]]; then
+  if [[ "${easter_egg}" == "unlocked" ]]; then
     echo -e " ${B_RE}${BT_WH} Easter egg unlocked!!! ${NC}"
     echo -e "   ${BT_WH}${TB}Congratulations, you found Easter egg. Here's a \
 well-deserved cake${NC}"
@@ -234,7 +234,7 @@ ${NC}${BT_RE}♥${BT_WH}${TB} by MrWeez${NC}"
   echo " Press any key to return to the main menu"
 
   read -rsn 1 -p " " choice
-  case "$choice" in
+  case "${choice}" in
   ^) info_help_menu "unlocked" ;;
   *) main_menu ;;
   esac
