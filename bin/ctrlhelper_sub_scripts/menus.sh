@@ -2,12 +2,6 @@
 #
 # The auxiliary file for CtrlHelper script.
 # Contains the CLI-GUI parts of the interface
-#
-# Made with love by MrWeez
-# Contact me
-#   GitHub: https://github.com/MrWeez
-#   Discord: @mrweez_
-#   Email: contact@mrweez.dev
 
 #######################################
 # Logo to display in the CLI-GUI
@@ -225,11 +219,8 @@ ${BT_WH}Perform an update${NC}"
   echo -e "     ${BT_CY}--help                  \
 ${BT_WH}Display help message${NC}"
   echo -e " ${BB_YE}${T_BL} Credits ${NC}"
-  echo -e "     ${BT_WH}${TB}All code is written with \
-${NC}${BT_RE}♥${BT_WH}${TB} by MrWeez${NC}"
-  echo -e "       ${BT_WH}GitHub: ${BT_BLU}${TU}https://github.com/MrWeez${NC}"
-  echo -e "       ${BT_WH}Discord: ${T_CY}${TU}@mrweez_${NC}"
-  echo -e "       ${BT_WH}E-mail: ${BT_YE}${TU}contact@mrweez.dev${NC}"
+  echo -e "     ${BT_WH}${TB}Made by MrWeez with \
+${NC}${BT_RE}♥${NC}"
   echo ""
   echo " Press any key to return to the main menu"
 

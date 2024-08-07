@@ -2,12 +2,6 @@
 #
 # This script is designed to facilitate the tasks of
 # installing dependencies and updating CtrlPanel via CLI
-#
-# Made with love by MrWeez
-# Contact me
-#   GitHub: https://github.com/MrWeez
-#   Discord: @mrweez_
-#   Email: contact@mrweez.dev
 
 # shellcheck disable=SC2034
 readonly SCRIPT_VER="1.0.0"

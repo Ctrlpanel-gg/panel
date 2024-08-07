@@ -2,12 +2,6 @@
 #
 # The auxiliary file for CtrlHelper script.
 # Contains important functions for the main script to work
-#
-# Made with love by MrWeez
-# Contact me
-#   GitHub: https://github.com/MrWeez
-#   Discord: @mrweez_
-#   Email: contact@mrweez.dev
 
 #######################################
 # Terminal save function, for recovery after exiting
