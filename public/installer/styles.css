@@ -956,6 +956,14 @@ video {
   outline-color: #ca8a04;
 }
 
+.left-0 {
+  left: 0px;
+}
+
+.right-0 {
+  right: 0px;
+}
+
 @media (min-width: 640px) {
   .sm\:w-auto {
     width: auto;
