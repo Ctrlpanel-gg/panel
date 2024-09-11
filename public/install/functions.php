@@ -4,7 +4,7 @@ $required_extentions = ['openssl', 'gd', 'mysql', 'PDO', 'mbstring', 'tokenizer'
 
 $requirements = [
     'minPhp' => '8.1',
-    'maxPhp' => '8.2', // This version is not supported
+    'maxPhp' => '8.4', // This version is not supported
     'mysql' => '5.7.22',
 ];
 
