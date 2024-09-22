@@ -25,7 +25,7 @@
                 <div class="flex flex-col mb-3">
                     <label for="databasehost">Database Host</label>
                     <input x-model="databasehost" id="databasehost" name="databasehost" type="text" required
-                           value="<?php echo(determineIfRunningInDocker() ? 'mysql' : '127.0.0.1') ?>"
+                           placeholder="e.g. localhost, 10.x.x.x, mysql, 192.168.x.x"
                            class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
                 </div>
             </div>
