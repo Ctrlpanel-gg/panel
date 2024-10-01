@@ -296,6 +296,7 @@
     "Everyone": "Everyone",
     "Clients": "Clients",
     "Enable Ticketsystem": "Enable Ticketsystem",
+    "It is not possible to purchase via MercadoPago: APP_URL does not have HTTPS, required by Mercado Pago":"It is not possible to purchase via MercadoPago: APP_URL does not have HTTPS, required by Mercado Pago",
     "PayPal Client-ID": "PayPal Client-ID",
     "PayPal Secret-Key": "PayPal Secret-Key",
     "PayPal Sandbox Client-ID": "PayPal Sandbox Client-ID",

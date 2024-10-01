@@ -13,7 +13,7 @@ return [
     'Delete Role' => 'admin.roles.delete',
 
 
-    'View Tickets' => 'admin.ticket.read',
+    'View Tickets' => 'admin.tickets.read',
     'Manage Ticket' => 'admin.tickets.write',
     'Receive Ticket Notifications' => 'admin.tickets.get_notification',
 
@@ -119,12 +119,14 @@ return [
     'View Paypal Settings' => 'settings.paypal.read',
     'Manage Paypal Settings' => 'settings.paypal.write',
 
+    'View Mercado Pago Settings' => 'settings.mercadopago.read',
+    'Manage Mercado Pago Settings' => 'settings.mercadopago.write',
+  
     'View Stripe Settings' => 'settings.stripe.read',
     'Manage Stripe Settings' => 'settings.stripe.write',
 
     'View Mollie Settings' => 'settings.mollie.read',
     'Manage Mollie Settings' => 'settings.mollie.write',
-
 
     /*
      * Permissions for users

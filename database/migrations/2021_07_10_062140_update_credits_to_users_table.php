@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedFloat('credits', 10)->change();
+            $table->float('credits', 10)->change()->unsigned();
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedFloat('credits')->change();
+            $table->float('credits')->change()->unsigned();
         });
     }
 };

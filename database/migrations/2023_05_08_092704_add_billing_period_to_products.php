@@ -23,7 +23,7 @@ class AddBillingPeriodToProducts extends Migration
 
             $table->string('billing_period')->default("hourly");
             $table->decimal('price', 15, 4)->change();
-            $table->decimal('minimum_credits', 15, 4)->change();
+            $table->decimal('minimum_credits', 15, 4)->default(-1)->change();
         });
 
         DB::statement('UPDATE products SET billing_period="hourly"');
