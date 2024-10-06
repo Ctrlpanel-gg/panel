@@ -1,7 +1,6 @@
 <!-- top layout here -->
 
 <?php
-// Check if the installation is already locked
 if (!file_exists('../../install.lock')) {
     echo cardStart(
         $title = "Installation Complete!",
@@ -17,7 +16,6 @@ if (!file_exists('../../install.lock')) {
     </a>
 
     <?php
-    // Create the lock file after displaying the completion message
     $lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
     fwrite($lockfile, 'the installation is locked, delete this file to unlock it');
     fclose($lockfile);
