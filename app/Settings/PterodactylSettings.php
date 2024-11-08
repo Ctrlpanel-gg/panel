@@ -15,7 +15,7 @@ class PterodactylSettings extends Settings
     {
         return 'pterodactyl';
     }
-
+/*
     public static function encrypted(): array
     {
         return [
@@ -23,7 +23,7 @@ class PterodactylSettings extends Settings
             'user_token',
         ];
     }
-
+*/
     /**
      * Get url with ensured ending backslash
      *
