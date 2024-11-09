@@ -8,25 +8,25 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up(): void
     {
         Schema::table('settings', function (Blueprint $table) {
             $table->boolean('locked')->default(false)->change();
+            $table->unique(['group', 'name']);
+            $table->dropIndex(['group']);
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down(): void
     {
         Schema::table('settings', function (Blueprint $table) {
             $table->boolean('locked')->default(null)->change();
+            $table->dropUnique(['group', 'name']);
+            $table->index('group');
         });
     }
 };

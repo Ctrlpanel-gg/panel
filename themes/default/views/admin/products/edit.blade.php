@@ -315,7 +315,13 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="eggs">Eggs</label>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label for="eggs" class="mb-0">{{ __('Eggs') }}</label>
+                                        <div>
+                                            <button type="button" id="select-all-eggs" class="btn btn-sm btn-secondary">{{ __('Select All') }}</button>
+                                            <button type="button" id="deselect-all-eggs" class="btn btn-sm btn-secondary ml-2">{{ __('Deselect All') }}</button>
+                                        </div>
+                                    </div>
                                     <select id="eggs" style="width:100%"
                                         class="custom-select @error('eggs') is-invalid @enderror" name="eggs[]"
                                         multiple="multiple" autocomplete="off">
@@ -353,6 +359,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             $('.custom-select').select2();
+
+            document.getElementById('select-all-eggs').addEventListener('click', function() {
+                $('#eggs option').prop('selected', true);
+                $('#eggs').trigger('change');
+            });
+
+            document.getElementById('deselect-all-eggs').addEventListener('click', function() {
+                $('#eggs option').prop('selected', false);
+                $('#eggs').trigger('change');
+            });
         })
     </script>
     <script>
