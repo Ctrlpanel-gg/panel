@@ -75,7 +75,7 @@ class PterodactylSettings extends Settings
             'per_page_limit' => [
                 'label' => 'Per Page Limit',
                 'type' => 'number',
-                'description' => 'The number of servers to show per page.',
+                'description' => 'The number of servers to show per page for the API call. Only change this when needed.',
             ],
         ];
     }
