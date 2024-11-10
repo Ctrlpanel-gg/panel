@@ -6,8 +6,8 @@ class AddDiscordSettings extends SettingsMigration
 {
     public function up(): void
     {
-        $this->migrator->add('discord.role_on_purchase', null);
-        $this->migrator->add('discord.role_id_on_purchase', null);
+        $this->migrator->add('discord.role_on_purchase', false);
+        $this->migrator->add('discord.role_id_on_purchase', "");
     }
 
     public function down(): void

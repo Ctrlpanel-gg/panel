@@ -36,14 +36,14 @@ class TicketsController extends Controller
 
     public function store(Request $request, GeneralSettings $generalSettings)
     {
-       $validateData =  [
-            'title' => 'required',
-            'ticketcategory' => 'required',
-            'priority' => 'required',
-            'message' => 'required',
-
+        $validateData = [
+            'title' => 'required|string|max:255',
+            'ticketcategory' => 'required|numeric',
+            'priority' => ['required', 'in:Low,Medium,High'],
+            'message' => 'required|string|min:10|max:2000',
         ];
-        if ($generalSettings->recaptcha_enabled){
+
+        if ($generalSettings->recaptcha_enabled) {
             $validateData['g-recaptcha-response'] = ['required', 'recaptcha'];
         }
 
