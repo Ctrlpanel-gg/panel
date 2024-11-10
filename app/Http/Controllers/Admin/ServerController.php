@@ -42,7 +42,8 @@ class ServerController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $this->checkAnyPermission($allConstants);
 
         return view('admin.servers.index', [
             'locale_datatables' => $locale_settings->datatables
@@ -57,7 +58,9 @@ class ServerController extends Controller
      */
     public function edit(Server $server)
     {
-        $this->checkPermission(self::WRITE_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $permissions = array_filter($allConstants, fn($key) => str_starts_with($key, 'admin.servers.write'));
+        $this->checkAnyPermission($permissions);
 
         // get all users from the database
         $users = User::all();

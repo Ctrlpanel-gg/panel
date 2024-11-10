@@ -31,7 +31,8 @@ class RoleController extends Controller
     public function index(Request $request)
     {
 
-        $this->checkPermission(self::READ_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $this->checkAnyPermission($allConstants);
 
         //datatables
         if ($request->ajax()) {
