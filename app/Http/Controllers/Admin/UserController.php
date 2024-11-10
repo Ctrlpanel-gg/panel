@@ -38,11 +38,14 @@ class UserController extends Controller
     const CHANGE_USERNAME_PERMISSION = "admin.users.write.username";
     const CHANGE_PASSWORD_PERMISSION = "admin.users.write.password";
     const CHANGE_ROLE_PERMISSION ="admin.users.write.role";
-    const CHANGE_REFERAL_PERMISSION ="admin.users.write.referral";
+    const CHANGE_REFERRAL_PERMISSION ="admin.users.write.referral";
     const CHANGE_PTERO_PERMISSION = "admin.users.write.pterodactyl";
+
+    const CHANGE_SERVERLIMIT_PERMISSION = "admin.users.write.serverlimit";
     const DELETE_PERMISSION = "admin.users.delete";
     const NOTIFY_PERMISSION = "admin.users.notify";
     const LOGIN_PERMISSION = "admin.users.login_as";
+
 
     private $pterodactyl;
 
@@ -127,7 +130,9 @@ class UserController extends Controller
      */
     public function edit(User $user, GeneralSettings $general_settings)
     {
-        $this->checkPermission(self::WRITE_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $permissions = array_filter($allConstants, fn($key) => str_starts_with($key, 'admin.users.write'));
+        $this->checkAnyPermission($permissions);
 
         $roles = Role::all();
         return view('admin.users.edit')->with([
@@ -169,34 +174,47 @@ class UserController extends Controller
             ]);
         }
 
-        if (!is_null($request->input('new_password')) && $this->can(self::CHANGE_PASSWORD_PERMISSION)) {
+        $dataArray = [];
+
+        if ($this->canAny([self::CHANGE_USERNAME_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('name')) {
+            $dataArray['name'] = $request->input('name');
+        }
+
+        if ($this->canAny([self::CHANGE_CREDITS_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('credits')) {
+            $dataArray['credits'] = $request->input('credits');
+        }
+
+        if ($this->canAny([self::CHANGE_PTERO_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('pterodactyl_id')) {
+            $dataArray['pterodactyl_id'] = $request->input('pterodactyl_id');
+        }
+
+        if ($this->canAny([self::CHANGE_REFERRAL_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('referral_code')) {
+            $dataArray['referral_code'] = $request->input('referral_code');
+        }
+
+        if ($this->canAny([self::CHANGE_EMAIL_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('email')) {
+            $dataArray['email'] = $request->input('email');
+        }
+
+        if ($this->canAny([self::CHANGE_SERVERLIMIT_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('server_limit')) {
+            $dataArray['server_limit'] = $request->input('server_limit');
+        }
+
+
+// Update password separately with validation, if permission is granted
+        if (!is_null($request->input('new_password')) && $this->canAny([self::CHANGE_PASSWORD_PERMISSION, self::WRITE_PERMISSION])) {
             $request->validate([
                 'new_password' => 'required|string|min:8',
                 'new_password_confirmation' => 'required|same:new_password',
             ]);
 
-            $user->update([
-                'password' => Hash::make($request->input('new_password')),
-            ]);
+            $dataArray['password'] = Hash::make($request->input('new_password'));
         }
 
-        // if($this->can(self::CHANGE_USERNAME_PERMISSION)){
-        //    $user->name = $request->name;
-        // }
-        // if($this->can(self::CHANGE_CREDITS_PERMISSION)){
-        //     $user->credits = $request->credits;
-        // }
-        // if($this->can(self::CHANGE_PTERO_PERMISSION)){
-        //     $user->pterodactyl_id = $request->pterodactyl_id;
-        // }
-        // if($this->can(self::CHANGE_REFERAL_PERMISSION)){
-        //     $user->referral_code = $request->referral_code;
-        // }
-        // if($this->can(self::CHANGE_EMAIL_PERMISSION)){
-        //     $user->email = $request->email;
-        // }
-
-        $user->update($data);
+// Only update with the collected data
+        if (!empty($dataArray)) {
+            $user->update($dataArray);
+        }
 
         event(new UserUpdateCreditsEvent($user));
 

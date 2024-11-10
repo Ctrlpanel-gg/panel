@@ -20,7 +20,8 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     const READ_PERMISSION = "admin.products.read";
-    const WRITE_PERMISSION = "admin.products.write";
+
+    const WRITE_PERMISSION = "admin.products.create";
     const EDIT_PERMISSION = "admin.products.edit";
     const DELETE_PERMISSION = "admin.products.delete";
     /**

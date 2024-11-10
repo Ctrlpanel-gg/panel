@@ -33,7 +33,7 @@ class LegalController extends Controller
     }
 
     public function update(Request $request){
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkPermission(self::WRITE_PERMISSION);
 
         $tos = $request->tos;
         $privacy = $request->privacy;
