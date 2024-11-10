@@ -77,9 +77,14 @@ class DiscordSettings extends Settings
                 'type' => 'string',
                 'description' => 'The role ID for your Discord server.',
             ],
+
             'role_on_purchase' => [
                 'label' => 'Role on Purchase',
-                'type' => 'boolean',
+                'type' => 'select',
+                'options' => [
+                    '0' => 'Disabled',
+                    '1' => 'Enabled'
+                ],
                 'description' => 'Give the user a role on purchase (removes when user has no active servers)',
             ],
             'role_id_on_purchase' => [
