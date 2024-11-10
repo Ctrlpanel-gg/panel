@@ -1,10 +1,5 @@
 <?php
 
-use App\Classes\Settings\Invoices;
-use App\Classes\Settings\Language;
-use App\Classes\Settings\Misc;
-use App\Classes\Settings\Payments;
-use App\Classes\Settings\System;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
