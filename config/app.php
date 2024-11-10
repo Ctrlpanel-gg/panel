@@ -212,6 +212,7 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
+        App\Providers\DiscordServiceProvider::class,
     ],
 
     /*
