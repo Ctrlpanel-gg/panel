@@ -23,7 +23,7 @@ class CouponController extends Controller
      */
     public function index(LocaleSettings $localeSettings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::WRITE_PERMISSION,self::READ_PERMISSION]);
 
         return view('admin.coupons.index', [
             'locale_datatables' => $localeSettings->datatables

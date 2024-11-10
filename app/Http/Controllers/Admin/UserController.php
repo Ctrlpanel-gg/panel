@@ -62,7 +62,10 @@ class UserController extends Controller
      */
     public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $this->checkAnyPermission($allConstants);
+
+        //$this->checkPermission(self::READ_PERMISSION);
 
         return view('admin.users.index', [
             'locale_datatables' => $locale_settings->datatables,

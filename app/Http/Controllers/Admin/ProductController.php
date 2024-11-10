@@ -31,7 +31,8 @@ class ProductController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $this->checkAnyPermission($allConstants);
 
         return view('admin.products.index', [
             'locale_datatables' => $locale_settings->datatables
@@ -113,7 +114,7 @@ class ProductController extends Controller
      */
     public function show(Product $product, UserSettings $user_settings, GeneralSettings $general_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION,self::WRITE_PERMISSION]);
 
         return view('admin.products.show', [
             'product' => $product,

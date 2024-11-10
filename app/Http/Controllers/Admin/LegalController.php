@@ -19,7 +19,7 @@ class LegalController extends Controller
      */
     public function index()
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION,self::WRITE_PERMISSION]);
 
         $tos = File::get(Theme::path($path = 'views', "default") . '/information/tos-content.blade.php');
         $privacy = File::get(Theme::path($path = 'views', "default") . '/information/privacy-content.blade.php');
