@@ -35,7 +35,7 @@ class GeneralSettings extends Settings
     {
         return [
             'store_enabled' => 'nullable|string',
-            'sales_tax' => 'nullable|number',
+            'sales_tax' => 'nullable|numeric',
             'credits_display_name' => 'required|string',
             'recaptcha_enabled' => 'nullable|string',
             'recaptcha_site_key' => 'nullable|string',
