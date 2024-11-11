@@ -15,16 +15,26 @@ class DiscordServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Retrieve Discord settings from the Spatie settings class
-        $discordSettings = app(DiscordSettings::class);
+        if (config('app.key') == null) return;
 
-        // Inject the settings into the config
-        Config::set('services.discord.client_id', $discordSettings->client_id);
-        Config::set('services.discord.client_secret', $discordSettings->client_secret);
-        Config::set('services.discord.redirect', env('APP_URL', 'http://localhost') . '/auth/callback');
+        try {
+            if (DB::table('settings')->where('name','client_id')->where('group','discord')->exists()) {
+                // Retrieve Discord settings from the Spatie settings class
+                $discordSettings = app(DiscordSettings::class);
 
-        // optional
-        Config::set('services.discord.allow_gif_avatars', (bool)env('DISCORD_AVATAR_GIF', true));
-        Config::set('services.discord.avatar_default_extension', env('DISCORD_EXTENSION_DEFAULT', 'jpg'));
+                // Inject the settings into the config
+                Config::set('services.discord.client_id', $discordSettings->client_id);
+                Config::set('services.discord.client_secret', $discordSettings->client_secret);
+                Config::set('services.discord.redirect', env('APP_URL', 'http://localhost') . '/auth/callback');
+
+                // optional
+                Config::set('services.discord.allow_gif_avatars', (bool)env('DISCORD_AVATAR_GIF', true));
+                Config::set('services.discord.avatar_default_extension', env('DISCORD_EXTENSION_DEFAULT', 'jpg'));
+            } else{
+                Log::error("Setting for Discord not found");
+            }
+        } catch (Exception $e) {
+            Log::error("Couldnt find settings. Probably the installation is not completet. " . $e);
+        }
     }
 }
