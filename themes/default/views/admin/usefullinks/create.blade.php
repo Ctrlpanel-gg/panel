@@ -34,7 +34,6 @@
                             <form action="{{route('admin.usefullinks.store')}}" method="POST">
                                 @csrf
 
-
                                 <div class="form-group">
                                     <label for="icon">{{__('Icon class name')}}</label>
                                     <input value="{{old('icon')}}" id="icon" name="icon"
@@ -117,6 +116,8 @@
                                         {{__('Submit')}}
                                     </button>
                                 </div>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </form>
                         </div>
                     </div>

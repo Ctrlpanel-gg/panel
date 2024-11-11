@@ -77,6 +77,8 @@
                 <div class="mt-3 form-group d-flex justify-content-end">
                     <button name="submit" type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                 </div>
+
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
             </form>
                         </div>
                     </div>

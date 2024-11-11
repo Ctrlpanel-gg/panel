@@ -269,10 +269,11 @@
 
                                           <br> <strong>{{__("Caution") }}:</strong> {{__("Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed")}}. <br>
                                           <br> {{__("Server will be automatically restarted once upgraded")}}
-                                    </div>
-                                    <div class="modal-footer card-body">
-                                        <button type="submit" class="btn btn-primary upgrade-once" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
-                                    </div>
+                                      </div>
+                                      <div class="modal-footer card-body">
+                                          <button type="submit" class="btn btn-primary upgrade-once" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
+                                      </div>
+                                      <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     </form>
                                 </div>
                             </div>
@@ -303,6 +304,7 @@
                                   @csrf
                                   @method('DELETE')
                                   <button data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-danger mr-1">{{__("Delete")}}</button>
+                                  <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 </form>
                               </div>
                             </div>
