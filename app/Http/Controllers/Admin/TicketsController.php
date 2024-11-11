@@ -25,7 +25,7 @@ class TicketsController extends Controller
     const BLACKLIST_WRITE_PERMISSION ='admin.ticket_blacklist.write';
     public function index(LocaleSettings $locale_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
         return view('admin.ticket.index', [
             'tickets' => Ticket::orderBy('id', 'desc')->paginate(10),
@@ -36,7 +36,7 @@ class TicketsController extends Controller
 
     public function show($ticket_id, PterodactylSettings $ptero_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
         try {
         $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch (Exception $e)
@@ -186,7 +186,7 @@ class TicketsController extends Controller
 
     public function blacklist(LocaleSettings $locale_settings)
     {
-        $this->checkPermission(self::BLACKLIST_READ_PERMISSION);
+        $this->checkAnyPermission([self::BLACKLIST_READ_PERMISSION, self::BLACKLIST_WRITE_PERMISSION]);
 
         return view('admin.ticket.blacklist', [
             'locale_datatables' => $locale_settings->datatables

@@ -24,7 +24,7 @@ class UsefulLinkController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
         return view('admin.usefullinks.index', [
             'locale_datatables' => $locale_settings->datatables
         ]);

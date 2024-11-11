@@ -7,6 +7,7 @@ use Spatie\LaravelSettings\Settings;
 class GeneralSettings extends Settings
 {
     public bool $store_enabled;
+    public ?int $sales_tax;
     public string $credits_display_name;
     public bool $recaptcha_enabled;
     public ?string $recaptcha_site_key;
@@ -34,6 +35,7 @@ class GeneralSettings extends Settings
     {
         return [
             'store_enabled' => 'nullable|string',
+            'sales_tax' => 'nullable|numeric',
             'credits_display_name' => 'required|string',
             'recaptcha_enabled' => 'nullable|string',
             'recaptcha_site_key' => 'nullable|string',
@@ -60,20 +62,15 @@ class GeneralSettings extends Settings
                 'label' => 'Enable Store',
                 'description' => 'Enable the store for users to purchase credits.'
             ],
+            'sales_tax' => [
+                'type' => 'number',
+                'label' => 'Sales Tax in %',
+                'description' => 'Your countrys sales tax in %'
+            ],
             'credits_display_name' => [
                 'type' => 'string',
                 'label' => 'Credits Display Name',
                 'description' => 'The name of the currency used.'
-            ],
-            'initial_user_credits' => [
-                'type' => 'number',
-                'label' => 'Initial User Credits',
-                'description' => 'The amount of credits a user gets when they register.'
-            ],
-            'initial_server_limit' => [
-                'type' => 'number',
-                'label' => 'Initial Server Limit',
-                'description' => 'The amount of servers a user can create when they register.'
             ],
             'recaptcha_enabled' => [
                 'type' => 'boolean',

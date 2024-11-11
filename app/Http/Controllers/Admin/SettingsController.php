@@ -16,6 +16,8 @@ use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
 {
+    const ICON_PERMISSION = "admin.icons.edit";
+
 
 
     /**
@@ -155,6 +157,8 @@ class SettingsController extends Controller
 
     public function updateIcons(Request $request)
     {
+        $this->checkPermission(self::ICON_PERMISSION);
+
         $request->validate([
             'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',

@@ -47,6 +47,7 @@
                             <nav class="mt-1">
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
+                                  @can("admin.icons.edit")
                                     <li class="nav-item border-bottom-0">
                                         <a href="#icons" class="nav-link" data-toggle="pill" role="tab">
                                             <i class="nav-icon fas fa-image"></i>
@@ -55,6 +56,7 @@
                                             </p>
                                         </a>
                                     </li>
+                                  @endcan
                                     @foreach ($settings as $category => $options)
                                         @if (!str_contains($options['settings_class'], 'Extension'))
                                             @canany(['settings.' . strtolower($category) . '.read', 'settings.' .

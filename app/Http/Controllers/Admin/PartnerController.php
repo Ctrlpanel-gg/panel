@@ -15,7 +15,7 @@ class PartnerController extends Controller
     const WRITE_PERMISSION = "admin.partners.write";
     public function index(LocaleSettings $locale_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::WRITE_PERMISSION,self::READ_PERMISSION]);
 
         return view('admin.partners.index', [
             'locale_datatables' => $locale_settings->datatables

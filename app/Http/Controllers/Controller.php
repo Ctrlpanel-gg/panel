@@ -29,6 +29,16 @@ class Controller extends BaseController
         }
     }
 
+    public function checkAnyPermission(iterable $permission)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user->canAny($permission)) {
+            abort(403, __('User does not have the right permissions.'));
+        }
+    }
+
     /**
      * Check if user has permissions
      *
@@ -41,5 +51,12 @@ class Controller extends BaseController
         $user = Auth::user();
 
         return $user->can($permission);
+    }
+    public function canAny(iterable $permission): bool
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user->canAny($permission);
     }
 }
