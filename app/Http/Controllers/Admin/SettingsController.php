@@ -9,7 +9,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Qirolab\Theme\Theme;
@@ -122,19 +121,6 @@ class SettingsController extends Controller
             // Get the type of the settingsclass property
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
-
-            // Check if the settingsclass is a DiscordSettings class
-            if($settings_class == 'App\Settings\DiscordSettings') {
-                if($key === 'client_id' || $key === 'client_secret') {
-
-                    $env = file_get_contents(base_path('.env'));
-                    $env = preg_replace('/DISCORD_CLIENT_ID=(.*)/', 'DISCORD_CLIENT_ID=' . $request->input('client_id'), $env);
-                    $env = preg_replace('/DISCORD_CLIENT_SECRET=(.*)/', 'DISCORD_CLIENT_SECRET=' . $request->input('client_secret'), $env);
-                    file_put_contents(base_path('.env'), $env);
-
-                    Artisan::call('config:clear');
-                }
-            }
 
             if ($rpType == 'bool') {
                 $settingsClass->$key = $request->has($key);
