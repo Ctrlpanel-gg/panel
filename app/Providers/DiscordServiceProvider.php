@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use App\Settings\DiscordSettings;
 
@@ -17,14 +18,15 @@ class DiscordServiceProvider extends ServiceProvider
     public function boot()
     {
         if (config('app.key') == null) return;
+        if(!Schema::hasTable('old_settings')){ return;}
 
         try {
-            $discordSettings = app(DiscordSettings::class);
+            $discordSettings = $this->app->make(DiscordSettings::class);
                 // Retrieve Discord settings from the Spatie settings class
 
                 // Inject the settings into the config
-                Config::set('services.discord.client_id', $discordSettings->client_id);
-                Config::set('services.discord.client_secret', $discordSettings->client_secret);
+                Config::set('services.discord.client_id', $discordSettings->client_id ?: "");
+                Config::set('services.discord.client_secret', $discordSettings->client_secret ?: "");
                 Config::set('services.discord.redirect', env('APP_URL', 'http://localhost') . '/auth/callback');
 
                 // optional
