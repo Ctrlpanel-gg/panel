@@ -23,8 +23,8 @@ class DiscordServiceProvider extends ServiceProvider
                 // Retrieve Discord settings from the Spatie settings class
 
                 // Inject the settings into the config
-                Config::set('services.discord.client_id', $discordSettings->client_id);
-                Config::set('services.discord.client_secret', $discordSettings->client_secret);
+                Config::set('services.discord.client_id', $discordSettings->client_id ?: "");
+                Config::set('services.discord.client_secret', $discordSettings->client_secret ?: "");
                 Config::set('services.discord.redirect', env('APP_URL', 'http://localhost') . '/auth/callback');
 
                 // optional
