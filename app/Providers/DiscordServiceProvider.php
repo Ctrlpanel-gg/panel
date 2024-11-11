@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use App\Settings\DiscordSettings;
+use Exception;
 
 class DiscordServiceProvider extends ServiceProvider
 {
@@ -18,7 +19,7 @@ class DiscordServiceProvider extends ServiceProvider
     public function boot()
     {
         if (config('app.key') == null) return;
-        if(!Schema::hasTable('old_settings')){ return;}
+        if (!Schema::hasColumn('settings', 'payload')) return;
 
         try {
             $discordSettings = $this->app->make(DiscordSettings::class);
