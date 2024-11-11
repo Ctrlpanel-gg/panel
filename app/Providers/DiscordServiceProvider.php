@@ -19,7 +19,7 @@ class DiscordServiceProvider extends ServiceProvider
         if (config('app.key') == null) return;
 
         try {
-            $discordSettings = app(DiscordSettings::class);
+            $discordSettings = $this->app->make(DiscordSettings::class);
                 // Retrieve Discord settings from the Spatie settings class
 
                 // Inject the settings into the config
