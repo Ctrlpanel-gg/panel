@@ -10,8 +10,8 @@ class CreateTicketSettings extends LegacySettingsMigration
         $table_exists = DB::table('settings_old')->exists();
 
         // Get the user-set configuration values from the old table.
-        $this->migrator->add('ticket.enabled', $table_exists ? $this->getOldValue('SETTINGS::TICKET:ENABLED') : 'true');
-        $this->migrator->add('ticket.notify', $table_exists ? $this->getOldValue('SETTINGS::TICKET:NOTIFY') : 'all');
+        $this->migrator->add('ticket.enabled', 'true');
+        $this->migrator->add('ticket.notify', 'all');
     }
 
     public function down(): void

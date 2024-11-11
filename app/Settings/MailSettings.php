@@ -19,6 +19,7 @@ class MailSettings extends Settings
     {
         return 'mail';
     }
+    /*
 
     public static function encrypted(): array
     {
@@ -26,7 +27,7 @@ class MailSettings extends Settings
             'mail_password',
         ];
     }
-
+*/
     public function setConfig()
     {
         try {

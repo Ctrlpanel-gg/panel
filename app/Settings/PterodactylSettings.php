@@ -15,7 +15,7 @@ class PterodactylSettings extends Settings
     {
         return 'pterodactyl';
     }
-
+/*
     public static function encrypted(): array
     {
         return [
@@ -23,7 +23,7 @@ class PterodactylSettings extends Settings
             'user_token',
         ];
     }
-
+*/
     /**
      * Get url with ensured ending backslash
      *
@@ -75,7 +75,7 @@ class PterodactylSettings extends Settings
             'per_page_limit' => [
                 'label' => 'Per Page Limit',
                 'type' => 'number',
-                'description' => 'The number of servers to show per page.',
+                'description' => 'The number of servers to show per page for the API call. Only change this when needed.',
             ],
         ];
     }

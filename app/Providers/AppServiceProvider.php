@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\UsefulLink;
+use App\Settings\DiscordSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\MailSettings;
 use Exception;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -36,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
         Schema::defaultStringLength(191);
+
+        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+            $event->extendSocialite('discord', \SocialiteProviders\Discord\Provider::class);
+        });
 
         Validator::extend('multiple_date_format', function ($attribute, $value, $parameters, $validator) {
             $ok = true;
@@ -103,6 +109,7 @@ class AppServiceProvider extends ServiceProvider
 
             $settings = $this->app->make(MailSettings::class);
             $settings->setConfig();
+
         } catch (Exception $e) {
             Log::error("Couldnt load Settings. Probably the installation is not completet. " . $e);
         }

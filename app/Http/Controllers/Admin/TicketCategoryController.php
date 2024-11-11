@@ -19,7 +19,7 @@ class TicketCategoryController extends Controller
      */
     public function index()
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
         $categories = TicketCategory::all();
         return view('admin.ticket.category')->with("categories",$categories);

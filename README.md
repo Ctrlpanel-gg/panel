@@ -62,7 +62,7 @@ Follow the [documentation](https://ctrlpanel.gg/docs/intro) to know how to insta
 
 ### MarketPlace
 
-If you need more functionality, check out [Marketplace](https://market.ctrlpanel.gg/resources/).
+If you need more functionality, check out [Marketplace](https://market.ctrlpanel.gg/).
 
 ## 🆙 How to Update
 

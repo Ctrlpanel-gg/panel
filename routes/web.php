@@ -1,10 +1,5 @@
 <?php
 
-use App\Classes\Settings\Invoices;
-use App\Classes\Settings\Language;
-use App\Classes\Settings\Misc;
-use App\Classes\Settings\Payments;
-use App\Classes\Settings\System;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
@@ -119,9 +114,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
     Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
     Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
-    Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:ticket-new'])->name('ticket.new.store');
+    Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:1,1'])->name('ticket.new.store');
     Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
-    Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:ticket-reply'])->name('ticket.reply');
+    Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:10,1'])->name('ticket.reply');
     Route::post('ticket/status/{ticket_id}', [TicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
 
 

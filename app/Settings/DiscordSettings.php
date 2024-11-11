@@ -12,6 +12,8 @@ class DiscordSettings extends Settings
     public ?string $guild_id;
     public ?string $invite_url;
     public ?string $role_id;
+    public ?bool $role_on_purchase;
+    public ?string $role_id_on_purchase;
 
     public static function group(): string
     {
@@ -31,6 +33,8 @@ class DiscordSettings extends Settings
             'guild_id' => 'nullable|string',
             'invite_url' => 'nullable|string|url',
             'role_id' => 'nullable|string',
+            'role_on_purchase' => 'nullable|string',
+            'role_id_on_purchase' => 'nullable|string',
         ];
     }
 
@@ -71,7 +75,22 @@ class DiscordSettings extends Settings
             'role_id' => [
                 'label' => 'Role ID',
                 'type' => 'string',
-                'description' => 'The role ID for your Discord server.',
+                'description' => 'Role to give users when linking their discord Account.',
+            ],
+
+            'role_on_purchase' => [
+                'label' => 'Role on Purchase',
+                'type' => 'select',
+                'options' => [
+                    '0' => 'Disabled',
+                    '1' => 'Enabled'
+                ],
+                'description' => 'Give the user a role on purchase of Credits/Servers (removes when user has no active servers)',
+            ],
+            'role_id_on_purchase' => [
+                'label' => 'Role ID on Purchase',
+                'type' => 'string',
+                'description' => 'The role ID for your Discord server on purchase.',
             ],
         ];
     }

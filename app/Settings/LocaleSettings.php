@@ -67,7 +67,7 @@ class LocaleSettings extends Settings
             'dynamic' => [
                 'label' => 'Dynamic Locale',
                 'type' => 'boolean',
-                'description' => 'Whether to use the dynamic locale.',
+                'description' => 'Whether to choose the language automatically based on the Geolocation of the client.',
             ],
         ];
     }

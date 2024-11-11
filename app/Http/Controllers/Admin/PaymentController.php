@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\PaymentStatus;
 use App\Events\CouponUsedEvent;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
@@ -108,7 +109,7 @@ class PaymentController extends Controller
             'payment_id' => uniqid(),
             'payment_method' => 'free',
             'type' => $shopProduct->type,
-            'status' => 'paid',
+            'status' => PaymentStatus::PAID,
             'amount' => $shopProduct->quantity,
             'price' => $shopProduct->price - ($shopProduct->price * PartnerDiscount::getDiscount() / 100),
             'tax_value' => $shopProduct->getTaxValue(),

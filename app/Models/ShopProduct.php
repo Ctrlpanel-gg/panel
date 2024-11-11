@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Settings\GeneralSettings;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
@@ -73,7 +74,8 @@ class ShopProduct extends Model
      */
     public function getTaxPercent()
     {
-        $tax = config('SETTINGS::PAYMENTS:SALES_TAX');
+        $generalSettings = new GeneralSettings();
+        $tax = $generalSettings->sales_tax;
 
         return $tax < 0 ? 0 : $tax;
     }

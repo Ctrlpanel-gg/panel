@@ -7,21 +7,21 @@ return [
 
     'All Permissions' => '*',
 
-    'View Roles' => 'admin.roles.read',
+    'View Roles Backend' => 'admin.roles.read',
     'Create Role' => 'admin.roles.create',
     'Edit Role' => 'admin.roles.edit',
     'Delete Role' => 'admin.roles.delete',
 
 
-    'View Tickets' => 'admin.ticket.read',
-    'Manage Ticket' => 'admin.tickets.write',
-    'Receive Ticket Notifications' => 'admin.tickets.get_notification',
+    'View Tickets Backend' => 'admin.tickets.read',
+    'Manage Ticket Backend' => 'admin.tickets.write',
+    'Receive new Ticket Notifications' => 'admin.tickets.get_notification',
 
     'Create Ticket Category' => 'admin.tickets.category.read',
-    'Manage Ticket Category' => 'admin.tickets.category.write',
+    'Manage Ticket Category Backend' => 'admin.tickets.category.write',
 
-    'View Blacklist Tickets' => 'admin.ticket_blacklist.read',
-    'Manage Blacklist Tickets' => 'admin.ticket_blacklist.write',
+    'View Ticket-Blacklist' => 'admin.ticket_blacklist.read',
+    'Manage Ticket-Blacklist' => 'admin.ticket_blacklist.write',
 
     'View Overview' => 'admin.overview.read',
     'Overview Sync' => 'admin.overview.sync',
@@ -29,54 +29,57 @@ return [
     'View Api Keys' => 'admin.api.read',
     'Manage Api Keys' => 'admin.api.write',
 
-    'View Users' => 'admin.users.read',
-    'Manage Users' => 'admin.users.write',
+    'View User List' => 'admin.users.read',
+    'Edit anything on User' => 'admin.users.write',
     'Suspend Users' => 'admin.users.suspend',
-    'Manage User Credits' => 'admin.users.write.credits',
-    'Manage User Name' => 'admin.users.write.username',
-    'Manage User Email' => 'admin.users.write.email',
-    'Manage User Password' => 'admin.users.write.password',
-    'Manage User Role' => 'admin.users.write.role',
-    'Manage User Referral' => 'admin.users.write.referral',
-    'Manage User Pterodactyl' => 'admin.users.write.pterodactyl',
+    'Edit User Credits' => 'admin.users.write.credits',
+    'Edit User Name' => 'admin.users.write.username',
+    'Edit User Email' => 'admin.users.write.email',
+    'Edit User Password' => 'admin.users.write.password',
+    'Edit User Role' => 'admin.users.write.role',
+    'Edit User Referral' => 'admin.users.write.referral',
+    'Edit User Pterodactyl' => 'admin.users.write.pterodactyl',
+    'Edit User Serverlimit' => 'admin.users.write.serverlimit',
+
+    "Manage Icons" => "admin.icons.edit",
 
     'Notify Users' => 'admin.users.notify',
     'Login As User' => 'admin.users.login_as',
     'Delete User' => 'admin.users.delete',
 
-    'View Servers' => 'admin.servers.read',
-    'Manage Servers' => 'admin.servers.write',
-    'Suspend Server' => 'admin.servers.suspend',
-    'Change Server Owner' => 'admin.servers.write.owner',
-    'Manage Server Identifier' => 'admin.servers.write.identifier',
-    'Create Server' => 'admin.servers.bypass_creation_enabled',
-    'Delete Server' => 'admin.servers.delete',
+    'View Server List' => 'admin.servers.read',
+    'Manage all Servers' => 'admin.servers.write',
+    'Suspend any Server' => 'admin.servers.suspend',
+    'Change any Servers Owner' => 'admin.servers.write.owner',
+    'Manage any Servers Identifier' => 'admin.servers.write.identifier',
+    'Bypass Server-creation restriction ' => 'admin.servers.bypass_creation_enabled',
+    'Delete any Servers' => 'admin.servers.delete',
 
-    'View Products' => 'admin.products.read',
+    'View Product List' => 'admin.products.read',
     'Create Product' => 'admin.products.create',
     'Edit Product' => 'admin.products.edit',
     'Delete Product' => 'admin.products.delete',
 
-    'View Store' => 'admin.store.read',
-    'Manage Store' => 'admin.store.write',
+    'View Store Backend' => 'admin.store.read',
+    'Manage Store Backend' => 'admin.store.write',
     'Disable Store' => 'admin.store.disable',
 
-    'View Vouchers' => 'admin.voucher.read',
-    'Manage Voucher' => 'admin.voucher.write',
+    'View Vouchers Backend' => 'admin.voucher.read',
+    'Manage Voucher Backend' => 'admin.voucher.write',
 
-    'View Useful Links' => 'admin.useful_links.read',
-    'Manage Useful Links' => 'admin.useful_links.write',
+    'View Useful Links Backend' => 'admin.useful_links.read',
+    'Manage Useful Links Backend' => 'admin.useful_links.write',
 
-    'View Legal' => 'admin.legal.read',
-    'Manage Legal' => 'admin.legal.write',
+    'View Legal Backend' => 'admin.legal.read',
+    'Manage Legal Backend' => 'admin.legal.write',
 
-    'View Payments' => 'admin.payments.read',
+    'View Payments Backend' => 'admin.payments.read',
 
-    'View Partners' => 'admin.partners.read',
-    'Manage Partners' => 'admin.partners.write',
+    'View Partners Backend' => 'admin.partners.read',
+    'Manage Partners Backend' => 'admin.partners.write',
 
-    'View Coupons' => 'admin.coupons.read',
-    'Manage Coupons' => 'admin.coupons.write',
+    'View Coupons Backend' => 'admin.coupons.read',
+    'Manage Coupons Backend' => 'admin.coupons.write',
 
     'View Logs' => 'admin.logs.read',
 
@@ -119,20 +122,22 @@ return [
     'View Paypal Settings' => 'settings.paypal.read',
     'Manage Paypal Settings' => 'settings.paypal.write',
 
+    'View Mercado Pago Settings' => 'settings.mercadopago.read',
+    'Manage Mercado Pago Settings' => 'settings.mercadopago.write',
+
     'View Stripe Settings' => 'settings.stripe.read',
     'Manage Stripe Settings' => 'settings.stripe.write',
 
     'View Mollie Settings' => 'settings.mollie.read',
     'Manage Mollie Settings' => 'settings.mollie.write',
 
-
     /*
      * Permissions for users
     */
-    'User Create Server' => 'user.server.create',
-    'User Upgrade Server' => 'user.server.upgrade',
-    'User Shop Buy' => 'user.shop.buy',
-    'User View Tickets' => 'user.ticket.read',
-    'User Manage Ticket' => 'user.ticket.write',
-    'User View Referral' => 'user.referral',
+    'Customer Create Server' => 'user.server.create',
+    'Customer Upgrade Server' => 'user.server.upgrade',
+    'Customer Shop Buy' => 'user.shop.buy',
+    'Customer View Supportticket' => 'user.ticket.read',
+    'Customer Write Supportticket' => 'user.ticket.write',
+    'Customer View Referral' => 'user.referral',
 ];

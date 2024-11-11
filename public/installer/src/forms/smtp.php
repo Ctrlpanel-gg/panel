@@ -1,8 +1,10 @@
 <?php
 
+use DevCoder\DotEnv;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
-use Predis\Client;
+
+(new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
 
 require './src/phpmailer/Exception.php';
 require './src/phpmailer/PHPMailer.php';

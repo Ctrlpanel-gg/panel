@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Notifications\Ticket\Admin\AdminCreateNotification;
 use App\Notifications\Ticket\Admin\AdminReplyNotification;
 use App\Notifications\Ticket\User\CreateNotification;
+use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Settings\TicketSettings;
@@ -33,18 +34,20 @@ class TicketsController extends Controller
         ]);
     }
 
-    public function store(Request $request, TicketSettings $ticket_settings)
+    public function store(Request $request, GeneralSettings $generalSettings)
     {
-        $this->validate(
-            $request,
-            [
-                'title' => 'required',
-                'ticketcategory' => 'required',
-                'priority' => 'required',
-                'message' => 'required',
-                'g-recaptcha-response' => ['required', 'recaptcha'],
-            ]
-        );
+        $validateData = [
+            'title' => 'required|string|max:255',
+            'ticketcategory' => 'required|numeric',
+            'priority' => ['required', 'in:Low,Medium,High'],
+            'message' => 'required|string|min:10|max:2000',
+        ];
+
+        if ($generalSettings->recaptcha_enabled) {
+            $validateData['g-recaptcha-response'] = ['required', 'recaptcha'];
+        }
+
+        $this->validate($request, $validateData);
         $ticket = new Ticket(
             [
                 'title' => $request->input('title'),

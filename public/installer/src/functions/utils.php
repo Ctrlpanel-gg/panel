@@ -1,6 +1,9 @@
 <?php
 
+use DevCoder\DotEnv;
 use Illuminate\Encryption\Encrypter;
+
+(new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
 
 /**
  * Encrypt the given value

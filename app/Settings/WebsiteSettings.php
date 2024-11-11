@@ -91,7 +91,7 @@ class WebsiteSettings extends Settings
             'seo_description' => [
                 'label' => 'SEO Description',
                 'type' => 'string',
-                'description' => 'The description of the website.',
+                'description' => 'The description of the website shown in the Meta tag (for example when sending the URL in discord).',
             ],
             'enable_login_logo' => [
                 'label' => 'Enable Login Logo',

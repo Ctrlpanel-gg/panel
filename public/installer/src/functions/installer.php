@@ -11,6 +11,7 @@ function next_step(): void
 {
     $_SESSION['current_installation_step']++;
     header("LOCATION: index.php");
+    exit();
 }
 
 ?>

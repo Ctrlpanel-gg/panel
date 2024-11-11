@@ -31,7 +31,8 @@ class RoleController extends Controller
     public function index(Request $request)
     {
 
-        $this->checkPermission(self::READ_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $this->checkAnyPermission($allConstants);
 
         //datatables
         if ($request->ajax()) {
@@ -72,7 +73,8 @@ class RoleController extends Controller
         ]);
 
         if ($request->permissions) {
-            $role->givePermissionTo($request->permissions);
+            $collectedPermissions = collect($request->permissions)->map(fn($val)=>(int)$val);
+            $role->givePermissionTo($collectedPermissions);
         }
 
         return redirect()
@@ -123,7 +125,8 @@ class RoleController extends Controller
 
         if ($request->permissions) {
             if($role->id != 1){ //disable admin permissions change
-                $role->syncPermissions($request->permissions);
+                $collectedPermissions = collect($request->permissions)->map(fn($val)=>(int)$val);
+                $role->syncPermissions($collectedPermissions);
             }
         }
 
@@ -134,7 +137,8 @@ class RoleController extends Controller
         //}else{
             $role->update([
                 'name' => $request->name,
-                'color' => $request->color
+                'color' => $request->color,
+                'power' => $request->power
             ]);
         //}
 
