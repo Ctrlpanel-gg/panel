@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
-use App\Traits\Referral;
+use App\Settings\UserSettings;
 use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,11 +28,9 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
-    use Referral;
+    const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'roles', 'discordUser'];
 
-    const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'discordUser'];
-
-    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'role', 'suspended'];
+    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
 
     /**
      * Display a listing of the resource.
@@ -88,14 +86,13 @@ class UserController extends Controller
             'email' => 'sometimes|string|email',
             'credits' => 'sometimes|numeric|min:0|max:1000000',
             'server_limit' => 'sometimes|numeric|min:0|max:1000000',
-            'role' => ['sometimes', Rule::in(['admin', 'moderator', 'client', 'member'])],
         ]);
 
         event(new UserUpdateCreditsEvent($user));
 
         //Update Users Password on Pterodactyl
         //Username,Mail,First and Lastname are required aswell
-        $response = Pterodactyl::client()->patch('/application/users/' . $user->pterodactyl_id, [
+        $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
             'username' => $request->name,
             'first_name' => $request->name,
             'last_name' => $request->name,
@@ -108,7 +105,11 @@ class UserController extends Controller
                 'pterodactyl_error_status' => $response->toException()->getCode(),
             ]);
         }
-        $user->update($request->all());
+        if($request->has("role")){
+            $collectedRoles = collect($request->role)->map(fn($val)=>(int)$val);
+            $user->syncRoles($collectedRoles);
+        }
+        $user->update($request->except('role'));
 
         return $user;
     }
@@ -232,7 +233,7 @@ class UserController extends Controller
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
 
-        if (!$user->isSuspended()) {
+        if (! $user->isSuspended()) {
             throw ValidationException::withMessages([
                 'error' => 'You cannot unsuspend an User who is not suspended.',
             ]);
@@ -244,9 +245,24 @@ class UserController extends Controller
     }
 
     /**
+     * Create a unique Referral Code for User
+     *
+     * @return string
+     */
+    protected function createReferralCode()
+    {
+        $referralcode = STR::random(8);
+        if (User::where('referral_code', '=', $referralcode)->exists()) {
+            $this->createReferralCode();
+        }
+
+        return $referralcode;
+    }
+
+    /**
      * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request, UserSettings $userSettings)
     {
         $request->validate([
             'name' => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
@@ -255,7 +271,7 @@ class UserController extends Controller
         ]);
 
         // Prevent the creation of new users via API if this is enabled.
-        if (!config('SETTINGS::SYSTEM:CREATION_OF_NEW_USERS', 'true')) {
+        if (! $userSettings->creation_enabled) {
             throw ValidationException::withMessages([
                 'error' => 'The creation of new users has been blocked by the system administrator.',
             ]);
@@ -293,7 +309,7 @@ class UserController extends Controller
             'pterodactyl_id' => $response->json()['attributes']['id'],
         ]);
         //INCREMENT REFERRAL-USER CREDITS
-        if (!empty($request->input('referral_code'))) {
+        if (! empty($request->input('referral_code'))) {
             $ref_code = $request->input('referral_code');
             $new_user = $user->id;
             if ($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {

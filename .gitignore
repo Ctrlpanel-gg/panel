@@ -1,28 +1,38 @@
+# Ignore dependencies and cache
+/.idea
 /node_modules
+/vendor
+/storage/*.key
+
+# Ignore public assets
 /public/hot
 /public/storage
-/storage/*.key
-/vendor
-/storage/credit_deduction_log
-storage/debugbar
+/storage/app/public/logo.png
+
+# Ignore environment files and configuration
 .env
 .env.testing
 .env.backup
-.idea
+.env.dev
+
+# Ignore testing and debug logs
 .phpunit.result.cache
-docker-compose.override.yml
-Homestead.json
-Homestead.yaml
 npm-debug.log
 yarn-error.log
 yarn.lock
+
+# Ignore Docker and Homestead configuration
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+
+# Ignore gitignore itself
 .gitignore
-.env.dev
-.env.testing
-storage/invoices.zip
-storage/app/public/logo.png
-*vscode
- - Kopie.env
+
+# Ignore installation logs and locks
 public/install/logs.txt
 install.lock
 public/install/logs/installer.log
+
+/.idea
+cpggdatabase.sql

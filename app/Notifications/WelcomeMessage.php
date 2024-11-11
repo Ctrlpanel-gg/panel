@@ -23,6 +23,9 @@ class WelcomeMessage extends Notification implements ShouldQueue
      */
     public function __construct(User $user)
     {
+        $general_settings= new GeneralSettings();
+        $user_settings = new UserSettings();
+
         $this->user = $user;
     }
 

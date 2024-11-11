@@ -18,7 +18,7 @@
 
 <ol>
     <li>AGREEMENT TO TERMS</li>
-    <li>NTELLECTUAL PROPERTY RIGHTS</li>
+    <li>INTELLECTUAL PROPERTY RIGHTS</li>
     <li>USER REPRESENTATIONS</li>
     <li>USER REGISTRATION</li>
     <li>PRODUCTS</li>
@@ -145,6 +145,10 @@
 <p></p>
 
 <p>- PayPal</p>
+
+<p>- Stripe</p>
+
+<p>- Mollie</p>
 
 <p></p>
 

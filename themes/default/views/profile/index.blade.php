@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Profile') }}</h1>
                 </div>
@@ -26,9 +26,9 @@
         <div class="container-fluid">
 
             <div class="row">
-                <div class="col-lg-12 px-0">
-                    @if (!Auth::user()->hasVerifiedEmail() && strtolower($force_email_verification) == 'true')
-                        <div class="alert alert-warning p-2 m-2">
+                <div class="px-0 col-lg-12">
+                    @if (!Auth::user()->hasVerifiedEmail() && $force_email_verification)
+                        <div class="p-2 m-2 alert alert-warning">
                             <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Required Email verification!') }}
                             </h5>
                             {{ __('You have not yet verified your email address') }}
@@ -40,9 +40,9 @@
                         </div>
                     @endif
 
-                    @if (is_null(Auth::user()->discordUser) && strtolower($force_discord_verification) == 'true')
-                        @if (!empty(config('SETTINGS::DISCORD:CLIENT_ID')) && !empty(config('SETTINGS::DISCORD:CLIENT_SECRET')))
-                            <div class="alert alert-warning p-2 m-2">
+                    @if (is_null(Auth::user()->discordUser) && $force_discord_verification)
+                        @if (!empty($discord_client_id) && !empty($discord_client_secret))
+                            <div class="p-2 m-2 alert alert-warning">
                                 <h5>
                                     <i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
@@ -52,7 +52,7 @@
                                 {{ __('Please contact support If you face any issues.') }}
                             </div>
                         @else
-                            <div class="alert alert-danger p-2 m-2">
+                            <div class="p-2 m-2 alert alert-danger">
                                 <h5>
                                     <i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
@@ -72,8 +72,8 @@
                     <div class="card-body">
                         <div class="e-profile">
                             <div class="row">
-                                <div class="col-12 col-sm-auto mb-4">
-                                    <div class="slim rounded-circle  border-secondary border text-gray-dark"
+                                <div class="mb-4 col-12 col-sm-auto">
+                                    <div class="border slim rounded-circle border-secondary text-gray-dark"
                                          data-label="Change your avatar" data-max-file-size="3"
                                          data-save-initial-image="true"
                                          style="width: 140px;height:140px; cursor: pointer"
@@ -81,9 +81,9 @@
                                         <img src="{{ $user->getAvatar() }}" alt="avatar">
                                     </div>
                                 </div>
-                                <div class="col d-flex flex-column flex-sm-row justify-content-between mb-3">
-                                    <div class="text-center text-sm-left mb-2 mb-sm-0">
-                                        <h4 class="pt-sm-2 pb-1 mb-0 text-nowrap">{{ $user->name }}</h4>
+                                <div class="mb-3 col d-flex flex-column flex-sm-row justify-content-between">
+                                    <div class="mb-2 text-center text-sm-left mb-sm-0">
+                                        <h4 class="pb-1 mb-0 pt-sm-2 text-nowrap">{{ $user->name }}</h4>
                                         <p class="mb-0">{{ $user->email }}
                                             @if ($user->hasVerifiedEmail())
                                                 <i data-toggle="popover" data-trigger="hover" data-content="Verified"
@@ -97,29 +97,31 @@
                                         </p>
                                         <div class="mt-1">
                                             <span class="badge badge-primary"><i
-                                                    class="fa fa-coins mr-2"></i>{{ $user->Credits() }}</span>
+                                                    class="mr-2 fa fa-coins"></i>{{ $user->Credits() }}</span>
                                         </div>
 
-                                    @if(config('SETTINGS::REFERRAL::ENABLED') == "true")
-                                        @if((config('SETTINGS::REFERRAL::ALLOWED') == "client" && $user->role != "member") || config('SETTINGS::REFERRAL::ALLOWED') == "everyone")
+                                    @if($referral_enabled)
+                                        @can("user.referral")
                                             <div class="mt-1">
                                                     <span class="badge badge-success"><i
-                                                            class="fa fa-user-check mr-2"></i>
-                                                        {{_("Referral URL")}} :
+                                                            class="mr-2 fa fa-user-check"></i>
+                                                        {{__("Referral URL")}} :
                                                         <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
                                                             {{route("register")}}?ref={{$user->referral_code}}</span>
                                                     </span>
                                                 @else
                                                     <span class="badge badge-warning"><i
-                                                            class="fa fa-user-check mr-2"></i>
-                                                        {{_("Make a purchase to reveal your referral-URL")}}</span>
-                                        @endif
+                                                            class="mr-2 fa fa-user-check"></i>
+                                                        {{__("You can not see your Referral Code")}}</span>
+                                        @endcan
                                             </div>
                                         @endif
                                         </div>
 
-                                        <div class="text-center text-sm-right"><span
-                                                class="badge {{$badgeColor}}">{{ $user->role }}</span>
+                                        <div class="text-center text-sm-right">
+                                            @foreach ($user->roles as $role)
+                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                            @endforeach
                                             <div class="text-muted">
                                                 <small>{{ $user->created_at->isoFormat('LL') }}</small>
                                             </div>
@@ -136,7 +138,7 @@
                                                             class="active nav-link">{{ __('Settings') }}</a>
                                     </li>
                                 </ul>
-                                <div class="tab-content pt-3">
+                                <div class="pt-3 tab-content">
                                     <div class="tab-pane active">
                                         <div class="row">
                                             <div class="col">
@@ -187,7 +189,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-12 col-sm-6 mb-3">
+                                            <div class="mb-3 col-12 col-sm-6">
                                                 <div class="mb-3"><b>{{ __('Change Password') }}</b></div>
                                                 <div class="row">
                                                     <div class="col">
@@ -239,8 +241,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if (!empty(config('SETTINGS::DISCORD:CLIENT_ID')) && !empty(config('SETTINGS::DISCORD:CLIENT_SECRET')))
-                                                <div class="col-12 col-sm-5 offset-sm-1 mb-3">
+                                            @if (!empty($discord_client_id) && !empty($discord_client_secret))
+                                                <div class="mb-3 col-12 col-sm-5 offset-sm-1">
                                                     @if (is_null(Auth::user()->discordUser))
                                                         <b>{{ __('Link your discord account!') }}</b>
                                                         <div class="verify-discord">
@@ -253,7 +255,7 @@
                                                         </div>
 
                                                         <a class="btn btn-light" href="{{ route('auth.redirect') }}">
-                                                            <i class="fab fa-discord mr-2"></i>{{ __('Login with Discord') }}
+                                                            <i class="mr-2 fab fa-discord"></i>{{ __('Login with Discord') }}
                                                         </a>
                                                     @else
                                                         <div class="verified-discord">
@@ -261,7 +263,7 @@
                                                                 <p>{{ __('You are verified!') }}</p>
                                                             </div>
                                                         </div>
-                                                        <div class="row pl-2">
+                                                        <div class="pl-2 row">
                                                             <div class="small-box bg-dark">
                                                                 <div class="d-flex justify-content-between">
                                                                     <div class="p-3">
@@ -280,7 +282,7 @@
                                                                 <div class="small-box-footer">
                                                                     <a href="{{ route('auth.redirect') }}">
                                                                         <i
-                                                                            class="fab fa-discord mr-1"></i>{{ __('Re-Sync Discord') }}
+                                                                            class="mr-1 fab fa-discord"></i>{{ __('Re-Sync Discord') }}
                                                                     </a>
                                                                 </div>
                                                             </div>
@@ -302,8 +304,9 @@
                             </div>
                         </div>
                     </div>
-                </form>
 
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                </form>
 
             </div>
             <!-- END CUSTOM CONTENT -->
@@ -365,4 +368,3 @@
         }
     </script>
     @endsection
-

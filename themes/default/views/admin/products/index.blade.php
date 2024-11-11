@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Products')}}</h1>
                 </div>
@@ -30,9 +30,9 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
 
-                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Products')}}</h5>
+                        <h5 class="card-title"><i class="mr-2 fas fa-sliders-h"></i>{{__('Products')}}</h5>
                         <a href="{{route('admin.products.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
+                                class="mr-1 fas fa-plus"></i>{{__('Create new')}}</a>
                     </div>
                 </div>
 
@@ -44,12 +44,14 @@
                             <th>{{__('Active')}}</th>
                             <th>{{__('Name')}}</th>
                             <th>{{__('Price')}}</th>
+                            <th>{{__('Billing period')}}</th>
                             <th>{{__('Memory')}}</th>
                             <th>{{__('Cpu')}}</th>
                             <th>{{__('Swap')}}</th>
                             <th>{{__('Disk')}}</th>
                             <th>{{__('Databases')}}</th>
                             <th>{{__('Backups')}}</th>
+                            <th>{{__('OOM Killer')}}</th>
                             <th>{{__('Nodes')}}</th>
                             <th>{{__('Eggs')}}</th>
                             <th>{{__('Min Credits')}}</th>
@@ -92,12 +94,14 @@
                     {data: "disabled"},
                     {data: "name"},
                     {data: "price"},
+                    {data: "billing_period"},
                     {data: "memory"},
                     {data: "cpu"},
                     {data: "swap"},
                     {data: "disk"},
                     {data: "databases"},
                     {data: "backups"},
+                    {data: "oom_killer"},
                     {data: "nodes", sortable: false},
                     {data: "eggs", sortable: false},
                     {data: "minimum_credits"},

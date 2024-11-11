@@ -33,7 +33,7 @@
                     @else
                         <div class="callout callout-danger">
                             <h4>{{ __('No recent activity from cronjobs')}}</h4>
-                            <p>{{ __('Are cronjobs running?')}} <a class="text-primary" target="_blank" href="https://ctrlpanel.gg/docs/Installation/getting-started#crontab-configuration">{{ __('Check the docs for it here')}}</a></p>
+                            <p>{{ __('Are cronjobs running?')}} <a class="text-primary" target="_blank" href="https://CtrlPanel.gg/docs/Installation/getting-started#crontab-configuration">{{ __('Check the docs for it here')}}</a></p>
                         </div>
                     @endif
 
@@ -56,6 +56,8 @@
                                         <button class="btn btn-light btn-sm" type="submit"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </form>
                         </div>
                     </div>

@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use App\Classes\Pterodactyl;
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
+use App\Classes\PterodactylClient;
+use App\Settings\PterodactylSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,16 +13,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class User
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, LogsActivity, CausesActivity;
+    use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles;
+
+    private PterodactylClient $pterodactyl;
 
     /**
      * @var string[]
@@ -61,7 +67,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',
         'suspended',
         'referral_code',
-        'email_verified_reward'
+        'email_verified_reward',
     ];
 
     /**
@@ -86,6 +92,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'server_limit' => 'float',
         'email_verified_reward' => 'boolean'
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $ptero_settings = new PterodactylSettings();
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
 
     public static function boot()
     {
@@ -113,7 +127,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->discordUser()->delete();
 
-            Pterodactyl::client()->delete("/application/users/{$user->pterodactyl_id}");
+            $user->pterodactyl->application->delete("/application/users/{$user->pterodactyl_id}");
         });
     }
 
@@ -158,6 +172,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * @return BelongsToMany
+     */
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class, 'user_coupons');
+    }
+
+    /**
      * @return HasOne
      */
     public function discordUser()
@@ -167,7 +189,19 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new QueuedVerifyEmail);
+        // Rate limit the email verification notification to 1 attempt per 30 minutes
+        $executed = RateLimiter::attempt(
+            key: 'verify-mail'. $this->id,
+            maxAttempts: 1,
+            callback: function() {
+                $this->notify(new QueuedVerifyEmail);
+            },
+            decaySeconds: 1800
+        );
+
+        if (! $executed) {
+            return response()->json(['message' => 'Too many requests, try again in: ' . RateLimiter::availableIn('verify-mail:'. $this->id) . ' seconds'], 429);
+        }
     }
 
     /**
@@ -186,9 +220,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->suspended;
     }
 
-    /**
-     * @throws Exception
-     */
     public function suspend()
     {
         foreach ($this->servers as $server) {
@@ -202,9 +233,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this;
     }
 
-    /**
-     * @throws Exception
-     */
     public function unSuspend()
     {
         foreach ($this->getServersWithProduct() as $server) {
@@ -220,43 +248,32 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this;
     }
 
-    private function getServersWithProduct()
-    {
-        return $this->servers()
-            ->with('product')
-            ->get();
-    }
 
     /**
      * @return string
      */
     public function getAvatar()
     {
-        //TODO loading the images to confirm they exist is causing to much load time. alternative has to be found :) maybe onerror tag on the <img tags>
-        //        if ($this->discordUser()->exists()) {
-        //            if(@getimagesize($this->discordUser->getAvatar())) {
-        //                $avatar = $this->discordUser->getAvatar();
-        //            } else {
-        //                $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-        //            }
-        //        } else {
-        //            $avatar = "https://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email)));
-        //        }
-
         return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email)));
     }
 
-    /**
-     * @return string
-     */
     public function creditUsage()
     {
         $usage = 0;
         foreach ($this->getServersWithProduct() as $server) {
-            $usage += $server->product->price;
+            $usage += $server->product->getHourlyPrice() * 24 * 30;
         }
 
         return number_format($usage, 2, '.', '');
+    }
+
+    private function getServersWithProduct()
+    {
+        return $this->servers()
+            ->whereNull('suspended')
+            ->whereNull('canceled')
+            ->with('product')
+            ->get();
     }
 
     /**
@@ -279,7 +296,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function verifyEmail()
     {
         $this->forceFill([
-            'email_verified_at' => now(),
+            'email_verified_at' => now()
         ])->save();
     }
 
@@ -288,6 +305,17 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->forceFill([
             'email_verified_at' => null
         ])->save();
+    }
+
+    public function referredBy()
+    {
+        $referee = DB::table('user_referrals')->where("registered_user_id", $this->id)->first();
+
+        if ($referee) {
+            $referee = User::where("id", $referee->referral_id)->firstOrFail();
+            return $referee;
+        }
+        return Null;
     }
 
     public function getActivitylogOptions(): LogOptions

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\UsefulLinkLocation;
 use App\Http\Controllers\Controller;
 use App\Models\UsefulLink;
+use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -14,14 +15,19 @@ use Illuminate\Http\Response;
 
 class UsefulLinkController extends Controller
 {
+    const READ_PERMISSION = "admin.useful_links.read";
+    const WRITE_PERMISSION = "admin.useful_links.write";
     /**
      * Display a listing of the resource.
      *
      * @return Application|Factory|View|Response
      */
-    public function index()
+    public function index(LocaleSettings $locale_settings)
     {
-        return view('admin.usefullinks.index');
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+        return view('admin.usefullinks.index', [
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     /**
@@ -31,6 +37,7 @@ class UsefulLinkController extends Controller
      */
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $positions = UsefulLinkLocation::cases();
         return view('admin.usefullinks.create')->with('positions', $positions);
     }
@@ -81,6 +88,8 @@ class UsefulLinkController extends Controller
      */
     public function edit(UsefulLink $usefullink)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $positions = UsefulLinkLocation::cases();
         return view('admin.usefullinks.edit', [
             'link' => $usefullink,
@@ -123,6 +132,7 @@ class UsefulLinkController extends Controller
      */
     public function destroy(UsefulLink $usefullink)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $usefullink->delete();
 
         return redirect()->back()->with('success', __('product has been removed!'));

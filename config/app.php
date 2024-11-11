@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
-    'version' => '0.9.8',
+    'version' => '0.10',
 
     /*
     |--------------------------------------------------------------------------
@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Ctrlpanel.gg'),
+    'name' => env('APP_NAME', 'CtrlPanel.gg'),
 
     /*
     |--------------------------------------------------------------------------
@@ -210,9 +210,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
-
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
-
+        Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
+        App\Providers\DiscordServiceProvider::class,
     ],
 
     /*

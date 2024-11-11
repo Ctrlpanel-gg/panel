@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Settings\GeneralSettings;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
@@ -36,6 +37,13 @@ class ShopProduct extends Model
         'disabled',
     ];
 
+    /**
+     * @var string[]
+     */
+    protected $casts = [
+        'price' => 'float'
+    ];
+
     public static function boot()
     {
         parent::boot();
@@ -66,14 +74,17 @@ class ShopProduct extends Model
      */
     public function getTaxPercent()
     {
-        $tax = config('SETTINGS::PAYMENTS:SALES_TAX');
+        $generalSettings = new GeneralSettings();
+        $tax = $generalSettings->sales_tax;
 
         return $tax < 0 ? 0 : $tax;
     }
 
     public function getPriceAfterDiscount()
     {
-        return number_format($this->price - ($this->price * PartnerDiscount::getDiscount() / 100), 2);
+        $discountRate = PartnerDiscount::getDiscount() / 100;
+        $discountedPrice = $this->price * (1 - $discountRate);
+        return round($discountedPrice, 2);
     }
 
     /**
@@ -83,7 +94,8 @@ class ShopProduct extends Model
      */
     public function getTaxValue()
     {
-        return number_format($this->getPriceAfterDiscount() * $this->getTaxPercent() / 100, 2);
+        $taxValue = $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
+        return round($taxValue, 2);
     }
 
     /**
@@ -93,6 +105,7 @@ class ShopProduct extends Model
      */
     public function getTotalPrice()
     {
-        return number_format($this->getPriceAfterDiscount() + $this->getTaxValue(), 2);
+        $total = $this->getPriceAfterDiscount() + $this->getTaxValue();
+        return round($total, 2);
     }
 }

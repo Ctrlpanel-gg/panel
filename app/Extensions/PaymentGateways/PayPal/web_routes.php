@@ -1,18 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-include_once(__DIR__ . '/index.php');
+use App\Extensions\PaymentGateways\PayPal\PayPalExtension;
 
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('payment/PayPalPay/{shopProduct}', function () {
-        PaypalPay(request());
-    })->name('payment.PayPalPay');
-
     Route::get(
         'payment/PayPalSuccess',
         function () {
-            PaypalSuccess(request());
+            PayPalExtension::PaypalSuccess(request());
         }
     )->name('payment.PayPalSuccess');
 });

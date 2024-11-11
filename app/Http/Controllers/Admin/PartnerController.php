@@ -5,13 +5,21 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PartnerDiscount;
 use App\Models\User;
+use App\Settings\LocaleSettings;
+use App\Settings\ReferralSettings;
 use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
-    public function index()
+    const READ_PERMISSION = "admin.partners.read";
+    const WRITE_PERMISSION = "admin.partners.write";
+    public function index(LocaleSettings $locale_settings)
     {
-        return view('admin.partners.index');
+        $this->checkAnyPermission([self::WRITE_PERMISSION,self::READ_PERMISSION]);
+
+        return view('admin.partners.index', [
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     /**
@@ -21,6 +29,8 @@ class PartnerController extends Controller
      */
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.partners.create', [
             'partners' => PartnerDiscount::get(),
             'users' => User::orderBy('name')->get(),
@@ -58,6 +68,8 @@ class PartnerController extends Controller
      */
     public function edit(PartnerDiscount $partner)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.partners.edit', [
             'partners' => PartnerDiscount::get(),
             'partner' => $partner,
@@ -94,6 +106,8 @@ class PartnerController extends Controller
      */
     public function destroy(PartnerDiscount $partner)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $partner->delete();
 
         return redirect()->back()->with('success', __('partner has been removed!'));
@@ -108,29 +122,30 @@ class PartnerController extends Controller
         return datatables($query)
             ->addColumn('actions', function (PartnerDiscount $partner) {
                 return '
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.partners.edit', $partner->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.partners.edit', $partner->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.partners.destroy', $partner->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })
             ->addColumn('user', function (PartnerDiscount $partner) {
-                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id).'">'.$user->name.'</a>' : __('Unknown user');
+                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id) . '">' . $user->name . '</a>' : __('Unknown user');
             })
             ->editColumn('created_at', function (PartnerDiscount $partner) {
                 return $partner->created_at ? $partner->created_at->diffForHumans() : '';
             })
             ->editColumn('partner_discount', function (PartnerDiscount $partner) {
-                return $partner->partner_discount ? $partner->partner_discount.'%' : '0%';
+                return $partner->partner_discount ? $partner->partner_discount . '%' : '0%';
             })
             ->editColumn('registered_user_discount', function (PartnerDiscount $partner) {
-                return $partner->registered_user_discount ? $partner->registered_user_discount.'%' : '0%';
+                return $partner->registered_user_discount ? $partner->registered_user_discount . '%' : '0%';
             })
-            ->editColumn('referral_system_commission', function (PartnerDiscount $partner) {
-                return $partner->referral_system_commission >= 0 ? $partner->referral_system_commission.'%' : __('Default').' ('.config('SETTINGS::REFERRAL:PERCENTAGE').'%)';
+            ->editColumn('referral_system_commission', function (PartnerDiscount $partner, ReferralSettings $referral_settings) {
+                return $partner->referral_system_commission >= 0 ? $partner->referral_system_commission . '%' : __('Default') . ' ('.$referral_settings->percentage . '%)';
             })
+            ->orderColumn('user', 'user_id $1')
             ->rawColumns(['user', 'actions'])
             ->make();
     }

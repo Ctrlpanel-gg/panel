@@ -30,8 +30,8 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-between">
                                 <h5 class="card-title"><i class="fas fa-ticket-alt mr-2"></i>{{__('My Ticket')}}</h5>
-                                <a href="{{route('ticket.new')}}" class="btn btn-sm btn-primary"><i
-                                        class="fas fa-plus mr-1"></i>{{__('New Ticket')}}</a>
+                                <a href="{{route('ticket.new')}}" class="btn btn-sm btn-primary @cannot("user.ticket.write")) disabled @endcannot">
+                                    <i class="fas fa-plus mr-1"></i>{{__('New Ticket')}}</a>
                             </div>
                         </div>
                         <div class="card-body table-responsive">
@@ -66,8 +66,7 @@
 
                         </div>
                         <div class="card-body">
-                            <p>{{__("Can't start your server? Need an additional port? Do you have any other questions? Let us know by
-                                opening a ticket.")}}</p>
+                            <p>{!! $ticketsettings->information !!}</p>
 
                         </div>
                     </div>

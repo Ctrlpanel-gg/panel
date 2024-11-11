@@ -44,14 +44,16 @@
                                     </span>
                                     @endif
                                 </div>
-                                @if ($servers->count() >= 1)
+
                                 <div class="form-group col-sm-12 {{ $errors->has('server') ? ' has-error' : '' }}">
                                     <label for="server" class="control-label">{{__("Server")}}</label>
                                     <select id="server" type="server" class="form-control" name="server">
-                                        <option value="">{{__("Select Servers")}}</option>
+                                      <option value="">{{ __("No Server") }}</option>
+                                      @if ($servers->count() >= 1)
                                         @foreach ($servers as $server)
                                         <option value="{{ $server->id }}">{{ $server->name }}</option>
                                         @endforeach
+                                        @endif
                                     </select>
 
                                     @if ($errors->has('category'))
@@ -60,7 +62,7 @@
                                     </span>
                                     @endif
                                 </div>
-                                @endif
+
                                 <div class="form-group col-sm-12 {{ $errors->has('ticketcategory') ? ' has-error' : '' }}">
                                     <label for="ticketcategory" class="control-label">{{__("Category")}}</label>
                                     <select id="ticketcategory" type="ticketcategory" class="form-control" required name="ticketcategory">
@@ -90,6 +92,17 @@
                                     </span>
                                     @endif
                                 </div>
+                                @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
+                                    <div class="input-group mb-3">
+                                        {!! htmlScriptTagJsApi() !!}
+                                        {!! htmlFormSnippet() !!}
+                                        @error('g-recaptcha-response')
+                                        <span class="text-danger" role="alert">
+                                            <small><strong>{{ $message }}</strong></small>
+                                        </span>
+                                        @enderror
+                                    </div>
+                                @endif
                             </div>
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary ticket-once">
@@ -119,6 +132,8 @@
                         </div>
                     </div>
                 </div>
+
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
             </form>
         </div>
     </section>
@@ -132,4 +147,3 @@
 
     </script>
 @endsection
-

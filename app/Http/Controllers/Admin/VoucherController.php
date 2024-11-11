@@ -6,6 +6,8 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Voucher;
+use App\Settings\GeneralSettings;
+use App\Settings\LocaleSettings;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -17,14 +19,21 @@ use Illuminate\Validation\ValidationException;
 
 class VoucherController extends Controller
 {
+    const READ_PERMISSION = "admin.voucher.read";
+    const WRITE_PERMISSION = "admin.voucher.write";
     /**
      * Display a listing of the resource.
      *
      * @return Application|Factory|View
      */
-    public function index()
+    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
-        return view('admin.vouchers.index');
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
+        return view('admin.vouchers.index', [
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name
+        ]);
     }
 
     /**
@@ -32,9 +41,12 @@ class VoucherController extends Controller
      *
      * @return Application|Factory|View
      */
-    public function create()
+    public function create(GeneralSettings $general_settings)
     {
-        return view('admin.vouchers.create');
+        $this->checkPermission(self::WRITE_PERMISSION);
+        return view('admin.vouchers.create', [
+            'credits_display_name' => $general_settings->credits_display_name
+        ]);
     }
 
     /**
@@ -75,10 +87,12 @@ class VoucherController extends Controller
      * @param  Voucher  $voucher
      * @return Application|Factory|View
      */
-    public function edit(Voucher $voucher)
+    public function edit(Voucher $voucher, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         return view('admin.vouchers.edit', [
             'voucher' => $voucher,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -112,15 +126,20 @@ class VoucherController extends Controller
      */
     public function destroy(Voucher $voucher)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $voucher->delete();
 
         return redirect()->back()->with('success', __('voucher has been removed!'));
     }
 
-    public function users(Voucher $voucher)
+    public function users(Voucher $voucher, LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         return view('admin.vouchers.users', [
             'voucher' => $voucher,
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -130,7 +149,7 @@ class VoucherController extends Controller
      *
      * @throws ValidationException
      */
-    public function redeem(Request $request)
+    public function redeem(Request $request, GeneralSettings $general_settings)
     {
         //general validations
         $request->validate([
@@ -161,7 +180,7 @@ class VoucherController extends Controller
 
         if ($request->user()->credits + $voucher->credits >= 99999999) {
             throw ValidationException::withMessages([
-                'code' => "You can't redeem this voucher because you would exceed the  limit of ".CREDITS_DISPLAY_NAME,
+                'code' => "You can't redeem this voucher because you would exceed the  limit of " . $general_settings->credits_display_name,
             ]);
         }
 
@@ -171,7 +190,7 @@ class VoucherController extends Controller
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => "{$voucher->credits} ".CREDITS_DISPLAY_NAME.' '.__('have been added to your balance!'),
+            'success' => "{$voucher->credits} ". $general_settings->credits_display_name .' '.__('have been added to your balance!'),
         ]);
     }
 
@@ -184,7 +203,7 @@ class VoucherController extends Controller
                 return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.$user->name.'</a>';
             })
             ->addColumn('credits', function (User $user) {
-                return '<i class="fas fa-coins mr-2"></i> '.$user->credits();
+                return '<i class="mr-2 fas fa-coins"></i> '.$user->credits();
             })
             ->addColumn('last_seen', function (User $user) {
                 return $user->last_seen ? $user->last_seen->diffForHumans() : '';
@@ -195,28 +214,33 @@ class VoucherController extends Controller
 
     public function dataTable()
     {
-        $query = Voucher::query();
+        $query = Voucher::selectRaw('
+            vouchers.*,
+            CASE
+                WHEN (SELECT COUNT(*) FROM user_voucher WHERE user_voucher.voucher_id = vouchers.id) >= vouchers.uses THEN "USES_LIMIT_REACHED"
+                WHEN vouchers.expires_at IS NOT NULL AND vouchers.expires_at < NOW() THEN "EXPIRED"
+                ELSE "VALID"
+            END as derived_status
+        ');
 
         return datatables($query)
             ->addColumn('actions', function (Voucher $voucher) {
                 return '
-                            <a data-content="'.__('Users').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.users', $voucher->id).'" class="btn btn-sm btn-primary mr-1"><i class="fas fa-users"></i></a>
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.edit', $voucher->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                            <a data-content="'.__('Users').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.users', $voucher->id).'" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-users"></i></a>
+                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.edit', $voucher->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
 
                            <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.vouchers.destroy', $voucher->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                        </form>
                 ';
             })
             ->addColumn('status', function (Voucher $voucher) {
-                $color = 'success';
-                if ($voucher->getStatus() != __('VALID')) {
-                    $color = 'danger';
-                }
+                $color = ($voucher->derived_status == 'VALID') ? 'success' : 'danger';
+                $status = str_replace('_', ' ', $voucher->derived_status);
 
-                return '<span class="badge badge-'.$color.'">'.$voucher->getStatus().'</span>';
+                return '<span class="badge badge-'.$color.'">'.$status.'</span>';
             })
             ->editColumn('uses', function (Voucher $voucher) {
                 return "{$voucher->used} / {$voucher->uses}";
@@ -226,14 +250,15 @@ class VoucherController extends Controller
             })
             ->editColumn('expires_at', function (Voucher $voucher) {
                 if (! $voucher->expires_at) {
-                    return '';
+                    return __("Never");
                 }
 
-                return $voucher->expires_at ? $voucher->expires_at->diffForHumans() : '';
+                return $voucher->expires_at ? $voucher->expires_at->diffForHumans() : __("Never");
             })
             ->editColumn('code', function (Voucher $voucher) {
                 return "<code>{$voucher->code}</code>";
             })
+            ->orderColumn('status', 'derived_status $1')
             ->rawColumns(['actions', 'code', 'status'])
             ->make();
     }

@@ -4,15 +4,17 @@ namespace App\Providers;
 
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
+use App\Events\CouponUsedEvent;
+use App\Listeners\CouponUsed;
 use App\Listeners\CreateInvoice;
 use App\Listeners\UnsuspendServers;
 use App\Listeners\UserPayment;
-use App\Listeners\Verified as VerifiedListener;
+use App\Listeners\Verified as ListenerVerified;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
-use Illuminate\Auth\Events\Verified;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -32,12 +34,15 @@ class EventServiceProvider extends ServiceProvider
             CreateInvoice::class,
             UserPayment::class,
         ],
+        CouponUsedEvent::class => [
+            CouponUsed::class
+        ],
         SocialiteWasCalled::class => [
             // ... other providers
             'SocialiteProviders\\Discord\\DiscordExtendSocialite@handle',
         ],
         Verified::class => [
-            VerifiedListener::class,
+            ListenerVerified::class,
         ],
     ];
 

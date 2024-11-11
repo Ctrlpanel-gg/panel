@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ApplicationApi;
+use App\Settings\LocaleSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -15,14 +16,20 @@ use Illuminate\Http\Response;
 
 class ApplicationApiController extends Controller
 {
+    const READ_PERMISSION = "admin.api.read";
+    const WRITE_PERMISSION = "admin.api.write";
     /**
      * Display a listing of the resource.
      *
      * @return Application|Factory|View|Response
      */
-    public function index()
+    public function index(LocaleSettings $locale_settings)
     {
-        return view('admin.api.index');
+        $this->checkAnyPermission([self::READ_PERMISSION,self::WRITE_PERMISSION]);
+
+        return view('admin.api.index', [
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     /**
@@ -32,6 +39,8 @@ class ApplicationApiController extends Controller
      */
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.api.create');
     }
 
@@ -73,6 +82,7 @@ class ApplicationApiController extends Controller
      */
     public function edit(ApplicationApi $applicationApi)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         return view('admin.api.edit', [
             'applicationApi' => $applicationApi,
         ]);
@@ -104,6 +114,8 @@ class ApplicationApiController extends Controller
      */
     public function destroy(ApplicationApi $applicationApi)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $applicationApi->delete();
 
         return redirect()->back()->with('success', __('api key has been removed!'));

@@ -9,6 +9,17 @@ use Illuminate\Support\Facades\Storage;
 class Kernel extends ConsoleKernel
 {
     /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        Commands\ChargeCreditsCommand::class,
+        Commands\ChargeServers::class,
+        Commands\DeleteExpiredCoupons::class,
+    ];
+
+    /**
      * Define the application's command schedule.
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
@@ -16,9 +27,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('credits:charge')->hourly();
+        $schedule->command('servers:charge')->everyMinute();
         $schedule->command('cp:versioncheck:get')->daily();
         $schedule->command('payments:open:clear')->daily();
+        $schedule->command('coupons:delete')->daily();
 
         //log cronjob activity
         $schedule->call(function () {

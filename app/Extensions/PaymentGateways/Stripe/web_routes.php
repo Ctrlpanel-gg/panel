@@ -1,17 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Extensions\PaymentGateways\Stripe\StripeExtension;
 
-include_once(__DIR__ . '/index.php');
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('payment/StripePay/{shopProduct}', function () {
-        StripePay(request());
-    })->name('payment.StripePay');
-
     Route::get(
         'payment/StripeSuccess',
         function () {
-            StripeSuccess(request());
+            StripeExtension::StripeSuccess(request());
         }
     )->name('payment.StripeSuccess');
 });
@@ -19,5 +15,5 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 // Stripe WebhookRoute -> validation in Route Handler
 Route::post('payment/StripeWebhooks', function () {
-    StripeWebhooks(request());
+    StripeExtension::StripeWebhooks(request());
 })->name('payment.StripeWebhooks');

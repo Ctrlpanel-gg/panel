@@ -52,7 +52,7 @@ class Location extends Model
                 ],
                 [
                     'name' => $location['name'],
-                    'description' => $location['name'],
+                    'description' => $location['description'],
                 ]
             );
         }

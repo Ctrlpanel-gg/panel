@@ -43,7 +43,7 @@
                                 <div class="form-group">
                                     <label for="identifier">{{ __('Server identifier') }}
                                         <i data-toggle="popover" data-trigger="hover"
-                                            data-content="{{ __('Change the server identifier on ctrlpanel to match a pterodactyl server.') }}"
+                                            data-content="{{ __('Change the server identifier on CtrlPanel to match a pterodactyl server.') }}"
                                             class="fas fa-info-circle"></i>
                                     </label>
                                     <input value="{{ $server->identifier }}" id="identifier" name="identifier"
@@ -59,7 +59,7 @@
                                 <div class="form-group">
                                     <label for="user_id">{{ __('Server owner') }}
                                         <i data-toggle="popover" data-trigger="hover"
-                                            data-content="{{ __('Change the current server owner on ctrlpanel and pterodactyl.') }}"
+                                            data-content="{{ __('Change the current server owner on CtrlPanel and pterodactyl.') }}"
                                             class="fas fa-info-circle"></i>
                                     </label>
                                     <select name="user_id" id="user_id" class="form-control">
@@ -80,6 +80,8 @@
 
                                 <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
 
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            </form>
                         </div>
                     </div>
                 </div>

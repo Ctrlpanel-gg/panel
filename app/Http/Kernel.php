@@ -4,9 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
 use App\Http\Middleware\CheckSuspended;
-use App\Http\Middleware\GlobalNames;
-use App\Http\Middleware\isAdmin;
-use App\Http\Middleware\isMod;
+use App\Http\Middleware\InstallerLock;
 use App\Http\Middleware\LastSeen;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -27,6 +25,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+
     ];
 
     /**
@@ -36,6 +35,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            InstallerLock::class,
             \App\Http\Middleware\EncryptCookies::class,
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
@@ -43,14 +43,12 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             LastSeen::class,
-            GlobalNames::class,
             \App\Http\Middleware\SetLocale::class,
         ],
 
         'api' => [
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            GlobalNames::class,
         ],
     ];
 
@@ -72,9 +70,11 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'admin' => isAdmin::class,
-        'moderator' => isMod::class,
         'api.token' => ApiAuthToken::class,
         'checkSuspended' => CheckSuspended::class,
+        'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
     ];
+
 }

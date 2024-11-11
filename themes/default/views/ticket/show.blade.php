@@ -114,15 +114,9 @@
                                                 src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticket->user->email)) }}?s=25"
                                                 class="user-image" alt="User Image">
                                             <a href="/admin/users/{{$ticket->user->id}}">{{ $ticket->user->name }} </a>
-                                            @if($ticket->user->role === "member")
-                                                <span class="badge badge-secondary"> Member </span>
-                                            @elseif ($ticket->user->role === "client")
-                                                <span class="badge badge-success"> Client </span>
-                                            @elseif ($ticket->user->role === "moderator")
-                                                <span class="badge badge-info"> Moderator </span>
-                                            @elseif ($ticket->user->role === "admin")
-                                                <span class="badge badge-danger"> Admin </span>
-                                            @endif
+                                            @foreach ($ticket->user->roles as $role)
+                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                            @endforeach
                                         </h5>
                                         <span
                                             class="badge badge-primary">{{ $ticket->created_at->diffForHumans() }}</span>
@@ -138,15 +132,9 @@
                                                     src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=25"
                                                     class="user-image" alt="User Image">
                                                 <a href="/admin/users/{{$ticketcomment->user->id}}">{{ $ticketcomment->user->name }}</a>
-                                                @if($ticketcomment->user->role === "member")
-                                                    <span class="badge badge-secondary"> Member </span>
-                                                @elseif ($ticketcomment->user->role === "client")
-                                                    <span class="badge badge-success"> Client </span>
-                                                @elseif ($ticketcomment->user->role === "moderator")
-                                                    <span class="badge badge-info"> Moderator </span>
-                                                @elseif ($ticketcomment->user->role === "admin")
-                                                    <span class="badge badge-danger"> Admin </span>
-                                                @endif
+                                                @foreach ($ticketcomment->user->roles as $role)
+                                                    <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                                @endforeach
                                             </h5>
                                             <span
                                                 class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>

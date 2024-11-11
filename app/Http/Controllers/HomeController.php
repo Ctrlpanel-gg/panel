@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\PartnerDiscount;
 use App\Models\UsefulLink;
-use Illuminate\Http\Request;
+use App\Settings\GeneralSettings;
+use App\Settings\WebsiteSettings;
+use App\Settings\ReferralSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -32,7 +34,7 @@ class HomeController extends Controller
         if (Storage::exists('callHome')) {
             return;
         }
-        Http::asForm()->post('https://market.ctrlpanel.gg/callhome.php', [
+        Http::asForm()->post('https://market.CtrlPanel.gg/callhome.php', [
             'id' => Hash::make(URL::current()),
         ]);
         Storage::put('callHome', 'This is only used to count the installations of cpgg.');
@@ -89,7 +91,7 @@ class HomeController extends Controller
     }
 
     /** Show the application dashboard. */
-    public function index(Request $request)
+    public function index(GeneralSettings $general_settings, WebsiteSettings $website_settings, ReferralSettings $referral_settings)
     {
         $usage = Auth::user()->creditUsage();
         $credits = Auth::user()->Credits();
@@ -99,7 +101,7 @@ class HomeController extends Controller
 
         /** Build our Time-Left-Box */
         if ($credits > 0.01 and $usage > 0) {
-            $daysLeft = number_format(($credits * 30) / $usage, 2, '.', '');
+            $daysLeft = number_format($credits / ($usage / 30), 2, '.', '');
             $hoursLeft = number_format($credits / ($usage / 30 / 24), 2, '.', '');
 
             $bg = $this->getTimeLeftBoxBackground($daysLeft);
@@ -120,6 +122,9 @@ class HomeController extends Controller
             'numberOfReferrals' => DB::table('user_referrals')->where('referral_id', '=', Auth::user()->id)->count(),
             'partnerDiscount' => PartnerDiscount::where('user_id', Auth::user()->id)->first(),
             'myDiscount' => PartnerDiscount::getDiscount(),
+            'general_settings' => $general_settings,
+            'website_settings' => $website_settings,
+            'referral_settings' => $referral_settings
         ]);
     }
 }

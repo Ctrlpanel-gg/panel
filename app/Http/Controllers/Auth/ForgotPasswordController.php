@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Settings\GeneralSettings;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 
@@ -37,7 +38,9 @@ class ForgotPasswordController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
         ]);
 
-        if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
+        $recaptcha_enabled = app(GeneralSettings::class)->recaptcha_enabled;
+
+        if ($recaptcha_enabled) {
             $this->validate($request, [
                 'g-recaptcha-response' => 'required|recaptcha',
             ]);

@@ -11,30 +11,53 @@ use App\Models\User;
 use App\Notifications\Ticket\Admin\AdminCreateNotification;
 use App\Notifications\Ticket\Admin\AdminReplyNotification;
 use App\Notifications\Ticket\User\CreateNotification;
+use App\Settings\GeneralSettings;
+use App\Settings\LocaleSettings;
+use App\Settings\PterodactylSettings;
+use App\Settings\TicketSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use App\Settings\GeneralSettings;
 
 class TicketsController extends Controller
 {
-    public function index()
+    const READ_PERMISSION = 'user.ticket.read';
+    const WRITE_PERMISSION = 'user.ticket.write';
+    public function index(LocaleSettings $locale_settings, TicketSettings $ticketSettings)
     {
-        $tickets = Ticket::where('user_id', Auth::user()->id)->paginate(10);
-        $ticketcategories = TicketCategory::all();
-
-        return view('ticket.index', compact('tickets', 'ticketcategories'));
+        return view('ticket.index', [
+            'ticketsettings' => $ticketSettings,
+            'tickets' => Ticket::where('user_id', Auth::user()->id)->paginate(10),
+            'ticketcategories' => TicketCategory::all(),
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
-    public function store(Request $request)
+
+    public function store(Request $request, GeneralSettings $generalSettings)
     {
-        $this->validate($request, [
-                'title' => 'required',
-                'ticketcategory' => 'required',
-                'priority' => 'required',
-                'message' => 'required',]
-        );
-        $ticket = new Ticket([
+        if (RateLimiter::tooManyAttempts('ticket-send:'.Auth::user()->id, $perMinute = 1)) {
+            return redirect()->back()->with('error', __('Please wait before creating a new Ticket'));
+        }
+      
+        $validateData = [
+            'title' => 'required|string|max:255',
+            'ticketcategory' => 'required|numeric',
+            'priority' => ['required', 'in:Low,Medium,High'],
+            'message' => 'required|string|min:10|max:2000',
+        ];
+
+        if ($generalSettings->recaptcha_enabled) {
+            $validateData['g-recaptcha-response'] = ['required', 'recaptcha'];
+        }
+
+        $this->validate($request, $validateData);
+      
+        $ticket = new Ticket(
+            [
                 'title' => $request->input('title'),
                 'user_id' => Auth::user()->id,
                 'ticket_id' => strtoupper(Str::random(8)),
@@ -42,29 +65,27 @@ class TicketsController extends Controller
                 'priority' => $request->input('priority'),
                 'message' => $request->input('message'),
                 'status' => 'Open',
-                'server' => $request->input('server'),]
+                'server' => $request->input('server'),
+            ]
         );
         $ticket->save();
         $user = Auth::user();
-        if (config('SETTINGS::TICKET:NOTIFY') == "all") {
-            $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();
+
+        $staffNotify = User::permission('admin.tickets.get_notification')->get();
+        foreach($staffNotify as $staff){
+            Notification::send($staff, new AdminCreateNotification($ticket, $user));
         }
-        if (config('SETTINGS::TICKET:NOTIFY') == "admin") {
-            $admin = User::where('role', 'admin')->get();
-        }
-        if (config('SETTINGS::TICKET:NOTIFY') == "moderator") {
-            $admin = User::where('role', 'mod')->get();
-        }
+
+
         $user->notify(new CreateNotification($ticket));
-        if (config('SETTINGS::TICKET:NOTIFY') != "none") {
-            Notification::send($admin, new AdminCreateNotification($ticket, $user));
-        }
+        RateLimiter::hit('ticket-send:'.Auth::user()->id);
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #') . $ticket->ticket_id);
     }
 
-    public function show($ticket_id)
+    public function show($ticket_id, PterodactylSettings $ptero_settings)
     {
+        $this->checkPermission(self::READ_PERMISSION);
         try {
             $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
         } catch (Exception $e) {
@@ -73,12 +94,16 @@ class TicketsController extends Controller
         $ticketcomments = $ticket->ticketcomments;
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
+        $pterodactyl_url = $ptero_settings->panel_url;
 
-        return view('ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server'));
+        return view('ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
     }
 
     public function reply(Request $request)
     {
+        if (RateLimiter::tooManyAttempts('ticket-reply:'.Auth::user()->id, $perMinute = 1)) {
+            return redirect()->back()->with('error', __('Please wait before answering a Ticket'));
+        }
         //check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
         if ($check && $check->status == 'True') {
@@ -91,6 +116,7 @@ class TicketsController extends Controller
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
         $ticket->status = 'Client Reply';
+        $ticket->updated_at = now();
         $ticket->update();
         $ticketcomment = TicketComment::create([
             'ticket_id' => $request->input('ticket_id'),
@@ -99,15 +125,19 @@ class TicketsController extends Controller
             'message' => $request->input('message'),
         ]);
         $user = Auth::user();
-        $admin = User::where('role', 'admin')->orWhere('role', 'mod')->get();
         $newmessage = $request->input('ticketcomment');
-        Notification::send($admin, new AdminReplyNotification($ticket, $user, $newmessage));
 
+        $staffNotify = User::permission('admin.tickets.get_notification')->get();
+        foreach($staffNotify as $staff){
+            Notification::send($staff, new AdminReplyNotification($ticket, $user, $newmessage));
+        }
+        RateLimiter::hit('ticket-reply:'.Auth::user()->id);
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 
     public function create()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         //check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
         if ($check && $check->status == 'True') {
@@ -170,8 +200,10 @@ class TicketsController extends Controller
                 return __($tickets->priority);
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
-                return ['display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
-                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
+                return [
+                    'display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
+                    'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''
+                ];
             })
             ->addColumn('actions', function (Ticket $tickets) {
                 $statusButtonColor = ($tickets->status == "Closed") ? 'btn-success' : 'btn-warning';

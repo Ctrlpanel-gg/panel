@@ -2,18 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\Pterodactyl;
-use App\Models\Egg;
-use App\Models\Location;
-use App\Models\Node;
+use App\Classes\PterodactylClient;
+use App\Models\Pterodactyl\Egg;
+use App\Models\Pterodactyl\Location;
+use App\Models\Pterodactyl\Node;
 use App\Models\Product;
+use App\Models\User;
+use App\Notifications\DynamicNotification;
+use App\Settings\PterodactylSettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 
 class ProductController extends Controller
 {
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
+
     /**
      * @description get product locations based on selected egg
      *
@@ -60,7 +73,7 @@ class ProductController extends Controller
     {
         $nodes = $this->getNodesBasedOnEgg($request, $egg);
         foreach ($nodes as $key => $node) {
-            $pteroNode = Pterodactyl::getNode($node->id);
+            $pteroNode = $this->pterodactyl->getNode($node->id);
             if ($pteroNode['allocated_resources']['memory'] >= ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) || $pteroNode['allocated_resources']['disk'] >= ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100)) {
                 $nodes->forget($key);
             }
@@ -85,34 +98,60 @@ class ProductController extends Controller
             }
         });
 
+        if($locations->isEmpty()){
+            // Rate limit the node full notification to 1 attempt per 30 minutes
+            RateLimiter::attempt(
+                key: 'nodes-full-warning',
+                maxAttempts: 1,
+                callback: function() {
+                    // get admin role and check users
+                    $users = User::query()->where('role', '=', '1')->get();
+                    Notification::send($users,new DynamicNotification(['mail'],[],
+                   mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
+                },
+                decaySeconds: 5
+            );
+        }
+
         return $locations;
     }
 
     /**
-     * @param  Node  $node
+     * @param  Int $location
      * @param  Egg  $egg
      * @return Collection|JsonResponse
      */
-    public function getProductsBasedOnNode(Egg $egg, Node $node)
+    public function getProductsBasedOnLocation(Egg $egg, Int $location)
     {
-        if (is_null($egg->id) || is_null($node->id)) {
-            return response()->json('node and egg id is required', '400');
+        if (is_null($egg->id) || is_null($location)) {
+            return response()->json('location and egg id is required', '400');
         }
+
+        // Get all nodes in this location
+        $nodes = Node::query()
+            ->where('location_id', '=', $location)
+            ->get();
 
         $products = Product::query()
             ->where('disabled', '=', false)
-            ->whereHas('nodes', function (Builder $builder) use ($node) {
-                $builder->where('id', '=', $node->id);
+            ->whereHas('nodes', function (Builder $builder) use ($nodes) {
+                $builder->whereIn('id', $nodes->map(function ($node) {
+                    return $node->id;
+                }));
             })
             ->whereHas('eggs', function (Builder $builder) use ($egg) {
                 $builder->where('id', '=', $egg->id);
             })
             ->get();
 
-        $pteroNode = Pterodactyl::getNode($node->id);
+        // Instead of the old node check, we will check if the product fits in any given node in the location
         foreach ($products as $key => $product) {
-            if ($product->memory > ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'] || $product->disk > ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk']) {
-                $product->doesNotFit = true;
+            $product->doesNotFit = false;
+            foreach ($nodes as $node) {
+                $pteroNode = $this->pterodactyl->getNode($node->id);
+                if ($product->memory > ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'] || $product->disk > ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk']) {
+                    $product->doesNotFit = true;
+                }
             }
         }
 

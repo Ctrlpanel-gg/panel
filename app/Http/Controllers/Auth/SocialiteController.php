@@ -15,9 +15,9 @@ class SocialiteController extends Controller
     {
         $scopes = ! empty(config('SETTINGS::DISCORD:BOT_TOKEN')) && ! empty(config('SETTINGS::DISCORD:GUILD_ID')) ? ['guilds.join'] : [];
 
-        return Socialite::driver('discord')
+        return ( Socialite::driver('discord')
             ->scopes($scopes)
-            ->redirect();
+            ->redirect());
     }
 
     public function callback()
@@ -68,18 +68,11 @@ class SocialiteController extends Controller
                 "https://discord.com/api/guilds/{$guildId}/members/{$discord->id}",
                 ['access_token' => $discord->token]
             );
-
+            $discordUser = $user->discordUser;
             //give user a role in the discord server
             if (! empty($roleId)) {
-                $response = Http::withHeaders(
-                    [
-                        'Authorization' => 'Bot '.$botToken,
-                        'Content-Type' => 'application/json',
-                    ]
-                )->put(
-                    "https://discord.com/api/guilds/{$guildId}/members/{$discord->id}/roles/{$roleId}",
-                    ['access_token' => $discord->token]
-                );
+                // Function addOrRemoveRole is defined in app/Models/DiscordUser.php
+                $discordUser->addOrRemoveRole('add', $roleId);
             }
         }
 

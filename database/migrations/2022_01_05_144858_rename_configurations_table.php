@@ -28,7 +28,6 @@ return new class extends Migration
         DB::table('settings')->where('key', 'REGISTER_IP_CHECK')->update(['key' => 'SETTINGS::SYSTEM:REGISTER_IP_CHECK']);
         DB::table('settings')->where('key', 'CREDITS_DISPLAY_NAME')->update(['key' => 'SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME']);
         DB::table('settings')->where('key', 'ALLOCATION_LIMIT')->update(['key' => 'SETTINGS::SERVER:ALLOCATION_LIMIT']);
-        DB::table('settings')->where('key', 'SERVER_CREATE_CHARGE_FIRST_HOUR')->update(['key' => 'SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR']);
         DB::table('settings')->where('key', 'SALES_TAX')->update(['key' => 'SETTINGS::PAYMENTS:SALES_TAX']);
     }
 
@@ -52,7 +51,6 @@ return new class extends Migration
         DB::table('configurations')->where('key', 'SETTINGS::USER:FORCE_EMAIL_VERIFICATION')->update(['key' => 'FORCE_EMAIL_VERIFICATION']);
         DB::table('configurations')->where('key', 'SETTINGS::USER:FORCE_DISCORD_VERIFICATION')->update(['key' => 'FORCE_DISCORD_VERIFICATION']);
         DB::table('configurations')->where('key', 'SETTINGS::SYSTEM:REGISTER_IP_CHECK')->update(['key' => 'REGISTER_IP_CHECK']);
-        DB::table('configurations')->where('key', 'SETTINGS::SYSTEM:SERVER_CREATE_CHARGE_FIRST_HOUR')->update(['key' => 'SERVER_CREATE_CHARGE_FIRST_HOUR']);
         DB::table('configurations')->where('key', 'SETTINGS::SERVER:ALLOCATION_LIMIT')->update(['key' => 'ALLOCATION_LIMIT']);
         DB::table('configurations')->where('key', 'SETTINGS::SERVER:CREDITS_DISPLAY_NAME')->update(['key' => 'SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME']);
         DB::table('configurations')->where('key', 'SETTINGS::PAYMENTS:SALES_TAX')->update(['key' => 'SALES_TAX']);

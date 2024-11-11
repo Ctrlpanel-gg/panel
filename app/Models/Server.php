@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-use App\Classes\Pterodactyl;
+use Carbon\Carbon;
+use App\Classes\PterodactylClient;
+use App\Settings\PterodactylSettings;
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Hidehalo\Nanoid\Client;
@@ -21,13 +23,17 @@ class Server extends Model
 {
     use HasFactory;
     use LogsActivity;
+
+    private PterodactylClient $pterodactyl;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            -> logOnlyDirty()
-            -> logOnly(['*'])
-            -> dontSubmitEmptyLogs();
+            ->logOnlyDirty()
+            ->logOnly(['*'])
+            ->dontSubmitEmptyLogs();
     }
+
     /**
      * @var bool
      */
@@ -47,12 +53,14 @@ class Server extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name',
-        'description',
-        'suspended',
-        'identifier',
-        'product_id',
-        'pterodactyl_id',
+        "name",
+        "description",
+        "suspended",
+        "identifier",
+        "product_id",
+        "pterodactyl_id",
+        "last_billed",
+        "canceled"
     ];
 
     /**
@@ -61,6 +69,14 @@ class Server extends Model
     protected $casts = [
         'suspended' => 'datetime',
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $ptero_settings = new PterodactylSettings();
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
 
     public static function boot()
     {
@@ -73,8 +89,8 @@ class Server extends Model
         });
 
         static::deleting(function (Server $server) {
-            $response = Pterodactyl::client()->delete("/application/servers/{$server->pterodactyl_id}");
-            if ($response->failed() && ! is_null($server->pterodactyl_id)) {
+            $response = $server->pterodactyl->application->delete("/application/servers/{$server->pterodactyl_id}");
+            if ($response->failed() && !is_null($server->pterodactyl_id)) {
                 //only return error when it's not a 404 error
                 if ($response['errors'][0]['status'] != '404') {
                     throw new Exception($response['errors'][0]['code']);
@@ -88,7 +104,7 @@ class Server extends Model
      */
     public function isSuspended()
     {
-        return ! is_null($this->suspended);
+        return !is_null($this->suspended);
     }
 
     /**
@@ -96,7 +112,7 @@ class Server extends Model
      */
     public function getPterodactylServer()
     {
-        return Pterodactyl::client()->get("/application/servers/{$this->pterodactyl_id}");
+        return $this->pterodactyl->application->get("/application/servers/{$this->pterodactyl_id}");
     }
 
     /**
@@ -104,7 +120,7 @@ class Server extends Model
      */
     public function suspend()
     {
-        $response = Pterodactyl::suspendServer($this);
+        $response = $this->pterodactyl->suspendServer($this);
 
         if ($response->successful()) {
             $this->update([
@@ -120,13 +136,15 @@ class Server extends Model
      */
     public function unSuspend()
     {
-        $response = Pterodactyl::unSuspendServer($this);
+        $response = $this->pterodactyl->unSuspendServer($this);
 
         if ($response->successful()) {
             $this->update([
                 'suspended' => null,
+                'last_billed' => Carbon::now()->toDateTimeString(),
             ]);
         }
+
 
         return $this;
     }

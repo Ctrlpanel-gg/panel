@@ -2,18 +2,19 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
+    @php($website_settings = app(App\Settings\WebsiteSettings::class))
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta content="{{ config('SETTINGS::SYSTEM:SEO_TITLE') }}" property="og:title">
-    <meta content="{{ config('SETTINGS::SYSTEM:SEO_DESCRIPTION') }}" property="og:description">
-    <meta content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/controlpanel_logo.png') }}' property="og:image">
+    <meta content="{{ $website_settings->seo_title }}" property="og:title">
+    <meta content="{{ $website_settings->seo_description }}" property="og:description">
+    <meta content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('/logo.png') : asset('images/ctrlpanel_logo.png') }}' property="og:image">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="icon"
-        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? \Illuminate\Support\Facades\Storage::disk('public')->url('favicon.ico') : asset('favicon.ico') }}"
+        href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -27,7 +28,7 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
-    @if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true')
+    @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
         {!! htmlScriptTagJsApi() !!}
     @endif
     @vite('themes/default/sass/app.scss')

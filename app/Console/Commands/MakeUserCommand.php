@@ -101,6 +101,8 @@ class MakeUserCommand extends Command
             ['Referral code', $user->referral_code],
         ]);
 
+        $user->syncRoles(1);
+
         return 1;
     }
 }
