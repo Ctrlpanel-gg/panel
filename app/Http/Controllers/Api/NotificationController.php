@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
 use Spatie\ValidationRules\Rules\Delimited;
+use Exception;
 
 class NotificationController extends Controller
 {
@@ -104,8 +105,12 @@ class NotificationController extends Controller
                 'users' => ['No users found!'],
             ]);
         }
-
-        Notification::send($users, new DynamicNotification($via, $database, $mail));
+        try {
+            Notification::send($users, new DynamicNotification($via, $database, $mail));
+        }
+        catch (Exception $e) {
+            return response()->json(['message' => 'The attempt to send the email failed with the error: ' . $e->getMessage()], 500);
+        }
 
         return response()->json(['message' => 'Notification successfully sent.', 'user_count' => $users->count()]);
     }

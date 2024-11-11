@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use App\Settings\GeneralSettings;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,13 +54,13 @@ class LoginController extends Controller
         return $field;
     }
 
-    public function login(Request $request)
+    public function login(Request $request, GeneralSettings $general_settings)
     {
         $validationRules = [
             $this->username() => 'required|string',
             'password' => 'required|string',
         ];
-        if (config('SETTINGS::RECAPTCHA:ENABLED') == 'true') {
+        if ($general_settings->recaptcha_enabled) {
             $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
         }
         $request->validate($validationRules);

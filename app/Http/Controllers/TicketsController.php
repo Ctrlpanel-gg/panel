@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use App\Settings\GeneralSettings;
+
 
 class TicketsController extends Controller
 {
@@ -42,7 +42,7 @@ class TicketsController extends Controller
         if (RateLimiter::tooManyAttempts('ticket-send:'.Auth::user()->id, $perMinute = 1)) {
             return redirect()->back()->with('error', __('Please wait before creating a new Ticket'));
         }
-      
+
         $validateData = [
             'title' => 'required|string|max:255',
             'ticketcategory' => 'required|numeric',
@@ -55,7 +55,7 @@ class TicketsController extends Controller
         }
 
         $this->validate($request, $validateData);
-      
+
         $ticket = new Ticket(
             [
                 'title' => $request->input('title'),

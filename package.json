@@ -2,7 +2,9 @@
     "private": true,
     "scripts": {
         "development": "vite",
-        "production": "vite build"
+        "production": "vite build",
+        "dev:default": "vite --config themes/default/vite.config.js",
+        "build:default": "vite build --config themes/default/vite.config.js"
     },
     "devDependencies": {
         "axios": "^0.25",

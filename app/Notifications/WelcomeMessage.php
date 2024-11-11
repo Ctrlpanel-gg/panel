@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Settings\GeneralSettings;
+use App\Settings\UserSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -16,6 +18,16 @@ class WelcomeMessage extends Notification implements ShouldQueue
      */
     private $user;
 
+    private $credits_display_name;
+
+    private $credits_reward_after_verify_discord;
+
+    private $credits_reward_after_verify_email;
+
+    private $server_limit_after_verify_discord;
+
+    private $server_limit_after_verify_email;
+
     /**
      * Create a new notification instance.
      *
@@ -27,6 +39,11 @@ class WelcomeMessage extends Notification implements ShouldQueue
         $user_settings = new UserSettings();
 
         $this->user = $user;
+        $this->credits_display_name = $general_settings->credits_display_name;
+        $this->credits_reward_after_verify_discord = $user_settings->credits_reward_after_verify_discord;
+        $this->credits_reward_after_verify_email = $user_settings->credits_reward_after_verify_email;
+        $this->server_limit_after_verify_discord = $user_settings->server_limit_after_verify_discord;
+        $this->server_limit_after_verify_email = $user_settings->server_limit_after_verify_email;
     }
 
     /**
@@ -43,18 +60,18 @@ class WelcomeMessage extends Notification implements ShouldQueue
     public function AdditionalLines()
     {
         $AdditionalLine = '';
-        if (config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL') != 0) {
-            $AdditionalLine .= __('Verifying your e-mail address will grant you ').config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_EMAIL').' '.__('additional').' '.config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME').'. <br />';
+        if ($this->credits_reward_after_verify_email != 0) {
+            $AdditionalLine .= __('Verifying your e-mail address will grant you ').$this->credits_reward_after_verify_email.' '.__('additional').' '.$this->credits_display_name.'. <br />';
         }
-        if (config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL') != 0) {
-            $AdditionalLine .= __('Verifying your e-mail will also increase your Server Limit by ').config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_EMAIL').'. <br />';
+        if ($this->server_limit_after_verify_email != 0) {
+            $AdditionalLine .= __('Verifying your e-mail will also increase your Server Limit by ').$this->server_limit_after_verify_email.'. <br />';
         }
         $AdditionalLine .= '<br />';
-        if (config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD') != 0) {
-            $AdditionalLine .= __('You can also verify your discord account to get another ').config('SETTINGS::USER:CREDITS_REWARD_AFTER_VERIFY_DISCORD').' '.config('SETTINGS::SYSTEM:CREDITS_DISPLAY_NAME').'. <br />';
+        if ($this->credits_reward_after_verify_discord != 0) {
+            $AdditionalLine .= __('You can also verify your discord account to get another ').$this->credits_reward_after_verify_discord.' '.$this->credits_display_name.'. <br />';
         }
-        if (config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD') != 0) {
-            $AdditionalLine .= __('Verifying your Discord account will also increase your Server Limit by ').config('SETTINGS::USER:SERVER_LIMIT_REWARD_AFTER_VERIFY_DISCORD').'. <br />';
+        if ($this->server_limit_after_verify_discord != 0) {
+            $AdditionalLine .= __('Verifying your Discord account will also increase your Server Limit by ').$this->server_limit_after_verify_discord.'. <br />';
         }
 
         return $AdditionalLine;

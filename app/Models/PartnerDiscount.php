@@ -33,7 +33,7 @@ class PartnerDiscount extends Model
         return 0;
     }
 
-    public static function getCommission($user_id)
+    public static function getCommission($user_id, $percentage)
     {
         if ($partnerDiscount = PartnerDiscount::where('user_id', $user_id)->first()) {
             if ($partnerDiscount->referral_system_commission >= 0) {
@@ -41,6 +41,6 @@ class PartnerDiscount extends Model
             }
         }
 
-        return config('SETTINGS::REFERRAL:PERCENTAGE');
+        return $percentage;
     }
 }

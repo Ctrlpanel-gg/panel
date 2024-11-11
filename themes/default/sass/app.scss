@@ -5,3 +5,22 @@
 @import "../css/stylesheet.css";
 @import "../css/adminlte.min.css";
 @import "../css/slim.min.css";
+
+.checkout-gateways {
+    // make the radio button clickable
+    cursor: pointer;
+
+    // add some space between all gateway divs bit the last one
+    &:not(:last-child) {
+        margin-bottom: 1rem;
+    }
+}
+
+.checkout-gateway-label {
+    // make the label clickable
+    cursor: pointer;
+    // center the label
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}

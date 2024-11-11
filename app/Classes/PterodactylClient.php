@@ -2,46 +2,68 @@
 
 namespace App\Classes;
 
-use App\Models\Egg;
-use App\Models\Nest;
-use App\Models\Node;
+use App\Models\Pterodactyl\Egg;
+use App\Models\Pterodactyl\Nest;
+use App\Models\Pterodactyl\Node;
 use App\Models\Product;
 use App\Models\Server;
-use App\Models\User;
 use Exception;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use App\Settings\PterodactylSettings;
+use App\Settings\ServerSettings;
 
-class Pterodactyl
+class PterodactylClient
 {
     //TODO: Extend error handling (maybe logger for more errors when debugging)
 
+    private int $per_page_limit = 200;
+
+    private int $allocation_limit = 200;
+
+    public PendingRequest $client;
+
+    public PendingRequest $application;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $server_settings = new ServerSettings();
+
+        try {
+            $this->client = $this->client($ptero_settings);
+            $this->application = $this->clientAdmin($ptero_settings);
+            $this->per_page_limit = $ptero_settings->per_page_limit;
+            $this->allocation_limit = $server_settings->allocation_limit;
+        } catch (Exception $exception) {
+            logger('Failed to construct Pterodactyl client, Settings table not available?', ['exception' => $exception]);
+        }
+    }
     /**
      * @return PendingRequest
      */
-    public static function client()
+    public function client(PterodactylSettings $ptero_settings)
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . config('SETTINGS::SYSTEM:PTERODACTYL:TOKEN'),
+            'Authorization' => 'Bearer ' . $ptero_settings->user_token,
             'Content-type' => 'application/json',
             'Accept' => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/api');
+        ])->baseUrl($ptero_settings->getUrl() . 'api' . '/');
     }
 
-    public static function clientAdmin()
+    public function clientAdmin(PterodactylSettings $ptero_settings)
     {
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . config('SETTINGS::SYSTEM:PTERODACTYL:ADMIN_USER_TOKEN'),
+            'Authorization' => 'Bearer ' . $ptero_settings->admin_token,
             'Content-type' => 'application/json',
             'Accept' => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl(config('SETTINGS::SYSTEM:PTERODACTYL:URL') . '/api');
+        ])->baseUrl($ptero_settings->getUrl() . 'api' . '/');
     }
 
     /**
      * @return Exception
      */
-    private static function getException(string $message = '', int $status = 0): Exception
+    private function getException(string $message = '', int $status = 0): Exception
     {
         if ($status == 404) {
             return new Exception('Ressource does not exist on pterodactyl - ' . $message, 404);
@@ -68,10 +90,10 @@ class Pterodactyl
      *
      * @throws Exception
      */
-    public static function getEggs(Nest $nest)
+    public function getEggs(Nest $nest)
     {
         try {
-            $response = self::client()->get("/application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = $this->application->get("application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -87,10 +109,10 @@ class Pterodactyl
      *
      * @throws Exception
      */
-    public static function getNodes()
+    public function getNodes()
     {
         try {
-            $response = self::client()->get('/application/nodes?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = $this->application->get('application/nodes?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -107,10 +129,10 @@ class Pterodactyl
      * @throws Exception
      * @description Returns the infos of a single node
      */
-    public static function getNode($id)
+    public function getNode($id)
     {
         try {
-            $response = self::client()->get('/application/nodes/' . $id);
+            $response = $this->application->get('application/nodes/' . $id);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -121,10 +143,10 @@ class Pterodactyl
         return $response->json()['attributes'];
     }
 
-    public static function getServers()
+    public function getServers()
     {
         try {
-            $response = self::client()->get('/application/servers?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = $this->application->get('application/servers?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -140,10 +162,10 @@ class Pterodactyl
      *
      * @throws Exception
      */
-    public static function getNests()
+    public function getNests()
     {
         try {
-            $response = self::client()->get('/application/nests?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = $this->application->get('application/nests?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -159,10 +181,10 @@ class Pterodactyl
      *
      * @throws Exception
      */
-    public static function getLocations()
+    public function getLocations()
     {
         try {
-            $response = self::client()->get('/application/locations?per_page=' . config('SETTINGS::SYSTEM:PTERODACTYL:PER_PAGE_LIMIT'));
+            $response = $this->application->get('application/locations?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -179,7 +201,7 @@ class Pterodactyl
      *
      * @throws Exception
      */
-    public static function getFreeAllocationId(Node $node)
+    public function getFreeAllocationId(Node $node)
     {
         return self::getFreeAllocations($node)[0]['attributes']['id'] ?? null;
     }
@@ -190,7 +212,7 @@ class Pterodactyl
      *
      * @throws Exception
      */
-    public static function getFreeAllocations(Node $node)
+    public function getFreeAllocations(Node $node)
     {
         $response = self::getAllocations($node);
         $freeAllocations = [];
@@ -214,11 +236,10 @@ class Pterodactyl
      *
      * @throws Exception
      */
-    public static function getAllocations(Node $node)
+    public function getAllocations(Node $node)
     {
-        $per_page = config('SETTINGS::SERVER:ALLOCATION_LIMIT', 200);
         try {
-            $response = self::client()->get("/application/nodes/{$node->id}/allocations?per_page={$per_page}");
+            $response = $this->application->get("application/nodes/{$node->id}/allocations?per_page={$this->allocation_limit}");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -230,23 +251,14 @@ class Pterodactyl
     }
 
     /**
-     * @param  string  $route
-     * @return string
-     */
-    public static function url(string $route): string
-    {
-        return config('SETTINGS::SYSTEM:PTERODACTYL:URL') . $route;
-    }
-
-    /**
      * @param  Server  $server
      * @param  Egg  $egg
      * @param  int  $allocationId
      * @return Response
      */
-    public static function createServer(Server $server, Egg $egg, int $allocationId)
+    public function createServer(Server $server, Egg $egg, int $allocationId)
     {
-        return self::client()->post('/application/servers', [
+        return $this->application->post('application/servers', [
             'name' => $server->name,
             'external_id' => $server->id,
             'user' => $server->user->pterodactyl_id,
@@ -273,10 +285,10 @@ class Pterodactyl
         ]);
     }
 
-    public static function suspendServer(Server $server)
+    public function suspendServer(Server $server)
     {
         try {
-            $response = self::client()->post("/application/servers/$server->pterodactyl_id/suspend");
+            $response = $this->application->post("application/servers/$server->pterodactyl_id/suspend");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -287,10 +299,10 @@ class Pterodactyl
         return $response;
     }
 
-    public static function unSuspendServer(Server $server)
+    public function unSuspendServer(Server $server)
     {
         try {
-            $response = self::client()->post("/application/servers/$server->pterodactyl_id/unsuspend");
+            $response = $this->application->post("application/servers/$server->pterodactyl_id/unsuspend");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -310,7 +322,7 @@ class Pterodactyl
     public function getUser(int $pterodactylId)
     {
         try {
-            $response = self::client()->get("/application/users/{$pterodactylId}");
+            $response = $this->application->get("application/users/{$pterodactylId}");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -327,10 +339,10 @@ class Pterodactyl
      * @param  int  $pterodactylId
      * @return mixed
      */
-    public static function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
+    public function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
     {
         try {
-            $response = self::client()->get("/application/servers/{$pterodactylId}?include=egg,node,nest,location");
+            $response = $this->application->get("application/servers/{$pterodactylId}?include=egg,node,nest,location");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
@@ -357,9 +369,9 @@ class Pterodactyl
      * @param  Product  $product
      * @return Response
      */
-    public static function updateServer(Server $server, Product $product)
+    public function updateServer(Server $server, Product $product)
     {
-        return self::client()->patch("/application/servers/{$server->pterodactyl_id}/build", [
+        return $this->application->patch("application/servers/{$server->pterodactyl_id}/build", [
             'allocation' => $server->allocation,
             'memory' => $product->memory,
             'swap' => $product->swap,
@@ -383,9 +395,9 @@ class Pterodactyl
      * @param  Server  $server
      * @return mixed
      */
-    public static function updateServerOwner(Server $server, int $userId)
+    public function updateServerOwner(Server $server, int $userId)
     {
-        return self::client()->patch("/application/servers/{$server->pterodactyl_id}/details", [
+        return $this->application->patch("application/servers/{$server->pterodactyl_id}/details", [
             'name' => $server->name,
             'user' => $userId,
         ]);
@@ -398,9 +410,9 @@ class Pterodactyl
      * @param  string  $action
      * @return Response
      */
-    public static function powerAction(Server $server, $action)
+    public function powerAction(Server $server, $action)
     {
-        return self::clientAdmin()->post("/client/servers/{$server->identifier}/power", [
+        return $this->client->post("client/servers/{$server->identifier}/power", [
             'signal' => $action,
         ]);
     }
@@ -408,9 +420,9 @@ class Pterodactyl
     /**
      * Get info about user
      */
-    public static function getClientUser()
+    public function getClientUser()
     {
-        return self::clientAdmin()->get('/client/account');
+        return $this->client->get('client/account');
     }
 
     /**
@@ -421,10 +433,10 @@ class Pterodactyl
      * @param  int  $requireDisk
      * @return bool
      */
-    public static function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
+    public function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
     {
         try {
-            $response = self::client()->get("/application/nodes/{$node->id}");
+            $response = $this->application->get("application/nodes/{$node->id}");
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
