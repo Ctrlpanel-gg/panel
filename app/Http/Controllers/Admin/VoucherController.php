@@ -28,7 +28,7 @@ class VoucherController extends Controller
      */
     public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
         return view('admin.vouchers.index', [
             'locale_datatables' => $locale_settings->datatables,

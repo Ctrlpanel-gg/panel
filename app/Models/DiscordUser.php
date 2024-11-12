@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Settings\DiscordSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,7 +54,7 @@ class DiscordUser extends Model
      */
     public function addOrRemoveRole(string $action, string $role_id): mixed
     {
-        $discordSettings = app('discord_settings');
+        $discordSettings = app(DiscordSettings::class);
         return match ($action) {
             'add' => Http::withHeaders(
                 [
@@ -63,7 +64,7 @@ class DiscordUser extends Model
                 ]
             )->put(
                 "https://discord.com/api/guilds/{$discordSettings->guild_id}/members/{$this->id}/roles/{$discordSettings->role_id}",
-                ['access_token' => $discordSettings->token]
+                ['access_token' => $discordSettings->bot_token]
             ),
             'remove' => Http::withHeaders(
                 [
@@ -73,7 +74,7 @@ class DiscordUser extends Model
                 ]
             )->remove(
                 "https://discord.com/api/guilds/{$discordSettings->guild_id}/members/{$this->id}/roles/{$discordSettings->role_id}",
-                ['access_token' => $discordSettings->token]
+                ['access_token' => $discordSettings->bot_token]
             ),
             default => null,
         };

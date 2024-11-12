@@ -1,10 +1,14 @@
 <?php
-// repport all error
+// report all error
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
+
+if (!file_exists('../../.env')) {
+    echo shell_exec('cp ../../.env.example ../../.env');
+}
 
 use DevCoder\DotEnv;
 
@@ -30,10 +34,6 @@ include './src/forms/admin.php';
 
 if (file_exists('../../install.lock')) {
     exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
-}
-
-if (!file_exists('../../.env')) {
-    echo run_console('cp ../../.env.example ../../.env');
 }
 
 // load all the .env value in php env
@@ -85,7 +85,7 @@ include './views/layout-top.php';
 include "./views/{$viewName}.php";
 include './views/layout-bottom.php';
 
-// setting / reseting the error message
+// setting / resetting the error message
 $_SESSION['error-message'] = null;
 
 ?>

@@ -106,7 +106,7 @@
                                                         @endif value="{{$role->id}}">{{$role->name}}</option>
                                             @endforeach
                                         </select>
-                            </div>
+                                    </div>
                                 </div>
                                     <div class="form-group">
                                         <label for="name">{{__('Referral-Code')}}</label>
@@ -118,15 +118,18 @@
                                         </div>
                                         @enderror
                                     </div>
-                            @error('role')
-                            <div class="text-danger">
-                                {{$message}}
-                                    </div>
-                                    @enderror
+                                @error('role')
+                                <div class="text-danger">
+                                    {{$message}}
+                                </div>
+                                @enderror
 
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            </form>
                         </div>
                     </div>
                 </div>

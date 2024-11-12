@@ -28,7 +28,7 @@ class ShopProductController extends Controller
      */
     public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
         $isStoreEnabled = $general_settings->store_enabled;
 

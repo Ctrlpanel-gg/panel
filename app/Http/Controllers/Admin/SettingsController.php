@@ -15,6 +15,8 @@ use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
 {
+    const ICON_PERMISSION = "admin.icons.edit";
+
 
 
     /**
@@ -99,7 +101,7 @@ class SettingsController extends Controller
 
         $this->checkPermission("settings." . strtolower($category) . ".write");
 
-        $settings_class = request()->get('settings_class');
+        $settings_class = (string) request()->get('settings_class');
 
         if (method_exists($settings_class, 'getValidations')) {
             $validations = $settings_class::getValidations();
@@ -119,7 +121,6 @@ class SettingsController extends Controller
             // Get the type of the settingsclass property
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
-
 
             if ($rpType == 'bool') {
                 $settingsClass->$key = $request->has($key);
@@ -142,6 +143,8 @@ class SettingsController extends Controller
 
     public function updateIcons(Request $request)
     {
+        $this->checkPermission(self::ICON_PERMISSION);
+
         $request->validate([
             'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',

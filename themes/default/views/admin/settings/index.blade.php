@@ -47,6 +47,7 @@
                             <nav class="mt-1">
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
+                                  @can("admin.icons.edit")
                                     <li class="nav-item border-bottom-0">
                                         <a href="#icons" class="nav-link" data-toggle="pill" role="tab">
                                             <i class="nav-icon fas fa-image"></i>
@@ -55,6 +56,7 @@
                                             </p>
                                         </a>
                                     </li>
+                                  @endcan
                                     @foreach ($settings as $category => $options)
                                         @if (!str_contains($options['settings_class'], 'Extension'))
                                             @canany(['settings.' . strtolower($category) . '.read', 'settings.' .
@@ -157,6 +159,8 @@
                                         <div class="row">
                                             <button class="mt-3 ml-3 btn btn-primary">{{ __('Save') }}</button>
                                         </div>
+
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     </form>
                                 </div>
                                 @foreach ($settings as $category => $options)
@@ -307,6 +311,8 @@
                                                         </button>
                                                     </div>
                                                 </div>
+
+                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                             </form>
                                         </div>
                                     @endcanany

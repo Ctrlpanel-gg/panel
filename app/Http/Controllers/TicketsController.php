@@ -11,13 +11,16 @@ use App\Models\User;
 use App\Notifications\Ticket\Admin\AdminCreateNotification;
 use App\Notifications\Ticket\Admin\AdminReplyNotification;
 use App\Notifications\Ticket\User\CreateNotification;
+use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Settings\TicketSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+
 
 class TicketsController extends Controller
 {
@@ -33,18 +36,26 @@ class TicketsController extends Controller
         ]);
     }
 
-    public function store(Request $request, TicketSettings $ticket_settings)
+
+    public function store(Request $request, GeneralSettings $generalSettings)
     {
-        $this->validate(
-            $request,
-            [
-                'title' => 'required',
-                'ticketcategory' => 'required',
-                'priority' => 'required',
-                'message' => 'required',
-                'g-recaptcha-response' => ['required', 'recaptcha'],
-            ]
-        );
+        if (RateLimiter::tooManyAttempts('ticket-send:'.Auth::user()->id, $perMinute = 1)) {
+            return redirect()->back()->with('error', __('Please wait before creating a new Ticket'));
+        }
+
+        $validateData = [
+            'title' => 'required|string|max:255',
+            'ticketcategory' => 'required|numeric',
+            'priority' => ['required', 'in:Low,Medium,High'],
+            'message' => 'required|string|min:10|max:2000',
+        ];
+
+        if ($generalSettings->recaptcha_enabled) {
+            $validateData['g-recaptcha-response'] = ['required', 'recaptcha'];
+        }
+
+        $this->validate($request, $validateData);
+
         $ticket = new Ticket(
             [
                 'title' => $request->input('title'),
@@ -67,6 +78,7 @@ class TicketsController extends Controller
 
 
         $user->notify(new CreateNotification($ticket));
+        RateLimiter::hit('ticket-send:'.Auth::user()->id);
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #') . $ticket->ticket_id);
     }
@@ -89,6 +101,9 @@ class TicketsController extends Controller
 
     public function reply(Request $request)
     {
+        if (RateLimiter::tooManyAttempts('ticket-reply:'.Auth::user()->id, $perMinute = 1)) {
+            return redirect()->back()->with('error', __('Please wait before answering a Ticket'));
+        }
         //check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
         if ($check && $check->status == 'True') {
@@ -101,6 +116,7 @@ class TicketsController extends Controller
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
         $ticket->status = 'Client Reply';
+        $ticket->updated_at = now();
         $ticket->update();
         $ticketcomment = TicketComment::create([
             'ticket_id' => $request->input('ticket_id'),
@@ -115,7 +131,7 @@ class TicketsController extends Controller
         foreach($staffNotify as $staff){
             Notification::send($staff, new AdminReplyNotification($ticket, $user, $newmessage));
         }
-
+        RateLimiter::hit('ticket-reply:'.Auth::user()->id);
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 

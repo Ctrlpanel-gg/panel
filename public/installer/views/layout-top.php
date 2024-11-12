@@ -64,7 +64,7 @@
             </div>
             <div class='border-4 border-[#2E373B] bg-[#242A2E] rounded-2xl p-6 pt-3 mx-2'>
                 <h2 class='text-xl text-center mb-2'>$title</h2>"
-                . (isset($subtitle) ? "<p class='text-neutral-400 mb-1'>$subtitle</p>" : "");
+                . (isset($subtitle) ? "<p class='text-neutral-400 mb-1 text-center'>$subtitle</p>" : "");
 }
 ?>
 <!-- any middle view here -->

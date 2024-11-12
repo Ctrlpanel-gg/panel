@@ -56,6 +56,8 @@
                                         <button class="btn btn-light btn-sm" type="submit"><i class="fa fa-search"></i></button>
                                     </div>
                                 </div>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             </form>
                         </div>
                     </div>

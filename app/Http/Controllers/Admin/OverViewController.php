@@ -32,7 +32,7 @@ class OverViewController extends Controller
 
     public function index(GeneralSettings $general_settings)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION,self::SYNC_PERMISSION]);
 
         //Get counters
         $counters = collect();
