@@ -101,7 +101,7 @@ class SettingsController extends Controller
 
         $this->checkPermission("settings." . strtolower($category) . ".write");
 
-        $settings_class = request()->get('settings_class');
+        $settings_class = (string) request()->get('settings_class');
 
         if (method_exists($settings_class, 'getValidations')) {
             $validations = $settings_class::getValidations();
@@ -121,7 +121,6 @@ class SettingsController extends Controller
             // Get the type of the settingsclass property
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
-
 
             if ($rpType == 'bool') {
                 $settingsClass->$key = $request->has($key);
