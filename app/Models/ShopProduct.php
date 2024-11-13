@@ -75,7 +75,7 @@ class ShopProduct extends Model
     public function getTaxPercent()
     {
         $generalSettings = new GeneralSettings();
-        $tax = $generalSettings->sales_tax;
+        $tax = intval($generalSettings->sales_tax);
 
         return $tax < 0 ? 0 : $tax;
     }

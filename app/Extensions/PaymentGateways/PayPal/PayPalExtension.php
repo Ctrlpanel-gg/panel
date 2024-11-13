@@ -57,7 +57,7 @@ class PayPalExtension extends PaymentExtension
                         'breakdown' => [
                             'item_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $totalPriceString
+                                'value' => $shopProduct->price,
                             ],
                             'tax_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
@@ -74,6 +74,7 @@ class PayPalExtension extends PaymentExtension
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
         ];
+
 
         try {
             // Call API with your client and get a response for your call
