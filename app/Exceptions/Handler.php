@@ -64,17 +64,12 @@ class Handler extends ExceptionHandler
         Log::error($exception->getMessage()); // Log the exception
 
         if ($this->isHttpException($exception)) {
-            if ($exception->getStatusCode() == 404) { //not found
-                return response()->view('errors.404', ['exception' => $exception], 404);
+            if (view()->exists('errors.' . $exception->getStatusCode())) {
+                return response()->view('errors.' . $exception->getStatusCode(), ['exception' => $exception], $exception->getStatusCode());
             }
-            if ($exception->getStatusCode() == 500) { //general error
-                return response()->view('errors.500', ['exception' => $exception], 500);
-            }
-            if ($exception->getStatusCode() == 403) { //no permission
-                return response()->view('errors.403', ['exception' => $exception], 403);
-            }
-        }
-        return parent::render($request, $exception);
-    }
+            return parent::render($request, $exception);
 
+        }
+
+    }
 }
