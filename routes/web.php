@@ -128,8 +128,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('roles/datatable', [RoleController::class, 'datatable'])->name('roles.datatable');
         Route::resource('roles', RoleController::class);
         //overview
-        Route::get('legal', [OverViewController::class, 'index'])->name('overview.index');
-
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
