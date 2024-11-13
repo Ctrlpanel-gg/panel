@@ -141,7 +141,7 @@ class PaymentController extends Controller
             $paymentGateway = $request->payment_method;
             $couponCode = $request->coupon_code;
 
-            $subtotal = $shopProduct->price;
+            $subtotal = $shopProduct->getTotalPrice();
 
             // Apply Coupon
             if ($couponCode) {

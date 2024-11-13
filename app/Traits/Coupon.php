@@ -73,7 +73,7 @@ trait Coupon
     {
         if (is_null($couponCode)) return false;
 
-        $coupon = CouponModel::where('code', $couponCode)->first();
+        $coupon = CouponModel::where('code', $couponCode)->firstOrFail();
         $shopProduct = ShopProduct::findOrFail($productId);
 
         if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
