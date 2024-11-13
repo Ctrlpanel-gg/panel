@@ -2,17 +2,13 @@
 
 namespace App\Extensions\PaymentGateways\PayPal;
 
-use App\Events\CouponUsedEvent;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
-use App\Extensions\PaymentGateways\PayPal\PayPalSettings;
 use App\Classes\PaymentExtension;
 use App\Enums\PaymentStatus;
-use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
-use App\Models\Coupon;
 use App\Traits\Coupon as CouponTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,12 +53,16 @@ class PayPalExtension extends PaymentExtension
                         'breakdown' => [
                             'item_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $shopProduct->price,
+                                'value' => $totalPriceString,
                             ],
+
+                            /* Removed due to errors in the coupon discount calculation. Its not used in other paymentgateways aswell and basically nice to have but unnessecary
+
                             'tax_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $shopProduct->getTaxValue(),
+                                'value' => round($shopProduct->getTaxValue(), 2),
                             ]
+                            */
                         ]
                     ]
                 ]
@@ -74,6 +74,7 @@ class PayPalExtension extends PaymentExtension
                 'shipping_preference'  => 'NO_SHIPPING'
             ]
         ];
+
 
 
         try {
