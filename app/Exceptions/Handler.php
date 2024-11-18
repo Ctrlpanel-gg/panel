@@ -3,10 +3,14 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
+
+
     /**
      * A list of exception types with their corresponding custom log levels.
      *
@@ -46,5 +50,26 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+
+    /**
+     * @param $request
+     * @param Throwable $exception
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
+     * @throws Throwable
+     */
+    function render($request, Throwable $exception)
+    {
+        Log::error($exception->getMessage()); // Log the exception
+
+        if ($this->isHttpException($exception)) {
+            if (view()->exists('errors.' . $exception->getStatusCode())) {
+                return response()->view('errors.' . $exception->getStatusCode(), ['exception' => $exception], $exception->getStatusCode());
+            }
+            return parent::render($request, $exception);
+
+        }
+
     }
 }
