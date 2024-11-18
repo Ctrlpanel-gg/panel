@@ -7,6 +7,7 @@ use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Node;
 use App\Models\Product;
+use App\Models\Server;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
 use App\Settings\PterodactylSettings;
@@ -15,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -132,6 +134,7 @@ class ProductController extends Controller
             ->where('location_id', '=', $location)
             ->get();
 
+        $user = Auth::user();
         $products = Product::query()
             ->where('disabled', '=', false)
             ->whereHas('nodes', function (Builder $builder) use ($nodes) {
@@ -142,7 +145,15 @@ class ProductController extends Controller
             ->whereHas('eggs', function (Builder $builder) use ($egg) {
                 $builder->where('id', '=', $egg->id);
             })
-            ->get();
+            ->get()
+            ->map(function ($product) use ($user) {
+                // Add servers_count to each product
+                $product->servers_count = Server::where('product_id', $product->id)
+                    ->where('user_id', $user->id) // Filter by user ID
+                    ->count();
+
+                return $product; // Ensure you return the modified product
+            });
 
         // Instead of the old node check, we will check if the product fits in any given node in the location
         foreach ($products as $key => $product) {

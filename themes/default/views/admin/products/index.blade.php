@@ -56,6 +56,7 @@
                             <th>{{__('Eggs')}}</th>
                             <th>{{__('Min Credits')}}</th>
                             <th>{{__('Servers')}}</th>
+                             <th>{{__('Serverlimit')}}</th>
                             <th>{{__('Created at')}}</th>
                             <th>{{ __('Actions') }}</th>
                         </tr>
@@ -106,6 +107,7 @@
                     {data: "eggs", sortable: false},
                     {data: "minimum_credits"},
                     {data: "servers", sortable: false},
+                    {data: "serverlimit"},
                     {data: "created_at"},
                     {data: "actions", sortable: false}
                 ],

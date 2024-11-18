@@ -98,7 +98,6 @@
                                     </div>
                                 @enderror
                             </div>
-
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -115,6 +114,8 @@
 
                                     </div>
                                 </div>
+
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="egg">{{ __('Specification ') }}</label>
@@ -173,10 +174,25 @@
                         <template x-for="product in products" :key="product.id">
                             <div class="card  col-xl-3 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
                                 <div class="card-body d-flex  flex-column">
-                                    <h4 class="card-title" x-text="product.name"></h4>
+                                  <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Product Name -->
+                                    <h4 class="card-title mb-0" x-text="product.name"></h4>
+
+                                    <!-- Server Limit and Count -->
+                                    <span class="text-muted"
+                                          x-text="product.serverlimit > 0
+                                              ? product.servers_count + ' / ' + product.serverlimit
+                                              : '{{ __('No limit') }}'">
+                                    </span>
+                                  </div>
+
+
                                     <div class="mt-2">
                                         <div>
-                                            <p class="card-text text-muted mb-1">{{ __('Resource Data:') }}</p>
+                                          <p class="card-text text-muted mb-1">{{ __('Resource Data:') }}</p>
+
+
+
                                             <ul class="pl-0">
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-microchip"></i>
@@ -253,6 +269,7 @@
                                         <button type="submit" x-model="selectedProduct" name="product"
                                             :disabled="product.minimum_credits > user.credits || product.price > user.credits ||
                                                 product.doesNotFit == true ||
+                                                product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
                                                 submitClicked"
                                             :class="product.minimum_credits > user.credits || product.price > user.credits ||
                                                 product.doesNotFit == true ||

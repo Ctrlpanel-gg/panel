@@ -141,6 +141,7 @@ class ServerController extends Controller
             return redirect()->route('servers.index')->with('error', __('Server limit reached!'));
         }
 
+
         // minimum credits && Check for Allocation
         if (FacadesRequest::has('product')) {
             $product = Product::findOrFail(FacadesRequest::input('product'));
@@ -151,6 +152,13 @@ class ServerController extends Controller
             if (!$availableNode) {
                 return redirect()->route('servers.index')->with('error', __("The chosen location doesn't have the required memory or disk left to allocate this product."));
             }
+
+            //serverlimit on product
+            $productCount = Auth::user()->servers()->where("product_id", $product->id)->count();
+            if($productCount >= $product->serverlimit){
+                return redirect()->route('servers.index')->with('error', 'You can not create any more Servers with this product!');
+            }
+
 
             // Min. Credits
             if (Auth::user()->credits < ($product->minimum_credits == -1
