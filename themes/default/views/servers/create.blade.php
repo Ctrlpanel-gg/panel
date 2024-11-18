@@ -158,7 +158,17 @@
                 </div>
 
                 <div class="w-100"></div>
-                <div class="col" x-show="selectedLocation != null">
+              <div class="col" x-show="selectedLocation != null" x-data="{
+                                      billingPeriodTranslations: {
+                                          'monthly': '{{ __('per Month') }}',
+                                          'half-annually': '{{ __('per 6 Months') }}',
+                                          'quarterly': '{{ __('per 3 Months') }}',
+                                          'annually': '{{ __('per Year') }}',
+                                          'weekly': '{{ __('per Week') }}',
+                                          'daily': '{{ __('per Day') }}',
+                                          'hourly': '{{ __('per Hour') }}'
+                                      }
+                                  }">
                     <div class="row mt-4 justify-content-center">
                         <template x-for="product in products" :key="product.id">
                             <div class="card  col-xl-3 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
@@ -211,7 +221,7 @@
                                                     <span class="d-inline-block"><i class="fas fa-clock"></i>
                                                         {{ __('Billing Period') }}</span>
 
-                                                    <span class="d-inline-block" x-text="product.billing_period"></span>
+                                                    <span class="d-inline-block" x-text="billingPeriodTranslations[product.billing_period]"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
@@ -230,7 +240,7 @@
                                     <div class="mt-auto border rounded border-secondary">
                                         <div class="d-flex justify-content-between p-2">
                                             <span class="d-inline-block mr-4"
-                                                x-text="'{{ __('Price') }}' + ' (' + product.billing_period + ')'">
+                                                x-text="'{{ __('Price') }}' + ' (' + billingPeriodTranslations[product.billing_period] + ')'">
                                             </span>
                                             <span class="d-inline-block"
                                                 x-text="product.price + ' {{ $credits_display_name }}'"></span>
