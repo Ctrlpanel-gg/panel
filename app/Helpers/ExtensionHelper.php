@@ -68,9 +68,10 @@ class ExtensionHelper
             $item = str_replace('/', '\\', $item);
             // Get the last part of the path as the gateway name
             $gatewayName = explode('\\', $item);
-            
+            $gatewayName = array_pop($gatewayName);
+
             // Construct the full class namespace
-            return $item . '\\' . end($gatewayName) . 'Extension';
+            return $item . '\\' . $gatewayName . 'Extension';
         }, $extensions);
 
         // Filter out non-existing extension classes
