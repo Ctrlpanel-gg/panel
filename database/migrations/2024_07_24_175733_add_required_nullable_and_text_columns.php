@@ -28,19 +28,5 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
-        Schema::table('locations', function (Blueprint $table) {
-            $table->string('description')->change();
-        });
-        Schema::table('nodes', function (Blueprint $table) {
-            $table->string('description')->change();
-        });
-        Schema::table('nests', function (Blueprint $table) {
-            $table->string('description')->change();
-        });
-        Schema::table('eggs', function (Blueprint $table) {
-            $table->string('description')->change();
-        });
-    }
+    public function down(): void {}
 };
