@@ -51,7 +51,7 @@ class StripeExtension extends AbstractExtension
                             'name' => $shopProduct->display,
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => $totalPriceString,
+                        'unit_amount_decimal' => self::priceInCents($totalPriceString),
                     ],
                     'quantity' => 1,
                 ],
@@ -363,4 +363,11 @@ class StripeExtension extends AbstractExtension
         ];
         return $amount >= $minimums[$currencyCode][$payment_method];
     }
+    public static function priceInCents($price){
+        $centPrice = str_replace(".", "", $price);
+        $centPrice = str_replace(",", "", $centPrice);
+        //$centPrice = str_pad($centPrice, 4, '0', STR_PAD_RIGHT);
+        return $centPrice;
+    }
+
 }

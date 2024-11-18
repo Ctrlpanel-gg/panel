@@ -62,13 +62,20 @@ class ExtensionHelper
     {
         $extensions = self::getAllExtensions();
 
-        // replace all slashes with backslashes
-        $extensions = array_map(fn ($item) => str_replace('/', '\\', $item), $extensions);
-        // add the ExtensionClass to the end of the namespace
-        $extensions = array_map(fn ($item) => $item . '\\' . basename($item) . 'Extension', $extensions);
-        // filter out non existing extension classes
-        $extensions = array_filter($extensions, fn ($item) => class_exists($item));
+        // Replace slashes with backslashes and add the gateway name with "Extension" at the end
+        $extensions = array_map(function ($item) {
+            // Convert to backslashes
+            $item = str_replace('/', '\\', $item);
+            // Get the last part of the path as the gateway name
+            $gatewayName = explode('\\', $item);
+            $gatewayName = array_pop($gatewayName);
 
+            // Construct the full class namespace
+            return $item . '\\' . $gatewayName . 'Extension';
+        }, $extensions);
+
+        // Filter out non-existing extension classes
+        $extensions = array_filter($extensions, fn ($item) => class_exists($item));
         return $extensions;
     }
 

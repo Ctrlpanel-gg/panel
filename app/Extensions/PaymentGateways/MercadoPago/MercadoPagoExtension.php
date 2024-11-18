@@ -125,11 +125,11 @@ class MercadoPagoExtension extends AbstractExtension
                 if ($notification == '123456') return response()->json(['success' => true], 200);
 
                 /**
-                 * Check action have payment.*, 
+                 * Check action have payment.*,
                  * what is expected for this type of api
                  */
                 if (str_contains($action, 'payment')) {
-                    $url = "https://api.mercadopago.com/v1/payments/" . $notificationId;
+                    $url = "https://api.mercadopago.com/v1/payments/" . $notification;
                     $settings = new MercadoPagoSettings();
                     $response = Http::withHeaders([
                         'Content-Type' => 'application/json',

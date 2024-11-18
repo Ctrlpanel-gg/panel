@@ -62,16 +62,28 @@ if (!isset($_SESSION['current_installation_step'])) {
 
 if (isset($_GET['step'])) {
     $stepValue = $_GET['step'];
+    $currentStep = $_SESSION['current_installation_step'];
 
-    if (is_numeric($stepValue) && $stepValue >= 1 && $stepValue <= $_SESSION['last_installation_step']) {
-        // Step is valid numeric within range:
-        $_SESSION['current_installation_step'] = $stepValue;
-    } elseif (strtolower($stepValue) === 'next' && $_SESSION['current_installation_step'] < $_SESSION['last_installation_step']) {
-        // Move to next step:
+    if (strtolower($stepValue) === 'next' && $currentStep < $_SESSION['last_installation_step']) {
         $_SESSION['current_installation_step']++;
-    } elseif (strtolower($stepValue) === 'previous' && $_SESSION['current_installation_step'] > 1) {
-        // Move to previous step:
-        $_SESSION['current_installation_step']--;
+        // Redirect to clean URL after processing
+        header('Location: index.php');
+        exit;
+    }
+    elseif (strtolower($stepValue) === 'previous' && $currentStep > 1) {
+        if ($stepConfig[$currentStep - 1]['is_revertable']) {
+            $_SESSION['current_installation_step']--;
+            header('Location: index.php');
+            exit;
+        }
+    }
+    elseif (is_numeric($stepValue)) {
+        // Only allow accessing previous or current steps
+        if ($stepValue <= $currentStep && $stepValue >= 1 && $stepValue <= $_SESSION['last_installation_step']) {
+            $_SESSION['current_installation_step'] = $stepValue;
+        }
+        header('Location: index.php');
+        exit;
     }
 }
 
@@ -85,7 +97,7 @@ include './views/layout-top.php';
 include "./views/{$viewName}.php";
 include './views/layout-bottom.php';
 
-// setting / resetting the error message
+// setting / reseting the error message
 $_SESSION['error-message'] = null;
 
 ?>
