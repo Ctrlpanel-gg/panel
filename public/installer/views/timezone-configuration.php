@@ -16,6 +16,7 @@
                 <div class="flex flex-col mb-3">
                     <label for="timezone">Timezone</label>
                     <select id="timezone" name="timezone" required class="px-2 py-2 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+                        <option value="UTC" selected>UTC</option>
                         <?php
                         foreach (DateTimeZone::listIdentifiers() as $timezoneIdentifier) {
                             if ($timezoneIdentifier === 'UTC') {
