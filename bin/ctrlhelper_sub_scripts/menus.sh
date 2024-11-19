@@ -184,17 +184,9 @@ redis-server tar unzip git${NC}" \
 #######################################
 info_help_menu() {
   local choice=""
-  local easter_egg="$1"
 
   logo
   logo_version
-  if [[ "${easter_egg}" == "unlocked" ]]; then
-    echo -e " ${B_RE}${BT_WH} Easter egg unlocked!!! ${NC}"
-    echo -e "   ${BT_WH}${TB}Congratulations, you found Easter egg. Here's a \
-well-deserved cake${NC}"
-    echo -e "   ${BT_BLU}${TU}https://bit.ly/ctrlhelper_easter_egg_cake${NC}"
-    echo ""
-  fi
   echo -e " ${BB_BLU}${BT_WH} Info ${NC}"
   echo -e "   ${BT_WH}This script is designed to simplify the installation of \
 dependencies and updating the CtrlPanel.${NC}"
@@ -218,6 +210,7 @@ ${BT_WH}Perform installation. Valid values are full or min${NC}"
 ${BT_WH}Perform an update${NC}"
   echo -e "     ${BT_CY}--help                  \
 ${BT_WH}Display help message${NC}"
+  echo ""
   echo -e " ${BB_YE}${T_BL} Credits ${NC}"
   echo -e "     ${BT_WH}${TB}Made by MrWeez with \
 ${NC}${BT_RE}♥${NC}"
@@ -226,7 +219,6 @@ ${NC}${BT_RE}♥${NC}"
 
   read -rsn 1 -p " " choice
   case "${choice}" in
-  ^) info_help_menu "unlocked" ;;
   *) main_menu ;;
   esac
 }
