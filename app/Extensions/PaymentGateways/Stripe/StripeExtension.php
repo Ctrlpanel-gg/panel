@@ -5,14 +5,10 @@ namespace App\Extensions\PaymentGateways\Stripe;
 use App\Classes\AbstractExtension;
 use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
-use App\Events\CouponUsedEvent;
 use App\Events\UserUpdateCreditsEvent;
-use App\Extensions\PaymentGateways\Stripe\StripeSettings;
-use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
-use App\Models\Coupon;
 use App\Traits\Coupon as CouponTrait;
 use App\Notifications\ConfirmPaymentNotification;
 use Exception;
@@ -55,10 +51,11 @@ class StripeExtension extends AbstractExtension
                             'name' => $shopProduct->display,
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => $totalPriceString,
+                        'unit_amount_decimal' => self::priceInCents($totalPriceString),
                     ],
                     'quantity' => 1,
                 ],
+                /* Removed due to errors in the coupon discount calculation. Its not used in other paymentgateways aswell and basically nice to have but unnessecary
                 [
                     'price_data' => [
                         'currency' => $shopProduct->currency_code,
@@ -66,10 +63,11 @@ class StripeExtension extends AbstractExtension
                             'name' => __('Tax'),
                             'description' => $shopProduct->getTaxPercent() . '%',
                         ],
-                        'unit_amount_decimal' => round($shopProduct->getTaxValue(), 2) * 100,
+                        'unit_amount_decimal' => round($shopProduct->getTaxValue(), 2),
                     ],
                     'quantity' => 1,
                 ],
+                */
             ],
 
             'mode' => 'payment',
@@ -365,4 +363,11 @@ class StripeExtension extends AbstractExtension
         ];
         return $amount >= $minimums[$currencyCode][$payment_method];
     }
+    public static function priceInCents($price){
+        $centPrice = str_replace(".", "", $price);
+        $centPrice = str_replace(",", "", $centPrice);
+        //$centPrice = str_pad($centPrice, 4, '0', STR_PAD_RIGHT);
+        return $centPrice;
+    }
+
 }
