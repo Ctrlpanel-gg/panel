@@ -398,9 +398,12 @@ class UserController extends Controller
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
             })
+            /*  This broke the ability to search the table. Have to revisit later
+
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
             })
+            */
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
                 $suspendIcon = $user->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';
