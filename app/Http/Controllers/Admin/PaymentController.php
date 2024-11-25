@@ -141,12 +141,14 @@ class PaymentController extends Controller
             $paymentGateway = $request->payment_method;
             $couponCode = $request->coupon_code;
 
-            $subtotal = $shopProduct->price;
+            $subtotal = $shopProduct->getTotalPrice();
 
             // Apply Coupon
             if ($couponCode) {
                 if ($this->isCouponValid($couponCode, $user, $shopProduct->id)) {
                     $subtotal = $this->applyCoupon($couponCode, $subtotal);
+                    event(new CouponUsedEvent($couponCode));
+
                 }
             }
 
@@ -155,13 +157,15 @@ class PaymentController extends Controller
             if ($subtotal <= 0) {
                 if ($couponCode) {
                     event(new CouponUsedEvent($couponCode));
+
                 }
 
                 return $this->handleFreeProduct($shopProduct);
             }
-
             // Format the total price to a readable string
             $totalPriceString = number_format($subtotal, 2, '.', '');
+            //reset the price after coupon use
+            $shopProduct->price = $totalPriceString;
 
             // create a new payment
             $payment = Payment::create([
@@ -171,10 +175,10 @@ class PaymentController extends Controller
                 'type' => $shopProduct->type,
                 'status' => 'open',
                 'amount' => $shopProduct->quantity,
-                'price' => $totalPriceString,
+                'price' => $shopProduct->price,
                 'tax_value' => $shopProduct->getTaxValue(),
                 'tax_percent' => $shopProduct->getTaxPercent(),
-                'total_price' => $shopProduct->getTotalPrice(),
+                'total_price' => $totalPriceString,
                 'currency_code' => $shopProduct->currency_code,
                 'shop_item_product_id' => $shopProduct->id,
             ]);
@@ -182,9 +186,6 @@ class PaymentController extends Controller
             $paymentGatewayExtension = ExtensionHelper::getExtensionClass($paymentGateway);
             $redirectUrl = $paymentGatewayExtension::getRedirectUrl($payment, $shopProduct, $totalPriceString);
 
-            if ($couponCode) {
-                event(new CouponUsedEvent($couponCode));
-            }
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return redirect()->route('store.index')->with('error', __('Oops, something went wrong! Please try again later.'));

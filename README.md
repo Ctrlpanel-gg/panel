@@ -6,11 +6,11 @@
 
 CtrlPanel offers an easy-to-use and free billing solution for all starting and experienced hosting providers that seamlessly integrates with the Pterodactyl panel. It facilitates account creation, server ordering, and management, while offering addons, multiple payment methods, and customizable themes for a comprehensive solution.
 
-![GitHub tag](https://img.shields.io/github/tag/ControlPanel-gg/dashboard)
+![GitHub tag](https://img.shields.io/github/tag/Ctrlpanel-gg/panel)
 ![Overall Installations](https://img.shields.io/badge/Overall%20Installations-5000%2B-green)
-![GitHub stars](https://img.shields.io/github/stars/ControlPanel-gg/dashboard)
-[![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg)
-![License](https://img.shields.io/github/license/ControlPanel-gg/dashboard)
+![GitHub stars](https://img.shields.io/github/stars/Ctrlpanel-gg/panel) <!--
+this need update --> <!-- [![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) -->
+![License](https://img.shields.io/github/license/Ctrlpanel-gg/panel)
 ![Discord](https://img.shields.io/discord/787829714483019826)
 
 ![CtrlPanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
@@ -35,13 +35,13 @@ Try it!
 
 Demo Server: [demo.CtrlPanel.gg](https://demo.CtrlPanel.gg)
 
-<!-- It is a temporary live demo; all data will be deleted. -->
+*It is a temporary live demo; all data will be deleted.*
 
 ## 🔧 How to Install
 
 ### 🐳 Docker
 
-Soon...
+*Soon...*
 
 <!-- ```bash
 docker run ...
@@ -57,7 +57,6 @@ Requirements:
 
 - Platform
   - Major Linux distros such as Debian, Ubuntu, CentOS, Fedora, and ArchLinux etc.
-  - Windows 10 (x64), Windows Server ...
 
 Follow the [documentation](https://ctrlpanel.gg/docs/intro) to know how to install.
 

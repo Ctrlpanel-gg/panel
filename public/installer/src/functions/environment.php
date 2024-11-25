@@ -52,7 +52,7 @@ function checkExtensions(): array
 }
 
 $requirements = [
-    'minPhp' => '8.1',
+    'minPhp' => '8.2',
     'maxPhp' => '8.4', // This version is not supported
     'mysql' => '5.7.22',
 ];

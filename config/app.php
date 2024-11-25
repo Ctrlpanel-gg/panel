@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
-    'version' => '0.10',
+    'version' => '1.0.0',
 
     /*
     |--------------------------------------------------------------------------
