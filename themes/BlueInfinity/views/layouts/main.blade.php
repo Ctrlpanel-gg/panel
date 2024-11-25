@@ -448,6 +448,16 @@
                         </li>
                     @endcanany
 
+                  @canany(["admin.coupons.read", "admin.coupons.write"])
+                    <li class="nav-item">
+                      <a href="{{ route('admin.coupons.index') }}"
+                         class="nav-link @if (Request::routeIs('admin.coupons.*')) active @endif">
+                        <i class="nav-icon fas fa-ticket-alt"></i>
+                        <p>{{ __('Coupons') }}</p>
+                      </a>
+                    </li>
+                  @endcanany
+
                     @canany(["admin.useful_links.read","admin.legal.read"])
                         <li class="nav-header">{{ __('Other') }}</li>
                     @endcanany
@@ -633,6 +643,22 @@
         }
     })
     @endif
+    @if (Session::has('warning'))
+    Swal.fire({
+      icon: 'warning',
+      title: '{{ Session::get('warning') }}',
+      position: 'top-end',
+      showConfirmButton: false,
+      background: '#343a40',
+      toast: true,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    })
+  @endif
 </script>
 </body>
 

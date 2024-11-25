@@ -91,7 +91,7 @@ class TicketsController extends Controller
         $this->checkPermission(self::READ_PERMISSION);
         try {
             $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
-            if($ticket->user_id != Auth::user()->id){ return redirect()->back()->with('warning', __('This ticket is not made by you or dosent exist')); }
+            if($ticket->user_id != Auth::user()->id){ return redirect()->back()->with('error', __('This ticket is not made by you or dosent exist')); }
         } catch (Exception $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
@@ -118,7 +118,7 @@ class TicketsController extends Controller
         $this->validate($request, ['ticketcomment' => 'required']);
         try {
             $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
-            if($ticket->user_id != Auth::user()->id){ return redirect()->back()->with('warning', __('This ticket is not made by you or dosent exist')); }
+            if($ticket->user_id != Auth::user()->id){ return redirect()->back()->with('error', __('This ticket is not made by you or dosent exist')); }
         } catch (Exception $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
