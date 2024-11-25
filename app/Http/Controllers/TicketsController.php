@@ -28,6 +28,7 @@ class TicketsController extends Controller
     const WRITE_PERMISSION = 'user.ticket.write';
     public function index(LocaleSettings $locale_settings, TicketSettings $ticketSettings)
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
         return view('ticket.index', [
             'ticketsettings' => $ticketSettings,
             'tickets' => Ticket::where('user_id', Auth::user()->id)->paginate(10),
@@ -39,6 +40,8 @@ class TicketsController extends Controller
 
     public function store(Request $request, GeneralSettings $generalSettings)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         if (RateLimiter::tooManyAttempts('ticket-send:'.Auth::user()->id, $perMinute = 1)) {
             return redirect()->back()->with('error', __('Please wait before creating a new Ticket'));
         }
@@ -88,6 +91,7 @@ class TicketsController extends Controller
         $this->checkPermission(self::READ_PERMISSION);
         try {
             $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+            if($ticket->user_id != Auth::user()->id){ return redirect()->back()->with('warning', __('This ticket is not made by you or dosent exist')); }
         } catch (Exception $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
@@ -101,6 +105,8 @@ class TicketsController extends Controller
 
     public function reply(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         if (RateLimiter::tooManyAttempts('ticket-reply:'.Auth::user()->id, $perMinute = 1)) {
             return redirect()->back()->with('error', __('Please wait before answering a Ticket'));
         }
@@ -112,6 +118,7 @@ class TicketsController extends Controller
         $this->validate($request, ['ticketcomment' => 'required']);
         try {
             $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
+            if($ticket->user_id != Auth::user()->id){ return redirect()->back()->with('warning', __('This ticket is not made by you or dosent exist')); }
         } catch (Exception $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
@@ -151,8 +158,12 @@ class TicketsController extends Controller
 
     public function changeStatus($ticket_id)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+
         try {
             $ticket = Ticket::where('user_id', Auth::user()->id)->where("ticket_id", $ticket_id)->firstOrFail();
+            if($ticket->user_id != Auth::user()->id){ return redirect()->back()->with('warning', __('This ticket is not made by you or dosent exist')); }
         } catch (Exception $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
