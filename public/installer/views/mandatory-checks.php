@@ -37,7 +37,7 @@
         <p class="text-neutral-400 mb-1">
             <br>
             <span style="color: #eab308;">Important:</span>
-            CtrlPanel.gg requires a MySQL-Database, Redis-Server, and Pterodactyl-Panel to work.<br>
+            CtrlPanel.gg requires a MySQL-Database and Pterodactyl-Panel to work.<br>
             Please make sure you have these installed and running before you continue.
         </p>
     </li>
