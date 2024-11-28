@@ -151,7 +151,7 @@
                                   </template>
                                 </select>
                               </div>
-                              <div class="alert alert-danger p-2 m-2" x-show="selectedProduct != null && locations.length == 0">
+                              <div class="alert alert-danger p-2 m-2" x-show="selectedProduct != null && selectedProduct != '' && locations.length == 0">
                                 {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
                               </div>
                         </div>
@@ -267,18 +267,23 @@
                                     </div>
                                     <div>
                                         <button type="submit" x-model="selectedProduct" name="product"
-                                            :disabled="product.minimum_credits > user.credits || product.price > user.credits ||
+                                            :disabled="(product.minimum_credits > user.credits && product.price > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
                                                 submitClicked"
-                                            :class="product.minimum_credits > user.credits || product.price > user.credits ||
+                                            :class="(product.minimum_credits > user.credits && product.price > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
-                                            x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Location') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ $credits_display_name }}!' : '{{ __('Create server') }}')">
-                                        </button>
+                                                x-text="product.doesNotFit == true
+                                                    ? '{{ __('Server cant fit on this Location') }}'
+                                                    : (product.servers_count >= product.serverlimit && product.serverlimit != 0
+                                                        ? '{{ __('Max. Servers with configuration reached') }}'
+                                                        : (product.minimum_credits > user.credits && product.price > user.credits
+                                                            ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
+                                                            : '{{ __('Create server') }}'))">                                        </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
-                                        <template x-if="product.price > user.credits">
+                                        <template x-if="product.price > user.credits || product.minimum_credits > user.credits">
                                             <a href="{{ route('store.index') }}">
                                                 <button type="button" class="btn btn-warning btn-block mt-2">
                                                     {{ __('Buy more') }} {{ $credits_display_name }}
@@ -348,7 +353,7 @@
                     this.products = [];
                     this.selectedEgg = 'null';
                     this.selectedLocation = 'null';
-                    this.selectedProduct = 'null';
+                    this.selectedProduct = null;
                     this.locationDescription = 'null';
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)

@@ -19,9 +19,9 @@ class Product extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            -> logOnlyDirty()
-            -> logOnly(['*'])
-            -> dontSubmitEmptyLogs();
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
     public $incrementing = false;
 

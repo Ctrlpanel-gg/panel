@@ -136,24 +136,17 @@ class ProductController extends Controller
 
         $user = Auth::user();
         $products = Product::query()
-            ->where('disabled', '=', false)
+            ->where('disabled', false)
             ->whereHas('nodes', function (Builder $builder) use ($nodes) {
-                $builder->whereIn('id', $nodes->map(function ($node) {
-                    return $node->id;
-                }));
+                $builder->whereIn('id', $nodes->pluck('id')); // Use pluck instead of map
             })
             ->whereHas('eggs', function (Builder $builder) use ($egg) {
-                $builder->where('id', '=', $egg->id);
+                $builder->where('id', $egg->id);
             })
-            ->get()
-            ->map(function ($product) use ($user) {
-                // Add servers_count to each product
-                $product->servers_count = Server::where('product_id', $product->id)
-                    ->where('user_id', $user->id) // Filter by user ID
-                    ->count();
-
-                return $product; // Ensure you return the modified product
-            });
+            ->withCount(['servers' => function ($query) use ($user) {
+                $query->where('user_id', $user->id); // Count only servers for the specific user
+            }])
+            ->get();
 
         // Instead of the old node check, we will check if the product fits in any given node in the location
         foreach ($products as $key => $product) {
