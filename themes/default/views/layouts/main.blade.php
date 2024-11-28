@@ -643,6 +643,22 @@
                 }
             })
         @endif
+        @if (Session::has('warning'))
+        Swal.fire({
+          icon: 'warning',
+          title: '{{ Session::get('warning') }}',
+          position: 'top-end',
+          showConfirmButton: false,
+          background: '#343a40',
+          toast: true,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        })
+      @endif
     </script>
 </body>
 
