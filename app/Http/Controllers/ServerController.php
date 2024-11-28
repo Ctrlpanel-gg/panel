@@ -156,7 +156,7 @@ class ServerController extends Controller
             //serverlimit on product
             $productCount = Auth::user()->servers()->where("product_id", $product->id)->count();
             if($productCount >= $product->serverlimit){
-                return redirect()->route('servers.index')->with('error', 'You can not create any more Servers with this product!');
+                return redirect()->route('servers.index')->with('error', __('You can not create any more Servers with this product!'));
             }
 
 
@@ -469,27 +469,23 @@ class ServerController extends Controller
      */
     private function getAvailableNode(string $location, Product $product)
     {
-        $collection = Node::query()
-            ->join('node_product', 'nodes.id', '=', 'node_product.node_id') // Join with the `node_product` table
-            ->where('nodes.location_id', $location) // Filter by `location_id`
-            ->where('node_product.product_id', $product->id) // Filter by `product_id`
-            ->orderBy('nodes.id') // Order by `nodes.id`
-            ->get(['nodes.*']); // Select all columns from the `nodes` table
+        // Fetch nodes that are related to the product and location
+        $nodes = Node::where('location_id', $location)
+            ->whereHas('products', function ($query) use ($product) {
+                $query->where('product_id', $product->id);
+            })
+            ->get(); // Get the matching nodes
 
-        // loop through nodes and check if the node has enough resources
-        foreach ($collection as $node) {
-            // Check if the node has enough memory and disk space
+        // Loop through the nodes and check if they have enough resources
+        foreach ($nodes as $node) {
             $freeNode = $this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
             // Remove the node from the collection if it doesn't have enough resources
             if (!$freeNode) {
-                $collection->forget($node['id']);
+                $nodes->forget($node->id);
             }
         }
 
-        if($collection->isEmpty()) {
-            return null;
-        }
-
-        return $collection->first()['id'];
+        // Return the first available node or null if none are available
+        return $nodes->isEmpty() ? null : $nodes->first()->id;
     }
 }
