@@ -212,7 +212,7 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
-        App\Providers\SettingsServiceProdiver::class,
+        App\Providers\SettingsServiceProvider::class,
     ],
 
     /*
