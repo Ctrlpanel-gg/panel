@@ -45,7 +45,7 @@ if (isset($_POST['checkDB'])) {
         }
     } catch (Throwable $th) {
         wh_log('Creating APP_KEY failed', 'error');
-        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs !");
+        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in /var/www/ctrlpanel/storage/logs !");
         exit();
     }
 
