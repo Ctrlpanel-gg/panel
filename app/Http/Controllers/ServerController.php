@@ -461,7 +461,12 @@ class ServerController extends Controller
      */
     private function getAvailableNode(string $location, Product $product)
     {
-        $collection = Node::query()->where('location_id', $location)->get();
+        $collection = Node::query()
+            ->join('node_product', 'nodes.id', '=', 'node_product.node_id') // Join with the `node_product` table
+            ->where('nodes.location_id', $location) // Filter by `location_id`
+            ->where('node_product.product_id', $product->id) // Filter by `product_id`
+            ->orderBy('nodes.id') // Order by `nodes.id`
+            ->get(['nodes.*']); // Select all columns from the `nodes` table
 
         // loop through nodes and check if the node has enough resources
         foreach ($collection as $node) {
