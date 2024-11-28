@@ -84,11 +84,15 @@
                 order: [
                     [11, "desc"]
                 ],
-                columns: [{
+                columns: [
+                  /* This broke the ability to search the table. Have to revisit later
+                  {
                         data: 'discordId',
                         visible: false,
                         name: 'discordUser.id'
                     },
+                    */
+
                     {
                         data: 'pterodactyl_id',
                         visible: false

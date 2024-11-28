@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
@@ -189,18 +190,23 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function sendEmailVerificationNotification()
     {
-        // Rate limit the email verification notification to 1 attempt per 30 minutes
-        $executed = RateLimiter::attempt(
-            key: 'verify-mail'. $this->id,
-            maxAttempts: 1,
-            callback: function() {
-                $this->notify(new QueuedVerifyEmail);
-            },
-            decaySeconds: 1800
-        );
+        try {
+            // Rate limit the email verification notification to 5 attempt per 30 minutes
+            $executed = RateLimiter::attempt(
+                key: 'verify-mail' . $this->id,
+                maxAttempts: 5,
+                callback: function () {
+                    $this->notify(new QueuedVerifyEmail);
+                },
+                decaySeconds: 1800
+            );
 
-        if (! $executed) {
-            return response()->json(['message' => 'Too many requests, try again in: ' . RateLimiter::availableIn('verify-mail:'. $this->id) . ' seconds'], 429);
+            if (!$executed) {
+                return redirect()->back()->with('error', 'Too many requests. Try again in ' . RateLimiter::availableIn('verify-mail:' . $this->id) . ' seconds.');
+            }
+        }catch (\Exception $exception){
+            Log::error($exception->getMessage());
+            return redirect()->back()->with('error', __("Something went wrong. Please try again later!"));
         }
     }
 
