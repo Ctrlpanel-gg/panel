@@ -141,7 +141,7 @@ class RegisterController extends Controller
         ]);
 
         $user->syncRoles(Role::findByName('User'));
-
+    try {
         $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => null,
             'username' => $user->name,
@@ -153,17 +153,31 @@ class RegisterController extends Controller
             'language' => 'en',
         ]);
 
-        $user->update([
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-        ]);
-
+        // Check if Pterodactyl API response failed
         if ($response->failed()) {
-            $user->delete();
+            // Log the error details
             Log::error('Pterodactyl Registration Error: ' . $response->json()['errors'][0]['detail']);
+
+            // Delete the user from the local database
+            $user->delete();
+
+            // Throw a validation exception with a user-friendly message
             throw ValidationException::withMessages([
                 'ptero_registration_error' => [__('Account already exists on Pterodactyl. Please contact the Support!')],
             ]);
         }
+
+        $user->update([
+            'pterodactyl_id' => $response->json()['attributes']['id'],
+        ]);
+    }catch (\Exception $exception){
+        Log::error('Pterodactyl Registration Error: ' . $exception->getMessage());
+        // Throw a validation exception with a user-friendly message
+        throw ValidationException::withMessages([
+            'ptero_registration_error' => [__('Pterodactyl registration Error. Please contact the Support or check the logs!')],
+        ]);
+    }
+
 
         // delete activity log for user creation where description = 'created' or 'deleted' and subject_id = user_id
         DB::table('activity_log')->where('description', 'created')->orWhere('description', 'deleted')->where('subject_id', $user->id)->delete();
