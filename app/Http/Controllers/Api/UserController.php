@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Classes\Pterodactyl;
+use App\Classes\PterodactylClient;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
+use App\Settings\PterodactylSettings;
 use App\Settings\UserSettings;
 use Carbon\Carbon;
 use Illuminate\Contracts\Foundation\Application;
@@ -22,12 +24,17 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
+    private $pterodactyl;
+
+    public function __construct(PterodactylSettings $ptero_settings)
+    {
+        $this->pterodactyl = new PterodactylClient($ptero_settings);
+    }
     const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'roles', 'discordUser'];
 
     const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
@@ -56,9 +63,11 @@ class UserController extends Controller
     public function show(int $id)
     {
         $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        $userQuery = $discordUser
+            ? $discordUser->user()->getQuery()
+            : User::query();
 
-        $query = QueryBuilder::for($user)
+        $query = QueryBuilder::for($userQuery)
             ->with('discordUser')
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->where('users.id', '=', $id)
@@ -92,13 +101,13 @@ class UserController extends Controller
 
         //Update Users Password on Pterodactyl
         //Username,Mail,First and Lastname are required aswell
-        $response = Pterodactyl::client()->patch('/application/users/'.$user->pterodactyl_id, [
+        $response = $this->pterodactyl->application->post('/application/users/'.$user->pterodactyl_id, [
             'username' => $request->name,
             'first_name' => $request->name,
             'last_name' => $request->name,
             'email' => $request->email,
-
         ]);
+
         if ($response->failed()) {
             throw ValidationException::withMessages([
                 'pterodactyl_error_message' => $response->toException()->getMessage(),
@@ -286,7 +295,7 @@ class UserController extends Controller
             'referral_code' => $this->createReferralCode(),
         ]);
 
-        $response = Pterodactyl::client()->post('/application/users', [
+        $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => App::environment('local') ? Str::random(16) : (string) $user->id,
             'username' => $user->name,
             'email' => $user->email,
