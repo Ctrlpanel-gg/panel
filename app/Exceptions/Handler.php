@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -59,17 +60,21 @@ class Handler extends ExceptionHandler
      * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
      * @throws Throwable
      */
-    function render($request, Throwable $exception)
+    public function render($request, Throwable $exception)
     {
         Log::error($exception->getMessage()); // Log the exception
 
         if ($this->isHttpException($exception)) {
             if (view()->exists('errors.' . $exception->getStatusCode())) {
-                return response()->view('errors.' . $exception->getStatusCode(), ['exception' => $exception], $exception->getStatusCode());
+                return response()->view(
+                    'errors.' . $exception->getStatusCode(),
+                    ['exception' => $exception],
+                    $exception->getStatusCode()
+                );
             }
-            return parent::render($request, $exception);
-
         }
 
+        // Fallback to default behavior for non-HTTP exceptions
+        return parent::render($request, $exception);
     }
 }
