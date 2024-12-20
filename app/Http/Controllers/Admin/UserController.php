@@ -340,7 +340,7 @@ class UserController extends Controller
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
         if(!$roles){
-            $users = $all ? User::all() : User::whereIn('id', $data['users'])->get();
+            $users = $all ? User::where('suspended', false)->get() : User::whereIn('id', $data['users'])->get();
         } else{
             $users = User::role($data["roles"])->get();
         }
