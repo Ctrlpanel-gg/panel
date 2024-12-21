@@ -22,8 +22,6 @@ class ServersUnsuspendedNotification extends Notification
     {
         $this->pterodactylSettings = app(PterodactylSettings::class);
         $this->servers = $servers;
-
-        logger('Notification created');
     }
 
     /**
