@@ -1,5 +1,5 @@
 @component('mail::message')
-# {{__('Your servers have been suspended!')}}
+# {{__('Your servers have been unsuspended')}}
 
 <x-mail::panel>
   @foreach ($servers as $server)
@@ -7,11 +7,7 @@
   @endforeach
 </x-mail::panel>
 
-{{__('To automatically re-enable your server/s, you need to purchase more credits.')}}
-
-<x-mail::button :url="route('store.index')">
-  {{ __('Purchase Credits') }}
-</x-mail::button>
+{{ __('We appreciate your continued trust in our services. If you have any questions or need assistance, feel free to reach out to our support team.') }}
 
 {{ __('If you have any questions please let us know.') }}<br>
 {{ config('app.name') }}
