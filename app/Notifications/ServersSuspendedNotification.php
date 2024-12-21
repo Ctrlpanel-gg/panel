@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Settings\PterodactylSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,14 +12,18 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    protected $pterodactylSettings;
+    protected $servers;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($servers)
     {
-        //
+        $this->pterodactylSettings = app(PterodactylSettings::class);
+        $this->servers = $servers;
     }
 
     /**
@@ -42,10 +47,10 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
                     ->subject(__('Your servers have been suspended!'))
-                    ->greeting(__('Your servers have been suspended!'))
-                    ->line(__('To automatically re-enable your server/s, you need to purchase more credits.'))
-                    ->action(__('Purchase credits'), route('store.index'))
-                    ->line(__('If you have any questions please let us know.'));
+                    ->markdown('mail.server.suspended', [
+                        'servers' => $this->servers,
+                        'pterodactylSettings' => $this->pterodactylSettings,
+                    ]);
     }
 
     /**
