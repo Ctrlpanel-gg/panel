@@ -5,18 +5,17 @@ namespace App\Notifications;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use LaravelDaily\Invoices\Invoice;
 
-class InvoiceNotification extends Notification
+class InvoiceNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     /**
-     * @var invoice
-     *      * @var invoice
-     *      * @var invoice
+     * @var Invoice
      */
     private $invoice;
 
