@@ -98,7 +98,6 @@
                                     </div>
                                 @enderror
                             </div>
-
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -115,6 +114,8 @@
 
                                     </div>
                                 </div>
+
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="egg">{{ __('Specification ') }}</label>
@@ -150,7 +151,7 @@
                                   </template>
                                 </select>
                               </div>
-                              <div class="alert alert-danger p-2 m-2" x-show="selectedProduct != null && locations.length == 0">
+                              <div class="alert alert-danger p-2 m-2" x-show="selectedProduct != null && selectedProduct != '' && locations.length == 0">
                                 {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
                               </div>
                         </div>
@@ -158,15 +159,40 @@
                 </div>
 
                 <div class="w-100"></div>
-                <div class="col" x-show="selectedLocation != null">
+              <div class="col" x-show="selectedLocation != null" x-data="{
+                                      billingPeriodTranslations: {
+                                          'monthly': '{{ __('per Month') }}',
+                                          'half-annually': '{{ __('per 6 Months') }}',
+                                          'quarterly': '{{ __('per 3 Months') }}',
+                                          'annually': '{{ __('per Year') }}',
+                                          'weekly': '{{ __('per Week') }}',
+                                          'daily': '{{ __('per Day') }}',
+                                          'hourly': '{{ __('per Hour') }}'
+                                      }
+                                  }">
                     <div class="row mt-4 justify-content-center">
                         <template x-for="product in products" :key="product.id">
                             <div class="card  col-xl-3 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
                                 <div class="card-body d-flex  flex-column">
-                                    <h4 class="card-title" x-text="product.name"></h4>
+                                  <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Product Name -->
+                                    <h4 class="card-title mb-0" x-text="product.name"></h4>
+
+                                    <!-- Server Limit and Count -->
+                                    <span class="text-muted"
+                                          x-text="product.serverlimit > 0
+                                              ? product.servers_count + ' / ' + product.serverlimit
+                                              : '{{ __('No limit') }}'">
+                                    </span>
+                                  </div>
+
+
                                     <div class="mt-2">
                                         <div>
-                                            <p class="card-text text-muted mb-1">{{ __('Resource Data:') }}</p>
+                                          <p class="card-text text-muted mb-1">{{ __('Resource Data:') }}</p>
+
+
+
                                             <ul class="pl-0">
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-microchip"></i>
@@ -211,7 +237,7 @@
                                                     <span class="d-inline-block"><i class="fas fa-clock"></i>
                                                         {{ __('Billing Period') }}</span>
 
-                                                    <span class="d-inline-block" x-text="product.billing_period"></span>
+                                                    <span class="d-inline-block" x-text="billingPeriodTranslations[product.billing_period]"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
@@ -230,7 +256,7 @@
                                     <div class="mt-auto border rounded border-secondary">
                                         <div class="d-flex justify-content-between p-2">
                                             <span class="d-inline-block mr-4"
-                                                x-text="'{{ __('Price') }}' + ' (' + product.billing_period + ')'">
+                                                x-text="'{{ __('Price') }}' + ' (' + billingPeriodTranslations[product.billing_period] + ')'">
                                             </span>
                                             <span class="d-inline-block"
                                                 x-text="product.price + ' {{ $credits_display_name }}'"></span>
@@ -241,17 +267,23 @@
                                     </div>
                                     <div>
                                         <button type="submit" x-model="selectedProduct" name="product"
-                                            :disabled="product.minimum_credits > user.credits || product.price > user.credits ||
+                                            :disabled="(product.minimum_credits > user.credits && product.price > user.credits) ||
                                                 product.doesNotFit == true ||
+                                                product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
                                                 submitClicked"
-                                            :class="product.minimum_credits > user.credits || product.price > user.credits ||
+                                            :class="(product.minimum_credits > user.credits && product.price > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
-                                            x-text="product.doesNotFit == true ? '{{ __('Server cant fit on this Location') }}' : (product.minimum_credits > user.credits || product.price > user.credits ? '{{ __('Not enough') }} {{ $credits_display_name }}!' : '{{ __('Create server') }}')">
-                                        </button>
+                                                x-text="product.doesNotFit == true
+                                                    ? '{{ __('Server cant fit on this Location') }}'
+                                                    : (product.servers_count >= product.serverlimit && product.serverlimit != 0
+                                                        ? '{{ __('Max. Servers with configuration reached') }}'
+                                                        : (product.minimum_credits > user.credits && product.price > user.credits
+                                                            ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
+                                                            : '{{ __('Create server') }}'))">                                        </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
-                                        <template x-if="product.price > user.credits">
+                                        <template x-if="product.price > user.credits || product.minimum_credits > user.credits">
                                             <a href="{{ route('store.index') }}">
                                                 <button type="button" class="btn btn-warning btn-block mt-2">
                                                     {{ __('Buy more') }} {{ $credits_display_name }}
@@ -321,7 +353,7 @@
                     this.products = [];
                     this.selectedEgg = 'null';
                     this.selectedLocation = 'null';
-                    this.selectedProduct = 'null';
+                    this.selectedProduct = null;
                     this.locationDescription = 'null';
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)

@@ -128,8 +128,7 @@
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
 
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            </form>
+
                         </div>
                     </div>
                 </div>
@@ -139,7 +138,7 @@
                             <div class="col">
                                 <div class="form-group"><label>{{__('New Password')}}</label> <input
                                         class="form-control @error('new_password') is-invalid @enderror"
-                                        name="new_password" type="password" placeholder="••••••">
+                                        name="new_password" id="new_password" type="password" placeholder="••••••">
 
                                     @error('new_password')
                                     <div class="invalid-feedback">
@@ -152,7 +151,7 @@
                                 <div class="form-group"><label>{{__('Confirm Password')}}</label>
                                     <input
                                         class="form-control @error('new_password_confirmation') is-invalid @enderror"
-                                        name="new_password_confirmation" type="password"
+                                        name="new_password_confirmation" id="new_password_confirmation" type="password"
                                         placeholder="••••••">
 
                                     @error('new_password_confirmation')
@@ -162,7 +161,8 @@
                                     @enderror
                                 </div>
                             </div>
-                            </form>
+                          <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                          </form>
                         </div>
                     </div>
                 </div>

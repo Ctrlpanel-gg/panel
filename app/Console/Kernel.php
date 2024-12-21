@@ -14,7 +14,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\ChargeCreditsCommand::class,
         Commands\ChargeServers::class,
         Commands\DeleteExpiredCoupons::class,
     ];

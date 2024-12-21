@@ -141,6 +141,7 @@ class ServerController extends Controller
             return redirect()->route('servers.index')->with('error', __('Server limit reached!'));
         }
 
+
         // minimum credits && Check for Allocation
         if (FacadesRequest::has('product')) {
             $product = Product::findOrFail(FacadesRequest::input('product'));
@@ -151,6 +152,13 @@ class ServerController extends Controller
             if (!$availableNode) {
                 return redirect()->route('servers.index')->with('error', __("The chosen location doesn't have the required memory or disk left to allocate this product."));
             }
+
+            //serverlimit on product
+            $productCount = Auth::user()->servers()->where("product_id", $product->id)->count();
+            if($productCount >= $product->serverlimit){
+                return redirect()->route('servers.index')->with('error', __('You can not create any more Servers with this product!'));
+            }
+
 
             // Min. Credits
             if (Auth::user()->credits < ($product->minimum_credits == -1
@@ -285,6 +293,9 @@ class ServerController extends Controller
     /** Remove the specified resource from storage. */
     public function destroy(Server $server, DiscordSettings $discord_settings)
     {
+        if ($server->user_id != Auth::user()->id) {
+            return back()->with('error', __('This is not your Server!'));
+        }
         try {
             // Remove role from discord
             try {
@@ -458,22 +469,23 @@ class ServerController extends Controller
      */
     private function getAvailableNode(string $location, Product $product)
     {
-        $collection = Node::query()->where('location_id', $location)->get();
+        // Fetch nodes that are related to the product and location
+        $nodes = Node::where('location_id', $location)
+            ->whereHas('products', function ($query) use ($product) {
+                $query->where('product_id', $product->id);
+            })
+            ->get(); // Get the matching nodes
 
-        // loop through nodes and check if the node has enough resources
-        foreach ($collection as $node) {
-            // Check if the node has enough memory and disk space
+        // Loop through the nodes and check if they have enough resources
+        foreach ($nodes as $node) {
             $freeNode = $this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
             // Remove the node from the collection if it doesn't have enough resources
             if (!$freeNode) {
-                $collection->forget($node['id']);
+                $nodes->forget($node->id);
             }
         }
 
-        if($collection->isEmpty()) {
-            return null;
-        }
-
-        return $collection->first()['id'];
+        // Return the first available node or null if none are available
+        return $nodes->isEmpty() ? null : $nodes->first()->id;
     }
 }

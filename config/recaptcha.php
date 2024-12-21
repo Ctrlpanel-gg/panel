@@ -17,13 +17,13 @@ return [
      * The site key
      * get site key @ www.google.com/recaptcha/admin
      */
-    'api_site_key' => env('RECAPTCHA_SITE_KEY', ''),
+   //  'api_site_key' => env('RECAPTCHA_SITE_KEY', ''),  #This is injected in the SettingsServiceProvider
 
     /**
      * The secret key
      * get secret key @ www.google.com/recaptcha/admin
      */
-    'api_secret_key' => env('RECAPTCHA_SECRET_KEY', ''),
+  //  'api_secret_key' => env('RECAPTCHA_SECRET_KEY', ''),  #This is injected in the SettingsServiceProvider
 
     /**
      * ReCATCHA version
