@@ -5,10 +5,11 @@ namespace App\Notifications;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class ReferralNotification extends Notification
+class ReferralNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
