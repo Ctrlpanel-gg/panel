@@ -15,9 +15,7 @@ class InvoiceNotification extends Notification implements ShouldQueue
     use Queueable;
 
     /**
-     * @var invoice
-     *      * @var invoice
-     *      * @var invoice
+     * @var Invoice
      */
     private $invoice;
 
