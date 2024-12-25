@@ -96,6 +96,3 @@ while ($pterouser = $pteroUserResult->fetch_assoc()) {
         echo "Fail: " . $e;
     }
 }
-
-
-?>
