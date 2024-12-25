@@ -66,7 +66,7 @@ class PterodactylClient
     private function getException(string $message = '', int $status = 0): Exception
     {
         if ($status == 404) {
-            return new Exception('Ressource does not exist on pterodactyl - ' . $message, 404);
+            return new Exception('Resource does not exist on pterodactyl - ' . $message, 404);
         }
 
         if ($status == 403) {
@@ -79,6 +79,14 @@ class PterodactylClient
 
         if ($status == 500) {
             return new Exception('Pterodactyl server error - ' . $message, 500);
+        }
+
+        if ($status == 0) {
+            return new Exception('Unable to connect to Pterodactyl node - Please check if the node is online and accessible', 503);
+        }
+
+        if ($status >= 500 && $status < 600) {
+            return new Exception('Pterodactyl node error (HTTP ' . $status . ') - ' . $message, $status);
         }
 
         return new Exception('Request Failed, is pterodactyl set-up correctly? - ' . $message);

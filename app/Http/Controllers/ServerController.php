@@ -47,12 +47,28 @@ class ServerController extends Controller
         foreach ($servers as $server) {
 
             //Get server infos from ptero
-            $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-            if (!$serverAttributes) {
+            try {
+                $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+                if (!$serverAttributes) {
+                    continue;
+                }
+                $serverRelationships = $serverAttributes['relationships'];
+                $serverLocationAttributes = $serverRelationships['location']['attributes'];
+            } catch (Exception $e) {
+                // Log the error
+                Log::error('Failed to get server attributes', [
+                    'server_id' => $server->id,
+                    'error' => $e->getMessage()
+                ]);
+                
+                // Set default values when node is down
+                $server->location = 'Node Unreachable';
+                $server->egg = 'Unknown';
+                $server->nest = 'Unknown';
+                $server->node = 'Offline';
+                $server->status = 'Node Error';
                 continue;
             }
-            $serverRelationships = $serverAttributes['relationships'];
-            $serverLocationAttributes = $serverRelationships['location']['attributes'];
 
             //Set server infos
             $server->location = $serverLocationAttributes['long'] ?
@@ -332,9 +348,19 @@ class ServerController extends Controller
         if ($server->user_id != Auth::user()->id) {
             return back()->with('error', __('This is not your Server!'));
         }
-        $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-        $serverRelationships = $serverAttributes['relationships'];
-        $serverLocationAttributes = $serverRelationships['location']['attributes'];
+
+        try {
+            $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+            $serverRelationships = $serverAttributes['relationships'];
+            $serverLocationAttributes = $serverRelationships['location']['attributes'];
+        } catch (Exception $e) {
+            Log::error('Failed to get server attributes in show method', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->with('error', __('Unable to connect to server node. Please try again later or contact support if the issue persists.'));
+        }
 
         //Get current product
         $currentProduct = Product::where('id', $server->product_id)->first();
