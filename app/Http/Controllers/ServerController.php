@@ -279,7 +279,35 @@ class ServerController extends Controller
      */
     private function serverCreationFailed(Response $response, Server $server)
     {
-        return redirect()->route('servers.index')->with('error', json_encode($response->json()));
+        // Delete the local server since creation failed
+        $server->delete();
+
+        // Get error details
+        $error = $response->json();
+        $status = $response->status();
+
+        // Log the error for debugging
+        Log::error('Failed to create server on Pterodactyl', [
+            'server_id' => $server->id,
+            'status' => $status,
+            'error' => $error
+        ]);
+
+        // Check if it's a node connectivity issue
+        if ($status === 0 || $status === 503) {
+            return redirect()->route('servers.index')
+                ->with('error', __('The selected node appears to be offline. Please try again later or select a different location.'));
+        }
+
+        // For 5xx errors
+        if ($status >= 500 && $status < 600) {
+            return redirect()->route('servers.index')
+                ->with('error', __('The Pterodactyl node is experiencing issues. Please try again later or select a different location.'));
+        }
+
+        // For other errors, return a user-friendly message
+        return redirect()->route('servers.index')
+            ->with('error', __('Failed to create server. Please try again later or contact support.'));
     }
 
     /** Remove the specified resource from storage. */
