@@ -29,8 +29,8 @@ class Server extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
+            ->logFillable()
             ->logOnlyDirty()
-            ->logOnly(['*'])
             ->dontSubmitEmptyLogs();
     }
 
@@ -164,4 +164,5 @@ class Server extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
 }

@@ -7,6 +7,7 @@ use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Node;
 use App\Models\Product;
+use App\Models\Server;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
 use App\Settings\PterodactylSettings;
@@ -15,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -132,16 +134,18 @@ class ProductController extends Controller
             ->where('location_id', '=', $location)
             ->get();
 
+        $user = Auth::user();
         $products = Product::query()
-            ->where('disabled', '=', false)
+            ->where('disabled', false)
             ->whereHas('nodes', function (Builder $builder) use ($nodes) {
-                $builder->whereIn('id', $nodes->map(function ($node) {
-                    return $node->id;
-                }));
+                $builder->whereIn('id', $nodes->pluck('id')); // Use pluck instead of map
             })
             ->whereHas('eggs', function (Builder $builder) use ($egg) {
-                $builder->where('id', '=', $egg->id);
+                $builder->where('id', $egg->id);
             })
+            ->withCount(['servers' => function ($query) use ($user) {
+                $query->where('user_id', $user->id); // Count only servers for the specific user
+            }])
             ->get();
 
         // Instead of the old node check, we will check if the product fits in any given node in the location
