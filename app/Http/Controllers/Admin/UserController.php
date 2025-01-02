@@ -335,7 +335,7 @@ class UserController extends Controller
         if (in_array('mail', $data['via'])) {
             $mail = (new MailMessage)
                 ->subject($data['title'])
-                ->line(new HtmlString($data['content']));
+                ->markdown('mail.custom', ['content' => $data['content']]);
         }
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
