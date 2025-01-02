@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Servers') }}</h1>
                 </div>
@@ -27,22 +27,23 @@
         <div class="container-xxl">
             <!-- FORM -->
             <form action="{{ route('servers.store') }}" x-on:submit="submitClicked = true" method="post"
-                class="row justify-content-center">
+                class="row justify-content-center"
+                id="serverForm">
                 @csrf
                 <div class="col-xl-6 col-lg-8 col-md-8 col-sm-10">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-title"><i class="fas fa-cogs mr-2"></i>{{ __('Server configuration') }}
+                            <div class="card-title"><i class="mr-2 fas fa-cogs"></i>{{ __('Server configuration') }}
                             </div>
                         </div>
                         @if (!$server_creation_enabled)
-                            <div class="alert alert-warning p-2 m-2">
+                            <div class="p-2 m-2 alert alert-warning">
                                 {{ __('The creation of new servers has been disabled for regular users, enable it again') }}
                                 <a href="{{ route('admin.settings.index', "#Server") }}">{{ __('here') }}</a>.
                             </div>
                         @endif
                         @if ($productCount === 0 || $nodeCount === 0 || count($nests) === 0 || count($eggs) === 0)
-                            <div class="alert alert-danger p-2 m-2">
+                            <div class="p-2 m-2 alert alert-danger">
                                 <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Error!') }}</h5>
                                 <p class="pl-4">
                                     @if (Auth::user()->hasRole("Admin"))
@@ -80,7 +81,7 @@
                         <div class="card-body">
                             @if ($errors->any())
                                 <div class="alert alert-danger">
-                                    <ul class="list-group pl-3">
+                                    <ul class="pl-3 list-group">
                                         @foreach ($errors->all() as $error)
                                             <li>{{ $error }}</li>
                                         @endforeach
@@ -151,7 +152,7 @@
                                   </template>
                                 </select>
                               </div>
-                              <div class="alert alert-danger p-2 m-2" x-show="selectedProduct != null && selectedProduct != '' && locations.length == 0">
+                              <div class="p-2 m-2 alert alert-danger" x-show="selectedProduct != null && selectedProduct != '' && locations.length == 0">
                                 {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
                               </div>
                         </div>
@@ -170,13 +171,13 @@
                                           'hourly': '{{ __('per Hour') }}'
                                       }
                                   }">
-                    <div class="row mt-4 justify-content-center">
+                    <div class="mt-4 row justify-content-center">
                         <template x-for="product in products" :key="product.id">
-                            <div class="card  col-xl-3 col-lg-3 col-md-4 col-sm-10 mr-2 ml-2 ">
-                                <div class="card-body d-flex  flex-column">
+                            <div class="ml-2 mr-2 card col-xl-3 col-lg-3 col-md-4 col-sm-10 ">
+                                <div class="card-body d-flex flex-column">
                                   <div class="d-flex justify-content-between align-items-center">
                                     <!-- Product Name -->
-                                    <h4 class="card-title mb-0" x-text="product.name"></h4>
+                                    <h4 class="mb-0 card-title" x-text="product.name"></h4>
 
                                     <!-- Server Limit and Count -->
                                     <span class="text-muted"
@@ -189,7 +190,7 @@
 
                                     <div class="mt-2">
                                         <div>
-                                          <p class="card-text text-muted mb-1">{{ __('Resource Data:') }}</p>
+                                          <p class="mb-1 card-text text-muted">{{ __('Resource Data:') }}</p>
 
 
 
@@ -254,8 +255,8 @@
                                         </div>
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
-                                        <div class="d-flex justify-content-between p-2">
-                                            <span class="d-inline-block mr-4"
+                                        <div class="p-2 d-flex justify-content-between">
+                                            <span class="mr-4 d-inline-block"
                                                 x-text="'{{ __('Price') }}' + ' (' + billingPeriodTranslations[product.billing_period] + ')'">
                                             </span>
                                             <span class="d-inline-block"
@@ -266,7 +267,7 @@
                                         <input type="hidden" name="product" x-model="selectedProduct">
                                     </div>
                                     <div>
-                                        <button type="submit" x-model="selectedProduct" name="product"
+                                        <button type="button" x-model="selectedProduct" name="product"
                                             :disabled="(product.minimum_credits > user.credits && product.price > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
@@ -274,7 +275,7 @@
                                             :class="(product.minimum_credits > user.credits && product.price > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
-                                            class="btn btn-primary btn-block mt-2" @click="setProduct(product.id);"
+                                            class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);"
                                                 x-text="product.doesNotFit == true
                                                     ? '{{ __('Server cant fit on this Location') }}'
                                                     : (product.servers_count >= product.serverlimit && product.serverlimit != 0
@@ -285,7 +286,7 @@
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
                                         <template x-if="product.price > user.credits || product.minimum_credits > user.credits">
                                             <a href="{{ route('store.index') }}">
-                                                <button type="button" class="btn btn-warning btn-block mt-2">
+                                                <button type="button" class="mt-2 btn btn-warning btn-block">
                                                     {{ __('Buy more') }} {{ $credits_display_name }}
                                                 </button>
                                             </a>
@@ -300,6 +301,7 @@
                 </div>
 
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" id="egg_variables" name="egg_variables">
             </form>
             <!-- END FORM -->
 
@@ -374,6 +376,11 @@
                     this.selectedProduct = productId;
                     this.updateSelectedObjects();
 
+                    let hasEmptyRequiredVariables = this.hasEmptyRequiredVariables(this.selectedEggObject.environment);
+
+                    if(hasEmptyRequiredVariables.length > 0) {
+                      this.dispatchModal(hasEmptyRequiredVariables);
+                    }
                 },
 
                 /**
@@ -465,7 +472,6 @@
                     })
 
                     this.selectedProductObject = this.products.find(product => product.id == this.selectedProduct) ?? {}
-                    console.log(this.selectedProduct, this.selectedProductObject, this.products)
                 },
 
                 /**
@@ -478,6 +484,17 @@
                     if (Object.keys(this.selectedLocationObject).length === 0) return false;
                     if (Object.keys(this.selectedProductObject).length === 0) return false;
                     return !!this.name;
+                },
+
+                hasEmptyRequiredVariables(environment) {
+                  if (!environment) return;
+
+                  return environment.filter((variable) => {
+                    const hasRequiredRule = variable.rules.includes("required");
+                    const isDefaultNull = !variable.default_value;
+
+                    return hasRequiredRule && isDefaultNull;
+                  })
                 },
 
                 getLocationInputText() {
@@ -515,6 +532,92 @@
                     }
 
                     return text;
+                },
+
+                dispatchModal(variables) {
+                  Swal.fire({
+                    title: '{{ __('Required Variables') }}',
+                    html: `
+                      ${variables.map(variable => `
+                        <div class="text-left form-group">
+                          <label for="${variable.env_variable}">${variable.name}</label>
+                          ${
+                            variable.rules.includes("in:")
+                              ? (() => {
+                                const inValues = variable.rules
+                                  .match(/in:([^|]+)/)[1]
+                                  .split(',');
+                                return `
+                                  <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
+                                      ${inValues.map(value => `
+                                          <option value="${value}">${value}</option>
+                                      `).join('')}
+                                  </select>
+                                `;
+                              })()
+                              : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
+                          }
+                          <div id="${variable.env_variable}-error" class="mt-1"></div>
+                        </div>
+                      `).join('')
+                      }
+                    `,
+                    confirmButtonText: '{{ __('Submit') }}',
+                    showCancelButton: true,
+                    cancelButtonText: '{{ __('Cancel') }}',
+                    showLoaderOnConfirm: true,
+                    preConfirm: async () => {
+                      const filledVariables = variables.map(variable => {
+                        const value = document.getElementById(variable.env_variable).value;
+                        return {
+                            ...variable,
+                            filled_value: value
+                        };
+                      });
+
+                      const response = await fetch('{{ route("servers.validateDeploymentVariables") }}', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                          variables: filledVariables
+                        })
+                      })
+
+                      if (!response.ok) {
+                        const errorData = await response.json();
+
+                        variables.forEach(variable => {
+                            const errorContainer = document.getElementById(`${variable.env_variable}-error`);
+                            if (errorContainer) {
+                                errorContainer.innerHTML = '';
+                            }
+                        });
+
+                        if (errorData.errors) {
+                            Object.entries(errorData.errors).forEach(([key, messages]) => {
+                                const errorContainer = document.getElementById(`${key}-error`);
+                                if (errorContainer) {
+                                    errorContainer.innerHTML = messages.map(message => `
+                                        <small class="text-danger">${message}</small>
+                                    `).join('');
+                                }
+                            });
+                        }
+
+                        return false;
+                      }
+
+                      return response.json();
+                    }
+                  }).then((result) => {
+                    if (result.isConfirmed && result.value.success) {
+                      document.getElementById('egg_variables').value = JSON.stringify(result.value.variables);
+                      document.getElementById('serverForm').submit();
+                    }
+                  });
                 }
             }
         }

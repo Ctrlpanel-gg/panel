@@ -25,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Illuminate\Support\Facades\Validator;
 
 class ServerController extends Controller
 {
@@ -202,6 +203,7 @@ class ServerController extends Controller
             'name' => 'required|max:191',
             'location' => 'required|exists:locations,id',
             'egg' => 'required|exists:eggs,id',
+            'egg_variables' => 'nullable|string',
             'product' => 'required|exists:products,id',
         ]);
 
@@ -231,7 +233,7 @@ class ServerController extends Controller
         }
 
         //create server on pterodactyl
-        $response = $this->pterodactyl->createServer($server, $egg, $allocationId);
+        $response = $this->pterodactyl->createServer($server, $egg, $allocationId, $request->input('egg_variables'));
         if ($response->failed()) {
             return $this->serverCreationFailed($response, $server);
         }
@@ -287,6 +289,8 @@ class ServerController extends Controller
      */
     private function serverCreationFailed(Response $response, Server $server)
     {
+        $server->delete();
+
         return redirect()->route('servers.index')->with('error', json_encode($response->json()));
     }
 
@@ -487,5 +491,42 @@ class ServerController extends Controller
 
         // Return the first available node or null if none are available
         return $nodes->isEmpty() ? null : $nodes->first()->id;
+    }
+
+    public function validateDeploymentVariables(Request $request)
+    {
+        $variables = $request->input('variables');
+
+        $errors = [];
+
+        foreach ($variables as $variable) {
+            $rules = $variable['rules'];
+            $envVariable = $variable['env_variable'];
+            $filledValue = $variable['filled_value'];
+
+            $validator = Validator::make(
+                [$envVariable => $filledValue],
+                [$envVariable => $rules]
+            );
+
+            $validator->setAttributeNames([
+                $envVariable => $variable['name'],
+            ]);
+
+            if ($validator->fails()) {
+                $errors[$envVariable] = $validator->errors()->get($envVariable);
+            }
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'errors' => $errors
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'variables' => $variables,
+        ]);
     }
 }
