@@ -156,7 +156,7 @@ class RegisterController extends Controller
             $user->delete();
             Log::error('Pterodactyl Registration Error: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error'));
             throw ValidationException::withMessages([
-                'ptero_registration_error' => [__('Account already exists on Pterodactyl. Please contact Support!')],
+                'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
             ]);
         }
 
