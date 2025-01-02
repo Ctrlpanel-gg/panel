@@ -4,7 +4,7 @@
 # installing dependencies and updating CtrlPanel via CLI
 
 # shellcheck disable=SC2034
-readonly SCRIPT_VER="1.0.0"
+readonly SCRIPT_VER="0.1.0"
 readonly DEFAULT_DIR="/var/www/ctrlpanel"
 
 #######################################
@@ -48,6 +48,25 @@ readonly ERROR="${B_RE}${BT_WH} ERROR ${NC}"
 #######################################
 error_out() {
   echo -e " ${ERROR} ${T_RE}$*${NC}" >&2
+}
+
+#######################################
+# Function to ensure the script is run as root without sudo
+# Globals:
+#   EUID
+#   SUDO_USER
+#######################################
+check_run_as_root_only() {
+  if [ "$EUID" -ne 0 ]; then
+    error_out "This script must be run as root"
+    exit 1
+  fi
+
+  # Check if sudo was used directly to execute the script
+  if [ -n "$SUDO_COMMAND" ] && [ "$SUDO_COMMAND" != "/usr/bin/su" ]; then
+    error_out "Do not use sudo to run this script. Log in as root and run it directly"
+    exit 1
+  fi
 }
 
 #######################################
@@ -113,6 +132,8 @@ CtrlPanel is installed using ${BT_YE}--cpgg-dir${T_RE} argument"
     fi
   fi
 }
+
+check_run_as_root_only
 
 #######################################
 # Handling startup arguments
@@ -208,7 +229,7 @@ set_cpgg_dir
 source "${cpgg_dir:-$DEFAULT_DIR}/bin/ctrlhelper_sub_scripts/menus.sh" \
   || {
     error_out "Source files could not be added! Are you sure you are using \
-script for version 0.10 or above of CtrlPanel? Please try to run the script \
+script for version 1.0 or above of CtrlPanel? Please try to run the script \
 again, if the error persists, create support forum post on CtrlPanel's \
 Discord server!"
     exit 1
@@ -217,7 +238,7 @@ Discord server!"
 source "${cpgg_dir:-$DEFAULT_DIR}/bin/ctrlhelper_sub_scripts/functions.sh" \
     || {
     error_out "Source files could not be added! Are you sure you are using \
-script for version 0.10 or above of CtrlPanel? Please try to run the script \
+script for version 1.0 or above of CtrlPanel? Please try to run the script \
 again, if the error persists, create support forum post on CtrlPanel's \
 Discord server!"
     exit 1
@@ -254,7 +275,7 @@ PHP, Redis, MariaDB and others, as well as install composer files.
       "${T_WH}software-properties-common curl apt-transport-https \
 ca-certificates gnupg lsb-release php8.3 \
 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} \
-mariadb-server nginx redis-server tar unzip git${NC}" \
+mariadb-server nginx redis-server git${NC}" \
       "install_deps" \
       "exit 0"
     fi
@@ -270,7 +291,7 @@ PHP, Redis, Composer and others, as well as install composer files.
       "${T_WH}software-properties-common curl apt-transport-https \
 ca-certificates gnupg lsb-release php8.3 \
 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} \
-redis-server tar unzip git${NC}" \
+redis-server git${NC}" \
       "install_deps \"true\"" \
       "exit 0"
     fi

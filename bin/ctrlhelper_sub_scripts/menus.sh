@@ -159,7 +159,7 @@ list of all packages that will be installed" \
     "${T_WH}software-properties-common curl apt-transport-https \
 ca-certificates gnupg lsb-release php8.3 \
 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} \
-mariadb-server nginx redis-server tar unzip git${NC}" \
+mariadb-server nginx redis-server git${NC}" \
     "install_deps" \
     "install_menu"
     ;;
@@ -170,7 +170,7 @@ list of all packages that will be installed${NC}" \
     "${T_WH}software-properties-common curl apt-transport-https \
 ca-certificates gnupg lsb-release php8.3 \
 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} \
-redis-server tar unzip git${NC}" \
+redis-server git${NC}" \
     "install_deps \"true\"" \
     "install_menu"
     ;;
@@ -212,7 +212,7 @@ ${BT_WH}Perform an update${NC}"
 ${BT_WH}Display help message${NC}"
   echo ""
   echo -e " ${BB_YE}${T_BL} Credits ${NC}"
-  echo -e "     ${BT_WH}${TB}Made by MrWeez with \
+  echo -e "     ${BT_WH}${TB}Made by MrWeez and Contributors with \
 ${NC}${BT_RE}♥${NC}"
   echo ""
   echo " Press any key to return to the main menu"

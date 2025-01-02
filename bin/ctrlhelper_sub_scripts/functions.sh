@@ -69,7 +69,7 @@ version_compare() {
   IFS='.' read -r -a current_parts <<<"${current_version}"
   IFS='.' read -r -a latest_parts <<<"${latest_version}"
 
-  # Add zeros to the shorter version (e.g. 0.10 => 0.10.0)
+  # Add zeros to the shorter version (e.g. 1.0 => 1.0.0)
   while ((${#current_parts[@]} < ${#latest_parts[@]})); do
     current_parts+=("0")
   done
@@ -160,36 +160,36 @@ install_deps() {
   logo
 
   info_out "Adding \"add-apt-repository\" command and additional dependencies"
-  sudo apt -y -qq install software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
+  apt -y -qq install software-properties-common curl apt-transport-https ca-certificates gnupg lsb-release
 
   check_distro
 
   if [[ "$distro" == "debian" ]]; then
     if [[ ! -f "/usr/share/keyrings/deb.sury.org-php.gpg" ]]; then
       info_out "Adding PHP repository keyring"
-      sudo curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
+      curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
     fi
 
     if [[ ! -f "/etc/apt/sources.list.d/deb.sury.org-php.list" ]]; then
       info_out "Adding PHP repository"
-      sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/deb.sury.org-php.list'
+      sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/deb.sury.org-php.list'
     fi
   elif [[ "$distro" == "ubuntu" ]]; then
     info_out "Adding PHP repository"
-    LC_ALL=C.UTF-8 sudo add-apt-repository -y ppa:ondrej/php
+    LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
   fi
 
   if [[ ! -f "/usr/share/keyrings/redis-archive-keyring.gpg" ]]; then
     info_out "Adding Redis repository"
-    curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+    curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
     echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" \
-      | sudo tee /etc/apt/sources.list.d/redis.list
+      | tee /etc/apt/sources.list.d/redis.list
   fi
 
   if [[ "$distro" == "ubuntu" && "$(grep '^VERSION_ID=' /etc/os-release | cut -d'=' -f2 | tr -d '"')" != "24.04"  ]]; then
     if [[ -z "${minimal}" ]]; then
       info_out "Adding MariaDB repository"
-      curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+      curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | bash
     elif [[ -n "${minimal}" && "${minimal}" != "true" ]]; then
       error_out "Invalid argument ${minimal} for install_deps function. Please, report to developers!"
       exit 1
@@ -197,23 +197,23 @@ install_deps() {
   fi
 
   info_out "Running \"apt update\""
-  sudo apt update
+  apt update
 
   info_out "Installing dependencies"
   if [[ "${minimal}" ]]; then
-    sudo apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} redis-server tar unzip git
+    apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} redis-server git
   elif [[ -z "${minimal}" ]]; then
-    sudo apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} mariadb-server nginx redis-server tar unzip git
+    apt -y -qq install php8.3 php8.3-{cli,gd,mysql,pdo,mbstring,tokenizer,bcmath,xml,fpm,curl,zip,intl,redis} mariadb-server nginx redis-server git
   else
     error_out "Invalid argument ${minimal} for install_deps function. Please, report to developers!"
     exit 1
   fi
 
   info_out "Installing Composer"
-  curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
   info_out "Installing Composer dependencies to the CtrlPanel"
-  sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
+  COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
 
   if [[ -z "${cli_mode}" ]]; then
     echo ""
@@ -233,36 +233,36 @@ update() {
   logo
 
   info_out "Enabling maintenance mode"
-  sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan down
+  php "${cpgg_dir:-$DEFAULT_DIR}"/artisan down
 
-  if ! sudo git config --global --get-all safe.directory | grep -q -w "${cpgg_dir:-$DEFAULT_DIR}"; then
+  if ! git config --global --get-all safe.directory | grep -q -w "${cpgg_dir:-$DEFAULT_DIR}"; then
     info_out "Adding CtrlPanel directory to the git save.directory list"
-    sudo git config --global --add safe.directory "${cpgg_dir:-$DEFAULT_DIR}"
+    git config --global --add safe.directory "${cpgg_dir:-$DEFAULT_DIR}"
   fi
 
   info_out "Downloading file updates"
-  sudo git stash
-  sudo git pull
+  git stash
+  git pull
 
   info_out "Installing Composer dependencies"
-  sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
+  COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
 
   info_out "Migrating database updates"
-  sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan migrate --seed --force
+  php "${cpgg_dir:-$DEFAULT_DIR}"/artisan migrate --seed --force
 
   info_out "Clearing the cache"
-  sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan view:clear
-  sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan config:clear
+  php "${cpgg_dir:-$DEFAULT_DIR}"/artisan view:clear
+  php "${cpgg_dir:-$DEFAULT_DIR}"/artisan config:clear
 
   info_out "Setting permissions"
-  sudo chown -R www-data:www-data "${cpgg_dir:-$DEFAULT_DIR}"
-  sudo chmod -R 755 "${cpgg_dir:-$DEFAULT_DIR}"
+  chown -R www-data:www-data "${cpgg_dir:-$DEFAULT_DIR}"
+  chmod -R 755 "${cpgg_dir:-$DEFAULT_DIR}"
 
   info_out "Restarting Queue Workers"
-  sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan queue:restart
+  php "${cpgg_dir:-$DEFAULT_DIR}"/artisan queue:restart
 
   info_out "Disabling maintenance mode"
-  sudo php "${cpgg_dir:-$DEFAULT_DIR}"/artisan up
+  php "${cpgg_dir:-$DEFAULT_DIR}"/artisan up
 
   if [[ -z "${cli_mode}" ]]; then
     echo ""
