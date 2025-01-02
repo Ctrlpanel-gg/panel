@@ -540,7 +540,17 @@
                     html: `
                       ${variables.map(variable => `
                         <div class="text-left form-group">
-                          <label for="${variable.env_variable}">${variable.name}</label>
+                          <div class="d-flex justify-content-between">
+                            <label for="${variable.env_variable}">${variable.name}</label>
+                            ${variable.description
+                              ? `
+                                <span>
+                                  <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
+                                </span>
+                              `
+                              : ''
+                            }
+                          </div>
                           ${
                             variable.rules.includes("in:")
                               ? (() => {
@@ -611,7 +621,10 @@
                       }
 
                       return response.json();
-                    }
+                    },
+                    didOpen: () => {
+                      $('[data-toggle="tooltip"]').tooltip();
+                    },
                   }).then((result) => {
                     if (result.isConfirmed && result.value.success) {
                       document.getElementById('egg_variables').value = JSON.stringify(result.value.variables);
