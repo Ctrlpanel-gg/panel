@@ -38,10 +38,6 @@
                                 <h4>{{ __('Editing the resource options will not automatically update the servers on
                                                                                                     pterodactyls side!') }}'
                                 </h4>
-                                <p class="text-muted">
-                                    {{ __('Automatically updating resource options on pterodactyl side is on
-                                                                                                            my todo list :)') }}
-                                </p>
                             </div>
                         @endif
 
