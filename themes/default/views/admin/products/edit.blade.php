@@ -33,6 +33,14 @@
                 <div class="row">
                     <div class="col-lg-6">
 
+                        @if ($product->servers()->count() > 0)
+                            <div class="callout callout-danger">
+                                <h4>{{ __('Editing the resource options will not automatically update the servers on
+                                                                                                    pterodactyls side!') }}'
+                                </h4>
+                            </div>
+                        @endif
+
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="card-title">{{ __('Product Details') }}</h5>
