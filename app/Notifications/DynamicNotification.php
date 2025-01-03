@@ -4,8 +4,9 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class DynamicNotification extends Notification
+class DynamicNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

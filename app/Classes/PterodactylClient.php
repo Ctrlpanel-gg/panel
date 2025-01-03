@@ -66,7 +66,7 @@ class PterodactylClient
     private function getException(string $message = '', int $status = 0): Exception
     {
         if ($status == 404) {
-            return new Exception('Ressource does not exist on pterodactyl - ' . $message, 404);
+            return new Exception('Resource does not exist on pterodactyl - ' . $message, 404);
         }
 
         if ($status == 403) {
@@ -79,6 +79,14 @@ class PterodactylClient
 
         if ($status == 500) {
             return new Exception('Pterodactyl server error - ' . $message, 500);
+        }
+
+        if ($status == 0) {
+            return new Exception('Unable to connect to Pterodactyl node - Please check if the node is online and accessible', 503);
+        }
+
+        if ($status >= 500 && $status < 600) {
+            return new Exception('Pterodactyl node error (HTTP ' . $status . ') - ' . $message, $status);
         }
 
         return new Exception('Request Failed, is pterodactyl set-up correctly? - ' . $message);
@@ -258,31 +266,45 @@ class PterodactylClient
      */
     public function createServer(Server $server, Egg $egg, int $allocationId, mixed $eggVariables = null)
     {
-        return $this->application->post('application/servers', [
-            'name' => $server->name,
-            'external_id' => $server->id,
-            'user' => $server->user->pterodactyl_id,
-            'egg' => $egg->id,
-            'docker_image' => $egg->docker_image,
-            'startup' => $egg->startup,
-            'environment' => $this->getEnvironmentVariables($egg, $eggVariables),
-            'oom_disabled' => !$server->product->oom_killer,
-            'limits' => [
-                'memory' => $server->product->memory,
-                'swap' => $server->product->swap,
-                'disk' => $server->product->disk,
-                'io' => $server->product->io,
-                'cpu' => $server->product->cpu,
-            ],
-            'feature_limits' => [
-                'databases' => $server->product->databases,
-                'backups' => $server->product->backups,
-                'allocations' => $server->product->allocations,
-            ],
-            'allocation' => [
-                'default' => $allocationId,
-            ],
-        ]);
+       try {
+            $response = $this->application->post('application/servers', [
+                'name' => $server->name,
+                'external_id' => $server->id,
+                'user' => $server->user->pterodactyl_id,
+                'egg' => $egg->id,
+                'docker_image' => $egg->docker_image,
+                'startup' => $egg->startup,
+                'environment' => $this->getEnvironmentVariables($egg, $eggVariables),
+                'oom_disabled' => !$server->product->oom_killer,
+                'limits' => [
+                    'memory' => $server->product->memory,
+                    'swap' => $server->product->swap,
+                    'disk' => $server->product->disk,
+                    'io' => $server->product->io,
+                    'cpu' => $server->product->cpu,
+                ],
+                'feature_limits' => [
+                    'databases' => $server->product->databases,
+                    'backups' => $server->product->backups,
+                    'allocations' => $server->product->allocations,
+                ],
+                'allocation' => [
+                    'default' => $allocationId,
+                ],
+            ]);
+
+            if ($response->failed()) {
+                throw self::getException('Failed to create server on pterodactyl', $response->status());
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            // If it's a connection error (status 0), throw a specific exception
+            if ($e->getCode() === 0) {
+                throw self::getException('Unable to connect to Pterodactyl node - Please check if the node is online and accessible', 503);
+            }
+            throw $e;
+        }
     }
 
     public function suspendServer(Server $server)

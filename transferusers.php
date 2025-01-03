@@ -69,11 +69,11 @@ while ($pterouser = $pteroUserResult->fetch_assoc()) {
     $email = $pterouser['email'];
     $password = $pterouser['password'];
     $now = date("Y-m-d H:i:s");
-    $role = "member";
+    $role = 3;
     $referral_code = generateRandomString();
     try {
         if ($pterouser["root_admin"]) {
-            $role = "admin";
+            $role = 1;
         }
         $checkusersql = mysqli_query($cpggdb, "SELECT * FROM `users` WHERE `email` = '$email'");
         if (mysqli_num_rows($checkusersql) > 0) {
@@ -83,6 +83,12 @@ while ($pterouser = $pteroUserResult->fetch_assoc()) {
 
             $sql = "INSERT INTO `users` (`id`, `name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `avatar`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `ip`, `last_seen`, `discord_verified_at`, `suspended`, `referral_code`) VALUES (NULL, '$username', '$role', '$init_credits', '$serverlimit', '$id', NULL, '$email', NULL, '$password', NULL, '$now', NULL, NULL, NULL, NULL, '0', '$referral_code')";
             $res = mysqli_query($cpggdb, $sql);
+            $userSQL = "SELECT * FROM `users` WHERE `email` = '$email'";
+            $cpggUserResult = mysqli_query($cpggdb, $userSQL);
+            $cpggUser = $cpggUserResult->fetch_assoc();
+            $id = $cpggUser["id"];
+            $sql = "INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('$role', 'App\\\Models\\\User', '$id')";
+            $res = mysqli_query($cpggdb, $sql);
             echo "User ".$email."  created \n";
         }
 
@@ -90,6 +96,3 @@ while ($pterouser = $pteroUserResult->fetch_assoc()) {
         echo "Fail: " . $e;
     }
 }
-
-
-?>
