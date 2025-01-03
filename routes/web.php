@@ -71,6 +71,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
+    Route::post('/servers/validateDeploymentVariables', [ServerController::class, 'validateDeploymentVariables'])->name('servers.validateDeploymentVariables');
     Route::resource('servers', ServerController::class);
 
     try {

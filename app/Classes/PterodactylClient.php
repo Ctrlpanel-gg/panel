@@ -264,9 +264,9 @@ class PterodactylClient
      * @param  int  $allocationId
      * @return Response
      */
-    public function createServer(Server $server, Egg $egg, int $allocationId)
+    public function createServer(Server $server, Egg $egg, int $allocationId, mixed $eggVariables = null)
     {
-        try {
+       try {
             $response = $this->application->post('application/servers', [
                 'name' => $server->name,
                 'external_id' => $server->id,
@@ -274,7 +274,7 @@ class PterodactylClient
                 'egg' => $egg->id,
                 'docker_image' => $egg->docker_image,
                 'startup' => $egg->startup,
-                'environment' => $egg->getEnvironmentVariables(),
+                'environment' => $this->getEnvironmentVariables($egg, $eggVariables),
                 'oom_disabled' => !$server->product->oom_killer,
                 'limits' => [
                     'memory' => $server->product->memory,
@@ -473,5 +473,21 @@ class PterodactylClient
         }
 
         return true;
+    }
+
+    private function getEnvironmentVariables(Egg $egg, $variables)
+    {
+        $environment = [];
+        $variables = json_decode($variables, true);
+
+        foreach ($egg->environment as $envVariable) {
+            $matchedVariable = collect($variables)->firstWhere('env_variable', $envVariable['env_variable']);
+
+            $environment[$envVariable['env_variable']] = $matchedVariable
+                ? $matchedVariable['filled_value']
+                : $envVariable['default_value'];
+        }
+
+        return $environment;
     }
 }
