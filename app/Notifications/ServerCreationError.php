@@ -5,8 +5,9 @@ namespace App\Notifications;
 use App\Models\Server;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ServerCreationError extends Notification
+class ServerCreationError extends Notification implements ShouldQueue
 {
     use Queueable;
 
