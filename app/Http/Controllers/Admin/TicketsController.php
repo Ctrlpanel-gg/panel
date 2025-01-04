@@ -198,8 +198,13 @@ class TicketsController extends Controller
         $this->checkPermission(self::BLACKLIST_WRITE_PERMISSION);
 
         try {
-        $user = User::where('id', $request->user_id)->firstOrFail();
-        $check = TicketBlacklist::where('user_id', $user->id)->first();
+            $user = User::where('id', $request->user_id)->firstOrFail();
+
+            if (auth()->user()->roles()->first()->power < $user->roles()->first()->power) {
+                return redirect()->back()->with('warning', __('You cannot blacklist a user with higher power than you.'));
+            }
+
+            $check = TicketBlacklist::where('user_id', $user->id)->first();
         }
         catch (Exception $e){
             return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
