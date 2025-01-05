@@ -60,7 +60,7 @@ class UserPayment
         $shopProduct = $event->shopProduct;
 
         // only update user if payment is paid
-        if ($event->payment->status != PaymentStatus::PAID) {
+        if ($event->payment->status == PaymentStatus::PAID) {
             return;
         }
 

@@ -6,17 +6,14 @@ use App\Classes\AbstractExtension;
 use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
-use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
-use App\Models\Coupon;
 use App\Traits\Coupon as CouponTrait;
-use App\Events\CouponUsedEvent;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -52,9 +49,9 @@ class MollieExtension extends AbstractExtension
                     'value' => $totalPriceString,
                 ],
                 'description' => "Order #{$payment->id} - " . $shopProduct->name,
-                'redirectUrl' => route('payment.MollieSuccess'),
+                'redirectUrl' => route('payment.MollieSuccess', ['payment_id' => $payment->id]),
                 'cancelUrl' => route('payment.Cancel'),
-                'webhookUrl' => url('/extensions/payment/MollieWebhook'),
+                'webhookUrl' => route('payment.MollieWebhook'),
                 'metadata' => [
                     'payment_id' => $payment->id,
                 ],
@@ -72,14 +69,13 @@ class MollieExtension extends AbstractExtension
         }
     }
 
-    static function success(Request $request): void
+    static function success(Request $request): RedirectResponse
     {
-        $payment = Payment::findOrFail($request->input('payment'));
+        $payment = Payment::findOrFail($request->input('payment_id'));
         $payment->status = PaymentStatus::PROCESSING;
         $payment->save();
 
-        Redirect::route('home')->with('success', 'Your payment is being processed')->send();
-        return;
+        return Redirect::route('home')->with('success', 'Your payment is being processed')->send();
     }
 
     static function webhook(Request $request): JsonResponse
@@ -97,10 +93,11 @@ class MollieExtension extends AbstractExtension
                 return response()->json(['success' => false]);
             }
 
-
             $payment = Payment::findOrFail($response->json()['metadata']['payment_id']);
+            $user = User::findOrFail($payment->user_id);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-            event(new PaymentEvent($payment, $payment, $shopProduct));
+
+            event(new PaymentEvent($user, $payment, $shopProduct));
 
             if ($response->json()['status'] == 'paid') {
                 $user = User::findOrFail($payment->user_id);
