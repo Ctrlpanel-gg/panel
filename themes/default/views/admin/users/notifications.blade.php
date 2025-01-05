@@ -3,7 +3,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Users')}}</h1>
                 </div>
@@ -12,7 +12,7 @@
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a href="{{route('admin.users.index')}}">{{__('Users')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.users.notifications')}}">{{__('Notifications')}}</a></li>
+                                                       href="{{route('admin.users.notifications.index')}}">{{__('Notifications')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,7 +28,7 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{route('admin.users.notifications')}}" method="POST">
+                            <form action="{{route('admin.users.notifications.notify')}}" method="POST">
                                 @csrf
                                 @method('POST')
 
@@ -101,7 +101,7 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="form-group text-right">
+                                <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
 
@@ -160,7 +160,7 @@
                     templateResult: function (data) {
                         if (data.loading) return data.text;
                         const $container = $(
-                            "<div class='select2-result-users clearfix' style='display:flex;'>" +
+                            "<div class='clearfix select2-result-users' style='display:flex;'>" +
                                 "<div class='select2-result-users__avatar' style='display:flex;align-items:center;'><img class='img-circle img-bordered-s' src='" + data.avatarUrl + "?s=40' /></div>" +
                                 "<div class='select2-result-users__meta' style='margin-left:10px'>" +
                                     "<div class='select2-result-users__username' style='font-size:16px;'></div>" +
