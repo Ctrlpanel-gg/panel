@@ -175,7 +175,6 @@
                                                 <input type="hidden" name="settings_class"
                                                     value="{{ $options['settings_class'] }}">
                                                 <input type="hidden" name="category" value="{{ $category }}">
-
                                                 @foreach ($options as $key => $value)
                                                     @if ($key == 'category_icon' || $key == 'settings_class')
                                                         @continue
@@ -217,7 +216,7 @@
                                                                         @break
 
                                                                         @case($value['type'] == 'number')
-                                                                            <input type="number" class="form-control"
+                                                                            <input type="number" step="{{ $value['step'] ?? '1' }}" class="form-control"
                                                                                 name="{{ $key }}"
                                                                                 value="{{ $value['value'] }}">
                                                                         @break
