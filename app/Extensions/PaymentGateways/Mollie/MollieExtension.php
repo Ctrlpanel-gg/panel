@@ -100,7 +100,6 @@ class MollieExtension extends AbstractExtension
             event(new PaymentEvent($user, $payment, $shopProduct));
 
             if ($response->json()['status'] == 'paid') {
-                $user = User::findOrFail($payment->user_id);
                 $payment->status = PaymentStatus::PAID;
                 $payment->save();
                 event(new UserUpdateCreditsEvent($user));
