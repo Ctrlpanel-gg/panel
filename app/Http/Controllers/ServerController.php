@@ -506,18 +506,17 @@ class ServerController extends Controller
             })
             ->get(); // Get the matching nodes
 
-        // Loop through the nodes and check if they have enough resources
-        foreach ($nodes as $node) {
+        // Filter out nodes that dont have enough resources
+        $availableNodes = $nodes->reject(function ($node) use ($product) {
             $freeNode = $this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
-            // Remove the node from the collection if it doesn't have enough resources
-            if (!$freeNode) {
-                $nodes->forget($node->id);
-            }
-        }
+
+            return !$freeNode; // Reject nodes without enough resources.
+        });
 
         // Return the first available node or null if none are available
-        return $nodes->isEmpty() ? null : $nodes->first()->id;
+        return $availableNodes->isEmpty() ? null : $availableNodes->first()->id;
     }
+
 
     public function validateDeploymentVariables(Request $request)
     {
