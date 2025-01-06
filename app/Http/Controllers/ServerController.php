@@ -25,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
+use Illuminate\Support\Facades\Validator;
 
 class ServerController extends Controller
 {
@@ -232,7 +233,6 @@ class ServerController extends Controller
             $this->updateServerInfo($server, $serverInfo);
         }
 
-        return $servers;
     }
 
     private function updateServerInfo(Server $server, array $serverInfo): void
@@ -252,7 +252,7 @@ class ServerController extends Controller
         $server->product = Product::find($server->product_id);
     }
 
-    private function createServer(Request $request): ?Server
+private function createServer(Request $request): ?Server
     {
         $product = Product::findOrFail($request->input('product'));
         $egg = $product->eggs()->findOrFail($request->input('egg'));
@@ -272,13 +272,18 @@ class ServerController extends Controller
             return null;
         }
 
-        $pterodactylResponse = $this->pterodactyl->createServer($server, $egg, $allocationId);
-        if ($pterodactylResponse->failed()) {
+        $response = $this->pterodactyl->createServer($server, $egg, $allocationId, $request->input('egg_variables'));
+        if ($response->failed()) {
             $server->delete();
+            Log::error('Failed to create server on Pterodactyl', [
+                'server_id' => $server->id,
+                'status' => $response->status(),
+                'error' => $response->json()
+            ]);
             return null;
         }
 
-        $serverAttributes = $pterodactylResponse->json()['attributes'];
+        $serverAttributes = $response->json()['attributes'];
         $server->update([
             'pterodactyl_id' => $serverAttributes['id'],
             'identifier' => $serverAttributes['identifier']
@@ -516,12 +521,10 @@ class ServerController extends Controller
             ->whereHas('products', fn($q) => $q->where('product_id', $product->id))
             ->get();
 
-        foreach ($nodes as $node) {
-            if ($this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk)) {
-                return $node;
-            }
-        }
+        $availableNodes = $nodes->reject(function ($node) use ($product) {
+            return !$this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
+        });
 
-        return null;
+        return $availableNodes->isEmpty() ? null : $availableNodes->first();
     }
 }
