@@ -264,10 +264,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <input type="hidden" name="product" x-model="selectedProduct">
-                                    </div>
-                                    <div>
-                                        <button type="button" x-model="selectedProduct" name="product"
+                                        <button type="button"
                                             :disabled="(product.minimum_credits > user.credits && product.price > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
@@ -301,7 +298,8 @@
                 </div>
 
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                <input type="hidden" id="egg_variables" name="egg_variables">
+                <input type="hidden" name="product" id="product" x-model="selectedProduct">
+                <input type="hidden" name="egg_variables" id="egg_variables">
             </form>
             <!-- END FORM -->
 
@@ -380,6 +378,9 @@
 
                     if(hasEmptyRequiredVariables.length > 0) {
                       this.dispatchModal(hasEmptyRequiredVariables);
+                    } else {
+                      document.getElementById('product').value = productId;
+                      document.getElementById('serverForm').submit();
                     }
                 },
 
