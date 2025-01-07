@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Server Settings')}}</h1>
                 </div>
@@ -26,21 +26,21 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
-            <div class="row pt-3">
-                <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+            <div class="pt-3 row">
+                <div class="mb-4 col-xl-3 col-sm-6 mb-xl-0">
                   <div class="card">
-                    <div class="card-body p-3">
+                    <div class="p-3 card-body">
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('SERVER NAME') }}</p>
+                            <p class="mb-0 text-sm text-uppercase font-weight-bold">{{ __('SERVER NAME') }}</p>
                             <h5 class="font-weight-bolder" id="domain_text">
-                              <span class="text-success text-sm font-weight-bolder">{{ $server->name }}</span>
+                              <span class="text-sm text-success font-weight-bolder">{{ $server->name }}</span>
                             </h5>
                           </div>
                         </div>
                         <div class="col-4 text-end">
-                          <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                          <div class="text-center icon icon-shape bg-gradient-primary shadow-primary rounded-circle">
                             <i class='bx bx-fingerprint' style="color: white;"></i>
                           </div>
                         </div>
@@ -48,20 +48,20 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                <div class="mb-4 col-xl-3 col-sm-6 mb-xl-0">
                   <div class="card">
-                    <div class="card-body p-3">
+                    <div class="p-3 card-body">
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('CPU') }}</p>
+                            <p class="mb-0 text-sm text-uppercase font-weight-bold">{{ __('CPU') }}</p>
                             <h5 class="font-weight-bolder">
-                              <span class="text-success text-sm font-weight-bolder">@if($server->product->cpu == 0){{ __('Unlimited') }} @else {{$server->product->cpu}} % @endif</span>
+                              <span class="text-sm text-success font-weight-bolder">@if($server->product->cpu == 0){{ __('Unlimited') }} @else {{$server->product->cpu}} % @endif</span>
                             </h5>
                           </div>
                         </div>
                         <div class="col-4 text-end">
-                          <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                          <div class="text-center icon icon-shape bg-gradient-danger shadow-danger rounded-circle">
                             <i class='bx bxs-chip' style="color: white;"></i>
                           </div>
                         </div>
@@ -69,20 +69,20 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
+                <div class="mb-4 col-xl-3 col-sm-6 mb-xl-0">
                   <div class="card">
-                    <div class="card-body p-3">
+                    <div class="p-3 card-body">
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('MEMORY') }}</p>
+                            <p class="mb-0 text-sm text-uppercase font-weight-bold">{{ __('MEMORY') }}</p>
                             <h5 class="font-weight-bolder">
-                              <span class="text-success text-sm font-weight-bolder">@if($server->product->memory == 0){{ __('Unlimited') }} @else {{$server->product->memory}}MB @endif</span>
+                              <span class="text-sm text-success font-weight-bolder">@if($server->product->memory == 0){{ __('Unlimited') }} @else {{$server->product->memory}}MB @endif</span>
                             </h5>
                           </div>
                         </div>
                         <div class="col-4 text-end">
-                          <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                          <div class="text-center icon icon-shape bg-gradient-success shadow-success rounded-circle">
                             <i class='bx bxs-memory-card' style="color: white;"></i>
                           </div>
                         </div>
@@ -92,18 +92,18 @@
                 </div>
                 <div class="col-xl-3 col-sm-6">
                   <div class="card">
-                    <div class="card-body p-3">
+                    <div class="p-3 card-body">
                       <div class="row">
                         <div class="col-8">
                           <div class="numbers">
-                            <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ __('STORAGE') }}</p>
+                            <p class="mb-0 text-sm text-uppercase font-weight-bold">{{ __('STORAGE') }}</p>
                             <h5 class="font-weight-bolder">
-                              <span class="text-success text-sm font-weight-bolder">@if($server->product->disk == 0){{ __('Unlimited') }} @else {{$server->product->disk}}MB @endif</span>
+                              <span class="text-sm text-success font-weight-bolder">@if($server->product->disk == 0){{ __('Unlimited') }} @else {{$server->product->disk}}MB @endif</span>
                             </h5>
                           </div>
                         </div>
                         <div class="col-4 text-end">
-                          <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                          <div class="text-center icon icon-shape bg-gradient-warning shadow-warning rounded-circle">
                             <i class='bx bxs-hdd' style="color: white;"></i>
                           </div>
                         </div>
@@ -114,8 +114,8 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title float-right"><i title="Created at" class="fas fa-calendar-alt mr-2"></i><span>{{ $server->created_at->isoFormat('LL') }}</span></h5>
-                    <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{__('Server Information')}}</h5>
+                    <h5 class="float-right card-title"><i title="Created at" class="mr-2 fas fa-calendar-alt"></i><span>{{ $server->created_at->isoFormat('LL') }}</span></h5>
+                    <h5 class="card-title"><i class="mr-2 fas fa-sliders-h"></i>{{__('Server Information')}}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -232,18 +232,18 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div class="col-md-12 text-center">
+                    <div class="text-center col-md-12">
                         <!-- Upgrade Button trigger modal -->
                         @if($server_enable_upgrade && Auth::user()->can("user.server.upgrade"))
                             <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}" target="__blank"
                                 class="btn btn-info btn-md">
-                                <i class="fas fa-upload mr-2"></i>
+                                <i class="mr-2 fas fa-upload"></i>
                                 <span>{{ __('Upgrade / Downgrade') }}</span>
                             </button>
                         <!-- Upgrade Modal -->
                         <div style="width: 100%; margin-block-start: 100px;" class="modal fade" id="UpgradeModal{{ $server->id }}" tabindex="-1">
                             <div class="modal-dialog">
-                                <div class="modal-content">
+                                <div x-data class="modal-content">
                                     <div class="modal-header card-header">
                                         <h5 class="modal-title">{{__("Upgrade/Downgrade Server")}}</h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -257,7 +257,7 @@
 
                                     <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST" class="upgrade-form">
                                       @csrf
-                                          <select name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
+                                          <select x-on:change="$el.value ? $refs.upgradeSubmit.disabled = false : $refs.upgradeSubmit.disabled = true" name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
                                                   @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && $product->disabled == false)
@@ -271,7 +271,7 @@
                                           <br> {{__("Server will be automatically restarted once upgraded")}}
                                       </div>
                                       <div class="modal-footer card-body">
-                                          <button type="submit" class="btn btn-primary upgrade-once" style="width: 100%"><strong>{{__("Change Product")}}</strong></button>
+                                          <button x-ref="upgradeSubmit" type="submit" class="btn btn-primary upgrade-once" style="width: 100%" disabled><strong>{{__("Change Product")}}</strong></button>
                                       </div>
                                       <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     </form>
@@ -282,7 +282,7 @@
                         <!-- Delete Button trigger modal -->
                         <button type="button" data-toggle="modal" data-target="#DeleteModal" target="__blank"
                             class="btn btn-danger btn-md">
-                            <i class="fas fa-trash mr-2"></i>
+                            <i class="mr-2 fas fa-trash"></i>
                             <span>{{ __('Delete') }}</span>
                         </button>
                         <!-- Delete Modal -->
@@ -303,7 +303,7 @@
                                 <form class="d-inline" method="post" action="{{ route('servers.destroy', ['server' => $server->id]) }}">
                                   @csrf
                                   @method('DELETE')
-                                  <button data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-danger mr-1">{{__("Delete")}}</button>
+                                  <button data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-danger">{{__("Delete")}}</button>
                                   <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 </form>
                               </div>
@@ -331,3 +331,4 @@
      </script>
 
 @endsection
+
