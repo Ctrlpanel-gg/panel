@@ -223,6 +223,7 @@ class ServerController extends Controller
         }
 
         $server->product = Product::find($server->product_id);
+        $server->product->save();
     }
 
 private function createServer(Request $request): ?Server
