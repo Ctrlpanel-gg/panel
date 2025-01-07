@@ -84,11 +84,11 @@ class ServerController extends Controller
         }
 
         return view('servers.create')->with([
-            'productCount' => $this->getActiveProductCount(),
-            'nodeCount' => $this->getActiveNodeCount(),
-            'nests' => $this->getActiveNests(),
+            'productCount' => Product::where('disabled', false)->count(),
+            'nodeCount' => Node::where('active', true)->count(),
+            'nests' => Nest::where('active', true)->get(),
             'locations' => Location::all(),
-            'eggs' => $this->getActiveEggs(),
+            'eggs' => Egg::where('active', true)->get(),
             'user' => Auth::user(),
             'server_creation_enabled' => $this->serverSettings->creation_enabled,
             'min_credits_to_make_server' => $this->userSettings->min_credits_to_make_server,
@@ -96,34 +96,6 @@ class ServerController extends Controller
             'location_description_enabled' => $this->serverSettings->location_description_enabled,
             'store_enabled' => $this->generalSettings->store_enabled
         ]);
-    }
-
-    private function getActiveProductCount(): int
-    {
-        return Product::where('disabled', false)->count();
-    }
-
-    private function getActiveNodeCount(): int
-    {
-        return Node::whereHas('products', function (Builder $builder) {
-            $builder->where('disabled', false);
-        })->count();
-    }
-
-    private function getActiveNests(): \Illuminate\Database\Eloquent\Collection
-    {
-        return Nest::whereHas('eggs', function (Builder $builder) {
-            $builder->whereHas('products', function (Builder $builder) {
-                $builder->where('disabled', false);
-            });
-        })->get();
-    }
-
-    private function getActiveEggs(): \Illuminate\Database\Eloquent\Collection
-    {
-        return Egg::whereHas('products', function (Builder $builder) {
-            $builder->where('disabled', false);
-        })->get();
     }
 
     public function store(Request $request): RedirectResponse
@@ -136,6 +108,7 @@ class ServerController extends Controller
             'location' => 'required|exists:locations,id',
             'egg' => 'required|exists:eggs,id',
             'product' => 'required|exists:products,id',
+            'egg_variables' => 'nullable|string'
         ]);
 
         $server = $this->createServer($request);
