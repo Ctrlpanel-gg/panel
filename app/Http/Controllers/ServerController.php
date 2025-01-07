@@ -387,8 +387,6 @@ class ServerController extends Controller
             })
             ->get()
             ->map(function ($product) use ($currentProduct, $pteroNode) {
-                $product->eggs = $product->eggs->pluck('name')->toArray();
-
                 $memoryDiff = $product->memory - $currentProduct->memory;
                 $diskDiff = $product->disk - $currentProduct->disk;
 
