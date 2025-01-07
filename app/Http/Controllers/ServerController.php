@@ -206,6 +206,7 @@ class ServerController extends Controller
             $this->updateServerInfo($server, $serverInfo);
         }
 
+        return $servers;
     }
 
     private function updateServerInfo(Server $server, array $serverInfo): void
@@ -219,11 +220,11 @@ class ServerController extends Controller
         $server->node = $relationships['node']['attributes']['name'];
 
         if ($server->name !== $serverInfo['name']) {
-            $server->update(['name' => $serverInfo['name']]);
+            $server->name = $serverInfo['name'];
+            $server->save();
         }
 
-        $server->product = Product::find($server->product_id);
-        $server->product->save();
+        $server->setRelation('product', Product::find($server->product_id));
     }
 
     private function createServer(Request $request): ?Server
