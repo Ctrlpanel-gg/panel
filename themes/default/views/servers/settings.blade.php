@@ -260,7 +260,7 @@
                                           <select x-on:change="$el.value ? $refs.upgradeSubmit.disabled = false : $refs.upgradeSubmit.disabled = true" name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
-                                                  @if(in_array($server->egg, $product->eggs) && $product->id != $server->product->id && $product->disabled == false)
+                                                  @if($product->id != $server->product->id && $product->disabled == false)
                                                     <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ $credits_display_name }} {{ $product->price }} @if($product->doesNotFit)] {{__('Server can´t fit on this node')}} @else @if($product->minimum_credits!=-1) /
                                                         {{__("Required")}}: {{$product->minimum_credits}} {{ $credits_display_name }}@endif ] @endif</option>
                                                   @endif
