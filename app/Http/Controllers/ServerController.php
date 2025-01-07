@@ -226,7 +226,7 @@ class ServerController extends Controller
         $server->product->save();
     }
 
-private function createServer(Request $request): ?Server
+    private function createServer(Request $request): ?Server
     {
         $product = Product::findOrFail($request->input('product'));
         $egg = $product->eggs()->findOrFail($request->input('egg'));
