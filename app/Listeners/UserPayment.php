@@ -14,7 +14,7 @@ use App\Settings\UserSettings;
 
 class UserPayment
 {
-    private $server_limit_increment_after_irl_purchase;
+    private $server_limit_after_irl_purchase;
 
     private $referral_mode;
 
@@ -37,7 +37,7 @@ class UserPayment
      */
     public function __construct(UserSettings $user_settings, ReferralSettings $referral_settings, GeneralSettings $general_settings, DiscordSettings $discord_settings)
     {
-        $this->server_limit_increment_after_irl_purchase = $user_settings->server_limit_increment_after_irl_purchase;
+        $this->server_limit_after_irl_purchase = $user_settings->server_limit_after_irl_purchase;
         $this->referral_mode = $referral_settings->mode;
         $this->referral_percentage = $referral_settings->percentage;
         $this->referral_always_give_commission = $referral_settings->always_give_commission;
@@ -65,9 +65,10 @@ class UserPayment
         }
 
         //update server limit
-        if ($this->server_limit_increment_after_irl_purchase !== 0 && $user->server_limit < $this->server_limit_increment_after_irl_purchase) {
-            $user->increment('server_limit', $this->server_limit_increment_after_irl_purchase);
+        if ($this->server_limit_after_irl_purchase !== 0 && $user->server_limit < $this->server_limit_after_irl_purchase) {
+            $user->update(['server_limit' => $this->server_limit_after_irl_purchase]);
         }
+
 
         //update User with bought item
         if ($shopProduct->type == "Credits") {
