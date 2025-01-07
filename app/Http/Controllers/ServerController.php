@@ -42,6 +42,7 @@ class ServerController extends Controller
     ];
 
     private PterodactylClient $pterodactyl;
+    private PterodactylSettings $pteroSettings;
     private GeneralSettings $generalSettings;
     private ServerSettings $serverSettings;
     private UserSettings $userSettings;
@@ -54,6 +55,7 @@ class ServerController extends Controller
         UserSettings $userSettings,
         DiscordSettings $discordSettings
     ) {
+        $this->pteroSettings = $pteroSettings;
         $this->pterodactyl = new PterodactylClient($pteroSettings);
         $this->generalSettings = $generalSettings;
         $this->serverSettings = $serverSettings;
@@ -68,7 +70,7 @@ class ServerController extends Controller
         return view('servers.index')->with([
             'servers' => $servers,
             'credits_display_name' => $this->generalSettings->credits_display_name,
-            'pterodactyl_url' => $this->pterodactyl->getPanelUrl(),
+            'pterodactyl_url' => $this->pteroSettings->panel_url,
             'phpmyadmin_url' => $this->generalSettings->phpmyadmin_url
         ]);
     }
@@ -77,18 +79,25 @@ class ServerController extends Controller
     {
         $this->checkPermission(self::CREATE_PERMISSION);
 
-        $validationResult = $this->validateServerCreationRules();
+        $validationResult = $this->validateServerCreation(app(Request::class));
         if ($validationResult) {
-            return redirect()->route('servers.index')
-                ->with('error', $validationResult);
+            return $validationResult;
         }
 
         return view('servers.create')->with([
             'productCount' => Product::where('disabled', false)->count(),
-            'nodeCount' => Node::where('active', true)->count(),
-            'nests' => Nest::where('active', true)->get(),
+            'nodeCount' => Node::whereHas('products', function (Builder $builder) {
+                $builder->where('disabled', false);
+            })->count(),
+            'nests' => Nest::whereHas('eggs', function (Builder $builder) {
+                $builder->whereHas('products', function (Builder $builder) {
+                    $builder->where('disabled', false);
+                });
+            })->get(),
             'locations' => Location::all(),
-            'eggs' => Egg::where('active', true)->get(),
+            'eggs' => Egg::whereHas('products', function (Builder $builder) {
+                $builder->where('disabled', false);
+            })->get(),
             'user' => Auth::user(),
             'server_creation_enabled' => $this->serverSettings->creation_enabled,
             'min_credits_to_make_server' => $this->userSettings->min_credits_to_make_server,
@@ -134,10 +143,12 @@ class ServerController extends Controller
 
         if ($request->has('product')) {
             $product = Product::findOrFail($request->input('product'));
+            $location = $request->input('location');
 
-            if (!$this->validateProductRequirements($product, $request)) {
+            $validationResult = $this->validateProductRequirements($product, $request);
+            if ($validationResult !== true) {
                 return redirect()->route('servers.index')
-                    ->with('error', __('Product requirements not met'));
+                    ->with('error', $validationResult);
             }
         }
 
@@ -149,20 +160,19 @@ class ServerController extends Controller
         return null;
     }
 
-    private function validateProductRequirements(Product $product, Request $request): bool
+    private function validateProductRequirements(Product $product, Request $request): string|bool
     {
         $location = $request->input('location');
         $availableNode = $this->findAvailableNode($location, $product);
 
         if (!$availableNode) {
-            return false;
+            return __("The chosen location doesn't have the required memory or disk left to allocate this product.");
         }
 
         $user = Auth::user();
         $productCount = $user->servers()->where("product_id", $product->id)->count();
-
         if ($productCount >= $product->serverlimit) {
-            return false;
+            return __('You can not create any more Servers with this product!');
         }
 
         $minCredits = $product->minimum_credits == -1
@@ -170,7 +180,7 @@ class ServerController extends Controller
             : $product->minimum_credits;
 
         if ($user->credits < $minCredits) {
-            return false;
+            return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';
         }
 
         return true;
@@ -339,11 +349,11 @@ class ServerController extends Controller
             return back()->with('error', __('This is not your Server!'));
         }
 
-        $serverInfo = $this->getDetailedServerInfo($server);
-        $upgradeOptions = $this->getUpgradeOptions($server, $serverInfo);
+        $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+        $upgradeOptions = $this->getUpgradeOptions($server, $serverAttributes);
 
         return view('servers.settings')->with([
-            'server' => $serverInfo,
+            'server' => $server,
             'products' => $upgradeOptions,
             'server_enable_upgrade' => $this->serverSettings->enable_upgrade,
             'credits_display_name' => $this->generalSettings->credits_display_name,
