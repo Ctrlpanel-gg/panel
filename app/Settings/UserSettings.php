@@ -96,14 +96,14 @@ class UserSettings extends Settings
                 'description' => 'The amount of servers a user can create after they make their first purchase.',
             ],
             'server_limit_after_verify_discord' => [
-                'label' => 'Server Limit After Verify Discord',
+                'label' => 'Server Limit Increase After Verify Discord',
                 'type' => 'number',
-                'description' => 'The amount of servers a user can create after they verify their discord account.',
+                'description' => 'Specifies how many additional servers a user can create after verifying their Discord account.',
             ],
             'server_limit_after_verify_email' => [
-                'label' => 'Server Limit After Verify Email',
+                'label' => 'Server Limit Increase After Verify Email',
                 'type' => 'number',
-                'description' => 'The amount of servers a user can create after they verify their email.',
+                'description' => 'Specifies how many additional servers a user can create after verifying their email address.',
             ],
             'register_ip_check' => [
                 'label' => 'Register IP Check Enabled',
