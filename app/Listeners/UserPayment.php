@@ -65,7 +65,7 @@ class UserPayment
         }
 
         //update server limit
-        if ($this->server_limit_increment_after_irl_purchase !== 0 && $user->server_limit < $this->server_limit_increment_after_irl_purchase) {
+        if (!$user->email_verified_reward && $this->server_limit_increment_after_irl_purchase !== 0) {
             $user->increment('server_limit', $this->server_limit_increment_after_irl_purchase);
         }
 
