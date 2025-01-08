@@ -52,7 +52,7 @@ class SocialiteController extends Controller
 
             //update user
             Auth::user()->increment('credits', $user_settings->credits_reward_after_verify_discord);
-            Auth::user()->increment('server_limit', $user_settings->server_limit_after_verify_discord);
+            Auth::user()->increment('server_limit', $user_settings->server_limit_increment_after_verify_discord);
             Auth::user()->update(['discord_verified_at' => now()]);
         } else {
             $user->discordUser->update($discord->user);
