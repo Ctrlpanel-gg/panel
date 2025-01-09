@@ -173,7 +173,7 @@ class PaymentController extends Controller
                 'payment_id' => null,
                 'payment_method' => $paymentGateway,
                 'type' => $shopProduct->type,
-                'status' => 'open',
+                'status' => PaymentStatus::OPEN,
                 'amount' => $shopProduct->quantity,
                 'price' => $shopProduct->price,
                 'tax_value' => $shopProduct->getTaxValue(),
@@ -236,7 +236,7 @@ class PaymentController extends Controller
                 ];
             })
             ->addColumn('actions', function (Payment $payment) {
-                return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', 'id=' . $payment->payment_id) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-file-download"></i></a>';
+                return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', 'id=' . $payment->payment_id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-file-download"></i></a>';
             })
             ->rawColumns(['actions', 'user'])
             ->make(true);

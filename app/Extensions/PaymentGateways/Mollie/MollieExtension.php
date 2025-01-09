@@ -9,6 +9,7 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Notifications\ConfirmPaymentNotification;
 use App\Traits\Coupon as CouponTrait;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -72,6 +73,11 @@ class MollieExtension extends AbstractExtension
     static function success(Request $request): RedirectResponse
     {
         $payment = Payment::findOrFail($request->input('payment_id'));
+
+        if ($payment->status === PaymentStatus::PAID) {
+            return Redirect::route('home')->with('success', 'Your payment has already been processed!')->send();
+        }
+
         $payment->status = PaymentStatus::PROCESSING;
         $payment->save();
 
@@ -97,11 +103,11 @@ class MollieExtension extends AbstractExtension
             $user = User::findOrFail($payment->user_id);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
-            event(new PaymentEvent($user, $payment, $shopProduct));
-
             if ($response->json()['status'] == 'paid') {
                 $payment->status = PaymentStatus::PAID;
                 $payment->save();
+                $user->notify(new ConfirmPaymentNotification($payment));
+                event(new PaymentEvent($user, $payment, $shopProduct));
                 event(new UserUpdateCreditsEvent($user));
             }
         } catch (Exception $ex) {

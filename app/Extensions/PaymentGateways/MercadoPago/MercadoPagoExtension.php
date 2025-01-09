@@ -99,6 +99,12 @@ class MercadoPagoExtension extends AbstractExtension
     static function Success(Request $request): RedirectResponse
     {
         $payment = Payment::findOrFail($request->input('external_reference'));
+
+        // In some cases, the webhook is received even before the success route.
+        if ($payment->status === PaymentStatus::PAID) {
+            return Redirect::route('home')->with('success', 'Your payment has already been processed!')->send();
+        }
+
         $payment->status = PaymentStatus::PROCESSING;
         $payment->save();
 
@@ -109,8 +115,6 @@ class MercadoPagoExtension extends AbstractExtension
     {
         $topic = $request->input('topic');
         $action = $request->input('action');
-
-        logger($request->all());
 
         /**
          * Mercado Pago sends several requests for information in the webhook,
