@@ -6,13 +6,14 @@ use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Models\User;
 use App\Settings\DiscordSettings;
-use Illuminate\Support\Facades\DB;
 use App\Models\PartnerDiscount;
 use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class UserPayment
+class UserPayment implements ShouldQueue
 {
     private $server_limit_after_irl_purchase;
 
