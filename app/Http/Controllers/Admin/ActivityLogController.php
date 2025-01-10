@@ -28,8 +28,13 @@ class ActivityLogController extends Controller
         $cronLogs = Storage::disk('logs')->exists('cron.log') ? Storage::disk('logs')->get('cron.log') : null;
 
         if ($request->input('search')) {
-            $query = Activity::whereHasMorph('causer', [User::class], function ($query) use ($request) {
-                $query->where('name', 'like', "%{$request->input('search')}%");
+            $searchTerm = $request->input('search');
+
+            $query = Activity::where(function ($query) use ($searchTerm) {
+                $query->where('description', 'like', "%{$searchTerm}%") // Search in activity descriptions
+                ->orWhereHasMorph('causer', [User::class], function ($query) use ($searchTerm) {
+                    $query->where('name', 'like', "%{$searchTerm}%"); // Search in causer's name
+                });
             })->orderBy('created_at', 'desc')->paginate(20);
         } else {
             $query = Activity::orderBy('created_at', 'desc')->paginate(20);
