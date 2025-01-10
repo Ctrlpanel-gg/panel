@@ -93,11 +93,11 @@ class Product extends Model
     }
 
     /**
-     * @return BelongsTo
+     * @return hasMany
      */
     public function servers()
     {
-        return $this->belongsTo(Server::class, 'id', 'product_id');
+        return $this->hasMany(Server::class);
     }
 
     /**
