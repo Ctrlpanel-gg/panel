@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\UserController;
@@ -33,6 +34,8 @@ Route::middleware('api.token')->group(function () {
     Route::resource('vouchers', VoucherController::class)->except('create', 'edit');
 
     Route::resource('roles', RoleController::class);
+
+    Route::resource('products', ProductController::class);
 
     Route::get('/notifications/{user}', [NotificationController::class, 'index']);
     Route::get('/notifications/{user}/{notification}', [NotificationController::class, 'view']);
