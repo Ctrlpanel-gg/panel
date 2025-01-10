@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -11,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ActivityLogController extends Controller
 {
@@ -30,12 +30,33 @@ class ActivityLogController extends Controller
         if ($request->input('search')) {
             $searchTerm = $request->input('search');
 
-            $query = Activity::where(function ($query) use ($searchTerm) {
-                $query->where('description', 'like', "%{$searchTerm}%") // Search in activity descriptions
-                ->orWhereHasMorph('causer', [User::class], function ($query) use ($searchTerm) {
-                    $query->where('name', 'like', "%{$searchTerm}%"); // Search in causer's name
-                });
-            })->orderBy('created_at', 'desc')->paginate(20);
+            // Pre-fetch logs and decode JSON properties
+            $logs = Activity::all()->filter(function ($log) use ($searchTerm) {
+                $properties = json_decode($log->properties, true);
+
+                // Check if search term exists in attributes or old values
+                $attributesMatch = isset($properties['attributes']) &&
+                    collect($properties['attributes'])->contains(fn($value) => str_contains(strtolower($value), strtolower($searchTerm)));
+
+                $oldMatch = isset($properties['old']) &&
+                    collect($properties['old'])->contains(fn($value) => str_contains(strtolower($value), strtolower($searchTerm)));
+
+                return str_contains(strtolower($log->description), strtolower($searchTerm)) ||
+                    str_contains(strtolower(optional($log->causer)->name), strtolower($searchTerm)) ||
+                    $attributesMatch || $oldMatch;
+            });
+
+            // Paginate manually
+            $perPage = 20;
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $currentItems = $logs->slice(($currentPage - 1) * $perPage, $perPage);
+            $query = new LengthAwarePaginator(
+                $currentItems,
+                $logs->count(),
+                $perPage,
+                $currentPage,
+                ['path' => LengthAwarePaginator::resolveCurrentPath()]
+            );
         } else {
             $query = Activity::orderBy('created_at', 'desc')->paginate(20);
         }
@@ -44,6 +65,8 @@ class ActivityLogController extends Controller
             'logs' => $query,
             'cronlogs' => $cronLogs,
         ]);
+
+
     }
 
     /**
