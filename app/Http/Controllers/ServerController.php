@@ -75,7 +75,7 @@ class ServerController extends Controller
         ]);
     }
 
-    public function create(): \Illuminate\View\View
+    public function create(): \Illuminate\View\View|RedirectResponse
     {
         $this->checkPermission(self::CREATE_PERMISSION);
 
@@ -221,20 +221,36 @@ class ServerController extends Controller
 
     private function updateServerInfo(Server $server, array $serverInfo): void
     {
-        $relationships = $serverInfo['relationships'];
-        $locationAttrs = $relationships['location']['attributes'];
+        try {
+            if (!isset($serverInfo['relationships'])) {
+                return;
+            }
 
-        $server->location = $locationAttrs['long'] ?? $locationAttrs['short'];
-        $server->egg = $relationships['egg']['attributes']['name'];
-        $server->nest = $relationships['nest']['attributes']['name'];
-        $server->node = $relationships['node']['attributes']['name'];
+            $relationships = $serverInfo['relationships'];
+            $locationAttrs = $relationships['location']['attributes'] ?? [];
+            $eggAttrs = $relationships['egg']['attributes'] ?? [];
+            $nestAttrs = $relationships['nest']['attributes'] ?? [];
+            $nodeAttrs = $relationships['node']['attributes'] ?? [];
 
-        if ($server->name !== $serverInfo['name']) {
-            $server->name = $serverInfo['name'];
-            $server->save();
+            $server->location = $locationAttrs['long'] ?? $locationAttrs['short'] ?? null;
+            $server->egg = $eggAttrs['name'] ?? null;
+            $server->nest = $nestAttrs['name'] ?? null;
+            $server->node = $nodeAttrs['name'] ?? null;
+
+            if (isset($serverInfo['name']) && $server->name !== $serverInfo['name']) {
+                $server->name = $serverInfo['name'];
+                $server->save();
+            }
+
+            if ($server->product_id) {
+                $server->setRelation('product', Product::find($server->product_id));
+            }
+        } catch (Exception $e) {
+            Log::error('Failed to update server info', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage()
+            ]);
         }
-
-        $server->setRelation('product', Product::find($server->product_id));
     }
 
     private function createServer(Request $request): ?Server
@@ -303,10 +319,23 @@ class ServerController extends Controller
         }
 
         try {
+            $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+
+            if (!$serverInfo) {
+                throw new Exception("Server not found on Pterodactyl panel");
+            }
+
             $this->handleServerDeletion($server);
+
             return redirect()->route('servers.index')
                 ->with('success', __('Server removed'));
         } catch (Exception $e) {
+            Log::error('Server deletion failed', [
+                'server_id' => $server->id,
+                'pterodactyl_id' => $server->pterodactyl_id,
+                'error' => $e->getMessage()
+            ]);
+
             return redirect()->route('servers.index')
                 ->with('error', __('Server removal failed: ') . $e->getMessage());
         }
@@ -361,20 +390,6 @@ class ServerController extends Controller
         ]);
     }
 
-    private function getDetailedServerInfo(Server $server): Server
-    {
-        $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-        $relationships = $serverAttributes['relationships'];
-        $locationAttrs = $relationships['location']['attributes'];
-
-        $server->location = $locationAttrs['long'] ?? $locationAttrs['short'];
-        $server->node = $relationships['node']['attributes']['name'];
-        $server->name = $serverAttributes['name'];
-        $server->egg = $relationships['egg']['attributes']['name'];
-
-        return $server;
-    }
-
     private function getUpgradeOptions(Server $server, array $serverInfo): \Illuminate\Database\Eloquent\Collection
     {
         $currentProduct = Product::find($server->product_id);
@@ -409,7 +424,8 @@ class ServerController extends Controller
         $this->checkPermission(self::UPGRADE_PERMISSION);
 
         if ($server->user_id !== Auth::id()) {
-            return redirect()->route('servers.index');
+            return redirect()->route('servers.index')
+                ->with('error', __('This is not your Server!'));
         }
 
         if (!$request->has('product_upgrade')) {
@@ -421,9 +437,14 @@ class ServerController extends Controller
         $oldProduct = Product::find($server->product->id);
         $newProduct = Product::find($request->product_upgrade);
 
+        if (!$newProduct) {
+            return redirect()->route('servers.show', ['server' => $server->id])
+                ->with('error', __('Selected product not found'));
+        }
+
         if (!$this->validateUpgrade($server, $oldProduct, $newProduct)) {
-            return redirect()->route('servers.index')
-                ->with('error', __('Upgrade validation failed'));
+            return redirect()->route('servers.show', ['server' => $server->id])
+                ->with('error', __('Insufficient resources or credits for upgrade'));
         }
 
         try {
@@ -431,6 +452,13 @@ class ServerController extends Controller
             return redirect()->route('servers.show', ['server' => $server->id])
                 ->with('success', __('Server Successfully Upgraded'));
         } catch (Exception $e) {
+            Log::error('Server upgrade failed', [
+                'server_id' => $server->id,
+                'old_product' => $oldProduct->id,
+                'new_product' => $newProduct->id,
+                'error' => $e->getMessage()
+            ]);
+
             return redirect()->route('servers.show', ['server' => $server->id])
                 ->with('error', __('Upgrade failed: ') . $e->getMessage());
         }
@@ -439,7 +467,15 @@ class ServerController extends Controller
     private function validateUpgrade(Server $server, Product $oldProduct, Product $newProduct): bool
     {
         $user = Auth::user();
+        if (!$server->product) {
+            return false;
+        }
+
         $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+        if (!$serverInfo) {
+            return false;
+        }
+
         $nodeId = $serverInfo['relationships']['node']['attributes']['id'];
         $node = Node::findOrFail($nodeId);
 
@@ -450,8 +486,9 @@ class ServerController extends Controller
             return false;
         }
 
-        // Check user credits
-        if ($user->credits < $newProduct->price || $user->credits < $newProduct->minimum_credits) {
+        // Check if user has enough credits after refund
+        $refundAmount = $this->calculateRefund($server, $oldProduct);
+        if ($user->credits < ($newProduct->price - $refundAmount)) {
             return false;
         }
 
@@ -495,7 +532,7 @@ class ServerController extends Controller
     {
         $billingPeriod = $oldProduct->billing_period;
         $billingPeriodSeconds = self::BILLING_PERIODS[$billingPeriod];
-        $timeUsed = now()->diffInSeconds($server->last_billed);
+        $timeUsed = now()->diffInSeconds($server->last_billed, true);
 
         return $oldProduct->price - ($oldProduct->price * ($timeUsed / $billingPeriodSeconds));
     }
