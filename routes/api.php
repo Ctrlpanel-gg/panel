@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\ServerController;
+use App\Http\Controllers\Api\SyncPterodactylController;
+use App\Http\Controllers\Api\SyncServersController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VoucherController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +44,11 @@ Route::middleware('api.token')->group(function () {
     Route::post('/notifications', [NotificationController::class, 'send']);
     Route::delete('/notifications/{user}/{notification}', [NotificationController::class, 'deleteOne']);
     Route::delete('/notifications/{user}', [NotificationController::class, 'delete']);
+
+    Route::get('/sync/pterodactyl', [SyncPterodactylController::class, 'index']);
+    Route::patch('/sync/pterodactyl', [SyncPterodactylController::class, 'update']);
+
+    Route::patch('/sync/servers', [SyncServersController::class, 'update']);
 });
 
 require __DIR__ . '/extensions_api.php';
