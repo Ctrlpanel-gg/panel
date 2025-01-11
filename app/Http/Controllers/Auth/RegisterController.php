@@ -139,7 +139,7 @@ class RegisterController extends Controller
             'pterodactyl_id' => Str::uuid(),
         ]);
 
-        $user->syncRoles(Role::findByName('User'));
+        $user->syncRoles(Role::findById(4)); //user
 
         $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => null,
