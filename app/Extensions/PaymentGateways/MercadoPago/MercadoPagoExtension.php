@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use App\Notifications\ConfirmPaymentNotification;
 use App\Extensions\PaymentGateways\MercadoPago\MercadoPagoSettings;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Summary of MercadoPagoExtension
@@ -62,6 +63,7 @@ class MercadoPagoExtension extends AbstractExtension
                     'failure' => route('payment.Cancel'),
                     'pending' => route('payment.MercadoPagoSuccess'),
                 ],
+                'auto_return' => 'approved',
                 'notification_url' => route('payment.MercadoPagoWebhook'),
                 'payer' => [
                     'email' => $user->email,
@@ -74,6 +76,7 @@ class MercadoPagoExtension extends AbstractExtension
                         'currency_id' => $shopProduct->currency_code,
                     ],
                 ],
+                'external_reference' => $payment->id,
                 'metadata' => [
                     'credit_amount' => $shopProduct->quantity,
                     'user_id' => $user->id,
@@ -93,13 +96,19 @@ class MercadoPagoExtension extends AbstractExtension
         }
     }
 
-    static function Success(Request $request): void
+    static function Success(Request $request): RedirectResponse
     {
-        $payment = Payment::findOrFail($request->input('payment'));
+        $payment = Payment::findOrFail($request->input('external_reference'));
+
+        // In some cases, the webhook is received even before the success route.
+        if ($payment->status === PaymentStatus::PAID) {
+            return Redirect::route('home')->with('success', 'Your payment has already been processed!')->send();
+        }
+
         $payment->status = PaymentStatus::PROCESSING;
         $payment->save();
-        Redirect::route('home')->with('success', 'Your payment is being processed!')->send();
-        return;
+
+        return Redirect::route('home')->with('success', 'Your payment is being processed!')->send();
     }
 
     static function Webhook(Request $request): JsonResponse

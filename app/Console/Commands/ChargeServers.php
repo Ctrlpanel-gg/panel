@@ -104,7 +104,6 @@ class ChargeServers extends Command
                     } catch (\Exception $exception) {
                         $this->error($exception->getMessage());
                     }
-                    return;
                 }
 
                 // charge credits to user
@@ -127,8 +126,10 @@ class ChargeServers extends Command
         if (!empty($this->usersToNotify)) {
             /** @var User $user */
             foreach ($this->usersToNotify as $user) {
+                $suspendServers = $user->servers()->whereNotNull('suspended')->get();
+
                 $this->line("<fg=yellow>Notified user:</> <fg=blue>{$user->name}</>");
-                $user->notify(new ServersSuspendedNotification());
+                $user->notify(new ServersSuspendedNotification($suspendServers));
             }
         }
 

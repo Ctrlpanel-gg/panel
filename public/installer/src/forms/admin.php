@@ -24,7 +24,8 @@ if (isset($_POST['createUser'])) {
         $adminToken = run_console("php artisan settings:get 'PterodactylSettings' 'admin_token' --sameline");
     } catch (Throwable $th) {
         wh_log("Getting Pterodactyl information failed.", 'error');
-        send_error_message($th->getMessage() . " <br>Please check the installer.log file in /var/www/controlpanel/storage/logs!");
+        send_error_message($th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
+
         exit();
     }
 

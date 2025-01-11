@@ -94,6 +94,6 @@ class Node extends Model
      */
     public function products()
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class, 'node_product', 'node_id', 'product_id');
     }
 }

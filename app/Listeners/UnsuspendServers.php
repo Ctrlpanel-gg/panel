@@ -2,11 +2,12 @@
 
 namespace App\Listeners;
 
+use App\Notifications\ServersUnsuspendedNotification;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\Server;
 use App\Settings\UserSettings;
-use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Exception;
 
 class UnsuspendServers implements ShouldQueue
 {
@@ -32,13 +33,23 @@ class UnsuspendServers implements ShouldQueue
      */
     public function handle(UserUpdateCreditsEvent $event)
     {
-        if ($event->user->credits > $this->min_credits_to_make_server) {
-            /** @var Server $server */
-            foreach ($event->user->servers as $server) {
-                if ($server->isSuspended()) {
-                    $server->unSuspend();
+        $unsuspendedServers = [];
+
+        if ($event->user->credits >= $this->min_credits_to_make_server) {
+            $suspendedServers = $event->user->servers()->with('product')->whereNotNull('suspended')->get();
+
+            foreach ($suspendedServers as $server) {
+                if ($server->product->price > $event->user->credits) {
+                    continue;
                 }
+
+                $unsuspendedServers[] = $server->unSuspend();
+                $event->user->decrement('credits', $server->product->price);
             }
+        }
+
+        if (!empty($unsuspendedServers)) {
+            $event->user->notify(new ServersUnsuspendedNotification($unsuspendedServers));
         }
     }
 }

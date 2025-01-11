@@ -6,19 +6,20 @@ use App\Settings\CouponSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Coupon extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, CausesActivity;
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
+            ->logFillable()
             ->logOnlyDirty()
-            ->logOnly(['*'])
             ->dontSubmitEmptyLogs();
     }
 

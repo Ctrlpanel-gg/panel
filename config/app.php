@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
-    'version' => '1.0.2',
+    'version' => '1.0.3',
 
     /*
     |--------------------------------------------------------------------------
@@ -212,7 +212,7 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
-        App\Providers\DiscordServiceProvider::class,
+        App\Providers\SettingsServiceProvider::class,
     ],
 
     /*

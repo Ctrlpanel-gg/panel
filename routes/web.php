@@ -71,6 +71,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
+    Route::post('/servers/validateDeploymentVariables', [ServerController::class, 'validateDeploymentVariables'])->name('servers.validateDeploymentVariables');
+    Route::delete('/servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
+    Route::patch('/servers/{server}', [ServerController::class, 'update'])->name('servers.update');
     Route::resource('servers', ServerController::class);
 
     try {
@@ -115,9 +118,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('ticket/datatable', [TicketsController::class, 'datatable'])->name('ticket.datatable');
     Route::get('ticket/new', [TicketsController::class, 'create'])->name('ticket.new');
 
-    Route::post('ticket/new', [TicketsController::class, 'store'])->middleware(['throttle:1,1'])->name('ticket.new.store');
+    Route::post('ticket/new', [TicketsController::class, 'store'])->name('ticket.new.store');
     Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
-    Route::post('ticket/reply', [TicketsController::class, 'reply'])->middleware(['throttle:10,1'])->name('ticket.reply');
+    Route::post('ticket/reply', [TicketsController::class, 'reply'])->name('ticket.reply');
 
     Route::post('ticket/status/{ticket_id}', [TicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
 
@@ -138,8 +141,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
         Route::get('users/verifyEmail/{user}', [UserController::class, 'verifyEmail'])->name('users.verifyEmail');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
-        Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
-        Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');
+        Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications.index');
+        Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications.notify');
         Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
         Route::resource('users', UserController::class);
 

@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ServersSuspendedNotification extends Notification implements ShouldQueue
+class ServersUnsuspendedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,8 +17,6 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
 
     /**
      * Create a new notification instance.
-     *
-     * @return void
      */
     public function __construct($servers)
     {
@@ -29,25 +27,21 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
-     * @return array
+     * @return array<int, string>
      */
-    public function via($notifiable)
+    public function via(object $notifiable): array
     {
         return ['mail', 'database'];
     }
 
     /**
      * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable)
+    public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject(__('Your servers have been suspended!'))
-                    ->markdown('mail.server.suspended', [
+                    ->subject(__('Your servers have been unsuspended'))
+                    ->markdown('mail.server.unsuspended', [
                         'servers' => $this->servers,
                         'pterodactylSettings' => $this->pterodactylSettings,
                     ]);
@@ -56,19 +50,17 @@ class ServersSuspendedNotification extends Notification implements ShouldQueue
     /**
      * Get the array representation of the notification.
      *
-     * @param  mixed  $notifiable
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($notifiable)
+    public function toArray(object $notifiable): array
     {
         return [
-            'title' => __('Your servers have been suspended!'),
+            'title' => __('Your servers have been unsuspended'),
             'content' => '
-                <h5>'.__('Your servers have been suspended!').'</h5>
-                <p>'.__('To automatically re-enable your server/s, you need to purchase more credits.').'</p>
-                <p>'.__('If you have any questions please let us know.').'</p>
+                <h5>'.__('Your servers have been unsuspended').'</h5>
+                <p>'.__('We appreciate your continued trust in our services. If you have any questions or need assistance, feel free to reach out to our support team.').'</p>
                 <p>'.__('Regards').',<br />'.config('app.name', 'Laravel').'</p>
-            ',
+            '
         ];
     }
 }
