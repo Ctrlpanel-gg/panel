@@ -75,7 +75,7 @@ class ServerController extends Controller
         ]);
     }
 
-    public function create(): \Illuminate\View\View
+    public function create(): \Illuminate\View\View|RedirectResponse
     {
         $this->checkPermission(self::CREATE_PERMISSION);
 
