@@ -487,16 +487,16 @@
                     return !!this.name;
                 },
 
-                hasEmptyRequiredVariables(environment) {
-                  if (!environment) return;
+              hasEmptyRequiredVariables(environment) {
+                if (!environment) return [];
 
-                  return environment.filter((variable) => {
-                    const hasRequiredRule = variable.rules.includes("required");
-                    const isDefaultNull = !variable.default_value;
+                return environment.filter((variable) => {
+                  const hasRequiredRule = variable.rules?.includes("required");
+                  const isDefaultNull = !variable.default_value;
 
-                    return hasRequiredRule && isDefaultNull;
-                  })
-                },
+                  return hasRequiredRule && isDefaultNull;
+                });
+              },
 
                 getLocationInputText() {
                     if (this.fetchedLocations) {
