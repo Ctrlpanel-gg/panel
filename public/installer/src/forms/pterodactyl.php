@@ -66,10 +66,10 @@ if (isset($_POST['checkPtero'])) {
     }
 
     try {
-        run_console("php artisan settings:set 'PterodactylSettings' 'panel_url' '$url'");
-        run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'");
-        run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'");
-        wh_log('Database updated', 'debug');
+        run_console("php artisan settings:set 'PterodactylSettings' 'panel_url' '$url'", null,null,null,false);
+        run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'", null,null,null,false);
+        run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'", null,null,null,false);
+        wh_log('Database updated with pterodactyl Settings.', 'debug');
         next_step();
     } catch (Throwable $th) {
         wh_log("Setting Pterodactyl information failed.", 'error');
