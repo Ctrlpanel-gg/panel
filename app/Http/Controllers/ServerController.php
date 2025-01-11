@@ -171,7 +171,7 @@ class ServerController extends Controller
 
         $user = Auth::user();
         $productCount = $user->servers()->where("product_id", $product->id)->count();
-        if ($productCount >= $product->serverlimit) {
+        if ($productCount >= $product->serverlimit && $product->serverlimit != 0) {
             return __('You can not create any more Servers with this product!');
         }
 
