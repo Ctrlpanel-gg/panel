@@ -68,6 +68,10 @@ class SettingsController extends Controller
                     'options' => $optionInputData[$key]['options'] ?? [],
                     'identifier' => $optionInputData[$key]['identifier'] ?? 'option'
                 ];
+
+                if($optionInputData[$key]['type'] === 'number') {
+                    $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
+                }
             }
 
             // collect category icon if available

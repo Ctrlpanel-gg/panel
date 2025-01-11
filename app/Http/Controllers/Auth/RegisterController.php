@@ -137,10 +137,9 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'referral_code' => $this->createReferralCode(),
             'pterodactyl_id' => Str::uuid(),
-
         ]);
 
-        $user->syncRoles(Role::findByName('User'));
+        $user->syncRoles(Role::findById(4)); //user
 
         $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => null,
@@ -153,17 +152,25 @@ class RegisterController extends Controller
             'language' => 'en',
         ]);
 
+        if ($response->failed()) {
+            $user->delete();
+            Log::error('Pterodactyl Registration Error: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error'));
+            throw ValidationException::withMessages([
+                'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
+            ]);
+        }
+
+        if (!isset($response->json()['attributes']['id'])) {
+            $user->delete();
+            Log::error('Pterodactyl Registration Error: Missing user ID in response');
+            throw ValidationException::withMessages([
+                'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
+            ]);
+        }
+
         $user->update([
             'pterodactyl_id' => $response->json()['attributes']['id'],
         ]);
-
-        if ($response->failed()) {
-            $user->delete();
-            Log::error('Pterodactyl Registration Error: ' . $response->json()['errors'][0]['detail']);
-            throw ValidationException::withMessages([
-                'ptero_registration_error' => [__('Account already exists on Pterodactyl. Please contact the Support!')],
-            ]);
-        }
 
         // delete activity log for user creation where description = 'created' or 'deleted' and subject_id = user_id
         DB::table('activity_log')->where('description', 'created')->orWhere('description', 'deleted')->where('subject_id', $user->id)->delete();

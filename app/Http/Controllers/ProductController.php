@@ -15,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -121,36 +122,43 @@ class ProductController extends Controller
      * @param  Egg  $egg
      * @return Collection|JsonResponse
      */
-    public function getProductsBasedOnLocation(Egg $egg, Int $location)
+    public function getProductsBasedOnLocation(Egg $egg, int $location)
     {
         if (is_null($egg->id) || is_null($location)) {
-            return response()->json('location and egg id is required', '400');
+            return response()->json('Location and Egg ID are required', 400);
         }
 
-        // Get all nodes in this location
-        $nodes = Node::query()
-            ->where('location_id', '=', $location)
-            ->get();
-
+        $user = Auth::user();
         $products = Product::query()
-            ->where('disabled', '=', false)
-            ->whereHas('nodes', function (Builder $builder) use ($nodes) {
-                $builder->whereIn('id', $nodes->map(function ($node) {
-                    return $node->id;
-                }));
+            ->where('disabled', false)
+            ->whereHas('nodes', function (Builder $builder) use ($location) {
+                $builder->where('location_id', $location);
             })
             ->whereHas('eggs', function (Builder $builder) use ($egg) {
-                $builder->where('id', '=', $egg->id);
+                $builder->where('id', $egg->id);
             })
+            ->with(['nodes' => function ($query) use ($location) {
+                $query->where('location_id', $location);
+            }])
+            ->withCount(['servers' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
             ->get();
 
-        // Instead of the old node check, we will check if the product fits in any given node in the location
-        foreach ($products as $key => $product) {
-            $product->doesNotFit = false;
-            foreach ($nodes as $node) {
+        // Check if the product fits in at least one node
+        foreach ($products as $product) {
+            $product->doesNotFit = true;
+
+            foreach ($product->nodes as $node) {
                 $pteroNode = $this->pterodactyl->getNode($node->id);
-                if ($product->memory > ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'] || $product->disk > ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk']) {
-                    $product->doesNotFit = true;
+
+                $availableMemory = ($pteroNode['memory'] * ($pteroNode['memory_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['memory'];
+                $availableDisk = ($pteroNode['disk'] * ($pteroNode['disk_overallocate'] + 100) / 100) - $pteroNode['allocated_resources']['disk'];
+
+                // If the product fits in this node, mark it as fitting and break out of the loop
+                if ($product->memory <= $availableMemory && $product->disk <= $availableDisk) {
+                    $product->doesNotFit = false;
+                    break;
                 }
             }
         }

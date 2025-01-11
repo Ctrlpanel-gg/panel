@@ -26,22 +26,22 @@ class PermissionsSeeder extends Seeder
 
         $users = User::all();
         foreach($users as $user){
-            $user->assignRole(Role::findByName('user'));
+            $user->assignRole(Role::findById(4));
         }
 
         $admins = User::where("role","admin")->get();
         foreach($admins as $admin) {
-            $admin->syncRoles(Role::findByName('Admin'));
+            $admin->syncRoles(Role::findById(1));
         }
 
         $mods = User::where("role","moderator")->get();
         foreach($mods as $mod) {
-            $mod->syncRoles(Role::findByName('Support-Team'));
+            $mod->syncRoles(Role::findById(2));
         }
 
         $clients = User::where("role","client")->get();
         foreach($clients as $client) {
-            $client->syncRoles(Role::findByName('Client'));
+            $client->syncRoles(Role::findById(3));
         }
     }
 

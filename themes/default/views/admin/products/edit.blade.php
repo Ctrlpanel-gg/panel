@@ -38,10 +38,6 @@
                                 <h4>{{ __('Editing the resource options will not automatically update the servers on
                                                                                                     pterodactyls side!') }}'
                                 </h4>
-                                <p class="text-muted">
-                                    {{ __('Automatically updating resource options on pterodactyl side is on
-                                                                                                            my todo list :)') }}
-                                </p>
                             </div>
                         @endif
 
@@ -266,6 +262,21 @@
                                                 </div>
                                             @enderror
                                         </div>
+                                      <div class="form-group">
+                                        <label for="serverlimit">{{ __('Serverlimit') }}</label>
+                                        <i data-toggle="popover" data-trigger="hover"
+                                           data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}
+                                           class="fas fa-info-circle"></i>
+                                        <input value="{{ $product->serverlimit ??  0 }}"
+                                               id="serverlimit" name="serverlimit" type="number"
+                                               class="form-control @error('serverlimit') is-invalid @enderror"
+                                               required="required">
+                                        @error('serverlimit')
+                                        <div class="invalid-feedback">
+                                          {{ $message }}
+                                        </div>
+                                        @enderror
+                                      </div>
                                     </div>
                                 </div>
 

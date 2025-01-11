@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentStatus;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,13 @@ class Payment extends Model
         'tax_percent',
         'currency_code',
         'shop_item_product_id',
+    ];
+
+    /**
+     * @var string[]
+     */
+    protected $casts = [
+        'status' => PaymentStatus::class
     ];
 
     public static function boot()

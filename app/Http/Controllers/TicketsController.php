@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 
@@ -43,7 +44,7 @@ class TicketsController extends Controller
         $this->checkPermission(self::WRITE_PERMISSION);
 
         if (RateLimiter::tooManyAttempts('ticket-send:'.Auth::user()->id, $perMinute = 1)) {
-            return redirect()->back()->with('error', __('Please wait before creating a new Ticket'));
+            return redirect()->back()->with('error', 'Please wait '. RateLimiter::availableIn('ticket-send:'.Auth::user()->id).' seconds before creating a new Ticket');
         }
 
         $validateData = [
@@ -57,7 +58,11 @@ class TicketsController extends Controller
             $validateData['g-recaptcha-response'] = ['required', 'recaptcha'];
         }
 
-        $this->validate($request, $validateData);
+        $validator = Validator::make($request->all(), $validateData);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
         $ticket = new Ticket(
             [
@@ -81,7 +86,7 @@ class TicketsController extends Controller
 
 
         $user->notify(new CreateNotification($ticket));
-        RateLimiter::hit('ticket-send:'.Auth::user()->id);
+        RateLimiter::increment('ticket-send:'.Auth::user()->id);
 
         return redirect()->route('ticket.index')->with('success', __('A ticket has been opened, ID: #') . $ticket->ticket_id);
     }
@@ -107,9 +112,10 @@ class TicketsController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        if (RateLimiter::tooManyAttempts('ticket-reply:'.Auth::user()->id, $perMinute = 1)) {
-            return redirect()->back()->with('error', __('Please wait before answering a Ticket'));
+        if (RateLimiter::tooManyAttempts('ticket-reply:'.Auth::user()->id, $perMinute = 2)) {
+            return redirect()->back()->with('error', 'Please wait '. RateLimiter::availableIn('ticket-reply:'.Auth::user()->id).' seconds before answering the next Ticket');
         }
+
         //check in blacklist
         $check = TicketBlacklist::where('user_id', Auth::user()->id)->first();
         if ($check && $check->status == 'True') {
@@ -138,7 +144,7 @@ class TicketsController extends Controller
         foreach($staffNotify as $staff){
             Notification::send($staff, new AdminReplyNotification($ticket, $user, $newmessage));
         }
-        RateLimiter::hit('ticket-reply:'.Auth::user()->id);
+        RateLimiter::increment('ticket-reply:'.Auth::user()->id);
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 
