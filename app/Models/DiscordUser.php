@@ -72,7 +72,7 @@ class DiscordUser extends Model
                     'Content-Type' => 'application/json',
                     'X-Audit-Log-Reason' => 'Role removed by panel'
                 ]
-            )->remove(
+            )->delete(
                 "https://discord.com/api/guilds/{$discordSettings->guild_id}/members/{$this->id}/roles/{$discordSettings->role_id}",
                 ['access_token' => $discordSettings->bot_token]
             ),
