@@ -113,51 +113,74 @@
                         <!-- Content in $settings -->
                         <div class="p-0 col-10">
                             <div class="ml-3 tab-content" style="width: 100%;">
-                                <div container class="container tab-pane fade" id="icons" role="tabpanel">
+                                <div class="container tab-pane fade" id="icons" role="tabpanel">
 
                                     <form method="POST" enctype="multipart/form-data" class="mb-3"
                                         action="{{ route('admin.settings.updateIcons') }}">
                                         @csrf
                                         @method('POST')
                                         <div class="row">
-                                            <div class="ml-5 card" style="width: 18rem;">
-                                                <span class="text-center h3">{{ __('FavIcon') }} </span>
-                                              <img src="{{ Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('images/ctrlpanel_logo.png') }}"
-                                                   style="width:5vw;display: block; margin-left: auto;margin-right: auto"
-                                                   class="card-img-top" alt="...">
-                                                <div class="card-body">
+                                            <div class="ml-5">
+                                              @error('favicon')
+                                                <p class="text-danger">
+                                                    {{ $message }}
+                                                </p>
+                                              @enderror
+                                              <div class="card" style="width: 18rem;">
+                                                  <span class="text-center h3">{{ __('FavIcon') }} </span>
+                                                <img src="{{ $images['favicon'] }}"
+                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
+                                                     class="card-img-top" alt="...">
+                                                  <div class="card-body">
 
-                                                </div>
-                                                <input type="file" accept="image/x-icon" class="form-control"
-                                                    name="favicon" id="favicon">
+                                                  </div>
+                                                  <input type="file" accept="image/x-icon" class="form-control"
+                                                      name="favicon" id="favicon">
+                                              </div>
                                             </div>
 
-                                            <div class="ml-5 card" style="width: 18rem;">
-                                                <span class="text-center h3">{{ __('Icon') }} </span>
-                                                <img src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/ctrlpanel_logo.png') }}"
-                                                    style="width:5vw;display: block; margin-left: auto;margin-right: auto"
-                                                    class="card-img-top" alt="...">
-                                                <div class="card-body">
+                                            <div class="ml-5">
+                                              @error('icon')
+                                                <p class="text-danger">
+                                                    {{ $message }}
+                                                </p>
+                                              @enderror
+                                              <div class="card" style="width: 18rem;">
+                                                  <span class="text-center h3">{{ __('Icon') }} </span>
+                                                  <img src="{{ $images['icon'] }}"
+                                                      style="width:5vw;display: block; margin-left: auto;margin-right: auto"
+                                                      class="card-img-top" alt="...">
+                                                  <div class="card-body">
 
-                                                </div>
-                                                <input type="file" accept="image/png,image/jpeg,image/jpg"
-                                                    class="form-control" name="icon" id="icon">
+                                                  </div>
+                                                  <input type="file" accept="image/png,image/jpeg,image/jpg"
+                                                      class="form-control" name="icon" id="icon">
+                                              </div>
                                             </div>
 
-                                            <div class="ml-5 card" style="width: 18rem;">
-                                                <span class="text-center h3">{{ __('Login-page Logo') }} </span>
-                                                <img src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}"
-                                                    style="width:5vw;display: block; margin-left: auto;margin-right: auto"
-                                                    class="card-img-top" alt="...">
-                                                <div class="card-body">
+                                            <div class="ml-5">
+                                              @error('logo')
+                                                <p class="text-danger">
+                                                    {{ $message }}
+                                                </p>
+                                              @enderror
+                                              <div class="card" style="width: 18rem;">
+                                                  <span class="text-center h3">{{ __('Login-page Logo') }} </span>
+                                                  <img src="{{ $images['logo'] }}"
+                                                      style="width:5vw;display: block; margin-left: auto;margin-right: auto"
+                                                      class="card-img-top" alt="...">
+                                                  <div class="card-body">
 
-                                                </div>
-                                                <input type="file" accept="image/png,image/jpeg,image/jpg"
-                                                    class="form-control" name="logo" id="logo">
+                                                  </div>
+                                                  <input type="file" accept="image/png,image/jpeg,image/jpg"
+                                                      class="form-control" name="logo" id="logo">
+                                              </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <button class="mt-3 ml-3 btn btn-primary">{{ __('Save') }}</button>
+                                            <div class="col-12 d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                                            </div>
                                         </div>
 
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
