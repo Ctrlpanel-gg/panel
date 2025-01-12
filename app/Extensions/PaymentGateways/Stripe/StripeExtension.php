@@ -23,6 +23,16 @@ class StripeExtension extends AbstractExtension
 {
     use CouponTrait;
 
+    // https://docs.stripe.com/currencies#zero-decimal
+    protected const ZERO_DECIMAL_CURRENCIES = [
+        'BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+    ];
+
+    // https://docs.stripe.com/currencies#three-decimal
+    protected const THREE_DECIMAL_CURRENCIES = [
+        'BHD', 'JOD', 'KWD', 'OMR', 'TND',
+    ];
+
     public static function getConfig(): array
     {
         return [
@@ -51,7 +61,7 @@ class StripeExtension extends AbstractExtension
                             'name' => $shopProduct->display,
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => self::priceInCents($totalPriceString),
+                        'unit_amount_decimal' => self::convertAmount($totalPriceString, $shopProduct->currency_code),
                     ],
                     'quantity' => 1,
                 ],
@@ -363,11 +373,17 @@ class StripeExtension extends AbstractExtension
         ];
         return $amount >= $minimums[$currencyCode][$payment_method];
     }
-    public static function priceInCents($price){
-        $centPrice = str_replace(".", "", $price);
-        $centPrice = str_replace(",", "", $centPrice);
-        //$centPrice = str_pad($centPrice, 4, '0', STR_PAD_RIGHT);
-        return $centPrice;
-    }
 
+    protected static function convertAmount(float $amount, string $currency): int
+    {
+        if (in_array($currency, self::ZERO_DECIMAL_CURRENCIES, true)) {
+            return $amount;
+        }
+
+        if (in_array($currency, self::THREE_DECIMAL_CURRENCIES, true)) {
+            return $amount * 1000;
+        }
+
+        return $amount * 100;
+    }
 }
