@@ -17,8 +17,6 @@ class SettingsController extends Controller
 {
     const ICON_PERMISSION = "admin.icons.edit";
 
-
-
     /**
      * Display a listing of the resource.
      *
@@ -26,8 +24,6 @@ class SettingsController extends Controller
      */
     public function index()
     {
-
-
         // get all other settings in app/Settings directory
         // group items by file name like $categories
         $settings = collect();
@@ -113,7 +109,6 @@ class SettingsController extends Controller
             $validations = [];
         }
 
-
         $validator = Validator::make($request->all(), $validations);
         if ($validator->fails()) {
             return Redirect::to('admin/settings' . '#' . $category)->withErrors($validator)->withInput();
@@ -152,7 +147,7 @@ class SettingsController extends Controller
         $request->validate([
             'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
             'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
-            'favicon' => 'nullable|max:10000|mimes:ico',
+            'favicon' => 'nullable|max:10000|mimes:ico,x-icon',
         ]);
 
         if ($request->hasFile('icon')) {
