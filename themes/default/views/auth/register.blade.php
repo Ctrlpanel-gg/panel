@@ -5,13 +5,13 @@
     <body class="hold-transition dark-mode register-page">
     <div class="register-box">
         <div class="card card-outline card-primary">
-            <div class="card-header text-center">
+            <div class="text-center card-header">
                 <a href="{{ route('welcome') }}" class="h1"><b
                         class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
             </div>
             <div class="card-body">
                 @if (!app(App\Settings\UserSettings::class)->creation_enabled)
-                    <div class="alert alert-warning p-2 m-2">
+                    <div class="p-2 m-2 alert alert-warning">
                         <h5><i class="icon fas fa-exclamation-circle"></i> {{ __('Warning!') }}</h5>
                         {{ __('The system administrator has blocked the registration of new users') }}
                     </div>
@@ -63,7 +63,7 @@
 
 
                         <div class="form-group">
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 <input type="email" name="email"
                                        class="form-control  @error('email') is-invalid @enderror"
                                        placeholder="{{ __('Email') }}" value="{{ old('email') }}" required
@@ -82,7 +82,7 @@
                         </div>
 
                         <div class="form-group">
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 <input type="password" class="form-control @error('password') is-invalid @enderror"
                                        placeholder="{{ __('Password') }}" name="password" required
                                        autocomplete="new-password">
@@ -99,7 +99,7 @@
                             @enderror
                         </div>
 
-                        <div class="input-group mb-3">
+                        <div class="mb-3 input-group">
                             <input type="password" class="form-control" name="password_confirmation"
                                    placeholder="{{ __('Retype password') }}" required autocomplete="new-password">
                             <div class="input-group-append">
@@ -109,7 +109,7 @@
                             </div>
                         </div>
                         @if (app(App\Settings\ReferralSettings::class)->enabled)
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 <input type="text" value="{{ Request::get('ref') }}" class="form-control"
                                        name="referral_code"
                                        placeholder="{{ __('Referral code') }} ({{ __('optional') }})">
@@ -121,7 +121,7 @@
                             </div>
                         @endif
                         @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 {!! htmlFormSnippet() !!}
                                 @error('g-recaptcha-response')
                                 <span class="text-danger" role="alert">
@@ -168,15 +168,16 @@
     {{-- imprint and privacy policy --}}
     <div class="fixed-bottom ">
         <div class="container text-center">
-            @if ($website_settings->show_imprint)
-                    <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
-                @endif
-                @if ($website_settings->show_privacy)
-                    <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
-                @endif
-                @if ($website_settings->show_tos)
-                    | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
-                @endif
+          @if ($website_settings->show_imprint)
+              <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+          @endif
+          @if ($website_settings->show_privacy)
+              <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+          @endif
+          @if ($website_settings->show_tos)
+              | <a target="_blank"
+                  href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+          @endif
         </div>
     </div>
     </body>

@@ -66,7 +66,7 @@
                                                         class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="pill"
                                                         role="tab">
                                                         <i
-                                                            class="nav-icon fas {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
+                                                            class="nav-icon {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
                                                         <p>
                                                             {{ $category }}
                                                         </p>
@@ -199,7 +199,7 @@
                                                     value="{{ $options['settings_class'] }}">
                                                 <input type="hidden" name="category" value="{{ $category }}">
                                                 @foreach ($options as $key => $value)
-                                                    @if ($key == 'category_icon' || $key == 'settings_class')
+                                                    @if ($key == 'category_icon' || $key == 'settings_class' || $key == 'position')
                                                         @continue
                                                     @endif
                                                     <div class="row">

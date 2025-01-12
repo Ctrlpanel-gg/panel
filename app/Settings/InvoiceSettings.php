@@ -47,6 +47,7 @@ class InvoiceSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-file-invoice-dollar',
+            'position' => 9,
             'company_address' => [
                 'label' => 'Company Address',
                 'type' => 'string',

@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // Schema::dropIfExists('settings_old');
+        $this->call([
+            TermsSeeder::class,
+        ]);
     }
 }

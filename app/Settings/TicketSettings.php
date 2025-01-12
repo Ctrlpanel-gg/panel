@@ -35,6 +35,7 @@ class TicketSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-ticket-alt',
+            'position' => 6,
             'enabled' => [
                 'label' => 'Enabled',
                 'type' => 'boolean',

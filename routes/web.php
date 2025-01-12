@@ -25,6 +25,7 @@ use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\TermsController;
 use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
@@ -49,15 +50,7 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
-Route::get('/privacy', function () {
-    return view('information.privacy');
-})->name('privacy');
-Route::get('/imprint', function () {
-    return view('information.imprint');
-})->name('imprint');
-Route::get('/tos', function () {
-    return view('information.tos');
-})->name('tos');
+Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //resend verification email
@@ -171,8 +164,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
         //settings
-
-
         Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::post('settings/icons', [SettingsController::class, 'updateIcons'])->name('settings.updateIcons');
@@ -185,10 +176,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         //usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
-
-        //legal
-        Route::get('legal', [LegalController::class, 'index'])->name('legal.index');
-        Route::patch('legal', [LegalController::class, 'update'])->name('legal.update');
 
         //vouchers
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');

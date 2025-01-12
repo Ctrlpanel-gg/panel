@@ -5,7 +5,7 @@
     <body class="hold-transition dark-mode login-page">
         <div class="login-box">
             <div class="card card-outline card-primary">
-                <div class="card-header text-center">
+                <div class="text-center card-header">
                     <a href="{{ route('welcome') }}" class="h1"><b
                             class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
                 </div>
@@ -20,7 +20,7 @@
                     <form method="POST" action="{{ route('password.email') }}">
                         @csrf
 
-                        <div class="input-group mb-3">
+                        <div class="mb-3 input-group">
                             <input type="email" class="form-control @error('email') is-invalid @enderror"
                                 placeholder="{{ __('Email') }}" name="email" value="{{ old('email') }}" required
                                 autocomplete="email" autofocus>
@@ -37,7 +37,7 @@
                             @enderror
                         </div>
                         @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 {!! htmlFormSnippet() !!}
                                 @error('g-recaptcha-response')
                                 <span class="text-danger" role="alert">
@@ -72,13 +72,14 @@
             <div class="container text-center">
                 @php($website_settings = app(App\Settings\WebsiteSettings::class))
                 @if ($website_settings->show_imprint)
-                    <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+                    <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
                 @endif
                 @if ($website_settings->show_privacy)
-                    <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+                    <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
                 @if ($website_settings->show_tos)
-                    | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+                    | <a target="_blank"
+                        href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>
         </div>

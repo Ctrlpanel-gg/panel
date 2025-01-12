@@ -5,7 +5,7 @@
     <body class="hold-transition dark-mode login-page">
         <div class="login-box">
             <div class="card card-outline card-primary">
-                <div class="card-header text-center">
+                <div class="text-center card-header">
                     <a href="{{ route('welcome') }}" class="h1"><b
                             class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
                 </div>
@@ -18,7 +18,7 @@
 
                         <input type="hidden" name="token" value="{{ $token }}">
 
-                        <div class="input-group mb-3">
+                        <div class="mb-3 input-group">
                             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                                 placeholder="{{ __('Email') }}">
                             <div class="input-group-append">
@@ -34,7 +34,7 @@
                         </div>
 
 
-                        <div class="input-group mb-3">
+                        <div class="mb-3 input-group">
                             <input type="password" class="form-control @error('password') is-invalid @enderror"
                                 placeholder="{{ __('Password') }}" name="password" required autocomplete="new-password">
                             <div class="input-group-append">
@@ -49,7 +49,7 @@
                             @enderror
                         </div>
 
-                        <div class="input-group mb-3">
+                        <div class="mb-3 input-group">
                             <input type="password" class="form-control" name="password_confirmation"
                                 placeholder="{{ __('Retype password') }}" required autocomplete="new-password">
                             <div class="input-group-append">
@@ -85,13 +85,14 @@
             <div class="container text-center">
                 @php($website_settings = app(App\Settings\WebsiteSettings::class))
                 @if ($website_settings->show_imprint)
-                    <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+                    <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
                 @endif
                 @if ($website_settings->show_privacy)
-                    <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+                    <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
                 @if ($website_settings->show_tos)
-                    | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+                    | <a target="_blank"
+                        href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>
         </div>

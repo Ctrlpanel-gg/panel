@@ -336,7 +336,7 @@
                                 'settings.mercadopago.read',
                                 'settings.mercadopago.write',])
                             <li class="nav-item">
-                                <a href="{{ route('admin.settings.index') }}"
+                                <a href="{{ route('admin.settings.index') . '#icons' }}"
                                     class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
                                     <i class="nav-icon fas fa-tools"></i>
                                     <p>{{ __('Settings') }}</p>
@@ -472,17 +472,6 @@
                             </li>
                             @endcanany
 
-                        @canany(["admin.legal.read","admin.legal.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.legal.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.legal.*')) active @endif">
-                                    <i class="nav-icon fas fa-link"></i>
-                                    <p>{{ __('Legal Sites') }}</p>
-                                </a>
-                            </li>
-                            @endcanany
-
-
                             @canany(["admin.payments.read","admin.logs.read"])
                                 <li class="nav-header">{{ __('Logs') }}</li>
                             @endcanany
@@ -552,16 +541,16 @@
 
             {{-- Show imprint and privacy link --}}
             <div class="float-right d-none d-sm-inline-block">
-                @if ($website_settings->show_imprint)
-                    <a target="_blank" href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
-                @endif
-                @if ($website_settings->show_privacy)
-                    <a target="_blank" href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
-                @endif
-                @if ($website_settings->show_tos)
-                    | <a target="_blank"
-                        href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
-                @endif
+              @if ($website_settings->show_imprint)
+                  <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+              @endif
+              @if ($website_settings->show_privacy)
+                  <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+              @endif
+              @if ($website_settings->show_tos)
+                  | <a target="_blank"
+                      href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+              @endif
             </div>
         </footer>
 
