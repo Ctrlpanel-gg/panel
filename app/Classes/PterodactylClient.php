@@ -299,10 +299,6 @@ class PterodactylClient
 
             return $response;
         } catch (Exception $e) {
-            // If it's a connection error (status 0), throw a specific exception
-            if ($e->getCode() === 0) {
-                throw self::getException('Unable to connect to Pterodactyl node - Please check if the node is online and accessible', 503);
-            }
             throw $e;
         }
     }
