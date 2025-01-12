@@ -53,6 +53,7 @@ class WebsiteSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-globe',
+            'position' => 2,
             'motd_enabled' => [
                 'label' => 'Enable MOTD',
                 'type' => 'boolean',

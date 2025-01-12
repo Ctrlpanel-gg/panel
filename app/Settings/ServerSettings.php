@@ -39,6 +39,7 @@ class ServerSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-server',
+            'position' => 11,
             'allocation_limit' => [
                 'label' => 'Allocation Limit',
                 'type' => 'number',

@@ -57,6 +57,7 @@ class GeneralSettings extends Settings
     {
         return [
             'category_icon' => "fas fa-cog",
+            'position' => 1,
             'store_enabled' => [
                 'type' => 'boolean',
                 'label' => 'Enable Store',

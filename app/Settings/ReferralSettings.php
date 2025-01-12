@@ -41,6 +41,7 @@ class ReferralSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-user-friends',
+            'position' => 8,
             'always_give_commission' => [
                 'label' => 'Always Give Commission',
                 'type' => 'boolean',

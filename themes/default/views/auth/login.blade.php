@@ -6,15 +6,15 @@
         <div class="login-box">
             <!-- /.login-logo -->
             <div class="card card-outline card-primary">
-                <div class="card-header text-center">
-                    <a href="{{ route('welcome') }}" class="h1 mb-2"><b
+                <div class="text-center card-header">
+                    <a href="{{ route('welcome') }}" class="mb-2 h1"><b
                             class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
                     @if ($website_settings->enable_login_logo)
                         <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}"
                             alt="{{ config('app.name', 'CtrlPanel.gg') }} Logo" style="opacity: .8; max-width:100%; height: 150px; margin-top: 10px;">
                     @endif
                 </div>
-                <div class="card-body pt-0">
+                <div class="pt-0 card-body">
                     <p class="login-box-msg">{{ __('Sign in to start your session') }}</p>
 
                     @if (session('message'))
@@ -30,7 +30,7 @@
                         @endif
 
                         <div class="form-group">
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 <input type="text" name="email"
                                     class="form-control @error('email') is-invalid @enderror @error('name') is-invalid @enderror"
                                     placeholder="{{ __('Email or Username') }}">
@@ -49,7 +49,7 @@
                         </div>
 
                         <div class="form-group">
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 <input type="password" name="password"
                                     class="form-control @error('password') is-invalid @enderror"
                                     placeholder="{{ __('Password') }}">
@@ -67,7 +67,7 @@
                             @enderror
                         </div>
                         @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
-                            <div class="input-group mb-3">
+                            <div class="mb-3 input-group">
                                 {!! htmlFormSnippet() !!}
                                 @error('g-recaptcha-response')
                                     <span class="text-danger" role="alert">
@@ -116,15 +116,16 @@
         {{-- imprint and privacy policy --}}
         <div class="fixed-bottom ">
             <div class="container text-center">
-                @if ($website_settings->show_imprint)
-                    <a href="{{ route('imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
-                @endif
-                @if ($website_settings->show_privacy)
-                    <a href="{{ route('privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
-                @endif
-                @if ($website_settings->show_tos)
-                    | <a target="_blank" href="{{ route('tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
-                @endif
+              @if ($website_settings->show_imprint)
+                <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+              @endif
+              @if ($website_settings->show_privacy)
+                  <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+              @endif
+              @if ($website_settings->show_tos)
+                  | <a target="_blank"
+                      href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
+              @endif
             </div>
         </div>
     </body>

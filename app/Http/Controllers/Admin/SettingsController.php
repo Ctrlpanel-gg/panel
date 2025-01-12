@@ -75,12 +75,17 @@ class SettingsController extends Controller
             if (isset($optionInputData['category_icon'])) {
                 $optionsData['category_icon'] = $optionInputData['category_icon'];
             }
+
+            if (isset($optionInputData['position'])) {
+                $optionsData['position'] = $optionInputData['position'];
+            }
+
             $optionsData['settings_class'] = $className;
 
             $settings[str_replace('Settings', '', class_basename($className))] = $optionsData;
         }
 
-        $settings->sort();
+        $settings = $settings->sortBy('position');
 
         $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
 

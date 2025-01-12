@@ -39,6 +39,7 @@ class CouponSettings extends Settings
     {
         return [
             "category_icon" => "fas fa-ticket-alt",
+            'position' => 10,
             'enabled' => [
                 'label' => 'Enable Coupons',
                 'type' => 'boolean',
