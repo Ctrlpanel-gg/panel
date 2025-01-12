@@ -78,6 +78,8 @@ class SettingsController extends Controller
 
             if (isset($optionInputData['position'])) {
                 $optionsData['position'] = $optionInputData['position'];
+            }else{
+                $optionsData['position'] = 99;
             }
 
             $optionsData['settings_class'] = $className;
