@@ -15,9 +15,9 @@ class UserSettings extends Settings
     public float $initial_credits;
     public int $initial_server_limit;
     public float $min_credits_to_make_server;
-    public int $server_limit_after_irl_purchase;
-    public int $server_limit_after_verify_discord;
-    public int $server_limit_after_verify_email;
+    public int $server_limit_increment_after_irl_purchase;
+    public int $server_limit_increment_after_verify_discord;
+    public int $server_limit_increment_after_verify_email;
 
     public static function group(): string
     {
@@ -38,9 +38,9 @@ class UserSettings extends Settings
             'initial_credits' => 'required|numeric',
             'initial_server_limit' => 'required|numeric',
             'min_credits_to_make_server' => 'required|numeric',
-            'server_limit_after_irl_purchase' => 'required|numeric',
-            'server_limit_after_verify_discord' => 'required|numeric',
-            'server_limit_after_verify_email' => 'required|numeric',
+            'server_limit_increment_after_irl_purchase' => 'required|numeric',
+            'server_limit_increment_after_verify_discord' => 'required|numeric',
+            'server_limit_increment_after_verify_email' => 'required|numeric',
             'register_ip_check' => 'nullable|string',
             'creation_enabled' => 'nullable|string',
         ];
@@ -90,17 +90,17 @@ class UserSettings extends Settings
                 'type' => 'number',
                 'description' => 'The minimum amount of credits a user needs to create a server.',
             ],
-            'server_limit_after_irl_purchase' => [
-                'label' => 'Server Limit After first purchase',
+            'server_limit_increment_after_irl_purchase' => [
+                'label' => 'Server Limit Increase After first purchase',
                 'type' => 'number',
-                'description' => 'The amount of servers a user can create after they make their first purchase.',
+                'description' => 'Specifies how many additional servers a user can create after making their first purchase.',
             ],
-            'server_limit_after_verify_discord' => [
+            'server_limit_increment_after_verify_discord' => [
                 'label' => 'Server Limit Increase After Verify Discord',
                 'type' => 'number',
                 'description' => 'Specifies how many additional servers a user can create after verifying their Discord account.',
             ],
-            'server_limit_after_verify_email' => [
+            'server_limit_increment_after_verify_email' => [
                 'label' => 'Server Limit Increase After Verify Email',
                 'type' => 'number',
                 'description' => 'Specifies how many additional servers a user can create after verifying their email address.',
