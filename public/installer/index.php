@@ -44,12 +44,12 @@ $stepConfig = [
     2 => ['view' => 'timezone-configuration', 'is_revertable' => true],
     3 => ['view' => 'database-configuration', 'is_revertable' => true],
     4 => ['view' => 'database-migration', 'is_revertable' => false],
-   // 5 => ['view' => 'redis-configuration', 'is_revertable' => true],
-    5 => ['view' => 'dashboard-configuration', 'is_revertable' => true],
-    6 => ['view' => 'email-configuration', 'is_revertable' => true],
-    7 => ['view' => 'pterodactyl-configuration', 'is_revertable' => false],
-    8 => ['view' => 'admin-creation', 'is_revertable' => false],
-    9 => ['view' => 'installation-complete', 'is_revertable' => false],
+    5 => ['view' => 'redis-configuration', 'is_revertable' => true],
+    6 => ['view' => 'dashboard-configuration', 'is_revertable' => true],
+    7 => ['view' => 'email-configuration', 'is_revertable' => true],
+    8 => ['view' => 'pterodactyl-configuration', 'is_revertable' => false],
+    9 => ['view' => 'admin-creation', 'is_revertable' => false],
+    10 => ['view' => 'installation-complete', 'is_revertable' => false],
 ];
 
 $_SESSION['last_installation_step'] = count($stepConfig);
