@@ -120,6 +120,7 @@
                 </div>
               </div>
             @endif
+
             @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
             @if ($recaptchaVersion)
               <div class="mb-3 input-group">
