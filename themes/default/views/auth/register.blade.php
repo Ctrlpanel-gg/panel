@@ -128,16 +128,11 @@
                           @elseif ($recaptchaVersion === "v3")
                             {!! RecaptchaV3::field('recaptchathree') !!}
                           @endif
-                          @error('g-recaptcha-response')
-                          <span class="text-danger" role="alert">
+                            @error('g-recaptcha-response')
+                            <span class="text-danger" role="alert">
                                         <small><strong>{{ $message }}</strong></small>
                                     </span>
-                          @enderror
-                          @error('recaptchathree')
-                          <span class="text-danger" role="alert">
-                                        <small><strong>{{ $message }}</strong></small>
-                                    </span>
-                          @enderror
+                            @enderror
                         </div>
                       @endif
 

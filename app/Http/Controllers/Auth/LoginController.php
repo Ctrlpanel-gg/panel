@@ -66,7 +66,7 @@ class LoginController extends Controller
             if($general_settings->recaptcha_version === "v2") {
                 $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
             }elseif($general_settings->recaptcha_version === "v3") {
-                $validationRules['g-recaptcha-response'] = ['required','recaptchav3:recaptchathree,1.0'];
+                $validationRules['g-recaptcha-response'] = ['required','recaptchav3:recaptchathree,0.5'];
             }
         }
         $request->validate($validationRules);

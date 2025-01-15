@@ -79,11 +79,6 @@
                                         <small><strong>{{ $message }}</strong></small>
                                     </span>
                                 @enderror
-                                @error('recaptchathree')
-                                <span class="text-danger" role="alert">
-                                        <small><strong>{{ $message }}</strong></small>
-                                    </span>
-                                @enderror
                             </div>
                         @endif
 
