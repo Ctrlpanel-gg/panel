@@ -380,9 +380,9 @@ class ServerController extends Controller
 
         $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
         $upgradeOptions = $this->getUpgradeOptions($server, $serverAttributes);
-
         return view('servers.settings')->with([
             'server' => $server,
+            'serverAttributes' => $serverAttributes,
             'products' => $upgradeOptions,
             'server_enable_upgrade' => $this->serverSettings->enable_upgrade,
             'credits_display_name' => $this->generalSettings->credits_display_name,
@@ -396,9 +396,14 @@ class ServerController extends Controller
         $nodeId = $serverInfo['relationships']['node']['attributes']['id'];
         $pteroNode = $this->pterodactyl->getNode($nodeId);
 
+        $currentProductEggs = $currentProduct->eggs->pluck('id')->toArray();
+
         return Product::orderBy('created_at')
             ->whereHas('nodes', function (Builder $builder) use ($nodeId) {
                 $builder->where('id', $nodeId);
+            })
+            ->whereHas('eggs', function (Builder $builder) use ($currentProductEggs) {
+                $builder->whereIn('id', $currentProductEggs);
             })
             ->get()
             ->map(function ($product) use ($currentProduct, $pteroNode) {
