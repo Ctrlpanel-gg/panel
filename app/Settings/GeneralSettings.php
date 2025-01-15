@@ -33,7 +33,9 @@ class GeneralSettings extends Settings
      */
     public static function getValidations()
     {
-        return [
+        $themes = array_keys(self::getThemes());
+
+        $validations = [
             'store_enabled' => 'nullable|string',
             'sales_tax' => 'nullable|numeric',
             'credits_display_name' => 'required|string',
@@ -44,9 +46,25 @@ class GeneralSettings extends Settings
             'alert_enabled' => 'nullable|string',
             'alert_type' => 'required|in:primary,secondary,success,danger,warning,info',
             'alert_message' => 'nullable|string',
-            'theme' => 'required|in:default,BlueInfinity' // TODO: themes should be made/loaded dynamically
+            'theme' => ['required', 'in:' . implode(',', $themes)],
         ];
+        return $validations;
     }
+
+    public static function getThemes()
+    {
+        $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
+        $themesWithLabels = [];
+        foreach ($themes as $theme) {
+            // Customize the label as needed. Example: "BlueInfinity" => "Blue Infinity"
+            $label = ucwords(str_replace(['_', '-'], ' ', $theme));
+            $themesWithLabels[$theme] = $label;
+        }
+
+        return $themesWithLabels;
+    }
+
+
 
     /**
      * Summary of optionTypes
@@ -55,7 +73,7 @@ class GeneralSettings extends Settings
      */
     public static function getOptionInputData()
     {
-        return [
+        $inputData = [
             'category_icon' => "fas fa-cog",
             'position' => 1,
             'store_enabled' => [
@@ -121,15 +139,16 @@ class GeneralSettings extends Settings
                 'label' => 'Alert Message',
                 'description' => 'The message to display in the alert.'
             ],
-            'theme' => [
-                'type' => 'select',
-                'label' => 'Theme',
-                'options' => [
-                    'default' => 'Default',
-                    'BlueInfinity' => 'Blue Infinity',
-                ], // TODO: themes should be made/loaded dynamically
-                'description' => 'The theme to use for the site.'
-            ],
         ];
+
+        $inputData['theme'] = [
+            'type' => 'select',
+            'label' => 'Theme',
+            'options' => self::getThemes(),
+            'description' => 'The theme to use for the site.'
+        ];
+        
+
+        return $inputData;
     }
 }
