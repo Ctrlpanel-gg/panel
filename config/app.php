@@ -213,7 +213,6 @@ return [
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
         App\Providers\SettingsServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
         App\Providers\ExtensionServiceProvider::class,
     ],
 
