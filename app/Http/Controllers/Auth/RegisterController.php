@@ -43,6 +43,7 @@ class RegisterController extends Controller
     private $referral_mode;
 
     private $referral_reward;
+    private $recaptcha_version;
 
     /*
     |--------------------------------------------------------------------------
@@ -74,7 +75,7 @@ class RegisterController extends Controller
         $this->middleware('guest');
         $this->pterodactyl = new PterodactylClient($ptero_settings);
         $this->credits_display_name = $general_settings->credits_display_name;
-        $this->recaptcha_enabled = $general_settings->recaptcha_enabled;
+        $this->recaptcha_version = $general_settings->recaptcha_version;
         $this->website_show_tos = $website_settings->show_tos;
         $this->register_ip_check = $user_settings->register_ip_check;
         $this->initial_credits = $user_settings->initial_credits;
@@ -96,8 +97,15 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:64', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
-        if ($this->recaptcha_enabled) {
-            $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+        if ($this->recaptcha_version) {
+            switch ($this->recaptcha_version) {
+                case "v2":
+                    $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+                    break;
+                case "v3":
+                    $validationRules['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.5'];
+                    break;
+            }
         }
         if ($this->website_show_tos) {
             $validationRules['terms'] = ['required'];

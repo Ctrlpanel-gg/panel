@@ -69,6 +69,7 @@ class MailSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-envelope',
+            'position' => 4,
             'mail_host' => [
                 'label' => 'Mail Host',
                 'type' => 'string',

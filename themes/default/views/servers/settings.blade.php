@@ -175,7 +175,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $server->location }}
+                                        {{ $serverAttributes["relationships"]["location"]["attributes"]["short"] }}
                                     </span>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $server->node }}
+                                        {{ $serverAttributes["relationships"]["node"]["attributes"]["name"] }}
                                     </span>
                                 </div>
                             </div>

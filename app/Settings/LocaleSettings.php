@@ -40,7 +40,8 @@ class LocaleSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => 'fas fa-globe',
+            'category_icon' => 'fas fa-language',
+            'position' => 3,
             'available' => [
                 'label' => 'Available Locales',
                 'type' => 'multiselect',

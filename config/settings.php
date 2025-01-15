@@ -13,6 +13,7 @@ use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
 use App\Settings\TicketSettings;
 use App\Settings\CouponSettings;
+use App\Settings\TermsSettings;
 
 return [
 
@@ -33,6 +34,7 @@ return [
         WebsiteSettings::class,
         TicketSettings::class,
         CouponSettings::class,
+        TermsSettings::class,
     ],
 
     /*

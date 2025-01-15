@@ -1,5 +1,3 @@
-@import "custom.css";
-
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback);
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#3a4047;border-radius:9px}::-webkit-scrollbar-thumb:hover{background:#2e3339}::-webkit-scrollbar-track{background:#343a40;border-radius:10px;box-shadow:inset 7px 10px 12px #343a40}
 /*!
