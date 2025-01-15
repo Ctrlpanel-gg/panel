@@ -3,6 +3,8 @@
 
 <head>
     @php($website_settings = app(App\Settings\WebsiteSettings::class))
+
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta content="{{ $website_settings->seo_title }}" property="og:title">
@@ -28,8 +30,13 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
-    @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
+    @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+    @if ($recaptchaVersion)
+      @if ($recaptchaVersion === "v2")
         {!! htmlScriptTagJsApi() !!}
+      @elseif ($recaptchaVersion === "v3")
+        {!! RecaptchaV3::initJs() !!}
+      @endif
     @endif
     @vite('themes/default/sass/app.scss')
 </head>

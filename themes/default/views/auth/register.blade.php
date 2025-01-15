@@ -120,16 +120,26 @@
                                 </div>
                             </div>
                         @endif
-                        @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
-                            <div class="mb-3 input-group">
-                                {!! htmlFormSnippet() !!}
-                                @error('g-recaptcha-response')
-                                <span class="text-danger" role="alert">
-                                            <small><strong>{{ $message }}</strong></small>
-                                        </span>
-                                @enderror
-                            </div>
-                        @endif
+                      @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+                      @if ($recaptchaVersion)
+                        <div class="mb-3 input-group">
+                          @if ($recaptchaVersion === "v2")
+                            {!! htmlFormSnippet() !!}
+                          @elseif ($recaptchaVersion === "v3")
+                            {!! RecaptchaV3::field('recaptchathree') !!}
+                          @endif
+                          @error('g-recaptcha-response')
+                          <span class="text-danger" role="alert">
+                                        <small><strong>{{ $message }}</strong></small>
+                                    </span>
+                          @enderror
+                          @error('recaptchathree')
+                          <span class="text-danger" role="alert">
+                                        <small><strong>{{ $message }}</strong></small>
+                                    </span>
+                          @enderror
+                        </div>
+                      @endif
 
                         <div class="row">
                             <div class="col-12">
@@ -138,7 +148,7 @@
                                     <div class="icheck-primary">
                                         <input type="checkbox" id="agreeTerms" name="terms" value="agree">
                                         <label for="agreeTerms">
-                                            {{__("I agree to the")}} <a target="_blank" href="{{route("tos")}}">{{__("Terms of Service")}}</a>
+                                            {{__("I agree to the")}} <a target="_blank" href="{{ route('terms', 'tos') }}">{{__("Terms of Service")}}</a>
                                         </label>
                                     </div>
                                         @error('terms')

@@ -9,7 +9,7 @@ class GeneralSettings extends Settings
     public bool $store_enabled;
     public ?int $sales_tax;
     public string $credits_display_name;
-    public bool $recaptcha_enabled;
+    public ?string $recaptcha_version;
     public ?string $recaptcha_site_key;
     public ?string $recaptcha_secret_key;
     public ?string $phpmyadmin_url;
@@ -37,7 +37,7 @@ class GeneralSettings extends Settings
             'store_enabled' => 'nullable|string',
             'sales_tax' => 'nullable|numeric',
             'credits_display_name' => 'required|string',
-            'recaptcha_enabled' => 'nullable|string',
+            'recaptcha_version' => 'nullable|string|in:v2,v3',
             'recaptcha_site_key' => 'nullable|string',
             'recaptcha_secret_key' => 'nullable|string',
             'phpmyadmin_url' => 'nullable|string',
@@ -73,10 +73,15 @@ class GeneralSettings extends Settings
                 'label' => 'Credits Display Name',
                 'description' => 'The name of the currency used.'
             ],
-            'recaptcha_enabled' => [
-                'type' => 'boolean',
-                'label' => 'Enable reCAPTCHA',
-                'description' => 'Enable reCAPTCHA on the login page.'
+            'recaptcha_version' => [
+                'type' => 'select',
+                'label' => 'reCAPTCHA Version to use',
+                'description' => 'Enable reCAPTCHA on the login page.',
+                'options' => [
+                    'v2' => 'Recaptcha V2',
+                    'v3' => 'Recaptcha v3',
+                    null => 'Disable',
+                ],
             ],
             'recaptcha_site_key' => [
                 'type' => 'string',

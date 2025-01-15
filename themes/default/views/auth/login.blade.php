@@ -66,11 +66,21 @@
                                 </span>
                             @enderror
                         </div>
-                        @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
+                      @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+                      @if ($recaptchaVersion)
                             <div class="mb-3 input-group">
+                              @if ($recaptchaVersion === "v2")
                                 {!! htmlFormSnippet() !!}
+                              @elseif ($recaptchaVersion === "v3")
+                                {!! RecaptchaV3::field('recaptchathree') !!}
+                              @endif
                                 @error('g-recaptcha-response')
                                     <span class="text-danger" role="alert">
+                                        <small><strong>{{ $message }}</strong></small>
+                                    </span>
+                                @enderror
+                                @error('recaptchathree')
+                                <span class="text-danger" role="alert">
                                         <small><strong>{{ $message }}</strong></small>
                                     </span>
                                 @enderror
@@ -126,6 +136,7 @@
                   | <a target="_blank"
                       href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
               @endif
+                {{Config::get('recaptchav3.api_site_key')}} ---- {{Config::get('recaptchav3.api_secret_key')}}
             </div>
         </div>
     </body>

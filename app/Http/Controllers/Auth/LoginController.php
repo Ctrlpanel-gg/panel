@@ -56,12 +56,18 @@ class LoginController extends Controller
 
     public function login(Request $request, GeneralSettings $general_settings)
     {
+
+
         $validationRules = [
             $this->username() => 'required|string',
             'password' => 'required|string',
         ];
-        if ($general_settings->recaptcha_enabled) {
-            $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+        if ($general_settings->recaptcha_version) {
+            if($general_settings->recaptcha_version === "v2") {
+                $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+            }elseif($general_settings->recaptcha_version === "v3") {
+                $validationRules['g-recaptcha-response'] = ['required','recaptchav3:recaptchathree,1.0'];
+            }
         }
         $request->validate($validationRules);
 
