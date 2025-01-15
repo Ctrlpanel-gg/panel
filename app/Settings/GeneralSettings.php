@@ -9,7 +9,7 @@ class GeneralSettings extends Settings
     public bool $store_enabled;
     public ?int $sales_tax;
     public string $credits_display_name;
-    public bool $recaptcha_enabled;
+    public ?string $recaptcha_version;
     public ?string $recaptcha_site_key;
     public ?string $recaptcha_secret_key;
     public ?string $phpmyadmin_url;
@@ -33,20 +33,38 @@ class GeneralSettings extends Settings
      */
     public static function getValidations()
     {
-        return [
+        $themes = array_keys(self::getThemes());
+
+        $validations = [
             'store_enabled' => 'nullable|string',
             'sales_tax' => 'nullable|numeric',
             'credits_display_name' => 'required|string',
-            'recaptcha_enabled' => 'nullable|string',
+            'recaptcha_version' => 'nullable|string|in:v2,v3',
             'recaptcha_site_key' => 'nullable|string',
             'recaptcha_secret_key' => 'nullable|string',
             'phpmyadmin_url' => 'nullable|string',
             'alert_enabled' => 'nullable|string',
             'alert_type' => 'required|in:primary,secondary,success,danger,warning,info',
             'alert_message' => 'nullable|string',
-            'theme' => 'required|in:default,BlueInfinity' // TODO: themes should be made/loaded dynamically
+            'theme' => ['required', 'in:' . implode(',', $themes)],
         ];
+        return $validations;
     }
+
+    public static function getThemes()
+    {
+        $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
+        $themesWithLabels = [];
+        foreach ($themes as $theme) {
+            // Customize the label as needed. Example: "Blue_Infinity" => "Blue Infinity"
+            $label = ucwords(str_replace(['_', '-'], ' ', $theme));
+            $themesWithLabels[$theme] = $label;
+        }
+
+        return $themesWithLabels;
+    }
+
+
 
     /**
      * Summary of optionTypes
@@ -55,7 +73,7 @@ class GeneralSettings extends Settings
      */
     public static function getOptionInputData()
     {
-        return [
+        $inputData = [
             'category_icon' => "fas fa-cog",
             'position' => 1,
             'store_enabled' => [
@@ -73,10 +91,15 @@ class GeneralSettings extends Settings
                 'label' => 'Credits Display Name',
                 'description' => 'The name of the currency used.'
             ],
-            'recaptcha_enabled' => [
-                'type' => 'boolean',
-                'label' => 'Enable reCAPTCHA',
-                'description' => 'Enable reCAPTCHA on the login page.'
+            'recaptcha_version' => [
+                'type' => 'select',
+                'label' => 'reCAPTCHA Version',
+                'description' => 'Enable reCAPTCHA on the login page.',
+                'options' => [
+                    'v2' => 'Recaptcha V2',
+                    'v3' => 'Recaptcha v3',
+                    null => 'Disable',
+                ],
             ],
             'recaptcha_site_key' => [
                 'type' => 'string',
@@ -116,15 +139,16 @@ class GeneralSettings extends Settings
                 'label' => 'Alert Message',
                 'description' => 'The message to display in the alert.'
             ],
-            'theme' => [
-                'type' => 'select',
-                'label' => 'Theme',
-                'options' => [
-                    'default' => 'Default',
-                    'BlueInfinity' => 'Blue Infinity',
-                ], // TODO: themes should be made/loaded dynamically
-                'description' => 'The theme to use for the site.'
-            ],
         ];
+
+        $inputData['theme'] = [
+            'type' => 'select',
+            'label' => 'Theme',
+            'options' => self::getThemes(),
+            'description' => 'The theme to use for the site.'
+        ];
+
+
+        return $inputData;
     }
 }
