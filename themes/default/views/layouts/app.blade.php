@@ -30,14 +30,17 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
-    @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
-    @if ($recaptchaVersion)
-      @if ($recaptchaVersion === "v2")
+  @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+  @if ($recaptchaVersion)
+    @switch($recaptchaVersion)
+      @case("v2")
         {!! htmlScriptTagJsApi() !!}
-      @elseif ($recaptchaVersion === "v3")
+        @break
+      @case("v3")
         {!! RecaptchaV3::initJs() !!}
-      @endif
-    @endif
+        @break
+    @endswitch
+  @endif
     @vite('themes/default/sass/app.scss')
 </head>
 @yield('content')

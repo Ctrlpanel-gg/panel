@@ -98,10 +98,13 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
         if ($this->recaptcha_version) {
-            if($this->recaptcha_version === "v2") {
-                $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
-            }elseif($this->recaptcha_version === "v3") {
-                $validationRules['g-recaptcha-response'] = ['required','recaptchav3:recaptchathree,1.0'];
+            switch ($this->recaptcha_version) {
+                case "v2":
+                    $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
+                    break;
+                case "v3":
+                    $validationRules['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.5'];
+                    break;
             }
         }
         if ($this->website_show_tos) {

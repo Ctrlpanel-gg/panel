@@ -131,7 +131,6 @@
                   | <a target="_blank"
                       href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
               @endif
-                {{Config::get('recaptchav3.api_site_key')}} ---- {{Config::get('recaptchav3.api_secret_key')}}
             </div>
         </div>
     </body>
