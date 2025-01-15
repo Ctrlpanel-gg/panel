@@ -19,6 +19,19 @@ class ExtensionServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       $this->loadRoutesFrom(base_path('routes/extensions.php'));
+        $extensionNamespaces = glob(app_path('Extensions/*'), GLOB_ONLYDIR);
+        $extensions = [];
+
+        foreach ($extensionNamespaces as $extensionNamespace) {
+            $extensions = array_merge($extensions, glob($extensionNamespace . '/*', GLOB_ONLYDIR));
+        }
+
+        foreach ($extensions as $extension) {
+            $routesFile = $extension . '/routes.php';
+
+            if (file_exists($routesFile)) {
+                $this->loadRoutesFrom($routesFile);
+            }
+        }
     }
 }
