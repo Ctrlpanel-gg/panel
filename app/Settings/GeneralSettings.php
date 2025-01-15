@@ -56,7 +56,7 @@ class GeneralSettings extends Settings
         $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
         $themesWithLabels = [];
         foreach ($themes as $theme) {
-            // Customize the label as needed. Example: "BlueInfinity" => "Blue Infinity"
+            // Customize the label as needed. Example: "Blue_Infinity" => "Blue Infinity"
             $label = ucwords(str_replace(['_', '-'], ' ', $theme));
             $themesWithLabels[$theme] = $label;
         }
@@ -147,7 +147,7 @@ class GeneralSettings extends Settings
             'options' => self::getThemes(),
             'description' => 'The theme to use for the site.'
         ];
-        
+
 
         return $inputData;
     }
