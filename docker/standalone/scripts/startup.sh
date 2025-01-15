@@ -55,6 +55,9 @@ fi
 log_message "Starting the queue worker service..."
 runuser -u laravel -- php /var/www/html/artisan queue:work --sleep=3 --tries=3 &
 
+log_message "Migrate Database to current state..."
+runuser -u laravel -- php artisan migrate --seed --force
+
 # Start Nginx
 log_message "Starting Nginx..."
 service nginx start
