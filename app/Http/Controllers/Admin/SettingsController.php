@@ -170,7 +170,7 @@ class SettingsController extends Controller
         $validator = Validator::make($request->all(), [
             'icon' => 'nullable|max:10000|file|mimes:jpg,png,jpeg',
             'logo' => 'nullable|max:10000|file|mimes:jpg,png,jpeg',
-            'favicon' => 'nullable|max:10000|file|mimes:ico',
+            'favicon' => 'nullable|max:10000|file|mimes:ico,x-icon',
         ]);
 
         if ($validator->fails()) {
