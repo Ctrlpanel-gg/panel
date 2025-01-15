@@ -75,7 +75,7 @@ class GeneralSettings extends Settings
             ],
             'recaptcha_version' => [
                 'type' => 'select',
-                'label' => 'reCAPTCHA Version to use',
+                'label' => 'reCAPTCHA Version',
                 'description' => 'Enable reCAPTCHA on the login page.',
                 'options' => [
                     'v2' => 'Recaptcha V2',
