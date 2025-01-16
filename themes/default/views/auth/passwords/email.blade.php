@@ -36,16 +36,25 @@
                                 </span>
                             @enderror
                         </div>
-                        @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
-                            <div class="mb-3 input-group">
-                                {!! htmlFormSnippet() !!}
-                                @error('g-recaptcha-response')
-                                <span class="text-danger" role="alert">
-                                            <small><strong>{{ $message }}</strong></small>
-                                        </span>
-                                @enderror
-                            </div>
-                        @endif
+                      @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+                      @if ($recaptchaVersion)
+                        <div class="mb-3 input-group">
+                          @switch($recaptchaVersion)
+                            @case("v2")
+                              {!! htmlFormSnippet() !!}
+                              @break
+                            @case("v3")
+                              {!! RecaptchaV3::field('recaptchathree') !!}
+                              @break
+                          @endswitch
+
+                          @error('g-recaptcha-response')
+                          <span class="text-danger" role="alert">
+                                  <small><strong>{{ $message }}</strong></small>
+                                </span>
+                          @enderror
+                        </div>
+                      @endif
 
                         <div class="row">
                             <div class="col-12">
