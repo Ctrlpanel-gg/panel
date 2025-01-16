@@ -395,15 +395,17 @@ class ServerController extends Controller
         $currentProduct = Product::find($server->product_id);
         $nodeId = $serverInfo['relationships']['node']['attributes']['id'];
         $pteroNode = $this->pterodactyl->getNode($nodeId);
+        $currentEgg = $serverInfo['egg'];
 
-        $currentProductEggs = $currentProduct->eggs->pluck('id')->toArray();
+        //$currentProductEggs = $currentProduct->eggs->pluck('id')->toArray();
 
         return Product::orderBy('created_at')
+            ->with('nodes')->with('eggs')
             ->whereHas('nodes', function (Builder $builder) use ($nodeId) {
                 $builder->where('id', $nodeId);
             })
-            ->whereHas('eggs', function (Builder $builder) use ($currentProductEggs) {
-                $builder->whereIn('id', $currentProductEggs);
+            ->whereHas('eggs', function (Builder $builder) use ($currentEgg) {
+                $builder->where('id', $currentEgg);
             })
             ->get()
             ->map(function ($product) use ($currentProduct, $pteroNode) {
