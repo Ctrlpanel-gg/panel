@@ -1,5 +1,15 @@
 @extends('layouts.main')
-
+@php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+@if ($recaptchaVersion)
+  @switch($recaptchaVersion)
+    @case("v2")
+      {!! htmlScriptTagJsApi() !!}
+      @break
+    @case("v3")
+      {!! RecaptchaV3::initJs() !!}
+      @break
+  @endswitch
+@endif
 @section('content')
     <!-- CONTENT HEADER -->
     <section class="content-header">
@@ -92,17 +102,25 @@
                                     </span>
                                     @endif
                                 </div>
-                                @if (app(App\Settings\GeneralSettings::class)->recaptcha_enabled)
-                                    <div class="input-group mb-3">
-                                        {!! htmlScriptTagJsApi() !!}
-                                        {!! htmlFormSnippet() !!}
-                                        @error('g-recaptcha-response')
-                                        <span class="text-danger" role="alert">
-                                            <small><strong>{{ $message }}</strong></small>
-                                        </span>
-                                        @enderror
-                                    </div>
-                                @endif
+                              @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+                              @if ($recaptchaVersion)
+                                <div class="mb-3 input-group">
+                                  @switch($recaptchaVersion)
+                                    @case("v2")
+                                      {!! htmlFormSnippet() !!}
+                                      @break
+                                    @case("v3")
+                                      {!! RecaptchaV3::field('recaptchathree') !!}
+                                      @break
+                                  @endswitch
+
+                                  @error('g-recaptcha-response')
+                                    <span class="text-danger" role="alert">
+                                  <small><strong>{{ $message }}</strong></small>
+                                </span>
+                                  @enderror
+                                </div>
+                              @endif
                             </div>
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary ticket-once">
@@ -136,6 +154,7 @@
             </form>
         </div>
     </section>
+
     <!-- END CONTENT -->
     <script type="text/javascript">
      $(".ticket-form").submit(function (e) {

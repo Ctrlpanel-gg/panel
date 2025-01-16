@@ -30,8 +30,6 @@ class RegisterController extends Controller
 
     private $credits_display_name;
 
-    private $recaptcha_enabled;
-
     private $website_show_tos;
 
     private $register_ip_check;
