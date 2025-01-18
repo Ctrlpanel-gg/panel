@@ -4,6 +4,7 @@
 <head>
     @php($website_settings = app(App\Settings\WebsiteSettings::class))
     @php($general_settings = app(App\Settings\GeneralSettings::class))
+    @php($discord_settings = app(App\Settings\DiscordSettings::class))
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
