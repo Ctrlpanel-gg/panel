@@ -38,6 +38,9 @@
                                             <option value="{{ $key }}" @if(session('locale') == $key) selected @endif>{{ ucfirst($key) }}</option>
                                         @endforeach
                                     </select>
+                                  @if(!$localeSettings->clients_can_change)
+                                    <small><i class="fas fa-info-circle"></i> {{__("Changing the locale has been disabled by the System-Admins")}}</small>
+                                    @endif
                                 </div>
                                 <div class="row">
                                     <div class="col d-flex justify-content-end">
