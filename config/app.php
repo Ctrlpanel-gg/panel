@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
-    'version' => '1.0.3',
+    'version' => '1.0.5',
 
     /*
     |--------------------------------------------------------------------------
@@ -213,6 +213,7 @@ return [
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
         App\Providers\SettingsServiceProvider::class,
+        App\Providers\ExtensionServiceProvider::class,
     ],
 
     /*

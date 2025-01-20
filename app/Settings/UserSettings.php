@@ -55,6 +55,7 @@ class UserSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-user',
+            'position' => 7,
             'credits_reward_after_verify_discord' => [
                 'label' => 'Credits Reward After Verify Discord',
                 'type' => 'number',
