@@ -121,6 +121,7 @@ class ServerController extends Controller
         ]);
 
         $server = $this->createServer($request);
+
         if (!$server) {
             return redirect()->route('servers.index')
                 ->with('error', __('Server creation failed'));
@@ -555,5 +556,42 @@ class ServerController extends Controller
         });
 
         return $availableNodes->isEmpty() ? null : $availableNodes->first();
+    }
+
+    public function validateDeploymentVariables(Request $request)
+    {
+        $variables = $request->input('variables');
+
+        $errors = [];
+
+        foreach ($variables as $variable) {
+            $rules = $variable['rules'];
+            $envVariable = $variable['env_variable'];
+            $filledValue = $variable['filled_value'];
+
+            $validator = Validator::make(
+                [$envVariable => $filledValue],
+                [$envVariable => $rules]
+            );
+
+            $validator->setAttributeNames([
+                $envVariable => $variable['name'],
+            ]);
+
+            if ($validator->fails()) {
+                $errors[$envVariable] = $validator->errors()->get($envVariable);
+            }
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'errors' => $errors
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'variables' => $variables,
+        ]);
     }
 }
