@@ -49,7 +49,7 @@ if (isset($_POST['checkPtero'])) {
     curl_close($ch);
 
     if (!is_array($result)) {
-        wh_log('No array in response found', 'error');
+        wh_log('No array in response found'. $result, 'error');
         send_error_message("An unknown Error occured, please try again!");
     }
 
