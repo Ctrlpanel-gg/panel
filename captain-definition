@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 2,
+  "dockerfilePath": "./docker/standalone/Dockerfile",
+  "dockerComposeFile": "./docker/standalone/compose.yaml",
+  "startCommand": "php artisan serve --host=0.0.0.0 --port=80"
+}
