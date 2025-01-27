@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PreferencesController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
@@ -81,6 +82,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
+    Route::get('preferences', [PreferencesController::class, 'index'])->name('preferences.index');
+    Route::post('preferences', [PreferencesController::class, 'update'])->name('preferences.update');
 
     //server create utility routes (product)
     //routes made for server create page to fetch product info
@@ -102,9 +105,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     //voucher redeem
     Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->middleware('throttle:5,1')->name('voucher.redeem');
-
-    //switch language
-    Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
     //ticket user
     Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');

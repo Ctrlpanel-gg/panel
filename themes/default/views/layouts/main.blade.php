@@ -4,6 +4,7 @@
 <head>
     @php($website_settings = app(App\Settings\WebsiteSettings::class))
     @php($general_settings = app(App\Settings\GeneralSettings::class))
+    @php($discord_settings = app(App\Settings\DiscordSettings::class))
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
@@ -41,6 +42,11 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- tinymce -->
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
+    <style>
+        #userDropdown.dropdown-toggle::after {
+            display: none !important;
+        }
+    </style>
     @vite('themes/default/sass/app.scss')
 </head>
 
@@ -65,32 +71,6 @@
                     </li>
                 @endif
 
-                <!-- Language Selection -->
-                @php($locale_settings = app(App\Settings\LocaleSettings::class))
-                @if ($locale_settings->clients_can_change)
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-1 text-gray-600 d-lg-inline">
-                                <small><i class="mr-2 fa fa-language"></i></small>{{ __('Language') }}
-                            </span>
-                        </a>
-                        <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
-                            aria-labelledby="changeLocale">
-                            <form method="post" action="{{ route('changeLocale') }}" class="text-center nav-item">
-                                @csrf
-                                @foreach (explode(',', $locale_settings->available) as $key)
-                                    <button class="dropdown-item" name="inputLocale" value="{{ $key }}">
-                                        {{ __($key) }}
-                                    </button>
-                                @endforeach
-
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            </form>
-                        </div>
-                    </li>
-                    <!-- End Language Selection -->
-                @endif
                 @foreach ($useful_links as $link)
                     <li class="nav-item d-none d-sm-inline-block">
                         <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
@@ -101,41 +81,9 @@
 
             <!-- Right navbar links -->
             <ul class="ml-auto navbar-nav">
-                <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        @if (Auth::user()->unreadNotifications->count() != 0)
-                            <span
-                                class="badge badge-warning navbar-badge">{{ Auth::user()->unreadNotifications->count() }}</span>
-                        @endif
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">{{ Auth::user()->unreadNotifications->count() }}
-                            {{ __('Notifications') }}</span>
-                        <div class="dropdown-divider"></div>
-
-                        @foreach (Auth::user()->unreadNotifications->sortBy('created_at')->take(5) as $notification)
-                            <a href="{{ route('notifications.show', $notification->id) }}" class="dropdown-item">
-                                <span class="d-inline-block text-truncate" style="max-width: 150px;"><i
-                                        class="mr-2 fas fa-envelope"></i>{{ $notification->data['title'] }}</span>
-                                <span
-                                    class="float-right text-sm text-muted">{{ $notification->created_at->longAbsoluteDiffForHumans() }}
-                                    ago</span>
-                            </a>
-                        @endforeach
-
-                        <div class="dropdown-divider"></div>
-                        <a href="{{ route('notifications.index') }}"
-                            class="dropdown-item dropdown-footer">{{ __('See all Notifications') }}</a>
-                        <div class="dropdown-divider"></div>
-                        <a href="{{ route('notifications.readAll') }}"
-                            class="dropdown-item dropdown-footer">{{ __('Mark all as read') }}</a>
-                    </div>
-                </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                    <a class="px-2 nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                         <span class="mr-1 text-gray-600 d-lg-inline">
                             <small><i class="mr-2 fas fa-coins"></i></small>{{ Auth::user()->credits() }}
@@ -157,12 +105,16 @@
                 </li>
 
                 <li class="nav-item dropdown no-arrow">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                    <a class="px-2 nav-link dropdown-toggle no-arrow" href="#" id="userDropdown" role="button"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="mr-1 text-gray-600 d-lg-inline small">
                             {{ Auth::user()->name }}
-                            <img width="28px" height="28px" class="ml-1 rounded-circle"
-                                src="{{ Auth::user()->getAvatar() }}">
+                            <img width="28px" height="28px" class="ml-1 rounded-circle position-relative" src="{{ Auth::user()->getAvatar() }}">
+                            @if (Auth::user()->unreadNotifications->count() != 0)
+                                <span class="badge badge-warning navbar-badge position-absolute" style="top: 0px;">
+                                    {{ Auth::user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
                         </span>
                     </a>
                     <!-- Dropdown - User Information -->
@@ -171,6 +123,19 @@
                         <a class="dropdown-item" href="{{ route('profile.index') }}">
                             <i class="mr-2 text-gray-400 fas fa-user fa-sm fa-fw"></i>
                             {{ __('Profile') }}
+                        </a>
+                        <a class="dropdown-item position-relative" href="{{ route('notifications.index') }}">
+                            <i class="mr-2 text-gray-400 fas fa-bell fa-sm fa-fw"></i>
+                            {{ __('Notifications') }}
+                            @if (Auth::user()->unreadNotifications->count() != 0)
+                                <span class="badge badge-warning navbar-badge position-absolute" style="top: 10px;">
+                                    {{ Auth::user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
+                        </a>
+                        <a class="dropdown-item" href="{{ route('preferences.index') }}">
+                            <i class="mr-2 text-gray-400 fas fa-cog fa-sm fa-fw"></i>
+                            {{ __('Preferences') }}
                         </a>
                         {{-- <a class="dropdown-item" href="#"> --}}
                         {{-- <i class="mr-2 text-gray-400 fas fa-list fa-sm fa-fw"></i> --}}
