@@ -7,7 +7,7 @@ use Spatie\LaravelSettings\Settings;
 class GeneralSettings extends Settings
 {
     public bool $store_enabled;
-    public ?int $sales_tax;
+    public ?float $sales_tax;
     public string $credits_display_name;
     public ?string $recaptcha_version;
     public ?string $recaptcha_site_key;
@@ -84,7 +84,8 @@ class GeneralSettings extends Settings
             'sales_tax' => [
                 'type' => 'number',
                 'label' => 'Sales Tax in %',
-                'description' => 'Your countrys sales tax in %'
+                'description' => 'Your countrys sales tax in %',
+                'step' => '0.01',
             ],
             'credits_display_name' => [
                 'type' => 'string',
