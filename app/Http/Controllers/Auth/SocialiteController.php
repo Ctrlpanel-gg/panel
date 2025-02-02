@@ -49,6 +49,7 @@ class SocialiteController extends Controller
 
             //create discord user in db
             DiscordUser::create(array_merge($discord->user, ['user_id' => Auth::user()->id]));
+            $user->refresh();
 
             //update user
             Auth::user()->increment('credits', $user_settings->credits_reward_after_verify_discord);
