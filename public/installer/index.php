@@ -67,13 +67,13 @@ if (isset($_GET['step'])) {
     if (strtolower($stepValue) === 'next' && $currentStep < $_SESSION['last_installation_step']) {
         $_SESSION['current_installation_step']++;
         // Redirect to clean URL after processing
-        header('Location: index.php');
+        header('Location: /installer/index.php');
         exit;
     }
     elseif (strtolower($stepValue) === 'previous' && $currentStep > 1) {
         if ($stepConfig[$currentStep - 1]['is_revertable']) {
             $_SESSION['current_installation_step']--;
-            header('Location: index.php');
+            header('Location: /installer/index.php');
             exit;
         }
     }
@@ -82,7 +82,7 @@ if (isset($_GET['step'])) {
         if ($stepValue <= $currentStep && $stepValue >= 1 && $stepValue <= $_SESSION['last_installation_step']) {
             $_SESSION['current_installation_step'] = $stepValue;
         }
-        header('Location: index.php');
+        header('Location: /installer/index.php');
         exit;
     }
 }
