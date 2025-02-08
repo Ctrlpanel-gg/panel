@@ -270,10 +270,9 @@ class ServerController extends Controller
 
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);
         if (!$allocationId) {
-            Log::error('Failed to create server on Pterodactyl', [
+            Log::error('No AllocationID found.', [
                 'server_id' => $server->id,
                 'node_id' => $node->id,
-                'error' => "No allocation found"
             ]);
             $server->delete();
             return null;
