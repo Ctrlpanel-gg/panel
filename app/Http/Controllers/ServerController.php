@@ -270,18 +270,23 @@ class ServerController extends Controller
 
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);
         if (!$allocationId) {
+            Log::error('Failed to create server on Pterodactyl', [
+                'server_id' => $server->id,
+                'node_id' => $node->id,
+                'error' => "No allocation found"
+            ]);
             $server->delete();
             return null;
         }
 
         $response = $this->pterodactyl->createServer($server, $egg, $allocationId, $request->input('egg_variables'));
         if ($response->failed()) {
-            $server->delete();
             Log::error('Failed to create server on Pterodactyl', [
                 'server_id' => $server->id,
                 'status' => $response->status(),
                 'error' => $response->json()
             ]);
+            $server->delete();
             return null;
         }
 
