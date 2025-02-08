@@ -6,18 +6,18 @@ use Spatie\LaravelSettings\Settings;
 
 class UserSettings extends Settings
 {
-    public bool $register_ip_check;
-    public bool $creation_enabled;
-    public float $credits_reward_after_verify_discord;
-    public float $credits_reward_after_verify_email;
-    public bool $force_discord_verification;
-    public bool $force_email_verification;
-    public float $initial_credits;
-    public int $initial_server_limit;
-    public float $min_credits_to_make_server;
-    public int $server_limit_increment_after_irl_purchase;
-    public int $server_limit_increment_after_verify_discord;
-    public int $server_limit_increment_after_verify_email;
+    public bool $register_ip_check = false;
+    public bool $creation_enabled = true;
+    public float $credits_reward_after_verify_discord = 0.0;
+    public float $credits_reward_after_verify_email = 0.0;
+    public bool $force_discord_verification = false;
+    public bool $force_email_verification = false;
+    public float $initial_credits = 250.0;
+    public int $initial_server_limit = 1;
+    public float $min_credits_to_make_server = 0.0;
+    public int $server_limit_increment_after_irl_purchase = 0;
+    public int $server_limit_increment_after_verify_discord = 0;
+    public int $server_limit_increment_after_verify_email = 0;
 
     public static function group(): string
     {

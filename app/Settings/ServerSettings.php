@@ -6,10 +6,10 @@ use Spatie\LaravelSettings\Settings;
 
 class ServerSettings extends Settings
 {
-    public int $allocation_limit;
-    public bool $creation_enabled;
-    public bool $enable_upgrade;
-    public bool $location_description_enabled;
+    public int $allocation_limit = 0;
+    public bool $creation_enabled = false;
+    public bool $enable_upgrade = false;
+    public bool $location_description_enabled = false;
 
     public static function group(): string
     {
