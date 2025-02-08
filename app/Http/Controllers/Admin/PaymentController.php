@@ -135,8 +135,6 @@ class PaymentController extends Controller
             $user = User::findOrFail($user->id);
             $productId = $request->product_id;
             $shopProduct = ShopProduct::findOrFail($productId);
-            $discount = PartnerDiscount::getDiscount();
-
 
             $paymentGateway = $request->payment_method;
             $couponCode = $request->coupon_code;
@@ -147,21 +145,15 @@ class PaymentController extends Controller
             if ($couponCode) {
                 if ($this->isCouponValid($couponCode, $user, $shopProduct->id)) {
                     $subtotal = $this->applyCoupon($couponCode, $subtotal);
-                    event(new CouponUsedEvent($couponCode));
 
+                    event(new CouponUsedEvent($couponCode));
                 }
             }
 
-            // Apply Partner Discount
-            $subtotal = $subtotal - ($subtotal * $discount / 100);
             if ($subtotal <= 0) {
-                if ($couponCode) {
-                    event(new CouponUsedEvent($couponCode));
-
-                }
-
                 return $this->handleFreeProduct($shopProduct);
             }
+
             // Format the total price to a readable string
             $totalPriceString = number_format($subtotal, 2, '.', '');
             //reset the price after coupon use
