@@ -5,7 +5,7 @@
             <th>{{ __('Name') }}</th>
             <th>{{ __('User') }}</th>
             <th>{{ __('Server id') }}</th>
-            <th>{{ __('Config') }}</th>
+            <th>{{ __('Product') }}</th>
             <th>{{ __('Suspended at') }}</th>
             <th>{{ __('Created at') }}</th>
             <th></th>
