@@ -152,7 +152,7 @@
                                   </template>
                                 </select>
                               </div>
-                              <div class="p-2 m-2 alert alert-danger" x-show="selectedProduct != null && selectedProduct != '' && locations.length == 0">
+                              <div class="p-2 m-2 alert alert-danger" style="display: none" x-show="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
                                 {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
                               </div>
                         </div>
