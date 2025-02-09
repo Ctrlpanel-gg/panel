@@ -72,7 +72,7 @@ if (isset($_POST['checkPtero'])) {
         wh_log('Database updated with pterodactyl Settings.', 'debug');
         next_step();
     } catch (Throwable $th) {
-        wh_log("Setting Pterodactyl information failed.", 'error');
+        wh_log("Setting Pterodactyl information failed. ".$th->getMessage(), 'error');
         send_error_message($th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
         exit();
     }
