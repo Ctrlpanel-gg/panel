@@ -152,8 +152,8 @@
                                   </template>
                                 </select>
                               </div>
-                              <template x-if="true">
-                                <div class="p-2 m-2 alert alert-danger" x-show="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
+                              <template x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
+                                <div class="p-2 m-2 alert alert-danger">
                                   {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
                                 </div>
                               </template>
