@@ -6,14 +6,14 @@ use Spatie\LaravelSettings\Settings;
 
 class DiscordSettings extends Settings
 {
-    public ?string $bot_token;
-    public ?string $client_id;
-    public ?string $client_secret;
-    public ?string $guild_id;
-    public ?string $invite_url;
-    public ?string $role_id;
-    public ?bool $role_on_purchase;
-    public ?string $role_id_on_purchase;
+    public ?string $bot_token = null;
+    public ?string $client_id = null;
+    public ?string $client_secret = null;
+    public ?string $guild_id = null;
+    public ?string $invite_url = null;
+    public ?string $role_id = null;
+    public ?bool $role_on_purchase = null;
+    public ?string $role_id_on_purchase = null;
 
     public static function group(): string
     {

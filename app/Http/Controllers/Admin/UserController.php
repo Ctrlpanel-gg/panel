@@ -381,7 +381,7 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $query = User::query()
+        $query = User::with('discordUser')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
@@ -398,12 +398,9 @@ class UserController extends Controller
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
             })
-            /*  This broke the ability to search the table. Have to revisit later
-
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
             })
-            */
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
                 $suspendIcon = $user->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';

@@ -60,3 +60,5 @@ WORKDIR /var/www/html
 
 # Start the startup script
 CMD ["/usr/local/bin/startup-script.sh"]
+
+RUN chown -R laravel:laravel /var/www/html

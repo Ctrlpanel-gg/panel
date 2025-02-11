@@ -255,22 +255,7 @@
                     <h5 class="card-title"><i class="fas fa-server mr-2"></i>{{ __('Servers') }}</h5>
                 </div>
                 <div class="card-body table-responsive">
-                    <table id="datatable" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th width="20"></th>
-                                <th>{{ __('Name') }}</th>
-                                <th>{{ __('User') }}</th>
-                                <th>{{ __('Server id') }}</th>
-                                <th>{{ __('Config') }}</th>
-                                <th>{{ __('Suspended at') }}</th>
-                                <th>{{ __('Created at') }}</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    @include('admin.servers.table', ['filter' => '?user=' . $user->id])
                 </div>
 
             </div>
@@ -312,52 +297,3 @@
     </section>
     <!-- END CONTENT -->
 @endsection
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        $('#datatable').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
-            },
-            processing: true,
-            serverSide: true,
-            stateSave: true,
-            ajax: "{{ route('admin.servers.datatable') }}?user={{ $user->id }}",
-            order: [
-                [5, "desc"]
-            ],
-            columns: [{
-                    data: 'status',
-                    name: 'servers.suspended'
-                },
-                {
-                    data: 'name'
-                },
-                {
-                    data: 'user',
-                    name: 'user.name'
-                },
-                {
-                    data: 'identifier'
-                },
-                {
-                    data: 'resources',
-                    name: 'product.name'
-                },
-                {
-                    data: 'suspended'
-                },
-                {
-                    data: 'created_at'
-                },
-                {
-                    data: 'actions',
-                    sortable: false
-                },
-            ],
-            fnDrawCallback: function(oSettings) {
-                $('[data-toggle="popover"]').popover();
-            }
-        });
-    });
-</script>

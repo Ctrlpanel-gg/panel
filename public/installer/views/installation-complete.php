@@ -6,7 +6,7 @@ if (!file_exists('../../install.lock')) {
         $title = "Installation Complete!",
         $subtitle = "You may navigate to your Dashboard now and log in!"
     );
-    ?>
+?>
 
     <a href="<?php echo getenv('APP_URL'); ?>" class="w-full flex justify-center">
         <button
@@ -15,7 +15,7 @@ if (!file_exists('../../install.lock')) {
         </button>
     </a>
 
-    <?php
+<?php
     $lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
     fwrite($lockfile, 'the installation is locked, delete this file to unlock it');
     fclose($lockfile);

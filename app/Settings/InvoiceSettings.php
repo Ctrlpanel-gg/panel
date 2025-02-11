@@ -6,14 +6,14 @@ use Spatie\LaravelSettings\Settings;
 
 class InvoiceSettings extends Settings
 {
-    public bool $enabled;
-    public ?string $company_address;
-    public ?string $company_mail;
-    public ?string $company_name;
-    public ?string $company_phone;
-    public ?string $company_vat;
-    public ?string $company_website;
-    public ?string $prefix;
+    public bool $enabled = false;
+    public ?string $company_address = null;
+    public ?string $company_mail = null;
+    public ?string $company_name = null;
+    public ?string $company_phone = null;
+    public ?string $company_vat = null;
+    public ?string $company_website = null;
+    public ?string $prefix = 'INV-';
 
     public static function group(): string
     {

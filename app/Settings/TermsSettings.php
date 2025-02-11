@@ -6,9 +6,9 @@ use Spatie\LaravelSettings\Settings;
 
 class TermsSettings extends Settings
 {
-    public ?string $terms_of_service;
-    public ?string $privacy_policy;
-    public ?string $imprint;
+    public ?string $terms_of_service = null;
+    public ?string $privacy_policy = null;
+    public ?string $imprint = null;
 
     public static function group(): string
     {
