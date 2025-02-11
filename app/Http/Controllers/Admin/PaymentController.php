@@ -7,6 +7,7 @@ use App\Events\CouponUsedEvent;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
+use App\Models\Invoice;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\User;
@@ -24,6 +25,7 @@ use App\Helpers\ExtensionHelper;
 use App\Settings\CouponSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
@@ -228,7 +230,13 @@ class PaymentController extends Controller
                 ];
             })
             ->addColumn('actions', function (Payment $payment) {
-                return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.invoices.downloadSingleInvoice', 'id=' . $payment->payment_id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-file-download"></i></a>';
+                $invoice = Invoice::where('payment_id', '=', $payment->payment_id)->first();
+
+                if ($invoice && File::exists(storage_path('app/invoice/' . $invoice->invoice_user . '/' . $invoice->created_at->format('Y') . '/' . $invoice->invoice_name . '.pdf'))) {
+                    return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-file-download"></i></a>';
+                } else {
+                    return '';
+                }
             })
             ->rawColumns(['actions', 'user'])
             ->make(true);
