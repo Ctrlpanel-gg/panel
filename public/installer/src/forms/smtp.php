@@ -63,7 +63,8 @@ if (isset($_POST['checkSMTP'])) {
     ];
 
     foreach ($values as $key => $value) {
-        run_console("php artisan settings:set 'MailSettings' '$key' '$value'");
+        wh_log("[MailSettings] Setting" . $key , 'debug');
+        run_console("php artisan settings:set 'MailSettings' '$key' '$value'", null,null,null,false);
     }
 
     wh_log('Database updated', 'debug');
