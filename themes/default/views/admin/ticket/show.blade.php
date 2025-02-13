@@ -1,167 +1,194 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{ __('Ticket') }}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route('admin.ticket.index') }}">{{ __('Ticket') }}</a>
-                        </li>
-                    </ol>
-                </div>
-            </div>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <header class="max-w-screen-xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <h1 class="text-3xl font-light text-white">{{ __('Ticket') }} #{{ $ticket->ticket_id }}</h1>
+            <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 text-zinc-400">
+                    <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
+                    <li class="text-zinc-600">/</li>
+                    <li><a href="{{ route('admin.ticket.index') }}" class="hover:text-white transition-colors">{{ __('Tickets') }}</a></li>
+                    <li class="text-zinc-600">/</li>
+                    <li class="text-zinc-500">#{{ $ticket->ticket_id }}</li>
+                </ol>
+            </nav>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+    </header>
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                <h5 class="card-title"><i class="fas fa-users mr-2"></i>#{{ $ticket->ticket_id }}</h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="ticket-info">
-                                @if(!empty($server))
-                                <p><b>{{__("Server")}}:</b> <a href="{{ $pterodactyl_url . '/admin/servers/view/' . $server->pterodactyl_id }}" target="__blank">{{ $server->name }}</a></p>
-                                @endif
-                                <p><b>{{__("Title")}}:</b> {{ $ticket->title }}</p>
-                                <p><b>{{__("Category")}}:</b> {{ $ticketcategory->name }}</p>
-                                <p><b>{{__("Status")}}:</b>
-                                @switch($ticket->status)
-                                        @case("Open")
-                                            <span class="badge badge-success">{{__("Open")}}</span>
-                                        @break
-                                        @case("Reopened")
-                                            <span class="badge badge-success">{{__("Reopened")}}</span>
-                                            @break
-                                        @case("Closed")
-                                            <span class="badge badge-danger">{{__("Closed")}}</span>
-                                        @break
-                                        @case("Answered")
-                                            <span class="badge badge-info">{{__("Answered")}}</span>
-                                        @break
-                                        @case("Client Reply")
-                                           <span class="badge badge-warning">{{__("Client Reply")}}</span>
-                                        @break
-                                    @endswitch
-                                </p>
-                                    <p><b>Priority:</b>
-                                        @switch($ticket->priority)
-                                            @case("Low")
-                                                <span class="badge badge-success">{{__("Low")}}</span>
-                                                @break
-                                            @case("Medium")
-                                               <span class="badge badge-warning">{{__("Medium")}}</span>
-                                                @break
-                                            @case("High")
-                                               <span class="badge badge-danger">{{__("High")}}</span>
-                                                @break
-                                        @endswitch
-                                    </p>
-                                    <p><b>{{__("Created on")}}:</b> {{ $ticket->created_at->diffForHumans() }}</p>
-                                    @if($ticket->status=='Closed')
-                                        <form class="d-inline" method="post"
-                                              action="{{route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
-                                            {{csrf_field()}}
-                                            {{method_field("POST") }}
-                                            <button data-content="{{__("Reopen")}}" data-toggle="popover"
-                                                    data-trigger="hover" data-placement="top"
-                                                    class="btn btn-sm text-white btn-success mr-1"><i
-                                                    class="fas fa-redo"></i>{{__("Reopen")}}</button>
-                                        </form>
-                                    @else
-                                        <form class="d-inline" method="post"
-                                              action="{{route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ])}}">
-                                            {{csrf_field()}}
-                                            {{method_field("POST") }}
-                                            <button data-content="{{__("Close")}}" data-toggle="popover"
-                                                    data-trigger="hover" data-placement="top"
-                                                    class="btn btn-sm text-white btn-warning mr-1"><i
-                                                    class="fas fa-times"></i>{{__("Close")}}</button>
-                                        </form>
-                                    @endif
-                            </div>
-                        </div>
+    <!-- Main Content -->
+    <div class="max-w-screen-xl mx-auto space-y-8">
+        <!-- Ticket Information Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-white font-medium flex items-center gap-2">
+                    <i class="fas fa-ticket-alt text-zinc-400"></i>
+                    {{ __('Ticket Information') }}
+                </h3>
+            </div>
+            <div class="p-6 space-y-4">
+                @if(!empty($server))
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="text-zinc-400 w-24">{{ __('Server') }}:</span>
+                        <a href="{{ $pterodactyl_url . '/admin/servers/view/' . $server->pterodactyl_id }}" 
+                           class="text-blue-400 hover:text-blue-300 transition-colors" 
+                           target="_blank">{{ $server->name }}</a>
                     </div>
+                @endif
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-zinc-400 w-24">{{ __('Title') }}:</span>
+                    <span class="text-zinc-300">{{ $ticket->title }}</span>
                 </div>
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                <h5 class="card-title"><i class="fas fa-cloud mr-2"></i>{{__('Comment')}}</h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="d-flex justify-content-between">
-                                        <h5 class="card-title"><img
-                                            src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticket->user->email)) }}?s=25"
-                                            class="user-image" alt="User Image">
-                                        <a href="/admin/users/{{$ticket->user->id}}">{{ $ticket->user->name }}</a>
-                                            @foreach ($ticket->user->roles as $role)
-                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
-                                            @endforeach
-                                    </h5>
-                                        <span class="badge badge-primary">{{ $ticket->created_at->diffForHumans() }}</span>
-                                    </div>
-                                </div>
-                                <div class="card-body" style="white-space:pre-wrap">{{ $ticket->message }}</div>
-                            </div>
-                            @foreach ($ticketcomments as $ticketcomment)
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="d-flex justify-content-between">
-                                        <h5 class="card-title"><img
-                                            src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=25"
-                                            class="user-image" alt="User Image">
-                                        <a href="/admin/users/{{$ticketcomment->user->id}}">{{ $ticketcomment->user->name }}</a>
-                                            @foreach ($ticketcomment->user->roles as $role)
-                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
-                                            @endforeach
-                                    </h5>
-                                        <span class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>
-                                    </div>
-                                </div>
-                                <div class="card-body" style="white-space:pre-wrap">{{ $ticketcomment->ticketcomment }}</div>
-                            </div>
-                            @endforeach
-                            <div class="comment-form">
-                                <form action="{{ route('admin.ticket.reply')}}" method="POST" class="form">
-                                    {!! csrf_field() !!}
-                                    <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
-                                    <div class="form-group{{ $errors->has('ticketcomment') ? ' has-error' : '' }}">
-                                        <textarea rows="10" id="ticketcomment" class="form-control" name="ticketcomment"></textarea>
-                                        @if ($errors->has('ticketcomment'))
-                                        <span class="help-block">
-                                            <strong>{{ $errors->first('ticketcomment') }}</strong>
-                                        </span>
-                                        @endif
-                                    </div>
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-primary">Submit</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-zinc-400 w-24">{{ __('Category') }}:</span>
+                    <span class="text-zinc-300">{{ $ticketcategory->name }}</span>
+                </div>
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-zinc-400 w-24">{{ __('Status') }}:</span>
+                    @switch($ticket->status)
+                        @case('Open')
+                            <span class="px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400">{{ __('Open') }}</span>
+                            @break
+                        @case('Reopened')
+                            <span class="px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400">{{ __('Reopened') }}</span>
+                            @break
+                        @case('Closed')
+                            <span class="px-2 py-1 rounded text-xs bg-red-500/10 text-red-400">{{ __('Closed') }}</span>
+                            @break
+                        @case('Answered')
+                            <span class="px-2 py-1 rounded text-xs bg-blue-500/10 text-blue-400">{{ __('Answered') }}</span>
+                            @break
+                        @case('Client Reply')
+                            <span class="px-2 py-1 rounded text-xs bg-amber-500/10 text-amber-400">{{ __('Client Reply') }}</span>
+                            @break
+                    @endswitch
+                </div>
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-zinc-400 w-24">{{ __('Priority') }}:</span>
+                    @switch($ticket->priority)
+                        @case('Low')
+                            <span class="px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400">{{ __('Low') }}</span>
+                            @break
+                        @case('Medium')
+                            <span class="px-2 py-1 rounded text-xs bg-amber-500/10 text-amber-400">{{ __('Medium') }}</span>
+                            @break
+                        @case('High')
+                            <span class="px-2 py-1 rounded text-xs bg-red-500/10 text-red-400">{{ __('High') }}</span>
+                            @break
+                    @endswitch
+                </div>
+
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-zinc-400 w-24">{{ __('Created') }}:</span>
+                    <span class="text-zinc-300">{{ $ticket->created_at->diffForHumans() }}</span>
+                </div>
+
+                <div class="flex gap-2 mt-6">
+                    @if($ticket->status == 'Closed')
+                        <form class="inline" method="post" action="{{ route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id]) }}">
+                            @csrf
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-redo mr-2"></i>{{ __('Reopen') }}
+                            </button>
+                        </form>
+                    @else
+                        <form class="inline" method="post" action="{{ route('admin.ticket.changeStatus', ['ticket_id' => $ticket->ticket_id]) }}">
+                            @csrf
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-times mr-2"></i>{{ __('Close') }}
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT -->
+
+        <!-- Messages Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-white font-medium flex items-center gap-2">
+                    <i class="fas fa-comments text-zinc-400"></i>
+                    {{ __('Messages') }}
+                </h3>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Original Message -->
+                <div class="bg-zinc-800/50 rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                            <img src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticket->user->email)) }}?s=40" 
+                                 class="rounded-full w-10 h-10" alt="User Image">
+                            <div>
+                                <a href="/admin/users/{{$ticket->user->id}}" class="text-white hover:text-zinc-200 font-medium">
+                                    {{ $ticket->user->name }}
+                                </a>
+                                <div class="flex gap-1 mt-1">
+                                    @foreach ($ticket->user->roles as $role)
+                                        <span class="px-2 py-0.5 rounded text-xs" style="background-color: {{ $role->color }}20; color: {{ $role->color }}">
+                                            {{$role->name}}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs text-zinc-500">{{ $ticket->created_at->diffForHumans() }}</span>
+                    </div>
+                    <div class="text-zinc-300 whitespace-pre-wrap">{{ $ticket->message }}</div>
+                </div>
+
+                <!-- Comments -->
+                @foreach ($ticketcomments as $ticketcomment)
+                    <div class="bg-zinc-800/50 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-2">
+                                <img src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=40" 
+                                     class="rounded-full w-10 h-10" alt="User Image">
+                                <div>
+                                    <a href="/admin/users/{{$ticketcomment->user->id}}" class="text-white hover:text-zinc-200 font-medium">
+                                        {{ $ticketcomment->user->name }}
+                                    </a>
+                                    <div class="flex gap-1 mt-1">
+                                        @foreach ($ticketcomment->user->roles as $role)
+                                            <span class="px-2 py-0.5 rounded text-xs" style="background-color: {{ $role->color }}20; color: {{ $role->color }}">
+                                                {{$role->name}}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-xs text-zinc-500">{{ $ticketcomment->created_at->diffForHumans() }}</span>
+                        </div>
+                        <div class="text-zinc-300 whitespace-pre-wrap">{{ $ticketcomment->ticketcomment }}</div>
+                    </div>
+                @endforeach
+
+                <!-- Reply Form -->
+                <form action="{{ route('admin.ticket.reply')}}" method="POST" class="mt-6">
+                    @csrf
+                    <input type="hidden" name="ticket_id" value="{{ $ticket->id }}">
+                    <div class="mb-4">
+                        <textarea rows="6" 
+                                id="ticketcomment" 
+                                name="ticketcomment"
+                                class="w-full bg-zinc-800/50 border-zinc-700 rounded-lg text-zinc-300 placeholder-zinc-500 focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="{{ __('Write your reply...') }}"></textarea>
+                        @error('ticketcomment')
+                            <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane mr-2"></i>{{ __('Send Reply') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 

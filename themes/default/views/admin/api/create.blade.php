@@ -1,67 +1,52 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{__('Application API')}}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.api.index')}}">{{__('Application API')}}</a>
-                        </li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.api.create')}}">{{__('Create')}}</a>
-                        </li>
-                    </ol>
-                </div>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <header class="max-w-screen-xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <h1 class="text-3xl font-light text-white">{{ __('Create API Token') }}</h1>
+            <div class="text-zinc-400 text-sm mt-2">
+                <a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a>
+                <span class="px-2">›</span>
+                <a href="{{ route('admin.api.index') }}" class="hover:text-white transition-colors">{{ __('Application API') }}</a>
+                <span class="px-2">›</span>
+                <span>{{ __('Create') }}</span>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+    </header>
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
+    <!-- Main Content -->
+    <div class="max-w-screen-xl mx-auto">
+        <div class="max-w-2xl">
+            <div class="card glass-morphism">
+                <div class="p-6">
+                    <form action="{{ route('admin.api.store') }}" method="POST">
+                        @csrf
+                        <div class="space-y-6">
+                            <div>
+                                <label for="memo" class="block text-sm font-medium text-zinc-400">{{ __('Memo') }}</label>
+                                <input type="text" 
+                                       id="memo" 
+                                       name="memo" 
+                                       value="{{ old('memo') }}"
+                                       class="mt-1 block w-full rounded-lg bg-zinc-800/50 border-zinc-700/50 text-zinc-300 focus:ring-blue-500 focus:border-blue-500">
+                                @error('memo')
+                                    <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <form action="{{route('admin.api.store')}}" method="POST">
-                                @csrf
-
-                                <div class="form-group">
-                                    <label for="memo">{{__('Memo')}}</label>
-                                    <input value="{{old('memo')}}" id="memo" name="memo" type="text"
-                                           class="form-control @error('memo') is-invalid @enderror">
-                                    @error('memo')
-                                    <div class="invalid-feedback">
-                                        {{$message}}
-                                    </div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group text-right">
-                                    <button type="submit" class="btn btn-primary">
-                                        {{__('Submit')}}
-                                    </button>
-                                </div>
-
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            </form>
+                            <div class="flex justify-end">
+                                <button type="submit" 
+                                        class="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg border border-blue-500/20 transition-colors">
+                                    {{ __('Submit') }}
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
-
         </div>
-    </section>
-    <!-- END CONTENT -->
-
-
-
+    </div>
+</div>
 @endsection

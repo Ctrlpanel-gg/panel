@@ -39,7 +39,7 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>discordId</th>
+                          <!--  <th>discordId</th> -->
                             <th>ip</th>
                             <th>pterodactyl_id</th>
                             <th>{{__('Avatar')}}</th>
@@ -85,11 +85,14 @@
                     [11, "desc"]
                 ],
                 columns: [
-                    {
+                  /* This broke the ability to search the table. Have to revisit later
+                  {
                         data: 'discordId',
                         visible: false,
                         name: 'discordUser.id'
                     },
+                    */
+
                     {
                         data: 'pterodactyl_id',
                         visible: false

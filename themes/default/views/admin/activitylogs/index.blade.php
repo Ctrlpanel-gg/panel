@@ -1,168 +1,148 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{ __('Activity Logs')}}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{ __('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.activitylogs.index')}}">{{ __('Activity Logs')}}</a>
-                        </li>
-                    </ol>
-                </div>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <header class="max-w-screen-xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <h1 class="text-3xl font-light text-white">{{ __('Activity Logs') }}</h1>
+            <div class="text-zinc-400 text-sm mt-2">
+                <a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a>
+                <span class="px-2">›</span>
+                <span>{{ __('Activity Logs') }}</span>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+    </header>
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-
-            <div class="row">
-                <div class="col-lg-4">
-                    @if($cronlogs)
-                        <div class="callout callout-success">
-                            <h4>{{$cronlogs}}</h4>
-                        </div>
-                    @else
-                        <div class="callout callout-danger">
-                            <h4>{{ __('No recent activity from cronjobs')}}</h4>
-                            <p>{{ __('Are cronjobs running?')}} <a class="text-primary" target="_blank" href="https://CtrlPanel.gg/docs/Installation/getting-started#crontab-configuration">{{ __('Check the docs for it here')}}</a></p>
-                        </div>
-                    @endif
-
-                </div>
-            </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h5 class="card-title"><i class="fas fa-history mr-2"></i>{{ __('Activity Logs')}}</h5>
-            </div>
-            <div class="card-body table-responsive">
-
-              <div class="row">
-                <div class="col-lg-3 offset-lg-9 col-xl-2 offset-xl-10 col-md-6 offset-md-6">
-                  <form method="get" action="{{route('admin.activitylogs.index')}}">
-                    @csrf
-                    <div class="input-group mb-3">
-                      <input type="text" class="form-control form-control-sm" value="" name="search" placeholder="Search">
-                      <div class="input-group-append">
-                        <button class="btn btn-light btn-sm" type="submit"><i class="fa fa-search"></i></button>
-                      </div>
+    <!-- Main Content -->
+    <div class="max-w-screen-xl mx-auto space-y-8">
+        <!-- Cron Status -->
+        <div class="glass-panel {{ $cronlogs ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-red-500/5 border-red-500/20' }} p-6">
+            @if($cronlogs)
+                <h4 class="text-emerald-400 font-medium mb-1">{{ $cronlogs }}</h4>
+            @else
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-exclamation-circle text-lg text-red-400"></i>
+                        <h4 class="text-red-400 font-medium">{{ __('No recent activity from cronjobs') }}</h4>
                     </div>
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                  </form>
+                    <p class="text-red-400/80">
+                        {{ __('Are cronjobs running?') }}
+                        <a class="text-red-400 underline hover:no-underline" target="_blank" href="https://CtrlPanel.gg/docs/Installation/getting-started#crontab-configuration">
+                            {{ __('Check the docs for it here') }}
+                        </a>
+                    </p>
                 </div>
-              </div>
+            @endif
+        </div>
 
-              <table class="table table-sm table-striped">
-                <thead>
-                <tr>
-                  <th>{{ __('Causer') }}</th>
-                  <th>{{ __('Description') }}</th>
-                  <th>{{ __('Created at') }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($logs as $log)
-                  <tr>
-                    <td>
-                      @if($log->causer)
-                        <a href='/admin/users/{{$log->causer_id}}'>{{json_decode($log->causer)->name}}</a>
-                      @else
-                        System
-                      @endif
-                    </td>
-                    <td>
-                        <span>
-                            @if (str_starts_with($log->description, 'created'))
-                            <small><i class="fas text-success fa-plus mr-2"></i></small>
-                          @elseif(str_starts_with($log->description, 'redeemed'))
-                            <small><i class="fas text-success fa-money-check-alt mr-2"></i></small>
-                          @elseif(str_starts_with($log->description, 'deleted'))
-                            <small><i class="fas text-danger fa-times mr-2"></i></small>
-                          @elseif(str_starts_with($log->description, 'gained'))
-                            <small><i class="fas text-success fa-money-bill mr-2"></i></small>
-                          @elseif(str_starts_with($log->description, 'updated'))
-                            <small><i class="fas text-info fa-pen mr-2"></i></small>
-                          @endif
-                          {{ explode('\\', $log->subject_type)[2] }}
-                          {{ ucfirst($log->description) }}
-
-                          @php
-                            $properties = json_decode($log->properties, true);
-                          @endphp
-
-                          {{-- Handle Created Entries --}}
-                          @if ($log->description === 'created' && isset($properties['attributes']))
-                            <ul class="ml-3">
-                                    @foreach ($properties['attributes'] as $attribute => $value)
-                                @if (!is_null($value))
-                                  <li>
-                                                <strong>{{ ucfirst($attribute) }}:</strong>
-                                                {{ $attribute === 'created_at' || $attribute === 'updated_at' ? \Carbon\Carbon::parse($value)->toDayDateTimeString() : $value }}
-                                            </li>
-                                @endif
-                              @endforeach
-                                </ul>
-                          @endif
-
-                          {{-- Handle Updated Entries --}}
-                          @if ($log->description === 'updated' && isset($properties['attributes'], $properties['old']))
-                            <ul class="ml-3">
-                                    @foreach ($properties['attributes'] as $attribute => $newValue)
-                                @if (array_key_exists($attribute, $properties['old']) && !is_null($newValue))
-                                  <li>
-                                                <strong>{{ ucfirst($attribute) }}:</strong>
-                                                {{ $attribute === 'created_at' || $attribute === 'updated_at' ?
-                                                    \Carbon\Carbon::parse($properties['old'][$attribute])->toDayDateTimeString() . ' → ' . \Carbon\Carbon::parse($newValue)->toDayDateTimeString()
-                                                    : $properties['old'][$attribute] . ' → ' . $newValue }}
-                                            </li>
-                                @endif
-                              @endforeach
-                                </ul>
-                          @endif
-
-                          {{-- Handle Deleted Entries --}}
-                          @if ($log->description === 'deleted' && isset($properties['old']))
-                            <ul class="ml-3">
-                                    @foreach ($properties['old'] as $attribute => $value)
-                                @if (!is_null($value))
-                                  <li>
-                                                <strong>{{ ucfirst($attribute) }}:</strong>
-                                                {{ $attribute === 'created_at' || $attribute === 'updated_at' ? \Carbon\Carbon::parse($value)->toDayDateTimeString() : $value }}
-                                            </li>
-                                @endif
-                              @endforeach
-                                </ul>
-                          @endif
-                        </span>
-                    </td>
-                    <td>{{$log->created_at->diffForHumans()}}</td>
-                  </tr>
-                @endforeach
-                </tbody>
-              </table>
-
-              <div class="float-right">
-                {!! $logs->links() !!}
-              </div>
-
+        <!-- Logs Table -->
+        <div class="card glass-morphism">
+            <div class="p-6 border-b border-zinc-800/50">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-white font-medium flex items-center gap-2">
+                        <i class="fas fa-history text-zinc-400"></i>
+                        {{ __('Activity Logs') }}
+                    </h3>
+                    
+                    <form method="get" action="{{ route('admin.activitylogs.index') }}" class="flex gap-2">
+                        @csrf
+                        <input type="text" 
+                               name="search" 
+                               placeholder="Search" 
+                               class="bg-zinc-800/50 border-zinc-700/50 text-zinc-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-64">
+                        <button type="submit" class="px-3 py-2 bg-zinc-800/50 text-zinc-400 rounded-lg hover:bg-zinc-800 transition-colors">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
-          </div>
 
+            <div class="p-6">
+                <div class="space-y-4">
+                    @foreach($logs as $log)
+                        <div class="flex justify-between items-start p-4 bg-zinc-800/50 rounded-lg">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    @if($log->causer)
+                                        <a href="/admin/users/{{$log->causer_id}}" class="text-blue-400 hover:text-blue-300">
+                                            {{json_decode($log->causer)->name}}
+                                        </a>
+                                    @else
+                                        <span class="text-zinc-400">System</span>
+                                    @endif
+                                </div>
+                                
+                                <div class="text-zinc-300">
+                                    @if (str_starts_with($log->description, 'created'))
+                                        <i class="fas fa-plus text-emerald-500 mr-2"></i>
+                                    @elseif(str_starts_with($log->description, 'redeemed'))
+                                        <i class="fas fa-money-check-alt text-emerald-500 mr-2"></i>
+                                    @elseif(str_starts_with($log->description, 'deleted'))
+                                        <i class="fas fa-times text-red-500 mr-2"></i>
+                                    @elseif(str_starts_with($log->description, 'gained'))
+                                        <i class="fas fa-money-bill text-emerald-500 mr-2"></i>
+                                    @elseif(str_starts_with($log->description, 'updated'))
+                                        <i class="fas fa-pen text-blue-500 mr-2"></i>
+                                    @endif
+                                    
+                                    {{ explode('\\', $log->subject_type)[2] }}
+                                    {{ ucfirst($log->description) }}
 
+                                    @php
+                                        $properties = json_decode($log->properties, true);
+                                    @endphp
 
+                                    <div class="mt-2 ml-6 text-sm space-y-1">
+                                        @if ($log->description === 'created' && isset($properties['attributes']))
+                                            @foreach ($properties['attributes'] as $attribute => $value)
+                                                @if (!is_null($value))
+                                                    <div class="text-zinc-400">
+                                                        <span class="text-zinc-500">{{ ucfirst($attribute) }}:</span>
+                                                        {{ $attribute === 'created_at' || $attribute === 'updated_at' ? \Carbon\Carbon::parse($value)->toDayDateTimeString() : $value }}
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        @endif
+
+                                        @if ($log->description === 'updated' && isset($properties['attributes'], $properties['old']))
+                                            @foreach ($properties['attributes'] as $attribute => $newValue)
+                                                @if (array_key_exists($attribute, $properties['old']) && !is_null($newValue))
+                                                    <div class="text-zinc-400">
+                                                        <span class="text-zinc-500">{{ ucfirst($attribute) }}:</span>
+                                                        {{ $attribute === 'created_at' || $attribute === 'updated_at' ? 
+                                                            \Carbon\Carbon::parse($properties['old'][$attribute])->toDayDateTimeString() . ' → ' . \Carbon\Carbon::parse($newValue)->toDayDateTimeString() 
+                                                            : $properties['old'][$attribute] . ' → ' . $newValue }}
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        @endif
+
+                                        @if ($log->description === 'deleted' && isset($properties['old']))
+                                            @foreach ($properties['old'] as $attribute => $value)
+                                                @if (!is_null($value))
+                                                    <div class="text-zinc-400">
+                                                        <span class="text-zinc-500">{{ ucfirst($attribute) }}:</span>
+                                                        {{ $attribute === 'created_at' || $attribute === 'updated_at' ? \Carbon\Carbon::parse($value)->toDayDateTimeString() : $value }}
+                                                    </div>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-zinc-600 text-sm">
+                                {{$log->created_at->diffForHumans()}}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="mt-6">
+                    {!! $logs->links() !!}
+                </div>
+            </div>
         </div>
-        <!-- END CUSTOM CONTENT -->
-        </div>
-    </section>
-    <!-- END CONTENT -->
-
+    </div>
+</div>
 @endsection

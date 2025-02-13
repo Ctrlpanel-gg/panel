@@ -1,0 +1,221 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply bg-primary-950 text-primary-100;
+  }
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 217 32% 17%;
+    --card-foreground: 210 40% 98%;
+    --primary: 221 83% 53%;
+    --ring: 221 83% 53%;
+    --ring-color: 221 83% 53%;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-800 text-primary-200 hover:bg-primary-700 active:bg-primary-600;
+  }
+
+  .input {
+    @apply w-full px-4 py-2.5 bg-primary-950 border border-primary-800 rounded-lg text-sm 
+           transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-primary-700 focus:border-transparent;
+  }
+  
+  .card {
+    @apply bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-800/50 overflow-hidden 
+           hover:bg-zinc-900/60 hover:border-zinc-700/50 transition-all duration-700;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-zinc-800/50;
+  }
+
+  .card-body {
+    @apply p-6;
+  }
+
+  .stats-icon {
+    @apply rounded-full p-3 mr-4;
+    
+    &.blue {
+      @apply bg-accent-blue/10 text-accent-blue;
+    }
+    &.amber {
+      @apply bg-accent-amber/10 text-accent-amber;
+    }
+    &.emerald {
+      @apply bg-accent-emerald/10 text-accent-emerald;
+    }
+    &.red {
+      @apply bg-accent-red/10 text-accent-red;
+    }
+  }
+
+  .stats-text {
+    &-label {
+      @apply text-primary-400 text-sm;
+    }
+    &-value {
+      @apply text-2xl font-semibold text-primary-100;
+    }
+    &-subtitle {
+      @apply text-xs text-primary-500;
+    }
+  }
+
+  .prose-invert {
+    @apply prose-headings:text-primary-100 
+           prose-p:text-primary-300
+           prose-a:text-accent-blue hover:prose-a:text-accent-blue/80
+           prose-strong:text-primary-200
+           prose-ul:text-primary-300
+           prose-ol:text-primary-300
+           prose-blockquote:text-primary-400
+           prose-figure:text-primary-300
+           prose-figcaption:text-primary-400
+           prose-code:text-primary-300
+           prose-pre:bg-primary-800
+           prose-th:text-primary-300
+           prose-td:text-primary-300
+           prose-img:rounded-xl
+           prose-hr:border-primary-800;
+  }
+
+  .stats-card {
+    @apply glass-panel p-6 flex items-center gap-4;
+  }
+
+  .glass-panel {
+    @apply bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-xl overflow-hidden;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .nav-link {
+    @apply flex items-center px-4 py-2 text-sm font-medium text-zinc-400 
+           hover:text-zinc-200 rounded-lg transition-colors relative
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-offset-0;
+  }
+
+  .nav-link.active {
+    @apply bg-zinc-800 text-white hover:bg-zinc-700;
+  }
+
+  .glass-morphism {
+    @apply relative overflow-hidden transition-all duration-300;
+    background: linear-gradient(
+      110deg,
+      rgba(59, 130, 246, 0.02),
+      rgba(59, 130, 246, 0.05) 45%,
+      rgba(59, 130, 246, 0.02)
+    );
+  }
+
+  .glass-morphism:hover {
+    background: linear-gradient(
+      110deg,
+      rgba(59, 130, 246, 0.04),
+      rgba(59, 130, 246, 0.08) 45%,
+      rgba(59, 130, 246, 0.04)
+    );
+  }
+
+  /* DataTables Custom Styling */
+  .dataTables_wrapper {
+    @apply text-zinc-400;
+  }
+
+  .dataTables_length select,
+  .dataTables_filter input {
+    @apply input max-w-[200px] !important;
+  }
+
+  .dataTables_paginate .paginate_button {
+    @apply px-3 py-1 mx-1 rounded-lg transition-colors;
+  }
+
+  .dataTables_paginate .paginate_button.current {
+    @apply bg-primary-800 text-white !important;
+  }
+
+  .dataTables_paginate .paginate_button:hover {
+    @apply bg-primary-800/50 text-white !important;
+  }
+
+  .dataTables_info {
+    @apply text-zinc-500;
+  }
+
+  table.dataTable tbody tr {
+    @apply border-b border-zinc-800/50;
+  }
+
+  table.dataTable tbody td {
+    @apply py-4 px-2;
+  }
+
+  /* Dropdown Styling */
+  .dropdown-menu {
+    @apply absolute right-0 mt-2 w-48 rounded-lg bg-zinc-800 
+           shadow-lg ring-1 ring-black ring-opacity-5 
+           border border-zinc-700/50 py-1 z-50;
+  }
+
+  .dropdown-item {
+    @apply block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700
+           transition-colors duration-150 cursor-pointer;
+  }
+
+  .dropdown-divider {
+    @apply my-1 border-t border-zinc-700;
+  }
+
+  .table-dropdown {
+    @apply relative inline-block text-left;
+  }
+
+  .table-dropdown-content {
+    @apply dropdown-menu origin-top-right;
+  }
+
+  /* Override DataTables dropdown button */
+  .dt-button {
+    @apply btn btn-primary !important;
+  }
+  
+}
+
+/* Page transitions */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#app {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-950 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-800 rounded-full hover:bg-zinc-700 transition-colors;
+}

@@ -1,78 +1,71 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{ __('Store') }}</h1>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <div class="max-w-screen-xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-light text-white">{{ __('Store') }}</h1>
+                    <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 text-zinc-400">
+                            <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
+                            <li class="text-zinc-600">/</li>
+                            <li class="text-zinc-500">{{ __('Store') }}</li>
+                        </ol>
+                    </nav>
                 </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a class="" href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('store.index') }}">{{ __('Store') }}</a></li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- END CONTENT HEADER -->
-
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-
-            <div class="text-right mb-3">
-                <button type="button" data-toggle="modal" data-target="#redeemVoucherModal" class="btn btn-primary">
+                <button type="button" data-toggle="modal" data-target="#redeemVoucherModal" 
+                        class="btn btn-primary">
                     <i class="fas fa-money-check-alt mr-2"></i>{{ __('Redeem code') }}
                 </button>
             </div>
+        </div>
+    </div>
 
-            @if ($isStoreEnabled && $products->count() > 0)
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-coins mr-2"></i>{{ $credits_display_name }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-striped table-responsive-sm">
-                            <thead>
-                                <tr>
-                                    <th>{{ __('Price') }}</th>
-                                    <th>{{ __('Type') }}</th>
-                                    <th>{{ __('Description') }}</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($products as $product)
-                                    <tr>
-                                        <td>{{ $product->formatToCurrency($product->price) }}</td>
-                                        <td>{{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}
-                                        </td>
-                                        <td>
-                                            @if (strtolower($product->type) == 'credits')
-                                                <i class="fa fa-coins mr-2"></i>
-                                            @elseif (strtolower($product->type) == 'server slots')
-                                                <i class="fa fa-server mr-2"></i>
-                                            @endif
+    <!-- Main Content -->
+    <div class="max-w-screen-xl mx-auto">
+        @if ($isStoreEnabled && $products->count() > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                @foreach ($products as $product)
+                    <div class="card">
+                        <div class="p-6">
+                            <!-- Header -->
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="stats-icon {{ strtolower($product->type) == 'credits' ? 'amber' : 'blue' }}">
+                                    <i class="fas {{ strtolower($product->type) == 'credits' ? 'fa-coins' : 'fa-server' }}"></i>
+                                </div>
+                                <h4 class="text-lg font-medium text-white">{{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}</h4>
+                            </div>
 
-                                            {{ $product->display }}
-                                        </td>
-                                        <td><a href="{{ route('checkout', $product->id) }}"
-                                                class="btn btn-info @cannot('user.shop.buy') disabled @endcannot">{{ __('Purchase') }}</a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                            <!-- Description -->
+                            <div class="mb-6">
+                                <p class="text-sm text-zinc-400">{{ $product->display }}</p>
+                            </div>
+
+                            <!-- Price Box -->
+                            <div class="p-3 bg-zinc-800/50 rounded-lg mb-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-zinc-400">{{ __('Price') }}</span>
+                                    <span class="text-white font-medium">{{ $product->formatToCurrency($product->price) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <a href="{{ route('checkout', $product->id) }}" 
+                               class="btn w-full @cannot('user.shop.buy') bg-zinc-800 text-zinc-500 cursor-not-allowed @else btn-primary @endcannot">
+                                {{ __('Purchase') }}
+                            </a>
+                        </div>
                     </div>
-                </div>
-            @else
-                <div class="alert alert-danger alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h4><i class="icon fa fa-ban"></i>
+                @endforeach
+            </div>
+        @else
+            <div class="glass-panel bg-red-500/5 text-red-400">
+                <div class="flex items-center gap-3 p-6">
+                    <i class="fas fa-ban"></i>
+                    <h4 class="font-medium">
                         @if ($products->count() == 0)
                             {{ __('There are no store products!') }}
                         @else
@@ -80,28 +73,24 @@
                         @endif
                     </h4>
                 </div>
-            @endif
+            </div>
+        @endif
+    </div>
+</div>
 
-
-        </div>
-    </section>
-    <!-- END CONTENT -->
-
-    <script>
-        const getUrlParameter = (param) => {
-            const queryString = window.location.search;
-            const urlParams = new URLSearchParams(queryString);
-            return urlParams.get(param);
-        }
-        const voucherCode = getUrlParameter('voucher');
-        //if voucherCode not empty, open the modal and fill the input
-        if (voucherCode) {
-            $(function() {
-                $('#redeemVoucherModal').modal('show');
-                $('#redeemVoucherCode').val(voucherCode);
-            });
-        }
-    </script>
-
-
+<script>
+    const getUrlParameter = (param) => {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get(param);
+    }
+    const voucherCode = getUrlParameter('voucher');
+    //if voucherCode not empty, open the modal and fill the input
+    if (voucherCode) {
+        $(function() {
+            $('#redeemVoucherModal').modal('show');
+            $('#redeemVoucherCode').val(voucherCode);
+        });
+    }
+</script>
 @endsection

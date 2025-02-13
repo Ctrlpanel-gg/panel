@@ -1,47 +1,52 @@
 <!-- The Modal -->
 <div class="modal fade" id="redeemVoucherModal">
     <div class="modal-dialog">
-        <div class="modal-content">
-
+        <div class="modal-content bg-zinc-900 border border-zinc-800">
             <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">{{__('Redeem voucher code')}}</h4>
-
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <div class="modal-header border-b border-zinc-800">
+                <h4 class="modal-title text-white font-medium">{{ __('Redeem voucher code') }}</h4>
+                <button type="button" class="close text-zinc-400 hover:text-white transition-colors" data-dismiss="modal">&times;</button>
             </div>
 
             <!-- Modal body -->
-            <div class="modal-body">
-                <form id="redeemVoucherForm" onsubmit="return false" method="post" action="{{route('voucher.redeem')}}">
-                    <div class="form-group">
-                        <label for="redeemVoucherCode">{{__('Code')}}</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <div class="input-group-text">
-                                    <i class="fas fa-money-check-alt"></i>
-                                </div>
-                            </div>
-                            <input id="redeemVoucherCode" name="code" placeholder="SUMMER" type="text"
-                                   class="form-control">
+            <div class="modal-body p-6">
+                <form id="redeemVoucherForm" onsubmit="return false" method="post" action="{{ route('voucher.redeem') }}">
+                    <div>
+                        <label for="redeemVoucherCode" class="block text-sm font-medium text-zinc-400 mb-2">{{ __('Code') }}</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-zinc-400">
+                                <i class="fas fa-money-check-alt"></i>
+                            </span>
+                            <input id="redeemVoucherCode" 
+                                   name="code" 
+                                   placeholder="YOURMOM_ON_TOP" 
+                                   type="text"
+                                   class="input pl-10">
                         </div>
-                        <span id="redeemVoucherCodeError" class="text-danger"></span>
-                        <span id="redeemVoucherCodeSuccess" class="text-success"></span>
+                        <span id="redeemVoucherCodeError" class="mt-2 text-sm text-red-400"></span>
+                        <span id="redeemVoucherCodeSuccess" class="mt-2 text-sm text-emerald-400"></span>
                     </div>
                 </form>
             </div>
 
             <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">{{__('Close')}}</button>
-                <button name="submit" id="redeemVoucherSubmit" onclick="redeemVoucherCode()" type="button"
-                        class="btn btn-primary">{{__('Redeem')}}
+            <div class="modal-footer border-t border-zinc-800">
+                <button type="button" 
+                        class="btn bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200" 
+                        data-dismiss="modal">
+                    {{ __('Close') }}
+                </button>
+                <button name="submit" 
+                        id="redeemVoucherSubmit" 
+                        onclick="redeemVoucherCode()" 
+                        type="button"
+                        class="btn btn-primary">
+                    {{ __('Redeem') }}
                 </button>
             </div>
-
         </div>
     </div>
 </div>
-
 
 <script>
     function redeemVoucherCode() {

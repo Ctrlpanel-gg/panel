@@ -1,69 +1,46 @@
 @extends('layouts.main')
 
 @section('content')
-  <!-- CONTENT HEADER -->
-  <section class="content-header">
-    <div class="container-fluid">
-        <div class="mb-2 row">
-            <div class="col-sm-6">
-                <h1>{{__('Coupons')}}</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                    <li class="breadcrumb-item"><a class="text-muted"
-                                                   href="{{route('admin.coupons.index')}}">{{__('Coupons')}}</a></li>
-                </ol>
-            </div>
-        </div>
-    </div>
-  </section>
-  <!-- END CONTENT HEADER -->
-
-  <!-- MAIN CONTENT -->
-  <section class="content">
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between">
-                    <h5 class="card-title">
-                      <i class="nav-icon fas fa-ticket-alt"></i>
-                      {{__('Coupons')}}
-                    </h5>
-                    <a href="{{route('admin.coupons.create')}}" class="btn btn-sm btn-primary">
-                      <i class="mr-1 fas fa-plus"></i>
-                      {{__('Create new')}}
-                    </a>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <header class="max-w-screen-xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-light text-white">{{__('Coupons')}}</h1>
+                    <div class="text-zinc-400 text-sm mt-2">{{__('Manage discount coupons')}}</div>
                 </div>
-            </div>
-
-            <div class="card-body table-responsive">
-
-                <table id="datatable" class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>{{__('Status')}}</th>
-                        <th>{{__('Code')}}</th>
-                        <th>{{__('Value')}}</th>
-                        <th>{{__('Used / Max Uses')}}</th>
-                        <th>{{__('Expires')}}</th>
-                        <th>{{__('Created At')}}</th>
-                        <th>{{__('Actions')}}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-
+                <a href="{{route('admin.coupons.create')}}" class="btn-primary">
+                    <i class="mr-2 fas fa-plus"></i>
+                    {{__('Create new')}}
+                </a>
             </div>
         </div>
+    </header>
 
-
+    <!-- Main Content -->
+    <div class="max-w-screen-xl mx-auto">
+        <div class="glass-panel">
+            <div class="overflow-x-auto">
+                <table id="datatable" class="w-full whitespace-nowrap">
+                    <thead>
+                        <tr class="text-left text-zinc-400 text-sm">
+                            <th class="p-4">{{__('Status')}}</th>
+                            <th class="p-4">{{__('Code')}}</th>
+                            <th class="p-4">{{__('Value')}}</th>
+                            <th class="p-4">{{__('Used / Max Uses')}}</th>
+                            <th class="p-4">{{__('Expires')}}</th>
+                            <th class="p-4">{{__('Created At')}}</th>
+                            <th class="p-4">{{__('Actions')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-zinc-300"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <!-- END CUSTOM CONTENT -->
+</div>
 
-</section>
-<!-- END CONTENT -->
 <script>
   function submitResult() {
     return confirm("{{__('Are you sure you wish to delete?')}}") !== false;

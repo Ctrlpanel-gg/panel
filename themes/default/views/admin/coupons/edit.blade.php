@@ -1,42 +1,32 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{__('Coupon')}}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a href="{{route('admin.coupons.index')}}">{{__('Coupon')}}</a>
-                        </li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.coupons.edit' , $coupon->id)}}">{{__('Edit')}}</a>
-                        </li>
-                    </ol>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <header class="max-w-screen-xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-light text-white">{{__('Edit Coupon')}}</h1>
+                    <div class="text-zinc-400 text-sm mt-2">{{__('Modify existing coupon')}}</div>
                 </div>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+    </header>
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">
-                                <i class="fas fa-money-check-alt mr-2"></i>{{__('Coupon details')}}
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                          <form action="{{ route('admin.coupons.update', $coupon->id) }}" method="POST">
+    <!-- Main Content -->
+    <div class="max-w-screen-xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+                <div class="glass-panel">
+                    <div class="border-b border-zinc-800/50 p-6">
+                        <h3 class="text-white font-medium flex items-center gap-2">
+                            <i class="fas fa-ticket-alt text-zinc-400"></i>
+                            {{__('Coupon Details')}}
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <form action="{{ route('admin.coupons.update', $coupon->id) }}" method="POST" class="space-y-6">
                             @csrf
                             @method('PATCH')
 
@@ -229,25 +219,23 @@
                                 </div>
                               @enderror
                             </div>
-                            <div class="form-group text-right mb-0">
-                              <button type="submit" class="btn btn-primary">
-                                {{__('Submit')}}
-                              </button>
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn-primary">
+                                    {{__('Update Coupon')}}
+                                </button>
                             </div>
 
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                           </form>
-                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
-    </section>
-    <!-- END CONTENT -->
+    </div>
+</div>
 
-    <script>
-      $(document).ready(function() {
+<script>
+    $(document).ready(function() {
         $('#expires_at').datetimepicker({
           format: 'Y-MM-DD HH:mm:ss',
           icons: {
@@ -289,5 +277,5 @@
           }
         })
       })
-    </script>
+</script>
 @endsection
