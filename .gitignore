@@ -36,3 +36,6 @@ public/install/logs/installer.log
 
 /.idea
 cpggdatabase.sql
+
+# ignore public build files
+/public/build/*
