@@ -13,6 +13,8 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use App\Settings\PterodactylSettings;
 use App\Settings\ServerSettings;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PterodactylClient
 {
@@ -61,32 +63,33 @@ class PterodactylClient
     }
 
     /**
-     * @return Exception
+     * @return HttpException
      */
-    private function getException(string $message = '', int $status = 0): Exception
+    private function getException(string $message = '', int $status = null): HttpException
     {
+        Log::Error('PterodactylClient: ' . $message);
         if ($status == 404) {
-            return new Exception('Resource does not exist on pterodactyl - ' . $message, 404);
+            return new HttpException(404,'Resource does not exist on pterodactyl - ' . $message . ' Was a Server deleted from Pterodactyl but not from the Panel? Have an Admin Remove it from the Panel');
         }
 
         if ($status == 403) {
-            return new Exception('No permission on pterodactyl, check pterodactyl token and permissions - ' . $message, 403);
+            return new HttpException(403, 'No permission on pterodactyl, check pterodactyl token and permissions - ' . $message);
         }
 
         if ($status == 401) {
-            return new Exception('No pterodactyl token set - ' . $message, 401);
+            return new HttpException(401,'No pterodactyl token set - ' . $message);
         }
 
         if ($status == 500) {
-            return new Exception('Pterodactyl server error - ' . $message, 500);
+            return new HttpException(500,'Pterodactyl server error - ' . $message);
         }
 
         if ($status == 0) {
-            return new Exception('Unable to connect to Pterodactyl node - Please check if the node is online and accessible', 503);
+            return new HttpException(503, 'Unable to connect to Pterodactyl node - Please check if the node is online and accessible');
         }
 
         if ($status >= 500 && $status < 600) {
-            return new Exception('Pterodactyl node error (HTTP ' . $status . ') - ' . $message, $status);
+            return new HttpException($status,'Pterodactyl node error (HTTP ' . $status . ') - ' . $message);
         }
 
         return new Exception('Request Failed, is pterodactyl set-up correctly? - ' . $message);
