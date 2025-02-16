@@ -114,12 +114,15 @@ class UserPayment implements ShouldQueue
         //set discord role
         if(!empty($this->bot_token) && $this->role_on_purchase && !empty($this->role_id_on_purchase)) {
             $discordUser = $user->discordUser;
-            $discordUser->addOrRemoveRole('add', $this->role_id_on_purchase);
+            $success = $discordUser->addOrRemoveRole('add', $this->role_id_on_purchase);
 
-            activity()
-                ->performedOn($user)
-                ->causedBy($user)
-                ->log('was added  to role ' . $this->role_id_on_purchase . " on Discord");
+            if ($success) {
+                // LOGS DISCORD ROLE IN THE ACTIVITY LOG
+                activity()
+                    ->performedOn($user)
+                    ->causedBy($user)
+                    ->log('was added to role ' . $this->role_id_on_purchase . " on Discord");
+            }
         }
 
 
