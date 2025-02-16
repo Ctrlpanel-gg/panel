@@ -6,10 +6,10 @@ use Spatie\LaravelSettings\Settings;
 
 class CouponSettings extends Settings
 {
-    public bool $enabled;
-    public bool $delete_coupon_on_expires;
-    public bool $delete_coupon_on_uses_reached;
-    public ?int $max_uses_per_user;
+    public bool $enabled = false;
+    public ?bool $delete_coupon_on_expires = false;
+    public ?bool $delete_coupon_on_uses_reached = false;
+    public ?int $max_uses_per_user = null;
 
     public static function group(): string
     {

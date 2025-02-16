@@ -8,16 +8,15 @@ class WebsiteSettings extends Settings
 {
 
 
-    public bool $show_imprint;
-    public bool $show_privacy;
-    public bool $show_tos;
-    public bool $useful_links_enabled;
-    public bool $enable_login_logo;
-    public ?string $seo_title;
-    public ?string $seo_description;
-    public bool $motd_enabled;
-
-    public ?string $motd_message;
+    public bool $show_imprint = false;
+    public bool $show_privacy = false;
+    public bool $show_tos = false;
+    public bool $useful_links_enabled = false;
+    public bool $enable_login_logo = true;
+    public ?string $seo_title = null;
+    public ?string $seo_description = null;
+    public bool $motd_enabled = true;
+    public ?string $motd_message = null;
 
     public static function group(): string
     {

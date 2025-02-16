@@ -6,17 +6,17 @@ use Spatie\LaravelSettings\Settings;
 
 class GeneralSettings extends Settings
 {
-    public bool $store_enabled;
-    public ?int $sales_tax;
-    public string $credits_display_name;
-    public ?string $recaptcha_version;
-    public ?string $recaptcha_site_key;
-    public ?string $recaptcha_secret_key;
-    public ?string $phpmyadmin_url;
-    public bool $alert_enabled;
-    public string $alert_type;
-    public ?string $alert_message;
-    public string $theme;
+    public bool $store_enabled = false;
+    public ?float $sales_tax = null;
+    public string $credits_display_name = 'Credits';
+    public ?string $recaptcha_version = null;
+    public ?string $recaptcha_site_key = null;
+    public ?string $recaptcha_secret_key = null;
+    public ?string $phpmyadmin_url = null;
+    public bool $alert_enabled = false;
+    public string $alert_type = 'info';
+    public ?string $alert_message = null;
+    public string $theme = 'default';
 
     //public int $initial_user_role; wait for Roles & Permissions PR.
 
@@ -84,7 +84,8 @@ class GeneralSettings extends Settings
             'sales_tax' => [
                 'type' => 'number',
                 'label' => 'Sales Tax in %',
-                'description' => 'Your countrys sales tax in %'
+                'description' => 'Your countrys sales tax in %',
+                'step' => '0.01',
             ],
             'credits_display_name' => [
                 'type' => 'string',
