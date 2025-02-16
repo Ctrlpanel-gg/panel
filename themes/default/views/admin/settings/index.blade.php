@@ -42,8 +42,8 @@
                 </div>
                 <div class="card-body">
                     <!-- Sidebar Menu -->
-                    <div class="d-flex w-100">
-                        <div class="p-0 col-2">
+                    <div class="row d-flex">
+                        <div class="p-0 col-md-2 col-12">
                             <nav class="mt-1">
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
@@ -78,7 +78,7 @@
                                 </ul>
 
 
-                                <button class="btn btn-outline-secondary" type="button" data-toggle="collapse"
+                                <button class="btn btn-outline-secondary mb-2 mb-md-0" type="button" data-toggle="collapse"
                                     data-target="#collapseExtensions" aria-expanded="false"
                                     aria-controls="collapseExtensions">
                                     {{ __('Extension Settings') }}
@@ -106,13 +106,12 @@
                                             @endif
                                         @endforeach
                                 </div>
-                                </ul>
                             </nav>
                         </div>
                         <!-- /.sidebar-menu -->
                         <!-- Content in $settings -->
-                        <div class="p-0 col-10">
-                            <div class="ml-3 tab-content" style="width: 100%;">
+                        <div class="p-0 col-md-10 col-12">
+                            <div class="tab-content">
                                 <div class="container tab-pane fade" id="icons" role="tabpanel">
 
                                     <form method="POST" enctype="multipart/form-data" class="mb-3"
@@ -120,7 +119,7 @@
                                         @csrf
                                         @method('POST')
                                         <div class="row">
-                                            <div class="ml-5">
+                                            <div class="ml-0 ml-md-5">
                                               @error('favicon')
                                                 <p class="text-danger">
                                                     {{ $message }}
@@ -139,7 +138,7 @@
                                               </div>
                                             </div>
 
-                                            <div class="ml-5">
+                                            <div class="ml-0 ml-md-5">
                                               @error('icon')
                                                 <p class="text-danger">
                                                     {{ $message }}
@@ -158,7 +157,7 @@
                                               </div>
                                             </div>
 
-                                            <div class="ml-5">
+                                            <div class="ml-0 ml-md-5">
                                               @error('logo')
                                                 <p class="text-danger">
                                                     {{ $message }}
@@ -202,22 +201,24 @@
                                                     @if ($key == 'category_icon' || $key == 'settings_class' || $key == 'position')
                                                         @continue
                                                     @endif
-                                                    <div class="row">
-                                                        <div class="col-4 d-flex align-items-center">
-                                                            <label for="{{ $key }}">{{ $value['label'] }}</label>
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-4 col-12 d-flex align-items-center">
+                                                          <label class="w-100 d-inline-flex justify-content-between align-items-center" for="{{ $key }}">
+                                                            {{ $value['label'] }}
+                                                            @if ($value['description'])
+                                                              <i class="fas fa-info-circle" data-toggle="popover"
+                                                                 data-trigger="hover" data-placement="top"
+                                                                 data-html="true"
+                                                                 data-content="{{ $value['description'] }}"></i>
+                                                            @else
+                                                              <i class="invisible fas fa-info-circle"></i>
+                                                            @endif
+                                                          </label>
+
                                                         </div>
 
-                                                        <div class="col-8">
-                                                            <div class="mb-3 custom-control d-flex align-items-center">
-                                                                @if ($value['description'])
-                                                                    <i class="mr-4 fas fa-info-circle" data-toggle="popover"
-                                                                        data-trigger="hover" data-placement="top"
-                                                                        data-html="true"
-                                                                        data-content="{{ $value['description'] }}"></i>
-                                                                @else
-                                                                    <i class="invisible mr-4 fas fa-info-circle"></i>
-                                                                @endif
-
+                                                        <div class="col-md-8 col-12">
+                                                            <div class="d-flex align-items-center">
                                                                 <div class="w-100">
                                                                     @switch($value)
                                                                         @case($value['type'] == 'string')
@@ -346,7 +347,6 @@
                 </div>
             </div>
         </div>
-        </div>
 
 
         <!-- END CUSTOM CONTENT -->
@@ -362,9 +362,7 @@
 
         $('.nav-pills a').click(function(e) {
             $(this).tab('show');
-            const scrollmem = $('body').scrollTop();
             window.location.hash = this.hash;
-            $('html,body').scrollTop(scrollmem);
         });
 
         document.addEventListener('DOMContentLoaded', (event) => {
