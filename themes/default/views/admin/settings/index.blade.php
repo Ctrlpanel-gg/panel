@@ -366,7 +366,9 @@
         });
 
         document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
+            $('.custom-select').select2({
+                width: '100%',
+            });
         })
 
         tinymce.init({
