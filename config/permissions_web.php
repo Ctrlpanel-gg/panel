@@ -7,6 +7,8 @@ return [
 
     'All Permissions' => '*',
 
+    'View Errormessages' => 'errors.view',
+
     'View Roles Backend' => 'admin.roles.read',
     'Create Role' => 'admin.roles.create',
     'Edit Role' => 'admin.roles.edit',
