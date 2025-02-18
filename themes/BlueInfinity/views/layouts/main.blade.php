@@ -64,12 +64,6 @@
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ route('home') }}" class="nav-link"><i class="mr-2 fas fa-home"></i>{{ __('Home') }}</a>
                 </li>
-                @if (!empty($discord_settings->invite_url))
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ $discord_settings->invite_url }}" class="nav-link" target="__blank"><i
-                            class="mr-2 fab fa-discord"></i>{{ __('Discord') }}</a>
-                </li>
-                @endif
 
                 @foreach ($useful_links as $link)
                 <li class="nav-item d-none d-sm-inline-block">
