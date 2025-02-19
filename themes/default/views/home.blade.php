@@ -84,20 +84,20 @@
 
             <!-- /.col -->
             @if ($credits > 0.01 && $usage > 0)
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="mb-3 info-box">
-                    <span class="info-box-icon {{ $bg }} elevation-1">
-                        <i class="fas fa-hourglass-half"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">{{ __('Out of Credits in', ['credits' =>
-                            $general_settings->credits_display_name]) }}
-                        </span>
-                        <span class="info-box-number">{{ $boxText }}<sup>{{ $unit }}</sup></span>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="mb-3 info-box">
+                        <span class="info-box-icon {{ $bg }} elevation-1">
+                            <i class="fas fa-hourglass-half"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">{{ __('Out of Credits in', ['credits' =>
+                                $general_settings->credits_display_name]) }}
+                            </span>
+                            <span class="info-box-number">{{ $boxText }}<sup>{{ $unit }}</sup></span>
+                        </div>
                     </div>
+                    <!-- /.info-box -->
                 </div>
-                <!-- /.info-box -->
-                @endif
-            </div>
+            @endif
             <!-- /.col -->
         </div>
         <div class="row">
