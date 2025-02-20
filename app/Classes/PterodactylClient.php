@@ -85,7 +85,7 @@ class PterodactylClient
         }
 
         if ($status == 0) {
-            return new HttpException(503, 'Unable to connect to Pterodactyl node - Please check if the node is online and accessible');
+            return new HttpException(500, 'Unable to connect to Pterodactyl node - Please check if the node is online and accessible' . $message);
         }
 
         if ($status >= 500 && $status < 600) {
