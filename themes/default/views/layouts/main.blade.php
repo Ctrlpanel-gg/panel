@@ -5,6 +5,8 @@
     @php($website_settings = app(App\Settings\WebsiteSettings::class))
     @php($general_settings = app(App\Settings\GeneralSettings::class))
     @php($discord_settings = app(App\Settings\DiscordSettings::class))
+    @use('App\Constants\PermissionGroups')
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
@@ -206,262 +208,229 @@
                                 </a>
                             </li>
                         @endif
-                        @php($ticket_enabled = app(App\Settings\TicketSettings::class)->enabled)
-                        @if ($ticket_enabled)
-                            @canany(["user.ticket.read", "user.ticket.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('ticket.index') }}"
-                                    class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
-                                    <i class="nav-icon fas fa-ticket-alt"></i>
-                                    <p>{{ __('Support Ticket') }}</p>
-                                </a>
-                            </li>
-                                @endcanany
-                        @endif
-
-                    <!-- lol how do i make this shorter? -->
-                        @canany(['settings.discord.read','settings.discord.write','settings.general.read','settings.general.write','settings.invoice.read','settings.invoice.write','settings.locale.read','settings.locale.write','settings.mail.read','settings.mail.write','settings.pterodactyl.read','settings.pterodactyl.write','settings.referral.read','settings.referral.write','settings.server.read','settings.server.write','settings.ticket.read','settings.ticket.write','settings.user.read','settings.user.write','settings.website.read','settings.website.write','settings.paypal.read','settings.paypal.write','settings.stripe.read','settings.stripe.write','settings.mollie.read','settings.mollie.write','settings.mercadopago.read','settings.mercadopago.write','admin.overview.read','admin.overview.sync','admin.ticket.read','admin.tickets.write','admin.ticket_blacklist.read','admin.ticket_blacklist.write','admin.roles.read','admin.roles.write','admin.api.read','admin.api.write'])
-                            <li class="nav-header">{{ __('Administration') }}</li>
+                      @php($ticket_enabled = app(App\Settings\TicketSettings::class)->enabled)
+                      @if ($ticket_enabled)
+                        @canany(PermissionGroups::TICKET_PERMISSIONS)
+                          <li class="nav-item">
+                            <a href="{{ route('ticket.index') }}"
+                               class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
+                              <i class="nav-icon fas fa-ticket-alt"></i>
+                              <p>{{ __('Support Ticket') }}</p>
+                            </a>
+                          </li>
                         @endcanany
+                      @endif
 
-                        @canany(['admin.overview.read','admin.overview.sync'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.overview.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.overview.*')) active @endif">
-                                    <i class="nav-icon fa fa-home"></i>
-                                    <p>{{ __('Overview') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
+                      @canany(array_merge(
+                          PermissionGroups::TICKET_PERMISSIONS,
+                          PermissionGroups::OVERVIEW_PERMISSIONS,
+                          PermissionGroups::TICKET_ADMIN_PERMISSIONS,
+                          PermissionGroups::TICKET_BLACKLIST_PERMISSIONS,
+                          PermissionGroups::ROLES_PERMISSIONS,
+                          PermissionGroups::SETTINGS_PERMISSIONS,
+                          PermissionGroups::API_PERMISSIONS,
+                          PermissionGroups::USERS_PERMISSIONS,
+                          PermissionGroups::SERVERS_PERMISSIONS,
+                          PermissionGroups::PRODUCTS_PERMISSIONS,
+                          PermissionGroups::STORE_PERMISSIONS,
+                          PermissionGroups::VOUCHERS_PERMISSIONS,
+                          PermissionGroups::PARTNERS_PERMISSIONS,
+                          PermissionGroups::COUPONS_PERMISSIONS,
+                          PermissionGroups::USEFUL_LINKS_PERMISSIONS,
+                          PermissionGroups::PAYMENTS_PERMISSIONS,
+                          PermissionGroups::LOGS_PERMISSIONS
+                      ))
+                        <li class="nav-header">{{ __('Administration') }}</li>
+                      @endcanany
 
-                        @canany(['admin.ticket.read','admin.tickets.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.ticket.index') }}"
-                                   class="nav-link @if (Request::routeIs('admin.ticket.index')) active @endif">
-                                    <i class="nav-icon fas fa-ticket-alt"></i>
-                                    <p>{{ __('Ticket List') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
+                      @canany(PermissionGroups::OVERVIEW_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.overview.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.overview.*')) active @endif">
+                            <i class="nav-icon fa fa-home"></i>
+                            <p>{{ __('Overview') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @canany(['admin.ticket_blacklist.read','admin.ticket_blacklist.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.ticket.blacklist') }}"
-                                   class="nav-link @if (Request::routeIs('admin.ticket.blacklist')) active @endif">
-                                    <i class="nav-icon fas fa-user-times"></i>
-                                    <p>{{ __('Ticket Blacklist') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
+                      @canany(PermissionGroups::TICKET_ADMIN_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.ticket.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.ticket.index')) active @endif">
+                            <i class="nav-icon fas fa-ticket-alt"></i>
+                            <p>{{ __('Ticket List') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @canany(['admin.roles.read','admin.roles.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.roles.index') }}"
-                                   class="nav-link @if (Request::routeIs('admin.roles.*')) active @endif">
-                                    <i class="nav-icon fa fa-user-check"></i>
-                                    <p>{{ __('Role Management') }}</p>
-                                </a>
-                            </li>
-                            @endcanany
+                      @canany(PermissionGroups::TICKET_BLACKLIST_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.ticket.blacklist') }}"
+                             class="nav-link @if (Request::routeIs('admin.ticket.blacklist')) active @endif">
+                            <i class="nav-icon fas fa-user-times"></i>
+                            <p>{{ __('Ticket Blacklist') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @canany(['settings.discord.read',
-                                'settings.discord.write',
-                                'settings.general.read',
-                                'settings.general.write',
-                                'settings.invoice.read',
-                                'settings.invoice.write',
-                                'settings.locale.read',
-                                'settings.locale.write',
-                                'settings.mail.read',
-                                'settings.mail.write',
-                                'settings.pterodactyl.read',
-                                'settings.pterodactyl.write',
-                                'settings.referral.read',
-                                'settings.referral.write',
-                                'settings.server.read',
-                                'settings.server.write',
-                                'settings.ticket.read',
-                                'settings.ticket.write',
-                                'settings.user.read',
-                                'settings.user.write',
-                                'settings.website.read',
-                                'settings.website.write',
-                                'settings.paypal.read',
-                                'settings.paypal.write',
-                                'settings.stripe.read',
-                                'settings.stripe.write',
-                                'settings.mollie.read',
-                                'settings.mollie.write',
-                                'settings.mercadopago.read',
-                                'settings.mercadopago.write',])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.settings.index') . '#icons' }}"
-                                    class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
-                                    <i class="nav-icon fas fa-tools"></i>
-                                    <p>{{ __('Settings') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
+                      @canany(PermissionGroups::ROLES_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.roles.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.roles.*')) active @endif">
+                            <i class="nav-icon fa fa-user-check"></i>
+                            <p>{{ __('Role Management') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @canany(['admin.api.read','admin.api.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.api.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.api.*')) active @endif">
-                                    <i class="nav-icon fa fa-gamepad"></i>
-                                    <p>{{ __('Application API') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
+                      @canany(PermissionGroups::SETTINGS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.settings.index') . '#icons' }}"
+                             class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
+                            <i class="nav-icon fas fa-tools"></i>
+                            <p>{{ __('Settings') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        <!-- good fuck do i shorten this lol -->
-                        @canany(['admin.users.read',
-                                'admin.users.write',
-                                'admin.users.suspend',
-                                'admin.users.write.credits',
-                                'admin.users.write.username',
-                                'admin.users.write.password',
-                                'admin.users.write.role',
-                                'admin.users.write.referral',
-                                'admin.users.write.pterodactyl','admin.servers.read',
-                                'admin.servers.write',
-                                'admin.servers.suspend',
-                                'admin.servers.write.owner',
-                                'admin.servers.write.identifier',
-                                'admin.servers.delete','admin.products.read',
-                                'admin.products.create',
-                                'admin.products.edit',
-                                'admin.products.delete',])
-                            <li class="nav-header">{{ __('Management') }}</li>
-                        @endcanany
+                      @canany(PermissionGroups::API_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.api.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.api.*')) active @endif">
+                            <i class="nav-icon fa fa-gamepad"></i>
+                            <p>{{ __('Application API') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
+                      @canany(array_merge(
+                          PermissionGroups::USERS_PERMISSIONS,
+                          PermissionGroups::SERVERS_PERMISSIONS,
+                          PermissionGroups::PRODUCTS_PERMISSIONS
+                      ))
+                        <li class="nav-header">{{ __('Management') }}</li>
+                      @endcanany
 
+                      @canany(PermissionGroups::USERS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.users.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.users.*')) active @endif">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>{{ __('Users') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @canany(['admin.users.read',
-                                'admin.users.write',
-                                'admin.users.suspend',
-                                'admin.users.write.credits',
-                                'admin.users.write.username',
-                                'admin.users.write.password',
-                                'admin.users.write.role',
-                                'admin.users.write.referral',
-                                'admin.users.write.pterodactyl'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.users.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.users.*')) active @endif">
-                                    <i class="nav-icon fas fa-users"></i>
-                                    <p>{{ __('Users') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(['admin.servers.read',
-                                'admin.servers.write',
-                                'admin.servers.suspend',
-                                'admin.servers.write.owner',
-                                'admin.servers.write.identifier',
-                                'admin.servers.delete'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.servers.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.servers.*')) active @endif">
-                                    <i class="nav-icon fas fa-server"></i>
-                                    <p>{{ __('Servers') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(['admin.products.read',
-                                'admin.products.create',
-                                'admin.products.edit',
-                                'admin.products.delete'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.products.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.products.*')) active @endif">
-                                    <i class="nav-icon fas fa-sliders-h"></i>
-                                    <p>{{ __('Products') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(['admin.store.read','admin.store.write','admin.store.disable'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.store.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
-                                    <i class="nav-icon fas fa-shopping-basket"></i>
-                                    <p>{{ __('Store') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(["admin.voucher.read","admin.voucher.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.vouchers.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.vouchers.*')) active @endif">
-                                    <i class="nav-icon fas fa-money-check-alt"></i>
-                                    <p>{{ __('Vouchers') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(["admin.partners.read","admin.partners.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.partners.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.partners.*')) active @endif">
-                                    <i class="nav-icon fas fa-handshake"></i>
-                                    <p>{{ __('Partners') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
+                      @canany(PermissionGroups::SERVERS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.servers.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.servers.*')) active @endif">
+                            <i class="nav-icon fas fa-server"></i>
+                            <p>{{ __('Servers') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-												@canany(["admin.coupons.read", "admin.coupons.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.coupons.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.coupons.*')) active @endif">
-                                    <i class="nav-icon fas fa-ticket-alt"></i>
-                                    <p>{{ __('Coupons') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
+                      @canany(PermissionGroups::PRODUCTS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.products.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.products.*')) active @endif">
+                            <i class="nav-icon fas fa-sliders-h"></i>
+                            <p>{{ __('Products') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                            @canany(["admin.useful_links.read","admin.legal.read"])
-                                <li class="nav-header">{{ __('Other') }}</li>
-                            @endcanany
+                      @canany(PermissionGroups::STORE_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.store.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
+                            <i class="nav-icon fas fa-shopping-basket"></i>
+                            <p>{{ __('Store') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @canany(["admin.useful_links.read","admin.useful_links.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.usefullinks.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.usefullinks.*')) active @endif">
-                                    <i class="nav-icon fas fa-link"></i>
-                                    <p>{{ __('Useful Links') }}</p>
-                                </a>
-                            </li>
-                            @endcanany
+                      @canany(PermissionGroups::VOUCHERS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.vouchers.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.vouchers.*')) active @endif">
+                            <i class="nav-icon fas fa-money-check-alt"></i>
+                            <p>{{ __('Vouchers') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                            @canany(["admin.payments.read","admin.logs.read"])
-                                <li class="nav-header">{{ __('Logs') }}</li>
-                            @endcanany
+                      @canany(PermissionGroups::PARTNERS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.partners.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.partners.*')) active @endif">
+                            <i class="nav-icon fas fa-handshake"></i>
+                            <p>{{ __('Partners') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @can("admin.payments.read")
-                            <li class="nav-item">
-                                <a href="{{ route('admin.payments.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.payments.*')) active @endif">
-                                    <i class="nav-icon fas fa-money-bill-wave"></i>
-                                    <p>{{ __('Payments') }}
-                                        <span
-                                            class="badge badge-success right">{{ \App\Models\Payment::count() }}</span>
-                                    </p>
-                                </a>
-                            </li>
-                        @endcan
+                      @canany(PermissionGroups::COUPONS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.coupons.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.coupons.*')) active @endif">
+                            <i class="nav-icon fas fa-ticket-alt"></i>
+                            <p>{{ __('Coupons') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
-                        @can("admin.logs.read")
-                            <li class="nav-item">
-                                <a href="{{ route('admin.activitylogs.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.activitylogs.*')) active @endif">
-                                    <i class="nav-icon fas fa-clipboard-list"></i>
-                                    <p>{{ __('Activity Logs') }}</p>
-                                </a>
-                            </li>
-                        @endcan
+                      @canany(array_merge(
+                          PermissionGroups::USEFUL_LINKS_PERMISSIONS,
+                          PermissionGroups::PAYMENTS_PERMISSIONS,
+                          PermissionGroups::LOGS_PERMISSIONS
+                      ))
+                        <li class="nav-header">{{ __('Other') }}</li>
+                      @endcanany
+
+                      @canany(PermissionGroups::USEFUL_LINKS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.usefullinks.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.usefullinks.*')) active @endif">
+                            <i class="nav-icon fas fa-link"></i>
+                            <p>{{ __('Useful Links') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
 
 
+                      @canany(array_merge(
+                          PermissionGroups::PAYMENTS_PERMISSIONS,
+                          PermissionGroups::LOGS_PERMISSIONS
+                      ))
+                        <li class="nav-header">{{ __('Logs') }}</li>
+                      @endcanany
+
+                      @canany(PermissionGroups::PAYMENTS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.payments.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.payments.*')) active @endif">
+                            <i class="nav-icon fas fa-money-bill-wave"></i>
+                            <p>{{ __('Payments') }}
+                              <span class="badge badge-success right">{{ \App\Models\Payment::count() }}</span>
+                            </p>
+                          </a>
+                        </li>
+                      @endcanany
+
+                      @canany(PermissionGroups::LOGS_PERMISSIONS)
+                        <li class="nav-item">
+                          <a href="{{ route('admin.activitylogs.index') }}"
+                             class="nav-link @if (Request::routeIs('admin.activitylogs.*')) active @endif">
+                            <i class="nav-icon fas fa-clipboard-list"></i>
+                            <p>{{ __('Activity Logs') }}</p>
+                          </a>
+                        </li>
+                      @endcanany
                     </ul>
                 </nav>
-                <!-- /.sidebar-menu -->
+              <!-- /.sidebar-menu -->
             </div>
             <!-- /.sidebar -->
         </aside>

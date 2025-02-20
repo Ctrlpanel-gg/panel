@@ -86,7 +86,6 @@ class MakeUserCommand extends Command
         $user = User::create([
             'name' => $response['first_name'],
             'email' => $response['email'],
-            'role' => 'admin',
             'password' => Hash::make($password),
             'referral_code' => $this->createReferralCode(),
             'pterodactyl_id' => $response['id'],
@@ -97,7 +96,6 @@ class MakeUserCommand extends Command
             ['Email', $user->email],
             ['Username', $user->name],
             ['Ptero-ID', $user->pterodactyl_id],
-            ['Admin', $user->role],
             ['Referral code', $user->referral_code],
         ]);
 

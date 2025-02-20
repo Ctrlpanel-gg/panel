@@ -57,7 +57,14 @@
 
         <h5>{{$message}}</h5>
 
+        <br/>
+
+        @if($exception ?? false && Auth::user()->can('errors.view'))
+          <div class="alert alert-secondary">
+            <strong>{{ $exception->getMessage() }}</strong>
+          </div>
       </div>
+      @endif
 
       @if($homeLink ?? false)
         <div class="row d-flex justify-content-center">

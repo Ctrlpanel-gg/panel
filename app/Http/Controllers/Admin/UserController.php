@@ -339,11 +339,28 @@ class UserController extends Controller
         }
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
+
         if(!$roles){
             $users = $all ? User::where('suspended', false)->get() : User::whereIn('id', $data['users'])->get();
         } else{
-            $users = User::role($data["roles"])->get();
+            // Initialize an empty collection to hold users from all roles
+            $users = collect();
+
+            // Loop through each role ID and fetch users
+            foreach ($data["roles"] as $roleId) {
+                $roleUsers = User::whereHas('roles', function ($query) use ($roleId) {
+                    $query->where('id', $roleId);
+                })->get();
+
+                // Merge users from this role into the main collection
+                $users = $users->merge($roleUsers);
+            }
+
+            // Remove duplicate users (if any)
+            $users = $users->unique('id');
         }
+
+
 
 
         try {
