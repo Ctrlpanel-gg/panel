@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Constants\DefaultGroupPermissions;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -12,7 +11,8 @@ use Spatie\Permission\PermissionRegistrar;
 class PermissionsSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * This Seeder is only used in the Update process from 0.9.x to 1.x.
+     * For any other update from v1.x onwards, the GenrealPermissionsSeeder is ran from the DatabaseSeeder Class
      *
      * @return void
      */
@@ -21,96 +21,58 @@ class PermissionsSeeder extends Seeder
         // Reset cached roles and permissions.
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $this->createOrUpdatePermissions();
-        $this->createOrUpdateRoles();
-        $this->assignRolesToUsers();
-    }
+        $this->createPermissions();
+        $this->createRoles();
 
-    /**
-     * Create or update permissions based on the configuration file.
-     */
-    public function createOrUpdatePermissions()
-    {
-        // If you still want to create permissions based on a config, keep this method.
-        foreach (config('permissions_web') as $permission_name => $permission_value) {
-            Permission::firstOrCreate(
-                ['name' => $permission_value],
-                ['readable_name' => $permission_name]
-            );
+
+        $users = User::all();
+        foreach($users as $user){
+            $user->assignRole(Role::findById(4));
         }
 
-        // Remove permissions that are no longer in the config file.
-        Permission::whereNotIn('name', array_values(config('permissions_web')))->delete();
+        $admins = User::where("role","admin")->get();
+        foreach($admins as $admin) {
+            $admin->syncRoles(Role::findById(1));
+        }
+
+        $mods = User::where("role","moderator")->get();
+        foreach($mods as $mod) {
+            $mod->syncRoles(Role::findById(2));
+        }
+
+        $clients = User::where("role","client")->get();
+        foreach($clients as $client) {
+            $client->syncRoles(Role::findById(3));
+        }
     }
 
-    /**
-     * Create or update roles and assign permissions.
-     */
-    public function createOrUpdateRoles()
+    public function createPermissions()
     {
-        // Define roles and their permissions using the DefaultGroupPermissions constants
-        $roles = [
-            'Admin' => [
-                'id' => 1, // Unique ID for Admin role.
-                'power' => 100,
-                'color' => '#fa0000',
-                'permissions' => DefaultGroupPermissions::ADMIN,
-            ],
-            'Support-Team' => [
-                'id' => 2, // Unique ID for Support-Team role.
-                'power' => 50,
-                'color' => '#00b0b3',
-                'permissions' => DefaultGroupPermissions::SUPPORT_TEAM,
-            ],
-            'Client' => [
-                'id' => 3, // Unique ID for Client role.
-                'power' => 10,
-                'color' => '#008009',
-                'permissions' => DefaultGroupPermissions::CLIENT,
-            ],
-            'User' => [
-                'id' => 4, // Unique ID for User role.
-                'power' => 10,
-                'color' => '#0052a3',
-                'permissions' => DefaultGroupPermissions::USER,
-            ],
+        foreach(config('permissions_web') as $permission_name => $permission_value) {
+            Permission::create(['name' => $permission_value, 'readable_name' => $permission_name]);
+        }
+    }
+
+    //TODO run only once
+    public function createRoles()
+    {
+        $userPermissions=[
+            'user.server.create',
+            'user.server.upgrade',
+            'user.shop.buy',
+            'user.ticket.read',
+            'user.ticket.write',
+            'user.referral',
         ];
+        /** @var Role $adminRole */
+        $adminRole = Role::create(["name"=>"Admin","color"=>"#fa0000", "power"=>100]);
+        $supportRole = Role::create(["name"=>"Support-Team","color"=>"#00b0b3","power"=>50]);
+        $clientRole = Role::create(["name"=>"Client","color"=>"#008009","power"=>10]);
+        $userRole =  Role::create(["name"=>"User","color"=>"#0052a3","power"=>10]);
 
-        foreach ($roles as $roleName => $roleData) {
-            // Create or update role by its unique ID.
-            $role = Role::updateOrCreate(
-                ['id' => $roleData['id']],
-                ['name' => $roleName, 'power' => $roleData['power'], 'color' => $roleData['color']]
-            );
+        $adminRole->givePermissionTo(Permission::findByName('*'));
 
-            // Sync permissions for the role.
-            if ($roleData['permissions'] === ['*']) {
-                $role->syncPermissions(Permission::all());
-            } else {
-                $role->syncPermissions($roleData['permissions']);
-            }
-        }
-    }
-
-    /**
-     * Assign roles to users based on their current state.
-     */
-    public function assignRolesToUsers()
-    {
-
-        // Assign default role (e.g., "User") to all users by its ID.
-        $defaultRole = Role::where('id', 4)->first(); // User Role is ID 4
-        if ($defaultRole) {
-            User::whereDoesntHave('roles')->get()->each(function ($user) use ($defaultRole) {
-                $user->assignRole($defaultRole);
-            });
-        }
-
-        // Assign specific roles based on your business logic using role IDs.
-        $adminRole = Role::where('id', 1)->first(); // ID for Admin role is 1.
-        $user = User::find(1);
-        if ($user && $adminRole) {
-            $user->syncRoles($adminRole); // Sync the role for the user
-        }
+        $userRole->syncPermissions($userPermissions);
+        $clientRole->syncPermissions($userPermissions);
     }
 }
