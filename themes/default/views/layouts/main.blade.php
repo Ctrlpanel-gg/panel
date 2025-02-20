@@ -512,27 +512,44 @@
             @include('models.redeem_voucher_modal')
         </div>
         <!-- /.content-wrapper -->
-        <footer class="main-footer bg-zinc-900/50 backdrop-blur-sm border-t border-zinc-800/50 text-zinc-400">
-            <strong>Copyright &copy; 2021-{{ date('Y') }} <a
-                    href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
-            All rights
-            reserved. Powered by <a href="https://CtrlPanel.gg">CtrlPanel</a>.
-            @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
-                Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
-            @endif
+        <footer class="bg-zinc-900/50 border-t border-zinc-800/50 p-4 mt-auto">
+            <div class="max-w-screen-xl mx-auto flex flex-wrap justify-between items-center text-sm text-zinc-400">
+                <div>
+                    <strong>Copyright &copy; 2021-{{ date('Y') }} 
+                        <a href="{{ url('/') }}" class="text-zinc-300 hover:text-white transition-colors">
+                            {{ env('APP_NAME', 'Laravel') }}
+                        </a>
+                    </strong>
+                    <span class="px-1">·</span>
+                    Powered by <a href="https://CtrlPanel.gg" class="text-zinc-300 hover:text-white transition-colors">CtrlPanel</a>
+                    @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
+                        <span class="px-1">·</span> 
+                        Version <b>{{ config('app')['version'] }} - {{ config('BRANCHNAME') }}</b>
+                    @endif
+                </div>
 
-            {{-- Show imprint and privacy link --}}
-            <div class="float-right d-none d-sm-inline-block">
-              @if ($website_settings->show_imprint)
-                  <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
-              @endif
-              @if ($website_settings->show_privacy)
-                  <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
-              @endif
-              @if ($website_settings->show_tos)
-                  | <a target="_blank"
-                      href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
-              @endif
+                <div class="flex gap-3">
+                    @if ($website_settings->show_imprint)
+                        <a href="{{ route('terms', 'imprint') }}" target="_blank" 
+                           class="hover:text-white transition-colors">
+                            {{ __('Imprint') }}
+                        </a>
+                    @endif
+
+                    @if ($website_settings->show_privacy)
+                        <a href="{{ route('terms', 'privacy') }}" target="_blank"
+                           class="hover:text-white transition-colors">
+                            {{ __('Privacy') }}
+                        </a>
+                    @endif
+
+                    @if ($website_settings->show_tos)
+                        <a href="{{ route('terms', 'tos') }}" target="_blank"
+                           class="hover:text-white transition-colors">
+                            {{ __('Terms of Service') }}
+                        </a>
+                    @endif
+                </div>
             </div>
         </footer>
 

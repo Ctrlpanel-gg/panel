@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-8">
     <!-- Header -->
-    <div class="max-w-screen-xl mx-auto mb-8">
+    <div class="max-w-screen-2xl mx-auto mb-8">
         <div class="glass-panel p-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-screen-xl mx-auto">
+    <div class="max-w-screen-2xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Ticket List -->
             <div class="lg:col-span-8">
@@ -39,21 +39,19 @@
                         </div>
                     </div>
                     <div class="p-6">
-                        <div class="overflow-x-auto">
-                            <table id="datatable" class="w-full">
-                                <thead>
-                                    <tr class="text-left text-zinc-400">
-                                        <th class="px-2 py-3">{{__('Category')}}</th>
-                                        <th class="px-2 py-3">{{__('Title')}}</th>
-                                        <th class="px-2 py-3">{{__('Priority')}}</th>
-                                        <th class="px-2 py-3">{{__('Status')}}</th>
-                                        <th class="px-2 py-3">{{__('Last Updated')}}</th>
-                                        <th class="px-2 py-3">{{__('Actions')}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
+                        <table id="datatable" class="w-full">
+                            <thead>
+                                <tr class="text-left text-zinc-400">
+                                    <th class="px-2 py-3">{{__('Category')}}</th>
+                                    <th class="px-2 py-3">{{__('Title')}}</th>
+                                    <th class="px-2 py-3">{{__('Priority')}}</th>
+                                    <th class="px-2 py-3">{{__('Status')}}</th>
+                                    <th class="px-2 py-3">{{__('Last Updated')}}</th>
+                                    <th class="px-2 py-3">{{__('Actions')}}</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -87,7 +85,21 @@
             columns: [
                 {data: 'category'},
                 {data: 'title'},
-                {data: 'priority'},
+                {data: 'priority', render: function(data, type, row) {
+                    if (type === 'display') {
+                        switch(data) {
+                            case 'High':
+                                return '<span class="px-2 py-1 text-xs rounded-full bg-red-500/10 text-red-500">' + data + '</span>';
+                            case 'Medium':
+                                return '<span class="px-2 py-1 text-xs rounded-full bg-amber-500/10 text-amber-500">' + data + '</span>';
+                            case 'Low':
+                                return '<span class="px-2 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-500">' + data + '</span>';
+                            default:
+                                return data;
+                        }
+                    }
+                    return data;
+                }},
                 {data: 'status'},
                 {data: 'updated_at', type: 'num', render: {_: 'display', sort: 'raw'}},
                 {data: 'actions', sortable: false},

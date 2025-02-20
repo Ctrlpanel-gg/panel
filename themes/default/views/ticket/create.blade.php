@@ -81,9 +81,9 @@
                             <label for="priority" class="block text-sm font-medium text-zinc-400">{{__('Priority')}}</label>
                             <select id="priority" name="priority" class="input">
                                 <option value="" disabled selected>{{__("Select Priority")}}</option>
-                                <option value="Low">{{__("Low")}}</option>
-                                <option value="Medium">{{__("Medium")}}</option>
-                                <option value="High">{{__("High")}}</option>
+                                <option value="Low" class="text-emerald-500">{{__("Low")}}</option>
+                                <option value="Medium" class="text-amber-500">{{__("Medium")}}</option>
+                                <option value="High" class="text-red-500">{{__("High")}}</option>
                             </select>
                             @if ($errors->has('priority'))
                                 <p class="text-sm text-red-500">{{ $errors->first('priority') }}</p>
@@ -140,6 +140,27 @@
     $(".ticket-form").submit(function (e) {
         $(".ticket-once").attr("disabled", true);
         return true;
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const prioritySelect = document.getElementById('priority');
+        prioritySelect.addEventListener('change', function() {
+            // Remove any existing classes
+            this.classList.remove('text-emerald-500', 'text-amber-500', 'text-red-500');
+            
+            // Add appropriate color class based on selection
+            switch(this.value) {
+                case 'Low':
+                    this.classList.add('text-emerald-500');
+                    break;
+                case 'Medium':
+                    this.classList.add('text-amber-500');
+                    break;
+                case 'High':
+                    this.classList.add('text-red-500');
+                    break;
+            }
+        });
     });
 </script>
 @endsection
