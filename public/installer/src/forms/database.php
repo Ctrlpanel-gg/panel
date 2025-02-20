@@ -61,7 +61,7 @@ if (isset($_POST['feedDB'])) {
         $logs .= run_console('php artisan storage:link');
         $logs .= run_console('php artisan migrate --seed --force');
         $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
-        $logs .= run_console('php artisan db:seed --class=PermissionsSeeder --force');
+        $logs .= run_console('php artisan db:seed --class=GeneralPermissionsSeeder --force');
 
         wh_log($logs, 'debug');
 

@@ -80,7 +80,7 @@ if (isset($_POST['createUser'])) {
 
     $random = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8); // random referal
 
-    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `role`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', 'admin', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
+    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
     $query2 = "INSERT INTO `" . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\\\Models\\\User', '1')";
     try {
         $db->query($query1);
