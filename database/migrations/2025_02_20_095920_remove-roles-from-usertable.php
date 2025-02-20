@@ -44,11 +44,8 @@ return new class extends Migration
                     case 3:
                         $user->role = 'client';
                         break;
-                    case 4:
-                        $user->role = 'user'; // Assuming ID 4 is the default role
-                        break;
                     default:
-                        $user->role = 'user'; // Default role if no specific role is found
+                        $user->role = 'user';
                         break;
                 }
             } else {
