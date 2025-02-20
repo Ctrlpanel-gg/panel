@@ -86,7 +86,7 @@ class GeneralPermissionsSeeder extends Seeder
 
             // Sync permissions for the role.
             if ($roleData['permissions'] === ['*']) {
-                $role->syncPermissions(Permission::all());
+                $role->givePermissionTo(Permission::findByName('*'));
             } else {
                 $role->syncPermissions($roleData['permissions']);
             }
