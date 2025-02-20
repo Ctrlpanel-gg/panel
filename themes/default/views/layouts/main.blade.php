@@ -221,7 +221,25 @@
                         @endcanany
                       @endif
 
-                      @canany(PermissionGroups::ADMIN_SIDEBAR_PERMISSIONS)
+                      @canany(array_merge(
+                          PermissionGroups::TICKET_PERMISSIONS,
+                          PermissionGroups::OVERVIEW_PERMISSIONS,
+                          PermissionGroups::TICKET_ADMIN_PERMISSIONS,
+                          PermissionGroups::TICKET_BLACKLIST_PERMISSIONS,
+                          PermissionGroups::ROLES_PERMISSIONS,
+                          PermissionGroups::SETTINGS_PERMISSIONS,
+                          PermissionGroups::API_PERMISSIONS,
+                          PermissionGroups::USERS_PERMISSIONS,
+                          PermissionGroups::SERVERS_PERMISSIONS,
+                          PermissionGroups::PRODUCTS_PERMISSIONS,
+                          PermissionGroups::STORE_PERMISSIONS,
+                          PermissionGroups::VOUCHERS_PERMISSIONS,
+                          PermissionGroups::PARTNERS_PERMISSIONS,
+                          PermissionGroups::COUPONS_PERMISSIONS,
+                          PermissionGroups::USEFUL_LINKS_PERMISSIONS,
+                          PermissionGroups::PAYMENTS_PERMISSIONS,
+                          PermissionGroups::LOGS_PERMISSIONS
+                      ))
                         <li class="nav-header">{{ __('Administration') }}</li>
                       @endcanany
 
