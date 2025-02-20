@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->nullable()->after('id');
+            $table->string('role')->nullable()->after('credits');
         });
 
         // Assign the appropriate role to each user based on their current permissions
