@@ -48,7 +48,9 @@
   }
 
   .stats-icon {
-    @apply rounded-full p-3 mr-4;
+    @apply rounded-full p-3.5 aspect-square flex items-center justify-center;
+    width: 2.75rem;
+    height: 2.75rem;
     
     &.blue {
       @apply bg-accent-blue/10 text-accent-blue;
