@@ -6,11 +6,11 @@ use Spatie\LaravelSettings\Settings;
 
 class LocaleSettings extends Settings
 {
-    public ?string $available;
-    public bool $clients_can_change;
-    public ?string $datatables;
-    public string $default;
-    public bool $dynamic;
+    public ?string $available = null;
+    public bool $clients_can_change = false;
+    public ?string $datatables = null;
+    public string $default = 'en';
+    public bool $dynamic = false;
 
     public static function group(): string
     {
@@ -40,7 +40,8 @@ class LocaleSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => 'fas fa-globe',
+            'category_icon' => 'fas fa-language',
+            'position' => 3,
             'available' => [
                 'label' => 'Available Locales',
                 'type' => 'multiselect',

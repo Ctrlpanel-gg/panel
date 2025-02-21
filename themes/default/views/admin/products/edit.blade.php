@@ -36,12 +36,8 @@
                         @if ($product->servers()->count() > 0)
                             <div class="callout callout-danger">
                                 <h4>{{ __('Editing the resource options will not automatically update the servers on
-                                                                                                    pterodactyls side!') }}'
+                                                                                                    pterodactyls side!') }}
                                 </h4>
-                                <p class="text-muted">
-                                    {{ __('Automatically updating resource options on pterodactyl side is on
-                                                                                                            my todo list :)') }}
-                                </p>
                             </div>
                         @endif
 

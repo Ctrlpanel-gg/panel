@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Settings\GeneralSettings;
+use App\Settings\MailSettings;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use App\Settings\DiscordSettings;
+use Qirolab\Theme\Theme;
 use Exception;
 
 class SettingsServiceProvider extends ServiceProvider
@@ -58,8 +60,31 @@ class SettingsServiceProvider extends ServiceProvider
             Config::set('recaptcha.api_site_key', $this->generalSettings->recaptcha_site_key ?: "");
             Config::set('recaptcha.api_secret_key', $this->generalSettings->recaptcha_secret_key ?: "");
 
+            Config::set('recaptchav3.sitekey', $this->generalSettings->recaptcha_site_key ?: "");
+            Config::set('recaptchav3.secret', $this->generalSettings->recaptcha_secret_key ?: "");
+
         } catch (Exception $e) {
             Log::error("Couldn't find settings. Probably the installation is not complete. " . $e);
+        }
+
+        try {
+            $generalSettings = $this->app->make(GeneralSettings::class);
+
+            if (!file_exists(base_path('themes') . "/" . $generalSettings->theme)) {
+                $generalSettings->theme = "default";
+            }
+
+            if ($generalSettings->theme && $generalSettings->theme !== config('theme.active')) {
+                Theme::set($generalSettings->theme, "default");
+            } else {
+                Theme::set("default", "default");
+            }
+
+            $settings = $this->app->make(MailSettings::class);
+            $settings->setConfig();
+
+        } catch (Exception $e) {
+            Log::error("Couldnt load Settings. Probably the installation is not completet. " . $e);
         }
     }
 }

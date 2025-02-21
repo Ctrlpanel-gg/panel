@@ -49,7 +49,7 @@ if (isset($_POST['checkPtero'])) {
     curl_close($ch);
 
     if (!is_array($result)) {
-        wh_log('No array in response found', 'error');
+        wh_log('No array in response found'. $result, 'error');
         send_error_message("An unknown Error occured, please try again!");
     }
 
@@ -66,13 +66,13 @@ if (isset($_POST['checkPtero'])) {
     }
 
     try {
-        run_console("php artisan settings:set 'PterodactylSettings' 'panel_url' '$url'");
-        run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'");
-        run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'");
-        wh_log('Database updated', 'debug');
+        run_console("php artisan settings:set 'PterodactylSettings' 'panel_url' '$url'", null,null,null,false);
+        run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'", null,null,null,false);
+        run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'", null,null,null,false);
+        wh_log('Database updated with pterodactyl Settings.', 'debug');
         next_step();
     } catch (Throwable $th) {
-        wh_log("Setting Pterodactyl information failed.", 'error');
+        wh_log("Setting Pterodactyl information failed. ".$th->getMessage(), 'error');
         send_error_message($th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
         exit();
     }

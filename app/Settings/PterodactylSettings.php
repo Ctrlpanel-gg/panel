@@ -6,10 +6,10 @@ use Spatie\LaravelSettings\Settings;
 
 class PterodactylSettings extends Settings
 {
-    public string $admin_token;
-    public string $user_token;
-    public string $panel_url;
-    public int $per_page_limit;
+    public string $admin_token = '';
+    public string $user_token = '';
+    public string $panel_url = '';
+    public int $per_page_limit = 50;
 
     public static function group(): string
     {
@@ -56,7 +56,8 @@ class PterodactylSettings extends Settings
     public static function getOptionInputData()
     {
         return [
-            'category_icon' => 'fas fa-server',
+            'category_icon' => 'fas fa-kiwi-bird',
+            'position' => 12,
             'panel_url' => [
                 'label' => 'Panel URL',
                 'type' => 'string',

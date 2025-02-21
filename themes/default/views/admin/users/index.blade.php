@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Users') }}</h1>
                 </div>
@@ -28,9 +28,9 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="fas fa-users mr-2"></i>{{ __('Users') }}</h5>
-                        <a href="{{ route('admin.users.notifications') }}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-paper-plane mr-1"></i>{{ __('Notify') }}</a>
+                        <h5 class="card-title"><i class="mr-2 fas fa-users"></i>{{ __('Users') }}</h5>
+                        <a href="{{ route('admin.users.notifications.index') }}" class="btn btn-sm btn-primary"><i
+                                class="mr-1 fas fa-paper-plane"></i>{{ __('Notify') }}</a>
                     </div>
                 </div>
 
@@ -39,7 +39,7 @@
                     <table id="datatable" class="table table-striped">
                         <thead>
                         <tr>
-                          <!--  <th>discordId</th> -->
+                            <th>discordId</th>
                             <th>ip</th>
                             <th>pterodactyl_id</th>
                             <th>{{__('Avatar')}}</th>
@@ -85,14 +85,11 @@
                     [11, "desc"]
                 ],
                 columns: [
-                  /* This broke the ability to search the table. Have to revisit later
-                  {
+                    {
                         data: 'discordId',
                         visible: false,
                         name: 'discordUser.id'
                     },
-                    */
-
                     {
                         data: 'pterodactyl_id',
                         visible: false

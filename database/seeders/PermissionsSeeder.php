@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Constants\DefaultGroupPermissions;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -11,7 +12,8 @@ use Spatie\Permission\PermissionRegistrar;
 class PermissionsSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * This Seeder is only used in the Update process from 0.9.x to 1.x.
+     * For any other update from v1.x onwards, the GenrealPermissionsSeeder is ran from the DatabaseSeeder Class
      *
      * @return void
      */
@@ -26,22 +28,22 @@ class PermissionsSeeder extends Seeder
 
         $users = User::all();
         foreach($users as $user){
-            $user->assignRole(Role::findByName('user'));
+            $user->assignRole(Role::findById(4));
         }
 
         $admins = User::where("role","admin")->get();
         foreach($admins as $admin) {
-            $admin->syncRoles(Role::findByName('Admin'));
+            $admin->syncRoles(Role::findById(1));
         }
 
         $mods = User::where("role","moderator")->get();
         foreach($mods as $mod) {
-            $mod->syncRoles(Role::findByName('Support-Team'));
+            $mod->syncRoles(Role::findById(2));
         }
 
         $clients = User::where("role","client")->get();
         foreach($clients as $client) {
-            $client->syncRoles(Role::findByName('Client'));
+            $client->syncRoles(Role::findById(3));
         }
     }
 
@@ -55,14 +57,6 @@ class PermissionsSeeder extends Seeder
     //TODO run only once
     public function createRoles()
     {
-        $userPermissions=[
-            'user.server.create',
-            'user.server.upgrade',
-            'user.shop.buy',
-            'user.ticket.read',
-            'user.ticket.write',
-            'user.referral',
-        ];
         /** @var Role $adminRole */
         $adminRole = Role::create(["name"=>"Admin","color"=>"#fa0000", "power"=>100]);
         $supportRole = Role::create(["name"=>"Support-Team","color"=>"#00b0b3","power"=>50]);
@@ -71,7 +65,7 @@ class PermissionsSeeder extends Seeder
 
         $adminRole->givePermissionTo(Permission::findByName('*'));
 
-        $userRole->syncPermissions($userPermissions);
-        $clientRole->syncPermissions($userPermissions);
+        $userRole->syncPermissions(DefaultGroupPermissions::USER);
+        $clientRole->syncPermissions(DefaultGroupPermissions::CLIENT);
     }
 }

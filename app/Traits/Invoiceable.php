@@ -52,7 +52,6 @@ trait Invoiceable
         ];
         $notes = implode("<br>", $notes);
 
-
         $invoice = DailyInvoice::make()
             ->template('ctrlpanel')
             ->name(__("Invoice"))
@@ -62,7 +61,7 @@ trait Invoiceable
             ->taxRate(floatval($shopProduct->getTaxPercent()))
             ->shipping(0)
             ->addItem($item)
-            ->status(__($payment->status))
+            ->status(__($payment->status->value))
             ->series(now()->format('mY'))
             ->delimiter("-")
             ->sequence($newInvoiceID)
@@ -87,6 +86,6 @@ trait Invoiceable
         ]);
 
         //Send Invoice per Mail
-        $user->notify(new InvoiceNotification($invoice, $user, $payment));
+        $user->notify(new InvoiceNotification($invoice->filename, $user, $payment));
     }
 }

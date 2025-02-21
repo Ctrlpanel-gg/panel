@@ -21,10 +21,12 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PreferencesController;
 use App\Http\Controllers\ProductController as FrontProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\TermsController;
 use App\Http\Controllers\TicketsController;
 use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
@@ -49,15 +51,7 @@ Route::middleware('guest')->get('/', function () {
 
 Auth::routes(['verify' => true]);
 
-Route::get('/privacy', function () {
-    return view('information.privacy');
-})->name('privacy');
-Route::get('/imprint', function () {
-    return view('information.imprint');
-})->name('imprint');
-Route::get('/tos', function () {
-    return view('information.tos');
-})->name('tos');
+Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //resend verification email
@@ -71,6 +65,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::resource('notifications', NotificationController::class);
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
+    Route::post('/servers/validateDeploymentVariables', [ServerController::class, 'validateDeploymentVariables'])->name('servers.validateDeploymentVariables');
+    Route::delete('/servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
+    Route::patch('/servers/{server}', [ServerController::class, 'update'])->name('servers.update');
     Route::resource('servers', ServerController::class);
 
     try {
@@ -85,6 +82,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
+    Route::get('preferences', [PreferencesController::class, 'index'])->name('preferences.index');
+    Route::post('preferences', [PreferencesController::class, 'update'])->name('preferences.update');
 
     //server create utility routes (product)
     //routes made for server create page to fetch product info
@@ -106,9 +105,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     //voucher redeem
     Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->middleware('throttle:5,1')->name('voucher.redeem');
-
-    //switch language
-    Route::post('changelocale', [TranslationController::class, 'changeLocale'])->name('changeLocale');
 
     //ticket user
     Route::get('ticket', [TicketsController::class, 'index'])->name('ticket.index');
@@ -138,8 +134,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
         Route::get('users/verifyEmail/{user}', [UserController::class, 'verifyEmail'])->name('users.verifyEmail');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
-        Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications');
-        Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications');
+        Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications.index');
+        Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications.notify');
         Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
         Route::resource('users', UserController::class);
 
@@ -168,8 +164,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
 
         //settings
-
-
         Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::post('settings/icons', [SettingsController::class, 'updateIcons'])->name('settings.updateIcons');
@@ -182,10 +176,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         //usefullinks
         Route::get('usefullinks/datatable', [UsefulLinkController::class, 'datatable'])->name('usefullinks.datatable');
         Route::resource('usefullinks', UsefulLinkController::class);
-
-        //legal
-        Route::get('legal', [LegalController::class, 'index'])->name('legal.index');
-        Route::patch('legal', [LegalController::class, 'update'])->name('legal.update');
 
         //vouchers
         Route::get('vouchers/datatable', [VoucherController::class, 'datatable'])->name('vouchers.datatable');
@@ -232,5 +222,3 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 });
-
-require __DIR__ . '/extensions_web.php';

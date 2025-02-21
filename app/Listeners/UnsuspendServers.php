@@ -35,12 +35,16 @@ class UnsuspendServers implements ShouldQueue
     {
         $unsuspendedServers = [];
 
-        if ($event->user->credits > $this->min_credits_to_make_server) {
-            /** @var Server $server */
-            foreach ($event->user->servers as $server) {
-                if ($server->isSuspended()) {
-                    $unsuspendedServers[] = $server->unSuspend();
+        if ($event->user->credits >= $this->min_credits_to_make_server) {
+            $suspendedServers = $event->user->servers()->with('product')->whereNotNull('suspended')->get();
+
+            foreach ($suspendedServers as $server) {
+                if ($server->product->price > $event->user->credits) {
+                    continue;
                 }
+
+                $unsuspendedServers[] = $server->unSuspend();
+                $event->user->decrement('credits', $server->product->price);
             }
         }
 

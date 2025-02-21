@@ -11,13 +11,12 @@ use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Qirolab\Theme\Theme;
 
 class SettingsController extends Controller
 {
     const ICON_PERMISSION = "admin.icons.edit";
-
-
 
     /**
      * Display a listing of the resource.
@@ -26,8 +25,6 @@ class SettingsController extends Controller
      */
     public function index()
     {
-
-
         // get all other settings in app/Settings directory
         // group items by file name like $categories
         $settings = collect();
@@ -68,26 +65,51 @@ class SettingsController extends Controller
                     'options' => $optionInputData[$key]['options'] ?? [],
                     'identifier' => $optionInputData[$key]['identifier'] ?? 'option'
                 ];
+
+                if($optionInputData[$key]['type'] === 'number') {
+                    $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
+                }
             }
 
             // collect category icon if available
             if (isset($optionInputData['category_icon'])) {
                 $optionsData['category_icon'] = $optionInputData['category_icon'];
             }
+
+            if (isset($optionInputData['position'])) {
+                $optionsData['position'] = $optionInputData['position'];
+            }else{
+                $optionsData['position'] = 99;
+            }
+
             $optionsData['settings_class'] = $className;
 
             $settings[str_replace('Settings', '', class_basename($className))] = $optionsData;
         }
 
-        $settings->sort();
-
+        $settings = $settings->sortBy('position');
 
         $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
+
+        $images = [
+            'icon' => Storage::disk('local')->exists('public/icon.png')
+                ? asset('storage/icon.png') . '?v=' . filemtime(Storage::path('public/icon.png'))
+                : asset('images/ctrlpanel_logo.png'),
+
+            'logo' => Storage::disk('local')->exists('public/logo.png')
+                ? asset('storage/logo.png') . '?v=' . filemtime(Storage::path('public/logo.png'))
+                : asset('images/ctrlpanel_logo.png'),
+
+            'favicon' => Storage::disk('local')->exists('public/favicon.ico')
+                ? asset('storage/favicon.ico') . '?v=' . filemtime(Storage::path('public/favicon.ico'))
+                : asset('images/ctrlpanel_logo.png'),
+        ];
 
         return view('admin.settings.index', [
             'settings' => $settings->all(),
             'themes' => $themes,
             'active_theme' => Theme::active(),
+            'images' => $images
         ]);
     }
 
@@ -145,11 +167,15 @@ class SettingsController extends Controller
     {
         $this->checkPermission(self::ICON_PERMISSION);
 
-        $request->validate([
-            'icon' => 'nullable|max:10000|mimes:jpg,png,jpeg',
-            'logo' => 'nullable|max:10000|mimes:jpg,png,jpeg',
-            'favicon' => 'nullable|max:10000|mimes:ico',
+        $validator = Validator::make($request->all(), [
+            'icon' => 'nullable|max:10000|file|mimes:jpg,png,jpeg',
+            'logo' => 'nullable|max:10000|file|mimes:jpg,png,jpeg',
+            'favicon' => 'nullable|max:10000|file|mimes:ico,x-icon',
         ]);
+
+        if ($validator->fails()) {
+            return Redirect::to('admin/settings#icons')->withErrors($validator)->withInput();
+        }
 
         if ($request->hasFile('icon')) {
             $request->file('icon')->storeAs('public', 'icon.png');
@@ -161,6 +187,6 @@ class SettingsController extends Controller
             $request->file('favicon')->storeAs('public', 'favicon.ico');
         }
 
-        return Redirect::to('admin/settings')->with('success', 'Icons updated successfully.');
+        return Redirect::to('admin/settings#icons')->with('success', 'Icons updated successfully.');
     }
 }

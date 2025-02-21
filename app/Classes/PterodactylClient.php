@@ -13,6 +13,8 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use App\Settings\PterodactylSettings;
 use App\Settings\ServerSettings;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PterodactylClient
 {
@@ -61,24 +63,33 @@ class PterodactylClient
     }
 
     /**
-     * @return Exception
+     * @return HttpException
      */
-    private function getException(string $message = '', int $status = 0): Exception
+    private function getException(string $message = '', int $status = null): HttpException
     {
+        Log::Error('PterodactylClient: ' . $message);
         if ($status == 404) {
-            return new Exception('Ressource does not exist on pterodactyl - ' . $message, 404);
+            return new HttpException(404,'Resource does not exist on pterodactyl - ' . $message . ' Was a Server deleted from Pterodactyl but not from the Panel? Have an Admin Remove it from the Panel');
         }
 
         if ($status == 403) {
-            return new Exception('No permission on pterodactyl, check pterodactyl token and permissions - ' . $message, 403);
+            return new HttpException(403, 'No permission on pterodactyl, check pterodactyl token and permissions - ' . $message);
         }
 
         if ($status == 401) {
-            return new Exception('No pterodactyl token set - ' . $message, 401);
+            return new HttpException(401,'No pterodactyl token set - ' . $message);
         }
 
         if ($status == 500) {
-            return new Exception('Pterodactyl server error - ' . $message, 500);
+            return new HttpException(500,'Pterodactyl server error - ' . $message);
+        }
+
+        if ($status == 0) {
+            return new HttpException(500, 'Unable to connect to Pterodactyl node - Please check if the node is online and accessible' . $message);
+        }
+
+        if ($status >= 500 && $status < 600) {
+            return new HttpException($status,'Pterodactyl node error (HTTP ' . $status . ') - ' . $message);
         }
 
         return new Exception('Request Failed, is pterodactyl set-up correctly? - ' . $message);
@@ -256,33 +267,43 @@ class PterodactylClient
      * @param  int  $allocationId
      * @return Response
      */
-    public function createServer(Server $server, Egg $egg, int $allocationId)
+    public function createServer(Server $server, Egg $egg, int $allocationId, mixed $eggVariables = null)
     {
-        return $this->application->post('application/servers', [
-            'name' => $server->name,
-            'external_id' => $server->id,
-            'user' => $server->user->pterodactyl_id,
-            'egg' => $egg->id,
-            'docker_image' => $egg->docker_image,
-            'startup' => $egg->startup,
-            'environment' => $egg->getEnvironmentVariables(),
-            'oom_disabled' => !$server->product->oom_killer,
-            'limits' => [
-                'memory' => $server->product->memory,
-                'swap' => $server->product->swap,
-                'disk' => $server->product->disk,
-                'io' => $server->product->io,
-                'cpu' => $server->product->cpu,
-            ],
-            'feature_limits' => [
-                'databases' => $server->product->databases,
-                'backups' => $server->product->backups,
-                'allocations' => $server->product->allocations,
-            ],
-            'allocation' => [
-                'default' => $allocationId,
-            ],
-        ]);
+       try {
+            $response = $this->application->post('application/servers', [
+                'name' => $server->name,
+                'external_id' => $server->id,
+                'user' => $server->user->pterodactyl_id,
+                'egg' => $egg->id,
+                'docker_image' => $egg->docker_image,
+                'startup' => $egg->startup,
+                'environment' => $this->getEnvironmentVariables($egg, $eggVariables),
+                'oom_disabled' => !$server->product->oom_killer,
+                'limits' => [
+                    'memory' => $server->product->memory,
+                    'swap' => $server->product->swap,
+                    'disk' => $server->product->disk,
+                    'io' => $server->product->io,
+                    'cpu' => $server->product->cpu,
+                ],
+                'feature_limits' => [
+                    'databases' => $server->product->databases,
+                    'backups' => $server->product->backups,
+                    'allocations' => $server->product->allocations,
+                ],
+                'allocation' => [
+                    'default' => $allocationId,
+                ],
+            ]);
+
+            if ($response->failed()) {
+                throw self::getException('Failed to create server on pterodactyl', $response->status());
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            throw $e;
+        }
     }
 
     public function suspendServer(Server $server)
@@ -451,5 +472,21 @@ class PterodactylClient
         }
 
         return true;
+    }
+
+    private function getEnvironmentVariables(Egg $egg, $variables)
+    {
+        $environment = [];
+        $variables = json_decode($variables, true);
+
+        foreach ($egg->environment as $envVariable) {
+            $matchedVariable = collect($variables)->firstWhere('env_variable', $envVariable['env_variable']);
+
+            $environment[$envVariable['env_variable']] = $matchedVariable
+                ? $matchedVariable['filled_value']
+                : $envVariable['default_value'];
+        }
+
+        return $environment;
     }
 }

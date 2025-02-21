@@ -19,9 +19,11 @@
  * </p>
  * @return false|string|null Returns the result from the command.
  */
-function run_console(string $command, array $descriptors = null, string $cwd = null, array $options = null)
+function run_console(string $command, array $descriptors = null, string $cwd = null, array $options = null, bool $logging=true)
 {
-    wh_log('running command: ' . $command, 'debug');
+    if ($logging) {
+        wh_log('running command: ' . $command, 'debug');
+    }
 
     $path = dirname(__DIR__, 4);
     $descriptors = $descriptors ?? [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];

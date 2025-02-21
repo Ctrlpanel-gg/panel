@@ -13,6 +13,7 @@ use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
 use App\Settings\TicketSettings;
 use App\Settings\CouponSettings;
+use App\Settings\TermsSettings;
 
 return [
 
@@ -33,6 +34,7 @@ return [
         WebsiteSettings::class,
         TicketSettings::class,
         CouponSettings::class,
+        TermsSettings::class,
     ],
 
     /*
@@ -102,12 +104,12 @@ return [
      * register them.
      */
     'auto_discover_settings' => [
-        app()->path(),
+        app_path('Settings'),
     ],
 
     /*
      * Automatically discovered settings classes can be cached so they don't
      * need to be searched each time the application boots up.
      */
-    'discovered_settings_cache_path' => storage_path('app/laravel-settings'),
+    'discovered_settings_cache_path' => base_path('bootstrap/cache'),
 ];

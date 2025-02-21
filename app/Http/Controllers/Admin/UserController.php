@@ -339,20 +339,37 @@ class UserController extends Controller
         }
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
+
         if(!$roles){
             $users = $all ? User::where('suspended', false)->get() : User::whereIn('id', $data['users'])->get();
         } else{
-            $users = User::role($data["roles"])->get();
+            // Initialize an empty collection to hold users from all roles
+            $users = collect();
+
+            // Loop through each role ID and fetch users
+            foreach ($data["roles"] as $roleId) {
+                $roleUsers = User::whereHas('roles', function ($query) use ($roleId) {
+                    $query->where('id', $roleId);
+                })->get();
+
+                // Merge users from this role into the main collection
+                $users = $users->merge($roleUsers);
+            }
+
+            // Remove duplicate users (if any)
+            $users = $users->unique('id');
         }
+
+
 
 
         try {
             Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
         } catch (Exception $e) {
-            return redirect()->route('admin.users.notifications')->with('error', __('The attempt to send the email failed with the error: ' . $e->getMessage()));
+            return redirect()->route('admin.users.notifications.index')->with('error', __('The attempt to send the email failed with the error: ' . $e->getMessage()));
         }
 
-        return redirect()->route('admin.users.notifications')->with('success', __('Notification sent!'));
+        return redirect()->route('admin.users.notifications.index')->with('success', __('Notification sent!'));
     }
 
     /**
@@ -381,7 +398,7 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $query = User::query()
+        $query = User::with('discordUser')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
@@ -398,12 +415,9 @@ class UserController extends Controller
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
             })
-            /*  This broke the ability to search the table. Have to revisit later
-
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
             })
-            */
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
                 $suspendIcon = $user->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';

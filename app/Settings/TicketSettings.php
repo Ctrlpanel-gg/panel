@@ -6,8 +6,8 @@ use Spatie\LaravelSettings\Settings;
 
 class TicketSettings extends Settings
 {
-    public bool $enabled;
-    public ?string $information;
+    public bool $enabled = false;
+    public ?string $information = null;
 
     public static function group(): string
     {
@@ -35,6 +35,7 @@ class TicketSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-ticket-alt',
+            'position' => 6,
             'enabled' => [
                 'label' => 'Enabled',
                 'type' => 'boolean',

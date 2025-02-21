@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Http;
+use Exception;
 
 class DiscordUser extends Model
 {
@@ -52,31 +53,43 @@ class DiscordUser extends Model
      * @param string $role_id The Role ID to add or remove
      * @return mixed
      */
-    public function addOrRemoveRole(string $action, string $role_id): mixed
+    public function addOrRemoveRole(string $action, string $role_id)
     {
         $discordSettings = app(DiscordSettings::class);
-        return match ($action) {
-            'add' => Http::withHeaders(
-                [
-                    'Authorization' => 'Bot ' . $discordSettings->bot_token,
-                    'Content-Type' => 'application/json',
-                    'X-Audit-Log-Reason' => 'Role added by panel'
-                ]
-            )->put(
-                "https://discord.com/api/guilds/{$discordSettings->guild_id}/members/{$this->id}/roles/{$discordSettings->role_id}",
-                ['access_token' => $discordSettings->bot_token]
-            ),
-            'remove' => Http::withHeaders(
-                [
-                    'Authorization' => 'Bot ' . $discordSettings->bot_token,
-                    'Content-Type' => 'application/json',
-                    'X-Audit-Log-Reason' => 'Role removed by panel'
-                ]
-            )->remove(
-                "https://discord.com/api/guilds/{$discordSettings->guild_id}/members/{$this->id}/roles/{$discordSettings->role_id}",
-                ['access_token' => $discordSettings->bot_token]
-            ),
-            default => null,
-        };
+
+        $url = "https://discord.com/api/guilds/{$discordSettings->guild_id}/members/{$this->id}/roles/{$role_id}";
+
+        try {
+            $response = match ($action) {
+                'add' => Http::withHeaders(
+                    [
+                        'Authorization' => 'Bot ' . $discordSettings->bot_token,
+                        'Content-Type' => 'application/json',
+                        'X-Audit-Log-Reason' => 'Role added by panel'
+                    ]
+                )->put($url),
+                'remove' => Http::withHeaders(
+                    [
+                        'Authorization' => 'Bot ' . $discordSettings->bot_token,
+                        'Content-Type' => 'application/json',
+                        'X-Audit-Log-Reason' => 'Role removed by panel'
+                    ]
+                )->delete($url),
+                default => null
+            };
+
+            if ($response->failed()) {
+                throw new Exception(
+                    "Discord API error: {$response->status()} - " .
+                    ($response->json('message') ?? 'Unknown error')
+                );
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            logger()->error($e->getMessage());
+
+            return false;
+        }
     }
 }

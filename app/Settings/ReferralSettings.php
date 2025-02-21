@@ -6,11 +6,11 @@ use Spatie\LaravelSettings\Settings;
 
 class ReferralSettings extends Settings
 {
-    public bool $always_give_commission;
-    public bool $enabled;
-    public ?float $reward;
-    public string $mode;
-    public ?int $percentage;
+    public bool $always_give_commission = false;
+    public bool $enabled = false;
+    public ?float $reward = null;
+    public string $mode = 'commission';
+    public ?int $percentage = null;
 
     public static function group(): string
     {
@@ -41,6 +41,7 @@ class ReferralSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-user-friends',
+            'position' => 8,
             'always_give_commission' => [
                 'label' => 'Always Give Commission',
                 'type' => 'boolean',
@@ -54,6 +55,7 @@ class ReferralSettings extends Settings
             'reward' => [
                 'label' => 'Reward',
                 'type' => 'number',
+                'step' => '0.01',
                 'description' => 'Reward in credits for the referrer.',
             ],
             'mode' => [

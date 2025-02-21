@@ -7,8 +7,9 @@ use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ReferralNotification extends Notification
+class ReferralNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

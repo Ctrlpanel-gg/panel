@@ -6,18 +6,18 @@ use Spatie\LaravelSettings\Settings;
 
 class UserSettings extends Settings
 {
-    public bool $register_ip_check;
-    public bool $creation_enabled;
-    public float $credits_reward_after_verify_discord;
-    public float $credits_reward_after_verify_email;
-    public bool $force_discord_verification;
-    public bool $force_email_verification;
-    public float $initial_credits;
-    public int $initial_server_limit;
-    public float $min_credits_to_make_server;
-    public int $server_limit_after_irl_purchase;
-    public int $server_limit_after_verify_discord;
-    public int $server_limit_after_verify_email;
+    public bool $register_ip_check = false;
+    public bool $creation_enabled = true;
+    public float $credits_reward_after_verify_discord = 0.0;
+    public float $credits_reward_after_verify_email = 0.0;
+    public bool $force_discord_verification = false;
+    public bool $force_email_verification = false;
+    public float $initial_credits = 250.0;
+    public int $initial_server_limit = 1;
+    public float $min_credits_to_make_server = 0.0;
+    public int $server_limit_increment_after_irl_purchase = 0;
+    public int $server_limit_increment_after_verify_discord = 0;
+    public int $server_limit_increment_after_verify_email = 0;
 
     public static function group(): string
     {
@@ -38,9 +38,9 @@ class UserSettings extends Settings
             'initial_credits' => 'required|numeric',
             'initial_server_limit' => 'required|numeric',
             'min_credits_to_make_server' => 'required|numeric',
-            'server_limit_after_irl_purchase' => 'required|numeric',
-            'server_limit_after_verify_discord' => 'required|numeric',
-            'server_limit_after_verify_email' => 'required|numeric',
+            'server_limit_increment_after_irl_purchase' => 'required|numeric',
+            'server_limit_increment_after_verify_discord' => 'required|numeric',
+            'server_limit_increment_after_verify_email' => 'required|numeric',
             'register_ip_check' => 'nullable|string',
             'creation_enabled' => 'nullable|string',
         ];
@@ -55,6 +55,7 @@ class UserSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-user',
+            'position' => 7,
             'credits_reward_after_verify_discord' => [
                 'label' => 'Credits Reward After Verify Discord',
                 'type' => 'number',
@@ -90,20 +91,20 @@ class UserSettings extends Settings
                 'type' => 'number',
                 'description' => 'The minimum amount of credits a user needs to create a server.',
             ],
-            'server_limit_after_irl_purchase' => [
-                'label' => 'Server Limit After first purchase',
+            'server_limit_increment_after_irl_purchase' => [
+                'label' => 'Server Limit Increase After first purchase',
                 'type' => 'number',
-                'description' => 'The amount of servers a user can create after they make their first purchase.',
+                'description' => 'Specifies how many additional servers a user can create after making their first purchase.',
             ],
-            'server_limit_after_verify_discord' => [
-                'label' => 'Server Limit After Verify Discord',
+            'server_limit_increment_after_verify_discord' => [
+                'label' => 'Server Limit Increase After Verify Discord',
                 'type' => 'number',
-                'description' => 'The amount of servers a user can create after they verify their discord account.',
+                'description' => 'Specifies how many additional servers a user can create after verifying their Discord account.',
             ],
-            'server_limit_after_verify_email' => [
-                'label' => 'Server Limit After Verify Email',
+            'server_limit_increment_after_verify_email' => [
+                'label' => 'Server Limit Increase After Verify Email',
                 'type' => 'number',
-                'description' => 'The amount of servers a user can create after they verify their email.',
+                'description' => 'Specifies how many additional servers a user can create after verifying their email address.',
             ],
             'register_ip_check' => [
                 'label' => 'Register IP Check Enabled',

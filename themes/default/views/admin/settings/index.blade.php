@@ -42,8 +42,8 @@
                 </div>
                 <div class="card-body">
                     <!-- Sidebar Menu -->
-                    <div class="d-flex w-100">
-                        <div class="p-0 col-2">
+                    <div class="row d-flex">
+                        <div class="p-0 col-md-2 col-12">
                             <nav class="mt-1">
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
@@ -66,7 +66,7 @@
                                                         class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="pill"
                                                         role="tab">
                                                         <i
-                                                            class="nav-icon fas {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
+                                                            class="nav-icon {{ $options['category_icon'] ?? 'fas fa-cog' }}"></i>
                                                         <p>
                                                             {{ $category }}
                                                         </p>
@@ -78,7 +78,7 @@
                                 </ul>
 
 
-                                <button class="btn btn-outline-secondary" type="button" data-toggle="collapse"
+                                <button class="btn btn-outline-secondary mb-2 mb-md-0" type="button" data-toggle="collapse"
                                     data-target="#collapseExtensions" aria-expanded="false"
                                     aria-controls="collapseExtensions">
                                     {{ __('Extension Settings') }}
@@ -106,58 +106,80 @@
                                             @endif
                                         @endforeach
                                 </div>
-                                </ul>
                             </nav>
                         </div>
                         <!-- /.sidebar-menu -->
                         <!-- Content in $settings -->
-                        <div class="p-0 col-10">
-                            <div class="ml-3 tab-content" style="width: 100%;">
-                                <div container class="container tab-pane fade" id="icons" role="tabpanel">
+                        <div class="p-0 col-md-10 col-12">
+                            <div class="tab-content">
+                                <div class="container tab-pane fade" id="icons" role="tabpanel">
 
                                     <form method="POST" enctype="multipart/form-data" class="mb-3"
                                         action="{{ route('admin.settings.updateIcons') }}">
                                         @csrf
                                         @method('POST')
                                         <div class="row">
-                                            <div class="ml-5 card" style="width: 18rem;">
-                                                <span class="text-center h3">{{ __('FavIcon') }} </span>
-                                              <img src="{{ Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('images/ctrlpanel_logo.png') }}"
-                                                   style="width:5vw;display: block; margin-left: auto;margin-right: auto"
-                                                   class="card-img-top" alt="...">
-                                                <div class="card-body">
+                                            <div class="ml-0 ml-md-5">
+                                              @error('favicon')
+                                                <p class="text-danger">
+                                                    {{ $message }}
+                                                </p>
+                                              @enderror
+                                              <div class="card" style="width: 18rem;">
+                                                  <span class="text-center h3">{{ __('FavIcon') }} </span>
+                                                <img src="{{ $images['favicon'] }}"
+                                                     style="width:5vw;display: block; margin-left: auto;margin-right: auto"
+                                                     class="card-img-top" alt="...">
+                                                  <div class="card-body">
 
-                                                </div>
-                                                <input type="file" accept="image/x-icon" class="form-control"
-                                                    name="favicon" id="favicon">
+                                                  </div>
+                                                  <input type="file" accept="image/x-icon" class="form-control"
+                                                      name="favicon" id="favicon">
+                                              </div>
                                             </div>
 
-                                            <div class="ml-5 card" style="width: 18rem;">
-                                                <span class="text-center h3">{{ __('Icon') }} </span>
-                                                <img src="{{ Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/ctrlpanel_logo.png') }}"
-                                                    style="width:5vw;display: block; margin-left: auto;margin-right: auto"
-                                                    class="card-img-top" alt="...">
-                                                <div class="card-body">
+                                            <div class="ml-0 ml-md-5">
+                                              @error('icon')
+                                                <p class="text-danger">
+                                                    {{ $message }}
+                                                </p>
+                                              @enderror
+                                              <div class="card" style="width: 18rem;">
+                                                  <span class="text-center h3">{{ __('Icon') }} </span>
+                                                  <img src="{{ $images['icon'] }}"
+                                                      style="width:5vw;display: block; margin-left: auto;margin-right: auto"
+                                                      class="card-img-top" alt="...">
+                                                  <div class="card-body">
 
-                                                </div>
-                                                <input type="file" accept="image/png,image/jpeg,image/jpg"
-                                                    class="form-control" name="icon" id="icon">
+                                                  </div>
+                                                  <input type="file" accept="image/png,image/jpeg,image/jpg"
+                                                      class="form-control" name="icon" id="icon">
+                                              </div>
                                             </div>
 
-                                            <div class="ml-5 card" style="width: 18rem;">
-                                                <span class="text-center h3">{{ __('Login-page Logo') }} </span>
-                                                <img src="{{ Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}"
-                                                    style="width:5vw;display: block; margin-left: auto;margin-right: auto"
-                                                    class="card-img-top" alt="...">
-                                                <div class="card-body">
+                                            <div class="ml-0 ml-md-5">
+                                              @error('logo')
+                                                <p class="text-danger">
+                                                    {{ $message }}
+                                                </p>
+                                              @enderror
+                                              <div class="card" style="width: 18rem;">
+                                                  <span class="text-center h3">{{ __('Login-page Logo') }} </span>
+                                                  <img src="{{ $images['logo'] }}"
+                                                      style="width:5vw;display: block; margin-left: auto;margin-right: auto"
+                                                      class="card-img-top" alt="...">
+                                                  <div class="card-body">
 
-                                                </div>
-                                                <input type="file" accept="image/png,image/jpeg,image/jpg"
-                                                    class="form-control" name="logo" id="logo">
+                                                  </div>
+                                                  <input type="file" accept="image/png,image/jpeg,image/jpg"
+                                                      class="form-control" name="logo" id="logo">
+                                              </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <button class="mt-3 ml-3 btn btn-primary">{{ __('Save') }}</button>
+                                            <div class="col-12 d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+                                            </div>
                                         </div>
 
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -175,27 +197,28 @@
                                                 <input type="hidden" name="settings_class"
                                                     value="{{ $options['settings_class'] }}">
                                                 <input type="hidden" name="category" value="{{ $category }}">
-
                                                 @foreach ($options as $key => $value)
-                                                    @if ($key == 'category_icon' || $key == 'settings_class')
+                                                    @if ($key == 'category_icon' || $key == 'settings_class' || $key == 'position')
                                                         @continue
                                                     @endif
-                                                    <div class="row">
-                                                        <div class="col-4 d-flex align-items-center">
-                                                            <label for="{{ $key }}">{{ $value['label'] }}</label>
+                                                    <div class="row mb-3">
+                                                        <div class="col-md-4 col-12 d-flex align-items-center">
+                                                          <label class="w-100 d-inline-flex justify-content-between align-items-center" for="{{ $key }}">
+                                                            {{ $value['label'] }}
+                                                            @if ($value['description'])
+                                                              <i class="fas fa-info-circle" data-toggle="popover"
+                                                                 data-trigger="hover" data-placement="top"
+                                                                 data-html="true"
+                                                                 data-content="{{ $value['description'] }}"></i>
+                                                            @else
+                                                              <i class="invisible fas fa-info-circle"></i>
+                                                            @endif
+                                                          </label>
+
                                                         </div>
 
-                                                        <div class="col-8">
-                                                            <div class="mb-3 custom-control d-flex align-items-center">
-                                                                @if ($value['description'])
-                                                                    <i class="mr-4 fas fa-info-circle" data-toggle="popover"
-                                                                        data-trigger="hover" data-placement="top"
-                                                                        data-html="true"
-                                                                        data-content="{{ $value['description'] }}"></i>
-                                                                @else
-                                                                    <i class="invisible mr-4 fas fa-info-circle"></i>
-                                                                @endif
-
+                                                        <div class="col-md-8 col-12">
+                                                            <div class="d-flex align-items-center">
                                                                 <div class="w-100">
                                                                     @switch($value)
                                                                         @case($value['type'] == 'string')
@@ -217,7 +240,7 @@
                                                                         @break
 
                                                                         @case($value['type'] == 'number')
-                                                                            <input type="number" class="form-control"
+                                                                            <input type="number" step="{{ $value['step'] ?? '1' }}" class="form-control"
                                                                                 name="{{ $key }}"
                                                                                 value="{{ $value['value'] }}">
                                                                         @break
@@ -324,7 +347,6 @@
                 </div>
             </div>
         </div>
-        </div>
 
 
         <!-- END CUSTOM CONTENT -->
@@ -340,13 +362,13 @@
 
         $('.nav-pills a').click(function(e) {
             $(this).tab('show');
-            const scrollmem = $('body').scrollTop();
             window.location.hash = this.hash;
-            $('html,body').scrollTop(scrollmem);
         });
 
         document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
+            $('.custom-select').select2({
+                width: '100%',
+            });
         })
 
         tinymce.init({
