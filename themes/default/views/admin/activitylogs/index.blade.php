@@ -63,74 +63,92 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>{{ __('Causer') }}</th>
+                                    <th class="w-48">{{ __('Causer') }}</th>
                                     <th>{{ __('Description') }}</th>
-                                    <th>{{ __('Created at') }}</th>
+                                    <th class="w-40">{{ __('Created at') }}</th>
                                     <th class="w-20">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($logs as $log)
-                                <tr class="group hover:bg-zinc-800/30">
-                                    <td>
+                                <tr class="group hover:bg-zinc-800/30 transition-colors cursor-pointer" onclick="toggleDetails('details-{{$log->id}}')">
+                                    <td class="select-none">
                                         @if($log->causer)
-                                            <a href='/admin/users/{{$log->causer_id}}' class="text-primary-400 hover:text-primary-300">
+                                            <a href='/admin/users/{{$log->causer_id}}' class="text-primary-400 hover:text-primary-300" onclick="event.stopPropagation()">
                                                 {{json_decode($log->causer)->name}}
                                             </a>
                                         @else
                                             <span class="text-zinc-500">System</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <div class="flex flex-col gap-1">
-                                            <span class="inline-flex items-center">
-                                                @if (str_starts_with($log->description, 'created'))
-                                                    <i class="fas text-emerald-500 fa-plus mr-2"></i>
-                                                @elseif(str_starts_with($log->description, 'redeemed'))
-                                                    <i class="fas text-emerald-500 fa-money-check-alt mr-2"></i>
-                                                @elseif(str_starts_with($log->description, 'deleted'))
-                                                    <i class="fas text-red-500 fa-times mr-2"></i>
-                                                @elseif(str_starts_with($log->description, 'gained'))
-                                                    <i class="fas text-emerald-500 fa-money-bill mr-2"></i>
-                                                @elseif(str_starts_with($log->description, 'updated'))
-                                                    <i class="fas text-blue-500 fa-pen mr-2"></i>
-                                                @endif
-                                                {{ explode('\\', $log->subject_type)[2] }}
-                                                {{ ucfirst($log->description) }}
-                                            </span>
+                                    <td class="relative select-none">
+                                        <div class="flex flex-col gap-2">
+                                            <div class="flex items-center gap-3">
+                                                <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg 
+                                                    @if (str_starts_with($log->description, 'created')) bg-emerald-500/10
+                                                    @elseif(str_starts_with($log->description, 'redeemed')) bg-emerald-500/10
+                                                    @elseif(str_starts_with($log->description, 'deleted')) bg-red-500/10
+                                                    @elseif(str_starts_with($log->description, 'gained')) bg-emerald-500/10
+                                                    @elseif(str_starts_with($log->description, 'updated')) bg-blue-500/10
+                                                    @endif">
+                                                    @if (str_starts_with($log->description, 'created'))
+                                                        <i class="fas fa-plus text-emerald-500"></i>
+                                                    @elseif(str_starts_with($log->description, 'redeemed'))
+                                                        <i class="fas fa-money-check-alt text-emerald-500"></i>
+                                                    @elseif(str_starts_with($log->description, 'deleted'))
+                                                        <i class="fas fa-times text-red-500"></i>
+                                                    @elseif(str_starts_with($log->description, 'gained'))
+                                                        <i class="fas fa-money-bill text-emerald-500"></i>
+                                                    @elseif(str_starts_with($log->description, 'updated'))
+                                                        <i class="fas fa-pen text-blue-500"></i>
+                                                    @endif
+                                                </span>
+                                                <div class="flex-1">
+                                                    <div class="text-zinc-100 font-medium">
+                                                        {{ explode('\\', $log->subject_type)[2] }}
+                                                    </div>
+                                                    <div class="text-sm text-zinc-500">
+                                                        {{ ucfirst($log->description) }}
+                                                    </div>
+                                                </div>
+                                            </div>
                                             @php
                                                 $props = json_decode($log->properties, true);
                                             @endphp
-                                            <div class="text-sm text-zinc-400 hidden group-hover:block transition-all">
-                                                @if ($log->description === 'created' && isset($props['attributes']))
-                                                    @foreach($props['attributes'] as $key => $value)
-                                                        @if(!is_null($value) && !is_array($value))
-                                                            <div class="ml-6">
-                                                                <span class="text-zinc-500">{{ $key }}:</span> 
-                                                                <span class="text-zinc-300">{{ $value }}</span>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                @elseif($log->description === 'updated' && isset($props['attributes'], $props['old']))
-                                                    @foreach($props['attributes'] as $key => $value)
-                                                        @if(array_key_exists($key, $props['old']) && !is_null($value) && !is_array($value))
-                                                            <div class="ml-6">
-                                                                <span class="text-zinc-500">{{ $key }}:</span> 
-                                                                <span class="text-red-400">{{ $props['old'][$key] }}</span>
-                                                                <i class="fas fa-arrow-right text-zinc-600 mx-1"></i>
-                                                                <span class="text-emerald-400">{{ $value }}</span>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                @endif
+                                            <div id="details-{{$log->id}}" class="hidden pl-11 space-y-2" onclick="event.stopPropagation()">
+                                                <div class="border-l-2 border-zinc-800 pl-3 py-1">
+                                                    @if ($log->description === 'created' && isset($props['attributes']))
+                                                        @foreach($props['attributes'] as $key => $value)
+                                                            @if(!is_null($value) && !is_array($value))
+                                                                <div class="flex items-center gap-2 text-sm">
+                                                                    <span class="text-zinc-500 min-w-[120px]">{{ $key }}</span>
+                                                                    <span class="text-zinc-300">{{ $value }}</span>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    @elseif($log->description === 'updated' && isset($props['attributes'], $props['old']))
+                                                        @foreach($props['attributes'] as $key => $value)
+                                                            @if(array_key_exists($key, $props['old']) && !is_null($value) && !is_array($value))
+                                                                <div class="flex items-center gap-2 text-sm">
+                                                                    <span class="text-zinc-500 min-w-[120px]">{{ $key }}</span>
+                                                                    <div class="flex items-center gap-2">
+                                                                        <span class="text-red-400">{{ $props['old'][$key] }}</span>
+                                                                        <i class="fas fa-arrow-right text-zinc-600 text-xs"></i>
+                                                                        <span class="text-emerald-400">{{ $value }}</span>
+                                                                    </div>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{$log->created_at->diffForHumans()}}</td>
+                                    <td class="select-none">{{$log->created_at->diffForHumans()}}</td>
                                     <td>
                                         <button type="button" 
                                                 class="btn btn-sm btn-primary"
-                                                onclick="showLogDetails({{ json_encode($log) }})">
+                                                onclick="event.stopPropagation(); showLogDetails({{ json_encode($log) }})">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
@@ -186,10 +204,10 @@ function showLogDetails(log) {
         width: '850px',
         position: 'center',
         showClass: {
-            popup: 'animate__animated animate__fadeIn animate__faster'
+            popup: 'animate-in fade-in duration-200 ease-out'
         },
         hideClass: {
-            popup: 'animate__animated animate__fadeOut animate__faster'
+            popup: 'animate-out fade-out duration-200 ease-in'
         },
         customClass: {
             container: 'swal2-custom-container',
@@ -257,6 +275,27 @@ function formatValue(value) {
     }
     return value;
 }
+
+// Add this function for toggling details
+function toggleDetails(detailsId) {
+    const details = document.getElementById(detailsId);
+    const button = event.currentTarget;
+    const icon = button.querySelector('i');
+    
+    if (details.classList.contains('hidden')) {
+        details.classList.remove('hidden');
+        details.classList.add('animate-in', 'fade-in', 'duration-200');
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    } else {
+        details.classList.add('hidden');
+        details.classList.remove('animate-in', 'fade-in');
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    }
+}
+
+// ...rest of existing script...
 </script>
 
 <style>
@@ -322,6 +361,54 @@ function formatValue(value) {
 /* Add small button variant */
 .btn-sm {
     @apply px-2 py-1 text-xs;
+}
+
+/* Replace animate__faster styles with Tailwind animations */
+.fade-in {
+    @apply transition-opacity ease-out duration-200;
+}
+
+.fade-out {
+    @apply transition-opacity ease-in duration-200;
+}
+
+.animate-in {
+    animation: enter 200ms ease-out;
+}
+
+.animate-out {
+    animation: exit 200ms ease-in;
+}
+
+@keyframes enter {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes exit {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+/* Remove animate.css link since we're using Tailwind animations */
+.btn-ghost {
+    @apply hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-300;
+}
+
+.btn-xs {
+    @apply px-1.5 py-1 text-xs;
 }
 </style>
 

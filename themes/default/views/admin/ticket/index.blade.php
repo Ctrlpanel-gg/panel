@@ -1,94 +1,97 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="mb-2 row">
-                <div class="col-sm-6">
-                    <h1>{{__('Ticket')}}</h1>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <div class="max-w-screen-2xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-light text-white">{{ __('Ticket Management') }}</h1>
+                    <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 text-zinc-400">
+                            <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
+                            <li class="text-zinc-600">/</li>
+                            <li class="text-zinc-500">{{ __('Ticket List') }}</li>
+                        </ol>
+                    </nav>
                 </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.ticket.index')}}">{{__('Ticket List')}}</a></li>
-                    </ol>
-                </div>
+                <a href="{{route('admin.ticket.category.index')}}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>{{ __('Add Category') }}
+                </a>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+    </div>
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-
-            <div class="card">
-
-                <div class="card-header">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="mr-2 fas fa-ticket-alt"></i>{{__('Ticket List')}}</h5>
-                    </div>
-                    <a href="{{route("admin.ticket.category.index")}}"><button class="float-right btn btn-primary">+ {{__("Add Category")}}</button></a>
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto">
+        <div class="glass-panel">
+            <div class="p-6 border-b border-zinc-800/50">
+                <div class="flex justify-between items-center">
+                    <h5 class="text-lg font-medium text-white flex items-center">
+                        <i class="fas fa-ticket-alt mr-2 text-zinc-400"></i>
+                        {{__('Ticket List')}}
+                    </h5>
                 </div>
-
-
-
-                <div class="card-body table-responsive">
-
-                    <table id="datatable" class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>{{__('Category')}}</th>
-                            <th>{{__('Title')}}</th>
-                            <th>{{__('User')}}</th>
-                            <th>{{__('Priority')}}</th>
-                            <th>{{__('Status')}}</th>
-                            <th>{{__('Last Updated')}}</th>
-                            <th>{{__('Actions')}}</th>
+            </div>
+            <div class="p-6">
+                <table id="datatable" class="w-full">
+                    <thead>
+                        <tr class="text-left text-zinc-400">
+                            <th class="px-2 py-3">{{__('Category')}}</th>
+                            <th class="px-2 py-3">{{__('Title')}}</th>
+                            <th class="px-2 py-3">{{__('User')}}</th>
+                            <th class="px-2 py-3">{{__('Priority')}}</th>
+                            <th class="px-2 py-3">{{__('Status')}}</th>
+                            <th class="px-2 py-3">{{__('Last Updated')}}</th>
+                            <th class="px-2 py-3">{{__('Actions')}}</th>
                         </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-
-                </div>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
-
-
-
         </div>
-        <!-- END CUSTOM CONTENT -->
+    </div>
+</div>
 
-    </section>
-    <!-- END CONTENT -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            $('#datatable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
-                },
-                processing: true,
-                serverSide: true,
-                stateSave: true,
-                ajax: "{{route('admin.ticket.datatable')}}",
-                order: [[ 4, "desc" ]],
-                columns: [
-                    {data: 'category'},
-                    {data: 'title'},
-                    {data: 'user_id'},
-                    {data: 'priority'},
-                    {data: 'status'},
-                    {data: 'updated_at', type: 'num', render: {_: 'display', sort: 'raw'}},
-                    {data: 'actions', sortable: false},
-                ],
-                fnDrawCallback: function( oSettings ) {
-                    $('[data-toggle="popover"]').popover();
-                }
-            });
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        $('#datatable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
+            },
+            processing: true,
+            serverSide: true,
+            stateSave: true,
+            ajax: "{{route('admin.ticket.datatable')}}",
+            order: [[ 5, "desc" ]],
+            columns: [
+                {data: 'category'},
+                {data: 'title'},
+                {data: 'user_id'},
+                {data: 'priority', render: function(data, type, row) {
+                    if (type === 'display') {
+                        switch(data) {
+                            case 'High':
+                                return '<span class="px-2 py-1 text-xs rounded-full bg-red-500/10 text-red-500">' + data + '</span>';
+                            case 'Medium':
+                                return '<span class="px-2 py-1 text-xs rounded-full bg-amber-500/10 text-amber-500">' + data + '</span>';
+                            case 'Low':
+                                return '<span class="px-2 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-500">' + data + '</span>';
+                            default:
+                                return data;
+                        }
+                    }
+                    return data;
+                }},
+                {data: 'status'},
+                {data: 'updated_at', type: 'num', render: {_: 'display', sort: 'raw'}},
+                {data: 'actions', sortable: false},
+            ],
+            fnDrawCallback: function( oSettings ) {
+                $('[data-toggle="popover"]').popover();
+            }
         });
-    </script>
-
-
+    });
+</script>
 @endsection
