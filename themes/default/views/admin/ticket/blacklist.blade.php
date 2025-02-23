@@ -72,7 +72,7 @@
                                        data-trigger="hover"
                                        data-content="{{ __('Please note, the blacklist will make the user unable to make a ticket/reply again') }}"></i>
                                 </label>
-                                <select id="user_id" class="input" name="user_id" required></select>
+                                <select id="user_id" class="select2-users" name="user_id" required></select>
                             </div>
 
                             <div>
@@ -95,6 +95,47 @@
         </div>
     </div>
 </div>
+
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+    .select2-dropdown {
+        background-color: #18181b !important;
+        border: 1px solid #27272a !important;
+        border-radius: 0.5rem !important;
+    }
+    .select2-search__field {
+        background-color: #18181b !important;
+        border: 1px solid #27272a !important;
+        border-radius: 0.375rem !important;
+        color: white !important;
+        padding: 0.5rem !important;
+    }
+    .select2-results__option {
+        color: white !important;
+        padding: 0.5rem !important;
+    }
+    .select2-results__option--highlighted {
+        background-color: #3f3f46 !important;
+    }
+    .select2-selection {
+        background-color: #18181b !important;
+        border: 1px solid #27272a !important;
+        border-radius: 0.5rem !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    .select2-selection__rendered {
+        color: white !important;
+        line-height: 42px !important;
+        padding-left: 1rem !important;
+    }
+    .select2-selection__arrow {
+        height: 42px !important;
+    }
+</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -124,64 +165,61 @@
             }
         });
 
-        // Initialize Select2 with dark theme
-        function initUserIdSelect(data) {
-            $('#user_id').select2({
-                ajax: {
-                    url: '/admin/users.json',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            filter: { email: params.term },
-                            page: params.page,
-                        };
-                    },
-                    processResults: function (data, params) {
-                        return { results: data };
-                    },
-                    cache: true,
+        // Simplified Select2 initialization
+        $('#user_id').select2({
+            ajax: {
+                url: '/admin/users.json',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        filter: { email: params.term },
+                        page: params.page
+                    };
                 },
-                data: data,
-                escapeMarkup: function (markup) { return markup; },
-                minimumInputLength: 2,
-                templateResult: function (data) {
-                    if (data.loading) return data.text;
-                    return `
-                        <div class="flex items-center gap-3">
-                            <img src="${data.avatarUrl}?s=48" class="w-8 h-8 rounded-full" alt="${data.name}">
-                            <div>
-                                <div class="text-white">${data.name}</div>
-                                <div class="text-sm text-zinc-400">${data.email}</div>
-                            </div>
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            },
+            placeholder: '{{ __("Search for a user...") }}',
+            minimumInputLength: 2,
+            templateResult: function(user) {
+                if (!user.id || user.loading) return user.text;
+                return $(`
+                    <div class="flex items-center gap-2">
+                        <img src="${user.avatarUrl}?s=32" class="rounded-full w-8 h-8">
+                        <div>
+                            <div class="text-white">${user.name}</div>
+                            <div class="text-sm text-gray-400">${user.email}</div>
                         </div>
-                    `;
-                },
-                templateSelection: function (data) {
-                    if (!data.id) return data.text;
-                    return `
-                        <div class="flex items-center gap-2">
-                            <img src="${data.avatarUrl}?s=32" class="w-6 h-6 rounded-full" alt="${data.name}">
-                            <span class="text-white">${data.name}</span>
-                            <span class="text-zinc-400">(${data.email})</span>
-                        </div>
-                    `;
-                },
-                theme: 'default select2-dark',
-                dropdownParent: $('.glass-panel')
-            });
-        }
+                    </div>
+                `);
+            },
+            templateSelection: function(user) {
+                if (!user.id) return user.text;
+                return $(`
+                    <div class="flex items-center gap-2">
+                        <img src="${user.avatarUrl}?s=24" class="rounded-full w-6 h-6">
+                        <span class="text-white">${user.name}</span>
+                    </div>
+                `);
+            }
+        });
 
+        // Initialize with existing data if available
         @if (old('user_id'))
             $.ajax({
                 url: '/admin/users.json?user_id={{ old('user_id') }}',
                 dataType: 'json',
             }).then(function (data) {
-                initUserIdSelect([data]);
+                const option = new Option(data.name, data.id, true, true);
+                $('#user_id').append(option).trigger('change');
             });
-        @else
-            initUserIdSelect();
         @endif
     });
 </script>
+
 @endsection
