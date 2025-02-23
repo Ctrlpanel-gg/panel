@@ -20,6 +20,33 @@
     animation: var(--animate-pulse); /* pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite */
 
   }
+
+  /* Form Controls */
+  [type='text'],
+  [type='email'],
+  [type='url'],
+  [type='password'],
+  [type='number'],
+  [type='date'],
+  [type='datetime-local'],
+  [type='month'],
+  [type='search'],
+  [type='tel'],
+  [type='time'],
+  [type='week'],
+  [multiple],
+  textarea,
+  select {
+    @apply w-full rounded-lg bg-zinc-900/50 border-zinc-800/50 text-zinc-300
+           focus:border-primary-500 focus:ring-primary-500/20
+           placeholder:text-zinc-600;
+  }
+
+  [type='checkbox'],
+  [type='radio'] {
+    @apply rounded border-zinc-800/50 bg-zinc-900/50 text-primary-600
+           focus:ring-primary-500/20 focus:ring-offset-0;
+  }
 }
 
 @layer components {
@@ -375,6 +402,30 @@
 
   .pagination .page-item.disabled .page-link {
     @apply text-zinc-600 hover:text-zinc-600 hover:bg-transparent cursor-not-allowed;
+  }
+
+  /* Form Controls - Dark Theme */
+  .form-input,
+  .form-select,
+  .form-multiselect,
+  .form-textarea {
+    @apply w-full rounded-lg bg-zinc-900/50 border-zinc-800/50 text-zinc-300
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+           placeholder:text-zinc-600;
+  }
+
+  .form-checkbox {
+    @apply rounded border-zinc-800/50 bg-zinc-900/50 text-primary-600
+           focus:ring-primary-500/20 focus:ring-offset-0 focus:ring-offset-zinc-900;
+  }
+
+  .form-file-input {
+    @apply file:mr-4 file:py-2 file:px-4 
+           file:border-0 file:text-sm file:font-medium
+           file:bg-primary-800/80 file:text-primary-200
+           hover:file:bg-primary-700/80 file:rounded-lg
+           text-zinc-400 rounded-lg
+           border border-zinc-800/50 bg-zinc-900/50;
   }
 }
 
