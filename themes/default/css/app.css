@@ -354,6 +354,28 @@
   .table-container {
     @apply rounded-lg overflow-hidden;
   }
+
+  /* Pagination Styling */
+  .pagination {
+    @apply flex items-center justify-end gap-1 mt-4;
+  }
+
+  .pagination > * {
+    @apply inline-flex items-center justify-center px-3 py-1.5 text-sm
+           rounded-lg transition-colors duration-200 font-medium min-w-[2.25rem];
+  }
+
+  .pagination .page-item.active .page-link {
+    @apply bg-primary-800 text-white;
+  }
+
+  .pagination .page-link {
+    @apply text-zinc-400 hover:text-white hover:bg-zinc-800;
+  }
+
+  .pagination .page-item.disabled .page-link {
+    @apply text-zinc-600 hover:text-zinc-600 hover:bg-transparent cursor-not-allowed;
+  }
 }
 
 /* Page transitions */

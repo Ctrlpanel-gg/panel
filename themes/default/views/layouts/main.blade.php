@@ -42,6 +42,33 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- tinymce -->
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
+
+    <!-- SweetAlert2 with Dark Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+
+    <style>
+        /* SweetAlert2 Glass Theme Overrides */
+        .swal2-popup {
+            @apply bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 !important;
+        }
+        .swal2-title {
+            @apply text-white !important;
+        }
+        .swal2-html-container {
+            @apply text-zinc-300 !important;
+        }
+        .swal2-confirm {
+            @apply bg-primary-800 text-primary-200 hover:bg-primary-700 !important;
+        }
+        .swal2-deny {
+            @apply bg-red-800 text-red-200 hover:bg-red-700 !important;
+        }
+        .swal2-cancel {
+            @apply bg-zinc-800 text-zinc-200 hover:bg-zinc-700 !important;
+        }
+    </style>
+
     <style>
         #userDropdown.dropdown-toggle::after {
             display: none !important;
@@ -592,61 +619,52 @@
         });
     </script>
     <script>
+        // Toast notification configuration
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            background: 'rgb(24 24 27 / 0.9)',
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+
+        // Session notifications
         @if (Session::has('error'))
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 html: '{{ Session::get('error') }}',
-            })
+                customClass: {
+                    popup: 'glass-panel !bg-zinc-900/95',
+                }
+            });
         @endif
+
         @if (Session::has('success'))
-            Swal.fire({
+            Toast.fire({
                 icon: 'success',
-                title: '{{ Session::get('success') }}',
-                position: 'top-end',
-                showConfirmButton: false,
-                background: '#343a40',
-                toast: true,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            })
+                title: '{{ Session::get('success') }}'
+            });
         @endif
+
         @if (Session::has('info'))
-            Swal.fire({
+            Toast.fire({
                 icon: 'info',
-                title: '{{ Session::get('info') }}',
-                position: 'top-end',
-                showConfirmButton: false,
-                background: '#343a40',
-                toast: true,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            })
+                title: '{{ Session::get('info') }}'
+            });
         @endif
+
         @if (Session::has('warning'))
-        Swal.fire({
-          icon: 'warning',
-          title: '{{ Session::get('warning') }}',
-          position: 'top-end',
-          showConfirmButton: false,
-          background: '#343a40',
-          toast: true,
-          timer: 3000,
-          timerProgressBar: true,
-          didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-          }
-        })
-      @endif
+            Toast.fire({
+                icon: 'warning',
+                title: '{{ Session::get('warning') }}'
+            });
+        @endif
     </script>
 </body>
 
