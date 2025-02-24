@@ -349,6 +349,8 @@
     // Add this to handle tab switching
     document.querySelectorAll('[data-tab]').forEach(button => {
         button.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default anchor behavior
+            
             // Remove active class from all buttons
             document.querySelectorAll('[data-tab]').forEach(btn => {
                 btn.classList.remove('active');
@@ -369,8 +371,8 @@
                 tabPane.classList.add('show', 'active');
             }
             
-            // Update URL hash
-            window.location.hash = '#' + tabId;
+            // Update URL hash without scrolling
+            history.replaceState(null, null, '#' + tabId);
         });
     });
 
