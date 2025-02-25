@@ -20,13 +20,14 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
+use App\Traits\HandlesMoneyFields;
 
 /**
  * Class User
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles;
+    use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles, HandlesMoneyFields;
 
     private PterodactylClient $pterodactyl;
 
@@ -331,5 +332,15 @@ class User extends Authenticatable implements MustVerifyEmail
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->dontLogIfAttributesChangedOnly(['credits', 'server_limit']);
+    }
+
+    public function getCreditsAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+
+    public function setCreditsAttribute($value)
+    {
+        $this->attributes['credits'] = $this->convertToInteger($value, 4);
     }
 }

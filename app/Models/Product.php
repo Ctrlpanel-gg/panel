@@ -11,11 +11,14 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Node;
+use App\Traits\HandlesMoneyFields;
 
 class Product extends Model
 {
     use HasFactory;
     use LogsActivity;
+    use HandlesMoneyFields;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -26,6 +29,10 @@ class Product extends Model
     public $incrementing = false;
 
     protected $guarded = ['id'];
+
+    protected $fillable = [
+        // ...existing code...
+    ];
 
     public static function boot()
     {
@@ -41,6 +48,26 @@ class Product extends Model
             $product->nodes()->detach();
             $product->eggs()->detach();
         });
+    }
+
+    public function getPriceAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = $this->convertToInteger($value, 4);
+    }
+
+    public function getMinimumCreditsAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+
+    public function setMinimumCreditsAttribute($value)
+    {
+        $this->attributes['minimum_credits'] = $this->convertToInteger($value, 4);
     }
 
     public function getHourlyPrice()

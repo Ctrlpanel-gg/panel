@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Settings\GeneralSettings;
+use App\Traits\HandlesMoneyFields;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
@@ -12,7 +13,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ShopProduct extends Model
 {
-    use LogsActivity, CausesActivity;
+    use LogsActivity, CausesActivity, HandlesMoneyFields;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -20,6 +22,7 @@ class ShopProduct extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
     /**
      * @var bool
      */
@@ -108,5 +111,15 @@ class ShopProduct extends Model
     {
         $total = $this->getPriceAfterDiscount() + $this->getTaxValue();
         return round($total, 2);
+    }
+
+    public function getPriceAttribute($value)
+    {
+        return $this->convertFromInteger($value);
+    }
+
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = $this->convertToInteger($value);
     }
 }

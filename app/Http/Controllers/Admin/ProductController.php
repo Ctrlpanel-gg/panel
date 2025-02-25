@@ -76,13 +76,13 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:1000000|min:0',
+            'price' => 'required|numeric|max:100000000000|min:0', // Increased max to handle cents
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
-            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'minimum_credits' => 'required|numeric|max:100000000000|min:-1', // Increased max to handle cents
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'databases' => 'required|numeric|max:1000000|min:0',
@@ -153,14 +153,14 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:1000000|min:0',
+            'price' => 'required|numeric|max:100000000000|min:0', // Increased max to handle cents
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
             'io' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'minimum_credits' => 'required|numeric|max:100000000000|min:-1', // Increased max to handle cents
             'databases' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
@@ -267,7 +267,9 @@ class ProductController extends Controller
                 ';
             })
             ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
-                return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
+                return $product->minimum_credits == -1 ? 
+                    $user_settings->min_credits_to_make_server : 
+                    $product->minimum_credits;
             })
             ->editColumn('serverlimit', function (Product $product) {
                 return $product->serverlimit == 0 ? "∞" : $product->serverlimit;
