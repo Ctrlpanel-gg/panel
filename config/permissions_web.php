@@ -7,6 +7,8 @@ return [
 
     'All Permissions' => '*',
 
+    'View Errormessages' => 'errors.view',
+
     'View Roles Backend' => 'admin.roles.read',
     'Create Role' => 'admin.roles.create',
     'Edit Role' => 'admin.roles.edit',
@@ -70,8 +72,6 @@ return [
     'View Useful Links Backend' => 'admin.useful_links.read',
     'Manage Useful Links Backend' => 'admin.useful_links.write',
 
-    'View Legal Backend' => 'admin.legal.read',
-    'Manage Legal Backend' => 'admin.legal.write',
 
     'View Payments Backend' => 'admin.payments.read',
 
@@ -88,6 +88,9 @@ return [
     */
     'View Discord Settings' => 'settings.discord.read',
     'Manage Discord Settings' => 'settings.discord.write',
+
+    'View Legal Backend' => 'settings.terms.read',
+    'Manage Legal Backend' => 'settings.terms.write',
 
     'View General Settings' => 'settings.general.read',
     'Manage General Settings' => 'settings.general.write',

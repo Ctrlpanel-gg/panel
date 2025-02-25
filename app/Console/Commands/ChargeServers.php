@@ -57,7 +57,6 @@ class ChargeServers extends Command
 
                 $billing_period = $product->billing_period;
 
-
                 // check if server is due to be charged by comparing its last_billed date with the current date and the billing period
                 $newBillingDate = null;
                 switch ($billing_period) {
@@ -90,8 +89,8 @@ class ChargeServers extends Command
                     continue;
                 }
 
-                // check if the server is canceled or if user has enough credits to charge the server or
-                if ($server->canceled || ($user->credits <= $product->price && $product->price != 0 )) {
+                // check if the server is canceled or if user has enough credits to charge the server
+                if ($server->canceled || ($user->credits < $product->price && $product->price != 0)) {
                     try {
                         // suspend server
                         $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> has been <fg=red>suspended!</>");
@@ -104,14 +103,14 @@ class ChargeServers extends Command
                     } catch (\Exception $exception) {
                         $this->error($exception->getMessage());
                     }
+                } else {
+                    // charge credits to user
+                    $this->line("<fg=blue>{$user->name}</> Current credits: <fg=green>{$user->credits}</> Credits to be removed: <fg=red>{$product->price}</>");
+                    $user->decrement('credits', $product->price);
+
+                    // update server last_billed date in db
+                    DB::table('servers')->where('id', $server->id)->update(['last_billed' => $newBillingDate]);
                 }
-
-                // charge credits to user
-                $this->line("<fg=blue>{$user->name}</> Current credits: <fg=green>{$user->credits}</> Credits to be removed: <fg=red>{$product->price}</>");
-                $user->decrement('credits', $product->price);
-
-                // update server last_billed date in db
-                DB::table('servers')->where('id', $server->id)->update(['last_billed' => $newBillingDate]);
             }
 
             return $this->notifyUsers();

@@ -59,7 +59,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'ip',
         'mac',
         'last_seen',
-        'role',
+        'role', //discontinued in 1.0.7
         'credits',
         'email',
         'server_limit',
