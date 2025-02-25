@@ -45,7 +45,7 @@ class ShopProduct extends Model
      * @var string[]
      */
     protected $casts = [
-        'price' => 'float'
+        'price' => 'integer', // Make sure price is cast as integer
     ];
 
     public static function boot()
@@ -98,8 +98,10 @@ class ShopProduct extends Model
      */
     public function getTaxValue()
     {
+        // Issue: Multiple floating point operations
         $taxValue = $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
-        return round($taxValue, 2);
+        // Fix: Use BCMath for calculations
+        return bcmul(bcdiv(bcmul($this->getPriceAfterDiscount(), $this->getTaxPercent(), 4), '100', 4), '1', 2);
     }
 
     /**
@@ -109,8 +111,10 @@ class ShopProduct extends Model
      */
     public function getTotalPrice()
     {
+        // Issue: Multiple rounding operations can lead to precision loss
         $total = $this->getPriceAfterDiscount() + $this->getTaxValue();
-        return round($total, 2);
+        // Fix: Delay rounding until final display
+        return bcadd($this->getPriceAfterDiscount(), $this->getTaxValue(), 2);
     }
 
     public function getPriceAttribute($value)
