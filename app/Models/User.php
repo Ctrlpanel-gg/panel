@@ -90,7 +90,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'credits' => 'float',
+        'credits' => 'integer',  // Changed from 'float' to 'integer'
         'server_limit' => 'float',
         'email_verified_reward' => 'boolean'
     ];
@@ -216,7 +216,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function credits()
     {
-        return number_format($this->credits, 2, '.', '');
+        return number_format($this->convertFromInteger($this->attributes['credits'], 4), 2, '.', '');
     }
 
     /**
@@ -334,11 +334,23 @@ class User extends Authenticatable implements MustVerifyEmail
             ->dontLogIfAttributesChangedOnly(['credits', 'server_limit']);
     }
 
+    /**
+     * Get credits attribute accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getCreditsAttribute($value)
     {
         return $this->convertFromInteger($value, 4);
     }
 
+    /**
+     * Set credits attribute mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setCreditsAttribute($value)
     {
         $this->attributes['credits'] = $this->convertToInteger($value, 4);

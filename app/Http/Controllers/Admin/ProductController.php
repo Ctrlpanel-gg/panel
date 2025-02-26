@@ -24,11 +24,7 @@ class ProductController extends Controller
     const WRITE_PERMISSION = "admin.products.create";
     const EDIT_PERMISSION = "admin.products.edit";
     const DELETE_PERMISSION = "admin.products.delete";
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Application|Factory|View
-     */
+
     public function index(LocaleSettings $locale_settings)
     {
         $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
@@ -39,11 +35,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Application|Factory|View
-     */
     public function create(GeneralSettings $general_settings)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
@@ -66,12 +57,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  Request  $request
-     * @return RedirectResponse
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -100,19 +85,12 @@ class ProductController extends Controller
         $oomkiller = ! is_null($request->input('oom_killer'));
         $product = Product::create(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
-        //link nodes and eggs
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been created!'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  Product  $product
-     * @return Application|Factory|View
-     */
     public function show(Product $product, UserSettings $user_settings, GeneralSettings $general_settings)
     {
         $this->checkAnyPermission([self::READ_PERMISSION,self::WRITE_PERMISSION]);
@@ -124,12 +102,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  Product  $product
-     * @return Application|Factory|View
-     */
     public function edit(Product $product, GeneralSettings $general_settings)
     {
         $this->checkPermission(self::EDIT_PERMISSION);
@@ -142,13 +114,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request  $request
-     * @param  Product  $product
-     * @return RedirectResponse
-     */
     public function update(Request $request, Product $product): RedirectResponse
     {
         $request->validate([
@@ -176,7 +141,6 @@ class ProductController extends Controller
         $oomkiller = ! is_null($request->input('oom_killer'));
         $product->update(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
-        //link nodes and eggs
         $product->eggs()->detach();
         $product->nodes()->detach();
         $product->eggs()->attach($request->input('eggs'));
@@ -185,11 +149,6 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', __('Product has been updated!'));
     }
 
-    /**
-     * @param  Request  $request
-     * @param  Product  $product
-     * @return RedirectResponse
-     */
     public function disable(Product $product)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
@@ -199,12 +158,6 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Product has been updated!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  Product  $product
-     * @return RedirectResponse
-     */
     public function destroy(Product $product)
     {
         $this->checkPermission(self::DELETE_PERMISSION);
@@ -219,11 +172,6 @@ class ProductController extends Controller
         return redirect()->back()->with('success', __('Product has been removed!'));
     }
 
-    /**
-     * @return JsonResponse|mixed
-     *
-     * @throws Exception|Exception
-     */
     public function dataTable()
     {
         $query = Product::with(['servers']);

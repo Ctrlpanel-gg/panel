@@ -46,29 +46,57 @@ class Product extends Model
         });
     }
 
+    /**
+     * Get price accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getPriceAttribute($value)
     {
         return $this->convertFromInteger($value, 4);
     }
 
+    /**
+     * Set price mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setPriceAttribute($value)
     {
         $this->attributes['price'] = $this->convertToInteger($value, 4);
     }
 
+    /**
+     * Get minimum_credits accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getMinimumCreditsAttribute($value)
     {
         return $this->convertFromInteger($value, 4);
     }
 
+    /**
+     * Set minimum_credits mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setMinimumCreditsAttribute($value)
     {
         $this->attributes['minimum_credits'] = $this->convertToInteger($value, 4);
     }
 
+    /**
+     * Calculate hourly price based on billing period
+     * 
+     * @return float
+     */
     public function getHourlyPrice()
     {
-        // calculate the hourly price with the billing period
         switch($this->billing_period) {
             case 'daily':
                 return $this->price / 24;
@@ -87,9 +115,13 @@ class Product extends Model
         }
     }
 
+    /**
+     * Calculate monthly price based on billing period
+     * 
+     * @return float
+     */
     public function getMonthlyPrice()
     {
-        // calculate the hourly price with the billing period
         switch($this->billing_period) {
             case 'hourly':
                 return $this->price * 24 * 30;
@@ -110,6 +142,11 @@ class Product extends Model
         }
     }
 
+    /**
+     * Get weekly price
+     * 
+     * @return float
+     */
     public function getWeeklyPrice()
     {
         return $this->price / 4;

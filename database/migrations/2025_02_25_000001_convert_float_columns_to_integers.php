@@ -9,7 +9,7 @@ class ConvertFloatColumnsToIntegers extends Migration
 {
     public function up()
     {
-        // temp columns for conversion
+        // Add temporary columns for conversion
         Schema::table('coupons', function (Blueprint $table) {
             $table->bigInteger('value_cents')->after('value')->nullable();
         });
@@ -33,7 +33,7 @@ class ConvertFloatColumnsToIntegers extends Migration
             $table->bigInteger('credits_cents')->after('credits')->nullable();
         });
 
-        // Converion ahh
+        // Convert decimal values to integers
         DB::statement('UPDATE coupons SET value_cents = ROUND(value * 100)');
         DB::statement('UPDATE payments SET price_cents = ROUND(price * 100), 
                                          tax_value_cents = ROUND(tax_value * 100),
@@ -43,7 +43,7 @@ class ConvertFloatColumnsToIntegers extends Migration
         DB::statement('UPDATE shop_products SET price_cents = ROUND(price * 100)');
         DB::statement('UPDATE users SET credits_cents = ROUND(credits * 10000)');
 
-        // Drop old columns and rename new ones
+        // Replace columns
         Schema::table('coupons', function (Blueprint $table) {
             $table->dropColumn('value');
             $table->renameColumn('value_cents', 'value');
@@ -75,7 +75,7 @@ class ConvertFloatColumnsToIntegers extends Migration
 
     public function down()
     {
-        // back to point bois 
+        // Add temporary columns for conversion back
         Schema::table('coupons', function (Blueprint $table) {
             $table->decimal('value_decimal', 10, 2)->after('value')->nullable();
         });
@@ -99,7 +99,7 @@ class ConvertFloatColumnsToIntegers extends Migration
             $table->decimal('credits_decimal', 15, 4)->after('credits')->nullable();
         });
 
-        // yap it back into the db
+        // Convert integers back to decimal values
         DB::statement('UPDATE coupons SET value_decimal = value / 100');
         DB::statement('UPDATE payments SET price_decimal = price / 100,
                                          tax_value_decimal = tax_value / 100,
@@ -109,7 +109,7 @@ class ConvertFloatColumnsToIntegers extends Migration
         DB::statement('UPDATE shop_products SET price_decimal = price / 100');
         DB::statement('UPDATE users SET credits_decimal = credits / 10000');
 
-        // idgaf about ints and rename columns back to floats
+        // Replace columns
         Schema::table('coupons', function (Blueprint $table) {
             $table->dropColumn('value');
             $table->renameColumn('value_decimal', 'value');

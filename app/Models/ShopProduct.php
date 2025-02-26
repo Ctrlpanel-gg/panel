@@ -23,14 +23,8 @@ class ShopProduct extends Model
             ->dontSubmitEmptyLogs();
     }
 
-    /**
-     * @var bool
-     */
     public $incrementing = false;
 
-    /**
-     * @var string[]
-     */
     protected $fillable = [
         'type',
         'price',
@@ -41,9 +35,6 @@ class ShopProduct extends Model
         'disabled',
     ];
 
-    /**
-     * @var string[]
-     */
     protected $casts = [
         'price' => 'integer',
     ];
@@ -84,39 +75,59 @@ class ShopProduct extends Model
         return $tax < 0 ? 0 : $tax;
     }
 
+    /**
+     * Get price after applying discount
+     * 
+     * @return string
+     */
     public function getPriceAfterDiscount()
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
-        $discountedPrice = $this->price * (1 - $discountRate);
-        return round($discountedPrice, 2);
+        $price = (int)$this->attributes['price'];
+        $discountedPrice = $price * (1 - $discountRate);
+        return round($discountedPrice);
     }
 
     /**
-     * @description Returns the tax as Number
-     *
-     * @return float
+     * Get tax value
+     * 
+     * @return string
      */
     public function getTaxValue()
     {
-        $taxValue = bcmul(bcdiv(bcmul($this->getPriceAfterDiscount(), $this->getTaxPercent(), 4), '100', 4), '1', 2);
+        $taxPercent = $this->getTaxPercent();
+        $priceAfterDiscount = $this->getPriceAfterDiscount();
+        $taxValue = bcmul(bcdiv(bcmul($priceAfterDiscount, $taxPercent, 4), '100', 4), '1', 2);
         return $taxValue;
     }
 
     /**
-     * @description Returns the full price of a Product including tax
-     *
-     * @return float
+     * Get total price including tax
+     * 
+     * @return string
      */
     public function getTotalPrice()
     {
         return bcadd($this->getPriceAfterDiscount(), $this->getTaxValue(), 2);
     }
 
+    /**
+     * Price attribute accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getPriceAttribute($value)
     {
         return $this->convertFromInteger($value);
     }
 
+    /**
+     * Price attribute mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setPriceAttribute($value)
     {
         $this->attributes['price'] = $this->convertToInteger($value);

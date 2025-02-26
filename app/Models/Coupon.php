@@ -40,7 +40,7 @@ class Coupon extends Model
      * @var string[]
      */
     protected $casts = [
-        'value' => 'float',
+        'value' => 'integer',
         'uses' => 'integer',
         'max_uses' => 'integer',
         'expires_at' => 'timestamp'
@@ -119,11 +119,23 @@ class Coupon extends Model
         return $this->belongsToMany(User::class, 'user_coupons');
     }
 
+    /**
+     * Value accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getValueAttribute($value)
     {
         return $this->convertFromInteger($value);
     }
 
+    /**
+     * Value mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setValueAttribute($value)
     {
         $this->attributes['value'] = $this->convertToInteger($value);
