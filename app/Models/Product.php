@@ -30,10 +30,6 @@ class Product extends Model
 
     protected $guarded = ['id'];
 
-    protected $fillable = [
-        // ...existing code...
-    ];
-
     public static function boot()
     {
         parent::boot();

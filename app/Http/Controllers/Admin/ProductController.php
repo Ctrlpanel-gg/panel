@@ -76,13 +76,13 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:100000000000|min:0', // Increased max to handle cents
+            'price' => 'required|numeric|max:100000000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
-            'minimum_credits' => 'required|numeric|max:100000000000|min:-1', // Increased max to handle cents
+            'minimum_credits' => 'required|numeric|max:100000000000|min:-1',
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'databases' => 'required|numeric|max:1000000|min:0',
@@ -153,14 +153,14 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:100000000000|min:0', // Increased max to handle cents
+            'price' => 'required|numeric|max:100000000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
             'io' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'required|numeric|max:100000000000|min:-1', // Increased max to handle cents
+            'minimum_credits' => 'required|numeric|max:100000000000|min:-1',
             'databases' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
