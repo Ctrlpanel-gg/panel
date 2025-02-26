@@ -3,6 +3,7 @@
 /node_modules
 /vendor
 /storage/*.key
+/storage/logs
 
 # Ignore public assets
 /public/hot

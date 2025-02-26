@@ -77,6 +77,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',
+            
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
@@ -242,7 +243,10 @@ class ProductController extends Controller
                        </form>
                 ';
             })
-
+            
+            ->addColumn('price_all', function(Product $product){
+                return (($product->price*100)+$product->price_cents)/100;
+            })
             ->addColumn('servers', function (Product $product) {
                 return $product->servers()->count();
             })

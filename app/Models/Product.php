@@ -16,6 +16,7 @@ class Product extends Model
 {
     use HasFactory;
     use LogsActivity;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -23,9 +24,13 @@ class Product extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
-    public $incrementing = false;
 
+    public $incrementing = false;
     protected $guarded = ['id'];
+
+    protected function calculatePrice(): int|float {
+        return (($this->price * 100) + $this->price_cents) / 100;
+    }
 
     public static function boot()
     {
@@ -33,7 +38,6 @@ class Product extends Model
 
         static::creating(function (Product $product) {
             $client = new Client();
-
             $product->{$product->getKeyName()} = $client->generateId($size = 21);
         });
 
@@ -43,75 +47,69 @@ class Product extends Model
         });
     }
 
-    public function getHourlyPrice()
+    public function getHourlyPrice(): float
     {
-        // calculate the hourly price with the billing period
-        switch($this->billing_period) {
+        $fullPrice = $this->calculatePrice();
+
+        switch ($this->billing_period) {
             case 'daily':
-                return $this->price / 24;
+                return $fullPrice / 24;
             case 'weekly':
-                return $this->price / 24 / 7;
+                return $fullPrice / (24 * 7);
             case 'monthly':
-                return $this->price / 24 / 30;
+                return $fullPrice / (24 * 30);
             case 'quarterly':
-                return $this->price / 24 / 30 / 3;
+                return $fullPrice / (24 * 30 * 3);
             case 'half-annually':
-                return $this->price / 24 / 30 / 6;
+                return $fullPrice / (24 * 30 * 6);
             case 'annually':
-                return $this->price / 24 / 365;
+                return $fullPrice / (24 * 365);
             default:
-                return $this->price;
+                return $fullPrice;
         }
     }
 
-    public function getMonthlyPrice()
+    public function getMonthlyPrice(): float
     {
-        // calculate the hourly price with the billing period
-        switch($this->billing_period) {
+        $fullPrice = $this->calculatePrice();
+
+        switch ($this->billing_period) {
             case 'hourly':
-                return $this->price * 24 * 30;
+                return $fullPrice * 24 * 30;
             case 'daily':
-                return $this->price * 30;
+                return $fullPrice * 30;
             case 'weekly':
-                return $this->price * 4;
+                return $fullPrice * 4;
             case 'monthly':
-                return $this->price;
+                return $fullPrice;
             case 'quarterly':
-                return $this->price / 3;
+                return $fullPrice / 3;
             case 'half-annually':
-                return $this->price / 6;
+                return $fullPrice / 6;
             case 'annually':
-                return $this->price / 12;
+                return $fullPrice / 12;
             default:
-                return $this->price;
+                return $fullPrice;
         }
     }
 
-    public function getWeeklyPrice()
+    public function getWeeklyPrice(): float
     {
-        return $this->price / 4;
+        $fullPrice = $this->calculatePrice();
+        return $fullPrice / 4;
     }
 
-    /**
-     * @return BelongsTo
-     */
-    public function servers()
+    public function servers(): BelongsTo
     {
         return $this->belongsTo(Server::class, 'id', 'product_id');
     }
 
-    /**
-     * @return BelongsToMany
-     */
-    public function eggs()
+    public function eggs(): BelongsToMany
     {
         return $this->belongsToMany(Egg::class);
     }
 
-    /**
-     * @return BelongsToMany
-     */
-    public function nodes()
+    public function nodes(): BelongsToMany
     {
         return $this->belongsToMany(Node::class);
     }

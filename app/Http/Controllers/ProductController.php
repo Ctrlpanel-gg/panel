@@ -108,7 +108,7 @@ class ProductController extends Controller
                     // get admin role and check users
                     $users = User::query()->where('role', '=', '1')->get();
                     Notification::send($users,new DynamicNotification(['mail'],[],
-                   mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
+                    mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
                 },
                 decaySeconds: 5
             );
@@ -148,7 +148,6 @@ class ProductController extends Controller
         // Check if the product fits in at least one node
         foreach ($products as $product) {
             $product->doesNotFit = true;
-
             foreach ($product->nodes as $node) {
                 $pteroNode = $this->pterodactyl->getNode($node->id);
 

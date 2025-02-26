@@ -19,7 +19,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('role')->default('member');
-            $table->float('credits')->default(250)->unsigned();
+            $table->float('credits')->default(250)->unsigned(); //
+            $table->integer('cents')->default(0)->unsigned(); // new, by Mr666dd, 26.02.2025, 22:35:11
             $table->unsignedInteger('server_limit')->default(1);
             $table->unsignedInteger('pterodactyl_id')->nullable();
             $table->longText('avatar')->nullable();
