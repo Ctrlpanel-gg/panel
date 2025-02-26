@@ -24,9 +24,6 @@ class Coupon extends Model
             ->dontSubmitEmptyLogs();
     }
 
-    /**
-     * @var string[]
-     */
     protected $fillable = [
         'code',
         'type',
@@ -36,9 +33,6 @@ class Coupon extends Model
         'expires_at'
     ];
 
-    /**
-     * @var string[]
-     */
     protected $casts = [
         'value' => 'integer',
         'uses' => 'integer',
@@ -46,21 +40,11 @@ class Coupon extends Model
         'expires_at' => 'timestamp'
     ];
 
-    /**
-     * Returns the date format used by the coupons.
-     *
-     * @return string
-     */
     public static function formatDate(): string
     {
         return 'Y-MM-DD HH:mm:ss';
     }
 
-    /**
-     * Returns the current state of the coupon.
-     *
-     * @return string
-     */
     public function getStatus()
     {
         if ($this->uses >= $this->max_uses) {
@@ -76,13 +60,6 @@ class Coupon extends Model
         return __('VALID');
     }
 
-    /**
-     * Check if a user has already exceeded the uses of a coupon.
-     *
-     * @param User $user The request being made.
-     *
-     * @return bool
-     */
     public function isMaxUsesReached($user): bool
     {
         $coupon_settings = new CouponSettings;
@@ -91,13 +68,6 @@ class Coupon extends Model
         return $coupon_uses >= $coupon_settings->max_uses_per_user;
     }
 
-    /**
-     * Generate a specified quantity of coupon codes.
-     *
-     * @param int $amount Amount of coupons to be generated.
-     *
-     * @return array
-     */
     public static function generateRandomCoupon(int $amount = 10): array
     {
         $coupons = [];
@@ -111,31 +81,16 @@ class Coupon extends Model
         return $coupons;
     }
 
-    /**
-     * @return BelongsToMany
-     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_coupons');
     }
 
-    /**
-     * Value accessor
-     * 
-     * @param int $value
-     * @return string
-     */
     public function getValueAttribute($value)
     {
         return $this->convertFromInteger($value);
     }
 
-    /**
-     * Value mutator
-     * 
-     * @param mixed $value
-     * @return void
-     */
     public function setValueAttribute($value)
     {
         $this->attributes['value'] = $this->convertToInteger($value);

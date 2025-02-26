@@ -90,11 +90,7 @@ class Product extends Model
         $this->attributes['minimum_credits'] = $this->convertToInteger($value, 4);
     }
 
-    /**
-     * Calculate hourly price based on billing period
-     * 
-     * @return float
-     */
+    // Calculate hourly price based on billing period
     public function getHourlyPrice()
     {
         switch($this->billing_period) {
@@ -115,11 +111,7 @@ class Product extends Model
         }
     }
 
-    /**
-     * Calculate monthly price based on billing period
-     * 
-     * @return float
-     */
+    //Calculate monthly price based on billing period
     public function getMonthlyPrice()
     {
         switch($this->billing_period) {
