@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use NumberFormatter;
 
-class Payment extends Model
+class Payment extends Model //НЕОБХОДИМО ИЗМЕНИТЬ
 {
     use HasFactory;
 

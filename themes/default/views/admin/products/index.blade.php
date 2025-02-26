@@ -56,7 +56,7 @@
                             <th>{{__('Eggs')}}</th>
                             <th>{{__('Min Credits')}}</th>
                             <th>{{__('Servers')}}</th>
-                             <th>{{__('Serverlimit')}}</th>
+                            <th>{{__('Serverlimit')}}</th>
                             <th>{{__('Created at')}}</th>
                             <th>{{ __('Actions') }}</th>
                         </tr>
@@ -94,7 +94,7 @@
                 columns: [
                     {data: "disabled"},
                     {data: "name"},
-                    {data: "price"},
+                    {data: "price_all"},
                     {data: "billing_period"},
                     {data: "memory"},
                     {data: "cpu"},

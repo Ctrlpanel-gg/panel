@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('description')->nullable();
             $table->integer('price');
+            $table->integer('price_cents')->unsigned();
             $table->integer('memory');
             $table->integer('cpu')->default(100);
             $table->integer('swap')->default(64);

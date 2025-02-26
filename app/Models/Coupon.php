@@ -11,7 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Coupon extends Model
+class Coupon extends Model //НЕОБХОДИМО ИЗМЕНИТЬ
 {
     use HasFactory, LogsActivity, CausesActivity;
 

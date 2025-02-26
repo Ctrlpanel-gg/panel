@@ -60,6 +60,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_seen',
         'role',
         'credits',
+        'cents', // By Mr666dd, 26.02.2025, 22:44:07
         'email',
         'server_limit',
         'password',
@@ -89,7 +90,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'credits' => 'float',
+        'credits' => 'integer', // НЕОБХОДИМО ПОМЕНЯТЬ
+        'cents' => 'integer',
         'server_limit' => 'float',
         'email_verified_reward' => 'boolean'
     ];
@@ -213,9 +215,14 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @return string
      */
-    public function credits()
+    public function credits() // By Mr666dd, 26.02.2025, 23:03:23
     {
-        return number_format($this->credits, 2, '.', '');
+        return number_format($this->credits);
+    }
+
+    public function cents() // By Mr666dd, 26.02.2025, 23:01:19
+    {
+        return number_format($this->cents);
     }
 
     /**
@@ -239,7 +246,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this;
     }
 
-    public function unSuspend()
+    public function unSuspend() //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         foreach ($this->getServersWithProduct() as $server) {
             if ($this->credits >= $server->product->getHourlyPrice()) {
@@ -263,7 +270,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email)));
     }
 
-    public function creditUsage()
+    public function creditUsage() //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         $usage = 0;
         foreach ($this->getServersWithProduct() as $server) {

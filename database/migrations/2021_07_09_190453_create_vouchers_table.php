@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('code', 36)->unique();
             $table->string('memo')->nullable();
             $table->float('credits', 10)->unsigned();
+            $table->integer('cents')->unsigned(); // By Mr666dd, 26.02.2025, 22:48:26
             $table->unsignedInteger('uses')->default(1);
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();

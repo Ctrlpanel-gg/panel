@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class PartnerDiscount extends Model
+class PartnerDiscount extends Model //НЕОБХОДИМО ИЗМЕНИТЬ
 {
     use HasFactory;
 

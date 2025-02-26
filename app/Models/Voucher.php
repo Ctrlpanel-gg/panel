@@ -30,6 +30,7 @@ class Voucher extends Model
         'memo',
         'code',
         'credits',
+        'cents',
         'uses',
         'expires_at',
     ];
@@ -42,7 +43,9 @@ class Voucher extends Model
     protected $casts = [
         'expires_at' => 'datetime',
         'credits' => 'float',
-        'uses' => 'integer',    ];
+        'cents' => 'integer',
+        'uses' => 'integer',
+    ];
 
     protected $appends = ['used', 'status'];
 

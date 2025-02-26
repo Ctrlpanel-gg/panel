@@ -56,7 +56,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">{{ $general_settings->credits_display_name }}</span>
-                        <span class="info-box-number">{{ Auth::user()->Credits() }}</span>
+                        <span class="info-box-number">{{ Auth::user()->Credits() }}.{{ Auth::user()->Cents() }}</span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>

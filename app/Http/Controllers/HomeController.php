@@ -91,30 +91,42 @@ class HomeController extends Controller
     }
 
     /** Show the application dashboard. */
-    public function index(GeneralSettings $general_settings, WebsiteSettings $website_settings, ReferralSettings $referral_settings)
+    public function index(GeneralSettings $general_settings, WebsiteSettings $website_settings, ReferralSettings $referral_settings) //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         $usage = Auth::user()->creditUsage();
         $credits = Auth::user()->Credits();
+        $cents = Auth::user()->Cents(); // By Mr666dd, 26.02.2025, 22:58:25
         $bg = '';
         $boxText = '';
         $unit = '';
 
         /** Build our Time-Left-Box */
-        if ($credits > 0.01 and $usage > 0) {
-            $daysLeft = number_format($credits / ($usage / 30), 2, '.', '');
-            $hoursLeft = number_format($credits / ($usage / 30 / 24), 2, '.', '');
+    
+        $credits = intval($credits);
+        $usage = floatval($usage);
 
-            $bg = $this->getTimeLeftBoxBackground($daysLeft);
-            $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
-            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : __('hours')) : __('days');
-        }
+        $cents = bcmul(strval($credits), '100', 0);
+        $dailyUsageCents = bcmul(bcdiv(strval($usage), '30', 2), '100', 2);
+        $hourlyUsageCents = bcdiv($dailyUsageCents, '24', 2);
+
+        // Рассчитываем оставшиеся дни и часы с использованием bcmath
+        $daysLeft = bcdiv($cents, $dailyUsageCents, 2);
+        $hoursLeft = bcdiv($cents, $hourlyUsageCents, 2);
+
+        // Определяем фон и текст
+        $bg = $this->getTimeLeftBoxBackground($daysLeft);
+        $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
+
+        // Определяем единицу измерения времени
+        $unit = bccomp($daysLeft, '1', 2) < 0 ? (bccomp($hoursLeft, '1', 2) < 0 ? null : __('hours')) : __('days');
 
         //$this->callhome(); TODO: Same as the function
 
         // RETURN ALL VALUES
         return view('home')->with([
             'usage' => $usage,
-            'credits' => $credits,
+            'credits' => $credits, // integer
+            'cents' => $cents, // By Mr666dd, 26.02.2025, 23:01:27
             'useful_links_dashboard' => UsefulLink::where("position","like","%dashboard%")->get()->sortby("id"),
             'bg' => $bg,
             'boxText' => $boxText,

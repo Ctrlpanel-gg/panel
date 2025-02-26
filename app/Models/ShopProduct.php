@@ -31,6 +31,7 @@ class ShopProduct extends Model
     protected $fillable = [
         'type',
         'price',
+        'price_cents', // By Mr666dd, 26.02.2025, 22:50:17
         'description',
         'display',
         'currency_code',
@@ -42,7 +43,8 @@ class ShopProduct extends Model
      * @var string[]
      */
     protected $casts = [
-        'price' => 'float'
+        'price' => 'float',
+        'price_cents' => 'integer' // By Mr666dd, 26.02.2025, 22:50:23
     ];
 
     public static function boot()
@@ -61,7 +63,7 @@ class ShopProduct extends Model
      * @param  string  $locale
      * @return float
      */
-    public function formatToCurrency($value, $locale = 'en_US')
+    public function formatToCurrency($value, $locale = 'en_US') //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
 
@@ -73,7 +75,7 @@ class ShopProduct extends Model
      *
      * @return int
      */
-    public function getTaxPercent()
+    public function getTaxPercent() //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         $generalSettings = new GeneralSettings();
         $tax = $generalSettings->sales_tax;
@@ -81,7 +83,7 @@ class ShopProduct extends Model
         return $tax < 0 ? 0 : $tax;
     }
 
-    public function getPriceAfterDiscount()
+    public function getPriceAfterDiscount() //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
         $discountedPrice = $this->price * (1 - $discountRate);
@@ -93,7 +95,7 @@ class ShopProduct extends Model
      *
      * @return float
      */
-    public function getTaxValue()
+    public function getTaxValue() //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         $taxValue = $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
         return round($taxValue, 2);
@@ -104,7 +106,7 @@ class ShopProduct extends Model
      *
      * @return float
      */
-    public function getTotalPrice()
+    public function getTotalPrice() //НЕОБХОДИМО ИЗМЕНИТЬ
     {
         $total = $this->getPriceAfterDiscount() + $this->getTaxValue();
         return round($total, 2);
