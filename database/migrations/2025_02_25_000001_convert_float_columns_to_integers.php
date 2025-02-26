@@ -9,7 +9,7 @@ class ConvertFloatColumnsToIntegers extends Migration
 {
     public function up()
     {
-        // First, create temporary columns and copy converted data
+        // temp columns for conversion
         Schema::table('coupons', function (Blueprint $table) {
             $table->bigInteger('value_cents')->after('value')->nullable();
         });
@@ -33,7 +33,7 @@ class ConvertFloatColumnsToIntegers extends Migration
             $table->bigInteger('credits_cents')->after('credits')->nullable();
         });
 
-        // Convert existing data
+        // Converion ahh
         DB::statement('UPDATE coupons SET value_cents = ROUND(value * 100)');
         DB::statement('UPDATE payments SET price_cents = ROUND(price * 100), 
                                          tax_value_cents = ROUND(tax_value * 100),
@@ -75,7 +75,7 @@ class ConvertFloatColumnsToIntegers extends Migration
 
     public function down()
     {
-        // Convert back to decimal columns
+        // back to point bois 
         Schema::table('coupons', function (Blueprint $table) {
             $table->decimal('value_decimal', 10, 2)->after('value')->nullable();
         });
@@ -99,7 +99,7 @@ class ConvertFloatColumnsToIntegers extends Migration
             $table->decimal('credits_decimal', 15, 4)->after('credits')->nullable();
         });
 
-        // Convert data back
+        // yap it back into the db
         DB::statement('UPDATE coupons SET value_decimal = value / 100');
         DB::statement('UPDATE payments SET price_decimal = price / 100,
                                          tax_value_decimal = tax_value / 100,
@@ -109,7 +109,7 @@ class ConvertFloatColumnsToIntegers extends Migration
         DB::statement('UPDATE shop_products SET price_decimal = price / 100');
         DB::statement('UPDATE users SET credits_decimal = credits / 10000');
 
-        // Drop integer columns and rename decimal ones back
+        // idgaf about ints and rename columns back to floats
         Schema::table('coupons', function (Blueprint $table) {
             $table->dropColumn('value');
             $table->renameColumn('value_decimal', 'value');
