@@ -50,11 +50,6 @@ class ShopProduct extends Model
         });
     }
 
-    /**
-     * @param  mixed  $value
-     * @param  string  $locale
-     * @return float
-     */
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
@@ -62,11 +57,6 @@ class ShopProduct extends Model
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 
-    /**
-     * @description Returns the tax in % taken from the Configuration
-     *
-     * @return int
-     */
     public function getTaxPercent()
     {
         $generalSettings = new GeneralSettings();
@@ -75,11 +65,6 @@ class ShopProduct extends Model
         return $tax < 0 ? 0 : $tax;
     }
 
-    /**
-     * Get price after applying discount
-     * 
-     * @return string
-     */
     public function getPriceAfterDiscount()
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
@@ -88,11 +73,6 @@ class ShopProduct extends Model
         return round($discountedPrice);
     }
 
-    /**
-     * Get tax value
-     * 
-     * @return string
-     */
     public function getTaxValue()
     {
         $taxPercent = $this->getTaxPercent();
@@ -101,33 +81,16 @@ class ShopProduct extends Model
         return $taxValue;
     }
 
-    /**
-     * Get total price including tax
-     * 
-     * @return string
-     */
     public function getTotalPrice()
     {
         return bcadd($this->getPriceAfterDiscount(), $this->getTaxValue(), 2);
     }
 
-    /**
-     * Price attribute accessor
-     * 
-     * @param int $value
-     * @return string
-     */
     public function getPriceAttribute($value)
     {
         return $this->convertFromInteger($value);
     }
 
-    /**
-     * Price attribute mutator
-     * 
-     * @param mixed $value
-     * @return void
-     */
     public function setPriceAttribute($value)
     {
         $this->attributes['price'] = $this->convertToInteger($value);

@@ -17,6 +17,9 @@ class Payment extends Model
     public $incrementing = false;
     protected $primaryKey = 'id';
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'id',
         'user_id',
@@ -33,6 +36,9 @@ class Payment extends Model
         'shop_item_product_id',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'status' => PaymentStatus::class,
         'price' => 'integer',
@@ -51,11 +57,19 @@ class Payment extends Model
         });
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @param  mixed  $value
+     * @param  string  $locale
+     * @return float
+     */
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
@@ -63,31 +77,67 @@ class Payment extends Model
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 
+    /**
+     * Price accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getPriceAttribute($value)
     {
         return $this->convertFromInteger($value);
     }
 
+    /**
+     * Price mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setPriceAttribute($value)
     {
         $this->attributes['price'] = $this->convertToInteger($value);
     }
 
+    /**
+     * Tax value accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getTaxValueAttribute($value)
     {
         return $this->convertFromInteger($value);
     }
 
+    /**
+     * Tax value mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setTaxValueAttribute($value)
     {
         $this->attributes['tax_value'] = $this->convertToInteger($value);
     }
 
+    /**
+     * Total price accessor
+     * 
+     * @param int $value
+     * @return string
+     */
     public function getTotalPriceAttribute($value)
     {
         return $this->convertFromInteger($value);
     }
 
+    /**
+     * Total price mutator
+     * 
+     * @param mixed $value
+     * @return void
+     */
     public function setTotalPriceAttribute($value)
     {
         $this->attributes['total_price'] = $this->convertToInteger($value);
