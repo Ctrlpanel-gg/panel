@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
+
   content: [
     "./themes/default/views/**/*.blade.php",
     "./themes/default/js/**/*.js",
@@ -42,5 +43,8 @@ module.exports = {
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
+    require('flowbite'),
+    require('flowbite-typography'),
+
   ],
 }
