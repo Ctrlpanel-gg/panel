@@ -89,7 +89,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'credits' => 'float',
+        'credits' => 'integer',
         'server_limit' => 'float',
         'email_verified_reward' => 'boolean'
     ];
@@ -215,7 +215,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function credits()
     {
-        return number_format($this->credits, 2, '.', '');
+        return strval($this->credits);//number_format($this->credits);
     }
 
     /**

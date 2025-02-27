@@ -100,13 +100,15 @@ class HomeController extends Controller
         $unit = '';
 
         /** Build our Time-Left-Box */
-        if ($credits > 0.01 and $usage > 0) {
-            $daysLeft = number_format($credits / ($usage / 30), 2, '.', '');
-            $hoursLeft = number_format($credits / ($usage / 30 / 24), 2, '.', '');
-
+        if (bccomp($credits, '1', 2) === 1 and bccomp($usage, '0', 2) === 1) {
+            $daysLeft = bcdiv($credits, bcdiv($usage, '30', 8), 2);
+            $hoursLeft = bcdiv($credits, bcdiv(bcdiv($usage, '30', 8), '24', 8), 2);
+        
             $bg = $this->getTimeLeftBoxBackground($daysLeft);
             $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
-            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : __('hours')) : __('days');
+            $unit = bccomp($daysLeft, '1', 2) === -1 
+                ? (bccomp($hoursLeft, '1', 2) === -1 ? null : __('hours')) 
+                : __('days');
         }
 
         //$this->callhome(); TODO: Same as the function
