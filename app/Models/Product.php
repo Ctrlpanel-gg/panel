@@ -11,6 +11,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Node;
+use App\Traits\HandlesMoneyFields;
 
 class Product extends Model
 {
@@ -23,9 +24,19 @@ class Product extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
-    public $incrementing = false;
+    use HandlesMoneyFields;
+
+    public $incrementing = false; 
 
     protected $guarded = ['id'];
+    
+    /**
+     * @var array
+     */
+    protected $casts = [
+        'price' => 'integer',
+        'minimum_credits' => 'integer',
+    ];
 
     public static function boot()
     {
@@ -48,19 +59,19 @@ class Product extends Model
         // calculate the hourly price with the billing period
         switch($this->billing_period) {
             case 'daily':
-                return $this->price / 24;
+                return $this->convertFromInteger($this->price) / 24;
             case 'weekly':
-                return $this->price / 24 / 7;
+                return $this->convertFromInteger($this->price) / 24 / 7;
             case 'monthly':
-                return $this->price / 24 / 30;
+                return $this->convertFromInteger($this->price) / 24 / 30;
             case 'quarterly':
-                return $this->price / 24 / 30 / 3;
+                return $this->convertFromInteger($this->price) / 24 / 30 / 3;
             case 'half-annually':
-                return $this->price / 24 / 30 / 6;
+                return $this->convertFromInteger($this->price) / 24 / 30 / 6;
             case 'annually':
-                return $this->price / 24 / 365;
+                return $this->convertFromInteger($this->price) / 24 / 365;
             default:
-                return $this->price;
+                return $this->convertFromInteger($this->price);
         }
     }
 
@@ -69,27 +80,72 @@ class Product extends Model
         // calculate the hourly price with the billing period
         switch($this->billing_period) {
             case 'hourly':
-                return $this->price * 24 * 30;
+                return $this->convertFromInteger($this->price) * 24 * 30;
             case 'daily':
-                return $this->price * 30;
+                return $this->convertFromInteger($this->price) * 30;
             case 'weekly':
-                return $this->price * 4;
+                return $this->convertFromInteger($this->price) * 4;
             case 'monthly':
-                return $this->price;
+                return $this->convertFromInteger($this->price);
             case 'quarterly':
-                return $this->price / 3;
+                return $this->convertFromInteger($this->price) / 3;
             case 'half-annually':
-                return $this->price / 6;
+                return $this->convertFromInteger($this->price) / 6;
             case 'annually':
-                return $this->price / 12;
+                return $this->convertFromInteger($this->price) / 12;
             default:
-                return $this->price;
+                return $this->convertFromInteger($this->price);
         }
     }
 
+    /**
+     * @description Get the Formatted weekly price attribute.
+     *
+     * @return float
+     */
     public function getWeeklyPrice()
     {
-        return $this->price / 4;
+        return $this->convertFromInteger($this->price) / 4;
+    }
+
+    /**
+     * @description Get the Formatted price attribute.
+     *
+     * @return float
+     */
+    public function getPriceAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+
+    /**
+     * @description Set the price attribute.
+     * 
+     * @return void
+     */
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = $this->convertToInteger($value, 4);
+    }
+
+    /**
+     * @description Get the Formatted minimum credits attribute.
+     *
+     * @return float
+     */
+    public function getMinimumCreditsAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+
+    /**
+     * @description Set the minimum credits attribute.
+     * 
+     * @return int
+     */
+    public function setMinimumCreditsAttribute($value)
+    {
+        $this->attributes['minimum_credits'] = $this->convertToInteger($value, 4);
     }
 
     /**

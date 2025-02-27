@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Coupon extends Model
 {
-    use HasFactory, LogsActivity, CausesActivity;
+    use HasFactory, LogsActivity, CausesActivity, HandlesMoneyFields;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -29,7 +29,7 @@ class Coupon extends Model
     protected $fillable = [
         'code',
         'type',
-        'value',
+        'value', 
         'uses',
         'max_uses',
         'expires_at'
@@ -39,7 +39,7 @@ class Coupon extends Model
      * @var string[]
      */
     protected $casts = [
-        'value' => 'float',
+        'value' => 'integer', 
         'uses' => 'integer',
         'max_uses' => 'integer',
         'expires_at' => 'timestamp'
