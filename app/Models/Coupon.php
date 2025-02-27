@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Settings\CouponSettings;
+use App\Traits\HandlesMoneyFields;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Coupon extends Model
 {
-    use HasFactory, LogsActivity, CausesActivity;
+    use HasFactory, LogsActivity, CausesActivity, HandlesMoneyFields;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -39,7 +40,7 @@ class Coupon extends Model
      * @var string[]
      */
     protected $casts = [
-        'value' => 'float',
+        'value' => 'integer',
         'uses' => 'integer',
         'max_uses' => 'integer',
         'expires_at' => 'timestamp'
@@ -113,8 +114,20 @@ class Coupon extends Model
     /**
      * @return BelongsToMany
      */
-    public function users()
+    public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_coupons');
+    }
+
+
+    public function getValueAttribute($value)
+    {
+        return $this->convertFromInteger($value);
+    }
+
+
+    public function setValueAttribute($value)
+    {
+        $this->attributes['value'] = $this->convertToInteger($value);
     }
 }

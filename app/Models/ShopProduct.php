@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Settings\GeneralSettings;
+use App\Traits\HandlesMoneyFields;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
@@ -12,7 +13,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ShopProduct extends Model
 {
-    use LogsActivity, CausesActivity;
+    use LogsActivity, CausesActivity, HandlesMoneyFields;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -20,14 +22,9 @@ class ShopProduct extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
-    /**
-     * @var bool
-     */
+
     public $incrementing = false;
 
-    /**
-     * @var string[]
-     */
     protected $fillable = [
         'type',
         'price',
@@ -38,11 +35,8 @@ class ShopProduct extends Model
         'disabled',
     ];
 
-    /**
-     * @var string[]
-     */
     protected $casts = [
-        'price' => 'float'
+        'price' => 'integer',
     ];
 
     public static function boot()
@@ -56,11 +50,6 @@ class ShopProduct extends Model
         });
     }
 
-    /**
-     * @param  mixed  $value
-     * @param  string  $locale
-     * @return float
-     */
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
@@ -68,11 +57,6 @@ class ShopProduct extends Model
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 
-    /**
-     * @description Returns the tax in % taken from the Configuration
-     *
-     * @return int
-     */
     public function getTaxPercent()
     {
         $generalSettings = new GeneralSettings();
@@ -84,29 +68,31 @@ class ShopProduct extends Model
     public function getPriceAfterDiscount()
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
-        $discountedPrice = $this->price * (1 - $discountRate);
-        return round($discountedPrice, 2);
+        $price = (int)$this->attributes['price'];
+        $discountedPrice = $price * (1 - $discountRate);
+        return round($discountedPrice);
     }
 
-    /**
-     * @description Returns the tax as Number
-     *
-     * @return float
-     */
     public function getTaxValue()
     {
-        $taxValue = $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
-        return round($taxValue, 2);
+        $taxPercent = $this->getTaxPercent();
+        $priceAfterDiscount = $this->getPriceAfterDiscount();
+        $taxValue = bcmul(bcdiv(bcmul($priceAfterDiscount, $taxPercent, 4), '100', 4), '1', 2);
+        return $taxValue;
     }
 
-    /**
-     * @description Returns the full price of a Product including tax
-     *
-     * @return float
-     */
     public function getTotalPrice()
     {
-        $total = $this->getPriceAfterDiscount() + $this->getTaxValue();
-        return round($total, 2);
+        return bcadd($this->getPriceAfterDiscount(), $this->getTaxValue(), 2);
+    }
+
+    public function getPriceAttribute($value)
+    {
+        return $this->convertFromInteger($value);
+    }
+
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = $this->convertToInteger($value);
     }
 }
