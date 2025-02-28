@@ -85,7 +85,7 @@ class ShopProduct extends Model
     public function getPriceAfterDiscount()
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
-        $originalPrice = $this->attributes['price']; // Get raw integer value
+        $originalPrice = $this->attributes['price'];
         $discountedPrice = (int)bcmul($originalPrice, bcsub(1, $discountRate, 4), 0);
         return $discountedPrice;
     }
