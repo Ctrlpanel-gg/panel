@@ -5,7 +5,11 @@ import path from "path";
 export default defineConfig({
     plugins: [
         laravel({
-            input: ["themes/default/sass/app.scss", "themes/default/js/app.js"],
+            input: [
+                "themes/default/css/app.css",
+                "themes/default/sass/app.scss",
+                "themes/default/js/app.js"
+            ],
             buildDirectory: "build",
         }),
         {
@@ -26,4 +30,25 @@ export default defineConfig({
             "~bootstrap": path.resolve("node_modules/bootstrap"),
         },
     },
+    optimizeDeps: {
+        include: [
+            '@tiptap/core',
+            '@tiptap/starter-kit',
+            '@tiptap/extension-highlight',
+            '@tiptap/extension-underline',
+            '@tiptap/extension-link',
+            '@tiptap/extension-text-align',
+            '@tiptap/extension-image',
+            '@tiptap/extension-youtube',
+            '@tiptap/extension-text-style',
+            '@tiptap/extension-font-family',
+            '@tiptap/extension-color',
+            '@tiptap/extension-bold'
+        ]
+    },
+    build: {
+        commonjsOptions: {
+            include: [/node_modules/]
+        }
+    }
 });
