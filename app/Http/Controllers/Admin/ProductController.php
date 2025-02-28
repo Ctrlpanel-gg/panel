@@ -174,7 +174,7 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $price = intval($request->input('price'))*100;
+        $price = intval($request->input('price')) * 100;
         $product->update(array_merge($request->all(), ['price' => $price,'disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
         //link nodes and eggs
