@@ -1,11 +1,11 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="min-h-screen bg-primary-950 p-8">
+<div class="min-h-screen bg-primary-950 p-4 sm:p-8">
     <!-- Header -->
-    <header class="max-w-screen-2xl mx-auto mb-8">
-        <div class="glass-panel p-6">
-            <h1 class="text-3xl font-light text-white">{{ __('Dashboard') }}</h1>
+    <header class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+        <div class="glass-panel p-4 sm:p-6">
+            <h1 class="text-2xl sm:text-3xl font-light text-white">{{ __('Dashboard') }}</h1>
             <div class="text-zinc-400 text-sm mt-2">
                 {{ __('Welcome back') }}, {{ Auth::user()->name }}
             </div>
@@ -14,8 +14,8 @@
 
     <!-- Admin Warning -->
     @if (!file_exists(base_path() . '/install.lock') && Auth::user()->hasRole("Admin"))
-        <div class="max-w-screen-2xl mx-auto mb-8">
-            <div class="glass-panel bg-red-500/5 text-red-400">
+        <div class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+            <div class="glass-panel p-4 sm:p-6 bg-red-500/5 text-red-400">
                 <div class="flex items-center gap-3 mb-2">
                     <i class="fas fa-exclamation-circle text-lg"></i>
                     <h4 class="font-medium">{{ __('The installer is not locked!') }}</h4>
@@ -30,20 +30,20 @@
 
     <!-- Alert Message -->
     @if ($general_settings->alert_enabled && !empty($general_settings->alert_message))
-        <div class="max-w-screen-2xl mx-auto mb-8">
-            <div class="bg-zinc-900/50 text-zinc-300 px-6 py-4 rounded-xl border border-zinc-800/50">
+        <div class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+            <div class="glass-panel p-4 sm:p-6 text-zinc-300">
                 {!! $general_settings->alert_message !!}
             </div>
         </div>
     @endif
 
     <!-- Stats Grid -->
-    <div class="max-w-screen-2xl mx-auto mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- Servers -->
-            <div class="stats-card glass-morphism">
+            <div class="stats-card glass-morphism p-4 sm:p-6">
                 <div class="stats-icon blue">
-                    <i class="fas fa-server text-xl"></i>
+                    <i class="fas fa-server text-lg sm:text-xl"></i>
                 </div>
                 <div>
                     <div class="stats-text-label">{{ __('Servers') }}</div>
@@ -52,9 +52,9 @@
             </div>
 
             <!-- Credits -->
-            <div class="stats-card glass-morphism">
+            <div class="stats-card glass-morphism p-4 sm:p-6">
                 <div class="stats-icon emerald">
-                    <i class="fas fa-coins text-xl"></i>
+                    <i class="fas fa-coins text-lg sm:text-xl"></i>
                 </div>
                 <div>
                     <div class="stats-text-label">{{ $general_settings->credits_display_name }}</div>
@@ -63,9 +63,9 @@
             </div>
 
             <!-- Usage -->
-            <div class="stats-card glass-morphism">
+            <div class="stats-card glass-morphism p-4 sm:p-6">
                 <div class="stats-icon amber">
-                    <i class="fas fa-chart-line text-xl"></i>
+                    <i class="fas fa-chart-line text-lg sm:text-xl"></i>
                 </div>
                 <div>
                     <div class="stats-text-label">{{ __('Usage') }}</div>
@@ -78,9 +78,9 @@
 
             <!-- Credits Remaining -->
             @if ($credits > 0.01 && $usage > 0)
-            <div class="stats-card glass-morphism">
+            <div class="stats-card glass-morphism p-4 sm:p-6">
                 <div class="stats-icon red">
-                    <i class="fas fa-hourglass-half text-xl"></i>
+                    <i class="fas fa-hourglass-half text-lg sm:text-xl"></i>
                 </div>
                 <div>
                     <div class="stats-text-label">{{ __('Credits Remaining') }}</div>
@@ -104,20 +104,20 @@
                 <div class="ml-3 text-sm font-normal">{{ __('URL copied to clipboard') }}</div>
             </div>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             <!-- Left Column -->
-            <div class="space-y-8">
+            <div class="space-y-6 sm:space-y-8">
                 <!-- MOTD -->
                 @if ($website_settings->motd_enabled)
                     <div class="card glass-morphism">
-                        <div class="p-6 border-b border-zinc-800/50">
+                        <div class="p-4 sm:p-6 border-b border-zinc-800/50">
                             <h3 class="text-white font-medium flex items-center gap-2">
                                 <i class="fas fa-bullhorn text-zinc-400"></i>
                                 {{ __('Announcement') }}
                             </h3>
                         </div>
-                        <div class="card-body flex items-center justify-center">
-                            <div class="prose prose-invert max-w-none w-full">
+                        <div class="p-4 sm:p-6">
+                            <div class="prose prose-invert max-w-none w-full prose-sm sm:prose-base">
                                 {!! $website_settings->motd_message !!}
                             </div>
                         </div>
@@ -127,23 +127,23 @@
                 <!-- Useful Links -->
                 @if ($website_settings->useful_links_enabled)
                     <div class="card glass-morphism">
-                        <div class="px-6 py-4 border-b border-zinc-800/50">
+                        <div class="p-4 sm:p-6 border-b border-zinc-800/50">
                             <h3 class="text-white font-medium flex items-center gap-2">
                                 <i class="fas fa-link text-zinc-400"></i>
                                 {{ __('Useful Links') }}
                             </h3>
                         </div>
-                        <div class="p-6">
+                        <div class="p-4 sm:p-6">
                             @if($useful_links_dashboard->count())
-                                <div class="space-y-4">
+                                <div class="space-y-3 sm:space-y-4">
                                     @foreach ($useful_links_dashboard as $useful_link)
                                         <a href="{{ $useful_link->link }}" target="_blank" 
-                                           class="block p-4 bg-zinc-800/50 rounded-lg hover:bg-zinc-800 transition-colors">
-                                            <h4 class="text-white font-medium flex items-center gap-2 mb-2">
+                                           class="block p-3 sm:p-4 bg-zinc-800/50 rounded-lg hover:bg-zinc-800 transition-colors">
+                                            <h4 class="text-white font-medium flex items-center gap-2 mb-2 text-sm sm:text-base">
                                                 <i class="{{ $useful_link->icon }} text-zinc-400"></i>
                                                 {{ $useful_link->title }}
                                             </h4>
-                                            <div class="text-sm text-zinc-400">
+                                            <div class="text-xs sm:text-sm text-zinc-400">
                                                 {!! $useful_link->description !!}
                                             </div>
                                         </a>
@@ -158,7 +158,7 @@
             </div>
 
             <!-- Right Column -->
-            <div class="space-y-8">
+            <div class="space-y-6 sm:space-y-8">
                 <!-- Partner Program -->
                 @if ($referral_settings->enabled)
                     <div class="card glass-morphism">

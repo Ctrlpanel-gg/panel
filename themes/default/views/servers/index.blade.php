@@ -1,122 +1,83 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{ __('Servers') }}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('servers.index') }}">{{ __('Servers') }}</a>
-                        </li>
-                    </ol>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- END CONTENT HEADER -->
-
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-
-            <!-- CUSTOM CONTENT -->
-            <div class="d-flex justify-content-md-start justify-content-center mb-3 ">
-                <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled="disabled" title="Server limit reached!" @endif
-                   @cannot("user.server.create") disabled="disabled" title="No Permission!" @endcannot
-                    href="{{ route('servers.create') }}" class="btn
-                    @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled @endif
-                    @cannot("user.server.create") disabled @endcannot
-                    btn-primary">
-                    <i class="fa fa-plus mr-2"></i>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <header class="max-w-screen-xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <h1 class="text-3xl font-light text-white">{{ __('Servers') }}</h1>
+            <div class="flex items-center gap-4 mt-4">
+                <a href="{{ route('servers.create') }}"
+                   class="btn btn-primary"
+                   @if (Auth::user()->Servers->count() >= Auth::user()->server_limit || !Auth::user()->can("user.server.create"))
+                   disabled
+                   @endif>
+                    <i class="fas fa-plus mr-2"></i>
                     {{ __('Create Server') }}
                 </a>
+
                 @if (Auth::user()->Servers->count() > 0 && !empty($phpmyadmin_url))
-                    <a
-                        href="{{ $phpmyadmin_url }}" target="_blank"
-                        class="btn btn-secondary ml-2"><i title="manage"
-                        class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span>
+                    <a href="{{ $phpmyadmin_url }}" target="_blank"
+                       class="btn bg-zinc-800/50 text-zinc-300 hover:bg-zinc-800">
+                        <i class="fas fa-database mr-2"></i>
+                        {{ __('Database') }}
                     </a>
                 @endif
             </div>
+        </div>
+    </header>
 
-            <div class="row d-flex flex-row justify-content-center justify-content-md-start">
-                @foreach ($servers as $server)
-                 @if($server->location && $server->node && $server->nest && $server->egg)
-                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
-                        style="max-width: 350px">
+    <!-- Servers Grid -->
+    <div class="max-w-screen-xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6">
+            @foreach ($servers as $server)
+                @if($server->location && $server->node && $server->nest && $server->egg)
+                    <div class="card">
                         <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mt-1">{{ $server->name }}</h5>
-                            </div>
+                            <h3 class="text-base sm:text-lg font-medium text-white truncate">{{ $server->name }}</h3>
                         </div>
-                        <div class="card-body">
-                            <div class="container mt-1">
-                                <div class="row mb-3">
-                                    <div class="col my-auto">{{ __('Status') }}:</div>
-                                    <div class="col-7 my-auto">
-                                        @if($server->suspended)
-                                            <span class="badge badge-danger">{{ __('Suspended') }}</span>
-                                        @elseif($server->canceled)
-                                            <span class="badge badge-warning">{{ __('Canceled') }}</span>
-                                        @else
-                                            <span class="badge badge-success">{{ __('Active') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-5">
-                                        {{ __('Location') }}:
-                                    </div>
-                                    <div class="col-7 d-flex justify-content-between align-items-center">
-                                        <span class="">{{ $server->location }}</span>
-                                        <i data-toggle="popover" data-trigger="hover"
-                                            data-content="{{ __('Node') }}: {{ $server->node }}"
-                                            class="fas fa-info-circle"></i>
-                                    </div>
-
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-5 ">
-                                        {{ __('Software') }}:
-                                    </div>
-                                    <div class="col-7 text-wrap">
-                                        <span>{{ $server->nest }}</span>
-                                    </div>
-
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-5 ">
-                                        {{ __('Specification') }}:
-                                    </div>
-                                    <div class="col-7 text-wrap">
-                                        <span>{{ $server->egg }}</span>
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-5 ">
-                                        {{ __('Resource plan') }}:
-                                    </div>
-                                    <div class="col-7 text-wrap d-flex justify-content-between align-items-center">
-                                        <span>{{ $server->product->name }}
+                        <div class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                            <!-- Status -->
+                            <div class="flex justify-between items-center">
+                                <span class="text-zinc-400">{{ __('Status') }}</span>
+                                <div>
+                                    @if($server->suspended)
+                                        <span class="px-2 py-1 text-xs font-medium bg-red-500/10 text-red-400 rounded-full">
+                                            {{ __('Suspended') }}
                                         </span>
-                                        <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>{{ __('OOM Killer') }}: {{ $server->product->oom_killer ? __("enabled") : __("disabled") }} <br/> {{ __('Billing Period') }}: {{$server->product->billing_period}}"
-                                            class="fas fa-info-circle"></i>
-                                    </div>
+                                    @elseif($server->canceled)
+                                        <span class="px-2 py-1 text-xs font-medium bg-amber-500/10 text-amber-400 rounded-full">
+                                            {{ __('Canceled') }}
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-full">
+                                            {{ __('Active') }}
+                                        </span>
+                                    @endif
                                 </div>
+                            </div>
 
-                                <div class="row mb-4 ">
-                                    <div class="col-5 word-break" style="hyphens: auto">
-                                        {{ __('Next Billing Cycle') }}:
-                                    </div>
-                                    <div class="col-7 d-flex text-wrap align-items-center">
-                                        <span>
+                            <!-- Server Info -->
+                            <div class="space-y-2 sm:space-y-3 text-sm sm:text-base">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-zinc-400">{{ __('Location') }}</span>
+                                    <span class="text-white">{{ $server->location }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-zinc-400">{{ __('Software') }}</span>
+                                    <span class="text-white">{{ $server->nest }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-zinc-400">{{ __('Specification') }}</span>
+                                    <span class="text-white">{{ $server->egg }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-zinc-400">{{ __('Resource plan') }}</span>
+                                    <span class="text-white">{{ $server->product->name }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-zinc-400">{{ __('Next Billing Cycle') }}</span>
+                                    <span class="text-white">
                                         @if ($server->suspended)
                                             -
                                         @else
@@ -146,154 +107,128 @@
                                                     {{ __('Unknown') }}
                                             @endswitch
                                         @endif
-                                        </span>
-                                    </div>
+                                    </span>
                                 </div>
-
-                                <div class="row mb-2">
-                                    <div class="col-4">
-                                        {{ __('Price') }}:
-                                        <span class="text-muted">
-                                            ({{ $credits_display_name }})
-                                        </span>
-                                    </div>
-                                    <div class="col-8 text-center">
-                                        <div class="text-muted">
-                                        @if($server->product->billing_period == 'monthly')
-                                            {{ __('per Month') }}
-                                        @elseif($server->product->billing_period == 'half-annually')
-                                            {{ __('per 6 Months') }}
-                                        @elseif($server->product->billing_period == 'quarterly')
-                                            {{ __('per 3 Months') }}
-                                        @elseif($server->product->billing_period == 'annually')
-                                            {{ __('per Year') }}
-                                        @elseif($server->product->billing_period == 'weekly')
-                                            {{ __('per Week') }}
-                                        @elseif($server->product->billing_period == 'daily')
-                                            {{ __('per Day') }}
-                                        @elseif($server->product->billing_period == 'hourly')
-                                            {{ __('per Hour') }}
-                                        @endif
-                                            <i data-toggle="popover" data-trigger="hover"
-                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . number_format($server->product->getMonthlyPrice(),2,",",".") . " ". $credits_display_name . " ". __('per Month')}}"
-                                               class="fas fa-info-circle"></i>
-                                            </div>
-                                        <span>
-                                            {{ $server->product->price == round($server->product->price) ? round($server->product->price) : $server->product->price }}
-                                        </span>
-                                    </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-zinc-400">{{ __('Price') }}</span>
+                                    <span class="text-white">
+                                        {{ $server->product->price == round($server->product->price) ? round($server->product->price) : $server->product->price }}
+                                    </span>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="card-footer text-center">
-                            <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
-                                target="__blank"
-                                class="btn btn-info text-center float-left ml-2"
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
-                                <i class="fas fa-tools mx-2"></i>
-                            </a>
-                            <a href="{{ route('servers.show', ['server' => $server->id])}}"
-                            	class="btn btn-info text-center mr-3"
-                            	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
-                                <i class="fas fa-cog mx-2"></i>
-                            </a>
-                            <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
-                                class="btn btn-warning  text-center"
-                                {{ $server->suspended || $server->canceled ? "disabled" : "" }}
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
-                                <i class="fas fa-ban mx-2"></i>
-                            </button>
-                            <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
-                                class="btn btn-danger  text-center float-right mr-2"
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
-                                <i class="fas fa-trash mx-2"></i>
-                            </button>
+                            <!-- Actions -->
+                            <div class="flex gap-2 sm:gap-3 mt-4">
+                                <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
+                                   target="_blank"
+                                   class="btn flex-1 bg-zinc-800/50 text-zinc-300 hover:bg-zinc-800">
+                                    <i class="fas fa-tools"></i>
+                                    <span class="hidden sm:inline-block ml-2">{{ __('Console') }}</span>
+                                </a>
+                                
+                                <a href="{{ route('servers.show', ['server' => $server->id])}}"
+                                   class="btn flex-1 bg-zinc-800/50 text-zinc-300 hover:bg-zinc-800">
+                                    <i class="fas fa-cog"></i>
+                                    <span class="hidden sm:inline-block ml-2">{{ __('Settings') }}</span>
+                                </a>
+
+                                <button onclick="handleServerCancel('{{ $server->id }}');"
+                                        class="btn flex-1 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
+                                        {{ $server->suspended || $server->canceled ? "disabled" : "" }}>
+                                    <i class="fas fa-ban"></i>
+                                    <span class="hidden sm:inline-block ml-2">{{ __('Cancel') }}</span>
+                                </button>
+
+                                <button onclick="handleServerDelete('{{ $server->id }}');"
+                                        class="btn flex-1 bg-red-500/10 text-red-400 hover:bg-red-500/20">
+                                    <i class="fas fa-trash"></i>
+                                    <span class="hidden sm:inline-block ml-2">{{ __('Delete') }}</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                 @endif
-                @endforeach
-            </div>
-            <!-- END CUSTOM CONTENT -->
+                @endif
+            @endforeach
         </div>
-    </section>
-    <!-- END CONTENT -->
+    </div>
+</div>
 
-    <script>
-        const handleServerCancel = (serverId) => {
-            // Handle server cancel with sweetalert
-            Swal.fire({
-                title: "{{ __('Cancel Server?') }}",
-                text: "{{ __('This will cancel your current server to the next billing period. It will get suspended when the current period runs out.') }}",
-                icon: 'warning',
-                confirmButtonColor: '#d9534f',
-                showCancelButton: true,
-                confirmButtonText: "{{ __('Yes, cancel it!') }}",
-                cancelButtonText: "{{ __('No, abort!') }}",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.value) {
-                    // Delete server
-                    fetch("{{ route('servers.cancel', '') }}" + '/' + serverId, {
-                        method: 'PATCH',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    }).then(() => {
-                        window.location.reload();
-                    }).catch((error) => {
-                        Swal.fire({
-                            title: "{{ __('Error') }}",
-                            text: "{{ __('Something went wrong, please try again later.') }}",
-                            icon: 'error',
-                            confirmButtonColor: '#d9534f',
-                        })
+<!-- Keep existing JavaScript -->
+<script>
+    const handleServerCancel = (serverId) => {
+        // Handle server cancel with sweetalert
+        Swal.fire({
+            title: "{{ __('Cancel Server?') }}",
+            text: "{{ __('This will cancel your current server to the next billing period. It will get suspended when the current period runs out.') }}",
+            icon: 'warning',
+            confirmButtonColor: '#d9534f',
+            showCancelButton: true,
+            confirmButtonText: "{{ __('Yes, cancel it!') }}",
+            cancelButtonText: "{{ __('No, abort!') }}",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                // Delete server
+                fetch("{{ route('servers.cancel', '') }}" + '/' + serverId, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }).then(() => {
+                    window.location.reload();
+                }).catch((error) => {
+                    Swal.fire({
+                        title: "{{ __('Error') }}",
+                        text: "{{ __('Something went wrong, please try again later.') }}",
+                        icon: 'error',
+                        confirmButtonColor: '#d9534f',
                     })
-                    return
-                }
-            })
-        }
+                })
+                return
+            }
+        })
+    }
 
-        const handleServerDelete = (serverId) => {
-            Swal.fire({
-                title: "{{ __('Delete Server?') }}",
-                html: "{!! __('This is an irreversible action, all files of this server will be removed. <strong>No funds will get refunded</strong>. We recommend deleting the server when server is suspended.') !!}",
-                icon: 'warning',
-                confirmButtonColor: '#d9534f',
-                showCancelButton: true,
-                confirmButtonText: "{{ __('Yes, delete it!') }}",
-                cancelButtonText: "{{ __('No, abort!') }}",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.value) {
-                    // Delete server
-                    fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    }).then(() => {
-                        window.location.reload();
-                    }).catch((error) => {
-                        Swal.fire({
-                            title: "{{ __('Error') }}",
-                            text: "{{ __('Something went wrong, please try again later.') }}",
-                            icon: 'error',
-                            confirmButtonColor: '#d9534f',
-                        })
+    const handleServerDelete = (serverId) => {
+        Swal.fire({
+            title: "{{ __('Delete Server?') }}",
+            html: "{!! __('This is an irreversible action, all files of this server will be removed. <strong>No funds will get refunded</strong>. We recommend deleting the server when server is suspended.') !!}",
+            icon: 'warning',
+            confirmButtonColor: '#d9534f',
+            showCancelButton: true,
+            confirmButtonText: "{{ __('Yes, delete it!') }}",
+            cancelButtonText: "{{ __('No, abort!') }}",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                // Delete server
+                fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }).then(() => {
+                    window.location.reload();
+                }).catch((error) => {
+                    Swal.fire({
+                        title: "{{ __('Error') }}",
+                        text: "{{ __('Something went wrong, please try again later.') }}",
+                        icon: 'error',
+                        confirmButtonColor: '#d9534f',
                     })
-                    return
-                }
-            });
-
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            $('[data-toggle="popover"]').popover();
+                })
+                return
+            }
         });
 
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    </script>
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        $('[data-toggle="popover"]').popover();
+    });
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
 @endsection
