@@ -56,7 +56,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">{{ $general_settings->credits_display_name }}</span>
-                        <span class="info-box-number">{{ Auth::user()->Credits() }}</span>
+                        <span class="info-box-number">{{ number_format(bcdiv($credits, '100', 2), 2, '.', '') }}</span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>
@@ -83,7 +83,7 @@
             </div>
 
             <!-- /.col -->
-            @if ($credits > 0.01 && $usage > 0)
+            @if ($credits > 1 && $usage > 0)
                 <div class="col-12 col-sm-6 col-md-3">
                     <div class="mb-3 info-box">
                         <span class="info-box-icon {{ $bg }} elevation-1">

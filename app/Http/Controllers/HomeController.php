@@ -112,7 +112,6 @@ class HomeController extends Controller
         }
 
         //$this->callhome(); TODO: Same as the function
-
         // RETURN ALL VALUES
         return view('home')->with([
             'usage' => $usage,

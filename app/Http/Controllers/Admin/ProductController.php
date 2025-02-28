@@ -76,7 +76,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:1000000|min:0',
+            'price' => 'required|numeric|max:1000000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
@@ -153,7 +153,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:1000000|min:0',
+            'price' => 'required|numeric|max:1000000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
@@ -174,7 +174,8 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $product->update(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
+        $price = intval($request->input('price'))*100;
+        $product->update(array_merge($request->all(), ['price' => $price,'disabled' => $disabled, 'oom_killer' => $oomkiller]));
 
         //link nodes and eggs
         $product->eggs()->detach();
@@ -243,6 +244,9 @@ class ProductController extends Controller
                 ';
             })
 
+            ->addColumn('price', function(Product $product){
+                return $product->price / 100;
+            })
             ->addColumn('servers', function (Product $product) {
                 return $product->servers()->count();
             })
