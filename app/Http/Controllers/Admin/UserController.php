@@ -160,7 +160,7 @@ class UserController extends Controller
             'name' => 'required|string|min:4|max:30',
             'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
             'email' => 'required|string|email',
-            'credits' => 'required|numeric|min:0|max:99999999',
+            'credits' => 'required|numeric|min:0|max:999999999999',
             'server_limit' => 'required|numeric|min:0|max:1000000',
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
@@ -184,7 +184,7 @@ class UserController extends Controller
         }
 
         if ($this->canAny([self::CHANGE_CREDITS_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('credits')) {
-            $dataArray['credits'] = $request->input('credits');
+            $dataArray['credits'] = $request->input('credits') * 100;
         }
 
         if ($this->canAny([self::CHANGE_PTERO_PERMISSION, self::WRITE_PERMISSION]) && $request->filled('pterodactyl_id')) {
@@ -410,7 +410,7 @@ class UserController extends Controller
                 return '<img width="28px" height="28px" class="ml-1 rounded-circle" src="' . $user->getAvatar() . '">';
             })
             ->addColumn('credits', function (User $user) {
-                return '<i class="mr-2 fas fa-coins"></i> ' . $user->credits();
+                return '<i class="mr-2 fas fa-coins"></i> ' . number_format(bcdiv($user->credits(), '100', 2), 2);
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
