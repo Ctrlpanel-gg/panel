@@ -34,14 +34,18 @@ class ConvertFloatColumnsToIntegers extends Migration
         });
 
         // converting float columns to integer
-        DB::statement('UPDATE coupons SET value_cents = ROUND(value * 100)');
-        DB::statement('UPDATE payments SET price_cents = ROUND(price * 100), 
-                                         tax_value_cents = ROUND(tax_value * 100),
-                                         total_price_cents = ROUND(total_price * 100)');
-        DB::statement('UPDATE products SET price_cents = ROUND(price * 10000),
-                                         minimum_credits_cents = ROUND(minimum_credits * 10000)');
-        DB::statement('UPDATE shop_products SET price_cents = ROUND(price * 100)');
-        DB::statement('UPDATE users SET credits_cents = ROUND(credits * 10000)');
+        DB::statement('UPDATE coupons SET value_cents = TRUNCATE(value * 100, 0)');
+        DB::statement('UPDATE payments SET 
+            price_cents = TRUNCATE(price * 100, 0),
+            tax_value_cents = TRUNCATE(tax_value * 100, 0),
+            total_price_cents = TRUNCATE(total_price * 100, 0)
+        ');
+        DB::statement('UPDATE products SET 
+            price_cents = TRUNCATE(price * 10000, 0),
+            minimum_credits_cents = TRUNCATE(minimum_credits * 10000, 0)
+        ');
+        DB::statement('UPDATE shop_products SET price_cents = TRUNCATE(price * 100, 0)');
+        DB::statement('UPDATE users SET credits_cents = TRUNCATE(credits * 10000, 0)');
 
         // dropping old columns and rename temp columns
         Schema::table('coupons', function (Blueprint $table) {
@@ -76,28 +80,39 @@ class ConvertFloatColumnsToIntegers extends Migration
     public function down()
     {
         // temp colums for converting back to decimal
-        Schema::table('coupons', function (Blueprint $table) {
-            $table->decimal('value_decimal', 10, 2)->after('value')->nullable();
-        });
+        if (!Schema::hasColumn('coupons', 'value_decimal')) {
+            Schema::table('coupons', function (Blueprint $table) {
+                $table->decimal('value_decimal', 10, 2)->after('value')->nullable();
+            });
+        }
         
-        Schema::table('payments', function (Blueprint $table) {
-            $table->decimal('price_decimal', 8, 2)->after('price')->nullable();
-            $table->decimal('tax_value_decimal', 8, 2)->after('tax_value')->nullable();
-            $table->decimal('total_price_decimal', 8, 2)->after('total_price')->nullable();
-        });
+        if (!Schema::hasColumns('payments', ['price_decimal', 'tax_value_decimal', 'total_price_decimal'])) {
+            Schema::table('payments', function (Blueprint $table) {
+                $table->decimal('price_decimal', 8, 2)->after('price')->nullable();
+                $table->decimal('tax_value_decimal', 8, 2)->after('tax_value')->nullable();
+                $table->decimal('total_price_decimal', 8, 2)->after('total_price')->nullable();
+            });
+        }
         
-        Schema::table('products', function (Blueprint $table) {
-            $table->decimal('price_decimal', 15, 4)->after('price')->nullable();
-            $table->decimal('minimum_credits_decimal', 15, 4)->after('minimum_credits')->nullable();
-        });
+        if (!Schema::hasColumns('products', ['price_decimal', 'minimum_credits_decimal'])) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->decimal('price_decimal', 15, 4)->after('price')->nullable();
+                $table->decimal('minimum_credits_decimal', 15, 4)->after('minimum_credits')->nullable();
+            });
+        }
         
-        Schema::table('shop_products', function (Blueprint $table) {
-            $table->decimal('price_decimal', 8, 2)->after('price')->nullable();
-        });
+        if (!Schema::hasColumn('shop_products', 'price_decimal')) {
+            Schema::table('shop_products', function (Blueprint $table) {
+                $table->decimal('price_decimal', 8, 2)->after('price')->nullable();
+            });
+        }
         
-        Schema::table('users', function (Blueprint $table) {
-            $table->decimal('credits_decimal', 15, 4)->after('credits')->nullable();
-        });
+        if (!Schema::hasColumn('users', 'credits_decimal')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->decimal('credits_decimal', 15, 4)->after('credits')->nullable();
+            });
+        }
+
         // converting integer back to decimals
         DB::statement('UPDATE coupons SET value_decimal = value / 100');
         DB::statement('UPDATE payments SET price_decimal = price / 100,

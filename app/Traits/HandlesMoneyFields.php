@@ -2,28 +2,50 @@
 
 namespace App\Traits;
 
+use App\Models\User;
+use App\Models\Product;
+use App\Models\Server;
+use App\Models\Voucher;
 
 trait HandlesMoneyFields
 {   
-    protected function convertToInteger($amount, $precision = 2)
+    protected function isPrecision4Model(): bool 
     {
-        if ($this instanceof User || property_exists($this, 'minimum_credits')) {
-            $precision = 4;
-        }
-        return (int) bcmul($amount, bcpow(10, $precision), 0);
+        return $this instanceof User 
+            || $this instanceof Product 
+            || $this instanceof Server 
+            || $this instanceof Voucher
+            || property_exists($this, 'minimum_credits');
     }
 
-    protected function convertFromInteger($amount, $precision = 2) 
+    protected function convertToInteger($amount, $precision = null)
     {
-        if ($this instanceof User || property_exists($this, 'minimum_credits')) {
-            $precision = 4;
+        if ($precision === null) {
+            $precision = $this->isPrecision4Model() ? 4 : 2;
         }
-        return bcdiv($amount, bcpow(10, $precision), $precision);
+        return (int) bcmul($amount, bcpow(10, $precision, 0), 0);
     }
 
-    public function formatToCurrency($value)
+    protected function convertFromInteger($amount, $precision = null) 
     {
-        $currencyCode = property_exists($this, 'currency_code') ? $this->currency_code : '€';
-        return $currencyCode . number_format($this->convertFromInteger($value), 2);
+        if ($precision === null) {
+            $precision = $this->isPrecision4Model() ? 4 : 2;
+        }
+        return bcdiv($amount, bcpow(10, $precision, 0), $precision);
+    }
+
+    public function formatToCurrency($value, $locale = null)
+    {
+        $currencyCode = $this->getCurrencyCode();
+        $formatter = new \NumberFormatter($locale ?? 'en_US', \NumberFormatter::CURRENCY);
+        return $formatter->formatCurrency($this->convertFromInteger($value), $currencyCode);
+    }
+
+    protected function getCurrencyCode(): string
+    {
+        if (property_exists($this, 'currency_code')) {
+            return $this->currency_code;
+        }
+        return config('app.default_currency', 'EUR');
     }
 }

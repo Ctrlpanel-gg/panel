@@ -79,7 +79,7 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:1000000|min:0',// float to int (cents)
+            'price' => 'required|numeric|max:1000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => 'required|numeric|max:1000000|min:0',
@@ -104,7 +104,7 @@ class ProductController extends Controller
         $product = Product::create(array_merge($request->all(), [
             'disabled' => $disabled,
             'oom_killer' => $oomkiller,
-            'price' => $this->convertToInteger($request->price) // float to int (cents)
+            'price' => $this->convertToInteger($request->price)
         ]));
 
         //link nodes and eggs
@@ -184,7 +184,7 @@ class ProductController extends Controller
         $product->update(array_merge($request->all(), [
             'disabled' => $disabled,
             'oom_killer' => $oomkiller,
-            'price' => $this->convertToInteger($request->price) // float to int (cents)
+            'price' => $this->convertToInteger($request->price)
         ]));
 
         //link nodes and eggs

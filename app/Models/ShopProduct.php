@@ -85,9 +85,9 @@ class ShopProduct extends Model
     public function getPriceAfterDiscount()
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
-        $price = (int)$this->attributes['price'];
-        $discountedPrice = $price * (1 - $discountRate);
-        return round($discountedPrice);
+        $originalPrice = $this->attributes['price']; // Get raw integer value
+        $discountedPrice = (int)bcmul($originalPrice, bcsub(1, $discountRate, 4), 0);
+        return $discountedPrice;
     }
 
     /**
@@ -99,8 +99,13 @@ class ShopProduct extends Model
     {
         $taxPercent = $this->getTaxPercent();
         $priceAfterDiscount = $this->getPriceAfterDiscount();
-        $taxValue = bcmul(bcdiv(bcmul($priceAfterDiscount, $taxPercent, 4), '100', 4), '1', 2);
-        return $taxValue;
+        $taxValue = bcmul(
+            bcdiv(bcmul($priceAfterDiscount, $taxPercent, 4), '100', 4),
+            '1',
+            2
+        );
+        
+        return (int)$taxValue;
     }
 
     /**
