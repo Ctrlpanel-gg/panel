@@ -1,135 +1,163 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{ __('Ticket Categories') }}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{ route("admin.ticket.category.index") }}">{{ __('Ticket Categories') }}</a>
-                        </li>
-                    </ol>
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <div class="max-w-screen-2xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-light text-white">{{ __('Ticket Categories') }}</h1>
+                    <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+                        <ol class="inline-flex items-center space-x-1 text-zinc-400">
+                            <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
+                            <li class="text-zinc-600">/</li>
+                            <li class="text-zinc-500">{{ __('Ticket Categories') }}</li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+    </div>
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between">
-                                <h5 class="card-title"><i class="fas fas fa-users mr-2"></i>{{__('Categories')}}</h5>
-                            </div>
-                        </div>
-                        <div class="card-body table-responsive">
-
-                            <table id="datatable" class="table table-striped">
-                                <thead>
-                                <tr>
-                                    <th>{{__('ID')}}</th>
-                                    <th>{{__('Name')}}</th>
-                                    <th>{{__('Tickets')}}</th>
-                                    <th>{{__('Created At')}}</th>
-                                    <th>{{__('Actions')}}</th>
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Categories Table -->
+            <div class="lg:col-span-8">
+                <div class="glass-panel">
+                    <div class="p-6 border-b border-zinc-800/50">
+                        <h5 class="text-lg font-medium text-white flex items-center">
+                            <i class="fas fa-list mr-2 text-zinc-400"></i>
+                            {{__('Categories')}}
+                        </h5>
+                    </div>
+                    <div class="p-6">
+                        <table id="datatable" class="w-full">
+                            <thead>
+                                <tr class="text-left text-zinc-400">
+                                    <th class="px-2 py-3">{{__('ID')}}</th>
+                                    <th class="px-2 py-3">{{__('Name')}}</th>
+                                    <th class="px-2 py-3">{{__('Tickets')}}</th>
+                                    <th class="px-2 py-3">{{__('Created At')}}</th>
+                                    <th class="px-2 py-3">{{__('Actions')}}</th>
                                 </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">{{__('Add Category')}}
-                        </div>
-                        <div class="card-body">
-                            <form action="{{route("admin.ticket.category.store")}}" method="POST" class="ticket-form">
-                                @csrf
-                                <div class="form-group ">
-                                    <label for="name" class="control-label">{{__("Name")}}</label>
-                                    <input id="name" type="text" class="form-control" name="name" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    {{__('Submit')}}
-                                </button>
+            </div>
 
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            </form>
-                        </div>
+            <!-- Category Forms -->
+            <div class="lg:col-span-4 space-y-8">
+                <!-- Add Category Form -->
+                <div class="glass-panel">
+                    <div class="p-6 border-b border-zinc-800/50">
+                        <h5 class="text-lg font-medium text-white flex items-center">
+                            <i class="fas fa-plus mr-2 text-zinc-400"></i>
+                            {{__('Add Category')}}
+                        </h5>
                     </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">{{__('Edit Category')}}
-                        </div>
-                        <div class="card-body">
-                            <form action="{{route("admin.ticket.category.update","1")}}" method="POST" class="ticket-form">
-                                @csrf
-                                @method('PATCH')
-                                <select id="category" style="width:100%" class="custom-select" name="category"
-                                        required autocomplete="off" @error('category') is-invalid @enderror>
+                    <div class="p-6">
+                        <form action="{{route('admin.ticket.category.store')}}" method="POST" class="space-y-4">
+                            @csrf
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-zinc-400 mb-1">{{__("Name")}}</label>
+                                <input id="name" type="text" class="input" name="name" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">
+                                {{__('Submit')}}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Edit Category Form -->
+                <div class="glass-panel">
+                    <div class="p-6 border-b border-zinc-800/50">
+                        <h5 class="text-lg font-medium text-white flex items-center">
+                            <i class="fas fa-edit mr-2 text-zinc-400"></i>
+                            {{__('Edit Category')}}
+                        </h5>
+                    </div>
+                    <div class="p-6">
+                        <form action="{{route('admin.ticket.category.update', '1')}}" method="POST" class="space-y-4">
+                            @csrf
+                            @method('PATCH')
+                            <div>
+                                <label for="category" class="block text-sm font-medium text-zinc-400 mb-1">{{__("Select Category")}}</label>
+                                <select id="category" class="input" name="category" required>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }}">{{ __($category->name) }}</option>
                                     @endforeach
                                 </select>
-
-                                <div class="form-group ">
-                                    <label for="name" class="control-label">{{__("New Name")}}</label>
-                                    <input id="name" type="text" class="form-control" name="name" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    {{__('Submit')}}
-                                </button>
-
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            </form>
-                        </div>
+                            </div>
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-zinc-400 mb-1">{{__("New Name")}}</label>
+                                <input id="name" type="text" class="input" name="name" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-full">
+                                {{__('Update')}}
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-
-    </section>
-    <!-- END CONTENT -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            $('#datatable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
-                },
-                processing: true,
-                serverSide: true,
-                stateSave: true,
-                ajax: "{{route('admin.ticket.category.datatable')}}",
-                columns: [
-                    {data: 'id'},
-                    {data: 'name'},
-                    {data: 'tickets'},
-                    {data: 'created_at', sortable: false},
-                    {data: 'actions', sortable: false},
-                ],
-                fnDrawCallback: function( oSettings ) {
-                    $('[data-toggle="popover"]').popover();
-                }
-            });
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        $('#datatable').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
+            },
+            processing: true,
+            serverSide: true,
+            stateSave: true,
+            ajax: "{{route('admin.ticket.category.datatable')}}",
+            columns: [
+                {data: 'id'},
+                {data: 'name'},
+                {data: 'tickets'},
+                {data: 'created_at', sortable: false},
+                {data: 'actions', sortable: false},
+            ],
+            fnDrawCallback: function( oSettings ) {
+                $('[data-toggle="popover"]').popover();
+            }
         });
 
-            document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
-        })
+        // Initialize Select2
+        $('.input[name="category"]').select2({
+            theme: 'default select2-dark',
+            containerCssClass: 'select2-dark',
+            dropdownCssClass: 'select2-dark',
+        });
+    });
+</script>
 
-    </script>
+<style>
+    /* Dark theme for Select2 */
+    .select2-dark {
+        @apply bg-primary-950 border-primary-800 text-white;
+    }
+    .select2-container--default .select2-dark .select2-selection--single {
+        @apply bg-primary-950 border-primary-800 text-white;
+    }
+    .select2-container--default .select2-dark .select2-selection__rendered {
+        @apply text-white;
+    }
+    .select2-dropdown {
+        @apply bg-primary-900 border-primary-800;
+    }
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        @apply bg-primary-800;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        @apply bg-primary-700;
+    }
+</style>
 @endsection
