@@ -1,6 +1,10 @@
 {
   "themes/default/css/app.css": {
+<<<<<<< HEAD
     "file": "assets/app-8df3fbed.css",
+=======
+    "file": "assets/app-d5db8130.css",
+>>>>>>> b2516526d149ac8499c362806d960842dd1cbbf1
     "isEntry": true,
     "src": "themes/default/css/app.css"
   },
