@@ -7,19 +7,42 @@
         "build:default": "vite build --config themes/default/vite.config.js"
     },
     "devDependencies": {
+        "@tailwindcss/forms": "^0.5.7",
+        "@vitejs/plugin-react": "^1.3.2",
+        "autoprefixer": "^10.4.19",
         "axios": "^0.25",
         "bootstrap": "^4.6.0",
         "jquery": "^3.5",
         "lodash": "^4.17.19",
         "popper.js": "^1.16",
-        "postcss": "^8.1.14",
+        "postcss": "^8.4.38",
+        "postcss-import": "^16.1.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
         "resolve-url-loader": "^3.1.2",
         "sass": "^1.32.1",
-        "sass-loader": "^10.1.1"
+        "sass-loader": "^10.1.1",
+        "tailwindcss": "^3.4.3"
     },
     "dependencies": {
-        "tinymce": "^7.0.0",
-        "vite": "^6.1.0",
-        "laravel-vite-plugin": "^0.7.3"
+        "@tailwindcss/typography": "github:tailwindcss/typography",
+        "@tiptap/core": "^2.11.5",
+        "@tiptap/extension-bold": "^2.11.5",
+        "@tiptap/extension-color": "^2.11.5",
+        "@tiptap/extension-font-family": "^2.11.5",
+        "@tiptap/extension-highlight": "^2.11.5",
+        "@tiptap/extension-image": "^2.11.5",
+        "@tiptap/extension-link": "^2.11.5",
+        "@tiptap/extension-text-align": "^2.11.5",
+        "@tiptap/extension-text-style": "^2.11.5",
+        "@tiptap/extension-underline": "^2.11.5",
+        "@tiptap/extension-youtube": "^2.11.5",
+        "@tiptap/pm": "^2.11.5",
+        "@tiptap/starter-kit": "^2.11.5",
+        "flowbite": "^3.1.2",
+        "flowbite-typography": "^1.0.5",
+        "laravel-vite-plugin": "^0.7.3",
+        "tinymce": "^6.3.1",
+        "vite": "^4.0.4"
     }
 }
