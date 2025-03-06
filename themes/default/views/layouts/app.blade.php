@@ -68,7 +68,6 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
-    @vite(['themes/default/js/editor.js'])
     <link href="https://unpkg.com/@tiptap/core@2.1.13/dist/tiptap.css" rel="stylesheet">
 </head>
 <body>

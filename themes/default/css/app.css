@@ -48,6 +48,24 @@
     [type='radio'] {
         @apply rounded border-zinc-800/50 bg-zinc-900/50 text-primary-600 focus:ring-primary-500/20 focus:ring-offset-0;
     }
+
+    /* Chrome, Safari, Edge autofill override */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px rgb(24 24 27 / 0.5) inset !important;
+        -webkit-text-fill-color: #fff !important;
+        caret-color: #fff;
+        border-bottom-width: 1px;
+    }
+
+    /* Firefox autofill override */
+    input:autofill {
+        background: transparent;
+        color: #fff;
+        border-bottom-width: 1px;
+    }
 }
 
 @layer components {
