@@ -10,6 +10,7 @@ use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
+use Exception;
 
 class SocialiteController extends Controller
 {
@@ -62,20 +63,31 @@ class SocialiteController extends Controller
         //force user into discord server
         //TODO Add event on failure, to notify ppl involved
         if (! empty($guildId) && ! empty($botToken)) {
-            $response = Http::withHeaders(
-                [
-                    'Authorization' => 'Bot '.$botToken,
-                    'Content-Type' => 'application/json',
-                ]
-            )->put(
-                "https://discord.com/api/guilds/{$guildId}/members/{$discord->id}",
-                ['access_token' => $discord->token]
-            );
-            $discordUser = $user->discordUser;
-            //give user a role in the discord server
-            if (! empty($roleId)) {
-                // Function addOrRemoveRole is defined in app/Models/DiscordUser.php
-                $discordUser->addOrRemoveRole('add', $roleId);
+            try {
+                $response = Http::withHeaders(
+                    [
+                        'Authorization' => 'Bot '. $botToken,
+                        'Content-Type' => 'application/json',
+                    ]
+                )->put("https://discord.com/api/guilds/{$guildId}/members/{$discord->id}");
+
+                if ($response->failed()) {
+                    throw new Exception(
+                        "Discord API error: {$response->status()} - " .
+                        ($response->json('message') ?? 'Unknown error')
+                    );
+                }
+
+                if (!empty($roleId)) {
+                    $user->discordUser->addOrRemoveRole('add', $roleId);
+                }
+            } catch (Exception $e) {
+                logger()->error($e->getMessage());
+
+                return redirect()->route('profile.index')->with(
+                    'error',
+                    'Failed to join discord server!'
+                );
             }
         }
 

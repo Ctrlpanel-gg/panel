@@ -7,7 +7,7 @@ return new class extends SettingsMigration
     public function up(): void
     {
         $this->migrator->delete('general.recaptcha_enabled');
-        $this->migrator->add('general.recaptcha_version', 'v2');
+        $this->migrator->add('general.recaptcha_version', null);
     }
 
     public function down(): void
