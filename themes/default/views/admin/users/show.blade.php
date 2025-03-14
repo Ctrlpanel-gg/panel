@@ -1,299 +1,257 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>{{ __('Users') }}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">{{ __('Users') }}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('admin.users.show', $user->id) }}">{{ __('Show') }}</a>
-                        </li>
+<div class="min-h-screen bg-primary-950 p-4 sm:p-8">
+    <!-- Header -->
+    <header class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+        <div class="glass-panel p-4 sm:p-6">
+            <h1 class="text-2xl sm:text-3xl font-light text-white">{{ __('Users') }}</h1>
+            <div class="text-zinc-400 text-sm mt-2">
+                <nav class="flex" aria-label="Breadcrumb">
+                    <ol class="flex items-center space-x-2">
+                        <li><a href="{{ route('home') }}" class="text-primary-400 hover:text-primary-300">{{ __('Dashboard') }}</a></li>
+                        <li><span class="text-zinc-600 mx-1">/</span></li>
+                        <li><a href="{{ route('admin.users.index') }}" class="text-primary-400 hover:text-primary-300">{{ __('Users') }}</a></li>
+                        <li><span class="text-zinc-600 mx-1">/</span></li>
+                        <li class="text-zinc-400">{{ $user->name }}</li>
                     </ol>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto space-y-6">
+        <!-- Discord Info -->
+        @if ($user->discordUser)
+        <div class="card glass-morphism">
+            <div class="p-6">
+                <div class="flex items-center justify-between bg-zinc-800/30 rounded-lg p-4">
+                    <div class="flex items-center gap-4">
+                        <img class="w-16 h-16 rounded-full" src="{{ $user->discordUser->getAvatar() }}" alt="Discord Avatar">
+                        <div>
+                            <h3 class="text-xl font-medium text-white">{{ $user->discordUser->username }}</h3>
+                            <p class="text-zinc-400">{{ $user->discordUser->id }}</p>
+                            <span class="bg-blue-500/10 text-blue-400 px-2 py-1 rounded-full text-xs">{{ $user->discordUser->locale }}</span>
+                        </div>
+                    </div>
+                    <div class="text-zinc-400">
+                        <i class="fab fa-discord text-2xl"></i>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+        @endif
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
-
-            @if ($user->discordUser)
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="small-box bg-dark">
-                            <div class="d-flex justify-content-between">
-                                <div class="p-3">
-                                    <h3>{{ $user->discordUser->username }} <sup>{{ $user->discordUser->locale }}</sup></h3>
-                                    <p>{{ $user->discordUser->id }}
-                                    </p>
-                                </div>
-                                <div class="p-3"><img width="100px" height="100px" class="rounded-circle"
-                                        src="{{ $user->discordUser->getAvatar() }}" alt="avatar"></div>
+        <!-- User Details -->
+        <div class="card glass-morphism">
+            <div class="p-6 border-b border-zinc-800/50">
+                <h3 class="text-white font-medium flex items-center gap-2">
+                    <i class="fas fa-user text-zinc-400"></i>
+                    {{ __('User Details') }}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- User Info Cards -->
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-blue-500/10">
+                                <i class="fas fa-id-card text-blue-400"></i>
                             </div>
-                            <div class="small-box-footer">
-                                <i class="fab fa-discord mr-1"></i>Discord
-                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('ID') }}</span>
                         </div>
-
-                    </div>
-                </div>
-            @endif
-
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-users mr-2"></i>{{ __('Users') }}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('ID') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->id }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Role') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    @foreach ($user->roles as $role)
-                                        <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Pterodactyl ID') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->pterodactyl_id }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Email') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 400px;" class="d-inline-block text-truncate">
-                                        {{ $user->email }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Server limit') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->Servers()->count() }} / {{ $user->server_limit }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Name') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->name }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Verified') }} {{ __('Email') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->email_verified_at ? 'True' : 'False' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ $credits_display_name }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-coins mr-2"></i>{{ $user->Credits() }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Verified') }} {{ __('Discord') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->discordUser ? 'True' : 'False' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('IP') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->ip }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Usage') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-coins mr-2"></i>{{ $user->CreditUsage() }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Referred by') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->referredBy() != Null ? $user->referredBy()->name : "None" }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Created at') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->created_at->diffForHumans() }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>{{ __('Last seen') }}</label>
-                                </div>
-                                <div class="col-lg-8">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        @if ($user->last_seen)
-                                            {{ $user->last_seen->diffForHumans() }}
-                                        @else
-                                            <small class="text-muted">Null</small>
-                                        @endif
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-
+                        <div class="text-lg font-medium text-white">{{ $user->id }}</div>
                     </div>
 
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-purple-500/10">
+                                <i class="fas fa-user-tag text-purple-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Roles') }}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($user->roles as $role)
+                                <span style="background-color: {{$role->color}}" class="px-2 py-1 rounded-full text-xs text-white">{{$role->name}}</span>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-emerald-500/10">
+                                <i class="fas fa-envelope text-emerald-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Email') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->email }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-amber-500/10">
+                                <i class="fas fa-server text-amber-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Server Limit') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->Servers()->count() }} / {{ $user->server_limit }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-red-500/10">
+                                <i class="fas fa-coins text-red-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ $credits_display_name }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->Credits() }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-green-500/10">
+                                <i class="fas fa-server text-green-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Pterodactyl ID') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->pterodactyl_id }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-yellow-500/10">
+                                <i class="fas fa-user text-yellow-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Name') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->name }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-teal-500/10">
+                                <i class="fas fa-check text-teal-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Verified') }} {{ __('Email') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->email_verified_at ? 'True' : 'False' }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-indigo-500/10">
+                                <i class="fas fa-check text-indigo-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Verified') }} {{ __('Discord') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->discordUser ? 'True' : 'False' }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-pink-500/10">
+                                <i class="fas fa-network-wired text-pink-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('IP') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->ip }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-orange-500/10">
+                                <i class="fas fa-coins text-orange-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Usage') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->CreditUsage() }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-cyan-500/10">
+                                <i class="fas fa-user-friends text-cyan-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Referred by') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->referredBy() != Null ? $user->referredBy()->name : "None" }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-lime-500/10">
+                                <i class="fas fa-calendar-alt text-lime-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Created at') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">{{ $user->created_at->diffForHumans() }}</div>
+                    </div>
+
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="rounded-lg p-2 bg-gray-500/10">
+                                <i class="fas fa-clock text-gray-400"></i>
+                            </div>
+                            <span class="text-sm text-zinc-400">{{ __('Last seen') }}</span>
+                        </div>
+                        <div class="text-lg font-medium text-white">
+                            @if ($user->last_seen)
+                                {{ $user->last_seen->diffForHumans() }}
+                            @else
+                                <small class="text-muted">Null</small>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-server mr-2"></i>{{ __('Servers') }}</h5>
-                </div>
-                <div class="card-body table-responsive">
-                    @include('admin.servers.table', ['filter' => '?user=' . $user->id])
-                </div>
-
+        <!-- Servers -->
+        <div class="card glass-morphism">
+            <div class="p-6 border-b border-zinc-800/50">
+                <h3 class="text-white font-medium flex items-center gap-2">
+                    <i class="fas fa-server text-zinc-400"></i>
+                    {{ __('Servers') }}
+                </h3>
             </div>
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-user-check mr-2"></i>{{ __('Referals') }}
-                        ({{ __('referral-code') }}: {{ $user->referral_code }})</h5>
-                </div>
-                <div class="card-body table-responsive">
+            <div class="p-6">
+                @include('admin.servers.table', ['filter' => '?user=' . $user->id])
+            </div>
+        </div>
 
-
+        <!-- Referrals -->
+        <div class="card glass-morphism">
+            <div class="p-6 border-b border-zinc-800/50">
+                <h3 class="text-white font-medium flex items-center gap-2">
+                    <i class="fas fa-user-check text-zinc-400"></i>
+                    {{ __('Referrals') }} ({{ __('referral-code') }}: {{ $user->referral_code }})
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     @foreach ($referrals as $referral)
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>User ID: {{ $referral->id }}</label>
+                    <div class="glass-panel bg-zinc-800/30 p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="rounded-lg p-2 bg-blue-500/10">
+                                    <i class="fas fa-user text-blue-400"></i>
                                 </div>
-                                <div class="col-lg-4">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-user-check mr-2"></i><a
-                                            href="{{ route('admin.users.show', $referral->id) }}">{{ $referral->name }}</a>
-                                    </span>
-                                </div>
-                                <div class="col-lg-4">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-clock mr-2"></i>{{ $referral->created_at->diffForHumans() }}
-                                    </span>
+                                <div>
+                                    <div class="text-white">{{ $referral->name }}</div>
+                                    <div class="text-sm text-zinc-400">ID: {{ $referral->id }}</div>
                                 </div>
                             </div>
+                            <div class="text-sm text-zinc-400">
+                                <i class="fas fa-clock mr-1"></i>
+                                {{ $referral->created_at->diffForHumans() }}
+                            </div>
                         </div>
+                    </div>
                     @endforeach
                 </div>
-
             </div>
-
         </div>
-        <!-- END CUSTOM CONTENT -->
-        </div>
-    </section>
-    <!-- END CONTENT -->
+    </div>
+</div>
 @endsection

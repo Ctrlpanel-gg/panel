@@ -21,8 +21,6 @@
         --ring: 221 83% 53%;
         --ring-color: 221 83% 53%;
         animation: var(--animate-pulse);
-        /* pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite */
-
     }
 
     /* Form Controls */
@@ -93,6 +91,7 @@
         @apply p-6;
     }
 
+    /* Stats Components */
     .stats-icon {
         @apply rounded-full p-3 mr-4;
 
@@ -127,25 +126,19 @@
         }
     }
 
-    .prose-invert {
-        @apply prose-headings:text-primary-100 prose-p:text-primary-300 prose-a:text-accent-blue hover:prose-a:text-accent-blue/80 prose-strong:text-primary-200 prose-ul:text-primary-300 prose-ol:text-primary-300 prose-blockquote:text-primary-400 prose-figure:text-primary-300 prose-figcaption:text-primary-400 prose-code:text-primary-300 prose-pre:bg-primary-800 prose-th:text-primary-300 prose-td:text-primary-300 prose-img:rounded-xl prose-hr:border-primary-800;
-    }
-
     .stats-card {
         @apply glass-panel p-6 flex items-center gap-4;
     }
 
+    /* Content Styling */
+    .prose-invert {
+        @apply prose-headings:text-primary-100 prose-p:text-primary-300 prose-a:text-accent-blue hover:prose-a:text-accent-blue/80 prose-strong:text-primary-200 prose-ul:text-primary-300 prose-ol:text-primary-300 prose-blockquote:text-primary-400 prose-figure:text-primary-300 prose-figcaption:text-primary-400 prose-code:text-primary-300 prose-pre:bg-primary-800 prose-th:text-primary-300 prose-td:text-primary-300 prose-img:rounded-xl prose-hr:border-primary-800;
+    }
+
+    /* UI Components */
     .glass-panel {
         @apply bg-zinc-900/50 backdrop-blur-sm border border-zinc-800/50 rounded-xl overflow-hidden;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .nav-link {
-        @apply flex items-center px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-200 rounded-lg transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-offset-0;
-    }
-
-    .nav-link.active {
-        @apply bg-zinc-800 text-white hover:bg-zinc-700;
     }
 
     .glass-morphism {
@@ -163,125 +156,17 @@
                 rgba(59, 130, 246, 0.04));
     }
 
-    /* Enhanced DataTables Styling */
-    .dataTables_wrapper {
-        @apply text-zinc-400 w-full;
+    /* Navigation Components */
+    .nav-link {
+        @apply flex items-center px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-200 rounded-lg transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-offset-0;
     }
 
-    .dataTable {
-        @apply w-full;
-    }
-
-    .dataTable thead tr {
-        @apply border-b border-zinc-800/50;
-    }
-
-    .dataTable thead th {
-        @apply text-left text-xs font-medium text-zinc-400 uppercase tracking-wider px-6 py-4;
-        /* Increased padding to match card */
-    }
-
-    .dataTable tbody tr {
-        @apply border-b border-zinc-800/10 hover:bg-zinc-800/20 transition-colors;
-    }
-
-    .dataTable tbody tr:last-child {
-        @apply border-b-0;
-        /* Remove border from last row */
-    }
-
-    .dataTable tbody td {
-        @apply px-6 py-4 text-zinc-300;
-        /* Increased padding to match card */
-    }
-
-    .dataTables_length,
-    .dataTables_filter {
-        @apply mb-4;
-    }
-
-    .dataTables_length select,
-    .dataTables_filter input {
-        @apply bg-zinc-900/50 border border-zinc-800/50 rounded-lg px-3 py-1.5 text-zinc-300 focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-colors duration-200;
-    }
-
-    .dataTables_paginate {
-        @apply mt-4 flex items-center justify-end gap-2;
-    }
-
-    .dataTables_paginate .paginate_button {
-        @apply px-3 py-1.5 rounded-lg text-sm font-medium transition-colors text-zinc-400 hover:text-white hover:bg-primary-800/50;
-    }
-
-    .dataTables_paginate .paginate_button.current {
-        @apply bg-primary-800 text-white hover:bg-primary-700;
-    }
-
-    .dataTables_paginate .paginate_button.disabled {
-        @apply opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400;
-    }
-
-    .dataTables_info {
-        @apply mt-4 text-sm text-zinc-500;
-    }
-
-    /* Remove old table styling that conflicts with DataTables */
-    .table {
-        /* ...existing code... */
-    }
-
-    /* Enhanced Table Styling */
-    .table {
-        @apply w-full text-sm;
-    }
-
-    .table thead {
-        @apply bg-zinc-900/30;
-    }
-
-    .table thead th {
-        @apply px-6 py-4 text-xs font-medium text-zinc-400 uppercase tracking-wider text-left border-b border-zinc-800/50;
-    }
-
-    .table tbody tr {
-        @apply transition-all duration-200 border-b border-zinc-800/20;
-    }
-
-    .table tbody tr:hover {
-        @apply bg-zinc-800/30 backdrop-blur-sm;
-    }
-
-    .table tbody td {
-        @apply px-6 py-4 text-zinc-300;
-    }
-
-    /* Table Container with Glass Effect */
-    .table-container {
-        @apply overflow-hidden;
-        /* Removed rounded corners and borders since card already has them */
-    }
-
-    /* Scrollable Table Container */
-    .table-responsive {
-        @apply overflow-x-auto;
-        scrollbar-width: thin;
-        scrollbar-color: theme('colors.zinc.700') theme('colors.zinc.900');
-    }
-
-    .table-responsive::-webkit-scrollbar {
-        @apply h-2 w-2;
-    }
-
-    .table-responsive::-webkit-scrollbar-track {
-        @apply bg-zinc-900 rounded-full;
-    }
-
-    .table-responsive::-webkit-scrollbar-thumb {
-        @apply bg-zinc-700 rounded-full hover:bg-zinc-600 transition-colors;
+    .nav-link.active {
+        @apply bg-zinc-800 text-white hover:bg-zinc-700;
     }
 
     /* Status Badge Styling */
-    .table .badge {
+    .badge {
         @apply px-3 py-1 text-xs font-medium rounded-full inline-flex items-center gap-1;
     }
 
@@ -301,9 +186,131 @@
         @apply bg-blue-500/10 text-blue-400;
     }
 
-    /* Table Action Buttons */
-    .table .btn-action {
-        @apply p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors inline-flex items-center justify-center;
+    /* Form Controls - Dark Theme */
+    .form-input,
+    .form-select,
+    .form-multiselect,
+    .form-textarea {
+        @apply w-full rounded-lg bg-zinc-900/50 border-zinc-800/50 text-zinc-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 placeholder:text-zinc-600;
+    }
+
+    .form-checkbox {
+        @apply rounded border-zinc-800/50 bg-zinc-900/50 text-primary-600 focus:ring-primary-500/20 focus:ring-offset-0 focus:ring-offset-zinc-900;
+    }
+
+    .form-file-input {
+        @apply file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-primary-800/80 file:text-primary-200 hover:file:bg-primary-700/80 file:rounded-lg text-zinc-400 rounded-lg border border-zinc-800/50 bg-zinc-900/50;
+    }
+
+    /* Table & DataTables Consolidated Styling */
+    .table,
+    .dataTable {
+        @apply w-full text-sm;
+    }
+
+    .table thead,
+    .dataTable thead tr {
+        @apply bg-transparent border-b border-zinc-800/50;
+    }
+
+    .table thead th,
+    .dataTable thead th {
+        @apply px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider text-left;
+    }
+
+    .table tbody tr,
+    .dataTable tbody tr {
+        @apply transition-colors border-b border-zinc-800/10 hover:bg-zinc-800/20;
+    }
+
+    .table tbody tr:last-child,
+    .dataTable tbody tr:last-child {
+        @apply border-b-0;
+    }
+
+    .table tbody td,
+    .dataTable tbody td {
+        @apply px-4 py-3 text-zinc-300;
+    }
+
+    .table tfoot {
+        @apply bg-transparent;
+    }
+
+    .table tfoot td {
+        @apply px-4 py-3 text-zinc-300 font-medium border-t border-zinc-800/50;
+    }
+
+    /* Table Links */
+    .table a,
+    .dataTable a {
+        @apply text-accent-blue hover:text-accent-blue/80 transition-colors;
+    }
+
+    /* Table Container */
+    .table-container,
+    .dataTables_wrapper {
+        @apply rounded-lg overflow-hidden text-zinc-400 w-full;
+    }
+
+    /* Responsive Table Scrolling */
+    .table-responsive {
+        @apply overflow-x-auto;
+        scrollbar-width: thin;
+        scrollbar-color: theme('colors.zinc.700') theme('colors.zinc.900');
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        @apply h-2 w-2;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        @apply bg-zinc-900 rounded-full;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        @apply bg-zinc-700 rounded-full hover:bg-zinc-600 transition-colors;
+    }
+
+    /* DataTables Specific Controls */
+    .dataTables_length,
+    .dataTables_filter {
+        @apply mb-4;
+    }
+
+    .dataTables_length select,
+    .dataTables_filter input {
+        @apply bg-zinc-900/50 border border-zinc-800/50 rounded-lg px-3 py-1.5 text-zinc-300 focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-colors duration-200;
+    }
+
+    .dataTables_info {
+        @apply mt-4 text-sm text-zinc-500;
+    }
+
+    /* DataTables & Standard Pagination */
+    .dataTables_paginate,
+    .pagination {
+        @apply mt-4 flex items-center justify-end gap-1;
+    }
+
+    .dataTables_paginate .paginate_button,
+    .pagination>* {
+        @apply inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-lg transition-colors duration-200 font-medium min-w-[2.25rem] text-zinc-400 hover:text-white hover:bg-zinc-800;
+    }
+
+    .dataTables_paginate .paginate_button.current,
+    .pagination .page-item.active .page-link {
+        @apply bg-primary-800 text-white hover:bg-primary-700;
+    }
+
+    .dataTables_paginate .paginate_button.disabled,
+    .pagination .page-item.disabled .page-link {
+        @apply opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400;
+    }
+
+    /* DataTables Button Override */
+    .dt-button {
+        @apply btn btn-primary !important;
     }
 
     /* Dropdown Styling */
@@ -327,106 +334,12 @@
         @apply dropdown-menu origin-top-right;
     }
 
-    /* Override DataTables dropdown button */
-    .dt-button {
-        @apply btn btn-primary !important;
+    /* Table Action Buttons */
+    .btn-action {
+        @apply p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors inline-flex items-center justify-center;
     }
 
-    /* Table Styling */
-    .table {
-        @apply w-full text-sm;
-    }
-
-    .table thead {
-        @apply bg-transparent border-b border-zinc-800/50;
-    }
-
-    .table thead th {
-        @apply px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider text-left;
-    }
-
-    .table tbody tr {
-        @apply transition-colors border-b border-zinc-800/10;
-    }
-
-    .table tbody tr:hover {
-        @apply bg-zinc-800/20;
-    }
-
-    .table tbody td {
-        @apply px-4 py-3 text-zinc-300;
-    }
-
-    .table tfoot {
-        @apply bg-transparent;
-    }
-
-    .table tfoot td {
-        @apply px-4 py-3 text-zinc-300 font-medium border-t border-zinc-800/50;
-    }
-
-    /* Links in tables */
-    .table a {
-        @apply text-accent-blue hover:text-accent-blue/80 transition-colors;
-    }
-
-    /* Badge styling in tables */
-    .table .badge {
-        @apply px-2 py-1 text-xs font-medium rounded-full;
-    }
-
-    /* Table container */
-    .table-container {
-        @apply rounded-lg overflow-hidden;
-    }
-
-    /* Pagination Styling */
-    .pagination {
-        @apply flex items-center justify-end gap-1 mt-4;
-    }
-
-    .pagination>* {
-        @apply inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-lg transition-colors duration-200 font-medium min-w-[2.25rem];
-    }
-
-    .pagination .page-item.active .page-link {
-        @apply bg-primary-800 text-white;
-    }
-
-    .pagination .page-link {
-        @apply text-zinc-400 hover:text-white hover:bg-zinc-800;
-    }
-
-    .pagination .page-item.disabled .page-link {
-        @apply text-zinc-600 hover:text-zinc-600 hover:bg-transparent cursor-not-allowed;
-    }
-
-    /* Form Controls - Dark Theme */
-    .form-input,
-    .form-select,
-    .form-multiselect,
-    .form-textarea {
-        @apply w-full rounded-lg bg-zinc-900/50 border-zinc-800/50 text-zinc-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 placeholder:text-zinc-600;
-    }
-
-    .form-checkbox {
-        @apply rounded border-zinc-800/50 bg-zinc-900/50 text-primary-600 focus:ring-primary-500/20 focus:ring-offset-0 focus:ring-offset-zinc-900;
-    }
-
-    .form-file-input {
-        @apply file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-medium file:bg-primary-800/80 file:text-primary-200 hover:file:bg-primary-700/80 file:rounded-lg text-zinc-400 rounded-lg border border-zinc-800/50 bg-zinc-900/50;
-    }
-
-    /* Toast animations */
-    .animate-fade-in {
-        animation: fadeIn 0.3s ease-in-out forwards;
-    }
-
-    .animate-fade-out {
-        animation: fadeOut 0.3s ease-in-out forwards;
-    }
-
-    /* SweetAlert2 Glass Theme */
+    /* SweetAlert2 Styling - Consolidated */
     .swal2-popup {
         @apply bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 !important;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
@@ -444,7 +357,7 @@
         @apply border-zinc-700 !important;
     }
 
-    /* Success icon */
+    /* SweetAlert2 Icons */
     .swal2-icon.swal2-success {
         @apply border-emerald-500 !important;
     }
@@ -457,7 +370,6 @@
         @apply border-emerald-500/30 !important;
     }
 
-    /* Error icon */
     .swal2-icon.swal2-error {
         @apply border-red-500 !important;
     }
@@ -466,22 +378,19 @@
         @apply bg-red-500 !important;
     }
 
-    /* Warning icon */
     .swal2-icon.swal2-warning {
         @apply border-amber-500 text-amber-500 !important;
     }
 
-    /* Info icon */
     .swal2-icon.swal2-info {
         @apply border-blue-500 text-blue-500 !important;
     }
 
-    /* Question icon */
     .swal2-icon.swal2-question {
         @apply border-purple-500 text-purple-500 !important;
     }
 
-    /* Buttons */
+    /* SweetAlert2 Buttons */
     .swal2-confirm {
         @apply bg-primary-800 text-primary-200 hover:bg-primary-700 rounded-lg px-4 py-2 !important;
     }
@@ -494,13 +403,13 @@
         @apply bg-zinc-800 text-zinc-200 hover:bg-zinc-700 rounded-lg px-4 py-2 !important;
     }
 
-    /* Input fields */
+    /* SweetAlert2 Input fields */
     .swal2-input,
     .swal2-textarea {
         @apply bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 !important;
     }
 
-    /* Toast notifications */
+    /* SweetAlert2 Toast notifications */
     .swal2-toast {
         @apply bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 !important;
     }
@@ -516,33 +425,108 @@
     .swal2-timer-progress-bar {
         @apply bg-primary-600/50 !important;
     }
-}
 
-/* Page transitions */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+    /* Toast animations */
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-in-out forwards;
     }
 
-    to {
-        opacity: 1;
+    .animate-fade-out {
+        animation: fadeOut 0.3s ease-in-out forwards;
+    }
+
+    /* Select2 Styling - Dark Theme */
+    .select2-container--default {
+        @apply w-full text-zinc-300;
+    }
+
+    /* Main container */
+    .select2-container--default .select2-selection--multiple,
+    .select2-container--default .select2-selection--single {
+        @apply rounded-lg bg-zinc-900/50 border-zinc-800/50 min-h-[42px] text-zinc-300;
+    }
+
+    /* Container when focused/active */
+    .select2-container--default.select2-container--focus .select2-selection--multiple,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        @apply border-primary-500 ring-2 ring-primary-500/20 border-solid;
+    }
+
+    /* Selected items/tags */
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        @apply bg-zinc-800 border-zinc-700 rounded-md px-2 py-1 text-zinc-300 mr-1 mt-1;
+    }
+
+    /* Remove button (x) on tags */
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        @apply text-zinc-400 hover:text-white mr-1 border-r-0 px-1;
+    }
+
+    /* Dropdown panel */
+    .select2-dropdown {
+        @apply bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 rounded-lg overflow-hidden z-50;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    /* Search field */
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        @apply bg-zinc-800/50 border-zinc-700/50 text-zinc-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500;
+    }
+
+    /* Option items */
+    .select2-results__option {
+        @apply px-4 py-2 text-zinc-300;
+    }
+
+    /* Highlighted option */
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        @apply bg-primary-800 text-white;
+    }
+
+    /* Selected option in dropdown */
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        @apply bg-zinc-800 text-zinc-300;
+    }
+
+    /* Disabled options */
+    .select2-container--default .select2-results__option[aria-disabled=true] {
+        @apply text-zinc-600 cursor-not-allowed;
+    }
+
+    /* Placeholder text */
+    .select2-container--default .select2-selection--multiple .select2-selection__placeholder,
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        @apply text-zinc-600;
+    }
+
+    /* Group headers */
+    .select2-container--default .select2-results__group {
+        @apply px-4 py-2 text-xs text-zinc-500 uppercase font-medium border-b border-zinc-800/30;
+    }
+
+    /* Clear selection button */
+    .select2-container--default .select2-selection--single .select2-selection__clear,
+    .select2-container--default .select2-selection--multiple .select2-selection__clear {
+        @apply text-zinc-500 hover:text-zinc-300 ml-2;
+    }
+
+    /* Arrow dropdown indicator */
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        @apply flex items-center justify-center;
+        height: 100%;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        @apply border-zinc-500;
+    }
+
+    /* Single select text */
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        @apply text-zinc-300 px-3 py-2;
     }
 }
 
-#app {
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes pulse {
-    50% {
-        opacity: 0.3;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
+/* Animations and Transitions */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -565,4 +549,19 @@
         opacity: 0;
         transform: translateY(-1rem);
     }
+}
+
+@keyframes pulse {
+    50% {
+        opacity: 0.3;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Page transitions */
+#app {
+    animation: fadeIn 0.3s ease-out;
 }
