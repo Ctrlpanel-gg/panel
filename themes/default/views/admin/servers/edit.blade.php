@@ -1,95 +1,94 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="alert alert-danger p-2 m-2">
-                <h5><i class="icon fas fa-exclamation-circle"></i> {{ __('ATTENTION!') }}</h5>
-                {{ __('Only edit these settings if you know exactly what you are doing ') }}
-                <br>
-                {{ __('You usually do not need to change anything here') }}
-            </div>
-            <div class="row mb-2">
-                <div class="col-sm-6">
+<div class="min-h-screen bg-primary-950 p-8">
+    <!-- Header -->
+    <div class="max-w-screen-2xl mx-auto mb-8">
+        <div class="glass-panel p-6">
+            <h1 class="text-3xl font-light text-white">{{ __('Edit Server') }}</h1>
+            <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 text-zinc-400">
+                    <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
+                    <li class="text-zinc-600">/</li>
+                    <li><a href="{{ route('admin.servers.index') }}" class="hover:text-white transition-colors">{{ __('Servers') }}</a></li>
+                    <li class="text-zinc-600">/</li>
+                    <li class="text-zinc-500">{{ __('Edit') }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-                    <h1>{{ __('Edit Server') }}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.servers.index') }}">{{ __('Servers') }}</a>
-                        </li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('admin.servers.edit', $server->id) }}">{{ __('Edit') }}</a></li>
-                    </ol>
+    <!-- Warning Notice -->
+    <div class="max-w-screen-2xl mx-auto mb-8">
+        <div class="glass-panel bg-red-500/5 text-red-400">
+            <div class="p-6 flex items-start gap-4">
+                <i class="fas fa-exclamation-circle mt-1"></i>
+                <div>
+                    <h4 class="font-medium text-lg mb-1">{{ __('ATTENTION!') }}</h4>
+                    <p>{{ __('Only edit these settings if you know exactly what you are doing') }}</p>
+                    <p>{{ __('You usually do not need to change anything here') }}</p>
                 </div>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
+    </div>
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto">
+        <div class="glass-panel">
+            <div class="p-6 border-b border-zinc-800/50">
+                <h3 class="text-lg font-medium text-white">{{ __('Server Details') }}</h3>
+            </div>
+            <div class="p-6">
+                <form action="{{ route('admin.servers.update', $server->id) }}" method="POST" class="max-w-xl">
+                    @csrf
+                    @method('PATCH')
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label for="identifier" class="block text-sm font-medium text-zinc-400 mb-2">
+                                {{ __('Server identifier') }}
+                                <i data-toggle="popover" data-trigger="hover"
+                                   data-content="{{ __('Change the server identifier on CtrlPanel to match a pterodactyl server.') }}"
+                                   class="fas fa-info-circle text-zinc-500 ml-1"></i>
+                            </label>
+                            <input value="{{ $server->identifier }}" id="identifier" name="identifier"
+                                   type="text" class="input @error('identifier') border-red-500 @enderror"
+                                   required>
+                            @error('identifier')
+                                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <form action="{{ route('admin.servers.update', $server->id) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <div class="form-group">
-                                    <label for="identifier">{{ __('Server identifier') }}
-                                        <i data-toggle="popover" data-trigger="hover"
-                                            data-content="{{ __('Change the server identifier on CtrlPanel to match a pterodactyl server.') }}"
-                                            class="fas fa-info-circle"></i>
-                                    </label>
-                                    <input value="{{ $server->identifier }}" id="identifier" name="identifier"
-                                        type="text" class="form-control @error('identifier') is-invalid @enderror"
-                                        required="required">
-                                    @error('identifier')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
+                        <div>
+                            <label for="user_id" class="block text-sm font-medium text-zinc-400 mb-2">
+                                {{ __('Server owner') }}
+                                <i data-toggle="popover" data-trigger="hover"
+                                   data-content="{{ __('Change the current server owner on CtrlPanel and pterodactyl.') }}"
+                                   class="fas fa-info-circle text-zinc-500 ml-1"></i>
+                            </label>
+                            <select name="user_id" id="user_id" class="input">
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        @if ($user->id == $server->user_id) selected @endif>{{ $user->name }}
+                                        ({{ $user->email }})
+                                        ({{ $user->id }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('user_id')
+                                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                                <div class="form-group">
-                                    <label for="user_id">{{ __('Server owner') }}
-                                        <i data-toggle="popover" data-trigger="hover"
-                                            data-content="{{ __('Change the current server owner on CtrlPanel and pterodactyl.') }}"
-                                            class="fas fa-info-circle"></i>
-                                    </label>
-                                    <select name="user_id" id="user_id" class="form-control">
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}"
-                                                @if ($user->id == $server->user_id) selected @endif>{{ $user->name }}
-                                                ({{ $user->email }})
-                                                ({{ $user->id }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('user_id')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
-
-                                <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
-
-                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                            </form>
+                        <div class="pt-4">
+                            <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
                         </div>
                     </div>
-                </div>
 
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                </form>
             </div>
         </div>
-
-
-    </section>
-    <!-- END CONTENT -->
+    </div>
+</div>
 @endsection

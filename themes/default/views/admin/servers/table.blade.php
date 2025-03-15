@@ -1,4 +1,4 @@
-<table id="datatable" class="table table-striped">
+<table id="datatable" class="w-full table">
     <thead>
         <tr>
             <th width="20"></th>
