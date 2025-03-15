@@ -1,6 +1,6 @@
 {
   "themes/default/css/app.css": {
-    "file": "assets/app-5ad482e0.css",
+    "file": "assets/app-c376480c.css",
     "isEntry": true,
     "src": "themes/default/css/app.css"
   },
@@ -8,11 +8,6 @@
     "file": "assets/app-203cefd7.js",
     "isEntry": true,
     "src": "themes/default/js/app.js"
-  },
-  "themes/default/js/select2-init.js": {
-    "file": "assets/select2-init-cfe28821.js",
-    "isEntry": true,
-    "src": "themes/default/js/select2-init.js"
   },
   "themes/default/sass/app.scss": {
     "file": "assets/app-ac19adaa.css",
