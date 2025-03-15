@@ -96,47 +96,6 @@
     </div>
 </div>
 
-<style>
-    .select2-container {
-        width: 100% !important;
-    }
-    .select2-dropdown {
-        background-color: #18181b !important;
-        border: 1px solid #27272a !important;
-        border-radius: 0.5rem !important;
-    }
-    .select2-search__field {
-        background-color: #18181b !important;
-        border: 1px solid #27272a !important;
-        border-radius: 0.375rem !important;
-        color: white !important;
-        padding: 0.5rem !important;
-    }
-    .select2-results__option {
-        color: white !important;
-        padding: 0.5rem !important;
-    }
-    .select2-results__option--highlighted {
-        background-color: #3f3f46 !important;
-    }
-    .select2-selection {
-        background-color: #18181b !important;
-        border: 1px solid #27272a !important;
-        border-radius: 0.5rem !important;
-        height: 42px !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-    .select2-selection__rendered {
-        color: white !important;
-        line-height: 42px !important;
-        padding-left: 1rem !important;
-    }
-    .select2-selection__arrow {
-        height: 42px !important;
-    }
-</style>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         $('#datatable').DataTable({
