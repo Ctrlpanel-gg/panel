@@ -106,7 +106,8 @@
                         data: 'name'
                     },
                     {
-                        data: 'role'
+                        data: 'role',
+                        name: 'roles.name'
                     },
                     {
                         data: 'email',

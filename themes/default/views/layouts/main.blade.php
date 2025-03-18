@@ -381,11 +381,7 @@
                         </li>
                       @endcanany
 
-                      @canany(array_merge(
-                          PermissionGroups::USEFUL_LINKS_PERMISSIONS,
-                          PermissionGroups::PAYMENTS_PERMISSIONS,
-                          PermissionGroups::LOGS_PERMISSIONS
-                      ))
+                      @canany(PermissionGroups::USEFUL_LINKS_PERMISSIONS)
                         <li class="nav-header">{{ __('Other') }}</li>
                       @endcanany
 
