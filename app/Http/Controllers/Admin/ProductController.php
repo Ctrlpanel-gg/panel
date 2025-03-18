@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\UserSettings;
+use App\Traits\HandlesMoneyFields;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -19,6 +20,8 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    use HandlesMoneyFields;
+
     const READ_PERMISSION = "admin.products.read";
 
     const WRITE_PERMISSION = "admin.products.create";
@@ -98,7 +101,11 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
+        $product = Product::create(array_merge($request->all(), [
+            'disabled' => $disabled,
+            'oom_killer' => $oomkiller,
+            'price' => $this->convertToInteger($request->price)
+        ]));
 
         //link nodes and eggs
         $product->eggs()->attach($request->input('eggs'));
@@ -174,7 +181,11 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $product->update(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
+        $product->update(array_merge($request->all(), [
+            'disabled' => $disabled,
+            'oom_killer' => $oomkiller,
+            'price' => $this->convertToInteger($request->price)
+        ]));
 
         //link nodes and eggs
         $product->eggs()->detach();

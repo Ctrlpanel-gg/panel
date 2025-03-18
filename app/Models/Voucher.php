@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\HandlesMoneyFields;
 
 /**
  * Class Voucher
  */
 class Voucher extends Model
 {
-    use HasFactory, LogsActivity, CausesActivity;
+    use HasFactory, LogsActivity, CausesActivity, HandlesMoneyFields;
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -32,6 +33,7 @@ class Voucher extends Model
         'credits',
         'uses',
         'expires_at',
+        'max_uses'
     ];
 
     /**
@@ -41,8 +43,10 @@ class Voucher extends Model
      */
     protected $casts = [
         'expires_at' => 'datetime',
-        'credits' => 'float',
-        'uses' => 'integer',    ];
+        'credits' => 'integer',
+        'uses' => 'integer',
+        'max_uses' => 'integer'
+    ];
 
     protected $appends = ['used', 'status'];
 
@@ -127,5 +131,15 @@ class Voucher extends Model
             ->log('redeemed');
 
         return null;
+    }
+
+    public function getCreditsAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+
+    public function setCreditsAttribute($value)
+    {
+        $this->attributes['credits'] = $this->convertToInteger($value, 4);
     }
 }

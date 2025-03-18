@@ -15,13 +15,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Client\Response;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use App\Traits\HandlesMoneyFields;
 
 /**
  * Class Server
  */
 class Server extends Model
 {
-    use HasFactory;
+    use HasFactory, HandlesMoneyFields;
     use LogsActivity;
 
     private PterodactylClient $pterodactyl;
@@ -53,6 +54,7 @@ class Server extends Model
      * @var string[]
      */
     protected $fillable = [
+        'credits',
         "name",
         "description",
         "suspended",
@@ -68,12 +70,12 @@ class Server extends Model
      */
     protected $casts = [
         'suspended' => 'datetime',
+        'credits' => 'integer',
     ];
 
     public function __construct()
     {
         parent::__construct();
-
         $ptero_settings = new PterodactylSettings();
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
@@ -145,7 +147,6 @@ class Server extends Model
             ]);
         }
 
-
         return $this;
     }
 
@@ -165,4 +166,23 @@ class Server extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    /**
+     * @description Get the Formatted price attribute.
+     *
+     * @return float
+     */
+    public function getCreditsAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+    
+    /**
+     * @description Set the price attribute.
+     * 
+     * @return int
+     */
+    public function setCreditsAttribute($value)
+    {
+        $this->attributes['credits'] = $this->convertToInteger($value, 4);
+    }
 }

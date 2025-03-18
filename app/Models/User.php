@@ -20,13 +20,14 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
+use App\Traits\HandlesMoneyFields;
 
 /**
  * Class User
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles;
+    use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles, HandlesMoneyFields;
 
     private PterodactylClient $pterodactyl;
 
@@ -89,8 +90,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'credits' => 'float',
-        'server_limit' => 'float',
+        'credits' => 'integer',
+        'server_limit' => 'integer',
         'email_verified_reward' => 'boolean'
     ];
 
@@ -215,7 +216,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function credits()
     {
-        return number_format($this->credits, 2, '.', '');
+        return number_format($this->convertFromInteger($this->attributes['credits'], 4), 2, '.', ''); // 4 decimal places for credits
     }
 
     /**
@@ -331,5 +332,24 @@ class User extends Authenticatable implements MustVerifyEmail
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->dontLogIfAttributesChangedOnly(['credits', 'server_limit']);
+    }
+    /**
+     * @description Get the Formatted price attribute.
+     *
+     * @return float
+     */
+    public function getCreditsAttribute($value)
+    {
+        return $this->convertFromInteger($value, 4);
+    }
+
+    /**
+     * @description Set the price attribute.
+     * 
+     * @return int
+     */
+    public function setCreditsAttribute($value)
+    {
+        $this->attributes['credits'] = $this->convertToInteger($value, 4);
     }
 }

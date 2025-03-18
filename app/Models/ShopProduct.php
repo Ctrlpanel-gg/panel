@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Settings\GeneralSettings;
+use App\Traits\HandlesMoneyFields;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
@@ -12,7 +13,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ShopProduct extends Model
 {
-    use LogsActivity, CausesActivity;
+    use LogsActivity, CausesActivity, HandlesMoneyFields;
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -42,8 +43,9 @@ class ShopProduct extends Model
      * @var string[]
      */
     protected $casts = [
-        'price' => 'float'
+        'price' => 'integer' 
     ];
+
 
     public static function boot()
     {
@@ -64,7 +66,6 @@ class ShopProduct extends Model
     public function formatToCurrency($value, $locale = 'en_US')
     {
         $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-
         return $formatter->formatCurrency($value, $this->currency_code);
     }
 
@@ -84,8 +85,9 @@ class ShopProduct extends Model
     public function getPriceAfterDiscount()
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
-        $discountedPrice = $this->price * (1 - $discountRate);
-        return round($discountedPrice, 2);
+        $originalPrice = $this->attributes['price'];
+        $discountedPrice = (int)bcmul($originalPrice, bcsub(1, $discountRate, 4), 0);
+        return $discountedPrice;
     }
 
     /**
@@ -95,8 +97,15 @@ class ShopProduct extends Model
      */
     public function getTaxValue()
     {
-        $taxValue = $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
-        return round($taxValue, 2);
+        $taxPercent = $this->getTaxPercent();
+        $priceAfterDiscount = $this->getPriceAfterDiscount();
+        $taxValue = bcmul(
+            bcdiv(bcmul($priceAfterDiscount, $taxPercent, 4), '100', 4),
+            '1',
+            2
+        );
+        
+        return (int)$taxValue;
     }
 
     /**
@@ -106,7 +115,26 @@ class ShopProduct extends Model
      */
     public function getTotalPrice()
     {
-        $total = $this->getPriceAfterDiscount() + $this->getTaxValue();
-        return round($total, 2);
+        return bcadd($this->getPriceAfterDiscount(), $this->getTaxValue(), 2);
+    }
+
+    /**
+     * @description Get the Formatted price attribute.
+     *
+     * @return float
+     */
+    public function getPriceAttribute($value)
+    {
+        return $this->convertFromInteger($value);
+    }
+
+    /**
+     * @description Set the price attribute.
+     * 
+     * @return int
+     */
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = $this->convertToInteger($value);
     }
 }
