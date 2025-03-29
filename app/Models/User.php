@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Notifications\Auth\QueuedVerifyEmail;
 use App\Notifications\WelcomeMessage;
 use App\Classes\PterodactylClient;
+use App\Facades\Currency;
 use App\Settings\PterodactylSettings;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -89,7 +91,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'credits' => 'float',
         'server_limit' => 'float',
         'email_verified_reward' => 'boolean'
     ];
@@ -130,6 +131,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->pterodactyl->application->delete("/application/users/{$user->pterodactyl_id}");
         });
+    }
+
+    /**
+     * Set the credits to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function credits(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Currency::prepareForDatabase($value),
+        );
     }
 
     /**
@@ -211,14 +224,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @return string
-     */
-    public function credits()
-    {
-        return number_format($this->credits, 2, '.', '');
-    }
-
-    /**
      * @return bool
      */
     public function isSuspended()
@@ -267,7 +272,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $usage = 0;
         foreach ($this->getServersWithProduct() as $server) {
-            $usage += $server->product->getHourlyPrice() * 24 * 30;
+            $usage += $server->product->getMonthlyPrice();
         }
 
         return number_format($usage, 2, '.', '');

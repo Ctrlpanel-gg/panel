@@ -300,6 +300,8 @@ class ServerController extends Controller
 
     private function handlePostCreation(User $user, Server $server): void
     {
+        logger('Product Price: ' . $server->product->price);
+
         $user->decrement('credits', $server->product->price);
 
         try {

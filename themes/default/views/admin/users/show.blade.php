@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Users') }}</h1>
                 </div>
@@ -40,7 +40,7 @@
                                         src="{{ $user->discordUser->getAvatar() }}" alt="avatar"></div>
                             </div>
                             <div class="small-box-footer">
-                                <i class="fab fa-discord mr-1"></i>Discord
+                                <i class="mr-1 fab fa-discord"></i>Discord
                             </div>
                         </div>
 
@@ -50,7 +50,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-users mr-2"></i>{{ __('Users') }}</h5>
+                    <h5 class="card-title"><i class="mr-2 fas fa-users"></i>{{ __('Users') }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -154,7 +154,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-coins mr-2"></i>{{ $user->Credits() }}
+                                        <i class="mr-2 fas fa-coins"></i>{{ Currency::formatForDisplay($user->credits) }}
                                     </span>
                                 </div>
                             </div>
@@ -194,7 +194,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-coins mr-2"></i>{{ $user->CreditUsage() }}
+                                        <i class="mr-2 fas fa-coins"></i>{{ $user->CreditUsage() }}
                                     </span>
                                 </div>
                             </div>
@@ -252,7 +252,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-server mr-2"></i>{{ __('Servers') }}</h5>
+                    <h5 class="card-title"><i class="mr-2 fas fa-server"></i>{{ __('Servers') }}</h5>
                 </div>
                 <div class="card-body table-responsive">
                     @include('admin.servers.table', ['filter' => '?user=' . $user->id])
@@ -261,7 +261,7 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="fas fa-user-check mr-2"></i>{{ __('Referals') }}
+                    <h5 class="card-title"><i class="mr-2 fas fa-user-check"></i>{{ __('Referals') }}
                         ({{ __('referral-code') }}: {{ $user->referral_code }})</h5>
                 </div>
                 <div class="card-body table-responsive">
@@ -275,13 +275,13 @@
                                 </div>
                                 <div class="col-lg-4">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-user-check mr-2"></i><a
+                                        <i class="mr-2 fas fa-user-check"></i><a
                                             href="{{ route('admin.users.show', $referral->id) }}">{{ $referral->name }}</a>
                                     </span>
                                 </div>
                                 <div class="col-lg-4">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="fas fa-clock mr-2"></i>{{ $referral->created_at->diffForHumans() }}
+                                        <i class="mr-2 fas fa-clock"></i>{{ $referral->created_at->diffForHumans() }}
                                     </span>
                                 </div>
                             </div>

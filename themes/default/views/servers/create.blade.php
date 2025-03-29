@@ -262,7 +262,7 @@
                                                 x-text="'{{ __('Price') }}' + ' (' + billingPeriodTranslations[product.billing_period] + ')'">
                                             </span>
                                             <span class="d-inline-block"
-                                                x-text="product.price + ' {{ $credits_display_name }}'"></span>
+                                                x-text="product.display_price + ' {{ $credits_display_name }}'"></span>
                                         </div>
                                     </div>
                                     <div>

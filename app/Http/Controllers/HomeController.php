@@ -94,13 +94,13 @@ class HomeController extends Controller
     public function index(GeneralSettings $general_settings, WebsiteSettings $website_settings, ReferralSettings $referral_settings)
     {
         $usage = Auth::user()->creditUsage();
-        $credits = Auth::user()->Credits();
+        $credits = Auth::user()->credits;
         $bg = '';
         $boxText = '';
         $unit = '';
 
         /** Build our Time-Left-Box */
-        if ($credits > 0.01 and $usage > 0) {
+        if ($credits > 10 && $usage > 0) {
             $daysLeft = number_format($credits / ($usage / 30), 2, '.', '');
             $hoursLeft = number_format($credits / ($usage / 30 / 24), 2, '.', '');
 

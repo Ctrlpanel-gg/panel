@@ -259,7 +259,7 @@
                                                 <td>{{$node->name}}</td>
                                                 <td>{{$node->activeServers}}/{{$node->totalServers}}</td>
                                                 <td>{{$node->usagePercent}}%</td>
-                                                <td>{{$node->activeEarnings}}/{{$node->totalEarnings}}</td>
+                                                <td>{{Currency::formatForDisplay($node->activeEarnings)}}/{{Currency::formatForDisplay($node->totalEarnings)}}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -268,7 +268,7 @@
                                             <td class="text-nowrap" colspan="2"><span style="float: right; font-weight: 700">{{__('Total')}} ({{__('active')}}/{{__('total')}}):</span></td>
                                             <td>{{$counters['servers']->active}}/{{$counters['servers']->total}}</td>
                                             <td>{{$counters['totalUsagePercent']}}%</td>
-                                            <td>{{$counters['earnings']->active}}/{{$counters['earnings']->total}}</td>
+                                            <td>{{Currency::formatForDisplay($counters['earnings']->active)}}/{{Currency::formatForDisplay($counters['earnings']->total)}}</td>
                                         </tr>
                                     </tfoot>
                                 </table>

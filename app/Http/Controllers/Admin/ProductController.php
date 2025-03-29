@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Nest;
@@ -265,6 +266,9 @@ class ProductController extends Controller
                         </div>
                     </form>
                 ';
+            })
+            ->editColumn('price', function (Product $product, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatForDisplay($product->price);
             })
             ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
                 return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;

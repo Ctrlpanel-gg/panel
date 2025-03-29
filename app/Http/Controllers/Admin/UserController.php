@@ -9,6 +9,7 @@ use App\Notifications\DynamicNotification;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Helpers\CurrencyHelper;
 use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -409,8 +410,8 @@ class UserController extends Controller
             ->addColumn('avatar', function (User $user) {
                 return '<img width="28px" height="28px" class="ml-1 rounded-circle" src="' . $user->getAvatar() . '">';
             })
-            ->addColumn('credits', function (User $user) {
-                return '<i class="mr-2 fas fa-coins"></i> ' . $user->credits();
+            ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
+                return '<i class="mr-2 fas fa-coins"></i> ' . $currencyHelper->formatForDisplay($user->credits);
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();

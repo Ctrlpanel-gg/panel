@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Store') }}</h1>
                 </div>
@@ -27,7 +27,7 @@
             <form id="payment_form" action="{{ route('payment.pay') }}" method="POST">
                 @csrf
                 @method('post')
-                <div class="row d-flex justify-content-center flex-wrap">
+                <div class="flex-wrap row d-flex justify-content-center">
                     @if (!$productIsFree)
                         <div class="col-xl-4">
                             <div class="card">
@@ -51,7 +51,7 @@
                                                                         for="{{ $gateway->name }}">
                                                                         <span class="mr-3">{{ $gateway->name }}</span>
                                                                     </label>
-                                                                    <button class="btn btn-primary rounded" type="button"
+                                                                    <button class="rounded btn btn-primary" type="button"
                                                                         name="payment_method" id="{{ $gateway->name }}"
                                                                         value="{{ $gateway->name }}"
                                                                         :class="payment_method === '{{ $gateway->name }}' ?
@@ -74,7 +74,7 @@
                                                     @if ($isCouponsEnabled)
                                                         <span class="h4">{{ __('Coupon') }}</span>
 
-                                                        <div class="d-flex mt-2">
+                                                        <div class="mt-2 d-flex">
                                                             <input type="text" id="coupon_code" name="coupon_code"
                                                                 value="{{ old('coupon_code') }}" :value="coupon_code"
                                                                 class="form-control @error('coupon_code') is_invalid @enderror"
@@ -82,7 +82,7 @@
                                                                 x-on:change.debounce="setCouponCode($event)"
                                                                 x-model="coupon_code" />
                                                             <button type="button" id="send_coupon_code"
-                                                                @click="checkCoupon()" class="btn btn-success ml-3"
+                                                                @click="checkCoupon()" class="ml-3 btn btn-success"
                                                                 :disabled="!coupon_code.length"
                                                                 :class="!coupon_code.length ? 'disabled' : ''"
                                                                 :value="coupon_code">
@@ -114,7 +114,7 @@
                             </div>
 
                             <div class="card-body">
-                                <ul class="list-group mb-3">
+                                <ul class="mb-3 list-group">
                                     <li class="list-group-item">
                                         <div>
                                             <h5 class="my-0">{{ __('Product details') }}</h5>
@@ -127,11 +127,11 @@
                                             </li>
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Amount') }}</span>
-                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->type == 'Credits' ? Currency::formatForDisplay($product->quantity) : $product->quantity }}</span>
                                             </li>
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Total Amount') }}</span>
-                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->type == 'Credits' ? Currency::formatForDisplay($product->quantity) : $product->quantity }}</span>
                                             </li>
                                         </ul>
 
@@ -156,7 +156,7 @@
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Subtotal') }}</span>
                                                 <span class="text-muted d-inline-block">
-                                                    {{ $product->formatToCurrency($product->price) }}</span>
+                                                    {{ $product->formatToCurrency(Currency::formatForDisplay($product->price)) }}</span>
                                             </li>
                                             <div class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Tax') }}
@@ -210,8 +210,8 @@
                                     id="submit_form_button"
                                     :class="(!payment_method || !clicked || coupon_code) &&
                                     {{ !$productIsFree }} ? 'disabled' : ''"
-                                    :x-text="coupon_code" class="btn btn-success float-right w-100">
-                                    <i class="far fa-credit-card mr-2" @click="clicked == true"></i>
+                                    :x-text="coupon_code" class="float-right btn btn-success w-100">
+                                    <i class="mr-2 far fa-credit-card" @click="clicked == true"></i>
                                     @if ($productIsFree)
                                         {{ __('Get for free') }}
                                     @else
@@ -239,7 +239,7 @@
                 payment_method: '',
                 coupon_code: '',
                 submitted: false,
-                totalPrice: {{ $total }},
+                totalPrice: {{ Currency::formatForDisplay($total) }},
                 couponDiscountedValue: 0,
 
 

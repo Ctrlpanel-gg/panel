@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Exception;
+use App\Facades\Currency;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Exception;
 
 /**
  * Class Voucher
@@ -16,6 +18,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Voucher extends Model
 {
     use HasFactory, LogsActivity, CausesActivity;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -23,6 +26,7 @@ class Voucher extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
     /**
      * @var string[]
      */
@@ -41,10 +45,28 @@ class Voucher extends Model
      */
     protected $casts = [
         'expires_at' => 'datetime',
-        'credits' => 'float',
-        'uses' => 'integer',    ];
+        'uses' => 'integer',
+    ];
 
-    protected $appends = ['used', 'status'];
+    /**
+     * @var string[]
+     */
+    protected $appends = [
+        'used',
+        'status',
+    ];
+
+    /**
+     * Set the credits to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function credits(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Currency::prepareForDatabase($value)
+        );
+    }
 
     /**
      * @return int

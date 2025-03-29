@@ -56,7 +56,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">{{ $general_settings->credits_display_name }}</span>
-                        <span class="info-box-number">{{ Auth::user()->Credits() }}</span>
+                        <span class="info-box-number">{{ Currency::formatForDisplay(Auth::user()->credits) }}</span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>
@@ -74,7 +74,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">{{ $general_settings->credits_display_name }}
                             {{ __('Usage') }}</span>
-                        <span class="info-box-number">{{ number_format($usage, 2, '.', '') }}
+                        <span class="info-box-number">{{ number_format($usage / 1000, 2, '.', ',') }}
                             <sup>{{ __('per month') }}</sup></span>
                     </div>
                     <!-- /.info-box-content -->
@@ -83,13 +83,13 @@
             </div>
 
             <!-- /.col -->
-            @if ($credits > 0.01 && $usage > 0)
+            @if ($credits > 10 && $usage > 0)
                 <div class="col-12 col-sm-6 col-md-3">
                     <div class="mb-3 info-box">
                         <span class="info-box-icon {{ $bg }} elevation-1">
                             <i class="fas fa-hourglass-half"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">{{ __('Out of Credits in', ['credits' =>
+                            <span class="info-box-text">{{ __('Out of :credits in', ['credits' =>
                                 $general_settings->credits_display_name]) }}
                             </span>
                             <span class="info-box-number">{{ $boxText }}<sup>{{ $unit }}</sup></span>

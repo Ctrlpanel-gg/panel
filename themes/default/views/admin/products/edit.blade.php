@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Products') }}</h1>
                 </div>
@@ -47,7 +47,7 @@
                             </div>
                             <div class="card-body">
 
-                                <div class="d-flex flex-row-reverse">
+                                <div class="flex-row-reverse d-flex">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" @if ($product->disabled) checked @endif
                                             name="disabled" class="custom-control-input custom-control-input-danger"
@@ -76,7 +76,7 @@
 
                                         <div class="form-group">
                                             <label for="price">{{ __('Price in') }} {{ $credits_display_name }}</label>
-                                            <input value="{{ $product->price }}" id="price" name="price"
+                                            <input value="{{ Currency::formatForForm($product->price) }}" id="price" name="price"
                                                 type="number" step=".0001"
                                                 class="form-control @error('price') is-invalid @enderror"
                                                 required="required">
@@ -280,7 +280,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group text-right">
+                                <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('Submit') }}
                                     </button>
@@ -326,11 +326,11 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="mb-2 d-flex justify-content-between align-items-center">
                                         <label for="eggs" class="mb-0">{{ __('Eggs') }}</label>
                                         <div>
                                             <button type="button" id="select-all-eggs" class="btn btn-sm btn-secondary">{{ __('Select All') }}</button>
-                                            <button type="button" id="deselect-all-eggs" class="btn btn-sm btn-secondary ml-2">{{ __('Deselect All') }}</button>
+                                            <button type="button" id="deselect-all-eggs" class="ml-2 btn btn-sm btn-secondary">{{ __('Deselect All') }}</button>
                                         </div>
                                     </div>
                                     <select id="eggs" style="width:100%"

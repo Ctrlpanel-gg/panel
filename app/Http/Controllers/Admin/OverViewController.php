@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\PterodactylClient;
+use App\Helpers\CurrencyHelper;
 use App\Settings\PterodactylSettings;
 use App\Settings\GeneralSettings;
 use App\Http\Controllers\Controller;
@@ -30,7 +31,7 @@ class OverViewController extends Controller
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
 
-    public function index(GeneralSettings $general_settings)
+    public function index(GeneralSettings $general_settings, CurrencyHelper $currencyHelper)
     {
         $this->checkAnyPermission([self::READ_PERMISSION,self::SYNC_PERMISSION]);
 
