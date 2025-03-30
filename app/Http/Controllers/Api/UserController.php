@@ -101,7 +101,7 @@ class UserController extends Controller
 
         //Update Users Password on Pterodactyl
         //Username,Mail,First and Lastname are required aswell
-        $response = $this->pterodactyl->application->post('/application/users/'.$user->pterodactyl_id, [
+        $response = $this->pterodactyl->application->patch('/application/users/'.$user->pterodactyl_id, [
             'username' => $request->name,
             'first_name' => $request->name,
             'last_name' => $request->name,

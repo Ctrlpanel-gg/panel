@@ -32,6 +32,8 @@ class PermissionGroups
     const SETTINGS_PERMISSIONS = [
         'settings.discord.read',
         'settings.discord.write',
+        'settings.terms.read',
+        'settings.terms.write',
         'settings.general.read',
         'settings.general.write',
         'settings.invoice.read',
