@@ -64,7 +64,7 @@
 
                                         <div class="form-group">
                                             <label for="price">{{ __('Price in') }} {{ $credits_display_name }}</label>
-                                            <input value="{{ Currency::formatForForm($product->price) ?? old('price') }}" id="price"
+                                            <input value="{{ old('price') }}" id="price"
                                                 name="price" step=".0001" type="number"
                                                 class="form-control @error('price') is-invalid @enderror"
                                                 required="required">
@@ -201,14 +201,13 @@
                                                 </div>
                                             @enderror
                                         </div>
-
                                         <div class="form-group">
                                             <label for="minimum_credits">{{ __('Minimum') }} {{ $credits_display_name }}
                                                 <i data-toggle="popover" data-trigger="hover"
                                                     data-content="{{ __('Setting to -1 will use the value from configuration.') }}"
                                                     class="fas fa-info-circle"></i></label>
                                             <input
-                                                value="{{ $product->minimum_credits ?? (old('minimum_credits') ?? -1) }}"
+                                                value="{{ (old('minimum_credits') ?? -1000) }}"
                                                 id="minimum_credits" name="minimum_credits" type="number"
                                                 class="form-control @error('minimum_credits') is-invalid @enderror"
                                                 required="required">

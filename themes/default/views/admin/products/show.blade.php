@@ -91,10 +91,10 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        @if ($product->minimum_credits == -1)
+                                        @if ($product->minimum_credits == -1000)
                                             <i class="mr-1 fas fa-coins"></i>{{ $minimum_credits }}
                                         @else
-                                            <i class="mr-1 fas fa-coins"></i>{{ $product->minimum_credits }}
+                                            <i class="mr-1 fas fa-coins"></i>{{ $product->display_minimum_credits }}
                                         @endif
                                     </span>
                                 </div>

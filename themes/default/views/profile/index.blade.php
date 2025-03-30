@@ -97,7 +97,7 @@
                                         </p>
                                         <div class="mt-1">
                                             <span class="badge badge-primary"><i
-                                                    class="mr-2 fa fa-coins"></i>{{ $user->Credits() }}</span>
+                                                    class="mr-2 fa fa-coins"></i>{{ Currency::formatForDisplay($user->credits) }}</span>
                                         </div>
 
                                     @if($referral_enabled)

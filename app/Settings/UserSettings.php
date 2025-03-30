@@ -8,13 +8,13 @@ class UserSettings extends Settings
 {
     public bool $register_ip_check = false;
     public bool $creation_enabled = true;
-    public float $credits_reward_after_verify_discord = 0.0;
-    public float $credits_reward_after_verify_email = 0.0;
+    public int $credits_reward_after_verify_discord = 0;
+    public int $credits_reward_after_verify_email = 0;
     public bool $force_discord_verification = false;
     public bool $force_email_verification = false;
-    public float $initial_credits = 250.0;
+    public int $initial_credits = 250000;
     public int $initial_server_limit = 1;
-    public float $min_credits_to_make_server = 0.0;
+    public int $min_credits_to_make_server = 0;
     public int $server_limit_increment_after_irl_purchase = 0;
     public int $server_limit_increment_after_verify_discord = 0;
     public int $server_limit_increment_after_verify_email = 0;
@@ -60,11 +60,13 @@ class UserSettings extends Settings
                 'label' => 'Credits Reward After Verify Discord',
                 'type' => 'number',
                 'description' => 'The amount of credits a user gets after verifying their discord account.',
+                'mustBeConverted' => true,
             ],
             'credits_reward_after_verify_email' => [
                 'label' => 'Credits Reward After Verify Email',
                 'type' => 'number',
                 'description' => 'The amount of credits a user gets after verifying their email.',
+                'mustBeConverted' => true,
             ],
             'force_discord_verification' => [
                 'label' => 'Force Discord Verification',
@@ -80,6 +82,7 @@ class UserSettings extends Settings
                 'label' => 'Initial Credits',
                 'type' => 'number',
                 'description' => 'The amount of credits a user gets when they register.',
+                'mustBeConverted' => true,
             ],
             'initial_server_limit' => [
                 'label' => 'Initial Server Limit',
@@ -90,6 +93,7 @@ class UserSettings extends Settings
                 'label' => 'Min Credits To Make Server',
                 'type' => 'number',
                 'description' => 'The minimum amount of credits a user needs to create a server.',
+                'mustBeConverted' => true,
             ],
             'server_limit_increment_after_irl_purchase' => [
                 'label' => 'Server Limit Increase After first purchase',

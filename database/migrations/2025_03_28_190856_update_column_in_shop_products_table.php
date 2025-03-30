@@ -13,8 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('shop_products', function (Blueprint $table) {
-            $table->bigInteger('price_integer')->after('price')->nullable();
-            $table->bigInteger('quantity_integer')->after('price_integer')->nullable();
+            $table->bigInteger('price_integer')->after('price');
+            $table->bigInteger('quantity_integer')->after('price_integer');
         });
 
         DB::statement('UPDATE shop_products SET price_integer = ROUND(price * 1000)');

@@ -8,7 +8,7 @@ class ReferralSettings extends Settings
 {
     public bool $always_give_commission = false;
     public bool $enabled = false;
-    public ?float $reward = null;
+    public ?int $reward = null;
     public string $mode = 'commission';
     public ?int $percentage = null;
 
@@ -57,6 +57,7 @@ class ReferralSettings extends Settings
                 'type' => 'number',
                 'step' => '0.01',
                 'description' => 'Reward in credits for the referrer.',
+                'mustBeConverted' => true,
             ],
             'mode' => [
                 'label' => 'Mode',

@@ -35,6 +35,7 @@ class Product extends Model
      */
     protected $appends = [
         'display_price',
+        'display_minimum_credits',
     ];
 
     public static function boot()
@@ -59,6 +60,18 @@ class Product extends Model
      * @return Attribute
      */
     protected function price(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Currency::prepareForDatabase($value)
+        );
+    }
+
+    /**
+     * Set the minimum credits to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function minimumCredits(): Attribute
     {
         return Attribute::make(
             set: fn ($value) => Currency::prepareForDatabase($value)
@@ -117,6 +130,16 @@ class Product extends Model
     public function getDisplayPriceAttribute()
     {
         return Currency::formatForDisplay($this->price);
+    }
+
+    /**
+     * Get the display minimum credits formatted.
+     *
+     * @return string
+     */
+    public function getDisplayMinimumCreditsAttribute()
+    {
+        return Currency::formatForDisplay($this->minimum_credits);
     }
 
     public function getWeeklyPrice()

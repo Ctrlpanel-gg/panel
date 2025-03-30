@@ -78,7 +78,7 @@
                                 </ul>
 
 
-                                <button class="btn btn-outline-secondary mb-2 mb-md-0" type="button" data-toggle="collapse"
+                                <button class="mb-2 btn btn-outline-secondary mb-md-0" type="button" data-toggle="collapse"
                                     data-target="#collapseExtensions" aria-expanded="false"
                                     aria-controls="collapseExtensions">
                                     {{ __('Extension Settings') }}
@@ -201,7 +201,7 @@
                                                     @if ($key == 'category_icon' || $key == 'settings_class' || $key == 'position')
                                                         @continue
                                                     @endif
-                                                    <div class="row mb-3">
+                                                    <div class="mb-3 row">
                                                         <div class="col-md-4 col-12 d-flex align-items-center">
                                                           <label class="w-100 d-inline-flex justify-content-between align-items-center" for="{{ $key }}">
                                                             {{ $value['label'] }}
@@ -242,7 +242,7 @@
                                                                         @case($value['type'] == 'number')
                                                                             <input type="number" step="{{ $value['step'] ?? '1' }}" class="form-control"
                                                                                 name="{{ $key }}"
-                                                                                value="{{ $value['value'] }}">
+                                                                                value="{{ isset($value['converted_value']) ? $value['converted_value'] : $value['value'] }}">
                                                                         @break
 
                                                                         @case($value['type'] == 'select')

@@ -246,7 +246,7 @@
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
                                                         {{ __('Minimum') }} {{ $credits_display_name }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="product.minimum_credits == -1 ? {{ $min_credits_to_make_server }} : product.minimum_credits"></span>
+                                                        x-text="product.minimum_credits == -1000 ? {{ $min_credits_to_make_server }} : product.display_minimum_credits"></span>
                                                 </li>
                                             </ul>
                                         </div>

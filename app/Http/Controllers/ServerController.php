@@ -176,7 +176,7 @@ class ServerController extends Controller
             return __('You can not create any more Servers with this product!');
         }
 
-        $minCredits = $product->minimum_credits == -1
+        $minCredits = $product->minimum_credits == -1000
             ? $this->userSettings->min_credits_to_make_server
             : $product->minimum_credits;
 

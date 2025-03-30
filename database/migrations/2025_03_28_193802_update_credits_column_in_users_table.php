@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->bigInteger('credits_integer')->after('credits')->nullable();
+            $table->bigInteger('credits_integer')->after('credits');
         });
 
         DB::statement('UPDATE users SET credits_integer = ROUND(credits * 1000)');
