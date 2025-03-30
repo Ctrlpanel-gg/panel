@@ -181,7 +181,7 @@
                                                     <span class="text-muted d-inline-block">{{ __('Partner Discount') }}
                                                         ({{ $discountpercent }}%)</span>
                                                     <span class="text-muted d-inline-block">
-                                                        - {{ $product->formatToCurrency($discountvalue) }}
+                                                        - {{ $product->formatToCurrency(Currency::formatForDisplay($discountvalue)) }}
                                                     </span>
                                                 </div>
                                             @endif
