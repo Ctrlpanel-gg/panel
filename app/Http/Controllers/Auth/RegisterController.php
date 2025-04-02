@@ -10,6 +10,7 @@ use App\Traits\Referral;
 use Carbon\Carbon;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Helpers\CurrencyHelper;
 use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
@@ -27,19 +28,13 @@ use Spatie\Permission\Models\Role;
 class RegisterController extends Controller
 {
     private $pterodactyl;
-
+    private $currency_helper;
     private $credits_display_name;
-
     private $website_show_tos;
-
     private $register_ip_check;
-
     private $initial_credits;
-
     private $initial_server_limit;
-
     private $referral_mode;
-
     private $referral_reward;
     private $recaptcha_version;
 
@@ -68,10 +63,11 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct(PterodactylSettings $ptero_settings, GeneralSettings $general_settings, WebsiteSettings $website_settings, UserSettings $user_settings, ReferralSettings $referral_settings)
+    public function __construct(PterodactylSettings $ptero_settings, GeneralSettings $general_settings, WebsiteSettings $website_settings, UserSettings $user_settings, ReferralSettings $referral_settings, CurrencyHelper $currencyHelper)
     {
         $this->middleware('guest');
         $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->currency_helper = $currencyHelper;
         $this->credits_display_name = $general_settings->credits_display_name;
         $this->recaptcha_version = $general_settings->recaptcha_version;
         $this->website_show_tos = $website_settings->show_tos;
@@ -194,7 +190,7 @@ class RegisterController extends Controller
                     activity()
                         ->performedOn($user)
                         ->causedBy($ref_user)
-                        ->log('gained ' . $this->referral_reward . ' ' . $this->credits_display_name . ' for sign-up-referral of ' . $user->name . ' (ID:' . $user->id . ')');
+                        ->log('gained ' . $this->currency_helper->formatForDisplay($this->referral_reward) . ' ' . $this->credits_display_name . ' for sign-up-referral of ' . $user->name . ' (ID:' . $user->id . ')');
                 }
                 //INSERT INTO USER_REFERRALS TABLE
                 DB::table('user_referrals')->insert([

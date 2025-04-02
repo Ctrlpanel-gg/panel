@@ -74,7 +74,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">{{ $general_settings->credits_display_name }}
                             {{ __('Usage') }}</span>
-                        <span class="info-box-number">{{ number_format($usage / 1000, 2, '.', ',') }}
+                        <span class="info-box-number">{{ Currency::formatForDisplay($usage) }}
                             <sup>{{ __('per month') }}</sup></span>
                     </div>
                     <!-- /.info-box-content -->
@@ -196,7 +196,7 @@
                                             <tr>
                                                 <td>{{ $partnerDiscount->partner_discount }}%</td>
                                                 <td>{{ $partnerDiscount->registered_user_discount }}%</td>
-                                                <td>{{ $referral_settings->reward }}
+                                                <td>{{ Currency::formatForDisplay($referral_settings->reward) }}
                                                     {{ $general_settings->credits_display_name }}</td>
                                                 <td>{{ $partnerDiscount->referral_system_commission == -1 ?
                                                     $referral_settings->percentage : $partnerDiscount->referral_system_commission

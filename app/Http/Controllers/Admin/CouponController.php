@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Coupon;
 use App\Settings\LocaleSettings;
@@ -215,12 +216,12 @@ class CouponController extends Controller
             ->editColumn('uses', function (Coupon $coupon) {
                 return "{$coupon->uses} / {$coupon->max_uses}";
             })
-            ->editColumn('value', function (Coupon $coupon) {
+            ->editColumn('value', function (Coupon $coupon, CurrencyHelper $currencyHelper) {
                 if ($coupon->type === 'percentage') {
                     return $coupon->value . "%";
                 }
 
-                return number_format($coupon->value, 2, '.', '');
+                return $currencyHelper->formatForDisplay($coupon->value);
             })
             ->editColumn('expires_at', function (Coupon $coupon) {
                 if (!$coupon->expires_at) {

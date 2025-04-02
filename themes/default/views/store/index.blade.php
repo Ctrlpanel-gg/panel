@@ -48,7 +48,7 @@
                             <tbody>
                                 @foreach ($shopProducts as $shopProduct)
                                     <tr>
-                                        <td>{{ $shopProduct->formatToCurrency(Currency::formatForDisplay($shopProduct->price)) }}</td>
+                                        <td>{{ Currency::formatToCurrency($shopProduct->price, $shopProduct->currency_code) }}</td>
                                         <td>{{ strtolower($shopProduct->type) == 'credits' ? $credits_display_name : $shopProduct->type }}
                                         </td>
                                         <td>

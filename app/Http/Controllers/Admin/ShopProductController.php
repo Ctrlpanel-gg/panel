@@ -184,7 +184,7 @@ class ShopProductController extends Controller
                 return $shopProduct->created_at ? $shopProduct->created_at->diffForHumans() : '';
             })
             ->editColumn('price', function (ShopProduct $shopProduct, CurrencyHelper $currencyHelper) {
-                return $shopProduct->formatToCurrency($currencyHelper->formatForDisplay($shopProduct->price));
+                return $currencyHelper->formatToCurrency($shopProduct->price, $shopProduct->currency_code);
             })
             ->rawColumns(['actions', 'disabled'])
             ->make();

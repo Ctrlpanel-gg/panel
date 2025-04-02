@@ -271,7 +271,7 @@ class ProductController extends Controller
                 return $currencyHelper->formatForDisplay($product->price);
             })
             ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings, CurrencyHelper $currencyHelper) {
-                return $product->minimum_credits == -1000 ? $user_settings->min_credits_to_make_server : $currencyHelper->convertForDisplay($product->minimum_credits);
+                return $product->minimum_credits == -1000 ? $currencyHelper->formatForDisplay($user_settings->min_credits_to_make_server) : $currencyHelper->formatForDisplay($product->minimum_credits);
             })
             ->editColumn('serverlimit', function (Product $product) {
                 return $product->serverlimit == 0 ? "∞" : $product->serverlimit;

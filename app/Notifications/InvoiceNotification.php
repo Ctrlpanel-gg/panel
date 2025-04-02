@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Facades\Currency;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
@@ -48,7 +49,7 @@ class InvoiceNotification extends Notification implements ShouldQueue
             ->greeting(__('Hello').',')
             ->line(__('Your payment was processed successfully!'))
             ->line(__('Status').': '.$this->payment->status->value)
-            ->line(__('Price').': '.$this->payment->formatToCurrency($this->payment->total_price))
+            ->line(__('Price').': '.Currency::formatToCurrency($this->payment->total_price, $this->payment->currency_code))
             ->line(__('Type').': '.$this->payment->type)
             ->line(__('Amount').': '.$this->payment->amount)
             ->line(__('Balance').': '.number_format($this->user->credits, 2))

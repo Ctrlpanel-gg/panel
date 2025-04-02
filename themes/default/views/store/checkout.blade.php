@@ -156,23 +156,25 @@
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Subtotal') }}</span>
                                                 <span class="text-muted d-inline-block">
-                                                    {{ $product->formatToCurrency(Currency::formatForDisplay($product->price)) }}</span>
+                                                    {{ Currency::formatToCurrency($product->price, $product->currency_code) }}</span>
                                             </li>
-                                            <div class="d-flex justify-content-between">
-                                                <span class="text-muted d-inline-block">{{ __('Tax') }}
-                                                    @if ($taxpercent > 0)
-                                                        ({{ $taxpercent }}%):
-                                                    @endif
-                                                </span>
-                                                <span class="text-muted d-inline-block">
-                                                    + {{ $product->formatToCurrency($taxvalue) }}</span>
-                                            </div>
+                                            @if($taxpercent > 0 && $taxvalue > 0)
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted d-inline-block">{{ __('Tax') }}
+                                                        @if ($taxpercent > 0)
+                                                            ({{ $taxpercent }}%)
+                                                        @endif
+                                                    </span>
+                                                    <span class="text-muted d-inline-block">
+                                                        + {{ Currency::formatToCurrency($taxvalue, $product->currency_code) }}</span>
+                                                </div>
+                                            @endif
                                             <div id="coupon_discount_details" class="d-flex justify-content-between"
                                                 style="display: none !important;">
                                                 <span class="text-muted d-inline-block">
                                                     {{ __('Coupon Discount') }}
                                                 </span>
-                                                <span x-text="couponDiscountedValue" class="text-muted d-inline-block">
+                                                <span x-text="'- ' + (couponType == 'amount' ? formatToCurrency($currency.format(couponDiscountedValue)) : couponDiscountedValue + '%')" class="text-muted d-inline-block">
 
                                                 </span>
                                             </div>
@@ -181,7 +183,7 @@
                                                     <span class="text-muted d-inline-block">{{ __('Partner Discount') }}
                                                         ({{ $discountpercent }}%)</span>
                                                     <span class="text-muted d-inline-block">
-                                                        - {{ $product->formatToCurrency(Currency::formatForDisplay($discountvalue)) }}
+                                                        - {{ Currency::formatToCurrency($discountvalue, $product->currency_code) }}
                                                     </span>
                                                 </div>
                                             @endif
@@ -190,7 +192,7 @@
                                                 <span class="text-muted d-inline-block">{{ __('Total') }}</span>
                                                 <input id="total_price_input" type="hidden" x-model="totalPrice">
                                                 <span class="text-muted d-inline-block"
-                                                    x-text="formatToCurrency(totalPrice)">
+                                                    x-text="formatToCurrency($currency.format(totalPrice))">
                                                 </span>
                                             </div>
                                             <template x-if="payment_method">
@@ -205,13 +207,12 @@
                                 </ul>
 
                                 <button
-                                    :disabled="(!payment_method || !clicked || coupon_code) &&
-                                    {{ !$productIsFree }}"
                                     id="submit_form_button"
-                                    :class="(!payment_method || !clicked || coupon_code) &&
-                                    {{ !$productIsFree }} ? 'disabled' : ''"
-                                    :x-text="coupon_code" class="float-right btn btn-success w-100">
-                                    <i class="mr-2 far fa-credit-card" @click="clicked == true"></i>
+                                    :disabled="(!payment_method) && {{ !$productIsFree }}"
+                                    :class="(!payment_method) && {{ !$productIsFree }} ? 'disabled' : ''"
+                                    class="float-right btn btn-success w-100"
+                                >
+                                    <i class="mr-2 far fa-credit-card"></i>
                                     @if ($productIsFree)
                                         {{ __('Get for free') }}
                                     @else
@@ -236,14 +237,16 @@
             return {
                 // Get the product id from the url
                 productId: window.location.pathname.split('/').pop(),
-                payment_method: '',
+                payment_method: null,
                 coupon_code: '',
                 submitted: false,
-                totalPrice: {{ Currency::formatForDisplay($total) }},
+                totalPrice: {{ $total }},
+                couponType: null,
                 couponDiscountedValue: 0,
 
 
                 setCouponCode(event) {
+                    console.log(this.payment_method)
                     this.coupon_code = event.target.value
                 },
 
@@ -299,19 +302,16 @@
                 calcPriceWithCouponDiscount(couponValue, couponType) {
                     let newTotalPrice = this.totalPrice
 
-
-                    console.log(couponType)
+                    console.log(couponValue, couponType)
                     if (couponType === 'percentage') {
                         newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
-                        this.couponDiscountedValue = "- " + couponValue + "%"
                     } else if (couponType === 'amount') {
-
                         newTotalPrice = newTotalPrice - couponValue
-                        this.couponDiscountedValue = "- " + this.formatToCurrency(couponValue)
                     }
 
-                    // format totalPrice to currency
-                    this.totalPrice = this.formatToCurrency(newTotalPrice)
+                    this.couponType = couponType
+                    this.couponDiscountedValue = couponValue
+                    this.totalPrice = newTotalPrice
                 },
 
                 formatToCurrency(amount) {

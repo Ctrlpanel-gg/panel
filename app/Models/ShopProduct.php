@@ -80,18 +80,6 @@ class ShopProduct extends Model
     }
 
     /**
-     * @param  mixed  $value
-     * @param  string  $locale
-     * @return float
-     */
-    public function formatToCurrency($value, $locale = 'en_US')
-    {
-        $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-
-        return $formatter->formatCurrency($value, $this->currency_code);
-    }
-
-    /**
      * @description Returns the tax in % taken from the Configuration
      *
      * @return int

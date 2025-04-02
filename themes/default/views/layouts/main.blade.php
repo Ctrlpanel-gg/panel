@@ -516,6 +516,16 @@
                 }
             });
         });
+
+        $(document).on('alpine:init', () => {
+            Alpine.magic('currency', () => {
+                return {
+                    format: (amount) => {
+                        return (amount / 1000);
+                    },
+                }
+            });
+        })
     </script>
     <script>
         @if (Session::has('error'))

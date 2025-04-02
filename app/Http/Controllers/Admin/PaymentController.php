@@ -86,7 +86,7 @@ class PaymentController extends Controller
             'discountpercent' => $discount,
             'discountvalue' => $discount * $shopProduct->price / 100,
             'discountedprice' => $shopProduct->getPriceAfterDiscount(),
-            'taxvalue' => $currencyHelper->formatForDisplay($shopProduct->getTaxValue()),
+            'taxvalue' => $shopProduct->getTaxValue(),
             'taxpercent' => $shopProduct->getTaxPercent(),
             'total' => $shopProduct->getTotalPrice(),
             'paymentGateways'   => $paymentGateways,
@@ -210,16 +210,16 @@ class PaymentController extends Controller
                 return $payment->type == 'Credits' ? $currencyHelper->formatForDisplay($payment->amount) : $payment->amount;
             })
             ->editColumn('price', function (Payment $payment, CurrencyHelper $currencyHelper) {
-                return $payment->formatToCurrency($currencyHelper->formatForDisplay($payment->price));
+                return $currencyHelper->formatToCurrency($payment->price, $payment->currency_code);
             })
             ->editColumn('tax_value', function (Payment $payment, CurrencyHelper $currencyHelper) {
-                return $payment->formatToCurrency($currencyHelper->formatForDisplay($payment->tax_value));
+                return $currencyHelper->formatToCurrency($payment->tax_value, $payment->currency_code);
             })
             ->editColumn('tax_percent', function (Payment $payment) {
                 return $payment->tax_percent . ' %';
             })
             ->editColumn('total_price', function (Payment $payment, CurrencyHelper $currencyHelper) {
-                return $payment->formatToCurrency($currencyHelper->formatForDisplay($payment->total_price));
+                return $currencyHelper->formatToCurrency($payment->total_price, $payment->currency_code);
             })
             ->editColumn('created_at', function (Payment $payment) {
                 return [
