@@ -302,7 +302,6 @@
                 calcPriceWithCouponDiscount(couponValue, couponType) {
                     let newTotalPrice = this.totalPrice
 
-                    console.log(couponValue, couponType)
                     if (couponType === 'percentage') {
                         newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
                     } else if (couponType === 'amount') {
