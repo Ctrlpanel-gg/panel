@@ -599,6 +599,47 @@
         background-color: transparent !important;
         color: white !important;
     }
+
+    /* Datetime Picker Styling */
+    .bootstrap-datetimepicker-widget {
+        @apply bg-zinc-800/95 backdrop-blur-sm border border-zinc-700/50 rounded-lg text-white !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .bootstrap-datetimepicker-widget table td.day {
+        @apply hover:bg-primary-700 rounded-lg transition-colors !important;
+    }
+
+    .bootstrap-datetimepicker-widget table td.active,
+    .bootstrap-datetimepicker-widget table td.active:hover {
+        @apply bg-primary-600 text-white rounded-lg !important;
+    }
+
+    .bootstrap-datetimepicker-widget table td.today:before {
+        @apply border-t-primary-500 !important;
+    }
+
+    .bootstrap-datetimepicker-widget a[data-action] {
+        @apply text-white !important;
+    }
+
+    .bootstrap-datetimepicker-widget .timepicker-hour,
+    .bootstrap-datetimepicker-widget .timepicker-minute,
+    .bootstrap-datetimepicker-widget .timepicker-second {
+        @apply text-white !important;
+    }
+
+    .bootstrap-datetimepicker-widget button[data-action] {
+        @apply bg-primary-700 text-white !important;
+    }
+
+    .bootstrap-datetimepicker-widget .btn-primary {
+        @apply bg-primary-700 text-white border-primary-800 !important;
+    }
+
+    .bootstrap-datetimepicker-widget .picker-switch td span {
+        @apply hover:bg-primary-700/50 !important;
+    }
 }
 
 /* Animations and Transitions */

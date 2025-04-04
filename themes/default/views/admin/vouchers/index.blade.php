@@ -1,66 +1,53 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="mb-2 row">
-                <div class="col-sm-6">
-                    <h1>{{__('Vouchers')}}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.vouchers.index')}}">{{__('Vouchers')}}</a></li>
-                    </ol>
+    <div class="min-h-screen bg-primary-950 p-8">
+        <!-- Header -->
+        <div class="max-w-screen-xl mx-auto mb-8">
+            <div class="glass-panel p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-light text-white">{{__('Vouchers')}}</h1>
+                        <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+                            <ol class="inline-flex items-center space-x-1 text-zinc-400">
+                                <li><a href="{{route('home')}}" class="hover:text-white transition-colors">{{__('Dashboard')}}</a></li>
+                                <li class="text-zinc-600">/</li>
+                                <li class="text-zinc-500">{{__('Vouchers')}}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <a href="{{route('admin.vouchers.create')}}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>{{__('Create new')}}
+                    </a>
                 </div>
             </div>
         </div>
-    </section>
-    <!-- END CONTENT HEADER -->
 
-    <!-- MAIN CONTENT -->
-    <section class="content">
-        <div class="container-fluid">
+        <!-- Main Content -->
+        <div class="max-w-screen-xl mx-auto">
+            <div class="glass-panel p-6">
 
-            <div class="card">
-
-                <div class="card-header">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="mr-2 fas fa-money-check-alt"></i>{{__('Vouchers')}}</h5>
-                        <a href="{{route('admin.vouchers.create')}}" class="btn btn-sm btn-primary"><i
-                                class="mr-1 fas fa-plus"></i>{{__('Create new')}}</a>
-                    </div>
-                </div>
-
-                <div class="card-body table-responsive">
-
-                    <table id="datatable" class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>{{__('Status')}}</th>
-                            <th>{{__('Code')}}</th>
-                            <th>{{__('Memo')}}</th>
-                            <th>{{ $credits_display_name }}</th>
-                            <th>{{__('Used / Uses')}}</th>
-                            <th>{{__('Expires')}}</th>
-                            <th></th>
-                        </tr>
+                
+                <div class="overflow-x-auto">
+                    <table id="datatable" class="w-full text-sm text-left">
+                        <thead class="text-xs uppercase text-zinc-400 bg-zinc-800/50">
+                            <tr>
+                                <th class="px-4 py-3">{{__('Status')}}</th>
+                                <th class="px-4 py-3">{{__('Code')}}</th>
+                                <th class="px-4 py-3">{{__('Memo')}}</th>
+                                <th class="px-4 py-3">{{ $credits_display_name }}</th>
+                                <th class="px-4 py-3">{{__('Used / Uses')}}</th>
+                                <th class="px-4 py-3">{{__('Expires')}}</th>
+                                <th class="px-4 py-3"></th>
+                            </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
-
                 </div>
             </div>
-
-
         </div>
-        <!-- END CUSTOM CONTENT -->
-
-    </section>
-    <!-- END CONTENT -->
+    </div>
 
     <script>
         function submitResult() {
@@ -91,7 +78,4 @@
             });
         });
     </script>
-
-
-
 @endsection
