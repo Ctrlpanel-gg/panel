@@ -640,6 +640,71 @@
     .bootstrap-datetimepicker-widget .picker-switch td span {
         @apply hover:bg-primary-700/50 !important;
     }
+
+    /* Summernote Dark Theme */
+    .note-editor.note-frame {
+        @apply bg-zinc-900/50 border-zinc-800/50 rounded-lg overflow-hidden;
+    }
+
+    .note-editing-area {
+        @apply bg-transparent;
+    }
+
+    .note-editable {
+        @apply bg-transparent text-zinc-300 !important;
+    }
+
+    .note-toolbar {
+        @apply bg-zinc-800/50 border-b border-zinc-700/50 !important;
+    }
+
+    .note-btn {
+        @apply bg-zinc-700 border-zinc-600 text-zinc-300 hover:bg-zinc-600 hover:border-zinc-500 !important;
+    }
+
+    .note-dropdown-menu {
+        @apply bg-zinc-800 border-zinc-700 !important;
+    }
+
+    .note-dropdown-item {
+        @apply text-zinc-300 hover:bg-zinc-700 !important;
+    }
+
+    .note-modal-backdrop {
+        @apply bg-black/50 backdrop-blur-sm !important;
+    }
+
+    .note-modal-content {
+        @apply bg-zinc-900 border-zinc-800 !important;
+    }
+
+    .note-modal-header {
+        @apply border-zinc-800 !important;
+    }
+
+    .note-modal-title {
+        @apply text-zinc-300 !important;
+    }
+
+    .note-form-label {
+        @apply text-zinc-400 !important;
+    }
+
+    .note-modal-footer {
+        @apply border-zinc-800 !important;
+    }
+
+    .note-status-output {
+        @apply text-zinc-400;
+    }
+
+    .note-statusbar {
+        @apply bg-zinc-800/50 border-t border-zinc-700/50 !important;
+    }
+
+    .note-resizebar {
+        @apply opacity-50;
+    }
 }
 
 /* Animations and Transitions */
