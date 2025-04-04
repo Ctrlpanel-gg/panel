@@ -99,105 +99,101 @@
         <!-- Navbar -->
         <nav class="main-header sticky-top navbar navbar-expand bg-zinc-900/50 backdrop-blur-sm border-b border-zinc-800/50">
             <!-- Left navbar links -->
-            <ul class="navbar-nav">
+            <ul class="navbar-nav flex items-center gap-2">
                 <li class="nav-item">
-                    <a class="nav-link text-zinc-400 hover:text-white transition-colors" data-widget="pushmenu" href="#" role="button">
+                    <button class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50" data-widget="pushmenu">
                         <i class="fas fa-bars"></i>
-                    </a>
+                    </button>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ route('home') }}" class="nav-link text-zinc-400 hover:text-white transition-colors">
-                        <i class="mr-2 fas fa-home"></i>{{ __('Home') }}
+                    <a href="{{ route('home') }}" class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2">
+                        <i class="fas fa-home"></i>
+                        <span>{{ __('Home') }}</span>
                     </a>
                 </li>
                 @if (!empty($discord_settings->invite_url))
                     <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ $discord_settings->invite_url }}" class="nav-link text-zinc-400 hover:text-white transition-colors" target="__blank">
-                        <i class="mr-2 fab fa-discord"></i>{{ __('Discord') }}
-                    </a>
+                        <a href="{{ $discord_settings->invite_url }}" class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" target="__blank">
+                            <i class="fab fa-discord"></i>
+                            <span>{{ __('Discord') }}</span>
+                        </a>
                     </li>
                 @endif
 
                 @foreach ($useful_links as $link)
                     <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ $link->link }}" class="nav-link text-zinc-400 hover:text-white transition-colors" target="__blank">
-                        <i class="{{ $link->icon }}"></i> {{ $link->title }}
-                    </a>
+                        <a href="{{ $link->link }}" class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" target="__blank">
+                            <i class="{{ $link->icon }}"></i>
+                            <span>{{ $link->title }}</span>
+                        </a>
                     </li>
                 @endforeach
             </ul>
 
             <!-- Right navbar links -->
-            <ul class="ml-auto navbar-nav">
+            <ul class="ml-auto navbar-nav flex items-center gap-2">
+                <!-- Credits Dropdown -->
                 <li class="nav-item dropdown">
-                    <a class="px-2 nav-link text-zinc-400 hover:text-white transition-colors" href="#" id="userDropdown">
-                        <span class="mr-1">
-                            <small><i class="mr-2 fas fa-coins"></i></small>{{ Auth::user()->credits() }}
-                        </span>
-                    </a>
-                    <div class="shadow dropdown-menu dropdown-menu-right bg-zinc-800 border border-zinc-700">
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700" href="{{ route('store.index') }}">
-                            <i class="mr-2 fas fa-coins fa-sm fa-fw"></i>
-                            {{ __('Store') }}
+                    <button class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" id="creditsDropdown" data-toggle="dropdown">
+                        <i class="fas fa-coins"></i>
+                        <span>{{ Auth::user()->credits() }}</span>
+                    </button>
+                    <div class="shadow dropdown-menu dropdown-menu-right bg-zinc-800 border border-zinc-700 rounded-lg mt-2">
+                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('store.index') }}">
+                            <i class="fas fa-coins"></i>
+                            <span>{{ __('Store') }}</span>
                         </a>
-                        <div class="dropdown-divider border-zinc-700"></div>
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700" data-toggle="modal" data-target="#redeemVoucherModal"
-                            href="javascript:void(0)">
-                            <i class="mr-2 fas fa-money-check-alt fa-sm fa-fw"></i>
-                            {{ __('Redeem code') }}
+                        <div class="border-t border-zinc-700 my-1"></div>
+                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" data-toggle="modal" data-target="#redeemVoucherModal" href="javascript:void(0)">
+                            <i class="fas fa-money-check-alt"></i>
+                            <span>{{ __('Redeem code') }}</span>
                         </a>
                     </div>
                 </li>
 
-                <li class="nav-item dropdown no-arrow">
-                    <a class="px-2 nav-link dropdown-toggle no-arrow text-zinc-400 hover:text-white transition-colors" href="#" id="userDropdown" role="button"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="mr-1 d-lg-inline small">
-                        {{ Auth::user()->name }}
-                        <img width="28px" height="28px" class="ml-1 rounded-full shadow-md" src="{{ Auth::user()->getAvatar() }}">
+                <!-- User Dropdown -->
+                <li class="nav-item dropdown">
+                    <button class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" id="userDropdown" data-toggle="dropdown">
+                        <span>{{ Auth::user()->name }}</span>
+                        <img class="w-8 h-8 rounded-full shadow-md object-cover" src="{{ Auth::user()->getAvatar() }}" alt="User avatar">
                         @if (Auth::user()->unreadNotifications->count() != 0)
-                        <span class="badge badge-warning navbar-badge">
-                            {{ Auth::user()->unreadNotifications->count() }}
-                        </span>
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full"></span>
                         @endif
-                    </span>
-                    </a>
-                    <!-- Dropdown - User Information -->
-                    <div class="shadow-lg dropdown-menu dropdown-menu-right bg-zinc-800 border border-zinc-700"
-                    aria-labelledby="userDropdown">
-                    <a class="dropdown-item text-zinc-300 hover:bg-zinc-700" href="{{ route('profile.index') }}">
-                        <i class="mr-2 fas fa-user fa-sm fa-fw"></i>
-                        {{ __('Profile') }}
-                    </a>
-                    <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 position-relative" href="{{ route('notifications.index') }}">
-                        <i class="mr-2 fas fa-bell fa-sm fa-fw"></i>
-                        {{ __('Notifications') }}
-                        @if (Auth::user()->unreadNotifications->count() != 0)
-                        <span class="badge badge-warning navbar-badge">
-                            {{ Auth::user()->unreadNotifications->count() }}
-                        </span>
-                        @endif
-                    </a>
-                    <a class="dropdown-item text-zinc-300 hover:bg-zinc-700" href="{{ route('preferences.index') }}">
-                        <i class="mr-2 fas fa-cog fa-sm fa-fw"></i>
-                        {{ __('Preferences') }}
-                    </a>
-                    @if (session()->get('previousUser'))
-                        <div class="dropdown-divider border-zinc-700"></div>
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700" href="{{ route('users.logbackin') }}">
-                        <i class="mr-2 fas fa-sign-in-alt fa-sm fa-fw"></i>
-                        {{ __('Log back in') }}
+                    </button>
+                    <div class="shadow dropdown-menu dropdown-menu-right bg-zinc-800 border border-zinc-700 rounded-lg mt-2">
+                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('profile.index') }}">
+                            <i class="fas fa-user"></i>
+                            <span>{{ __('Profile') }}</span>
                         </a>
-                    @endif
-                    <div class="dropdown-divider border-zinc-700"></div>
-                    <form method="post" action="{{ route('logout') }}">
-                        @csrf
-                        <button class="dropdown-item text-zinc-300 hover:bg-zinc-700 w-full text-left" type="submit">
-                        <i class="mr-2 fas fa-sign-out-alt fa-sm fa-fw"></i>
-                        {{ __('Logout') }}
-                        </button>
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    </form>
+                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('notifications.index') }}">
+                            <i class="fas fa-bell"></i>
+                            <span>{{ __('Notifications') }}</span>
+                            @if (Auth::user()->unreadNotifications->count() != 0)
+                                <span class="badge badge-warning navbar-badge">
+                                    {{ Auth::user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
+                        </a>
+                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('preferences.index') }}">
+                            <i class="fas fa-cog"></i>
+                            <span>{{ __('Preferences') }}</span>
+                        </a>
+                        @if (session()->get('previousUser'))
+                            <div class="border-t border-zinc-700 my-1"></div>
+                            <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('users.logbackin') }}">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>{{ __('Log back in') }}</span>
+                            </a>
+                        @endif
+                        <div class="border-t border-zinc-700 my-1"></div>
+                        <form method="post" action="{{ route('logout') }}">
+                            @csrf
+                            <button class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2 w-full text-left" type="submit">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>{{ __('Logout') }}</span>
+                            </button>
+                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        </form>
                     </div>
                 </li>
             </ul>
@@ -232,8 +228,9 @@
                                 class="nav-link @if (Request::routeIs('servers.*')) active @endif">
                                 <i class="nav-icon fa fa-server text-zinc-400"></i>
                                 <p class="ml-3">{{ __('Servers') }}
-                                    <span class="badge badge-info right">{{ Auth::user()->servers()->count() }} /
-                                        {{ Auth::user()->server_limit }}</span>
+                                    <span class="badge ml-auto px-2 py-1 text-xs font-medium bg-primary-800/50 text-primary-200 rounded-md">
+                                        {{ Auth::user()->servers()->count() }} / {{ Auth::user()->server_limit }}
+                                    </span>
                                 </p>
                             </a>
                         </li>
