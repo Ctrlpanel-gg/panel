@@ -398,13 +398,12 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $query = User::with(['discordUser', 'roles'])
+        $query = User::with('discordUser')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->selectRaw('users.*, (SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count')
-            ->where('model_has_roles.model_type', User::class)
-            ->groupBy('users.id'); // Important when joining with roles
+            ->selectRaw('users.*, roles.name as role_name, (SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count')
+            ->where('model_has_roles.model_type', User::class);
 
         return datatables($query)
             ->addColumn('avatar', function (User $user) {
@@ -425,29 +424,29 @@ class UserController extends Controller
                 $suspendText = $user->isSuspended() ? __('Unsuspend') : __('Suspend');
 
                 return '
-            <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></a>
-            <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-secondary"><i class="fas fa-envelope"></i></a>
-            <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
-            <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-            <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
-                         ' . csrf_field() . '
-                        <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
-                      </form>
-            <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
-                         ' . csrf_field() . '
-                         ' . method_field('DELETE') . '
-                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                    </form>
-            ';
+                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-secondary"><i class="fas fa-envelope"></i></a>
+                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
+                <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
+                             ' . csrf_field() . '
+                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
+                          </form>
+                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
+                             ' . csrf_field() . '
+                             ' . method_field('DELETE') . '
+                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                ';
             })
             ->editColumn('role', function (User $user) {
                 $html = '';
 
                 foreach ($user->roles as $role) {
-                    $html .= "<span style='background-color: {$role->color}' class='badge'>{$role->name}</span> ";
+                    $html .= "<span style='background-color: $role->color' class='badge'>$role->name</span>";
                 }
 
-                return $html ?: '<span class="badge badge-secondary">No Role</span>';
+                return $html;
             })
             ->editColumn('last_seen', function (User $user) {
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');
@@ -455,18 +454,8 @@ class UserController extends Controller
             ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
                 return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
-            ->filterColumn('role', function($query, $keyword) {
-                $query->whereHas('roles', function($q) use ($keyword) {
-                    $q->where('name', 'like', "%{$keyword}%");
-                });
-            })
-            ->orderColumn('role', function($query, $order) {
-                $query->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-                    ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
-                    ->orderBy('roles.name', $order)
-                    ->groupBy('users.id');
-            })
-            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'actions'])
+            ->orderColumn('role', 'role_name $1')
+            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
             ->make();
     }
 }
