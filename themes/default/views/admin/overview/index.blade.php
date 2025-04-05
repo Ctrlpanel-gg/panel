@@ -307,7 +307,7 @@
                                                         <tr>
                                                             <td>{{$currency}}</td>
                                                             <td>{{$income->count}}</td>
-                                                            <td>{{$income->total}}</td>
+                                                            <td>{{Currency::formatForDisplay($income->total)}}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -336,7 +336,7 @@
                                                     <tr>
                                                         <td>{{$currency}}</td>
                                                         <td>{{$income->count}}</td>
-                                                        <td>{{$income->total}}</td>
+                                                        <td>{{Currency::formatForDisplay($income->total)}}</td>
                                                     </tr>
                                                 @endforeach
                                             </tbody>
@@ -378,9 +378,9 @@
                                                 <tr>
                                                     <td>{{$currency}}</td>
                                                     <td>{{$income->count}}</td>
-                                                    <td>{{$income->price}}</td>
-                                                    <td>{{$income->taxes}}</td>
-                                                    <td>{{$income->total}}</td>
+                                                    <td>{{Currency::formatForDisplay($income->price)}}</td>
+                                                    <td>{{Currency::formatForDisplay($income->taxes)}}</td>
+                                                    <td>{{Currency::formatForDisplay($income->total)}}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -409,9 +409,9 @@
                                             <tr>
                                                 <td>{{$currency}}</td>
                                                 <td>{{$income->count}}</td>
-                                                <td>{{$income->price}}</td>
-                                                <td>{{$income->taxes}}</td>
-                                                <td>{{$income->total}}</td>
+                                                <td>{{Currency::formatForDisplay($income->price)}}</td>
+                                                <td>{{Currency::formatForDisplay($income->taxes)}}</td>
+                                                <td>{{Currency::formatForDisplay($income->total)}}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

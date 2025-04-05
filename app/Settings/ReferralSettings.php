@@ -68,7 +68,7 @@ class ReferralSettings extends Settings
             'reward' => [
                 'label' => 'Reward',
                 'type' => 'number',
-                'step' => '0.01',
+                'step' => '0.001',
                 'description' => 'Reward in credits for the referrer.',
                 'mustBeConverted' => true,
             ],
