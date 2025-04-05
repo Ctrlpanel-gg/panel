@@ -217,8 +217,8 @@
                                                 <i data-toggle="popover" data-trigger="hover"
                                                     data-content="{{ __('Setting to empty will use the value from configuration.') }}"
                                                     class="fas fa-info-circle"></i></label>
-                                            <input value="{{ $product->display_minimum_credits }}" id="minimum_credits"
-                                                name="minimum_credits" type="text"
+                                            <input value="{{ $product->minimum_credits ? Currency::formatForForm($product->minimum_credits) : null }}" id="minimum_credits"
+                                                name="minimum_credits" type="number"
                                                 class="form-control @error('minimum_credits') is-invalid @enderror">
                                             @error('minimum_credits')
                                                 <div class="invalid-feedback">
@@ -264,7 +264,7 @@
                                       <div class="form-group">
                                         <label for="serverlimit">{{ __('Serverlimit') }}</label>
                                         <i data-toggle="popover" data-trigger="hover"
-                                           data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}
+                                           data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}"
                                            class="fas fa-info-circle"></i>
                                         <input value="{{ $product->serverlimit ??  0 }}"
                                                id="serverlimit" name="serverlimit" type="number"
