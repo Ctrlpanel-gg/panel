@@ -141,7 +141,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function credits(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => Currency::prepareForDatabase($value),
+            // We only convert when the user already exists, to avoid 2 conversions.
+            set: fn ($value) => $this->exists ? Currency::prepareForDatabase($value) : $value,
         );
     }
 

@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->bigInteger('price_integer')->after('price');
-            $table->bigInteger('minimum_credits_integer')->after('disabled');
+            $table->bigInteger('minimum_credits_integer')->nullable()->after('disabled');
         });
 
         DB::statement('UPDATE products SET price_integer = ROUND(price * 1000)');

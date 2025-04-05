@@ -204,13 +204,12 @@
                                         <div class="form-group">
                                             <label for="minimum_credits">{{ __('Minimum') }} {{ $credits_display_name }}
                                                 <i data-toggle="popover" data-trigger="hover"
-                                                    data-content="{{ __('Setting to -1 will use the value from configuration.') }}"
+                                                    data-content="{{ __('Setting to empty will use the value from configuration.') }}"
                                                     class="fas fa-info-circle"></i></label>
                                             <input
-                                                value="{{ (old('minimum_credits') ?? -1000) }}"
+                                                value="{{ (old('minimum_credits') ?? null) }}"
                                                 id="minimum_credits" name="minimum_credits" type="number"
-                                                class="form-control @error('minimum_credits') is-invalid @enderror"
-                                                required="required">
+                                                class="form-control @error('minimum_credits') is-invalid @enderror">
                                             @error('minimum_credits')
                                                 <div class="invalid-feedback">
                                                     {{ $message }}

@@ -135,11 +135,11 @@ class Product extends Model
     /**
      * Get the display minimum credits formatted.
      *
-     * @return string
+     * @return string|null
      */
     public function getDisplayMinimumCreditsAttribute()
     {
-        return Currency::formatForDisplay($this->minimum_credits);
+        return $this->minimum_credits ? Currency::formatForDisplay($this->minimum_credits) : null;
     }
 
     public function getWeeklyPrice()
