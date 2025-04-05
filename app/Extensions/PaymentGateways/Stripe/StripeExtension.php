@@ -2,7 +2,7 @@
 
 namespace App\Extensions\PaymentGateways\Stripe;
 
-use App\Classes\AbstractExtension;
+use App\Classes\PaymentExtension;
 use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
@@ -19,7 +19,7 @@ use Stripe\Exception\SignatureVerificationException;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
-class StripeExtension extends AbstractExtension
+class StripeExtension extends PaymentExtension
 {
     use CouponTrait;
 
