@@ -36,7 +36,6 @@
                                     <ul class="list-group ">
                                         <li class="list-group-item">
                                             <div class="row">
-                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
                                                 <input type="hidden" name="payment_method" :value="payment_method"
                                                     x-model="payment_method">
                                                 <div class="col-lg-12">
@@ -224,7 +223,7 @@
                         </div>
                     </div>
                 </div>
-
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
             </form>
         </div>
