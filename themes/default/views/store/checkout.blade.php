@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-8">
     <!-- Header -->
-    <header class="max-w-screen-xl mx-auto mb-8">
+    <header class="w-full mb-8">
         <div class="glass-panel p-6">
             <h1 class="text-3xl font-light text-white">{{ __('Checkout') }}</h1>
             <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
@@ -19,7 +19,7 @@
     </header>
 
     <!-- Main Content -->
-    <div class="max-w-screen-xl mx-auto" x-data="couponForm()">
+    <div class="w-full" x-data="couponForm()">
         <form id="payment_form" action="{{ route('payment.pay') }}" method="POST">
             @csrf
             @method('post')

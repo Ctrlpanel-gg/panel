@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-8">
     <!-- Header -->
-    <div class="max-w-screen-2xl mx-auto mb-8">
+    <div class="w-full mb-8">
         <div class="glass-panel p-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-screen-2xl mx-auto">
+    <div class="w-full">
         @if(Storage::get('latestVersion') && config("app.version") < Storage::get('latestVersion'))
             <div class="glass-panel bg-red-500/5 text-red-400 mb-6">
                 <div class="flex items-center gap-3 p-6">

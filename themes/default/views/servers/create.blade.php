@@ -1,12 +1,12 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="min-h-screen bg-primary-950 p-8">
+<div class="min-h-screen bg-primary-950 p-4 sm:p-8">
     <!-- Header -->
-    <header class="max-w-screen-xl mx-auto mb-8">
-        <div class="glass-panel p-6">
-            <h1 class="text-3xl font-light text-white">{{ __('Create Server') }}</h1>
-            <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+    <header class="w-full mb-4 sm:mb-8">
+        <div class="glass-panel p-4 sm:p-6">
+            <h1 class="text-xl sm:text-3xl font-light text-white">{{ __('Create Server') }}</h1>
+            <nav class="flex mt-2 text-xs sm:text-sm" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 text-zinc-400">
                     <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
                     <li class="text-zinc-600">/</li>
@@ -19,14 +19,14 @@
     </header>
 
     <!-- Main Content -->
-    <div class="max-w-screen-xl mx-auto" x-data="serverApp()">
+    <div class="w-full" x-data="serverApp()">
         <form action="{{ route('servers.store') }}" method="post" x-on:submit="submitClicked = true" id="serverForm">
             @csrf
             
             <!-- Configuration Card -->
-            <div class="card mb-6 sm:mb-8 max-w-2xl mx-auto">
+            <div class="card mb-4 sm:mb-8 max-w-2xl mx-auto">
                 <div class="card-header">
-                    <h3 class="text-white font-medium flex items-center gap-2">
+                    <h3 class="text-white font-medium flex items-center gap-2 text-sm sm:text-base">
                         <i class="fas fa-cogs text-zinc-400"></i>
                         {{ __('Server Configuration') }}
                     </h3>
@@ -85,7 +85,7 @@
 
                         <!-- Server Name -->
                         <div>
-                            <label for="name" class="block text-sm font-medium text-zinc-400 mb-2">{{ __('Name') }}</label>
+                            <label for="name" class="block text-xs sm:text-sm font-medium text-zinc-400 mb-2">{{ __('Name') }}</label>
                             <input x-model="name" id="name" name="name" type="text" required
                                 class="input @error('name') border-red-500/50 focus:border-red-500/50 @enderror">
                         </div>
@@ -150,7 +150,7 @@
                         <div class="p-4 sm:p-6">
                             <!-- Header -->
                             <div class="flex justify-between items-center mb-4">
-                                <h4 class="text-base sm:text-lg font-medium text-white" x-text="product.name"></h4>
+                                <h4 class="text-sm sm:text-lg font-medium text-white" x-text="product.name"></h4>
                                 <span class="text-xs sm:text-sm text-zinc-500" 
                                       x-text="product.serverlimit > 0 
                                           ? product.servers_count + ' / ' + product.serverlimit 

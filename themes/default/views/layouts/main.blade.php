@@ -538,7 +538,7 @@
         </div>
         <!-- /.content-wrapper -->
         <footer class="bg-zinc-900/50 border-t border-zinc-800/50 p-4 mt-auto">
-            <div class="max-w-screen-xl mx-auto flex flex-wrap justify-between items-center text-sm text-zinc-400">
+            <div class="w-full flex flex-wrap justify-between items-center text-sm text-zinc-400">
                 <div>
                     <strong>Copyright &copy; 2021-{{ date('Y') }} 
                         <a href="{{ url('/') }}" class="text-zinc-300 hover:text-white transition-colors">

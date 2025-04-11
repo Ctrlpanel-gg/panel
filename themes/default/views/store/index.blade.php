@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-8">
     <!-- Header -->
-    <div class="max-w-screen-xl mx-auto mb-8">
+    <div class="w-full mb-8">
         <div class="glass-panel p-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-screen-xl mx-auto">
+    <div class="w-full">
         @if ($isStoreEnabled && $products->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach ($products as $product)

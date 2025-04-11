@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-8">
     <!-- Header -->
-    <div class="max-w-screen-2xl mx-auto mb-8">
+    <div class="w-full mb-8">
         <div class="glass-panel p-6">
             <h1 class="text-3xl font-light text-white">{{ __('Edit Server') }}</h1>
             <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Warning Notice -->
-    <div class="max-w-screen-2xl mx-auto mb-8">
+    <div class="w-full mb-8">
         <div class="glass-panel bg-red-500/5 text-red-400">
             <div class="p-6 flex items-start gap-4">
                 <i class="fas fa-exclamation-circle mt-1"></i>
@@ -33,7 +33,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-screen-2xl mx-auto">
+    <div class="w-full">
         <div class="glass-panel">
             <div class="p-6 border-b border-zinc-800/50">
                 <h3 class="text-lg font-medium text-white">{{ __('Server Details') }}</h3>

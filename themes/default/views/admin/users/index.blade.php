@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-8">
     <!-- Header -->
-    <div class="max-w-screen-2xl mx-auto mb-8">
+    <div class="w-full mb-8">
         <div class="glass-panel p-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-screen-2xl mx-auto">
+    <div class="w-full">
         <div class="glass-panel">
             <div class="p-6 border-b border-zinc-800/50">
                 <div class="flex justify-between items-center">

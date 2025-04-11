@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-4 sm:p-8">
     <!-- Header -->
-    <header class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+    <header class="w-full mb-6 sm:mb-8">
         <div class="glass-panel p-4 sm:p-6">
             <h1 class="text-2xl sm:text-3xl font-light text-white">{{ __('Ticket Management') }}</h1>
             <div class="text-zinc-400 text-sm mt-2">
@@ -19,7 +19,7 @@
     </header>
 
     <!-- Main Content -->
-    <div class="max-w-screen-2xl mx-auto space-y-6">
+    <div class="w-full space-y-6">
         <!-- Ticket List -->
         <div class="card glass-morphism">
             <div class="p-6 border-b border-zinc-800/50 flex justify-between items-center">

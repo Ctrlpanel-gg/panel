@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-4 sm:p-8">
     <!-- Header -->
-    <header class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+    <header class="w-full mb-6 sm:mb-8">
         <div class="glass-panel p-4 sm:p-6">
             <h1 class="text-2xl sm:text-3xl font-light text-white">{{ __('Dashboard') }}</h1>
             <div class="text-zinc-400 text-sm mt-2">
@@ -14,14 +14,14 @@
 
     <!-- Admin Warning -->
     @if (!file_exists(base_path() . '/install.lock') && Auth::user()->hasRole("Admin"))
-        <div class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+        <div class="w-full mb-6 sm:mb-8">
             <div class="glass-panel p-4 sm:p-6 bg-red-500/5 text-red-400">
                 <div class="flex items-center gap-3 mb-2">
                     <i class="fas fa-exclamation-circle text-lg"></i>
                     <h4 class="font-medium">{{ __('The installer is not locked!') }}</h4>
                 </div>
                 <p class="text-sm opacity-90 mb-3">{{ __('Please create a file called "install.lock" in your dashboard root directory. Otherwise, no settings will be loaded!') }}</p>
-                <a href="/install?step=7" class="inline-flex items-center px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm rounded-lg border border-red-500/20 transition-colors">
+                <a href="/install?step=7" class="btn btn-primary">
                     {{ __('or click here') }}
                 </a>
             </div>
@@ -30,7 +30,7 @@
 
     <!-- Alert Message -->
     @if ($general_settings->alert_enabled && !empty($general_settings->alert_message))
-        <div class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+        <div class="w-full mb-6 sm:mb-8">
             <div class="glass-panel p-4 sm:p-6 text-zinc-300">
                 {!! $general_settings->alert_message !!}
             </div>
@@ -38,7 +38,7 @@
     @endif
 
     <!-- Stats Grid -->
-    <div class="max-w-screen-2xl mx-auto mb-6 sm:mb-8">
+    <div class="w-full mb-6 sm:mb-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- Servers -->
             <div class="stats-card glass-morphism p-4 sm:p-6">
@@ -94,7 +94,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-screen-2xl mx-auto">
+    <div class="w-full">
         <!-- Toast notification for URL copy -->
         <div id="url-copy-toast" class="fixed top-5 right-5 z-[9999] hidden">
             <div class="flex items-center w-full max-w-xs p-4 text-zinc-300 bg-zinc-900/95 rounded-lg shadow border border-zinc-800/50 backdrop-blur-sm" role="alert">

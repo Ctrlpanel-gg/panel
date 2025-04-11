@@ -1,12 +1,12 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="min-h-screen bg-primary-950 p-8">
+<div class="min-h-screen bg-primary-950 p-4 sm:p-8">
     <!-- Header -->
-    <header class="max-w-screen-xl mx-auto mb-8">
-        <div class="glass-panel p-6">
-            <h1 class="text-3xl font-light text-white">{{ __('Server Settings') }}</h1>
-            <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
+    <header class="w-full mb-4 sm:mb-8">
+        <div class="glass-panel p-4 sm:p-6">
+            <h1 class="text-xl sm:text-3xl font-light text-white">{{ __('Server Settings') }}</h1>
+            <nav class="flex mt-2 text-xs sm:text-sm" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 text-zinc-400">
                     <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
                     <li class="text-zinc-600">/</li>
@@ -19,16 +19,16 @@
     </header>
 
     <!-- Stats Grid -->
-    <div class="max-w-screen-xl mx-auto mb-6 sm:mb-8">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+    <div class="w-full mb-4 sm:mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <!-- Server Name -->
-            <div class="stats-card glass-morphism col-span-2 sm:col-span-1">
+            <div class="stats-card glass-morphism col-span-1">
                 <div class="stats-icon blue">
                     <i class="fas fa-server text-base sm:text-xl"></i>
                 </div>
                 <div class="min-w-0">
-                    <div class="stats-text-label">{{ __('Server Name') }}</div>
-                    <div class="stats-text-value truncate">{{ $server->name }}</div>
+                    <div class="stats-text-label text-xs sm:text-sm">{{ __('Server Name') }}</div>
+                    <div class="stats-text-value text-lg sm:text-2xl truncate">{{ $server->name }}</div>
                 </div>
             </div>
 
@@ -88,14 +88,14 @@
     </div>
 
     <!-- Server Information -->
-    <div class="max-w-screen-xl mx-auto">
+    <div class="w-full">
         <div class="card">
             <div class="card-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h3 class="text-white font-medium flex items-center gap-2">
+                <h3 class="text-white font-medium flex items-center gap-2 text-sm sm:text-base">
                     <i class="fas fa-info-circle text-zinc-400"></i>
                     {{ __('Server Information') }}
                 </h3>
-                <span class="text-zinc-500 text-sm">
+                <span class="text-zinc-500 text-xs sm:text-sm">
                     <i class="fas fa-calendar-alt mr-2"></i>
                     {{ $server->created_at->isoFormat('LL') }}
                 </span>

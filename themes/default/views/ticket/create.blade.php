@@ -13,7 +13,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-4 sm:p-8">
     <!-- Header -->
-    <header class="max-w-screen-2xl mx-auto mb-6">
+    <header class="w-full mb-6">
         <div class="glass-panel p-4 sm:p-6">
             <h1 class="text-2xl sm:text-3xl font-light text-white">{{ __('Create Ticket') }}</h1>
             <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
@@ -29,7 +29,7 @@
     </header>
 
     <!-- Main Content -->
-    <div class="max-w-screen-2xl mx-auto">
+    <div class="w-full">
         <form action="{{route('ticket.new.store')}}" method="POST" class="ticket-form">
             @csrf
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

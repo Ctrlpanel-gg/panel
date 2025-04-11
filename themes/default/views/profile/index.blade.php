@@ -3,7 +3,7 @@
 @section('content')
     <div class="min-h-screen bg-primary-950 p-8">
         <!-- Header -->
-        <div class="max-w-screen-xl mx-auto mb-8">
+        <div class="w-full mb-8">
             <div class="glass-panel p-6">
                 <div class="flex justify-between items-center">
                     <div>
@@ -22,7 +22,7 @@
 
         <!-- Alerts -->
         @if (!Auth::user()->hasVerifiedEmail() && $force_email_verification)
-            <div class="max-w-screen-xl mx-auto mb-4">
+            <div class="w-full mb-4">
                 <div class="glass-panel p-4 bg-amber-500/10 border-amber-500/20">
                     <div class="flex items-center gap-3">
                         <i class="fas fa-exclamation-circle text-amber-500 text-xl"></i>
@@ -39,7 +39,7 @@
         @endif
 
         <!-- Main Profile -->
-        <div class="max-w-screen-xl mx-auto">
+        <div class="w-full">
             <form action="{{ route('profile.update', Auth::user()->id) }}" method="post">
                 @csrf
                 @method('PATCH')

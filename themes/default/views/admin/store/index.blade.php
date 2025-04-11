@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <div class="min-h-screen bg-primary-950 p-8">
         <!-- Header -->
-        <div class="max-w-screen-xl mx-auto mb-8">
+        <div class="w-full mb-8">
             <div class="glass-panel p-6">
                 <div class="flex justify-between items-center">
                     <div>
@@ -25,7 +25,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="max-w-screen-xl mx-auto">
+        <div class="w-full">
             <div class="glass-panel p-6">
                 
                 <div class="overflow-x-auto">

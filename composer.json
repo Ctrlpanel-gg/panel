@@ -23,6 +23,7 @@
         "laravel/ui": "^4.5.2",
         "laraveldaily/laravel-invoices": "^4.0.0",
         "league/flysystem-aws-s3-v3": "^3.28.0",
+        "livewire/livewire": "^3.6",
         "paypal/paypal-checkout-sdk": "^1.0.2",
         "predis/predis": "*",
         "qirolab/laravel-themer": "^2.3.3",

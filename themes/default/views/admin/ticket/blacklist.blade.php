@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-primary-950 p-8">
     <!-- Header -->
-    <div class="max-w-screen-2xl mx-auto mb-8">
+    <div class="w-full mb-8">
         <div class="glass-panel p-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-screen-2xl mx-auto">
+    <div class="w-full">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <!-- Blacklist Table -->
             <div class="lg:col-span-8">
