@@ -33,7 +33,6 @@
 
     {{-- select2 --}}
     <link rel="stylesheet" href="{{ asset('plugins/select2/css/select2.min.css') }}">
-
     <link rel="preload" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}" as="style"
         onload="this.onload=null;this.rel='stylesheet'">
     <noscript>

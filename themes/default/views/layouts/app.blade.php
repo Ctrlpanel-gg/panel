@@ -31,6 +31,8 @@
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
     @vite(['themes/default/css/app.css'])
+    @vite(['themes/default/css/select2.css'])
+    
     
     @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
     @if ($recaptchaVersion)

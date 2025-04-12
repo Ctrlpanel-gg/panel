@@ -27,28 +27,28 @@
     <div class="w-full mx-auto">
         <div class="glass-panel p-6">
             <div class="overflow-x-auto">
-                <table id="datatable" class="table w-full">
+                <table id="datatable" class="w-full">
                     <thead>
-                    <tr>
-                        <th>{{__('Active')}}</th>
-                        <th>{{__('Name')}}</th>
-                        <th>{{__('Price')}}</th>
-                        <th>{{__('Billing period')}}</th>
-                        <th>{{__('Memory')}}</th>
-                        <th>{{__('Cpu')}}</th>
-                        <th>{{__('Swap')}}</th>
-                        <th>{{__('Disk')}}</th>
-                        <th>{{__('Databases')}}</th>
-                        <th>{{__('Backups')}}</th>
-                        <th>{{__('OOM Killer')}}</th>
-                        <th>{{__('Nodes')}}</th>
-                        <th>{{__('Eggs')}}</th>
-                        <th>{{__('Min Credits')}}</th>
-                        <th>{{__('Servers')}}</th>
-                        <th>{{__('Serverlimit')}}</th>
-                        <th>{{__('Created at')}}</th>
-                        <th>{{ __('Actions') }}</th>
-                    </tr>
+                        <tr class="text-left text-zinc-400">
+                            <th class="px-2 py-3">{{ __('Active') }}</th>
+                            <th class="px-2 py-3">{{ __('Name') }}</th>
+                            <th class="px-2 py-3">{{ __('Price') }}</th>
+                            <th class="px-2 py-3">{{ __('Billing period') }}</th>
+                            <th class="px-2 py-3">{{ __('Memory') }}</th>
+                            <th class="px-2 py-3">{{ __('Cpu') }}</th>
+                            <th class="px-2 py-3">{{ __('Swap') }}</th>
+                            <th class="px-2 py-3">{{ __('Disk') }}</th>
+                            <th class="px-2 py-3">{{ __('Databases') }}</th>
+                            <th class="px-2 py-3">{{ __('Backups') }}</th>
+                            <th class="px-2 py-3">{{ __('OOM Killer') }}</th>
+                            <th class="px-2 py-3">{{ __('Nodes') }}</th>
+                            <th class="px-2 py-3">{{ __('Eggs') }}</th>
+                            <th class="px-2 py-3">{{ __('Min Credits') }}</th>
+                            <th class="px-2 py-3">{{ __('Servers') }}</th>
+                            <th class="px-2 py-3">{{ __('Serverlimit') }}</th>
+                            <th class="px-2 py-3">{{ __('Created at') }}</th>
+                            <th class="px-2 py-3">{{ __('Actions') }}</th>
+                        </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -59,7 +59,7 @@
 
 <script>
     function submitResult() {
-        return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+        return confirm("{{ __('Are you sure you wish to delete?') }}") !== false;
     }
 
     document.addEventListener("DOMContentLoaded", function () {
