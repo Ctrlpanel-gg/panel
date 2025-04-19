@@ -2,6 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @plugin "flowbite-typography";
+@plugin "daisyui";
 
 @layer base {
     html {

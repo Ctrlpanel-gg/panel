@@ -12,6 +12,7 @@
         "autoprefixer": "^10.4.19",
         "axios": "^0.25",
         "bootstrap": "^4.6.0",
+        "daisyui": "^5.0.27",
         "jquery": "^3.5",
         "lodash": "^4.17.19",
         "popper.js": "^1.16",
