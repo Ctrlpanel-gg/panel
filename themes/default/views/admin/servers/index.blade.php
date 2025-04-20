@@ -1,43 +1,45 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="min-h-screen bg-primary-950 p-8">
-    <!-- Header -->
-    <div class="w-full mb-8">
-        <div class="glass-panel p-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-3xl font-light text-white">{{ __('Servers') }}</h1>
-                    <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
-                        <ol class="inline-flex items-center space-x-1 text-zinc-400">
-                            <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
-                            <li class="text-zinc-600">/</li>
-                            <li class="text-zinc-500">{{ __('Servers') }}</li>
-                        </ol>
-                    </nav>
+    <!-- CONTENT HEADER -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="mb-2 row">
+                <div class="col-sm-6">
+                    <h1>{{ __('Servers') }}</h1>
                 </div>
-                <a href="{{ route('admin.servers.sync') }}" class="btn btn-primary">
-                    <i class="fas fa-sync mr-2"></i>{{ __('Sync') }}
-                </a>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                href="{{ route('admin.servers.index') }}">{{ __('Servers') }}</a></li>
+                    </ol>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+    <!-- END CONTENT HEADER -->
 
-    <!-- Main Content -->
-    <div class="w-full">
-        <div class="glass-panel">
-            <div class="p-6 border-b border-zinc-800/50">
-                <h3 class="text-lg font-medium text-white flex items-center">
-                    <i class="fas fa-server mr-2 text-zinc-400"></i>
-                    {{ __('Server Management') }}
-                </h3>
-            </div>
-            <div class="p-6">
-                <div class="overflow-x-auto">
+    <!-- MAIN CONTENT -->
+    <section class="content">
+        <div class="container-fluid">
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <div class="card-title ">
+                            <span><i class="mr-2 fas fa-server"></i>{{ __('Servers') }}</span>
+                        </div>
+                        <a href="{{ route('admin.servers.sync') }}" class="btn btn-primary btn-sm"><i
+                                class="mr-2 fas fa-sync"></i>{{ __('Sync') }}</a>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
                     @include('admin.servers.table')
                 </div>
             </div>
         </div>
-    </div>
-</div>
+        <!-- END CUSTOM CONTENT -->
+    </section>
+    <!-- END CONTENT -->
 @endsection

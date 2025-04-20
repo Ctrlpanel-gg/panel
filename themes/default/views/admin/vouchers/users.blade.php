@@ -1,52 +1,63 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="min-h-screen bg-primary-950 p-8">
-        <!-- Header -->
-        <div class="w-full mb-8">
-            <div class="glass-panel p-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-3xl font-light text-white">{{__('Vouchers')}}</h1>
-                        <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
-                            <ol class="inline-flex items-center space-x-1 text-zinc-400">
-                                <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{__('Dashboard')}}</a></li>
-                                <li class="text-zinc-600">/</li>
-                                <li><a href="{{ route('admin.vouchers.index') }}" class="hover:text-white transition-colors">{{__('Vouchers')}}</a></li>
-                                <li class="text-zinc-600">/</li>
-                                <li class="text-zinc-500">{{__('Users')}}</li>
-                            </ol>
-                        </nav>
-                    </div>
+    <!-- CONTENT HEADER -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>{{__('Vouchers')}}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.vouchers.index') }}">{{__('Vouchers')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                href="{{ route('admin.vouchers.users', $voucher->id) }}">{{__('Users')}}</a>
+                    </ol>
                 </div>
             </div>
         </div>
+    </section>
+    <!-- END CONTENT HEADER -->
 
-        <!-- Main Content -->
-        <div class="w-full">
-            <div class="glass-panel p-6">
-                <h2 class="text-xl font-medium text-white mb-6">
-                    <i class="fas fa-users mr-2"></i>{{__('Users')}}
-                </h2>
-                
-                <div class="overflow-x-auto">
-                    <table id="datatable" class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase text-zinc-400 bg-zinc-800/50">
+    <!-- MAIN CONTENT -->
+    <section class="content">
+        <div class="container-fluid">
+
+            <div class="card">
+
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title"><i class="fas fa-users mr-2"></i>{{__('Users')}}</h5>
+                    </div>
+                </div>
+
+                <div class="card-body table-responsive">
+
+                    <table id="datatable" class="table table-striped">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-3">{{__('ID')}}</th>
-                                <th class="px-4 py-3">{{__('Name')}}</th>
-                                <th class="px-4 py-3">{{__('Email')}}</th>
-                                <th class="px-4 py-3">{{ $credits_display_name }}</th>
-                                <th class="px-4 py-3">{{__('Last seen')}}</th>
+                                <th>{{__('ID')}}</th>
+                                <th>{{__('Name')}}</th>
+                                <th>{{__('Email')}}</th>
+                                <th>{{ $credits_display_name }}</th>
+                                <th>{{__('Last seen')}}</th>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
+
                 </div>
             </div>
+
+
         </div>
-    </div>
+        <!-- END CUSTOM CONTENT -->
+
+    </section>
+    <!-- END CONTENT -->
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -79,4 +90,7 @@
             });
         });
     </script>
+
+
+
 @endsection

@@ -1,51 +1,69 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="min-h-screen bg-primary-950 p-8">
-    <!-- Header -->
-    <div class="w-full mb-8">
-        <div class="glass-panel p-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-3xl font-light text-white">{{ __('Notifications') }}</h1>
-                    <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
-                        <ol class="inline-flex items-center space-x-1 text-zinc-400">
-                            <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
-                            <li class="text-zinc-600">/</li>
-                            <li class="text-zinc-500">{{ __('Notifications') }}</li>
-                        </ol>
-                    </nav>
+    <!-- CONTENT HEADER -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>{{__('Notifications')}}</h1>
                 </div>
-                <a href="{{ route('notifications.readAll') }}" class="btn btn-primary">
-                    <i class="fas fa-check mr-2"></i>{{ __('Mark all as read') }}
-                </a>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('notifications.index')}}">{{__('Notifications')}}</a>
+                        </li>
+                    </ol>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+    <!-- END CONTENT HEADER -->
 
-    <!-- Main Content -->
-    <div class="w-full">
-        <div class="glass-panel">
-            <div class="p-6">
-                <p class="text-white">{{ __('All notifications') }}</p>
-                @foreach($notifications as $notification)
-                <div class="p-4 mb-4 bg-zinc-800 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <a href="{{ route('notifications.show', $notification->id) }}" class="{{ $notification->read() ? 'text-zinc-400' : 'text-white' }} hover:underline">
-                            <i class="fas fa-envelope mr-2"></i>{{ $notification->data['title'] }}
-                        </a>
-                        <small class="text-zinc-500">
-                            <i class="fas fa-paper-plane mr-2"></i>{{ $notification->created_at->diffForHumans() }}
-                        </small>
-                    </div>
+    <!-- MAIN CONTENT -->
+    <section class="content">
+        <div class="container-fluid">
+
+            <!-- CUSTOM CONTENT -->
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <p>{{__('All notifications')}}</p>
                 </div>
+                    <a class="float-right">
+                        <a href="{{route('notifications.readAll')}}"><button class="btn btn-info btn-xs">{{__('Mark all as read')}}</button></a>
+
+
+                @foreach($notifications as $notification)
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header ">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <a {{$notification->read() ? 'class=link-muted' : ''}} href="{{route('notifications.show' , $notification->id)}}"><i class="fas fa-envelope mr-2"></i>{{ $notification->data['title'] }}</a>
+                                    </div>
+                                    <div class="text-muted">
+                                        <small>
+                                            <i class="fas fa-paper-plane mr-2"></i>{{ $notification->created_at->diffForHumans() }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 @endforeach
 
-                <div class="mt-4">
-                    {!! $notifications->links() !!}
+                <div class="col-md-8">
+                    <div class="float-right">
+                        {!!  $notifications->links() !!}
+                    </div>
                 </div>
             </div>
+
+            <!-- END CUSTOM CONTENT -->
+
+
         </div>
-    </div>
-</div>
+    </section>
+    <!-- END CONTENT -->
+
 @endsection

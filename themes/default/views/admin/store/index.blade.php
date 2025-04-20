@@ -2,52 +2,67 @@
 
 @section('content')
     <!-- CONTENT HEADER -->
-    <div class="min-h-screen bg-primary-950 p-8">
-        <!-- Header -->
-        <div class="w-full mb-8">
-            <div class="glass-panel p-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-3xl font-light text-white">{{ __('Store') }}</h1>
-                        <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
-                            <ol class="inline-flex items-center space-x-1 text-zinc-400">
-                                <li><a href="{{ route('home') }}" class="hover:text-white transition-colors">{{ __('Dashboard') }}</a></li>
-                                <li class="text-zinc-600">/</li>
-                                <li class="text-zinc-500">{{ __('Store') }}</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <a href="{{ route('admin.store.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus mr-2"></i>{{ __('Create new') }}
-                    </a>
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>{{ __('Store') }}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                href="{{ route('admin.store.index') }}">{{ __('Store') }}</a></li>
+                    </ol>
                 </div>
             </div>
         </div>
+    </section>
+    <!-- END CONTENT HEADER -->
 
-        <!-- Main Content -->
-        <div class="w-full">
-            <div class="glass-panel p-6">
-                
-                <div class="overflow-x-auto">
-                    <table id="datatable" class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase text-zinc-400 bg-zinc-800/50">
+    <!-- MAIN CONTENT -->
+    <section class="content">
+        <div class="container-fluid">
+
+
+
+            <div class="card">
+
+                <div class="card-header">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title"><i class="fas fa-sliders-h mr-2"></i>{{ __('Store') }}</h5>
+                        <a href="{{ route('admin.store.create') }}" class="btn btn-sm btn-primary"><i
+                                class="fas fa-plus mr-1"></i>{{ __('Create new') }}</a>
+                    </div>
+                </div>
+
+                <div class="card-body table-responsive">
+
+                    <table id="datatable" class="table table-striped">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-3">{{ __('Active') }}</th>
-                                <th class="px-4 py-3">{{ __('Type') }}</th>
-                                <th class="px-4 py-3">{{ __('Price') }}</th>
-                                <th class="px-4 py-3">{{ __('Display') }}</th>
-                                <th class="px-4 py-3">{{ __('Description') }}</th>
-                                <th class="px-4 py-3">{{ __('Created at') }}</th>
-                                <th class="px-4 py-3"></th>
+                                <th>{{ __('Active') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Price') }}</th>
+                                <th>{{ __('Display') }}</th>
+                                <th>{{ __('Description') }}</th>
+                                <th>{{ __('Created at') }}</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
+
                 </div>
             </div>
+
+
         </div>
-    </div>
+        <!-- END CUSTOM CONTENT -->
+
+    </section>
+    <!-- END CONTENT -->
 
     <script>
         function submitResult() {

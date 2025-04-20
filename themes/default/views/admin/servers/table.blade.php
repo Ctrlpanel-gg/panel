@@ -1,30 +1,19 @@
-<div class="glass-panel">
-    <div class="p-6 border-b border-zinc-800/50">
-        <div class="flex justify-between items-center">
-            <h5 class="text-lg font-medium text-white flex items-center">
-                <i class="fas fa-server mr-2 text-zinc-400"></i>
-                {{ __('Server List') }}
-            </h5>
-        </div>
-    </div>
-    <div class="p-6">
-        <table id="datatable" class="w-full">
-            <thead>
-                <tr class="text-left text-zinc-400">
-                    <th class="px-2 py-3" width="20"></th>
-                    <th class="px-2 py-3">{{ __('Name') }}</th>
-                    <th class="px-2 py-3">{{ __('User') }}</th>
-                    <th class="px-2 py-3">{{ __('Server id') }}</th>
-                    <th class="px-2 py-3">{{ __('Product') }}</th>
-                    <th class="px-2 py-3">{{ __('Suspended at') }}</th>
-                    <th class="px-2 py-3">{{ __('Created at') }}</th>
-                    <th class="px-2 py-3"></th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</div>
+<table id="datatable" class="table table-striped">
+    <thead>
+        <tr>
+            <th width="20"></th>
+            <th>{{ __('Name') }}</th>
+            <th>{{ __('User') }}</th>
+            <th>{{ __('Server id') }}</th>
+            <th>{{ __('Product') }}</th>
+            <th>{{ __('Suspended at') }}</th>
+            <th>{{ __('Created at') }}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
 
 <script>
     function submitResult() {
@@ -43,8 +32,7 @@
             order: [
                 [6, "desc"]
             ],
-            columns: [
-                {
+            columns: [{
                     data: 'status',
                     name: 'servers.suspended',
                     sortable: false

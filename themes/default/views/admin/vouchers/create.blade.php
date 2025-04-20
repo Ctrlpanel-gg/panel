@@ -1,175 +1,177 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="min-h-screen bg-primary-950 p-8">
-        <!-- Header -->
-        <div class="w-full mb-8">
-            <div class="glass-panel p-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-3xl font-light text-white">{{__('Vouchers')}}</h1>
-                        <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
-                            <ol class="inline-flex items-center space-x-1 text-zinc-400">
-                                <li><a href="{{route('home')}}" class="hover:text-white transition-colors">{{__('Dashboard')}}</a></li>
-                                <li class="text-zinc-600">/</li>
-                                <li><a href="{{route('admin.vouchers.index')}}" class="hover:text-white transition-colors">{{__('Vouchers')}}</a></li>
-                                <li class="text-zinc-600">/</li>
-                                <li class="text-zinc-500">{{__('Create')}}</li>
-                            </ol>
-                        </nav>
-                    </div>
+    <!-- CONTENT HEADER -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>{{__('Vouchers')}}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('admin.vouchers.index')}}">{{__('Vouchers')}}</a>
+                        </li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                                       href="{{route('admin.vouchers.create')}}">{{__('Create')}}</a>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </div>
+    </section>
+    <!-- END CONTENT HEADER -->
 
-        <!-- Main Content -->
-        <div class="w-full">
-            <div class="glass-panel p-6">
-                <h2 class="text-xl font-medium text-white mb-6">
-                    <i class="fas fa-money-check-alt mr-2"></i>{{__('Voucher details')}}
-                </h2>
-                
-                <form action="{{route('admin.vouchers.store')}}" method="POST">
-                    @csrf
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="form-group">
-                            <label for="memo" class="text-zinc-300 mb-2 block">
-                                {{__('Memo')}} 
-                                <i data-toggle="popover" data-trigger="hover"
-                                   data-content="Only admins can see this"
-                                   class="fas fa-info-circle text-zinc-500"></i>
-                            </label>
-                            <input value="{{old('memo')}}" placeholder="{{__('Summer break voucher')}}" id="memo"
-                                   name="memo" type="text"
-                                   class="form-input bg-zinc-800/50 border-zinc-700 text-white rounded-lg w-full @error('memo') is-invalid @enderror">
-                            @error('memo')
-                                <div class="text-red-500 mt-1">
-                                    {{$message}}
-                                </div>
-                            @enderror
+    <!-- MAIN CONTENT -->
+    <section class="content">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                <i class="fas fa-money-check-alt mr-2"></i>{{__('Voucher details')}}
+                            </h5>
                         </div>
+                        <div class="card-body">
+                            <form action="{{route('admin.vouchers.store')}}" method="POST">
+                                @csrf
 
-                        <div class="form-group">
-                            <label for="credits" class="text-zinc-300 mb-2 block">* {{ $credits_display_name }}</label>
-                            <input value="{{old('credits')}}" placeholder="500" id="credits" name="credits"
-                                   type="number" step="any" min="0" max="99999999"
-                                   class="form-input bg-zinc-800/50 border-zinc-700 text-white rounded-lg w-full @error('credits') is-invalid @enderror">
-                            @error('credits')
-                                <div class="text-red-500 mt-1">
-                                    {{$message}}
+                                <div class="form-group">
+                                    <label for="memo">{{__('Memo')}} <i data-toggle="popover" data-trigger="hover"
+                                                                        data-content="Only admins can see this"
+                                                                        class="fas fa-info-circle"></i></label>
+                                    <input value="{{old('memo')}}" placeholder="{{__('Summer break voucher')}}" id="memo"
+                                           name="memo" type="text"
+                                           class="form-control @error('memo') is-invalid @enderror">
+                                    @error('memo')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
                                 </div>
-                            @enderror
-                        </div>
 
-                        <div class="form-group">
-                            <label for="code" class="text-zinc-300 mb-2 block">* {{__('Code')}}</label>
-                            <div class="flex">
-                                <input value="{{old('code')}}" placeholder="SUMMER" id="code" name="code"
-                                       type="text" class="form-input bg-zinc-800/50 border-zinc-700 text-white rounded-l-lg w-full @error('code') is-invalid @enderror"
-                                       required="required">
-                                <button class="btn btn-primary rounded-l-none rounded-r-lg" onclick="setRandomCode()" type="button">
-                                    {{__('Random')}}
-                                </button>
-                            </div>
-                            @error('code')
-                                <div class="text-red-500 mt-1">
-                                    {{$message}}
+                                <div class="form-group">
+                                    <label for="credits">* {{ $credits_display_name }}</label>
+                                    <input value="{{old('credits')}}" placeholder="500" id="credits" name="credits"
+                                           type="number" step="any" min="0" max="99999999"
+                                           class="form-control @error('credits') is-invalid @enderror">
+                                    @error('credits')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
                                 </div>
-                            @enderror
-                        </div>
 
-                        <div class="form-group">
-                            <label for="uses" class="text-zinc-300 mb-2 block">
-                                * {{__('Uses')}} 
-                                <i data-toggle="popover" data-trigger="hover"
-                                   data-content="{{__('A voucher can only be used one time per user. Uses specifies the number of different users that can use this voucher.')}}"
-                                   class="fas fa-info-circle text-zinc-500"></i>
-                            </label>
-                            <div class="flex">
-                                <input value="{{old('uses') ?? 1}}" id="uses" min="1" max="2147483647"
-                                       name="uses" type="number"
-                                       class="form-input bg-zinc-800/50 border-zinc-700 text-white rounded-l-lg w-full @error('uses') is-invalid @enderror"
-                                       required="required">
-                                <button class="btn btn-primary rounded-l-none rounded-r-lg" onclick="setMaxUses()" type="button">
-                                    {{__('Max')}}
-                                </button>
-                            </div>
-                            @error('uses')
-                                <div class="text-red-500 mt-1">
-                                    {{$message}}
-                                </div>
-                            @enderror
-                        </div>
 
-                        <div class="form-group">
-                            <label for="expires_at" class="text-zinc-300 mb-2 block">
-                                {{__('Expires at')}} 
-                                <i data-toggle="popover" data-trigger="hover"
-                                   data-content="Timezone: {{ Config::get('app.timezone') }}"
-                                   class="fas fa-info-circle text-zinc-500"></i>
-                            </label>
-                            <div class="relative max-w-full">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                    <svg class="w-4 h-4 text-zinc-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
-                                    </svg>
+                                <div class="form-group">
+                                    <label for="code">* {{__('Code')}}</label>
+                                    <div class="input-group">
+                                        <input value="{{old('code')}}" placeholder="SUMMER" id="code" name="code"
+                                               type="text" class="form-control @error('code') is-invalid @enderror"
+                                               required="required">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-info" onclick="setRandomCode()" type="button">
+                                            {{__('Random')}}
+                                        </button>
+                                    </div>
                                 </div>
-                                <input datepicker datepicker-format="dd-mm-yyyy" datepicker-buttons
-                                       value="{{old('expires_at')}}" 
-                                       name="expires_at" 
-                                       id="expires_at" 
-                                       type="text" 
-                                       class="bg-zinc-800/50 border border-zinc-700 text-white text-sm rounded-lg block w-full ps-10 p-2.5 focus:ring-primary-500 focus:border-primary-500"
-                                       placeholder="{{__('Select date')}}">
-                            </div>
-                            @error('expires_at')
-                                <div class="text-red-500 mt-1">
+                                @error('code')
+                                <div class="text-danger">
                                     {{$message}}
+                                    </div>
+                                    @enderror
                                 </div>
-                            @enderror
+
+                                <div class="form-group">
+                                    <label for="uses">* {{__('Uses')}} <i data-toggle="popover" data-trigger="hover"
+                                                                          data-content="{{__('A voucher can only be used one time per user. Uses specifies the number of different users that can use this voucher.')}}"
+                                                                          class="fas fa-info-circle"></i></label>
+                                    <div class="input-group">
+                                        <input value="{{old('uses') ?? 1}}" id="uses" min="1" max="2147483647"
+                                               name="uses" type="number"
+                                               class="form-control @error('uses') is-invalid @enderror"
+                                               required="required">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-info" onclick="setMaxUses()" type="button">{{__('Max')}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @error('uses')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="expires_at">{{__('Expires at')}} <i data-toggle="popover"
+                                                                                    data-trigger="hover"
+                                                                                    data-content="Timezone: {{ Config::get('app.timezone') }}"
+                                                                                    class="fas fa-info-circle"></i></label>
+                                    <div class="input-group date" id="expires_at" data-target-input="nearest">
+                                        <input value="{{old('expires_at')}}" name="expires_at"
+                                               placeholder="dd-mm-yyyy hh:mm:ss" type="text"
+                                               class="form-control @error('expires_at') is-invalid @enderror datetimepicker-input"
+                                               data-target="#expires_at"/>
+                                        <div class="input-group-append" data-target="#expires_at"
+                                             data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                    @error('expires_at')
+                                    <div class="text-danger">
+                                        {{$message}}
+                                    </div>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group text-right">
+                                    <button type="submit" class="btn btn-primary">
+                                        {{__('Submit')}}
+                                    </button>
+                                </div>
+
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                            </form>
                         </div>
                     </div>
-
-                    <div class="mt-6 text-right">
-                        <button type="submit" class="btn btn-primary">
-                            {{__('Submit')}}
-                        </button>
-                    </div>
-
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                </form>
+                </div>
             </div>
+
+            <i class="fas"></i>
+
         </div>
-    </div>
+    </section>
+    <!-- END CONTENT -->
+
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            // Flowbite is initialized automatically
-            // Additional initialization for Flowbite datepicker if needed
-            const datepickerEl = document.querySelector('[datepicker]');
-            
-            // You can extend with additional options if needed
-            if(datepickerEl && flowbite && flowbite.datepicker) {
-                const options = {
-                    theme: {
-                        background: "bg-zinc-800",
-                        text: "text-white",
-                        buttons: "bg-primary-700 hover:bg-primary-600 text-white",
-                        selected: "bg-primary-700 text-white",
-                    },
-                };
-                
-                // Initialize with custom options if needed
-                // flowbite.datepicker.init(datepickerEl, options);
-            }
-        });
+            $('#expires_at').datetimepicker({
+                format: 'DD-MM-yyyy HH:mm:ss',
+                icons: {
+                    time: 'far fa-clock',
+                    date: 'far fa-calendar',
+                    up: 'fas fa-arrow-up',
+                    down: 'fas fa-arrow-down',
+                    previous: 'fas fa-chevron-left',
+                    next: 'fas fa-chevron-right',
+                    today: 'fas fa-calendar-check',
+                    clear: 'far fa-trash-alt',
+                    close: 'far fa-times-circle'
+                }
+            });
+        })
 
         function setMaxUses() {
             let element = document.getElementById('uses')
             element.value = element.max;
             console.log(element.max)
         }
+
 
         function setRandomCode() {
             let element = document.getElementById('code')
@@ -187,4 +189,6 @@
             return result;
         }
     </script>
+
+
 @endsection

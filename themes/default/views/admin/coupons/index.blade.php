@@ -1,75 +1,96 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="min-h-screen bg-primary-950 p-8">
-        <!-- Header -->
-        <div class="w-full mb-8">
-            <div class="glass-panel p-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-3xl font-light text-white">{{__('Coupons')}}</h1>
-                        <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
-                            <ol class="inline-flex items-center space-x-1 text-zinc-400">
-                                <li><a href="{{route('home')}}" class="hover:text-white transition-colors">{{__('Dashboard')}}</a></li>
-                                <li class="text-zinc-600">/</li>
-                                <li class="text-zinc-500">{{__('Coupons')}}</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <a href="{{route('admin.coupons.create')}}" class="btn btn-primary">
-                        <i class="fas fa-plus mr-2"></i>{{__('Create new')}}
-                    </a>
-                </div>
+  <!-- CONTENT HEADER -->
+  <section class="content-header">
+    <div class="container-fluid">
+        <div class="mb-2 row">
+            <div class="col-sm-6">
+                <h1>{{__('Coupons')}}</h1>
             </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="w-full">
-            <div class="glass-panel p-6">
-                <div class="overflow-x-auto">
-                    <table id="datatable" class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase text-zinc-400 bg-zinc-800/50">
-                            <tr>
-                                <th class="px-4 py-3">{{__('Status')}}</th>
-                                <th class="px-4 py-3">{{__('Code')}}</th>
-                                <th class="px-4 py-3">{{__('Value')}}</th>
-                                <th class="px-4 py-3">{{__('Used / Max Uses')}}</th>
-                                <th class="px-4 py-3">{{__('Expires')}}</th>
-                                <th class="px-4 py-3">{{__('Created At')}}</th>
-                                <th class="px-4 py-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                    <li class="breadcrumb-item"><a class="text-muted"
+                                                   href="{{route('admin.coupons.index')}}">{{__('Coupons')}}</a></li>
+                </ol>
             </div>
         </div>
     </div>
+  </section>
+  <!-- END CONTENT HEADER -->
 
-    <script>
-        $(document).ready(function() {
-            $('#datatable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
-                },
-                processing: true,
-                serverSide: true,
-                stateSave: true,
-                ajax: "{{route('admin.coupons.datatable')}}",
-                columns: [
-                    {data: 'status'},
-                    {data: 'code'},
-                    {data: 'value'},
-                    {data: 'uses', sortable: false},
-                    {data: 'expires_at'},
-                    {data: 'created_at'},
-                    {data: 'actions', sortable: false},
-                ],
-                fnDrawCallback: function( oSettings ) {
-                    $('[data-toggle="popover"]').popover();
-                }
-            });
-        });
-    </script>
+  <!-- MAIN CONTENT -->
+  <section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">
+                      <i class="nav-icon fas fa-ticket-alt"></i>
+                      {{__('Coupons')}}
+                    </h5>
+                    <a href="{{route('admin.coupons.create')}}" class="btn btn-sm btn-primary">
+                      <i class="mr-1 fas fa-plus"></i>
+                      {{__('Create new')}}
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body table-responsive">
+
+                <table id="datatable" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>{{__('Status')}}</th>
+                        <th>{{__('Code')}}</th>
+                        <th>{{__('Value')}}</th>
+                        <th>{{__('Used / Max Uses')}}</th>
+                        <th>{{__('Expires')}}</th>
+                        <th>{{__('Created At')}}</th>
+                        <th>{{__('Actions')}}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+
+    </div>
+    <!-- END CUSTOM CONTENT -->
+
+</section>
+<!-- END CONTENT -->
+<script>
+  function submitResult() {
+    return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+  }
+
+  $(document).ready(function() {
+    $('#datatable').DataTable({
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
+      },
+      processing: true,
+      serverSide: true,
+      stateSave: true,
+      ajax: "{{route('admin.coupons.datatable')}}",
+      columns: [
+        {data: 'status'},
+        {data: 'code'},
+        {data: 'value'},
+        {data: 'uses', sortable: false},
+        {data: 'expires_at'},
+        {data: 'created_at'},
+        {data: 'actions', sortable: false},
+      ],
+      fnDrawCallback: function( oSettings ) {
+        $('[data-toggle="popover"]').popover();
+      }
+    });
+  })
+</script>
 @endsection

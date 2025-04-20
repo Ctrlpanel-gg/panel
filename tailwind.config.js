@@ -45,6 +45,26 @@ module.exports = {
     require('@tailwindcss/typography'),
     require('flowbite'),
     require('flowbite-typography'),
-
+    require('daisyui')
   ],
+  daisyui: {
+    themes: [
+      {
+        dark: {
+          "primary": "#3b82f6",
+          "secondary": "#10b981",
+          "accent": "#f59e0b",
+          "neutral": "#1f2937",
+          "base-100": "#0f172a",
+          "info": "#0ea5e9",
+          "success": "#10b981",
+          "warning": "#f59e0b",
+          "error": "#ef4444",
+        }
+      }
+    ],
+    darkTheme: "dark",
+    base: true,
+    styled: true,
+  }
 }

@@ -1,57 +1,68 @@
 @extends('layouts.main')
 
 @section('content')
-    <div class="min-h-screen bg-primary-950 p-8">
-        <!-- Header -->
-        <div class="w-full mb-8">
-            <div class="glass-panel p-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-3xl font-light text-white">{{__('Payments')}}</h1>
-                        <nav class="flex mt-2 text-sm" aria-label="Breadcrumb">
-                            <ol class="inline-flex items-center space-x-1 text-zinc-400">
-                                <li><a href="{{route('home')}}" class="hover:text-white transition-colors">{{__('Dashboard')}}</a></li>
-                                <li class="text-zinc-600">/</li>
-                                <li class="text-zinc-500">{{__('Payments')}}</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <a href="{{ route('admin.invoices.downloadAllInvoices') }}" class="btn btn-primary">
-                        <i class="fas fa-download mr-2"></i>{{ __('Download all Invoices') }}
-                    </a>
+    <!-- CONTENT HEADER -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>{{__('Payments')}}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a class="text-muted" href="{{route('admin.payments.index')}}">{{__('Payments')}}</a>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </div>
+    </section>
+    <!-- END CONTENT HEADER -->
 
-        <!-- Main Content -->
-        <div class="w-full">
-            <div class="glass-panel p-6">
-                <div class="overflow-x-auto">
-                    <table id="datatable" class="w-full text-sm text-left">
-                        <thead class="text-xs uppercase text-zinc-400 bg-zinc-800/50">
+    <!-- MAIN CONTENT -->
+    <section class="content">
+        <div class="container-fluid">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title"><i class="fas fa-money-bill-wave mr-2"></i>{{ __('Payments') }}</h5>
+                    <div class="float-right">
+                        <a href="{{ route('admin.invoices.downloadAllInvoices') }}"><button
+                                class="btn btn-info">{{ __('Download all Invoices') }}</button></a>
+                    </div>
+                </div>
+
+                <div class="card-body table-responsive">
+                    <table id="datatable" class="table table-striped">
+                        <thead>
                             <tr>
-                                <th class="px-4 py-3">{{ __('ID') }}</th>
-                                <th class="px-4 py-3">{{ __('Type') }}</th>
-                                <th class="px-4 py-3">{{ __('User') }}</th>
-                                <th class="px-4 py-3">{{ __('Amount') }}</th>
-                                <th class="px-4 py-3">{{ __('Product Price') }}</th>
-                                <th class="px-4 py-3">{{ __('Tax Value') }}</th>
-                                <th class="px-4 py-3">{{ __('Tax Percentage') }}</th>
-                                <th class="px-4 py-3">{{ __('Total Price') }}</th>
-                                <th class="px-4 py-3">{{ __('Payment ID') }}</th>
-                                <th class="px-4 py-3">{{ __('Payment Method') }}</th>
-                                <th class="px-4 py-3">{{ __('Status') }}</th>
-                                <th class="px-4 py-3">{{ __('Created at') }}</th>
-                                <th class="px-4 py-3"></th>
+                                <th>{{ __('ID') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('User') }}</th>
+                                <th>{{ __('Amount') }}</th>
+                                <th>{{ __('Product Price') }}</th>
+                                <th>{{ __('Tax Value') }}</th>
+                                <th>{{ __('Tax Percentage') }}</th>
+                                <th>{{ __('Total Price') }}</th>
+                                <th>{{ __('Payment ID') }}</th>
+                                <th>{{ __('Payment Method') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Created at') }}</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
                 </div>
+
             </div>
         </div>
-    </div>
+        <!-- END CUSTOM CONTENT -->
+        </div>
+    </section>
+    <!-- END CONTENT -->
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -85,4 +96,5 @@
             });
         });
     </script>
+
 @endsection
