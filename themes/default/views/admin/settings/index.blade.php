@@ -394,6 +394,7 @@
     // Initialize Select2
     $(document).ready(function() {
         $('select').select2({
+            theme: 'tailwindcss-3',
             width: '100%',
             closeOnSelect: false,
             dropdownParent: $('body')

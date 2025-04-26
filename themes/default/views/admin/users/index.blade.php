@@ -30,36 +30,43 @@
                 <div class="flex justify-between items-center">
                     <h5 class="text-lg font-medium text-white flex items-center">
                         <i class="fas fa-users mr-2 text-zinc-400"></i>
-                        {{__('User List')}}
+                        {{ __('Users') }}
                     </h5>
                 </div>
             </div>
-            <div class="p-6">
-                <table id="datatable" class="w-full">
-                    <thead>
-                        <tr class="text-left text-zinc-400">
-                            <th class="px-2 py-3">discordId</th>
-                            <th class="px-2 py-3">ip</th>
-                            <th class="px-2 py-3">pterodactyl_id</th>
-                            <th class="px-2 py-3">{{__('Avatar')}}</th>
-                            <th class="px-2 py-3">{{__('Name')}}</th>
-                            <th class="px-2 py-3">{{__('Role')}}</th>
-                            <th class="px-2 py-3">{{__('Email')}}</th>
-                            <th class="px-2 py-3">{{ $credits_display_name }}</th>
-                            <th class="px-2 py-3">{{__('Servers')}}</th>
-                            <th class="px-2 py-3">{{__('Referrals')}}</th>
-                            <th class="px-2 py-3">{{__('Verified')}}</th>
-                            <th class="px-2 py-3">{{__('Last seen')}}</th>
-                            <th class="px-2 py-3"></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+            <div class="p-6 relative">
+                <div class="relative overflow-x-auto">
+                    <div id="custom-loader" style="display: none;">
+                        <div class="loader-container">
+                            <div class="loader"></div>
+                        </div>
+                    </div>
+                    <table id="datatable" class="w-full text-left">
+                        <thead>
+                            <tr>
+                                <th>discordId</th>
+                                <th>ip</th>
+                                <th>pterodactyl_id</th>
+                                <th>{{__('Avatar')}}</th>
+                                <th>{{__('Name')}}</th>
+                                <th>{{__('Role')}}</th>
+                                <th>{{__('Email')}}</th>
+                                <th>{{ $credits_display_name }}</th>
+                                <th>{{__('Servers')}}</th>
+                                <th>{{__('Referrals')}}</th>
+                                <th>{{__('Verified')}}</th>
+                                <th>{{__('Last seen')}}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-800/10">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 
 <script>
     function submitResult() {
@@ -67,73 +74,73 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        $('#datatable').DataTable({
+        // Get reference to the table container
+        const tableContainer = document.querySelector('.overflow-x-auto');
+        const customLoader = document.getElementById('custom-loader');
+        
+        // Initialize DataTable with disabled processing display
+        const dataTable = $('#datatable').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
             },
-            processing: true,
-            serverSide: true, //why was this set to false before? increased loadingtimes by 10 seconds
+            processing: false, // Disable the built-in processing indicator
+            serverSide: true,
             stateSave: true,
-            ajax: "{{ route('admin.users.datatable') }}{{ $filter ?? '' }}",
-            order: [
-                [11, "desc"]
-            ],
+            ajax: {
+                url: "{{ route('admin.users.datatable') }}{{ $filter ?? '' }}",
+                // Show our custom loader during AJAX requests
+                beforeSend: function() {
+                    customLoader.style.display = 'flex';
+                },
+                complete: function() {
+                    customLoader.style.display = 'none';
+                }
+            },
+            order: [[11, "desc"]],
             columns: [
-                {
-                    data: 'discordId',
-                    visible: false,
-                    name: 'discordUser.id'
-                },
-                {
-                    data: 'pterodactyl_id',
-                    visible: false
-                },
-                {
-                    data: 'ip',
-                    visible: false
-                },
-                {
-                    data: 'avatar',
-                    sortable: false
-                },
-                {
-                    data: 'name'
-                },
-                {
-                    data: 'role'
-                },
-                {
-                    data: 'email',
-                    name: 'users.email'
-                },
-                {
-                    data: 'credits',
-                    name: 'users.credits'
-                },
-                {
-                    data: 'servers_count',
-                    searchable: false
-                },
-                {
-                    data: 'referrals_count',
-                    searchable: false
-                },
-                {
-                    data: 'verified',
-                    sortable: false
-                },
-                {
-                    data: 'last_seen',
-                },
-                {
-                    data: 'actions',
-                    sortable: false
-                },
+                { data: 'discordId', visible: false, name: 'discordUser.id' },
+                { data: 'pterodactyl_id', visible: false },
+                { data: 'ip', visible: false },
+                { data: 'avatar', sortable: false },
+                { data: 'name' },
+                { data: 'role', name: 'roles.name' },
+                { data: 'email', name: 'users.email' },
+                { data: 'credits', name: 'users.credits' },
+                { data: 'servers_count', searchable: false },
+                { data: 'referrals_count', searchable: false },
+                { data: 'verified', sortable: false },
+                { data: 'last_seen' },
+                { data: 'actions', sortable: false }
             ],
             fnDrawCallback: function(oSettings) {
-                $('[data-toggle="popover"]').popover();
+                $('[data-toggle="popover"]').popover({
+                    trigger: 'hover',
+                    placement: 'top'
+                });
+                // Hide DataTables processing div if it somehow appears
+                $('.dataTables_processing').hide();
+            },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"<"flex-1"l><"flex-1 md:text-right"f>>rt<"flex flex-col md:flex-row justify-between items-center mt-4"<"flex-1"i><"flex-1 md:text-right"p>>',
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            pagingType: "full_numbers",
+            drawCallback: function() {
+                $('.dataTables_processing').hide();
+                $('[data-toggle="popover"]').popover({
+                    trigger: 'hover',
+                    placement: 'top',
+                    html: true,
+                    template: '<div class="popover custom-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
+                });
             }
         });
+        
+        // Also show loading on search, pagination, and length change
+        $('#datatable').on('page.dt length.dt search.dt', function() {
+            customLoader.style.display = 'flex';
+        });
+        
+        // Ensure default processing div is hidden via CSS
+        $('<style>.dataTables_processing { display: none !important; }</style>').appendTo('head');
     });
 </script>
 @endsection

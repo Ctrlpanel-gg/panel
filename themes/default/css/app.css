@@ -2,6 +2,8 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @plugin "flowbite-typography";
+@import url("https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700&display=swap");
+@import 'select2-tailwindcss-theme/dist/select2-tailwindcss-theme.css';
 
 @layer base {
     html {
@@ -280,443 +282,179 @@
 
     .dataTables_length select,
     .dataTables_filter input {
-        @apply bg-zinc-900/50 border border-zinc-800/50 rounded-lg px-3 py-1.5 text-zinc-300 focus:ring-2 focus:ring-primary-700 focus:border-transparent transition-colors duration-200;
+        @apply bg-zinc-900/50 border border-zinc-800/50 rounded-lg px-3 py-1.5 text-zinc-300 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all;
+    }
+
+    .dataTables_filter input {
+        @apply w-64 pl-8 placeholder-zinc-600;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: 8px center;
+        background-size: 16px;
     }
 
     .dataTables_info {
         @apply mt-4 text-sm text-zinc-500;
     }
 
-    /* DataTables & Standard Pagination */
-    .dataTables_paginate,
-    .pagination {
+    /* DataTables Table */
+    table.dataTable {
+        @apply w-full text-sm border-separate border-spacing-0 !important;
+        margin: 0 !important;
+    }
+
+    table.dataTable thead th {
+        @apply bg-zinc-800/30 text-xs font-medium text-zinc-400 uppercase tracking-wider px-4 py-3 border-b border-zinc-800/50 !important;
+    }
+
+    table.dataTable tbody tr {
+        @apply transition-colors hover:bg-zinc-800/20;
+    }
+
+    table.dataTable tbody tr:nth-child(odd) {
+        @apply bg-zinc-900/20;
+    }
+
+    table.dataTable tbody td {
+        @apply px-4 py-3 border-b border-zinc-800/10 text-zinc-300 !important;
+    }
+
+    /* DataTables Sorting Icons */
+    table.dataTable thead .sorting,
+    table.dataTable thead .sorting_asc,
+    table.dataTable thead .sorting_desc {
+        @apply bg-none relative pr-8 cursor-pointer !important;
+    }
+
+    table.dataTable thead .sorting::after,
+    table.dataTable thead .sorting_asc::after,
+    table.dataTable thead .sorting_desc::after {
+        @apply absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 opacity-50 text-xs transition-opacity !important;
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+    }
+
+    table.dataTable thead .sorting::after {
+        content: "\f0dc";
+        @apply opacity-25;
+    }
+
+    table.dataTable thead .sorting_asc::after {
+        content: "\f0de";
+        @apply text-primary-400 opacity-100;
+    }
+
+    table.dataTable thead .sorting_desc::after {
+        content: "\f0dd";
+        @apply text-primary-400 opacity-100;
+    }
+
+    /* DataTables Pagination */
+    .dataTables_paginate {
         @apply mt-4 flex items-center justify-end gap-1;
     }
 
-    .dataTables_paginate .paginate_button,
-    .pagination>* {
-        @apply inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-lg transition-colors duration-200 font-medium min-w-[2.25rem] text-zinc-400 hover:text-white hover:bg-zinc-800;
+    .dataTables_paginate .paginate_button {
+        @apply inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-lg transition-colors duration-200 font-medium min-w-[2.25rem] text-zinc-400 hover:text-white hover:bg-zinc-800 border-0 !important;
     }
 
-    .dataTables_paginate .paginate_button.current,
-    .pagination .page-item.active .page-link {
-        @apply bg-primary-800 text-white hover:bg-primary-700;
+    .dataTables_paginate .paginate_button.current {
+        @apply bg-primary-600/20 text-primary-400 hover:bg-primary-600/30 !important;
     }
 
-    .dataTables_paginate .paginate_button.disabled,
-    .pagination .page-item.disabled .page-link {
-        @apply opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400;
+    .dataTables_paginate .paginate_button.disabled {
+        @apply opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400 !important;
     }
 
-    /* DataTables Button Override */
-    .dt-button {
-        @apply btn btn-primary !important;
+    .dataTables_paginate .ellipsis {
+        @apply text-zinc-500;
     }
 
-    /* Dropdown Styling */
-    .dropdown-menu {
-        @apply absolute right-0 mt-2 w-48 rounded-lg bg-zinc-800 shadow-lg ring-1 ring-black ring-opacity-5 border border-zinc-700/50 py-1 z-50;
-    }
-
-    .dropdown-item {
-        @apply block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors duration-150 cursor-pointer;
-    }
-
-    .dropdown-divider {
-        @apply my-1 border-t border-zinc-700;
-    }
-
-    .table-dropdown {
-        @apply relative inline-block text-left;
-    }
-
-    .table-dropdown-content {
-        @apply dropdown-menu origin-top-right;
-    }
-
-    /* Table Action Buttons */
-    .btn-action {
-        @apply p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors inline-flex items-center justify-center;
-    }
-
-    /* SweetAlert2 Styling - Consolidated */
-    .swal2-popup {
-        @apply bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .swal2-title {
-        @apply text-white font-medium !important;
-    }
-
-    .swal2-html-container {
-        @apply text-zinc-300 !important;
-    }
-
-    .swal2-icon {
-        @apply border-zinc-700 !important;
-    }
-
-    /* SweetAlert2 Icons */
-    .swal2-icon.swal2-success {
-        @apply border-emerald-500 !important;
-    }
-
-    .swal2-icon.swal2-success [class^='swal2-success-line'] {
-        @apply bg-emerald-500 !important;
-    }
-
-    .swal2-icon.swal2-success .swal2-success-ring {
-        @apply border-emerald-500/30 !important;
-    }
-
-    .swal2-icon.swal2-error {
-        @apply border-red-500 !important;
-    }
-
-    .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
-        @apply bg-red-500 !important;
-    }
-
-    .swal2-icon.swal2-warning {
-        @apply border-amber-500 text-amber-500 !important;
-    }
-
-    .swal2-icon.swal2-info {
-        @apply border-blue-500 text-blue-500 !important;
-    }
-
-    .swal2-icon.swal2-question {
-        @apply border-purple-500 text-purple-500 !important;
-    }
-
-    /* SweetAlert2 Buttons */
-    .swal2-confirm {
-        @apply bg-primary-800 text-primary-200 hover:bg-primary-700 rounded-lg px-4 py-2 !important;
-    }
-
-    .swal2-deny {
-        @apply bg-red-800 text-red-200 hover:bg-red-700 rounded-lg px-4 py-2 !important;
-    }
-
-    .swal2-cancel {
-        @apply bg-zinc-800 text-zinc-200 hover:bg-zinc-700 rounded-lg px-4 py-2 !important;
-    }
-
-    /* SweetAlert2 Input fields */
-    .swal2-input,
-    .swal2-textarea {
-        @apply bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 !important;
-    }
-
-    /* SweetAlert2 Toast notifications */
-    .swal2-toast {
-        @apply bg-zinc-900/95 backdrop-blur-sm border border-zinc-800/50 !important;
-    }
-
-    .swal2-toast .swal2-title {
-        @apply text-sm font-normal !important;
-    }
-
-    .swal2-toast .swal2-close {
-        @apply text-zinc-400 hover:text-white !important;
-    }
-
-    .swal2-timer-progress-bar {
-        @apply bg-primary-600/50 !important;
-    }
-
-    /* Toast animations */
-    .animate-fade-in {
-        animation: fadeIn 0.3s ease-in-out forwards;
-    }
-
-    .animate-fade-out {
-        animation: fadeOut 0.3s ease-in-out forwards;
-    }
-
-    /* Select2 Styling - Dark Theme (Consolidated) */
-    .select2-container {
-        width: 100% !important;
-        margin-bottom: 0.375rem;
-    }
-
-    .select2-dropdown {
-        background-color: rgba(24, 24, 27, 0.95) !important;
-        border: 1px solid #27272a !important;
-        border-radius: 0.5rem !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
-        overflow: hidden;
-        z-index: 1060 !important;
-    }
-
-    .select2-search--dropdown {
-        padding: 0.375rem !important;
-    }
-
-    .select2-search__field {
-        background-color: rgba(39, 39, 42, 0.5) !important;
-        border: 1px solid #3f3f46 !important;
-        border-radius: 0.375rem !important;
-        color: white !important;
-        padding: 0.3rem !important;
-        transition: all 0.2s ease-in-out;
-        font-size: 0.9rem;
-    }
-
-    .select2-search__field:focus {
-        border-color: #6366f1 !important;
-        outline: none !important;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
-    }
-
-    .select2-results__option {
-        color: #e4e4e7 !important;
-        padding: 0.375rem 0.625rem !important;
-        transition: background-color 0.15s ease;
-        font-size: 0.9rem;
-    }
-
-    .select2-results__option--highlighted[aria-selected] {
-        background-color: #4f46e5 !important;
-        color: white !important;
-    }
-
-    .select2-results__option[aria-selected=true] {
-        background-color: rgba(79, 70, 229, 0.2) !important;
-    }
-
-    .select2-results__group {
-        padding: 0.375rem;
-        color: #a1a1aa !important;
-        font-weight: 600;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .select2-selection--single {
-        background-color: rgba(24, 24, 27, 0.7) !important;
-        border: 1px solid #3f3f46 !important;
-        border-radius: 0.5rem !important;
-        min-height: 38px !important;
+    /* DataTables Processing State */
+    .dataTables_processing {
+        @apply fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 !important;
+        background: rgba(17, 17, 17, 0.8) !important;
+        border-radius: 8px;
+        padding: 2rem !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         display: flex !important;
         align-items: center !important;
-        transition: border-color 0.15s ease;
+        justify-content: center !important;
     }
 
-    .select2-selection--single:focus-within {
-        border-color: #6366f1 !important;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+    .dataTables_processing>div:not(.loader) {
+        display: none !important;
     }
 
-    .select2-selection__rendered {
-        color: white !important;
-        line-height: 38px !important;
-        padding-left: 0.625rem !important;
-        padding-right: 2rem !important;
+    .dataTables_processing .loader {
+        margin: 0 !important;
     }
 
-    .select2-selection__arrow {
-        height: 38px !important;
-        width: 1.75rem !important;
-        position: absolute !important;
-        right: 0 !important;
+    /* DataTables Responsive Features */
+    table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control,
+    table.dataTable.dtr-inline.collapsed>tbody>tr>th.dtr-control {
+        @apply pl-8 relative;
     }
 
-    .select2-selection__arrow b {
-        border-color: #a1a1aa transparent transparent transparent !important;
-        opacity: 0.8;
+    table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control::before,
+    table.dataTable.dtr-inline.collapsed>tbody>tr>th.dtr-control::before {
+        @apply absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 leading-4 text-center rounded-full bg-primary-500/20 text-primary-400 border border-primary-500/30 font-bold text-xs;
+        content: "+";
     }
 
-    .select2-selection--multiple {
-        background-color: rgba(24, 24, 27, 0.7) !important;
-        border: 1px solid #3f3f46 !important;
-        border-radius: 0.5rem !important;
-        min-height: 38px !important;
-        padding: 0.125rem 0.375rem !important;
+    table.dataTable.dtr-inline.collapsed>tbody>tr>td.dtr-control::before,
+    table.dataTable.dtr-inline.collapsed>tbody>tr>th.dtr-control::before {
+        content: "-";
+        @apply bg-zinc-500/20 text-zinc-400 border-zinc-500/30;
     }
 
-    .select2-selection--multiple:focus-within {
-        border-color: #6366f1 !important;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+    /* DataTables Empty & Loading States */
+    .dataTables_empty {
+        @apply py-12 text-center text-zinc-500 bg-zinc-800/20 !important;
     }
 
-    .select2-selection__choice {
-        background-color: #4f46e5 !important;
-        border: none !important;
-        border-radius: 0.375rem !important;
-        margin: 0.125rem !important;
-        padding: 0.125rem 0.375rem !important;
-        color: white !important;
-        font-size: 0.875rem !important;
+    .dataTables_wrapper.no-footer .dataTables_scrollBody {
+        @apply border-b border-zinc-800/50 !important;
     }
 
-    .select2-selection__choice__remove {
-        color: rgba(255, 255, 255, 0.8) !important;
-        margin-right: 0.25rem !important;
-        transition: color 0.15s ease;
+    /* DataTables Search Highlight */
+    table.dataTable tbody tr.hover,
+    table.dataTable tbody tr>.highlight {
+        @apply bg-primary-500/10 !important;
     }
 
-    .select2-selection__choice__remove:hover {
-        color: white !important;
-        background: none !important;
+    /* DataTables Scrolling */
+    .dataTables_scroll {
+        @apply mb-4;
     }
 
-    .select2-selection__placeholder {
-        color: #71717a !important;
+    .dataTables_scrollHead {
+        @apply overflow-hidden !important;
     }
 
-    .select2-container--disabled .select2-selection {
-        background-color: rgba(24, 24, 27, 0.4) !important;
-        opacity: 0.7;
+    .dataTables_scrollBody {
+        @apply overflow-auto !important;
     }
 
-    .select2-container--focus .select2-selection {
-        border-color: #6366f1 !important;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+    /* DataTables Responsive Table */
+    .dataTable.responsive {
+        @apply w-full !important;
     }
 
-    /* Fix for default Select2 container styles */
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: #4f46e5 !important;
-        border: none !important;
-        border-radius: 0.375rem !important;
-        margin: 0.125rem !important;
-        padding: 0.125rem 0.375rem !important;
-        color: white !important;
-        font-size: 0.875rem !important;
-    }
+    @media (max-width: 768px) {
 
-    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        color: rgba(255, 255, 255, 0.8) !important;
-        margin-right: 0.25rem !important;
-        border-right: none !important;
-        transition: color 0.15s ease;
-    }
+        .dataTables_length,
+        .dataTables_filter {
+            @apply w-full text-left mb-2;
+        }
 
-    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-        background-color: transparent !important;
-        color: white !important;
-    }
+        .dataTables_filter input {
+            @apply w-full;
+        }
 
-    /* Datetime Picker Styling */
-    .bootstrap-datetimepicker-widget {
-        @apply bg-zinc-800/95 backdrop-blur-sm border border-zinc-700/50 rounded-lg text-white !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    }
-
-    .bootstrap-datetimepicker-widget table td.day {
-        @apply hover:bg-primary-700 rounded-lg transition-colors !important;
-    }
-
-    .bootstrap-datetimepicker-widget table td.active,
-    .bootstrap-datetimepicker-widget table td.active:hover {
-        @apply bg-primary-600 text-white rounded-lg !important;
-    }
-
-    .bootstrap-datetimepicker-widget table td.today:before {
-        @apply border-t-primary-500 !important;
-    }
-
-    .bootstrap-datetimepicker-widget a[data-action] {
-        @apply text-white !important;
-    }
-
-    .bootstrap-datetimepicker-widget .timepicker-hour,
-    .bootstrap-datetimepicker-widget .timepicker-minute,
-    .bootstrap-datetimepicker-widget .timepicker-second {
-        @apply text-white !important;
-    }
-
-    .bootstrap-datetimepicker-widget button[data-action] {
-        @apply bg-primary-700 text-white !important;
-    }
-
-    .bootstrap-datetimepicker-widget .btn-primary {
-        @apply bg-primary-700 text-white border-primary-800 !important;
-    }
-
-    .bootstrap-datetimepicker-widget .picker-switch td span {
-        @apply hover:bg-primary-700/50 !important;
-    }
-
-    /* Summernote Dark Theme */
-    .note-editor.note-frame {
-        @apply bg-zinc-900/50 border-zinc-800/50 rounded-lg overflow-hidden;
-    }
-
-    .note-editing-area {
-        @apply bg-transparent;
-    }
-
-    .note-editable {
-        @apply bg-transparent text-zinc-300 !important;
-    }
-
-    .note-toolbar {
-        @apply bg-zinc-800/50 border-b border-zinc-700/50 !important;
-    }
-
-    .note-btn {
-        @apply bg-zinc-700 border-zinc-600 text-zinc-300 hover:bg-zinc-600 hover:border-zinc-500 !important;
-    }
-
-    .note-dropdown-menu {
-        @apply bg-zinc-800 border-zinc-700 !important;
-    }
-
-    .note-dropdown-item {
-        @apply text-zinc-300 hover:bg-zinc-700 !important;
-    }
-
-    .note-modal-backdrop {
-        @apply bg-black/50 backdrop-blur-sm !important;
-    }
-
-    .note-modal-content {
-        @apply bg-zinc-900 border-zinc-800 !important;
-    }
-
-    .note-modal-header {
-        @apply border-zinc-800 !important;
-    }
-
-    .note-modal-title {
-        @apply text-zinc-300 !important;
-    }
-
-    .note-form-label {
-        @apply text-zinc-400 !important;
-    }
-
-    .note-modal-footer {
-        @apply border-zinc-800 !important;
-    }
-
-    .note-status-output {
-        @apply text-zinc-400;
-    }
-
-    .note-statusbar {
-        @apply bg-zinc-800/50 border-t border-zinc-700/50 !important;
-    }
-
-    .note-resizebar {
-        @apply opacity-50;
-    }
-}
-
-/* Animations and Transitions */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-1rem);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
+        .dataTables_paginate {
+            @apply w-full justify-center mt-4;
+        }
     }
 }
 
@@ -745,4 +483,250 @@
 /* Page transitions */
 #app {
     animation: fadeIn 0.3s ease-out;
+}
+
+
+/* Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e1e;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3a3a3a;
+    border-radius: 10px;
+    border: 2px solid #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3a3a #1e1e1e;
+}
+
+/* Enhanced styling for DataTables search bar and entries picker */
+.dataTables_filter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #d1d1d1;
+    font-size: 0.875rem;
+}
+
+.dataTables_filter input {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 6px 12px 6px 32px;
+    /* Adjusted left padding to accommodate the search icon */
+    margin-left: 8px;
+    transition: border-color 0.3s;
+    width: 200px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2371717a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    /* Adjusted icon position */
+    background-size: 16px;
+    /* Adjusted icon size */
+}
+
+.dataTables_info {
+    @apply mt-4 text-sm text-zinc-500;
+}
+
+.dataTables_length {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #d1d1d1;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.dataTables_length select {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #3a3a3a;
+    border-radius: 4px;
+    padding: 6px 12px;
+    transition: border-color 0.3s;
+}
+
+.dataTables_length select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+/* Loader styling for DataTables */
+#custom-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    border-radius: 8px;
+}
+
+#custom-loader .loader-container {
+    background: rgba(17, 24, 39, 0.85);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    border-top: 4px solid #4f46e5;
+    /* Blurple color */
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Action Buttons Styling - Sea Lantern Effect */
+.action-btn {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-lg mr-1 border border-primary-500/30 bg-transparent text-primary-400 transition-all duration-300;
+    box-shadow: 0 0 5px rgba(79, 70, 229, 0.2);
+}
+
+.action-btn:hover,
+.action-btn:focus {
+    @apply border-primary-400 bg-primary-500/20 text-primary-300;
+    box-shadow: 0 0 12px rgba(79, 70, 229, 0.5), 0 0 20px rgba(79, 70, 229, 0.2) inset;
+}
+
+.action-btn.warning {
+    @apply border-amber-500/30 text-amber-400;
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+}
+
+.action-btn.warning:hover,
+.action-btn.warning:focus {
+    @apply border-amber-400 bg-amber-500/20 text-amber-300;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.2) inset;
+}
+
+.action-btn.danger {
+    @apply border-red-500/30 text-red-400;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+}
+
+.action-btn.danger:hover,
+.action-btn.danger:focus {
+    @apply border-red-400 bg-red-500/20 text-red-300;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.2) inset;
+}
+
+.action-btn.success {
+    @apply border-emerald-500/30 text-emerald-400;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.2);
+}
+
+.action-btn.success:hover,
+.action-btn.success:focus {
+    @apply border-emerald-400 bg-emerald-500/20 text-emerald-300;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.2) inset;
+}
+
+.action-btn.info {
+    @apply border-sky-500/30 text-sky-400;
+    box-shadow: 0 0 5px rgba(14, 165, 233, 0.2);
+}
+
+.action-btn.info:hover,
+.action-btn.info:focus {
+    @apply border-sky-400 bg-sky-500/20 text-sky-300;
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.5), 0 0 20px rgba(14, 165, 233, 0.2) inset;
+}
+
+.action-btn.secondary {
+    @apply border-zinc-500/30 text-zinc-400;
+    box-shadow: 0 0 5px rgba(161, 161, 170, 0.2);
+}
+
+.action-btn.secondary:hover,
+.action-btn.secondary:focus {
+    @apply border-zinc-400 bg-zinc-500/20 text-zinc-300;
+    box-shadow: 0 0 12px rgba(161, 161, 170, 0.5), 0 0 20px rgba(161, 161, 170, 0.2) inset;
+}
+
+/* Role Badge Styling */
+.badge {
+    @apply px-2 py-0.5 text-xs font-medium rounded text-white inline-block;
+    min-width: 60px;
+    text-align: center;
+}
+
+.badge.admin {
+    background-color: #4f46e5 !important;
+    /* Blurple */
+    box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
+}
+
+.badge.moderator {
+    background-color: #06b6d4 !important;
+    /* Cyan */
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+}
+
+.badge.member {
+    background-color: #10b981 !important;
+    /* Emerald */
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+
+
+
+/* Verified Status Styling */
+.verified-status {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.verified-status.success {
+    @apply bg-emerald-500/20 text-emerald-400;
+}
+
+.verified-status.warning {
+    @apply bg-amber-500/20 text-amber-400;
+}
+
+.verified-status.danger {
+    @apply bg-red-500/20 text-red-400;
 }

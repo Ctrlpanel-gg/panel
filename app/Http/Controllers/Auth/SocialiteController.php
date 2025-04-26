@@ -69,7 +69,10 @@ class SocialiteController extends Controller
                         'Authorization' => 'Bot '. $botToken,
                         'Content-Type' => 'application/json',
                     ]
-                )->put("https://discord.com/api/guilds/{$guildId}/members/{$discord->id}");
+                )->put(
+                    "https://discord.com/api/guilds/{$guildId}/members/{$discord->id}",
+                    ['access_token' => $discord->token]
+                );
 
                 if ($response->failed()) {
                     throw new Exception(

@@ -7,6 +7,7 @@ export default defineConfig({
         laravel({
             input: [
                 "themes/default/css/app.css",
+                "themes/default/css/select2.css",
                 "themes/default/sass/app.scss",
                 "themes/default/js/app.js"
             ],

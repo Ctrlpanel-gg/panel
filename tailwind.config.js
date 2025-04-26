@@ -1,12 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class',
+  darkMode: 'selector',
 
   content: [
     "./themes/default/views/**/*.blade.php",
     "./themes/default/js/**/*.js",
     "./themes/default/css/**/*.css",
     "./themes/default/new-css/**/*.css",
+    './node_modules/select2-tailwindcss-theme/dist/*.css', // Include the package
   ],
   theme: {
     extend: {

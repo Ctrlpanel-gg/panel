@@ -31,7 +31,7 @@
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
     @vite(['themes/default/css/app.css'])
-    
+    <!--vite(['themes/default/css/select2.css'])-->
     @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
     @if ($recaptchaVersion)
         @switch($recaptchaVersion)
@@ -44,6 +44,7 @@
         @endswitch
     @endif
 
+    
     <!-- SweetAlert2 with Dark Theme -->
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>

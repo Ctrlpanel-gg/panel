@@ -419,31 +419,32 @@ class UserController extends Controller
                 return $user->discordUser ? $user->discordUser->id : '';
             })
             ->addColumn('actions', function (User $user) {
-                $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
+                $suspendColor = $user->isSuspended() ? 'success' : 'warning';
                 $suspendIcon = $user->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';
                 $suspendText = $user->isSuspended() ? __('Unsuspend') : __('Suspend');
 
                 return '
-                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-secondary"><i class="fas fa-envelope"></i></a>
-                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
-                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
+                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="action-btn primary"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="action-btn secondary"><i class="fas fa-envelope"></i></a>
+                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.show', $user->id) . '" class="action-btn warning"><i class="fas fa-eye"></i></a>
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.edit', $user->id) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
                 <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
-                             ' . csrf_field() . '
-                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
-                          </form>
+                    ' . csrf_field() . '
+                    <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn ' . $suspendColor . '"><i class="far ' . $suspendIcon . '"></i></button>
+                </form>
                 <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
-                             ' . csrf_field() . '
-                             ' . method_field('DELETE') . '
-                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                        </form>
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                </form>
                 ';
             })
             ->editColumn('role', function (User $user) {
                 $html = '';
 
                 foreach ($user->roles as $role) {
-                    $html .= "<span style='background-color: $role->color' class='badge'>$role->name</span>";
+                    $roleClass = strtolower($role->name);
+                    $html .= "<span class='badge' style='background-color: {$role->color}; box-shadow: 0 0 8px {$role->color}80;'>{$role->name}</span>";
                 }
 
                 return $html;
@@ -455,7 +456,7 @@ class UserController extends Controller
                 return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
-            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
-            ->make();
+            ->rawColumns(['avatar', 'name', 'credits', 'verified', 'role', 'actions'])
+            ->make(true);
     }
 }
