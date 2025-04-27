@@ -3,7 +3,7 @@
 @import 'tailwindcss/utilities';
 @plugin "flowbite-typography";
 @import url("https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700&display=swap");
-@import 'select2-tailwindcss-theme/dist/select2-tailwindcss-theme.css';
+
 
 @layer base {
     html {

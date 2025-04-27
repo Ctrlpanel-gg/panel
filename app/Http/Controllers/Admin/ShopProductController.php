@@ -16,26 +16,20 @@ use Illuminate\Validation\Rule;
 
 class ShopProductController extends Controller
 {
-
     const READ_PERMISSION = 'admin.store.read';
     const WRITE_PERMISSION = 'admin.store.write';
     const DISABLE_PERMISSION = 'admin.store.disable';
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Application|Factory|View|Response
-     */
     public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
         $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
         $isStoreEnabled = $general_settings->store_enabled;
 
-
         return view('admin.store.index', [
             'isStoreEnabled' => $isStoreEnabled,
-            'locale_datatables' => $locale_settings->datatables
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
 
@@ -152,40 +146,39 @@ class ShopProductController extends Controller
     {
         $query = ShopProduct::query();
 
-
         return datatables($query)
             ->addColumn('actions', function (ShopProduct $shopProduct) {
                 return '
-                            <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $shopProduct->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                       </form>
-                ';
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $shopProduct->id) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                </form>
+                <form class="d-inline" method="post" action="' . route('admin.store.disable', $shopProduct->id) . '">
+                    ' . csrf_field() . '
+                    ' . method_field('PATCH') . '
+                    <button data-content="' . ($shopProduct->disabled ? __('Enable') : __('Disable')) . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn ' . ($shopProduct->disabled ? 'success' : 'warning') . '"><i class="far ' . ($shopProduct->disabled ? 'fa-play-circle' : 'fa-pause-circle') . '"></i></button>
+                </form>';
             })
             ->editColumn('disabled', function (ShopProduct $shopProduct) {
-                $checked = $shopProduct->disabled == false ? 'checked' : '';
-
-                return '
-                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.disable', $shopProduct->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('PATCH') . '
-                            <div class="custom-control custom-switch">
-                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $shopProduct->id . '">
-                            <label class="custom-control-label" for="switch' . $shopProduct->id . '"></label>
-                          </div>
-                       </form>
-                ';
+                return $shopProduct->disabled ? 
+                    '<span class="badge bg-danger">'. __('Disabled') .'</span>' : 
+                    '<span class="badge bg-success">'. __('Active') .'</span>';
+            })
+            ->editColumn('type', function (ShopProduct $shopProduct) {
+                $type = strtolower($shopProduct->type);
+                $icon = $type === 'credits' ? 'fa-coins' : 'fa-server';
+                $color = $type === 'credits' ? 'amber' : 'blue';
+                return '<span class="flex items-center"><i class="mr-2 fas ' . $icon . ' text-' . $color . '-400"></i>' . $shopProduct->type . '</span>';
+            })
+            ->editColumn('price', function (ShopProduct $shopProduct) {
+                return '<span class="flex items-center"><i class="mr-2 fas fa-coins text-amber-400"></i>' . $shopProduct->formatToCurrency($shopProduct->price) . '</span>';
             })
             ->editColumn('created_at', function (ShopProduct $shopProduct) {
                 return $shopProduct->created_at ? $shopProduct->created_at->diffForHumans() : '';
             })
-            ->editColumn('price', function (ShopProduct $shopProduct) {
-                return $shopProduct->formatToCurrency($shopProduct->price);
-            })
-            ->rawColumns(['actions', 'disabled'])
+            ->rawColumns(['actions', 'disabled', 'type', 'price'])
             ->make();
     }
 }
