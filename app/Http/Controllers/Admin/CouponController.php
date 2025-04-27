@@ -197,20 +197,18 @@ class CouponController extends Controller
         return datatables($query)
             ->addColumn('actions', function(Coupon $coupon) {
                 return '
-                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.coupons.edit', $coupon->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-
+                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.coupons.edit', $coupon->id).'" class="action-btn info"><i class="fas fa-pen"></i></a>
                     <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.coupons.destroy', $coupon->id).'">
                         '.csrf_field().'
                         '.method_field('DELETE').'
-                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
                     </form>
                 ';
             })
             ->addColumn('status', function (Coupon $coupon) {
-                $color = ($coupon->derived_status == 'VALID') ? 'success' : 'danger';
+                $color = ($coupon->derived_status == 'VALID') ? '#28a745' : '#dc3545';
                 $status = str_replace('_', ' ', $coupon->derived_status);
-
-                return '<span class="badge badge-'.$color.'">'.$status.'</span>';
+                return "<span class='badge' style='background-color: {$color}; box-shadow: 0 0 8px {$color}80;'>{$status}</span>";
             })
             ->editColumn('uses', function (Coupon $coupon) {
                 return "{$coupon->uses} / {$coupon->max_uses}";
@@ -219,18 +217,16 @@ class CouponController extends Controller
                 if ($coupon->type === 'percentage') {
                     return $coupon->value . "%";
                 }
-
                 return number_format($coupon->value, 2, '.', '');
             })
             ->editColumn('expires_at', function (Coupon $coupon) {
                 if (!$coupon->expires_at) {
                     return __('Never');
                 }
-
-                return Carbon::createFromTimestamp($coupon->expires_at);
+                return Carbon::createFromTimestamp($coupon->expires_at)->diffForHumans();
             })
             ->editColumn('created_at', function(Coupon $coupon) {
-                return Carbon::createFromTimeString($coupon->created_at);
+                return Carbon::createFromTimeString($coupon->created_at)->diffForHumans();
             })
             ->editColumn('code', function (Coupon $coupon) {
                 return "<code>{$coupon->code}</code>";
