@@ -354,6 +354,7 @@
         @apply mt-4 flex items-center justify-end gap-1;
     }
 
+    /* DataTables Pagination Buttons Styling */
     .dataTables_paginate .paginate_button {
         @apply inline-flex items-center justify-center px-3 py-1.5 text-sm rounded-lg transition-colors duration-200 font-medium min-w-[2.25rem] text-zinc-400 hover:text-white hover:bg-zinc-800 border-0 !important;
     }
@@ -366,8 +367,18 @@
         @apply opacity-50 cursor-not-allowed hover:bg-transparent hover:text-zinc-400 !important;
     }
 
-    .dataTables_paginate .ellipsis {
-        @apply text-zinc-500;
+    .dataTables_paginate .paginate_button.first,
+    .dataTables_paginate .paginate_button.previous,
+    .dataTables_paginate .paginate_button.next,
+    .dataTables_paginate .paginate_button.last {
+        @apply bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white border border-zinc-800 rounded-lg px-3 py-1.5 transition-all;
+    }
+
+    .dataTables_paginate .paginate_button.first:hover,
+    .dataTables_paginate .paginate_button.previous:hover,
+    .dataTables_paginate .paginate_button.next:hover,
+    .dataTables_paginate .paginate_button.last:hover {
+        @apply bg-primary-600 text-white;
     }
 
     /* DataTables Processing State */

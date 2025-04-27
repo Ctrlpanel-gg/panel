@@ -35,6 +35,28 @@
                 </div>
             </div>
             <div class="p-6 relative">
+                <div class="flex items-center justify-between mb-6">
+                    <!-- Custom Length Control -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-zinc-400">{{ __('Show') }}</span>
+                        <select id="datatable_length" class="bg-zinc-900/90 border border-zinc-800/50 text-zinc-300 rounded-lg py-1.5 px-3 pr-8 w-20 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all appearance-none cursor-pointer">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-zinc-400">{{ __('entries') }}</span>
+                    </div>
+                    
+                    <!-- Custom Search Control -->
+                    <div class="relative">
+                        <input type="search" id="datatable_search" class="w-64 bg-zinc-900/90 border border-zinc-800/50 text-zinc-300 rounded-lg py-1.5 pl-8 pr-3 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder-zinc-600" placeholder="{{ __('Search...') }}">
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-zinc-500 text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="relative overflow-x-auto">
                     <div id="custom-loader" style="display: none;">
                         <div class="loader-container">
@@ -77,11 +99,17 @@
         // Get reference to the table container
         const tableContainer = document.querySelector('.overflow-x-auto');
         const customLoader = document.getElementById('custom-loader');
-        
+
         // Initialize DataTable with disabled processing display
         const dataTable = $('#datatable').DataTable({
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
+                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json',
+                paginate: {
+                    first: '<i class="fas fa-angle-double-left flex items-center justify-center w-full h-full"></i>',
+                    previous: '<i class="fas fa-angle-left flex items-center justify-center w-full h-full"></i>',
+                    next: '<i class="fas fa-angle-right flex items-center justify-center w-full h-full"></i>',
+                    last: '<i class="fas fa-angle-double-right flex items-center justify-center w-full h-full"></i>'
+                }
             },
             processing: false, // Disable the built-in processing indicator
             serverSide: true,
@@ -120,7 +148,7 @@
                 // Hide DataTables processing div if it somehow appears
                 $('.dataTables_processing').hide();
             },
-            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4"<"flex-1"l><"flex-1 md:text-right"f>>rt<"flex flex-col md:flex-row justify-between items-center mt-4"<"flex-1"i><"flex-1 md:text-right"p>>',
+            dom: 'rtp', // Remove default search and length menu
             lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
             pagingType: "full_numbers",
             drawCallback: function() {
@@ -133,12 +161,24 @@
                 });
             }
         });
-        
+
+        // Custom search functionality
+        const customSearch = document.getElementById('datatable_search');
+        customSearch.addEventListener('input', function() {
+            dataTable.search(this.value).draw();
+        });
+
+        // Custom entries functionality
+        const customEntries = document.getElementById('datatable_length');
+        customEntries.addEventListener('change', function() {
+            dataTable.page.len(this.value).draw();
+        });
+
         // Also show loading on search, pagination, and length change
         $('#datatable').on('page.dt length.dt search.dt', function() {
             customLoader.style.display = 'flex';
         });
-        
+
         // Ensure default processing div is hidden via CSS
         $('<style>.dataTables_processing { display: none !important; }</style>').appendTo('head');
     });
