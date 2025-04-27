@@ -206,23 +206,36 @@ class PaymentController extends Controller
         $query = Payment::with('user');
 
         return datatables($query)
-
             ->addColumn('user', function (Payment $payment) {
-                return ($payment->user) ? '<a href="' . route('admin.users.show', $payment->user->id) . '">' . $payment->user->name . '</a>' : __('Unknown user');
+                return ($payment->user) ? '<a class="text-accent-blue hover:text-accent-blue/80" href="' . route('admin.users.show', $payment->user->id) . '">' . $payment->user->name . '</a>' : __('Unknown user');
             })
             ->editColumn('price', function (Payment $payment) {
-                return $payment->formatToCurrency($payment->price);
+                return '<span class="flex items-center"><i class="mr-2 fas fa-coins text-amber-400"></i>' . $payment->formatToCurrency($payment->price) . '</span>';
             })
             ->editColumn('tax_value', function (Payment $payment) {
-                return $payment->formatToCurrency($payment->tax_value);
+                return '<span class="flex items-center"><i class="mr-2 fas fa-percentage text-emerald-400"></i>' . $payment->formatToCurrency($payment->tax_value) . '</span>';
             })
             ->editColumn('tax_percent', function (Payment $payment) {
-                return $payment->tax_percent . ' %';
+                return '<span class="text-zinc-400">' . $payment->tax_percent . ' %</span>';
             })
             ->editColumn('total_price', function (Payment $payment) {
-                return $payment->formatToCurrency($payment->total_price);
+                return '<span class="flex items-center font-medium text-primary-400"><i class="mr-2 fas fa-money-bill-wave"></i>' . $payment->formatToCurrency($payment->total_price) . '</span>';
             })
-
+            ->editColumn('status', function (Payment $payment) {
+                $statusClasses = [
+                    'PAID' => 'success',
+                    'OPEN' => 'warning',
+                    'FAILED' => 'danger'
+                ];
+                $class = $statusClasses[$payment->status] ?? 'secondary';
+                return '<span class="verified-status ' . $class . '">' . __($payment->status) . '</span>';
+            })
+            ->editColumn('payment_method', function (Payment $payment) {
+                return '<span class="flex items-center"><i class="mr-2 fas fa-credit-card text-zinc-400"></i>' . $payment->payment_method . '</span>';
+            })
+            ->editColumn('type', function (Payment $payment) {
+                return '<span class="badge ' . strtolower($payment->type) . '">' . $payment->type . '</span>';
+            })
             ->editColumn('created_at', function (Payment $payment) {
                 return [
                     'display' => $payment->created_at ? $payment->created_at->diffForHumans() : '',
@@ -233,12 +246,12 @@ class PaymentController extends Controller
                 $invoice = Invoice::where('payment_id', '=', $payment->payment_id)->first();
 
                 if ($invoice && File::exists(storage_path('app/invoice/' . $invoice->invoice_user . '/' . $invoice->created_at->format('Y') . '/' . $invoice->invoice_name . '.pdf'))) {
-                    return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-file-download"></i></a>';
-                } else {
-                    return '';
+                    return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="action-btn info"><i class="fas fa-file-download"></i></a>';
                 }
+                
+                return '';
             })
-            ->rawColumns(['actions', 'user'])
+            ->rawColumns(['user', 'price', 'tax_value', 'tax_percent', 'total_price', 'status', 'payment_method', 'type', 'actions'])
             ->make(true);
     }
 }
