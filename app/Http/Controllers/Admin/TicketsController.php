@@ -262,42 +262,48 @@ class TicketsController extends Controller
 
         return datatables($query)
             ->editColumn('user', function (TicketBlacklist $blacklist) {
-                return '<a href="'.route('admin.users.show', $blacklist->user->id).'">'.$blacklist->user->name.'</a>';
+                return '<div class="flex items-center gap-2">
+                            <img width="28px" height="28px" class="rounded-full" src="' . $blacklist->user->getAvatar() . '">
+                            <a href="'.route('admin.users.show', $blacklist->user->id).'" class="text-info hover:text-info/80 transition-colors">'
+                            . htmlspecialchars($blacklist->user->name) .
+                            '</a>
+                        </div>';
             })
             ->editColumn('status', function (TicketBlacklist $blacklist) {
                 switch ($blacklist->status) {
                     case 'True':
-                        $text = 'Blocked';
-                        $badgeColor = 'badge-danger';
-                        break;
+                        return '<span class="verified-status danger"><i class="fas fa-ban mr-1"></i>' . __('Blocked') . '</span>';
                     default:
-                        $text = 'Unblocked';
-                        $badgeColor = 'badge-success';
-                        break;
+                        return '<span class="verified-status success"><i class="fas fa-check-circle mr-1"></i>' . __('Unblocked') . '</span>';
                 }
-
-                return '<span class="badge '.$badgeColor.'">'.$text.'</span>';
             })
             ->editColumn('reason', function (TicketBlacklist $blacklist) {
-                return $blacklist->reason;
+                return '<span class="text-zinc-300">' . htmlspecialchars($blacklist->reason) . '</span>';
             })
             ->addColumn('actions', function (TicketBlacklist $blacklist) {
                 return '
-                            <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.change', ['id' => $blacklist->id]).'">
-                                '.csrf_field().'
-                                '.method_field('POST').'
-                            <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-sync-alt"></i></button>
-                            </form>
-                            <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
-                                '.csrf_field().'
-                                '.method_field('POST').'
-                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                            </form>
+                    <div class="flex items-center gap-2">
+                        <form class="d-inline" method="post" action="'.route('admin.ticket.blacklist.change', ['id' => $blacklist->id]).'">
+                            '.csrf_field().'
+                            '.method_field('POST').'
+                            <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn warning">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </form>
+                        <form class="d-inline" method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
+                            '.csrf_field().'
+                            '.method_field('POST').'
+                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 ';
             })
             ->editColumn('created_at', function (TicketBlacklist $blacklist) {
-                return $blacklist->created_at ? $blacklist->created_at->diffForHumans() : '';
+                return '<span class="text-zinc-400">' . $blacklist->created_at->diffForHumans() . '</span>';
             })
+            ->orderColumn('user', 'user.name $1')
             ->rawColumns(['user', 'status', 'reason', 'created_at', 'actions'])
             ->make(true);
     }
