@@ -122,31 +122,36 @@ class PartnerController extends Controller
         return datatables($query)
             ->addColumn('actions', function (PartnerDiscount $partner) {
                 return '
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.partners.edit', $partner->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.partners.destroy', $partner->id).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                       </form>
+                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.partners.edit', $partner->id) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.partners.destroy', $partner->id) . '">
+                        ' . csrf_field() . '
+                        ' . method_field('DELETE') . '
+                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    </form>
                 ';
             })
             ->addColumn('user', function (PartnerDiscount $partner) {
-                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id) . '">' . $user->name . '</a>' : __('Unknown user');
+                return ($user = User::where('id', $partner->user_id)->first()) 
+                    ? '<a href="' . route('admin.users.show', $partner->user_id) . '" class="text-accent-blue hover:text-accent-blue/80">' . $user->name . '</a>' 
+                    : __('Unknown user');
             })
             ->editColumn('created_at', function (PartnerDiscount $partner) {
                 return $partner->created_at ? $partner->created_at->diffForHumans() : '';
             })
             ->editColumn('partner_discount', function (PartnerDiscount $partner) {
-                return $partner->partner_discount ? $partner->partner_discount . '%' : '0%';
+                return '<span class="badge success">' . $partner->partner_discount . '%</span>';
             })
             ->editColumn('registered_user_discount', function (PartnerDiscount $partner) {
-                return $partner->registered_user_discount ? $partner->registered_user_discount . '%' : '0%';
+                return '<span class="badge info">' . $partner->registered_user_discount . '%</span>';
             })
             ->editColumn('referral_system_commission', function (PartnerDiscount $partner, ReferralSettings $referral_settings) {
-                return $partner->referral_system_commission >= 0 ? $partner->referral_system_commission . '%' : __('Default') . ' ('.$referral_settings->percentage . '%)';
+                if ($partner->referral_system_commission >= 0) {
+                    return '<span class="badge warning">' . $partner->referral_system_commission . '%</span>';
+                }
+                return '<span class="badge secondary">' . __('Default') . ' ('.$referral_settings->percentage . '%)</span>';
             })
             ->orderColumn('user', 'user_id $1')
-            ->rawColumns(['user', 'actions'])
+            ->rawColumns(['user', 'actions', 'partner_discount', 'registered_user_discount', 'referral_system_commission'])
             ->make();
     }
 }
