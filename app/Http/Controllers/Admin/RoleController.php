@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Settings\LocaleSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -28,19 +29,19 @@ class RoleController extends Controller
      * @return mixed
      * @throws Exception
      */
-    public function index(Request $request)
+    public function index(Request $request, LocaleSettings $locale_settings)
     {
 
         $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
         $this->checkAnyPermission($allConstants);
 
-        //datatables
         if ($request->ajax()) {
-            return $this->dataTableQuery();
+            return $this->dataTable();
         }
 
-        $html = $this->dataTable();
-        return view('admin.roles.index', compact('html'));
+        return view('admin.roles.index')->with([
+            'locale_datatables' => $locale_settings->datatables
+        ]);
     }
 
     /**
@@ -186,38 +187,31 @@ class RoleController extends Controller
      */
     public function dataTable()
     {
-        $query = Role::query()->withCount(['users', 'permissions'])->get();
+        $query = Role::withCount(['users', 'permissions']);
 
         return datatables($query)
-            ->editColumn('id', function (Role $role) {
-                return $role->id;
-            })
-            ->addColumn('actions', function (Role $role) {
-                return '
-                            <a title="Edit" href="'.route("admin.roles.edit", $role).'" class="btn btn-sm btn-info"><i
-                                    class="fa fas fa-edit"></i></a>
-                            <form class="d-inline" method="post" action="'.route("admin.roles.destroy", $role).'">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                                <button title="Delete" type="submit" class="btn btn-sm btn-danger confirm"><i
-                                        class="fa fas fa-trash"></i></button>
-                            </form>
-                ';
-            })
-
             ->editColumn('name', function (Role $role) {
                 return "<span style='background-color: $role->color' class='badge'>$role->name</span>";
             })
             ->editColumn('users_count', function ($query) {
-                return $query->users_count;
+                return '<span class="flex items-center"><i class="mr-2 fas fa-users text-zinc-400"></i>' . $query->users_count . '</span>';
             })
             ->editColumn('permissions_count', function ($query){
-                return $query->permissions_count;
+                return '<span class="flex items-center"><i class="mr-2 fas fa-key text-amber-400"></i>' . $query->permissions_count . '</span>';
             })
             ->editColumn('power', function (Role $role){
-                return $role->power;
+                return '<span class="flex items-center"><i class="mr-2 fas fa-bolt text-emerald-400"></i>' . $role->power . '</span>';
             })
-            ->rawColumns(['actions', 'name'])
+            ->addColumn('actions', function (Role $role) {
+                return '
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.roles.edit', $role) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                <form class="d-inline" method="post" action="' . route('admin.roles.destroy', $role) . '">
+                ' . csrf_field() . '
+                ' . method_field('DELETE') . '
+                    <button title="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" type="submit" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                </form>';
+            })
+            ->rawColumns(['actions', 'name', 'users_count', 'permissions_count', 'power'])
             ->make(true);
     }
 }
