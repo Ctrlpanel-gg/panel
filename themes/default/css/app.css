@@ -632,8 +632,11 @@
 
 /* Action Buttons Styling - Sea Lantern Effect */
 .action-btn {
-    @apply inline-flex items-center justify-center w-8 h-8 rounded-lg mr-1 border border-primary-500/30 bg-transparent text-primary-400 transition-all duration-300;
-    box-shadow: 0 0 5px rgba(79, 70, 229, 0.2);
+    @apply inline-flex items-center justify-center px-3 py-2 rounded-lg border border-primary-500/30 bg-transparent text-primary-400 transition-all duration-300;
+}
+
+.action-btn i {
+    @apply flex items-center justify-center w-4 h-4;
 }
 
 .action-btn:hover,

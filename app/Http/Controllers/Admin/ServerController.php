@@ -250,7 +250,6 @@ class ServerController extends Controller
     {
         $query = Server::with(['user', 'product']);
 
-
         if ($request->has('product')) {
             $query->where('product_id', '=', $request->input('product'));
         }
@@ -264,35 +263,32 @@ class ServerController extends Controller
 
         return datatables($query)
             ->addColumn('user', function (Server $server) {
-                return '<a href="' . route('admin.users.show', $server->user->id) . '">' . $server->user->name . '</a>';
+                return '<a class="text-accent-blue hover:text-accent-blue/80" href="' . route('admin.users.show', $server->user->id) . '">' . $server->user->name . '</a>';
             })
             ->addColumn('resources', function (Server $server) {
-                return $server->product->name;
+                return '<span class="text-zinc-300">' . $server->product->name . '</span>';
             })
             ->addColumn('actions', function (Server $server) {
-                $suspendColor = $server->isSuspended() ? 'btn-success' : 'btn-warning';
+                $suspendColor = $server->isSuspended() ? 'success' : 'warning';
                 $suspendIcon = $server->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';
                 $suspendText = $server->isSuspended() ? __('Unsuspend') : __('Suspend');
 
                 return '
-                         <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.servers.edit', $server->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
-                        <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
-                            ' . csrf_field() . '
-                           <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
-                       </form>
-
-                       <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
-
+                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.servers.edit', $server->id) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                    <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
+                        ' . csrf_field() . '
+                        <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn ' . $suspendColor . '"><i class="far ' . $suspendIcon . '"></i></button>
+                    </form>
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
+                        ' . csrf_field() . '
+                        ' . method_field('DELETE') . '
+                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    </form>
                 ';
             })
             ->addColumn('status', function (Server $server) {
-                $labelColor = $server->suspended ? 'text-danger' : 'text-success';
-
-                return '<i class="fas ' . $labelColor . ' fa-circle mr-2"></i>';
+                $statusColor = $server->isSuspended() ? 'text-red-400' : 'text-emerald-400';
+                return '<i class="fas ' . $statusColor . ' fa-circle mr-2"></i>';
             })
             ->editColumn('created_at', function (Server $server) {
                 return $server->created_at ? $server->created_at->diffForHumans() : '';
@@ -303,7 +299,7 @@ class ServerController extends Controller
             ->editColumn('name', function (Server $server, PterodactylSettings $ptero_settings) {
                 return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
             })
-            ->rawColumns(['user', 'actions', 'status', 'name'])
-            ->make();
+            ->rawColumns(['user', 'actions', 'status', 'name', 'resources'])
+            ->make(true);
     }
 }
