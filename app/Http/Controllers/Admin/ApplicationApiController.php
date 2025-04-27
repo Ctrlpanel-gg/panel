@@ -134,21 +134,24 @@ class ApplicationApiController extends Controller
         return datatables($query)
             ->addColumn('actions', function (ApplicationApi $apiKey) {
                 return '
-                <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="'.route('admin.api.edit', $apiKey->token).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
-                <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.api.destroy', $apiKey->token).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
+                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.api.edit', $apiKey->token).'" class="action-btn info"><i class="fas fa-pen"></i></a>
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.api.destroy', $apiKey->token).'">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    </form>
                 ';
             })
             ->editColumn('token', function (ApplicationApi $apiKey) {
-                return "<code>{$apiKey->token}</code>";
+                return '<span class="font-mono bg-zinc-900/50 px-2 py-1 rounded text-zinc-300">'.$apiKey->token.'</span>';
+            })
+            ->editColumn('memo', function (ApplicationApi $apiKey) {
+                return '<span class="text-zinc-300">'.($apiKey->memo ?: '<span class="text-zinc-500 italic">'.__('No memo').'</span>').'</span>';
             })
             ->editColumn('last_used', function (ApplicationApi $apiKey) {
-                return $apiKey->last_used ? $apiKey->last_used->diffForHumans() : '';
+                return $apiKey->last_used ? '<span class="text-zinc-400">'.$apiKey->last_used->diffForHumans().'</span>' : '<span class="text-zinc-500 italic">'.__('Never').'</span>';
             })
-            ->rawColumns(['actions', 'token'])
+            ->rawColumns(['actions', 'token', 'memo', 'last_used'])
             ->make();
     }
 }
