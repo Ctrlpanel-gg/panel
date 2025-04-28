@@ -7,7 +7,6 @@ module.exports = {
     "./themes/default/js/**/*.js",
     "./themes/default/css/**/*.css",
     "./themes/default/new-css/**/*.css",
-    './node_modules/select2-tailwindcss-theme/dist/*.css', // Include the package
   ],
   theme: {
     extend: {
