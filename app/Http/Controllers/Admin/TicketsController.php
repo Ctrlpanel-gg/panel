@@ -191,12 +191,13 @@ class TicketsController extends Controller
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
                 return [
-                    'display' => '<span class="text-zinc-400">' . ($tickets->updated_at ? $tickets->updated_at->diffForHumans() : '') . '</span>',
+                    'display' => $tickets->updated_at ? $tickets->updated_at->diffForHumans() : '',
+                    
                     'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''
                 ];
             })
             ->orderColumn('category', 'category_name $1')
-            ->rawColumns(['title', 'user_id', 'status', 'priority', 'category', 'updated_at', 'actions'])
+            ->rawColumns(['title', 'user_id', 'status', 'priority', 'category', 'actions'])
             ->make(true);
     }
 

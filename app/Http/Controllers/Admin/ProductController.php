@@ -231,18 +231,16 @@ class ProductController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
                 return '
-                            <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
-                            <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="mr-1 text-white btn btn-sm btn-primary"><i class="fas fa-clone"></i></a>
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.destroy', $product->id).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                       </form>
+                    <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="action-btn warning"><i class="fas fa-eye"></i></a>
+                    <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="action-btn primary"><i class="fas fa-clone"></i></a>
+                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="action-btn info"><i class="fas fa-pen"></i></a>
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.destroy', $product->id).'">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    </form>
                 ';
             })
-
             ->addColumn('servers', function (Product $product) {
                 return $product->servers()->count();
             })
@@ -254,14 +252,13 @@ class ProductController extends Controller
             })
             ->editColumn('disabled', function (Product $product) {
                 $checked = $product->disabled == false ? 'checked' : '';
-
                 return '
                     <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.disable', $product->id).'">
                         '.csrf_field().'
                         '.method_field('PATCH').'
                         <div class="custom-control custom-switch">
-                        <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
-                        <label class="custom-control-label" for="switch'.$product->id.'"></label>
+                            <input '.$checked.' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch'.$product->id.'">
+                            <label class="custom-control-label" for="switch'.$product->id.'"></label>
                         </div>
                     </form>
                 ';
@@ -273,12 +270,17 @@ class ProductController extends Controller
                 return $product->serverlimit == 0 ? "∞" : $product->serverlimit;
             })
             ->editColumn('oom_killer', function (Product $product) {
-                return $product->oom_killer ? __("enabled") : __("disabled");
+                return $product->oom_killer ? 
+                    '<span class="badge success">'.__("enabled").'</span>' : 
+                    '<span class="badge danger">'.__("disabled").'</span>';
+            })
+            ->editColumn('price', function (Product $product) {
+                return '<i class="mr-2 fas fa-coins"></i> ' . $product->price;
             })
             ->editColumn('created_at', function (Product $product) {
                 return $product->created_at ? $product->created_at->diffForHumans() : '';
             })
-            ->rawColumns(['actions', 'disabled'])
-            ->make();
+            ->rawColumns(['actions', 'disabled', 'oom_killer', 'price'])
+            ->make(true);
     }
 }
