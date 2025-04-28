@@ -196,32 +196,29 @@ class TicketsController extends Controller
 
         return datatables($query)
             ->addColumn('category', function (Ticket $tickets) {
-                return $tickets->ticketcategory->name;
+                return '<span class="badge secondary">' . $tickets->ticketcategory->name . '</span>';
             })
             ->editColumn('title', function (Ticket $tickets) {
-                return '<a class="text-info"  href="' . route('ticket.show', ['ticket_id' => $tickets->ticket_id]) . '">' . '#' . $tickets->ticket_id . ' - ' . htmlspecialchars($tickets->title) . '</a>';
+                return '<a class="text-primary-400 hover:text-primary-300 transition-colors" href="' . route('ticket.show', ['ticket_id' => $tickets->ticket_id]) . '">' . '#' . $tickets->ticket_id . ' - ' . htmlspecialchars($tickets->title) . '</a>';
             })
             ->editColumn('status', function (Ticket $tickets) {
-                switch ($tickets->status) {
-                    case 'Reopened':
-                    case 'Open':
-                        $badgeColor = 'badge-success';
-                        break;
-                    case 'Closed':
-                        $badgeColor = 'badge-danger';
-                        break;
-                    case 'Answered':
-                        $badgeColor = 'badge-info';
-                        break;
-                    default:
-                        $badgeColor = 'badge-warning';
-                        break;
-                }
-
-                return '<span class="badge ' . $badgeColor . '">' . $tickets->status . '</span>';
+                $statusClass = match($tickets->status) {
+                    'Reopened', 'Open' => 'success',
+                    'Closed' => 'danger',
+                    'Answered' => 'info',
+                    default => 'warning'
+                };
+                
+                return '<span class="verified-status ' . $statusClass . '">' . $tickets->status . '</span>';
             })
             ->editColumn('priority', function (Ticket $tickets) {
-                return __($tickets->priority);
+                $priorityClass = match($tickets->priority) {
+                    'High' => 'danger',
+                    'Medium' => 'warning',
+                    'Low' => 'success'
+                };
+                
+                return '<span class="verified-status ' . $priorityClass . '">' . __($tickets->priority) . '</span>';
             })
             ->editColumn('updated_at', function (Ticket $tickets) {
                 return [
@@ -230,22 +227,32 @@ class TicketsController extends Controller
                 ];
             })
             ->addColumn('actions', function (Ticket $tickets) {
-                $statusButtonColor = ($tickets->status == "Closed") ? 'btn-success' : 'btn-warning';
+                $statusButtonClass = ($tickets->status == "Closed") ? 'success' : 'warning';
                 $statusButtonIcon = ($tickets->status == "Closed") ? 'fa-redo' : 'fa-times';
                 $statusButtonText = ($tickets->status == "Closed") ? __('Reopen') : __('Close');
 
                 return '
-                            <a data-content="' . __('View') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('ticket.show', ['ticket_id' => $tickets->ticket_id]) . '" class="btn btn-sm text-white btn-info mr-1"><i class="fas fa-eye"></i></a>
-                            <form class="d-inline"  method="post" action="' . route('ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]) . '">
-                                ' . csrf_field() . '
-                                ' . method_field('POST') . '
-                            <button data-content="' . __($statusButtonText) . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white ' . $statusButtonColor . '  mr-1"><i class="fas ' . $statusButtonIcon . '"></i></button>
-                            </form>
-
-                            </form>
+                    <div class="flex gap-2">
+                        <a data-content="' . __('View') . '" data-toggle="popover" data-trigger="hover" data-placement="top" 
+                           href="' . route('ticket.show', ['ticket_id' => $tickets->ticket_id]) . '" 
+                           class="action-btn info">
+                           <i class="fas fa-eye"></i>
+                        </a>
+                        <form class="d-inline" method="post" action="' . route('ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]) . '">
+                            ' . csrf_field() . '
+                            ' . method_field('POST') . '
+                            <button data-content="' . __($statusButtonText) . '" 
+                                    data-toggle="popover" 
+                                    data-trigger="hover" 
+                                    data-placement="top" 
+                                    class="action-btn ' . $statusButtonClass . '">
+                                <i class="fas ' . $statusButtonIcon . '"></i>
+                            </button>
+                        </form>
+                    </div>
                 ';
             })
-            ->rawColumns(['category', 'title', 'status', 'updated_at', "actions"])
+            ->rawColumns(['category', 'title', 'status', 'priority', 'updated_at', "actions"])
             ->make(true);
     }
 }
