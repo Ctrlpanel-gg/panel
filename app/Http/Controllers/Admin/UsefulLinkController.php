@@ -143,24 +143,27 @@ class UsefulLinkController extends Controller
         $query = UsefulLink::query();
 
         return datatables($query)
-            ->addColumn('actions', function (UsefulLink $link) {
-                return '
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.usefullinks.edit', $link->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
-
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.usefullinks.destroy', $link->id).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
-                ';
+            ->editColumn('icon', function (UsefulLink $link) {
+                return "<i class='{$link->icon} text-primary-400'></i>";
+            })
+            ->editColumn('link', function (UsefulLink $link) {
+                return '<a href="' . $link->link . '" target="_blank" class="text-accent-blue hover:text-accent-blue/80 transition-colors">' . $link->link . '</a>';
             })
             ->editColumn('created_at', function (UsefulLink $link) {
                 return $link->created_at ? $link->created_at->diffForHumans() : '';
             })
-            ->editColumn('icon', function (UsefulLink $link) {
-                return "<i class='{$link->icon}'></i>";
+            ->addColumn('actions', function (UsefulLink $link) {
+                return '
+                    <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.usefullinks.edit', $link->id) . '" class="action-btn warning"><i class="fas fa-eye"></i></a>
+                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.usefullinks.edit', $link->id) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.usefullinks.destroy', $link->id) . '">
+                        ' . csrf_field() . '
+                        ' . method_field('DELETE') . '
+                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    </form>
+                ';
             })
-            ->rawColumns(['actions', 'icon'])
+            ->rawColumns(['icon', 'link', 'actions'])
             ->make();
     }
 }

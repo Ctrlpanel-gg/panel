@@ -226,40 +226,43 @@ class VoucherController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Voucher $voucher) {
                 return '
-                            <a data-content="'.__('Users').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.users', $voucher->id).'" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-users"></i></a>
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.edit', $voucher->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.vouchers.destroy', $voucher->id).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                       </form>
+                    <a data-content="'.__('Users').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.users', $voucher->id).'" class="action-btn info"><i class="fas fa-users"></i></a>
+                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.edit', $voucher->id).'" class="action-btn primary"><i class="fas fa-pen"></i></a>
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.vouchers.destroy', $voucher->id).'">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    </form>
                 ';
             })
             ->addColumn('status', function (Voucher $voucher) {
-                $color = ($voucher->derived_status == 'VALID') ? 'success' : 'danger';
+                $statusMap = [
+                    'VALID' => 'success',
+                    'EXPIRED' => 'danger',
+                    'USES_LIMIT_REACHED' => 'warning'
+                ];
+                $color = $statusMap[$voucher->derived_status] ?? 'secondary';
                 $status = str_replace('_', ' ', $voucher->derived_status);
-
-                return '<span class="badge badge-'.$color.'">'.$status.'</span>';
+                
+                return '<span class="verified-status '.$color.'">'.$status.'</span>';
             })
             ->editColumn('uses', function (Voucher $voucher) {
                 return "{$voucher->used} / {$voucher->uses}";
             })
             ->editColumn('credits', function (Voucher $voucher) {
-                return number_format($voucher->credits, 2, '.', '');
+                return '<i class="mr-2 fas fa-coins"></i> ' . number_format($voucher->credits, 2, '.', '');
             })
             ->editColumn('expires_at', function (Voucher $voucher) {
                 if (! $voucher->expires_at) {
                     return __("Never");
                 }
-
                 return $voucher->expires_at ? $voucher->expires_at->diffForHumans() : __("Never");
             })
             ->editColumn('code', function (Voucher $voucher) {
-                return "<code>{$voucher->code}</code>";
+                return "<code class='bg-zinc-800/50 px-2 py-1 rounded text-primary-300'>{$voucher->code}</code>";
             })
             ->orderColumn('status', 'derived_status $1')
-            ->rawColumns(['actions', 'code', 'status'])
+            ->rawColumns(['actions', 'code', 'status', 'credits'])
             ->make();
     }
 }
