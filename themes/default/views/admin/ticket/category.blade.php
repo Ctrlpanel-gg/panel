@@ -16,148 +16,180 @@
                         </ol>
                     </nav>
                 </div>
+                <a href="#" onclick="event.preventDefault(); document.getElementById('createCategoryModal').classList.remove('hidden');" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>{{ __('Create new') }}
+                </a>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <div class="w-full">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Categories Table -->
-            <div class="lg:col-span-8">
-                <div class="glass-panel">
-                    <div class="p-6 border-b border-zinc-800/50">
-                        <h5 class="text-lg font-medium text-white flex items-center">
-                            <i class="fas fa-list mr-2 text-zinc-400"></i>
-                            {{__('Categories')}}
-                        </h5>
-                    </div>
-                    <div class="p-6">
-                        <table id="datatable" class="w-full">
-                            <thead>
-                                <tr class="text-left text-zinc-400">
-                                    <th class="px-2 py-3">{{__('ID')}}</th>
-                                    <th class="px-2 py-3">{{__('Name')}}</th>
-                                    <th class="px-2 py-3">{{__('Tickets')}}</th>
-                                    <th class="px-2 py-3">{{__('Created At')}}</th>
-                                    <th class="px-2 py-3">{{__('Actions')}}</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+        <div class="glass-panel">
+            <div class="p-6 border-b border-zinc-800/50">
+                <div class="flex justify-between items-center">
+                    <h5 class="text-lg font-medium text-white flex items-center">
+                        <i class="fas fa-tag mr-2 text-zinc-400"></i>
+                        {{ __('Categories') }}
+                    </h5>
                 </div>
             </div>
-
-            <!-- Category Forms -->
-            <div class="lg:col-span-4 space-y-8">
-                <!-- Add Category Form -->
-                <div class="glass-panel">
-                    <div class="p-6 border-b border-zinc-800/50">
-                        <h5 class="text-lg font-medium text-white flex items-center">
-                            <i class="fas fa-plus mr-2 text-zinc-400"></i>
-                            {{__('Add Category')}}
-                        </h5>
+            <div class="p-6 relative">
+                <div class="flex items-center justify-between mb-6">
+                    <!-- Custom Length Control -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-zinc-400">{{ __('Show') }}</span>
+                        <select id="datatable_length" class="bg-zinc-900/90 border border-zinc-800/50 text-zinc-300 rounded-lg py-1.5 px-3 pr-8 w-20 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all appearance-none cursor-pointer">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span class="text-sm text-zinc-400">{{ __('entries') }}</span>
                     </div>
-                    <div class="p-6">
-                        <form action="{{route('admin.ticket.category.store')}}" method="POST" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-zinc-400 mb-1">{{__("Name")}}</label>
-                                <input id="name" type="text" class="input" name="name" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-full">
-                                {{__('Submit')}}
-                            </button>
-                        </form>
+                    
+                    <!-- Custom Search Control -->
+                    <div class="relative">
+                        <input type="search" id="datatable_search" class="w-64 bg-zinc-900/90 border border-zinc-800/50 text-zinc-300 rounded-lg py-1.5 pl-8 pr-3 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder-zinc-600" placeholder="{{ __('Search...') }}">
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-zinc-500 text-sm"></i>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Edit Category Form -->
-                <div class="glass-panel">
-                    <div class="p-6 border-b border-zinc-800/50">
-                        <h5 class="text-lg font-medium text-white flex items-center">
-                            <i class="fas fa-edit mr-2 text-zinc-400"></i>
-                            {{__('Edit Category')}}
-                        </h5>
+                <div class="relative overflow-x-auto">
+                    <div id="custom-loader" style="display: none;">
+                        <div class="loader-container">
+                            <div class="loader"></div>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <form action="{{route('admin.ticket.category.update', '1')}}" method="POST" class="space-y-4">
-                            @csrf
-                            @method('PATCH')
-                            <div>
-                                <label for="category" class="block text-sm font-medium text-zinc-400 mb-1">{{__("Select Category")}}</label>
-                                <select id="category" class="input" name="category" required>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ __($category->name) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-zinc-400 mb-1">{{__("New Name")}}</label>
-                                <input id="name" type="text" class="input" name="name" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-full">
-                                {{__('Update')}}
-                            </button>
-                        </form>
-                    </div>
+                    <table id="datatable" class="w-full text-left">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-3">{{ __('Name') }}</th>
+                                <th class="px-4 py-3">{{ __('Tickets') }}</th>
+                                <th class="px-4 py-3">{{ __('Created at') }}</th>
+                                <th class="px-4 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-800/10">
+                        </tbody>
+                    </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Category Modal -->
+    <div id="createCategoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 w-96">
+            <div class="glass-panel p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-medium text-white">{{ __('Create Category') }}</h3>
+                    <button onclick="document.getElementById('createCategoryModal').classList.add('hidden')" class="text-zinc-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form method="POST" action="{{ route('admin.ticket.category.store') }}">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-zinc-400 mb-2" for="name">
+                            {{ __('Category Name') }}
+                        </label>
+                        <input type="text" name="name" id="name" required class="w-full bg-zinc-900/90 border border-zinc-800/50 text-zinc-300 rounded-lg py-2 px-3 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" placeholder="{{ __('Enter category name') }}">
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('createCategoryModal').classList.add('hidden')" class="btn btn-secondary">
+                            {{ __('Cancel') }}
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            {{ __('Create') }}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        $('#datatable').DataTable({
+    function submitResult() {
+        return confirm("{{ __('Are you sure you wish to delete?') }}") !== false;
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const tableContainer = document.querySelector('.overflow-x-auto');
+        const customLoader = document.getElementById('custom-loader');
+
+        const dataTable = $('#datatable').DataTable({
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{config("SETTINGS::LOCALE:DATATABLES")}}.json'
+                url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json',
+                paginate: {
+                    first: '<i class="fas fa-angle-double-left flex items-center justify-center w-full h-full"></i>',
+                    previous: '<i class="fas fa-angle-left flex items-center justify-center w-full h-full"></i>',
+                    next: '<i class="fas fa-angle-right flex items-center justify-center w-full h-full"></i>',
+                    last: '<i class="fas fa-angle-double-right flex items-center justify-center w-full h-full"></i>'
+                }
             },
-            processing: true,
+            processing: false,
             serverSide: true,
             stateSave: true,
-            ajax: "{{route('admin.ticket.category.datatable')}}",
+            ajax: {
+                url: "{{ route('admin.ticket.category.datatable') }}",
+                beforeSend: function() {
+                    customLoader.style.display = 'flex';
+                },
+                complete: function() {
+                    customLoader.style.display = 'none';
+                }
+            },
+            order: [[2, "desc"]],
             columns: [
-                {data: 'id'},
-                {data: 'name'},
-                {data: 'tickets'},
-                {data: 'created_at', sortable: false},
-                {data: 'actions', sortable: false},
+                { data: 'name' },
+                { data: 'tickets' },
+                { data: 'created_at' },
+                { data: 'actions', sortable: false }
             ],
-            fnDrawCallback: function( oSettings ) {
-                $('[data-toggle="popover"]').popover();
+            fnDrawCallback: function(oSettings) {
+                $('[data-toggle="popover"]').popover({
+                    trigger: 'hover',
+                    placement: 'top'
+                });
+                $('.dataTables_processing').hide();
+            },
+            dom: 'rtp',
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            pagingType: "full_numbers",
+            drawCallback: function() {
+                $('.dataTables_processing').hide();
+                $('[data-toggle="popover"]').popover({
+                    trigger: 'hover',
+                    placement: 'top',
+                    html: true,
+                    template: '<div class="popover custom-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
+                });
             }
         });
 
-        // Initialize Select2
-        $('.input[name="category"]').select2({
-            theme: 'default select2-dark',
-            containerCssClass: 'select2-dark',
-            dropdownCssClass: 'select2-dark',
+        // Custom search functionality
+        const customSearch = document.getElementById('datatable_search');
+        customSearch.addEventListener('input', function() {
+            dataTable.search(this.value).draw();
         });
+
+        // Custom entries functionality
+        const customEntries = document.getElementById('datatable_length');
+        customEntries.addEventListener('change', function() {
+            dataTable.page.len(this.value).draw();
+        });
+
+        // Also show loading on search, pagination, and length change
+        $('#datatable').on('page.dt length.dt search.dt', function() {
+            customLoader.style.display = 'flex';
+        });
+
+        // Ensure default processing div is hidden via CSS
+        $('<style>.dataTables_processing { display: none !important; }</style>').appendTo('head');
     });
 </script>
-
-<style>
-    /* Dark theme for Select2 */
-    .select2-dark {
-        @apply bg-primary-950 border-primary-800 text-white;
-    }
-    .select2-container--default .select2-dark .select2-selection--single {
-        @apply bg-primary-950 border-primary-800 text-white;
-    }
-    .select2-container--default .select2-dark .select2-selection__rendered {
-        @apply text-white;
-    }
-    .select2-dropdown {
-        @apply bg-primary-900 border-primary-800;
-    }
-    .select2-container--default .select2-results__option[aria-selected=true] {
-        @apply bg-primary-800;
-    }
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        @apply bg-primary-700;
-    }
-</style>
 @endsection
