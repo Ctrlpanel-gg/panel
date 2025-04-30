@@ -536,7 +536,7 @@
             @include('models.redeem_voucher_modal')
         </div>
         <!-- /.content-wrapper -->
-        <footer class="bg-zinc-900/50 border-t border-zinc-800/50 p-4 mt-auto">
+        <footer class="main-footer bg-zinc-900/50 border-t border-zinc-800/50 p-4 mt-auto">
             <div class="w-full flex flex-wrap justify-between items-center text-sm text-zinc-400">
                 <div>
                     <strong>Copyright &copy; 2021-{{ date('Y') }} 

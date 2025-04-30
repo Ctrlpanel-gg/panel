@@ -4,7 +4,6 @@
 @plugin "flowbite-typography";
 @import url("https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700&display=swap");
 
-
 @layer base {
     html {
         @apply antialiased;
@@ -91,6 +90,15 @@
 
     .card-body {
         @apply p-6;
+    }
+
+    /* Footer styling for sidebar collapse adjustment */
+    .main-footer {
+        transition: margin-left 0.3s ease-in-out;
+    }
+
+    .sidebar-mini.sidebar-collapse .main-footer {
+        margin-left: 4.6rem;
     }
 
     /* Stats Components */
@@ -273,6 +281,7 @@
     .table-responsive::-webkit-scrollbar-thumb {
         @apply bg-zinc-700 rounded-full hover:bg-zinc-600 transition-colors;
     }
+
 
     /* DataTables Specific Controls */
     .dataTables_length,

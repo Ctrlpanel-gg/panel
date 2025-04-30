@@ -29,6 +29,7 @@ export default defineConfig({
         alias: {
             "@": "/themes/default/js",
             "~bootstrap": path.resolve("node_modules/bootstrap"),
+            "~select2-theme": path.resolve("node_modules/select2-tailwindcss-theme/dist"),
         },
     },
     optimizeDeps: {
