@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Products') }}</h1>
                 </div>
@@ -47,7 +47,7 @@
                             </div>
                             <div class="card-body">
 
-                                <div class="d-flex flex-row-reverse">
+                                <div class="flex-row-reverse d-flex">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" @if ($product->disabled) checked @endif
                                             name="disabled" class="custom-control-input custom-control-input-danger"
@@ -76,7 +76,7 @@
 
                                         <div class="form-group">
                                             <label for="price">{{ __('Price in') }} {{ $credits_display_name }}</label>
-                                            <input value="{{ $product->price }}" id="price" name="price"
+                                            <input value="{{ Currency::formatForForm($product->price) }}" id="price" name="price"
                                                 type="number" step=".0001"
                                                 class="form-control @error('price') is-invalid @enderror"
                                                 required="required">
@@ -215,12 +215,11 @@
                                         <div class="form-group">
                                             <label for="minimum_credits">{{ __('Minimum') }} {{ $credits_display_name }}
                                                 <i data-toggle="popover" data-trigger="hover"
-                                                    data-content="{{ __('Setting to -1 will use the value from configuration.') }}"
+                                                    data-content="{{ __('Setting to empty will use the value from configuration.') }}"
                                                     class="fas fa-info-circle"></i></label>
-                                            <input value="{{ $product->minimum_credits }}" id="minimum_credits"
+                                            <input value="{{ $product->minimum_credits ? Currency::formatForForm($product->minimum_credits) : null }}" id="minimum_credits"
                                                 name="minimum_credits" type="number"
-                                                class="form-control @error('minimum_credits') is-invalid @enderror"
-                                                required="required">
+                                                class="form-control @error('minimum_credits') is-invalid @enderror">
                                             @error('minimum_credits')
                                                 <div class="invalid-feedback">
                                                     {{ $message }}
@@ -265,7 +264,7 @@
                                       <div class="form-group">
                                         <label for="serverlimit">{{ __('Serverlimit') }}</label>
                                         <i data-toggle="popover" data-trigger="hover"
-                                           data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}
+                                           data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}"
                                            class="fas fa-info-circle"></i>
                                         <input value="{{ $product->serverlimit ??  0 }}"
                                                id="serverlimit" name="serverlimit" type="number"
@@ -280,7 +279,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group text-right">
+                                <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('Submit') }}
                                     </button>
@@ -326,11 +325,11 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="mb-2 d-flex justify-content-between align-items-center">
                                         <label for="eggs" class="mb-0">{{ __('Eggs') }}</label>
                                         <div>
                                             <button type="button" id="select-all-eggs" class="btn btn-sm btn-secondary">{{ __('Select All') }}</button>
-                                            <button type="button" id="deselect-all-eggs" class="btn btn-sm btn-secondary ml-2">{{ __('Deselect All') }}</button>
+                                            <button type="button" id="deselect-all-eggs" class="ml-2 btn btn-sm btn-secondary">{{ __('Deselect All') }}</button>
                                         </div>
                                     </div>
                                     <select id="eggs" style="width:100%"

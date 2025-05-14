@@ -214,6 +214,7 @@ return [
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
         App\Providers\SettingsServiceProvider::class,
         App\Providers\ExtensionServiceProvider::class,
+        App\Providers\CurrencyServiceProvider::class,
     ],
 
     /*
@@ -228,6 +229,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        'Currency' => App\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
     ])->toArray(),
 

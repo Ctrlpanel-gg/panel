@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Servers') }}</h1>
                 </div>
@@ -26,40 +26,40 @@
         <div class="container-fluid">
 
             <!-- CUSTOM CONTENT -->
-            <div class="d-flex justify-content-md-start justify-content-center mb-3 ">
+            <div class="mb-3 d-flex justify-content-md-start justify-content-center ">
                 <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled="disabled" title="Server limit reached!" @endif
                    @cannot("user.server.create") disabled="disabled" title="No Permission!" @endcannot
                     href="{{ route('servers.create') }}" class="btn
                     @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled @endif
                     @cannot("user.server.create") disabled @endcannot
                     btn-primary">
-                    <i class="fa fa-plus mr-2"></i>
+                    <i class="mr-2 fa fa-plus"></i>
                     {{ __('Create Server') }}
                 </a>
                 @if (Auth::user()->Servers->count() > 0 && !empty($phpmyadmin_url))
                     <a
                         href="{{ $phpmyadmin_url }}" target="_blank"
-                        class="btn btn-secondary ml-2"><i title="manage"
-                        class="fas fa-database mr-2"></i><span>{{ __('Database') }}</span>
+                        class="ml-2 btn btn-secondary"><i title="manage"
+                        class="mr-2 fas fa-database"></i><span>{{ __('Database') }}</span>
                     </a>
                 @endif
             </div>
 
-            <div class="row d-flex flex-row justify-content-center justify-content-md-start">
+            <div class="flex-row row d-flex justify-content-center justify-content-md-start">
                 @foreach ($servers as $server)
                  @if($server->location && $server->node && $server->nest && $server->egg)
-                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card pr-0 pl-0 ml-sm-2 mr-sm-3"
+                    <div class="pl-0 pr-0 col-xl-3 col-lg-5 col-md-6 col-sm-6 col-xs-12 card ml-sm-2 mr-sm-3"
                         style="max-width: 350px">
                         <div class="card-header">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mt-1">{{ $server->name }}</h5>
+                                <h5 class="mt-1 card-title">{{ $server->name }}</h5>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="container mt-1">
-                                <div class="row mb-3">
-                                    <div class="col my-auto">{{ __('Status') }}:</div>
-                                    <div class="col-7 my-auto">
+                                <div class="mb-3 row">
+                                    <div class="my-auto col">{{ __('Status') }}:</div>
+                                    <div class="my-auto col-7">
                                         @if($server->suspended)
                                             <span class="badge badge-danger">{{ __('Suspended') }}</span>
                                         @elseif($server->canceled)
@@ -69,7 +69,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="row mb-2">
+                                <div class="mb-2 row">
                                     <div class="col-5">
                                         {{ __('Location') }}:
                                     </div>
@@ -81,7 +81,7 @@
                                     </div>
 
                                 </div>
-                                <div class="row mb-2">
+                                <div class="mb-2 row">
                                     <div class="col-5 ">
                                         {{ __('Software') }}:
                                     </div>
@@ -90,7 +90,7 @@
                                     </div>
 
                                 </div>
-                                <div class="row mb-2">
+                                <div class="mb-2 row">
                                     <div class="col-5 ">
                                         {{ __('Specification') }}:
                                     </div>
@@ -98,7 +98,7 @@
                                         <span>{{ $server->egg }}</span>
                                     </div>
                                 </div>
-                                <div class="row mb-2">
+                                <div class="mb-2 row">
                                     <div class="col-5 ">
                                         {{ __('Resource plan') }}:
                                     </div>
@@ -111,7 +111,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-4 ">
+                                <div class="mb-4 row ">
                                     <div class="col-5 word-break" style="hyphens: auto">
                                         {{ __('Next Billing Cycle') }}:
                                     </div>
@@ -150,14 +150,14 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-2">
+                                <div class="mb-2 row">
                                     <div class="col-4">
                                         {{ __('Price') }}:
                                         <span class="text-muted">
                                             ({{ $credits_display_name }})
                                         </span>
                                     </div>
-                                    <div class="col-8 text-center">
+                                    <div class="text-center col-8">
                                         <div class="text-muted">
                                         @if($server->product->billing_period == 'monthly')
                                             {{ __('per Month') }}
@@ -175,39 +175,39 @@
                                             {{ __('per Hour') }}
                                         @endif
                                             <i data-toggle="popover" data-trigger="hover"
-                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . number_format($server->product->getMonthlyPrice(),2,",",".") . " ". $credits_display_name . " ". __('per Month')}}"
+                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . Currency::formatForDisplay($server->product->getMonthlyPrice()) . " ". $credits_display_name . " ". __('per Month')}}"
                                                class="fas fa-info-circle"></i>
                                             </div>
                                         <span>
-                                            {{ $server->product->price == round($server->product->price) ? round($server->product->price) : $server->product->price }}
+                                            {{ $server->product->display_price }}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="card-footer text-center">
+                        <div class="text-center card-footer">
                             <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
                                 target="__blank"
-                                class="btn btn-info text-center float-left ml-2"
+                                class="float-left ml-2 text-center btn btn-info"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
-                                <i class="fas fa-tools mx-2"></i>
+                                <i class="mx-2 fas fa-tools"></i>
                             </a>
                             <a href="{{ route('servers.show', ['server' => $server->id])}}"
-                            	class="btn btn-info text-center mr-3"
+                            	class="mr-3 text-center btn btn-info"
                             	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
-                                <i class="fas fa-cog mx-2"></i>
+                                <i class="mx-2 fas fa-cog"></i>
                             </a>
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
-                                class="btn btn-warning  text-center"
+                                class="text-center btn btn-warning"
                                 {{ $server->suspended || $server->canceled ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
-                                <i class="fas fa-ban mx-2"></i>
+                                <i class="mx-2 fas fa-ban"></i>
                             </button>
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
-                                class="btn btn-danger  text-center float-right mr-2"
+                                class="float-right mr-2 text-center btn btn-danger"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
-                                <i class="fas fa-trash mx-2"></i>
+                                <i class="mx-2 fas fa-trash"></i>
                             </button>
                         </div>
                     </div>

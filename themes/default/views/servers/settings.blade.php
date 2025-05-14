@@ -151,7 +151,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                      {{ number_format($server->product->getHourlyPrice(), 2, '.', '') }}
+                                      {{ Currency::formatForDisplay($server->product->getHourlyPrice()) }}
                                     </span>
                                 </div>
                             </div>
@@ -163,7 +163,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                      {{ $server->product->getHourlyPrice() * 24 * 30 }}
+                                      {{ Currency::formatForDisplay($server->product->getMonthlyPrice()) }}
                                     </span>
                                 </div>
                             </div>
@@ -261,8 +261,8 @@
                                             <option value="">{{__("Select the product")}}</option>
                                               @foreach($products as $product)
                                                   @if($product->id != $server->product->id && $product->disabled == false)
-                                                    <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ $credits_display_name }} {{ $product->price }} @if($product->doesNotFit)] {{__('Server can´t fit on this node')}} @else @if($product->minimum_credits!=-1) /
-                                                        {{__("Required")}}: {{$product->minimum_credits}} {{ $credits_display_name }}@endif ] @endif</option>
+                                                    <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ $credits_display_name }} {{ $product->display_price }} @if($product->doesNotFit)] {{__('Server can´t fit on this node')}} @else @if($product->minimum_credits != null) /
+                                                        {{__("Required")}}: {{$product->display_minimum_credits}} {{ $credits_display_name }}@endif ] @endif</option>
                                                   @endif
                                               @endforeach
                                           </select>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\ShopProduct;
 use App\Settings\GeneralSettings;
@@ -182,8 +183,8 @@ class ShopProductController extends Controller
             ->editColumn('created_at', function (ShopProduct $shopProduct) {
                 return $shopProduct->created_at ? $shopProduct->created_at->diffForHumans() : '';
             })
-            ->editColumn('price', function (ShopProduct $shopProduct) {
-                return $shopProduct->formatToCurrency($shopProduct->price);
+            ->editColumn('price', function (ShopProduct $shopProduct, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatToCurrency($shopProduct->price, $shopProduct->currency_code);
             })
             ->rawColumns(['actions', 'disabled'])
             ->make();

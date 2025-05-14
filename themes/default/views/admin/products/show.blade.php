@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="mr-1 fas fa-coins"></i>{{ $product->price }}
+                                        <i class="mr-1 fas fa-coins"></i>{{ Currency::formatForDisplay($product->price) }}
                                     </span>
                                 </div>
                             </div>
@@ -91,11 +91,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        @if ($product->minimum_credits == -1)
-                                            <i class="mr-1 fas fa-coins"></i>{{ $minimum_credits }}
-                                        @else
-                                            <i class="mr-1 fas fa-coins"></i>{{ $product->minimum_credits }}
-                                        @endif
+                                        <i class="mr-1 fas fa-coins"></i>{{ !$product->minimum_credits ? Currency::formatForDisplay($minimum_credits) : $product->display_minimum_credits }}
                                     </span>
                                 </div>
                             </div>

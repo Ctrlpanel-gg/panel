@@ -2,14 +2,13 @@
 
 namespace App\Extensions\PaymentGateways\MercadoPago;
 
-use App\Classes\AbstractExtension;
+use App\Classes\PaymentExtension;
 use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
-use App\Traits\Coupon as CouponTrait;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,10 +23,8 @@ use Illuminate\Http\RedirectResponse;
 /**
  * Summary of MercadoPagoExtension
  */
-class MercadoPagoExtension extends AbstractExtension
+class MercadoPagoExtension extends PaymentExtension
 {
-    use CouponTrait;
-
     public static function getConfig(): array
     {
         return [
@@ -38,7 +35,7 @@ class MercadoPagoExtension extends AbstractExtension
         ];
     }
 
-    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
         /**
          * For Mercado Pago to work correctly,
@@ -48,6 +45,9 @@ class MercadoPagoExtension extends AbstractExtension
         if (!str_contains(config('app.url'), 'https://')) {
             throw new Exception(__('It is not possible to purchase via MercadoPago: APP_URL does not have HTTPS, required by Mercado Pago.'));
         }
+
+        // Converts from cents to decimal places.
+        $totalPrice = $totalPrice / 1000;
 
         $user = Auth::user();
         $user = User::findOrFail($user->id);
@@ -72,7 +72,7 @@ class MercadoPagoExtension extends AbstractExtension
                     [
                         'title' => "Order #{$payment->id} - " . $shopProduct->name,
                         'quantity' => 1,
-                        'unit_price' => floatval($totalPriceString),
+                        'unit_price' => $totalPrice,
                         'currency_id' => $shopProduct->currency_code,
                     ],
                 ],

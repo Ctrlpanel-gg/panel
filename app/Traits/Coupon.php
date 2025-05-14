@@ -49,7 +49,7 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->price) {
+            if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->getTotalPrice()) {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('The coupon you are trying to use would give you 100% off, so it cannot be used for this product, sorry.')
@@ -88,14 +88,14 @@ trait Coupon
             return false;
         }
 
-        if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->price) {
+        if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->getTotalPrice()) {
             return false;
         }
 
         return true;
     }
 
-    public function applyCoupon(string $couponCode, float $price)
+    public function applyCoupon(string $couponCode, int $price)
     {
         $coupon = CouponModel::where('code', $couponCode)->first();
 

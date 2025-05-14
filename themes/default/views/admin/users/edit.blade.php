@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Users')}}</h1>
                 </div>
@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="credits">{{ $credits_display_name }}</label>
-                                    <input value="{{$user->credits}}" id="credits" name="credits" step="any" min="0"
+                                    <input value="{{ Currency::formatForForm($user->credits) }}" id="credits" name="credits" step="any" min="0"
                                            max="99999999"
                                            type="number" class="form-control @error('credits') is-invalid @enderror"
                                            required="required">
@@ -124,7 +124,7 @@
                                 </div>
                                 @enderror
 
-                                <div class="form-group text-right">
+                                <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>
 

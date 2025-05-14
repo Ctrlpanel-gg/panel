@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Nest;
@@ -82,7 +83,7 @@ class ProductController extends Controller
             'swap' => 'required|numeric|max:1000000|min:0',
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
-            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'minimum_credits' => 'nullable|numeric|max:1000000',
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'databases' => 'required|numeric|max:1000000|min:0',
@@ -160,7 +161,7 @@ class ProductController extends Controller
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
             'io' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'minimum_credits' => 'nullable|numeric|max:1000000',
             'databases' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
@@ -266,8 +267,11 @@ class ProductController extends Controller
                     </form>
                 ';
             })
-            ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
-                return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
+            ->editColumn('price', function (Product $product, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatForDisplay($product->price);
+            })
+            ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings, CurrencyHelper $currencyHelper) {
+                return $product->minimum_credits ? $currencyHelper->formatForDisplay($product->minimum_credits) : $currencyHelper->formatForDisplay($user_settings->min_credits_to_make_server);
             })
             ->editColumn('serverlimit', function (Product $product) {
                 return $product->serverlimit == 0 ? "∞" : $product->serverlimit;

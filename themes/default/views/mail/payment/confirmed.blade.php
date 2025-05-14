@@ -6,7 +6,7 @@
 ___
 ### {{__('Payment ID')}}: **{{$payment->id}}**<br>
 ### {{__('Status')}}:     **{{$payment->status}}**<br>
-### {{__('Price')}}:      **{{$payment->formatToCurrency($payment->total_price)}}**<br>
+### {{__('Price')}}:      **{{Currency::formatToCurrency($payment->total_price, $payment->currency_code)}}**<br>
 ### {{__('Type')}}:       **{{$payment->type}}**<br>
 ### {{__('Amount')}}:     **{{$payment->amount}}**<br>
 ### {{__('Balance')}}:    **{{$payment->user->credits}}**<br>

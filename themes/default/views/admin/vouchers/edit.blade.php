@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Vouchers')}}</h1>
                 </div>
@@ -32,7 +32,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">
-                                <i class="fas fa-money-check-alt mr-2"></i>{{__('Voucher details')}}
+                                <i class="mr-2 fas fa-money-check-alt"></i>{{__('Voucher details')}}
                             </h5>
                         </div>
                         <div class="card-body">
@@ -56,7 +56,7 @@
 
                                 <div class="form-group">
                                     <label for="credits">{{ $credits_display_name }} *</label>
-                                    <input value="{{$voucher->credits}}" placeholder="500" id="credits" name="credits"
+                                    <input value="{{ Currency::formatForForm($voucher->credits) }}" placeholder="500" id="credits" name="credits"
                                            type="number" step="any" min="0" max="99999999"
                                            class="form-control @error('credits') is-invalid @enderror">
                                     @error('credits')
@@ -107,7 +107,7 @@
                                     @enderror
                                 </div>
 
-                                <div class="form-group mb-3">
+                                <div class="mb-3 form-group">
                                     <label for="expires_at">{{__('Expires at')}} <i data-toggle="popover"
                                                                                     data-trigger="hover"
                                                                                     data-content="Timezone: {{ Config::get('app.timezone') }}"
@@ -131,7 +131,7 @@
                                 </div>
 
 
-                                <div class="form-group text-right">
+                                <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">
                                         {{__('Submit')}}
                                     </button>

@@ -82,7 +82,7 @@
                     <a class="px-2 nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                         <span class="mr-1 text-gray-600 d-lg-inline">
-                            <small><i class="mr-2 fas fa-coins"></i></small>{{ Auth::user()->credits() }}
+                            <small><i class="mr-2 fas fa-coins"></i></small>{{ Currency::formatForDisplay(Auth::user()->credits) }}
                         </span>
                     </a>
                     <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
@@ -516,6 +516,16 @@
                 }
             });
         });
+
+        $(document).on('alpine:init', () => {
+            Alpine.magic('currency', () => {
+                return {
+                    format: (amount) => {
+                        return (amount / 1000);
+                    },
+                }
+            });
+        })
     </script>
     <script>
         @if (Session::has('error'))
