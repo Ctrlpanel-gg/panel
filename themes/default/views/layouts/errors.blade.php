@@ -757,7 +757,7 @@
     }
 
     .home-btn {
-      @apply action-btn info;
+      @apply action-btn glow-border info;
       font-size: 1rem;
       padding: 0.75rem 2rem;
       text-decoration: none;

@@ -146,16 +146,16 @@ class TicketsController extends Controller
 
                 return '
                     <div class="flex items-center gap-2">
-                        <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="action-btn info"><i class="fas fa-eye"></i></a>
+                        <a data-content="'.__('View').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'" class="action-btn glow-border info"><i class="fas fa-eye"></i></a>
                         <form class="d-inline" method="post" action="'.route('admin.ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]).'">
                             '.csrf_field().'
                             '.method_field('POST').'
-                            <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn '.$statusButtonColor.'"><i class="fas '.$statusButtonIcon.'"></i></button>
+                            <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-border '.$statusButtonColor.'"><i class="fas '.$statusButtonIcon.'"></i></button>
                         </form>
                         <form class="d-inline" method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                             '.csrf_field().'
                             '.method_field('POST').'
-                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-borderglow-border danger  proximity-pulse"><i class="fas fa-trash"></i></button>
                         </form>
                     </div>
                 ';
@@ -303,14 +303,14 @@ class TicketsController extends Controller
                         <form class="d-inline" method="post" action="'.route('admin.ticket.blacklist.change', ['id' => $blacklist->id]).'">
                             '.csrf_field().'
                             '.method_field('POST').'
-                            <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn warning">
+                            <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-border warning">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </form>
                         <form class="d-inline" method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
                             '.csrf_field().'
                             '.method_field('POST').'
-                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger">
+                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-borderglow-border danger  proximity-pulse">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>

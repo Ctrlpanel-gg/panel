@@ -246,7 +246,7 @@ class PaymentController extends Controller
                 $invoice = Invoice::where('payment_id', '=', $payment->payment_id)->first();
 
                 if ($invoice && File::exists(storage_path('app/invoice/' . $invoice->invoice_user . '/' . $invoice->created_at->format('Y') . '/' . $invoice->invoice_name . '.pdf'))) {
-                    return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="action-btn info"><i class="fas fa-file-download"></i></a>';
+                    return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="action-btn glow-border info"><i class="fas fa-file-download"></i></a>';
                 }
                 
                 return '';

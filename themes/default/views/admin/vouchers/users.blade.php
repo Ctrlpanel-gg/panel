@@ -62,7 +62,7 @@
                                 <div class="loader"></div>
                             </div>
                         </div>
-                        <table id="datatable" class="w-full text-left">
+                        <table id="datatable" class="text-left">
                             <thead class="text-xs uppercase text-zinc-400 bg-zinc-800/50">
                                 <tr>
                                     <th class="px-4 py-3">{{__('ID')}}</th>
@@ -98,7 +98,7 @@
                         last: '<i class="fas fa-angle-double-right flex items-center justify-center w-full h-full"></i>'
                     }
                 },
-                processing: false,
+                scrollX: true, processing: false,
                 serverSide: true,
                 stateSave: true,
                 ajax: {

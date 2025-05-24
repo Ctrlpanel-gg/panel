@@ -73,7 +73,21 @@
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-zinc-400">{{ __('Resource plan') }}</span>
-                                    <span class="text-white">{{ $server->product->name }}</span>
+                                    <span class="text-white flex items-center gap-2">
+                                        {{ $server->product->name }}
+                                        <i class="fas fa-info-circle cursor-help" 
+                                           data-toggle="popover" 
+                                           data-trigger="hover" 
+                                           data-html="true"
+                                           data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>
+                                           {{ __('RAM') }}: {{ $server->product->memory }} MB <br/>
+                                           {{ __('Disk') }}: {{ $server->product->disk }} MB <br/>
+                                           {{ __('Backups') }}: {{ $server->product->backups }} <br/>
+                                           {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/>
+                                           {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>
+                                           {{ __('OOM Killer') }}: {{ $server->product->oom_killer ? __('enabled') : __('disabled') }} <br/>
+                                           {{ __('Billing Period') }}: {{$server->product->billing_period}}"></i>
+                                    </span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-zinc-400">{{ __('Next Billing Cycle') }}</span>
@@ -110,37 +124,56 @@
                                     </span>
                                 </div>
                                 <div class="flex justify-between items-center">
-                                    <span class="text-zinc-400">{{ __('Price') }}</span>
-                                    <span class="text-white">
+                                    <span class="text-zinc-400">
+                                        {{ __('Price') }} ({{ $credits_display_name }})
+                                    </span>
+                                    <span class="text-white flex items-center gap-2">
                                         {{ $server->product->price == round($server->product->price) ? round($server->product->price) : $server->product->price }}
+                                        <span class="text-zinc-400 text-sm">
+                                            {{ __('per') }} 
+                                            @switch($server->product->billing_period)
+                                                @case('monthly'){{ __('Month') }}@break
+                                                @case('weekly'){{ __('Week') }}@break
+                                                @case('daily'){{ __('Day') }}@break
+                                                @case('hourly'){{ __('Hour') }}@break
+                                                @case('quarterly'){{ __('3 Months') }}@break
+                                                @case('half-annually'){{ __('6 Months') }}@break
+                                                @case('annually'){{ __('Year') }}@break
+                                                @default{{ __('Unknown') }}
+                                            @endswitch
+                                            <i class="fas fa-info-circle cursor-help ml-1"
+                                               data-toggle="popover"
+                                               data-trigger="hover"
+                                               data-content="{{ __('Your') }} {{ $credits_display_name }} {{ __('are reduced') }} {{ $server->product->billing_period }}. {{ __('This however calculates to ') }} {{ number_format($server->product->getMonthlyPrice(),2,',','.') }} {{ $credits_display_name }} {{ __('per Month') }}"></i>
+                                        </span>
                                     </span>
                                 </div>
                             </div>
 
                             <!-- Actions -->
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-2 gap-2 mt-4">
                                 <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}"
                                    target="_blank"
-                                   class="action-btn">
+                                   class="action-btn glow-border">
                                     <i class="fas fa-tools"></i>
                                     <span class="hidden sm:inline-block px-1">{{ __('Console') }}</span>
                                 </a>
                                 
                                 <a href="{{ route('servers.show', ['server' => $server->id])}}"
-                                   class="action-btn">
+                                   class="action-btn glow-border">
                                     <i class="fas fa-cog"></i>
                                     <span class="hidden sm:inline-block px-1">{{ __('Settings') }}</span>
                                 </a>
 
                                 <button onclick="handleServerCancel('{{ $server->id }}');"
-                                        class="action-btn warning"
+                                        class="action-btn glow-border warning"
                                         {{ $server->suspended || $server->canceled ? "disabled" : "" }}>
                                     <i class="fas fa-ban"></i>
                                     <span class="hidden sm:inline-block px-1">{{ __('Cancel') }}</span>
                                 </button>
 
                                 <button onclick="handleServerDelete('{{ $server->id }}');"
-                                        class="action-btn danger">
+                                        class="action-btn glow-borderglow-border danger  proximity-pulse">
                                     <i class="fas fa-trash"></i>
                                     <span class="hidden sm:inline-block px-1">{{ __('Delete') }}</span>
                                 </button>

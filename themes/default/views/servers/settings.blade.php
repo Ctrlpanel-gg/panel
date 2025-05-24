@@ -161,13 +161,11 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col gap-4 mt-6 sm:mt-8 pt-6 border-t border-zinc-800/50">
-                    @if($server_enable_upgrade && Auth::user()->can("user.server.upgrade"))
-                        <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}"
-                            class="btn btn-primary w-full">
-                            <i class="fas fa-upload mr-2"></i>
-                            {{ __('Upgrade / Downgrade') }}
-                        </button>
-                    @endif
+                    <button type="button" data-toggle="modal" data-target="#UpgradeModal{{ $server->id }}"
+                        class="btn btn-primary w-full">
+                        <i class="fas fa-upload mr-2"></i>
+                        {{ __('Upgrade / Downgrade') }}
+                    </button>
 
                     <button type="button" data-toggle="modal" data-target="#DeleteModal"
                         class="btn bg-red-500/10 text-red-400 hover:bg-red-500/20 w-full">
@@ -181,53 +179,59 @@
 
     <!-- Modals -->
     <!-- Upgrade Modal -->
-    @if($server_enable_upgrade && Auth::user()->can("user.server.upgrade"))
-        <div class="modal fade" id="UpgradeModal{{ $server->id }}" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div x-data class="modal-content w-full max-w-lg mx-auto">
-                    <div class="modal-header card-header">
-                        <h5 class="modal-title">{{__("Upgrade/Downgrade Server")}}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body card-body">
-                        <strong>{{__("Current Product")}}: </strong> {{ $server->product->name }}
-                        <br>
-                        <br>
+    <div class="modal fade" id="UpgradeModal{{ $server->id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div x-data class="modal-content bg-primary-950 text-white w-full max-w-lg mx-auto">
+                <div class="modal-header card-header">
+                    <h5 class="modal-title">{{__("Upgrade/Downgrade Server")}}</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body card-body">
+                    <strong>{{__("Current Product")}}: </strong> {{ $server->product->name }}
+                    <br>
+                    <br>
 
                     <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST" class="upgrade-form">
-                      @csrf
-                          <select x-on:change="$el.value ? $refs.upgradeSubmit.disabled = false : $refs.upgradeSubmit.disabled = true" name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
+                        @csrf
+                        <select x-on:change="$el.value ? $refs.upgradeSubmit.disabled = false : $refs.upgradeSubmit.disabled = true" name="product_upgrade" id="product_upgrade" class="form-input2 form-control bg-primary-900 text-white select2">
                             <option value="">{{__("Select the product")}}</option>
-                              @foreach($products as $product)
-                                  @if($product->id != $server->product->id && $product->disabled == false)
+                            @foreach($products as $product)
+                                @if($product->id != $server->product->id && $product->disabled == false)
                                     <option value="{{ $product->id }}" @if($product->doesNotFit)disabled @endif>{{ $product->name }} [ {{ $credits_display_name }} {{ $product->price }} @if($product->doesNotFit)] {{__('Server can´t fit on this node')}} @else @if($product->minimum_credits!=-1) /
                                         {{__("Required")}}: {{$product->minimum_credits}} {{ $credits_display_name }}@endif ] @endif</option>
-                                  @endif
-                              @endforeach
-                          </select>
+                                @endif
+                            @endforeach
+                        </select>
 
-                          <br> <strong>{{__("Caution") }}:</strong> {{__("Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed")}}. <br>
-                          <br> {{__("Server will be automatically restarted once upgraded")}}
-                      </div>
-                      <div class="modal-footer card-body">
-                          <button x-ref="upgradeSubmit" type="submit" class="btn btn-primary upgrade-once" style="width: 100%" disabled><strong>{{__("Change Product")}}</strong></button>
-                      </div>
-                      <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <br> <strong>{{__("Caution") }}:</strong> {{__("Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed")}}. <br>
+                        <br> {{__("Server will be automatically restarted once upgraded")}}
+                    </div>
+                    <div class="modal-footer card-body">
+                        <button x-ref="upgradeSubmit" type="submit" class="btn btn-primary upgrade-once w-full" disabled><strong>{{__("Change Product")}}</strong></button>
+                    </div>
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     </form>
-                </div>
             </div>
         </div>
-    @endif
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('.select2').select2({
+                theme: 'bootstrap4'
+            });
+        });
+    </script>
 
     <!-- Delete Modal -->
     <div class="modal fade" id="DeleteModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content w-full max-w-lg mx-auto">
+            <div class="modal-content bg-primary-950 text-white w-full max-w-lg mx-auto">
                 <div class="modal-header">
                     <h5 class="modal-title" id="DeleteModalLabel">{{__("Delete Server")}}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>

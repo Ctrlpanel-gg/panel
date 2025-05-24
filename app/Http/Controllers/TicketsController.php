@@ -235,7 +235,7 @@ class TicketsController extends Controller
                     <div class="flex gap-2">
                         <a data-content="' . __('View') . '" data-toggle="popover" data-trigger="hover" data-placement="top" 
                            href="' . route('ticket.show', ['ticket_id' => $tickets->ticket_id]) . '" 
-                           class="action-btn info">
+                           class="action-btn glow-border info">
                            <i class="fas fa-eye"></i>
                         </a>
                         <form class="d-inline" method="post" action="' . route('ticket.changeStatus', ['ticket_id' => $tickets->ticket_id]) . '">
@@ -245,7 +245,7 @@ class TicketsController extends Controller
                                     data-toggle="popover" 
                                     data-trigger="hover" 
                                     data-placement="top" 
-                                    class="action-btn ' . $statusButtonClass . '">
+                                    class="action-btn glow-border ' . $statusButtonClass . '">
                                 <i class="fas ' . $statusButtonIcon . '"></i>
                             </button>
                         </form>

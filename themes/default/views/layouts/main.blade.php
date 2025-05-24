@@ -90,431 +90,20 @@
         }
     </style>
     @vite('themes/default/sass/app.scss')
-    @vite('themes/default/css/app.css')
+    @vite('themes/default/css/select2.css')
+	@vite('themes/default/css/app.css')
 </head>
 
 <body class="min-h-screen bg-zinc-950 sidebar-mini layout-fixed">
     <div class="wrapper bg-zinc-950">
-        <!-- Navbar -->
-        <nav class="main-header sticky-top navbar navbar-expand bg-zinc-900/50 backdrop-blur-sm border-b border-zinc-800/50">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav flex items-center gap-2">
-                <li class="nav-item">
-                    <button class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50" data-widget="pushmenu">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ route('home') }}" class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2">
-                        <i class="fas fa-home"></i>
-                        <span>{{ __('Home') }}</span>
-                    </a>
-                </li>
-                @if (!empty($discord_settings->invite_url))
-                    <li class="nav-item d-none d-sm-inline-block">
-                        <a href="{{ $discord_settings->invite_url }}" class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" target="__blank">
-                            <i class="fab fa-discord"></i>
-                            <span>{{ __('Discord') }}</span>
-                        </a>
-                    </li>
-                @endif
+        @include('layouts.navbar')
 
-                @foreach ($useful_links as $link)
-                    <li class="nav-item d-none d-sm-inline-block">
-                        <a href="{{ $link->link }}" class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" target="__blank">
-                            <i class="{{ $link->icon }}"></i>
-                            <span>{{ $link->title }}</span>
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
-
-            <!-- Right navbar links -->
-            <ul class="ml-auto navbar-nav flex items-center gap-2">
-                <!-- Credits Dropdown -->
-                <li class="nav-item dropdown">
-                    <button class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" id="creditsDropdown" data-toggle="dropdown">
-                        <i class="fas fa-coins"></i>
-                        <span>{{ Auth::user()->credits() }}</span>
-                    </button>
-                    <div class="shadow dropdown-menu dropdown-menu-right bg-zinc-800 border border-zinc-700 rounded-lg mt-2">
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('store.index') }}">
-                            <i class="fas fa-coins"></i>
-                            <span>{{ __('Store') }}</span>
-                        </a>
-                        <div class="border-t border-zinc-700 my-1"></div>
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" data-toggle="modal" data-target="#redeemVoucherModal" href="javascript:void(0)">
-                            <i class="fas fa-money-check-alt"></i>
-                            <span>{{ __('Redeem code') }}</span>
-                        </a>
-                    </div>
-                </li>
-
-                <!-- User Dropdown -->
-                <li class="nav-item dropdown">
-                    <button class="p-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50 flex items-center gap-2" id="userDropdown" data-toggle="dropdown">
-                        <span>{{ Auth::user()->name }}</span>
-                        <img class="w-8 h-8 rounded-full shadow-md object-cover" src="{{ Auth::user()->getAvatar() }}" alt="User avatar">
-                        @if (Auth::user()->unreadNotifications->count() != 0)
-                            <span class="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full"></span>
-                        @endif
-                    </button>
-                    <div class="shadow dropdown-menu dropdown-menu-right bg-zinc-800 border border-zinc-700 rounded-lg mt-2">
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('profile.index') }}">
-                            <i class="fas fa-user"></i>
-                            <span>{{ __('Profile') }}</span>
-                        </a>
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('notifications.index') }}">
-                            <i class="fas fa-bell"></i>
-                            <span>{{ __('Notifications') }}</span>
-                            @if (Auth::user()->unreadNotifications->count() != 0)
-                                <span class="badge badge-warning navbar-badge">
-                                    {{ Auth::user()->unreadNotifications->count() }}
-                                </span>
-                            @endif
-                        </a>
-                        <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('preferences.index') }}">
-                            <i class="fas fa-cog"></i>
-                            <span>{{ __('Preferences') }}</span>
-                        </a>
-                        @if (session()->get('previousUser'))
-                            <div class="border-t border-zinc-700 my-1"></div>
-                            <a class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2" href="{{ route('users.logbackin') }}">
-                                <i class="fas fa-sign-in-alt"></i>
-                                <span>{{ __('Log back in') }}</span>
-                            </a>
-                        @endif
-                        <div class="border-t border-zinc-700 my-1"></div>
-                        <form method="post" action="{{ route('logout') }}">
-                            @csrf
-                            <button class="dropdown-item text-zinc-300 hover:bg-zinc-700 px-4 py-2 flex items-center gap-2 w-full text-left" type="submit">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>{{ __('Logout') }}</span>
-                            </button>
-                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        </form>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-        <!-- /.navbar -->
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary bg-zinc-900/50 backdrop-blur-sm border-r border-zinc-800/50">
-            <!-- Brand Logo -->
-            <a href="{{ route('home') }}" class="brand-link flex items-center px-4 py-4 border-b border-zinc-800/50">
-                <img width="32" height="32"
-                    src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/ctrlpanel_logo.png') }}"
-                    alt="{{ config('app.name', 'Laravel') }} Logo" 
-                    class="rounded-full">
-                <span class="ml-3 font-medium text-white brand-text">{{ config('app.name', 'CtrlPanel.gg') }}</span>
-            </a>
-
-            <!-- Sidebar -->
-            <div class="sidebar overflow-y-auto">
-                <!-- Sidebar Menu -->
-                <nav class="my-4">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item">
-                            <a href="{{ route('home') }}"
-                                class="nav-link @if (Request::routeIs('home')) active @endif">
-                                <i class="nav-icon fa fa-home text-zinc-400"></i>
-                                <p class="ml-3">{{ __('Dashboard') }}</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('servers.index') }}"
-                                class="nav-link @if (Request::routeIs('servers.*')) active @endif">
-                                <i class="nav-icon fa fa-server text-zinc-400"></i>
-                                <p class="ml-3">{{ __('Servers') }}
-                                    <span class="badge ml-auto px-2 py-1 text-xs font-medium bg-primary-800/50 text-primary-200 rounded-md">
-                                        {{ Auth::user()->servers()->count() }} / {{ Auth::user()->server_limit }}
-                                    </span>
-                                </p>
-                            </a>
-                        </li>
-
-                        @if (env('APP_ENV') == 'local' || $general_settings->store_enabled)
-                            <li class="nav-item">
-                                <a href="{{ route('store.index') }}"
-                                    class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
-                                    <i class="nav-icon fa fa-coins text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Store') }}</p>
-                                </a>
-                            </li>
-                        @endif
-                        @php($ticket_enabled = app(App\Settings\TicketSettings::class)->enabled)
-                        @if ($ticket_enabled)
-                            @canany(["user.ticket.read", "user.ticket.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('ticket.index') }}"
-                                    class="nav-link @if (Request::routeIs('ticket.*')) active @endif">
-                                    <i class="nav-icon fas fa-ticket-alt text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Support Ticket') }}</p>
-                                </a>
-                            </li>
-                                @endcanany
-                        @endif
-
-                    <!-- lol how do i make this shorter? -->
-                        @canany(['settings.discord.read','settings.discord.write','settings.general.read','settings.general.write','settings.invoice.read','settings.invoice.write','settings.locale.read','settings.locale.write','settings.mail.read','settings.mail.write','settings.pterodactyl.read','settings.pterodactyl.write','settings.referral.read','settings.referral.write','settings.server.read','settings.server.write','settings.ticket.read','settings.ticket.write','settings.user.read','settings.user.write','settings.website.read','settings.website.write','settings.paypal.read','settings.paypal.write','settings.stripe.read','settings.stripe.write','settings.mollie.read','settings.mollie.write','settings.mercadopago.read','settings.mercadopago.write','admin.overview.read','admin.overview.sync','admin.ticket.read','admin.tickets.write','admin.ticket_blacklist.read','admin.ticket_blacklist.write','admin.roles.read','admin.roles.write','admin.api.read','admin.api.write'])
-                            <li class="nav-header">{{ __('Administration') }}</li>
-                        @endcanany
-
-                        @canany(['admin.overview.read','admin.overview.sync'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.overview.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.overview.*')) active @endif">
-                                    <i class="nav-icon fa fa-home text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Overview') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-                        @canany(['admin.ticket.read','admin.tickets.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.ticket.index') }}"
-                                   class="nav-link @if (Request::routeIs('admin.ticket.index')) active @endif">
-                                    <i class="nav-icon fas fa-ticket-alt text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Ticket List') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-                        @canany(['admin.ticket.read','admin.tickets.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.ticket.category.index') }}"
-                                   class="nav-link @if (Request::routeIs('admin.ticket.category.*')) active @endif">
-                                    <i class="nav-icon fas fa-list text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Ticket Categories') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-                        @canany(['admin.ticket_blacklist.read','admin.ticket_blacklist.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.ticket.blacklist') }}"
-                                   class="nav-link @if (Request::routeIs('admin.ticket.blacklist')) active @endif">
-                                    <i class="nav-icon fas fa-user-times text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Ticket Blacklist') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-                        @canany(['admin.roles.read','admin.roles.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.roles.index') }}"
-                                   class="nav-link @if (Request::routeIs('admin.roles.*')) active @endif">
-                                    <i class="nav-icon fa fa-user-check text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Role Management') }}</p>
-                                </a>
-                            </li>
-                            @endcanany
-
-                        @canany(['settings.discord.read',
-                                'settings.discord.write',
-                                'settings.general.read',
-                                'settings.general.write',
-                                'settings.invoice.read',
-                                'settings.invoice.write',
-                                'settings.locale.read',
-                                'settings.locale.write',
-                                'settings.mail.read',
-                                'settings.mail.write',
-                                'settings.pterodactyl.read',
-                                'settings.pterodactyl.write',
-                                'settings.referral.read',
-                                'settings.referral.write',
-                                'settings.server.read',
-                                'settings.server.write',
-                                'settings.ticket.read',
-                                'settings.ticket.write',
-                                'settings.user.read',
-                                'settings.user.write',
-                                'settings.website.read',
-                                'settings.website.write',
-                                'settings.paypal.read',
-                                'settings.paypal.write',
-                                'settings.stripe.read',
-                                'settings.stripe.write',
-                                'settings.mollie.read',
-                                'settings.mollie.write',
-                                'settings.mercadopago.read',
-                                'settings.mercadopago.write',])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.settings.index') . '#icons' }}"
-                                    class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
-                                    <i class="nav-icon fas fa-tools text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Settings') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-                        @canany(['admin.api.read','admin.api.write'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.api.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.api.*')) active @endif">
-                                    <i class="nav-icon fa fa-gamepad text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Application API') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-                        <!-- good fuck do i shorten this lol -->
-                        @canany(['admin.users.read',
-                                'admin.users.write',
-                                'admin.users.suspend',
-                                'admin.users.write.credits',
-                                'admin.users.write.username',
-                                'admin.users.write.password',
-                                'admin.users.write.role',
-                                'admin.users.write.referral',
-                                'admin.users.write.pterodactyl','admin.servers.read',
-                                'admin.servers.write',
-                                'admin.servers.suspend',
-                                'admin.servers.write.owner',
-                                'admin.servers.write.identifier',
-                                'admin.servers.delete','admin.products.read',
-                                'admin.products.create',
-                                'admin.products.edit',
-                                'admin.products.delete',])
-                            <li class="nav-header">{{ __('Management') }}</li>
-                        @endcanany
-
-
-
-                        @canany(['admin.users.read',
-                                'admin.users.write',
-                                'admin.users.suspend',
-                                'admin.users.write.credits',
-                                'admin.users.write.username',
-                                'admin.users.write.password',
-                                'admin.users.write.role',
-                                'admin.users.write.referral',
-                                'admin.users.write.pterodactyl'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.users.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.users.*')) active @endif">
-                                    <i class="nav-icon fas fa-users text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Users') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(['admin.servers.read',
-                                'admin.servers.write',
-                                'admin.servers.suspend',
-                                'admin.servers.write.owner',
-                                'admin.servers.write.identifier',
-                                'admin.servers.delete'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.servers.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.servers.*')) active @endif">
-                                    <i class="nav-icon fas fa-server text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Servers') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(['admin.products.read',
-                                'admin.products.create',
-                                'admin.products.edit',
-                                'admin.products.delete'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.products.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.products.*')) active @endif">
-                                    <i class="nav-icon fas fa-sliders-h text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Products') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(['admin.store.read','admin.store.write','admin.store.disable'])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.store.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.store.*')) active @endif">
-                                    <i class="nav-icon fas fa-shopping-basket text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Store') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(["admin.voucher.read","admin.voucher.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.vouchers.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.vouchers.*')) active @endif">
-                                    <i class="nav-icon fas fa-money-check-alt text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Vouchers') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-                        @canany(["admin.partners.read","admin.partners.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.partners.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.partners.*')) active @endif">
-                                    <i class="nav-icon fas fa-handshake text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Partners') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-												@canany(["admin.coupons.read", "admin.coupons.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.coupons.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.coupons.*')) active @endif">
-                                    <i class="nav-icon fas fa-ticket-alt text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Coupons') }}</p>
-                                </a>
-                            </li>
-                        @endcanany
-
-                            @canany(["admin.useful_links.read","admin.legal.read"])
-                                <li class="nav-header">{{ __('Other') }}</li>
-                            @endcanany
-
-                        @canany(["admin.useful_links.read","admin.useful_links.write"])
-                            <li class="nav-item">
-                                <a href="{{ route('admin.usefullinks.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.usefullinks.*')) active @endif">
-                                    <i class="nav-icon fas fa-link text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Useful Links') }}</p>
-                                </a>
-                            </li>
-                            @endcanany
-
-                            @canany(["admin.payments.read","admin.logs.read"])
-                                <li class="nav-header">{{ __('Logs') }}</li>
-                            @endcanany
-
-                        @can("admin.payments.read")
-                            <li class="nav-item">
-                                <a href="{{ route('admin.payments.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.payments.*')) active @endif">
-                                    <i class="nav-icon fas fa-money-bill-wave text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Payments') }}
-                                        <span
-                                            class="badge badge-success right">{{ \App\Models\Payment::count() }}</span>
-                                    </p>
-                                </a>
-                            </li>
-                        @endcan
-
-                        @can("admin.logs.read")
-                            <li class="nav-item">
-                                <a href="{{ route('admin.activitylogs.index') }}"
-                                    class="nav-link @if (Request::routeIs('admin.activitylogs.*')) active @endif">
-                                    <i class="nav-icon fas fa-clipboard-list text-zinc-400"></i>
-                                    <p class="ml-3">{{ __('Activity Logs') }}</p>
-                                </a>
-                            </li>
-                        @endcan
-
-
-                    </ul>
-                </nav>
-                <!-- /.sidebar-menu -->
-            </div>
-            <!-- /.sidebar -->
+            @include('layouts.sidebar')
         </aside>
 
         <!-- Content Wrapper. Contains page content -->
-
         <div class="content-wrapper bg-zinc-950">
 
             <!--
@@ -663,6 +252,72 @@
             });
         @endif
     </script>
+
+    <style>
+        /* Dark Theme Overrides */
+        .main-sidebar {
+            transition: width 0.3s ease-in-out;
+        }
+
+        .sidebar-mini.sidebar-collapse .main-sidebar:hover {
+            box-shadow: 0 0 35px 0 rgba(0,0,0,0.3);
+        }
+
+        .dropdown-menu {
+            animation: dropdownFade 0.2s ease-in-out;
+        }
+
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Override AdminLTE dark theme with our custom dark theme */
+        .dark-mode .nav-sidebar .nav-item > .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .content-wrapper {
+            background: rgb(9, 9, 11) !important;
+        }
+
+        /* Glass morphism effects */
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+        }
+
+        /* Custom scrollbar for webkit browsers */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: rgba(161, 161, 170, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(161, 161, 170, 0.5);
+        }
+
+        /* Hide scrollbar for Firefox */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(161, 161, 170, 0.3) transparent;
+        }
+    </style>
 </body>
 
 </html>

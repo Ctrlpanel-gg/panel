@@ -204,11 +204,11 @@ class RoleController extends Controller
             })
             ->addColumn('actions', function (Role $role) {
                 return '
-                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.roles.edit', $role) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.roles.edit', $role) . '" class="action-btn glow-border info"><i class="fas fa-pen"></i></a>
                 <form class="d-inline" method="post" action="' . route('admin.roles.destroy', $role) . '">
                 ' . csrf_field() . '
                 ' . method_field('DELETE') . '
-                    <button title="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" type="submit" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    <button title="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" type="submit" class="action-btn glow-borderglow-border danger  proximity-pulse"><i class="fas fa-trash"></i></button>
                 </form>';
             })
             ->rawColumns(['actions', 'name', 'users_count', 'permissions_count', 'power'])
