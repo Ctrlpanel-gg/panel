@@ -170,31 +170,32 @@
                                                     data-content="{{ __('Period when the user will be charged for the given price') }}"
                                                     class="fas fa-info-circle"></i></label>
 
-                                            <select id="billing_period" style="width:100%" class="custom-select"
-                                                name="billing_period" required autocomplete="off"
-                                                @error('billing_period') is-invalid @enderror>
-                                                <option value="hourly" selected>
-                                                    {{ __('Hourly') }}
-                                                </option>
-                                                <option value="daily">
-                                                    {{ __('Daily') }}
-                                                </option>
-                                                <option value="weekly">
-                                                    {{ __('Weekly') }}
-                                                </option>
-                                                <option value="monthly">
-                                                    {{ __('Monthly') }}
-                                                </option>
-                                                <option value="quarterly">
-                                                    {{ __('Quarterly') }}
-                                                </option>
-                                                <option value="half-annually">
-                                                    {{ __('Half Annually') }}
-                                                </option>
-                                                <option value="annually">
-                                                    {{ __('Annually') }}
-                                                </option>
-                                            </select>
+                                    <select id="billing_period" style="width:100%" class="custom-select"
+                                            name="billing_period" required autocomplete="off"
+                                            @error('billing_period') is-invalid @enderror>
+                                        <option value="hourly" {{ old('billing_period', $product->billing_period ?? '') == 'hourly' ? 'selected' : '' }}>
+                                            {{ __('Hourly') }}
+                                        </option>
+                                        <option value="daily" {{ old('billing_period', $product->billing_period ?? '') == 'daily' ? 'selected' : '' }}>
+                                            {{ __('Daily') }}
+                                        </option>
+                                        <option value="weekly" {{ old('billing_period', $product->billing_period ?? '') == 'weekly' ? 'selected' : '' }}>
+                                            {{ __('Weekly') }}
+                                        </option>
+                                        <option value="monthly" {{ old('billing_period', $product->billing_period ?? '') == 'monthly' ? 'selected' : '' }}>
+                                            {{ __('Monthly') }}
+                                        </option>
+                                        <option value="quarterly" {{ old('billing_period', $product->billing_period ?? '') == 'quarterly' ? 'selected' : '' }}>
+                                            {{ __('Quarterly') }}
+                                        </option>
+                                        <option value="half-annually" {{ old('billing_period', $product->billing_period ?? '') == 'half-annually' ? 'selected' : '' }}>
+                                            {{ __('Half Annually') }}
+                                        </option>
+                                        <option value="annually" {{ old('billing_period', $product->billing_period ?? '') == 'annually' ? 'selected' : '' }}>
+                                            {{ __('Annually') }}
+                                        </option>
+                                    </select>
+
                                             @error('billing_period')
                                                 <div class="invalid-feedback">
                                                     {{ $message }}
