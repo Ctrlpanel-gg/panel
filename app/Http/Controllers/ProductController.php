@@ -18,6 +18,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
+use App\Models\Role;
 
 class ProductController extends Controller
 {
@@ -103,10 +104,10 @@ class ProductController extends Controller
             // Rate limit the node full notification to 1 attempt per 30 minutes
             RateLimiter::attempt(
                 key: 'nodes-full-warning',
-                maxAttempts: 1,
+                maxAttempts: 2,
                 callback: function() {
                     // get admin role and check users
-                    $users = User::query()->where('role', '=', '1')->get();
+                    $users = User::role(1)->get();
                     Notification::send($users,new DynamicNotification(['mail'],[],
                    mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
                 },
