@@ -13,6 +13,8 @@ class InvoiceSettings extends Settings
     public ?string $company_phone = null;
     public ?string $company_vat = null;
     public ?string $company_website = null;
+    public ?string $additional_notes = null;
+
     public ?string $prefix = 'INV-';
 
     public static function group(): string
@@ -33,6 +35,7 @@ class InvoiceSettings extends Settings
             'company_phone' => 'nullable|string',
             'company_vat' => 'nullable|string',
             'company_website' => 'nullable|string',
+            'additional_notes' => 'nullable|string',
             'enabled' => 'nullable|string',
             'prefix' => 'nullable|string',
         ];
@@ -87,6 +90,11 @@ class InvoiceSettings extends Settings
                 'label' => 'Prefix',
                 'type' => 'string',
                 'description' => 'The prefix of your invoices.',
+            ],
+            'additional_notes' => [
+                'label' => 'Custom additional Notes',
+                'type' => 'textarea',
+                'description' => 'Additional custom notes you want on your Invoices to appear.',
             ],
         ];
     }
