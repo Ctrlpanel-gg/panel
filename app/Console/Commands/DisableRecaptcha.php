@@ -20,23 +20,28 @@ class DisableRecaptcha extends Command
         $this->settings = $settings;
     }
 
+
+    protected function getNextVersion(?string $current): ?string
+    {
+        return match ($current) {
+            null => 'v2',
+            'v2' => 'v3',
+            'v3' => null,
+            default => null,
+        };
+    }
+
     public function handle(): int
     {
         try {
             $current = $this->settings->recaptcha_version;
+            $next = $this->getNextVersion($current);
 
-            $next = match ($current) {
-                null => 'v2',
-                'v2' => 'v3',
-                'v3' => null,
-                default => null,
-            };
 
             $this->settings->recaptcha_version = $next;
             $this->settings->save();
 
-            $this->info("Recaptcha version is now: " . ($next ?? 'disabled'));
-
+            $this->info("Recaptcha version is now: " . ($next ?? 'disabled') . ". Run again to set it to " . ($this->getNextVersion($next) ?? 'disabled') . ".");
         } catch (Exception $e) {
             $this->error('An error occurred: ' . $e->getMessage());
             Log::error($e);
