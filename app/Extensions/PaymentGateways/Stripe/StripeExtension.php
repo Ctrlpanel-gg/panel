@@ -153,7 +153,7 @@ class StripeExtension extends PaymentExtension
                 }
             }
         } catch (Exception $e) {
-            if (env('APP_ENV') == 'local') {
+            if (config('app.env') == 'local') {
                 dd($e->getMessage());
             } else {
                 abort(422);
@@ -244,7 +244,7 @@ class StripeExtension extends PaymentExtension
     {
         $settings = new StripeSettings();
 
-        return env('APP_ENV') == 'local'
+        return config('app.env') == 'local'
             ? $settings->test_secret_key
             : $settings->secret_key;
     }

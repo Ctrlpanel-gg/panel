@@ -199,7 +199,7 @@
             </a>
           </li>
 
-          @if (env('APP_ENV') == 'local' || $general_settings->store_enabled)
+          @if (config('app.env') == 'local' || $general_settings->store_enabled)
             <li class="nav-item">
               <a href="{{ route('store.index') }}"
                  class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
@@ -460,7 +460,7 @@
   <!-- /.content-wrapper -->
   <footer class="main-footer">
     <strong>Copyright &copy; 2021-{{ date('Y') }} <a
-        href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
+        href="{{ url('/') }}">{{ config('app.name','Ctrlpanel.gg') }}</a>.</strong>
     All rights
     reserved. Powered by <a href="https://CtrlPanel.gg">CtrlPanel</a>.
     @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))
