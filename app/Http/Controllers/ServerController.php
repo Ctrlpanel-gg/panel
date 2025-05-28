@@ -303,13 +303,13 @@ class ServerController extends Controller
         $user->decrement('credits', $server->product->price);
 
         try {
-            if ($this->discordSettings->role_on_purchase &&
+            if ($this->discordSettings->role_for_active_clients &&
                 $user->discordUser &&
                 $user->servers->count() >= 1
             ) {
                 $user->discordUser->addOrRemoveRole(
                     'add',
-                    $this->discordSettings->role_id_on_purchase
+                    $this->discordSettings->role_id_for_active_clients
                 );
             }
         } catch (Exception $e) {
@@ -348,12 +348,12 @@ class ServerController extends Controller
 
     private function handleServerDeletion(Server $server): void
     {
-        if ($this->discordSettings->role_on_purchase) {
+        if ($this->discordSettings->role_for_active_clients) {
             $user = User::findOrFail($server->user_id);
             if ($user->discordUser && $user->servers->count() <= 1) {
                 $user->discordUser->addOrRemoveRole(
                     'remove',
-                    $this->discordSettings->role_id_on_purchase
+                    $this->discordSettings->role_id_for_active_clients
                 );
             }
         }

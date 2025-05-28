@@ -54,7 +54,7 @@ class ServerController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  Server  $server
-     * @return Response
+     * @return View
      */
     public function edit(Server $server)
     {
@@ -98,18 +98,18 @@ class ServerController extends Controller
 
                 // Attempt to remove/add roles respectively
                 try {
-                    if($discord_settings->role_on_purchase) {
+                    if($discord_settings->role_for_active_clients) {
                         // remove the role from the old owner
                         $oldOwner = User::findOrFail($server->user_id);
                         $discordUser = $oldOwner->discordUser;
                         if ($discordUser && $oldOwner->servers->count() <= 1) {
-                            $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_on_purchase);
+                            $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                         }
 
                         // add the role to the new owner
                         $discordUser = $user->discordUser;
                         if ($discordUser && $user->servers->count() >= 1) {
-                            $discordUser->addOrRemoveRole('add', $discord_settings->role_id_on_purchase);
+                            $discordUser->addOrRemoveRole('add', $discord_settings->role_id_for_active_clients);
                         }
                     }
                 } catch (Exception $e) {
@@ -146,11 +146,11 @@ class ServerController extends Controller
         try {
             // Remove role from discord
             try {
-                if($discord_settings->role_on_purchase) {
+                if($discord_settings->role_for_active_clients) {
                     $user = User::findOrFail($server->user_id);
                     $discordUser = $user->discordUser;
                     if($discordUser && $user->servers->count() <= 1) {
-                        $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_on_purchase);
+                        $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                     }
                 }
             } catch (Exception $e) {
