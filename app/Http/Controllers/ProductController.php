@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Models\Role;
@@ -107,10 +108,15 @@ class ProductController extends Controller
                 maxAttempts: 2,
                 callback: function() {
                     // get admin role and check users
-                    $users = User::role(1)->get();
-                    Notification::send($users,new DynamicNotification(['mail'],[],
-                   mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
-                },
+                    $users = User::permission("errors.view")->get();
+                    if($users){
+                        Notification::send($users,new DynamicNotification(['mail'],[],
+                            mail: (new MailMessage)->subject('Attention! All of the nodes are full!')->greeting('Attention!')->line('All nodes are full, please add more nodes')));
+
+                    }else{
+                        Log::warning("There are no nodes at all - Users couldnt be notified");
+                    }
+                 },
                 decaySeconds: 5
             );
         }
