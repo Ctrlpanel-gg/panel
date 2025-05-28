@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
@@ -188,15 +189,30 @@ class ServerController extends Controller
      * @param Server $server
      * @return RedirectResponse
      */
-    public function toggleSuspended(Server $server)
+    public function toggleSuspended(Request $request, Server $server)
     {
         $this->checkPermission(self::SUSPEND_PERMISSION);
+        $reason = $request->input('reason', null);
 
         try {
             $server->isSuspended() ? $server->unSuspend() : $server->suspend();
         } catch (Exception $exception) {
             return redirect()->back()->with('error', $exception->getMessage());
         }
+
+        $logMessage = "The server with ID: " . $server->id . " was " .
+            ($server->isSuspended() ? "suspended" : "unsuspended") .
+            " by " . Auth::user()['name'];
+        if ($reason) {
+            $logMessage .= ". Reason: " . e($reason);
+        }
+
+        activity()
+            ->performedOn($server)
+            ->causedBy(Auth::user())
+            ->log($logMessage);
+
+
 
         return redirect()->back()->with('success', __('Server has been updated!'));
     }
@@ -278,7 +294,16 @@ class ServerController extends Controller
                          <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.servers.edit', $server->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
                         <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
                             ' . csrf_field() . '
-                           <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
+                        <button type="button"
+                            class="btn btn-sm '.$suspendColor.' text-white mr-1 suspend-btn"
+                            data-server-id="'. $server->id .'"
+                            data-action="'.route("admin.servers.togglesuspend", $server->id) .'"
+                            data-content="'.$suspendText .'"
+                            data-toggle="popover"
+                            data-trigger="hover"
+                            data-placement="top">
+                            <i class="far '.$suspendIcon .'"></i>
+                        </button>
                        </form>
 
                        <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">

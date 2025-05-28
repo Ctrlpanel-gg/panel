@@ -455,7 +455,7 @@
 
     @yield('content')
 
-    @include('models.redeem_voucher_modal')
+    @include('modals.redeem_voucher_modal')
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
