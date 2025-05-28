@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Product;
 use App\Models\Server;
+use App\Models\User;
 use App\Notifications\ServersSuspendedNotification;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -83,38 +86,53 @@ class ChargeServers extends Command
                     default:
                         $newBillingDate = Carbon::parse($server->last_billed)->addHour();
                         break;
-                };
+                }
 
                 if (!($newBillingDate->isPast())) {
                     continue;
                 }
 
-                // check if the server is canceled or if user has enough credits to charge the server
-                if ($server->canceled || ($user->credits < $product->price && $product->price != 0)) {
-                    try {
-                        // suspend server
-                        $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> has been <fg=red>suspended!</>");
-                        $server->suspend();
 
-                        // add user to notify list
-                        if (!in_array($user, $this->usersToNotify)) {
-                            array_push($this->usersToNotify, $user);
-                        }
-                    } catch (\Exception $exception) {
+                $isCanceled = $server->canceled;
+                $hasInsufficientCredits = $user->credits < $product->price && $product->price != 0;
+
+                // check if the server is canceled or if user has enough credits to charge the server
+                if ($isCanceled || $hasInsufficientCredits) {
+                    try {
+                        $this->suspendFunc($server, $user);
+                    } catch (Exception $exception) {
                         $this->error($exception->getMessage());
                     }
                 } else {
                     // charge credits to user
                     $this->line("<fg=blue>{$user->name}</> Current credits: <fg=green>{$user->credits}</> Credits to be removed: <fg=red>{$product->price}</>");
-                    $user->decrement('credits', $product->price);
 
-                    // update server last_billed date in db
-                    DB::table('servers')->where('id', $server->id)->update(['last_billed' => $newBillingDate]);
+                    //Cheap Fix for negative Balance Bug?
+
+                    if ($user->credits >= $product->price){
+                        $user->decrement('credits', $product->price);
+                        // update server last_billed date in db
+                        DB::table('servers')->where('id', $server->id)->update(['last_billed' => $newBillingDate]);
+                    } else {
+                        $this->suspendFunc($server, $user);
+                    }
                 }
             }
 
             return $this->notifyUsers();
         });
+    }
+
+    public function suspendFunc($server, $user)
+    {
+        // suspend server
+        $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> has been <fg=red>suspended!</>");
+        $server->suspend();
+
+        // add user to notify list
+        if (!in_array($user, $this->usersToNotify)) {
+            array_push($this->usersToNotify, $user);
+        }
     }
 
     /**
