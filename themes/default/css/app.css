@@ -834,13 +834,77 @@
     }
 }
 
-/* Action Buttons Styling - Sea Lantern Effect */
+@layer utilities {
+
+    /* Pulse proximity effect (for delete button) */
+    @keyframes pulse-proximity {
+
+        0%,
+        100% {
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4), 0 0 20px rgba(239, 68, 68, 0.15) inset;
+        }
+
+        50% {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 0 0 30px rgba(239, 68, 68, 0.25) inset;
+        }
+    }
+
+    .proximity-pulse {
+        animation: pulse-proximity 1.5s ease-in-out infinite;
+    }
+}
+
+/* Border glow animation */
+@keyframes border-glow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Action Buttons Styling - Sea Lantern Effect with integrated glow borders */
 .action-btn {
     @apply inline-flex items-center justify-center px-3 py-2 rounded-lg border border-primary-500/30 bg-transparent text-primary-400 transition-all duration-300;
+    position: relative;
+    z-index: 0;
 }
 
 .action-btn i {
     @apply flex items-center justify-center w-4 h-4;
+}
+
+.action-btn:hover::before,
+.action-btn:focus::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border-radius: inherit;
+    background: linear-gradient(90deg,
+            rgba(79, 70, 229, 0.1),
+            rgba(79, 70, 229, 0.7),
+            rgba(79, 70, 229, 0.1));
+    background-size: 200% 100%;
+    animation: border-glow 3s linear infinite;
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    pointer-events: none;
 }
 
 .action-btn:hover,
@@ -854,6 +918,15 @@
     box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
 }
 
+.action-btn.warning:hover::before,
+.action-btn.warning:focus::before {
+    background: linear-gradient(90deg,
+            rgba(245, 158, 11, 0.1),
+            rgba(245, 158, 11, 0.7),
+            rgba(245, 158, 11, 0.1));
+    background-size: 200% 100%;
+}
+
 .action-btn.warning:hover,
 .action-btn.warning:focus {
     @apply border-amber-400 bg-amber-500/20 text-amber-300;
@@ -863,6 +936,15 @@
 .action-btn.danger {
     @apply border-red-500/30 text-red-400;
     box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+}
+
+.action-btn.danger:hover::before,
+.action-btn.danger:focus::before {
+    background: linear-gradient(90deg,
+            rgba(239, 68, 68, 0.1),
+            rgba(239, 68, 68, 0.7),
+            rgba(239, 68, 68, 0.1));
+    background-size: 200% 100%;
 }
 
 .action-btn.danger:hover,
@@ -876,6 +958,15 @@
     box-shadow: 0 0 5px rgba(16, 185, 129, 0.2);
 }
 
+.action-btn.success:hover::before,
+.action-btn.success:focus::before {
+    background: linear-gradient(90deg,
+            rgba(16, 185, 129, 0.1),
+            rgba(16, 185, 129, 0.7),
+            rgba(16, 185, 129, 0.1));
+    background-size: 200% 100%;
+}
+
 .action-btn.success:hover,
 .action-btn.success:focus {
     @apply border-emerald-400 bg-emerald-500/20 text-emerald-300;
@@ -887,6 +978,15 @@
     box-shadow: 0 0 5px rgba(14, 165, 233, 0.2);
 }
 
+.action-btn.info:hover::before,
+.action-btn.info:focus::before {
+    background: linear-gradient(90deg,
+            rgba(14, 165, 233, 0.1),
+            rgba(14, 165, 233, 0.7),
+            rgba(14, 165, 233, 0.1));
+    background-size: 200% 100%;
+}
+
 .action-btn.info:hover,
 .action-btn.info:focus {
     @apply border-sky-400 bg-sky-500/20 text-sky-300;
@@ -896,6 +996,15 @@
 .action-btn.secondary {
     @apply border-zinc-500/30 text-zinc-400;
     box-shadow: 0 0 5px rgba(161, 161, 170, 0.2);
+}
+
+.action-btn.secondary:hover::before,
+.action-btn.secondary:focus::before {
+    background: linear-gradient(90deg,
+            rgba(161, 161, 170, 0.1),
+            rgba(161, 161, 170, 0.7),
+            rgba(161, 161, 170, 0.1));
+    background-size: 200% 100%;
 }
 
 .action-btn.secondary:hover,

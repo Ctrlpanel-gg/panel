@@ -378,7 +378,7 @@
                         last: '<i class="fas fa-angle-double-right flex items-center justify-center w-full h-full"></i>'
                     }
                 },
-                scrollX: true, processing: false,
+                processing: false,
                 serverSide: true,
                 stateSave: true,
                 ajax: {
