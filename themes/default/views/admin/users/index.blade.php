@@ -111,7 +111,7 @@
                     last: '<i class="fas fa-angle-double-right flex items-center justify-center w-full h-full"></i>'
                 }
             },
-            processing: false, // Disable the built-in processing indicator
+            scrollX: true, processing: false, // Disable the built-in processing indicator
             serverSide: true,
             stateSave: true,
             ajax: {

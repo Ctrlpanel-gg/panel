@@ -824,6 +824,113 @@
     animation: spin 1s linear infinite;
 }
 
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Action Buttons Styling - Sea Lantern Effect */
+.action-btn {
+    @apply inline-flex items-center justify-center px-3 py-2 rounded-lg border border-primary-500/30 bg-transparent text-primary-400 transition-all duration-300;
+}
+
+.action-btn i {
+    @apply flex items-center justify-center w-4 h-4;
+}
+
+.action-btn:hover,
+.action-btn:focus {
+    @apply border-primary-400 bg-primary-500/20 text-primary-300;
+    box-shadow: 0 0 12px rgba(79, 70, 229, 0.5), 0 0 20px rgba(79, 70, 229, 0.2) inset;
+}
+
+.action-btn.warning {
+    @apply border-amber-500/30 text-amber-400;
+    box-shadow: 0 0 5px rgba(245, 158, 11, 0.2);
+}
+
+.action-btn.warning:hover,
+.action-btn.warning:focus {
+    @apply border-amber-400 bg-amber-500/20 text-amber-300;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5), 0 0 20px rgba(245, 158, 11, 0.2) inset;
+}
+
+.action-btn.danger {
+    @apply border-red-500/30 text-red-400;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+}
+
+.action-btn.danger:hover,
+.action-btn.danger:focus {
+    @apply border-red-400 bg-red-500/20 text-red-300;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.2) inset;
+}
+
+.action-btn.success {
+    @apply border-emerald-500/30 text-emerald-400;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.2);
+}
+
+.action-btn.success:hover,
+.action-btn.success:focus {
+    @apply border-emerald-400 bg-emerald-500/20 text-emerald-300;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.2) inset;
+}
+
+.action-btn.info {
+    @apply border-sky-500/30 text-sky-400;
+    box-shadow: 0 0 5px rgba(14, 165, 233, 0.2);
+}
+
+.action-btn.info:hover,
+.action-btn.info:focus {
+    @apply border-sky-400 bg-sky-500/20 text-sky-300;
+    box-shadow: 0 0 12px rgba(14, 165, 233, 0.5), 0 0 20px rgba(14, 165, 233, 0.2) inset;
+}
+
+.action-btn.secondary {
+    @apply border-zinc-500/30 text-zinc-400;
+    box-shadow: 0 0 5px rgba(161, 161, 170, 0.2);
+}
+
+.action-btn.secondary:hover,
+.action-btn.secondary:focus {
+    @apply border-zinc-400 bg-zinc-500/20 text-zinc-300;
+    box-shadow: 0 0 12px rgba(161, 161, 170, 0.5), 0 0 20px rgba(161, 161, 170, 0.2) inset;
+}
+
+/* Role Badge Styling */
+.badge {
+    @apply px-2 py-0.5 text-xs font-medium rounded text-white inline-block;
+    min-width: 60px;
+    text-align: center;
+}
+
+.badge.admin {
+    background-color: #4f46e5 !important;
+    /* Blurple */
+    box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
+}
+
+.badge.moderator {
+    background-color: #06b6d4 !important;
+    /* Cyan */
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+}
+
+.badge.member {
+    background-color: #10b981 !important;
+    /* Emerald */
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+
+
 
 /* Verified Status Styling */
 .verified-status {
@@ -840,4 +947,119 @@
 
 .verified-status.danger {
     @apply bg-red-500/20 text-red-400;
+}
+
+
+
+
+
+
+.checkbox-wrapper-26 * {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.checkbox-wrapper-26 input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-wrapper-26 label {
+    --size: 50px;
+    --shadow: calc(var(--size) * .07) calc(var(--size) * .1);
+
+    position: relative;
+    display: block;
+    width: var(--size);
+    height: var(--size);
+    margin: 0 auto;
+    background-color: #f72414;
+    border-radius: 50%;
+    box-shadow: 0 var(--shadow) #ffbeb8;
+    cursor: pointer;
+    transition: 0.2s ease transform, 0.2s ease background-color,
+        0.2s ease box-shadow;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.checkbox-wrapper-26 label:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    width: calc(var(--size) * .7);
+    height: calc(var(--size) * .7);
+    margin: 0 auto;
+    background-color: #fff;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    box-shadow: inset 0 var(--shadow) #ffbeb8;
+    transition: 0.2s ease width, 0.2s ease height;
+}
+
+.checkbox-wrapper-26 label:hover:before {
+    width: calc(var(--size) * .55);
+    height: calc(var(--size) * .55);
+    box-shadow: inset 0 var(--shadow) #ff9d96;
+}
+
+.checkbox-wrapper-26 label:active {
+    transform: scale(0.9);
+}
+
+.checkbox-wrapper-26 .tick_mark {
+    position: absolute;
+    top: -1px;
+    right: 0;
+    left: calc(var(--size) * -.05);
+    width: calc(var(--size) * .6);
+    height: calc(var(--size) * .6);
+    margin: 0 auto;
+    margin-left: calc(var(--size) * .14);
+    transform: rotateZ(-40deg);
+}
+
+.checkbox-wrapper-26 .tick_mark:before,
+.checkbox-wrapper-26 .tick_mark:after {
+    content: "";
+    position: absolute;
+    background-color: #fff;
+    border-radius: 2px;
+    opacity: 0;
+    transition: 0.2s ease transform, 0.2s ease opacity;
+}
+
+.checkbox-wrapper-26 .tick_mark:before {
+    left: 0;
+    bottom: 0;
+    width: calc(var(--size) * .1);
+    height: calc(var(--size) * .3);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.23);
+    transform: translateY(calc(var(--size) * -.68));
+}
+
+.checkbox-wrapper-26 .tick_mark:after {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(var(--size) * .1);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.23);
+    transform: translateX(calc(var(--size) * .78));
+}
+
+.checkbox-wrapper-26 input[type="checkbox"]:checked+label {
+    background-color: #07d410;
+    box-shadow: 0 var(--shadow) #92ff97;
+}
+
+.checkbox-wrapper-26 input[type="checkbox"]:checked+label:before {
+    width: 0;
+    height: 0;
+}
+
+.checkbox-wrapper-26 input[type="checkbox"]:checked+label .tick_mark:before,
+.checkbox-wrapper-26 input[type="checkbox"]:checked+label .tick_mark:after {
+    transform: translate(0);
+    opacity: 1;
 }
