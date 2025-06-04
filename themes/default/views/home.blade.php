@@ -41,7 +41,7 @@
     <div class="w-full mb-6 sm:mb-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- Servers -->
-            <div class="stats-card glass-morphism p-4 sm:p-6">
+            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                 <div class="stats-icon blue">
                     <i class="fas fa-server text-lg sm:text-xl"></i>
                 </div>
@@ -52,7 +52,7 @@
             </div>
 
             <!-- Credits -->
-            <div class="stats-card glass-morphism p-4 sm:p-6">
+            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                 <div class="stats-icon emerald">
                     <i class="fas fa-coins text-lg sm:text-xl"></i>
                 </div>
@@ -63,7 +63,7 @@
             </div>
 
             <!-- Usage -->
-            <div class="stats-card glass-morphism p-4 sm:p-6">
+            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                 <div class="stats-icon amber">
                     <i class="fas fa-chart-line text-lg sm:text-xl"></i>
                 </div>
@@ -78,7 +78,7 @@
 
             <!-- Credits Remaining -->
             @if ($credits > 0.01 && $usage > 0)
-            <div class="stats-card glass-morphism p-4 sm:p-6">
+            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                 <div class="stats-icon red">
                     <i class="fas fa-hourglass-half text-lg sm:text-xl"></i>
                 </div>

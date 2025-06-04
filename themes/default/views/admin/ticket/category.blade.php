@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="relative overflow-x-auto">
-                    <div id="custom-loader" style="display: none;">
+                    <div id="custom-loader">
                         <div class="loader-container">
                             <div class="loader"></div>
                         </div>

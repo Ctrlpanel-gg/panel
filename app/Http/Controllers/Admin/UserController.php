@@ -424,18 +424,18 @@ class UserController extends Controller
                 $suspendText = $user->isSuspended() ? __('Unsuspend') : __('Suspend');
 
                 return '
-                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="action-btn primary"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="action-btn secondary"><i class="fas fa-envelope"></i></a>
-                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.show', $user->id) . '" class="action-btn warning"><i class="fas fa-eye"></i></a>
-                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.edit', $user->id) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="action-btn glow-border primary"><i class="fas fa-sign-in-alt"></i></a>
+                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="action-btn glow-border secondary"><i class="fas fa-envelope"></i></a>
+                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.show', $user->id) . '" class="action-btn glow-border warning"><i class="fas fa-eye"></i></a>
+                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.edit', $user->id) . '" class="action-btn glow-border info"><i class="fas fa-pen"></i></a>
                 <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
                     ' . csrf_field() . '
-                    <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn ' . $suspendColor . '"><i class="far ' . $suspendIcon . '"></i></button>
+                    <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-border ' . $suspendColor . '"><i class="far ' . $suspendIcon . '"></i></button>
                 </form>
                 <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
                     ' . csrf_field() . '
                     ' . method_field('DELETE') . '
-                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-borderglow-border danger  proximity-pulse"><i class="fas fa-trash"></i></button>
                 </form>
                 ';
             })

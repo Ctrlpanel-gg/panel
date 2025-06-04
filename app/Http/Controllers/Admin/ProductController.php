@@ -231,13 +231,13 @@ class ProductController extends Controller
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
                 return '
-                    <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="action-btn warning"><i class="fas fa-eye"></i></a>
-                    <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="action-btn primary"><i class="fas fa-clone"></i></a>
-                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="action-btn info"><i class="fas fa-pen"></i></a>
+                    <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="action-btn glow-border warning"><i class="fas fa-eye"></i></a>
+                    <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="action-btn glow-border primary"><i class="fas fa-clone"></i></a>
+                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="action-btn glow-border info"><i class="fas fa-pen"></i></a>
                     <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.destroy', $product->id).'">
                         '.csrf_field().'
                         '.method_field('DELETE').'
-                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-borderglow-border danger  proximity-pulse"><i class="fas fa-trash"></i></button>
                     </form>
                 ';
             })

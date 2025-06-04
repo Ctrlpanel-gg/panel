@@ -111,13 +111,13 @@ class TicketCategoryController extends Controller
             })
             ->addColumn('actions', function (TicketCategory $category) {
                 if ($category->id == 5) {
-                    return '<button disabled data-content="' . __('Cannot Delete Default Category, idiot') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn disabled opacity-50"><i class="fas fa-trash"></i></button>';
+                    return '<button disabled data-content="' . __('Cannot Delete Default Category, idiot') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-border disabled opacity-50"><i class="fas fa-trash"></i></button>';
                 }
                 
                 return '<form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.ticket.category.destroy', $category->id) . '">
                     ' . csrf_field() . '
                     ' . method_field('DELETE') . '
-                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-borderglow-border danger  proximity-pulse"><i class="fas fa-trash"></i></button>
                 </form>';
             })
             ->editColumn('created_at', function (TicketCategory $category) {

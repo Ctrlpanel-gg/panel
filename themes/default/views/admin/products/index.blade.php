@@ -63,7 +63,7 @@
                             <div class="loader"></div>
                         </div>
                     </div>
-                    <table id="datatable" class="w-full text-left">
+                    <table id="datatable" class="text-left">
                         <thead>
                             <tr>
                                 <th>{{__('Active')}}</th>

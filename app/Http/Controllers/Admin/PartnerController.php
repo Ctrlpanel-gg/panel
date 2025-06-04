@@ -122,11 +122,11 @@ class PartnerController extends Controller
         return datatables($query)
             ->addColumn('actions', function (PartnerDiscount $partner) {
                 return '
-                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.partners.edit', $partner->id) . '" class="action-btn info"><i class="fas fa-pen"></i></a>
+                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.partners.edit', $partner->id) . '" class="action-btn glow-border info"><i class="fas fa-pen"></i></a>
                     <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.partners.destroy', $partner->id) . '">
                         ' . csrf_field() . '
                         ' . method_field('DELETE') . '
-                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn danger"><i class="fas fa-trash"></i></button>
+                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="action-btn glow-borderglow-border danger  proximity-pulse"><i class="fas fa-trash"></i></button>
                     </form>
                 ';
             })

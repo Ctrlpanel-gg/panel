@@ -54,7 +54,7 @@
                             <div class="loader"></div>
                         </div>
                     </div>
-                    <table id="datatable" class="w-full text-left">
+                    <table id="datatable" class="text-left">
                         <thead>
                             <tr class="text-left text-zinc-400">
                                 <th class="px-2 py-3">{{__('Status')}}</th>
@@ -87,6 +87,7 @@
                         last: '<i class="fas fa-angle-double-right flex items-center justify-center w-full h-full"></i>'
                     }
                 },
+                scrollX: true,
                 processing: false,
                 serverSide: true,
                 stateSave: true,
