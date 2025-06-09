@@ -67,32 +67,18 @@
             <!-- fix for small devices only -->
             <div class="clearfix hidden-md-up"></div>
 
-            <div class="col-12 col-sm-6 col-md">
-                <div class="mb-3 info-box">
-                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-chart-line"></i></span>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">{{ $general_settings->credits_display_name }}
-                            {{ __('Usage') }}</span>
-                        <span class="info-box-number">{{ Currency::formatForDisplay($usage) }}
-                            <sup>{{ __('per month') }}</sup></span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-            </div>
 
             <!-- /.col -->
             @if ($credits > 10 && $usage > 0)
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="mb-3 info-box">
-                        <span class="info-box-icon {{ $bg }} elevation-1">
+            <div class="col-12 col-sm-6 col-md">
+              <div class="mb-3 info-box">
+                        <span class="info-box-icon {{ $timeLeft['bg'] }} elevation-1">
                             <i class="fas fa-hourglass-half"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">{{ __('Out of :credits in', ['credits' =>
-                                $general_settings->credits_display_name]) }}
+                            <span class="info-box-text">{{ $timeLeft['message'] }}
                             </span>
-                            <span class="info-box-number">{{ $boxText }}<sup>{{ $unit }}</sup></span>
+                            <span class="info-box-number">{{ $timeLeft['value'] }}<sup>{{ $timeLeft['unit'] }}</sup></span>
                         </div>
                     </div>
                     <!-- /.info-box -->
@@ -338,6 +324,7 @@
             </div>
             <!-- /.card -->
         </div>
+    </div>
 </section>
 <!-- END CONTENT -->
 <script>

@@ -19,7 +19,7 @@
  * </p>
  * @return false|string|null Returns the result from the command.
  */
-function run_console(string $command, array $descriptors = null, string $cwd = null, array $options = null, bool $logging=true)
+function run_console(string $command, ?array $descriptors = null, ?string $cwd = null, ?array $options = null, bool $logging=true)
 {
     if ($logging) {
         wh_log('running command: ' . $command, 'debug');

@@ -280,7 +280,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $usage;
     }
 
-    private function getServersWithProduct()
+    public function getServersWithProduct()
     {
         return $this->servers()
             ->whereNull('suspended')

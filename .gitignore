@@ -36,3 +36,4 @@ public/install/logs/installer.log
 
 /.idea
 cpggdatabase.sql
+/dump.rdb

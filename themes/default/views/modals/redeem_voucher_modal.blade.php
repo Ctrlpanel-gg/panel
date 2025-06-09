@@ -1,3 +1,5 @@
+
+
 <!-- The Modal -->
 <div class="modal fade" id="redeemVoucherModal">
     <div class="modal-dialog">

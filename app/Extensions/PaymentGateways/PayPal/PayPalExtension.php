@@ -127,7 +127,7 @@ class PayPalExtension extends PaymentExtension
 
                 // redirect to the payment success page with success message
                 Redirect::route('home')->with('success', 'Payment successful')->send();
-            } elseif (env('APP_ENV') == 'local') {
+            } elseif (config('app.env') == 'local') {
                 // If call returns body in response, you can get the deserialized version from the result attribute of the response
                 $payment->delete();
                 dd($response);
@@ -139,7 +139,7 @@ class PayPalExtension extends PaymentExtension
                 abort(500);
             }
         } catch (HttpException $ex) {
-            if (env('APP_ENV') == 'local') {
+            if (config('app.env') == 'local') {
                 echo $ex->statusCode;
                 $payment->delete();
                 dd($ex->getMessage());

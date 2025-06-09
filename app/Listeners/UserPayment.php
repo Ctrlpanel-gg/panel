@@ -13,6 +13,7 @@ use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 
 class UserPayment implements ShouldQueue
 {
@@ -118,12 +119,9 @@ class UserPayment implements ShouldQueue
             $discordUser = $user->discordUser;
             $success = $discordUser->addOrRemoveRole('add', $this->role_id_on_purchase);
 
-            if ($success) {
-                // LOGS DISCORD ROLE IN THE ACTIVITY LOG
-                activity()
-                    ->performedOn($user)
-                    ->causedBy($user)
-                    ->log('was added to role ' . $this->role_id_on_purchase . " on Discord");
+            if (!$success) {
+                //Activity Log moved directly to discordUser->AddOrRemoveRole()
+                Log::error("Couldnt add discord User. UserPayment Class L124");
             }
         }
 

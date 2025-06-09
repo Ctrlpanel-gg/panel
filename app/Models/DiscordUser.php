@@ -85,6 +85,13 @@ class DiscordUser extends Model
                 );
             }
 
+
+            activity()
+                ->performedOn($this->user)
+                ->causedBy($this->user)
+                ->log('was added to role ' . $this->role_id_on_purchase . " on Discord");
+
+
             return true;
         } catch (\Exception $e) {
             logger()->error($e->getMessage());

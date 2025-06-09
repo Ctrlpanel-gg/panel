@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class ServerController extends Controller
@@ -54,7 +55,7 @@ class ServerController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  Server  $server
-     * @return Response
+     * @return View
      */
     public function edit(Server $server)
     {
@@ -98,18 +99,18 @@ class ServerController extends Controller
 
                 // Attempt to remove/add roles respectively
                 try {
-                    if($discord_settings->role_on_purchase) {
+                    if($discord_settings->role_for_active_clients) {
                         // remove the role from the old owner
                         $oldOwner = User::findOrFail($server->user_id);
                         $discordUser = $oldOwner->discordUser;
                         if ($discordUser && $oldOwner->servers->count() <= 1) {
-                            $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_on_purchase);
+                            $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                         }
 
                         // add the role to the new owner
                         $discordUser = $user->discordUser;
                         if ($discordUser && $user->servers->count() >= 1) {
-                            $discordUser->addOrRemoveRole('add', $discord_settings->role_id_on_purchase);
+                            $discordUser->addOrRemoveRole('add', $discord_settings->role_id_for_active_clients);
                         }
                     }
                 } catch (Exception $e) {
@@ -146,11 +147,11 @@ class ServerController extends Controller
         try {
             // Remove role from discord
             try {
-                if($discord_settings->role_on_purchase) {
+                if($discord_settings->role_for_active_clients) {
                     $user = User::findOrFail($server->user_id);
                     $discordUser = $user->discordUser;
                     if($discordUser && $user->servers->count() <= 1) {
-                        $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_on_purchase);
+                        $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                     }
                 }
             } catch (Exception $e) {
@@ -188,15 +189,30 @@ class ServerController extends Controller
      * @param Server $server
      * @return RedirectResponse
      */
-    public function toggleSuspended(Server $server)
+    public function toggleSuspended(Request $request, Server $server)
     {
         $this->checkPermission(self::SUSPEND_PERMISSION);
+        $reason = $request->input('reason', null);
 
         try {
             $server->isSuspended() ? $server->unSuspend() : $server->suspend();
         } catch (Exception $exception) {
             return redirect()->back()->with('error', $exception->getMessage());
         }
+
+        $logMessage = "The server with ID: " . $server->id . " was " .
+            ($server->isSuspended() ? "suspended" : "unsuspended") .
+            " by " . Auth::user()['name'];
+        if ($reason) {
+            $logMessage .= ". Reason: " . e($reason);
+        }
+
+        activity()
+            ->performedOn($server)
+            ->causedBy(Auth::user())
+            ->log($logMessage);
+
+
 
         return redirect()->back()->with('success', __('Server has been updated!'));
     }
@@ -278,7 +294,16 @@ class ServerController extends Controller
                          <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.servers.edit', $server->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
                         <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
                             ' . csrf_field() . '
-                           <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
+                        <button type="button"
+                            class="btn btn-sm '.$suspendColor.' text-white mr-1 suspend-btn"
+                            data-server-id="'. $server->id .'"
+                            data-action="'.route("admin.servers.togglesuspend", $server->id) .'"
+                            data-content="'.$suspendText .'"
+                            data-toggle="popover"
+                            data-trigger="hover"
+                            data-placement="top">
+                            <i class="far '.$suspendIcon .'"></i>
+                        </button>
                        </form>
 
                        <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">

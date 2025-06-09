@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Helpers\CurrencyHelper;
 use App\Models\PartnerDiscount;
 use App\Models\Payment;
 use App\Models\ShopProduct;
@@ -45,10 +46,11 @@ trait Invoiceable
         ]);
         $item = (new InvoiceItem())
             ->title($shopProduct->description)
-            ->pricePerUnit($shopProduct->price);
+            ->pricePerUnit(($shopProduct->price/1000));
 
         $notes = [
             __("Payment method") . ": " . $payment->payment_method,
+            $invoice_settings->additional_notes ? : "",
         ];
         $notes = implode("<br>", $notes);
 
@@ -68,7 +70,7 @@ trait Invoiceable
             ->serialNumberFormat($invoice_settings->prefix . '{DELIMITER}{SERIES}{SEQUENCE}')
             ->currencyCode(strtoupper($payment->currency_code))
             ->currencySymbol(Currencies::getSymbol(strtoupper($payment->currency_code)))
-            ->notes($notes);
+            ->notes("<br/>".$notes);
 
         if (file_exists($logoPath)) {
             $invoice->logo($logoPath);
