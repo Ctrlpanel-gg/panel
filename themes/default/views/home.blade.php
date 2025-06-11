@@ -41,7 +41,7 @@
     <div class="w-full mb-6 sm:mb-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- Servers -->
-            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
                 <div class="stats-icon blue">
                     <i class="fas fa-server text-lg sm:text-xl"></i>
                 </div>
@@ -52,7 +52,7 @@
             </div>
 
             <!-- Credits -->
-            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
                 <div class="stats-icon emerald">
                     <i class="fas fa-coins text-lg sm:text-xl"></i>
                 </div>
@@ -63,7 +63,7 @@
             </div>
 
             <!-- Usage -->
-            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
                 <div class="stats-icon amber">
                     <i class="fas fa-chart-line text-lg sm:text-xl"></i>
                 </div>
@@ -78,7 +78,7 @@
 
             <!-- Credits Remaining -->
             @if ($credits > 0.01 && $usage > 0)
-            <div class="stats-card glass-morphism p-4 sm:p-6 transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
                 <div class="stats-icon red">
                     <i class="fas fa-hourglass-half text-lg sm:text-xl"></i>
                 </div>
@@ -109,7 +109,7 @@
             <div class="space-y-6 sm:space-y-8">
                 <!-- MOTD -->
                 @if ($website_settings->motd_enabled)
-                    <div class="card glass-morphism">
+                    <div class="card ">
                         <div class="p-4 sm:p-6 border-b border-zinc-800/50">
                             <h3 class="text-white font-medium flex items-center gap-2 font-oxanium">
                                 <i class="fas fa-bullhorn text-zinc-400"></i>
@@ -126,7 +126,7 @@
 
                 <!-- Useful Links -->
                 @if ($website_settings->useful_links_enabled)
-                    <div class="card glass-morphism">
+                    <div class="card ">
                         <div class="p-4 sm:p-6 border-b border-zinc-800/50">
                             <h3 class="text-white font-medium flex items-center gap-2 font-oxanium">
                                 <i class="fas fa-link text-zinc-400"></i>
@@ -161,7 +161,7 @@
             <div class="space-y-6 sm:space-y-8">
                 <!-- Partner Program -->
                 @if ($referral_settings->enabled)
-                    <div class="card glass-morphism">
+                    <div class="card ">
                         <div class="p-6 border-b border-zinc-800/50">
                             <h3 class="text-white font-medium flex items-center gap-2 font-oxanium">
                                 <i class="fas fa-handshake text-zinc-400"></i>
@@ -298,7 +298,7 @@
                 @endif
 
                 <!-- Activity Logs -->
-                <div class="card glass-morphism">
+                <div class="card ">
                     <div class="p-6 border-b border-zinc-800/50">
                         <h3 class="text-white font-medium flex items-center gap-2 font-oxanium">
                             <i class="fas fa-history text-zinc-400"></i>
@@ -462,9 +462,9 @@
 </script>
 
 <style>
-    /* Animations */
+    /* Optimized animations */
     .fade-in {
-        @apply transition-opacity ease-out duration-200;
+        @apply transition-opacity duration-200;
     }
 
     .animate-in {
@@ -476,17 +476,27 @@
     }
 
     .transition-transform {
-        transition: transform 0.2s ease-in-out;
+        transition: transform 0.2s ease-out;
+    }
+
+    /* Replace heavy  with lighter alternative */
+    . {
+        @apply bg-zinc-800/30;
+    }
+
+    /* Optimize hover styles */
+    .stats-card:hover {
+        background-color: rgba(39, 39, 42, 0.5);
     }
 
     @keyframes enter {
         from {
             opacity: 0;
-            transform: scale(0.95);
+            transform: translateY(4px);
         }
         to {
             opacity: 1;
-            transform: scale(1);
+            transform: translateY(0);
         }
     }
 </style>

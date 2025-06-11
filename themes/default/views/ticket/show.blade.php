@@ -24,24 +24,22 @@
     <div class="w-full space-y-6">
         <!-- Ticket Details -->
         <div class="card glass-morphism">
-            <div class="p-6 border-b border-zinc-800/50">
+            <div class="p-4 border-b border-zinc-800/50">
                 <h3 class="text-white font-medium flex items-center gap-2">
                     <i class="fas fa-info-circle text-zinc-400"></i>
                     {{ __('Ticket Details') }}
                 </h3>
             </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="p-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                     <!-- Server -->
                     @if(!empty($server))
-                    <div class="glass-panel bg-zinc-800/30 p-4">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="rounded-lg p-2 bg-blue-500/10">
-                                <i class="fas fa-server text-blue-400"></i>
-                            </div>
-                            <span class="text-sm text-zinc-400">{{ __('Server') }}</span>
+                    <div class="glass-panel bg-zinc-800/30 p-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-server text-blue-400 text-sm"></i>
+                            <span class="text-xs text-zinc-400">{{ __('Server') }}</span>
                         </div>
-                        <div class="text-lg font-medium text-white">
+                        <div class="text-sm font-medium text-white truncate">
                             <a href="{{ $pterodactyl_url }}/server/{{ $server->identifier }}" target="_blank" class="text-primary-400 hover:text-primary-300">
                                 {{ $server->name }}
                             </a>
@@ -50,105 +48,95 @@
                     @endif
                     
                     <!-- Title -->
-                    <div class="glass-panel bg-zinc-800/30 p-4">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="rounded-lg p-2 bg-purple-500/10">
-                                <i class="fas fa-heading text-purple-400"></i>
-                            </div>
-                            <span class="text-sm text-zinc-400">{{ __('Title') }}</span>
+                    <div class="glass-panel bg-zinc-800/30 p-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-heading text-purple-400 text-sm"></i>
+                            <span class="text-xs text-zinc-400">{{ __('Title') }}</span>
                         </div>
-                        <div class="text-lg font-medium text-white">{{ $ticket->title }}</div>
+                        <div class="text-sm font-medium text-white truncate">{{ $ticket->title }}</div>
                     </div>
                     
                     <!-- Category -->
-                    <div class="glass-panel bg-zinc-800/30 p-4">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="rounded-lg p-2 bg-emerald-500/10">
-                                <i class="fas fa-tag text-emerald-400"></i>
-                            </div>
-                            <span class="text-sm text-zinc-400">{{ __('Category') }}</span>
+                    <div class="glass-panel bg-zinc-800/30 p-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-tag text-emerald-400 text-sm"></i>
+                            <span class="text-xs text-zinc-400">{{ __('Category') }}</span>
                         </div>
-                        <div class="text-lg font-medium text-white">{{ $ticketcategory->name }}</div>
+                        <div class="text-sm font-medium text-white truncate">{{ $ticketcategory->name }}</div>
                     </div>
                     
                     <!-- Status -->
-                    <div class="glass-panel bg-zinc-800/30 p-4">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="rounded-lg p-2 bg-amber-500/10">
-                                <i class="fas fa-circle text-amber-400"></i>
-                            </div>
-                            <span class="text-sm text-zinc-400">{{ __('Status') }}</span>
+                    <div class="glass-panel bg-zinc-800/30 p-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-circle text-amber-400 text-sm"></i>
+                            <span class="text-xs text-zinc-400">{{ __('Status') }}</span>
                         </div>
-                        <div class="text-lg font-medium flex items-center gap-2">
+                        <div class="text-sm font-medium">
                             @switch($ticket->status)
                                 @case("Open")
-                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full text-xs">{{ __('Open') }}</span>
+                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-xs">{{ __('Open') }}</span>
                                     @break
                                 @case("Reopened")
-                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full text-xs">{{ __('Reopened') }}</span>
+                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-xs">{{ __('Reopened') }}</span>
                                     @break
                                 @case("Closed")
-                                    <span class="bg-red-500/10 text-red-400 px-2 py-1 rounded-full text-xs">{{ __('Closed') }}</span>
+                                    <span class="bg-red-500/10 text-red-400 px-2 py-0.5 rounded text-xs">{{ __('Closed') }}</span>
                                     @break
                                 @case("Answered")
-                                    <span class="bg-blue-500/10 text-blue-400 px-2 py-1 rounded-full text-xs">{{ __('Answered') }}</span>
+                                    <span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded text-xs">{{ __('Answered') }}</span>
                                     @break
                                 @case("Client Reply")
-                                    <span class="bg-amber-500/10 text-amber-400 px-2 py-1 rounded-full text-xs">{{ __('Client Reply') }}</span>
+                                    <span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-xs">{{ __('Client Reply') }}</span>
                                     @break
                             @endswitch
                         </div>
                     </div>
                     
                     <!-- Priority -->
-                    <div class="glass-panel bg-zinc-800/30 p-4">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="rounded-lg p-2 bg-red-500/10">
-                                <i class="fas fa-flag text-red-400"></i>
-                            </div>
-                            <span class="text-sm text-zinc-400">{{ __('Priority') }}</span>
+                    <div class="glass-panel bg-zinc-800/30 p-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-flag text-red-400 text-sm"></i>
+                            <span class="text-xs text-zinc-400">{{ __('Priority') }}</span>
                         </div>
-                        <div class="text-lg font-medium flex items-center gap-2">
+                        <div class="text-sm font-medium">
                             @switch($ticket->priority)
                                 @case("Low")
-                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full text-xs">{{ __('Low') }}</span>
+                                    <span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded text-xs">{{ __('Low') }}</span>
                                     @break
                                 @case("Medium")
-                                    <span class="bg-amber-500/10 text-amber-400 px-2 py-1 rounded-full text-xs">{{ __('Medium') }}</span>
+                                    <span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded text-xs">{{ __('Medium') }}</span>
                                     @break
                                 @case("High")
-                                    <span class="bg-red-500/10 text-red-400 px-2 py-1 rounded-full text-xs">{{ __('High') }}</span>
+                                    <span class="bg-red-500/10 text-red-400 px-2 py-0.5 rounded text-xs">{{ __('High') }}</span>
                                     @break
                             @endswitch
                         </div>
                     </div>
                     
                     <!-- Created Date -->
-                    <div class="glass-panel bg-zinc-800/30 p-4">
-                        <div class="flex items-center gap-3 mb-2">
-                            <div class="rounded-lg p-2 bg-blue-500/10">
-                                <i class="fas fa-calendar-alt text-blue-400"></i>
-                            </div>
-                            <span class="text-sm text-zinc-400">{{ __('Created on') }}</span>
+                    <div class="glass-panel bg-zinc-800/30 p-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fas fa-calendar-alt text-blue-400 text-sm"></i>
+                            <span class="text-xs text-zinc-400">{{ __('Created') }}</span>
                         </div>
-                        <div class="text-lg font-medium text-white">{{ $ticket->created_at->diffForHumans() }}</div>
+                        <div class="text-sm font-medium text-white">{{ $ticket->created_at->diffForHumans() }}</div>
                     </div>
                 </div>
                 
                 <!-- Actions -->
-                <div class="mt-6 flex flex-wrap gap-3">
+                <div class="mt-4 flex flex-wrap gap-2">
                     @if($ticket->status=='Closed')
                         <form class="inline" method="post" action="{{ route('ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ]) }}">
                             @csrf
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-redo mr-2"></i>{{ __('Reopen') }}
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-redo mr-1"></i>{{ __('Reopen') }}
                             </button>
                         </form>
                     @else
                         <form class="inline" method="post" action="{{ route('ticket.changeStatus', ['ticket_id' => $ticket->ticket_id ]) }}">
                             @csrf
-                            <button type="submit" class="btn bg-red-800/80 text-red-200 hover:bg-red-700/80">
-                                <i class="fas fa-times mr-2"></i>{{ __('Close') }}
+                            <button type="submit" class="btn bg-red-800/80 text-red-200 hover:bg-red-700/80 btn-sm">
+                                <i class="fas fa-times mr-1"></i>{{ __('Close') }}
                             </button>
                         </form>
                     @endif

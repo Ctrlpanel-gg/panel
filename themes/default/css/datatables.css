@@ -46,7 +46,7 @@
 /* Table Container */
 .table-container,
 .dataTables_wrapper {
-    @apply rounded-lg overflow-hidden text-zinc-400 w-full;
+    @apply rounded-lg text-zinc-400 w-full;
 }
 
 /* Responsive Table Scrolling */
@@ -249,7 +249,7 @@ table.dataTable tbody tr>.highlight {
         @apply w-full justify-center mt-4;
     }
 }
-}
+
 
 @keyframes fadeOut {
     from {

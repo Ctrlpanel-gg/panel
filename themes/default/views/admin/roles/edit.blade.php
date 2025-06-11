@@ -79,61 +79,6 @@
     </div>
 </div>
 
-<style>
-    select { width: 100%; }
-    .select2-container--default .select2-selection--single,
-    .select2-container--default .select2-selection--multiple {
-        background-color: rgb(9 9 11) !important;
-        border: 1px solid rgb(39 39 42) !important;
-        border-radius: 0.5rem !important;
-        min-height: 42px !important;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-        padding: 4px 8px !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: rgb(212 212 216) !important;
-        line-height: 42px !important;
-        padding-left: 16px !important;
-    }
-    .select2-dropdown {
-        background-color: rgb(9 9 11) !important;
-        border: 1px solid rgb(39 39 42) !important;
-    }
-    .select2-search__field {
-        background-color: rgb(24 24 27) !important;
-        border-color: rgb(39 39 42) !important;
-        color: white !important;
-        padding: 4px 8px !important;
-    }
-    .select2-results__option {
-        padding: 8px 16px !important;
-        color: rgb(212 212 216) !important;
-    }
-    .select2-results__option--highlighted[aria-selected] {
-        background-color: rgb(59 130 246 / 0.2) !important;
-        color: rgb(147 197 253) !important;
-    }
-    .select2-results__option[aria-selected=true] {
-        background-color: rgb(29 78 216 / 0.2) !important;
-        color: rgb(147 197 253) !important;
-    }
-    .select2-selection__choice {
-        background-color: rgb(29 78 216 / 0.2) !important;
-        border: none !important;
-        color: rgb(147 197 253) !important;
-        border-radius: 4px !important;
-        padding: 4px 8px !important;
-        margin: 4px !important;
-    }
-    .select2-selection__choice__remove {
-        color: rgb(147 197 253 / 0.6) !important;
-        margin-right: 6px !important;
-    }
-    .select2-selection__choice__remove:hover {
-        color: rgb(147 197 253) !important;
-    }
-</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {

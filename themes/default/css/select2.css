@@ -7,9 +7,7 @@
 
 /* Placeholder & selected text */
 .select2-container--default .select2-selection--single .select2-selection__rendered,
-.select2-container--default .select2-selection--multiple .select2-selection__rendered {
-  @apply text-zinc-300 placeholder:text-zinc-600 text-sm px-2;
-}
+.select2-container--default .select2-selection--multiple .select2-selection__rendered {}
 
 /* Dropdown arrow */
 .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -48,9 +46,8 @@
   background: linear-gradient(90deg,
       rgba(79, 70, 229, 0.1),
       rgba(79, 70, 229, 0.7),
-      rgba(79, 70, 229, 0.1));
-  background-size: 200% 100%;
-  @apply text-primary-200;
+      rgba(79, 70, 229, 0.1)) !important;
+  @apply text-primary-200 !important;
 }
 
 /* Selected option */
@@ -72,4 +69,21 @@
 /* Unselected options */
 .select2-container--default .select2-results__option--unselected {
   @apply text-zinc-400;
+}
+
+/* Highlighted unselected options */
+.select2-results__option--highlighted[aria-selected] {
+  background-color: rgb(59 130 246 / 0.2) !important;
+  color: rgb(147 197 253) !important;
+}
+
+.select2-results__group {
+  /* center and capitalize it , add 2 white beams to the sides */
+  @apply text-center text-sm font-semibold text-zinc-400 uppercase px-3 py-2;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+  padding: 0;
+  position: relative;
+
 }

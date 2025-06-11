@@ -1,11 +1,11 @@
 {
   "themes/default/css/app.css": {
-    "file": "assets/app-58467fd7.css",
+    "file": "assets/app-5ce3cce9.css",
     "isEntry": true,
     "src": "themes/default/css/app.css"
   },
   "themes/default/css/select2.css": {
-    "file": "assets/select2-879c44be.css",
+    "file": "assets/select2-068be16b.css",
     "isEntry": true,
     "src": "themes/default/css/select2.css"
   },

@@ -338,6 +338,7 @@
     document.addEventListener('DOMContentLoaded', (event) => {
         // Initialize Select2 with improved settings
         $('.form-select').select2({
+            closeOnSelect: false,
             dropdownParent: $('body'),
             width: '100%',
             minimumResultsForSearch: 10,
