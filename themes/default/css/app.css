@@ -3,16 +3,9 @@
 @import 'tailwindcss/utilities';
 
 @import url("https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 @layer base {
-    html {
-        @apply antialiased;
-    }
-
-    body {
-        @apply bg-primary-950 text-primary-100;
-    }
-
     :root {
         --background: 222.2 84% 4.9%;
         --foreground: 210 40% 98%;
@@ -21,7 +14,30 @@
         --primary: 221 83% 53%;
         --ring: 221 83% 53%;
         --ring-color: 221 83% 53%;
-        animation: var(--animate-pulse);
+    }
+
+    html {
+        @apply bg-s1;
+    }
+
+    body {
+        @apply text-[16px] tracking-[-0.03em] text-primary-100 bg-primary-950;
+    }
+
+    a {
+        @apply no-underline;
+    }
+
+    img {
+        @apply block max-w-full;
+    }
+
+    button {
+        @apply bg-none tracking-[-0.03em] text-primary-100;
+    }
+
+    input {
+        @apply tracking-[-0.03em];
     }
 
     /* Form Controls */
@@ -40,7 +56,7 @@
     [multiple],
     textarea,
     select {
-        @apply w-full rounded-lg bg-zinc-900/50 border-zinc-800/50 text-zinc-300 focus:border-primary-500 focus:ring-primary-500/20 placeholder:text-zinc-600;
+        @apply w-full rounded-lg bg-zinc-900/50 border border-zinc-800/50 text-zinc-300 focus:border-primary-500 focus:ring-primary-500/20 placeholder:text-zinc-600;
     }
 
     [type='checkbox'],
@@ -48,7 +64,7 @@
         @apply rounded border-zinc-800/50 bg-zinc-900/50 text-primary-600 focus:ring-primary-500/20 focus:ring-offset-0;
     }
 
-    /* Chrome, Safari, Edge autofill override */
+    /* Autofill styles */
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
     input:-webkit-autofill:focus,
@@ -59,11 +75,48 @@
         border-bottom-width: 1px;
     }
 
-    /* Firefox autofill override */
     input:autofill {
         background: transparent;
         color: #fff;
         border-bottom-width: 1px;
+    }
+}
+
+@layer utilities {
+    .g1 {
+        background: linear-gradient(rgba(196, 203, 245, 0.5), transparent);
+    }
+
+    .g2 {
+        background: linear-gradient(#3062a3, #19549f);
+    }
+
+    .g3 {
+        background: linear-gradient(#3c52d9, #0c1838);
+    }
+
+    .g4 {
+        background: linear-gradient(#253575, #162561);
+    }
+
+    .g5 {
+        background: linear-gradient(#334679, #162561);
+    }
+
+    .g6 {
+        background: linear-gradient(#334679, #0c1838);
+    }
+
+    .g7 {
+        background: linear-gradient(#1b275a, #0e1434);
+    }
+
+    .g8 {
+        background: linear-gradient(to right, transparent, #2ef2ff, transparent);
+    }
+
+    .g9 {
+        background: linear-gradient(#080d27, transparent);
     }
 }
 
@@ -478,16 +531,6 @@
     }
 }
 
-@keyframes pulse {
-    50% {
-        opacity: 0.3;
-    }
-
-    100% {
-        opacity: 1;
-    }
-}
-
 /* Page transitions */
 #app {
     animation: fadeIn 0.3s ease-out;
@@ -851,117 +894,57 @@
     @apply bg-red-500/20 text-red-400;
 }
 
-
-
-
-
-
-.checkbox-wrapper-26 * {
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
-}
-
-.checkbox-wrapper-26 input[type="checkbox"] {
-    display: none;
-}
-
-.checkbox-wrapper-26 label {
-    --size: 50px;
-    --shadow: calc(var(--size) * .07) calc(var(--size) * .1);
-
+/* Adding a visually appealing layered background */
+.background-layered {
     position: relative;
-    display: block;
-    width: var(--size);
-    height: var(--size);
-    margin: 0 auto;
-    background-color: #f72414;
-    border-radius: 50%;
-    box-shadow: 0 var(--shadow) #ffbeb8;
-    cursor: pointer;
-    transition: 0.2s ease transform, 0.2s ease background-color,
-        0.2s ease box-shadow;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.checkbox-wrapper-26 label:before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 0;
-    left: 0;
-    width: calc(var(--size) * .7);
-    height: calc(var(--size) * .7);
-    margin: 0 auto;
-    background-color: #fff;
-    transform: translateY(-50%);
-    border-radius: 50%;
-    box-shadow: inset 0 var(--shadow) #ffbeb8;
-    transition: 0.2s ease width, 0.2s ease height;
-}
-
-.checkbox-wrapper-26 label:hover:before {
-    width: calc(var(--size) * .55);
-    height: calc(var(--size) * .55);
-    box-shadow: inset 0 var(--shadow) #ff9d96;
-}
-
-.checkbox-wrapper-26 label:active {
-    transform: scale(0.9);
-}
-
-.checkbox-wrapper-26 .tick_mark {
-    position: absolute;
-    top: -1px;
-    right: 0;
-    left: calc(var(--size) * -.05);
-    width: calc(var(--size) * .6);
-    height: calc(var(--size) * .6);
-    margin: 0 auto;
-    margin-left: calc(var(--size) * .14);
-    transform: rotateZ(-40deg);
-}
-
-.checkbox-wrapper-26 .tick_mark:before,
-.checkbox-wrapper-26 .tick_mark:after {
-    content: "";
-    position: absolute;
-    background-color: #fff;
-    border-radius: 2px;
-    opacity: 0;
-    transition: 0.2s ease transform, 0.2s ease opacity;
-}
-
-.checkbox-wrapper-26 .tick_mark:before {
-    left: 0;
-    bottom: 0;
-    width: calc(var(--size) * .1);
-    height: calc(var(--size) * .3);
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.23);
-    transform: translateY(calc(var(--size) * -.68));
-}
-
-.checkbox-wrapper-26 .tick_mark:after {
-    left: 0;
-    bottom: 0;
     width: 100%;
-    height: calc(var(--size) * .1);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.23);
-    transform: translateX(calc(var(--size) * .78));
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(#080d27, #0c1838);
 }
 
-.checkbox-wrapper-26 input[type="checkbox"]:checked+label {
-    background-color: #07d410;
-    box-shadow: 0 var(--shadow) #92ff97;
+.background-layered::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, #2ef2ff, transparent);
+    animation: pulse 6s infinite;
+    opacity: 0.8;
 }
 
-.checkbox-wrapper-26 input[type="checkbox"]:checked+label:before {
-    width: 0;
-    height: 0;
+.background-layered::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(#334679, #162561);
+    animation: fadeOut 8s infinite;
+    opacity: 0.6;
 }
 
-.checkbox-wrapper-26 input[type="checkbox"]:checked+label .tick_mark:before,
-.checkbox-wrapper-26 input[type="checkbox"]:checked+label .tick_mark:after {
-    transform: translate(0);
-    opacity: 1;
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0.4;
+    }
 }
