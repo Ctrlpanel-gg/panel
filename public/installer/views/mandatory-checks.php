@@ -5,7 +5,7 @@
     $subtitle = "This installer will lead you through the most crucial Steps of CtrlPanel.gg's setup"
 ); ?>
 
-<ul class="list-none mb-2">
+<ul class="list-none mb-6 space-y-3">
 
     <li class="<?php echo checkWriteable() ? 'ok' : 'not-ok'; ?> check">Write-permissions on .env-file</li>
 
