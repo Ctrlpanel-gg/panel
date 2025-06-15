@@ -1,169 +1,289 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="min-h-screen bg-primary-950 p-4 sm:p-8">
-    <!-- Header -->
-    <header class="w-full mb-6 sm:mb-8">
-        <div class="glass-panel p-4 sm:p-6">
-            <h1 class="text-2xl sm:text-3xl font-light text-white font-oxanium">{{ __('Dashboard') }}</h1>
-            <div class="text-zinc-400 text-sm mt-2">
-                {{ __('Welcome back') }}, {{ Auth::user()->name }}
-            </div>
-        </div>
-    </header>
+<div class="min-h-screen bg-gradient-to-br from-zinc-950 via-primary-950 to-zinc-900 relative overflow-hidden">
+    <!-- Background Effects -->
+    <div class="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-blue/5 rounded-full blur-3xl"></div>
 
-    <!-- Admin Warning -->
-    @if (!file_exists(base_path() . '/install.lock') && Auth::user()->hasRole("Admin"))
-        <div class="w-full mb-6 sm:mb-8">
-            <div class="glass-panel p-4 sm:p-6 bg-red-500/5 text-red-400">
-                <div class="flex items-center gap-3 mb-2">
-                    <i class="fas fa-exclamation-circle text-lg"></i>
-                    <h4 class="font-medium font-oxanium">{{ __('The installer is not locked!') }}</h4>
-                </div>
-                <p class="text-sm opacity-90 mb-3">{{ __('Please create a file called "install.lock" in your dashboard root directory. Otherwise, no settings will be loaded!') }}</p>
-                <a href="/install?step=7" class="btn btn-primary">
-                    {{ __('or click here') }}
-                </a>
-            </div>
-        </div>
-    @endif
-
-    <!-- Alert Message -->
-    @if ($general_settings->alert_enabled && !empty($general_settings->alert_message))
-        <div class="w-full mb-6 sm:mb-8">
-            <div class="glass-panel p-4 sm:p-6 text-zinc-300">
-                {!! $general_settings->alert_message !!}
-            </div>
-        </div>
-    @endif
-
-    <!-- Stats Grid -->
-    <div class="w-full mb-6 sm:mb-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <!-- Servers -->
-            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
-                <div class="stats-icon blue">
-                    <i class="fas fa-server text-lg sm:text-xl"></i>
-                </div>
-                <div>
-                    <div class="stats-text-label font-oxanium">{{ __('Servers') }}</div>
-                    <div class="stats-text-value font-oxanium">{{ Auth::user()->servers()->count() }}</div>
-                </div>
-            </div>
-
-            <!-- Credits -->
-            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
-                <div class="stats-icon emerald">
-                    <i class="fas fa-coins text-lg sm:text-xl"></i>
-                </div>
-                <div>
-                    <div class="stats-text-label font-oxanium">{{ $general_settings->credits_display_name }}</div>
-                    <div class="stats-text-value font-oxanium">{{ Auth::user()->Credits() }}</div>
-                </div>
-            </div>
-
-            <!-- Usage -->
-            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
-                <div class="stats-icon amber">
-                    <i class="fas fa-chart-line text-lg sm:text-xl"></i>
-                </div>
-                <div>
-                    <div class="stats-text-label font-oxanium">{{ __('Usage') }}</div>
-                    <div class="stats-text-value font-oxanium">
-                        {{ number_format($usage, 2, '.', '') }}
-                        <span class="stats-text-subtitle">{{ __('per month') }}</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Credits Remaining -->
-            @if ($credits > 0.01 && $usage > 0)
-            <div class="stats-card bg-zinc-800/30 p-4 sm:p-6 hover:bg-zinc-800/50">
-                <div class="stats-icon red">
-                    <i class="fas fa-hourglass-half text-lg sm:text-xl"></i>
-                </div>
-                <div>
-                    <div class="stats-text-label font-oxanium">{{ __('Credits Remaining') }}</div>
-                    <div class="stats-text-value font-oxanium">
-                        {{ $boxText }}<span class="stats-text-subtitle">{{ $unit }}</span>
-                    </div>
-                </div>
-            </div>
-            @endif
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="w-full">
-        <!-- Toast notification for URL copy -->
-        <div id="url-copy-toast" class="fixed top-5 right-5 z-[9999] hidden">
-            <div class="flex items-center w-full max-w-xs p-4 text-zinc-300 bg-zinc-900/95 rounded-lg shadow border border-zinc-800/50 backdrop-blur-sm" role="alert">
-                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-500 bg-emerald-500/10 rounded-lg">
-                    <i class="fas fa-check"></i>
-                </div>
-                <div class="ml-3 text-sm font-normal">{{ __('URL copied to clipboard') }}</div>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-            <!-- Left Column -->
-            <div class="space-y-6 sm:space-y-8">
-                <!-- MOTD -->
-                @if ($website_settings->motd_enabled)
-                    <div class="card ">
-                        <div class="p-4 sm:p-6 border-b border-zinc-800/50">
-                            <h3 class="text-white font-medium flex items-center gap-2 font-oxanium">
-                                <i class="fas fa-bullhorn text-zinc-400"></i>
-                                {{ __('Announcement') }}
-                            </h3>
+    <div class="relative z-10 p-4 sm:p-8">
+        <!-- Hero Header -->
+        <header class="mb-8 sm:mb-12">
+            <div class="max-w-7xl mx-auto">
+                <div class="glass-panel p-6 sm:p-8 lg:p-10 overflow-hidden relative">
+                    <!-- Background Gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary-600/10 via-transparent to-accent-blue/10"></div>
+                    
+                    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-primary-500/20 flex items-center justify-center">
+                                    <i class="fas fa-tachometer-alt text-primary-400 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h1 class="text-2xl font-semibold text-white mb-1">{{ __('Dashboard') }}</h1>
+                                    <p class="text-sm text-zinc-400">
+                                        {{ __('Welcome back') }}, <span class="text-primary-400 font-medium">{{ Auth::user()->name }}</span>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="p-4 sm:p-6">
-                            <div class="prose prose-invert max-w-none w-full prose-sm sm:prose-base">
-                                {!! $website_settings->motd_message !!}
+                        
+                        <!-- Quick Actions -->
+                        <div class="flex items-center gap-3 mt-4 lg:mt-0">
+                            <button class="px-3 py-2 bg-zinc-800/50 text-zinc-300 rounded-lg hover:bg-zinc-700/50 transition-colors text-sm border border-zinc-700/50">
+                                <i class="fas fa-bell mr-2 text-xs"></i>
+                                {{ __('Notifications') }}
+                            </button>
+                            <button class="px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-500 transition-colors text-sm">
+                                <i class="fas fa-plus mr-2 text-xs"></i>
+                                {{ __('New Server') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Admin Warning -->
+        @if (!file_exists(base_path() . '/install.lock') && Auth::user()->hasRole("Admin"))
+            <div class="max-w-7xl mx-auto mb-8">
+                <div class="glass-panel p-6 bg-red-500/5 border-red-500/20 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-red-400 text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-red-300 mb-2">{{ __('Security Warning') }}</h4>
+                                <p class="text-sm text-red-200/90 mb-4">
+                                    {{ __('The installer is not locked! Please create a file called "install.lock" in your dashboard root directory. Otherwise, no settings will be loaded!') }}
+                                </p>
+                                <a href="/install?step=7" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors text-sm inline-flex items-center">
+                                    <i class="fas fa-shield-alt mr-2 text-xs"></i>
+                                    {{ __('Secure Installation') }}
+                                </a>
                             </div>
                         </div>
                     </div>
-                @endif
+                </div>
+            </div>
+        @endif
 
-                <!-- Useful Links -->
-                @if ($website_settings->useful_links_enabled)
-                    <div class="card ">
-                        <div class="p-4 sm:p-6 border-b border-zinc-800/50">
-                            <h3 class="text-white font-medium flex items-center gap-2 font-oxanium">
-                                <i class="fas fa-link text-zinc-400"></i>
-                                {{ __('Useful Links') }}
-                            </h3>
-                        </div>
-                        <div class="p-4 sm:p-6">
-                            @if($useful_links_dashboard->count())
-                                <div class="space-y-3 sm:space-y-4">
-                                    @foreach ($useful_links_dashboard as $useful_link)
-                                        <a href="{{ $useful_link->link }}" target="_blank" 
-                                           class="block p-3 sm:p-4 bg-zinc-800/50 rounded-lg hover:bg-zinc-800 transition-colors">
-                                            <h4 class="text-white font-medium flex items-center gap-2 mb-2 text-sm sm:text-base font-oxanium">
-                                                <i class="{{ $useful_link->icon }} text-zinc-400"></i>
-                                                {{ $useful_link->title }}
-                                            </h4>
-                                            <div class="text-xs sm:text-sm text-zinc-400">
-                                                {!! $useful_link->description !!}
-                                            </div>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="text-zinc-500 text-sm">{{ __('No useful links available') }}</div>
-                            @endif
+        <!-- Alert Message -->
+        @if ($general_settings->alert_enabled && !empty($general_settings->alert_message))
+            <div class="max-w-7xl mx-auto mb-8">
+                <div class="glass-panel p-6 bg-amber-500/5 border-amber-500/20 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                                <i class="fas fa-bullhorn text-amber-400 text-lg"></i>
+                            </div>
+                            <div class="prose prose-invert max-w-none">
+                                {!! $general_settings->alert_message !!}
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Enhanced Stats Grid -->
+        <div class="max-w-7xl mx-auto mb-12">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Servers Card -->
+                <div class="group">
+                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-primary-500/30 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-server text-blue-400 text-xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">
+                                        {{ Auth::user()->servers()->count() }}
+                                    </div>
+                                    <div class="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">
+                                        {{ __('Servers') }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transform translate-x-0 group-hover:translate-x-1 transition-transform duration-500" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credits Card -->
+                <div class="group">
+                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-emerald-500/30 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-coins text-emerald-400 text-xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+                                        {{ Auth::user()->Credits() }}
+                                    </div>
+                                    <div class="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">
+                                        {{ $general_settings->credits_display_name }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transform translate-x-0 group-hover:translate-x-1 transition-transform duration-500" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Card -->
+                <div class="group">
+                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-amber-500/30 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-chart-line text-amber-400 text-xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-white group-hover:text-amber-400 transition-colors">
+                                        {{ number_format($usage, 2, '.', '') }}
+                                    </div>
+                                    <div class="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">
+                                        {{ __('Usage') }} <span class="text-xs opacity-75">{{ __('per month') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transform translate-x-0 group-hover:translate-x-1 transition-transform duration-500" style="width: 45%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Credits Remaining Card -->
+                @if ($credits > 0.01 && $usage > 0)
+                <div class="group">
+                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-red-500/30 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-hourglass-half text-red-400 text-xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-white group-hover:text-red-400 transition-colors">
+                                        {{ $boxText }}
+                                    </div>
+                                    <div class="text-sm text-zinc-400 group-hover:text-zinc-300 transition-colors">
+                                        {{ __('Credits Remaining') }} <span class="text-xs opacity-75">{{ $unit }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transform translate-x-0 group-hover:translate-x-1 transition-transform duration-500" style="width: 30%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 @endif
             </div>
+        </div>
 
-            <!-- Right Column -->
-            <div class="space-y-6 sm:space-y-8">
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto">
+            <!-- Toast notification for URL copy -->
+            <div id="url-copy-toast" class="fixed top-5 right-5 z-[9999] hidden">
+                <div class="flex items-center w-full max-w-xs p-4 text-zinc-300 bg-zinc-900/95 rounded-xl shadow-2xl border border-zinc-800/50 backdrop-blur-sm" role="alert">
+                    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-500 bg-emerald-500/10 rounded-lg">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="ml-3 text-sm font-normal">{{ __('URL copied to clipboard') }}</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Left Column (2/3 width) -->
+                <div class="xl:col-span-2 space-y-8">
+                    <!-- MOTD -->
+                    @if ($website_settings->motd_enabled)
+                        <div class="card group hover:scale-[1.01] transition-all duration-300">
+                            <div class="card-header bg-gradient-to-r from-primary-500/10 to-transparent">
+                                <h3 class="text-lg font-semibold text-white flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-primary-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                        <i class="fas fa-bullhorn text-primary-400"></i>
+                                    </div>
+                                    {{ __('Announcement') }}
+                                </h3>
+                            </div>
+                            <div class="card-body prose prose-invert max-w-none">
+                                {!! $website_settings->motd_message !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Useful Links -->
+                    @if ($website_settings->useful_links_enabled)
+                        <div class="card group hover:scale-[1.01] transition-all duration-300">
+                            <div class="card-header bg-gradient-to-r from-accent-blue/10 to-transparent">
+                                <h3 class="text-lg font-semibold text-white flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-accent-blue/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                        <i class="fas fa-link text-accent-blue"></i>
+                                    </div>
+                                    {{ __('Useful Links') }}
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                @if($useful_links_dashboard->count())
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        @foreach ($useful_links_dashboard as $useful_link)
+                                            <a href="{{ $useful_link->link }}" target="_blank" 
+                                               class="group/link p-4 bg-zinc-800/30 rounded-xl hover:bg-zinc-800/50 transition-all duration-300 hover:scale-105 border border-transparent hover:border-zinc-700/50">
+                                                <div class="flex items-start gap-3">
+                                                    <div class="w-8 h-8 rounded-lg bg-zinc-700/50 flex items-center justify-center flex-shrink-0 group-hover/link:scale-110 transition-transform duration-300">
+                                                        <i class="{{ $useful_link->icon }} text-zinc-400 group-hover/link:text-accent-blue transition-colors"></i>
+                                                    </div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <h4 class="text-sm font-medium text-white mb-2 group-hover/link:text-accent-blue transition-colors truncate">
+                                                            {{ $useful_link->title }}
+                                                        </h4>
+                                                        <div class="text-xs text-zinc-400 line-clamp-2">
+                                                            {!! $useful_link->description !!}
+                                                        </div>
+                                                    </div>
+                                                    <i class="fas fa-external-link-alt text-zinc-600 group-hover/link:text-accent-blue transition-colors"></i>
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center py-8">
+                                        <div class="w-16 h-16 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
+                                            <i class="fas fa-link text-zinc-500 text-xl"></i>
+                                        </div>
+                                        <p class="text-sm text-zinc-500">{{ __('No useful links available') }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Right Column (1/3 width) -->
+                <div class="space-y-8">
                 <!-- Partner Program -->
                 @if ($referral_settings->enabled)
                     <div class="card ">
                         <div class="p-6 border-b border-zinc-800/50">
-                            <h3 class="text-white font-medium flex items-center gap-2 font-oxanium">
+                            <h3 class="text-white font-medium flex items-center gap-2 text-base">
                                 <i class="fas fa-handshake text-zinc-400"></i>
                                 {{ __('Partner program') }}
                             </h3>
@@ -204,9 +324,9 @@
                                                 <div class="rounded-lg p-2 bg-blue-500/10">
                                                     <i class="fas fa-percentage text-blue-400"></i>
                                                 </div>
-                                                <span class="text-sm text-zinc-400 font-oxanium">{{ __('Your discount') }}</span>
+                                                <span class="text-xs text-zinc-400">{{ __('Your discount') }}</span>
                                             </div>
-                                            <div class="text-xl font-medium text-white font-oxanium">
+                                            <div class="text-lg font-medium text-white">
                                                 {{ $partnerDiscount->partner_discount }}%
                                             </div>
                                         </div>
@@ -217,9 +337,9 @@
                                                 <div class="rounded-lg p-2 bg-emerald-500/10">
                                                     <i class="fas fa-tag text-emerald-400"></i>
                                                 </div>
-                                                <span class="text-sm text-zinc-400 font-oxanium">{{ __('New user discount') }}</span>
+                                                <span class="text-xs text-zinc-400">{{ __('New user discount') }}</span>
                                             </div>
-                                            <div class="text-xl font-medium text-white font-oxanium">
+                                            <div class="text-lg font-medium text-white">
                                                 {{ $partnerDiscount->registered_user_discount }}%
                                             </div>
                                         </div>
@@ -230,11 +350,11 @@
                                                 <div class="rounded-lg p-2 bg-amber-500/10">
                                                     <i class="fas fa-gift text-amber-400"></i>
                                                 </div>
-                                                <span class="text-sm text-zinc-400 font-oxanium">{{ __('Reward per user') }}</span>
+                                                <span class="text-xs text-zinc-400">{{ __('Reward per user') }}</span>
                                             </div>
-                                            <div class="text-xl font-medium text-white font-oxanium">
+                                            <div class="text-lg font-medium text-white">
                                                 {{ $referral_settings->reward }}
-                                                <span class="text-sm text-zinc-500">{{ $general_settings->credits_display_name }}</span>
+                                                <span class="text-xs text-zinc-500">{{ $general_settings->credits_display_name }}</span>
                                             </div>
                                         </div>
 
@@ -244,9 +364,9 @@
                                                 <div class="rounded-lg p-2 bg-purple-500/10">
                                                     <i class="fas fa-chart-line text-purple-400"></i>
                                                 </div>
-                                                <span class="text-sm text-zinc-400 font-oxanium">{{ __('Commission rate') }}</span>
+                                                <span class="text-xs text-zinc-400">{{ __('Commission rate') }}</span>
                                             </div>
-                                            <div class="text-xl font-medium text-white font-oxanium">
+                                            <div class="text-lg font-medium text-white">
                                                 {{ $partnerDiscount->referral_system_commission == -1 ? $referral_settings->percentage : $partnerDiscount->referral_system_commission }}%
                                             </div>
                                         </div>
@@ -260,11 +380,11 @@
                                                     <div class="rounded-lg p-2 bg-amber-500/10">
                                                         <i class="fas fa-gift text-amber-400"></i>
                                                     </div>
-                                                    <span class="text-sm text-zinc-400 font-oxanium">{{ __('Reward per user') }}</span>
+                                                    <span class="text-xs text-zinc-400">{{ __('Reward per user') }}</span>
                                                 </div>
-                                                <div class="text-xl font-medium text-white font-oxanium">
+                                                <div class="text-lg font-medium text-white">
                                                     {{ $referral_settings->reward }}
-                                                    <span class="text-sm text-zinc-500">{{ $general_settings->credits_display_name }}</span>
+                                                    <span class="text-xs text-zinc-500">{{ $general_settings->credits_display_name }}</span>
                                                 </div>
                                             </div>
                                         @endif
@@ -274,9 +394,9 @@
                                                     <div class="rounded-lg p-2 bg-purple-500/10">
                                                         <i class="fas fa-chart-line text-purple-400"></i>
                                                     </div>
-                                                    <span class="text-sm text-zinc-400 font-oxanium">{{ __('Commission rate') }}</span>
+                                                    <span class="text-xs text-zinc-400">{{ __('Commission rate') }}</span>
                                                 </div>
-                                                <div class="text-xl font-medium text-white font-oxanium">
+                                                <div class="text-lg font-medium text-white">
                                                     {{ $referral_settings->percentage }}%
                                                 </div>
                                             </div>

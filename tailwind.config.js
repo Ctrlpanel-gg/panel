@@ -61,6 +61,12 @@ module.exports = {
         500: '0px 16px 24px rgba(0, 0, 0, 0.25), 0px -14px 48px rgba(40, 51, 111, 0.7)',
       },
 
+      fontFamily: {
+        inter: ['Inter', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        oxanium: ['Oxanium', 'sans-serif'],
+      },
+
       transitionProperty: {
         borderColor: 'border-color',
       },
@@ -127,7 +133,5 @@ module.exports = {
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
-    require('flowbite'),
-    require('flowbite-typography'),
   ],
 };

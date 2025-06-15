@@ -33,24 +33,20 @@ export default defineConfig({
         },
     },
     optimizeDeps: {
-        include: [
-            '@tiptap/core',
-            '@tiptap/starter-kit',
-            '@tiptap/extension-highlight',
-            '@tiptap/extension-underline',
-            '@tiptap/extension-link',
-            '@tiptap/extension-text-align',
-            '@tiptap/extension-image',
-            '@tiptap/extension-youtube',
-            '@tiptap/extension-text-style',
-            '@tiptap/extension-font-family',
-            '@tiptap/extension-color',
-            '@tiptap/extension-bold'
-        ]
+        include: []
     },
     build: {
         commonjsOptions: {
             include: [/node_modules/]
+        },
+        minify: 'terser',
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['axios', 'bootstrap', 'jquery']
+                }
+            }
         }
     }
 });

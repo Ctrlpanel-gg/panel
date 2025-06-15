@@ -24,7 +24,7 @@
               <p>{{ __('The system administrator has blocked the registration of new users') }}</p>
             </div>
             <div class="text-center">
-              <a class="btn btn-primary" href="{{ route('login') }}">{{ __('Back') }}</a>
+              <a href="{{ route('login') }}" class="btn btn-primary">{{ __('Back') }}</a>
             </div>
           @else
             <p class="text-zinc-400 text-center mb-6">{{ __('Register a new membership') }}</p>

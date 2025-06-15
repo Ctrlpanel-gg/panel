@@ -1,6 +1,9 @@
 {
+  "_vendor-4ed993c7.js": {
+    "file": "assets/vendor-4ed993c7.js"
+  },
   "themes/default/css/app.css": {
-    "file": "assets/app-66af136f.css",
+    "file": "assets/app-a6eb4923.css",
     "isEntry": true,
     "src": "themes/default/css/app.css"
   },
@@ -10,7 +13,7 @@
     "src": "themes/default/css/select2.css"
   },
   "themes/default/js/app.js": {
-    "file": "assets/app-203cefd7.js",
+    "file": "assets/app-f011ea77.js",
     "isEntry": true,
     "src": "themes/default/js/app.js"
   },
