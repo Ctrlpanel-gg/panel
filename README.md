@@ -9,7 +9,8 @@ CtrlPanel offers an easy-to-use and free billing solution for all starting and e
 > ⚠️ **Important Notice:** CtrlPanel is **only compatible with Pterodactyl**. It does not support Pelican or any other hosting panels.
 
 ![GitHub tag](https://img.shields.io/github/tag/Ctrlpanel-gg/panel)
-![Overall Installations](https://img.shields.io/badge/Overall%20Installations-5000%2B-green)
+![Overall Installations](https://img.shields.io/badge/Overall%20Installations-8000%2B-green)
+![v1.1 Installations](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Futils.ctrlpanel.gg%2Fcallhome.php%3Fgetinstalls&query=%24.message&label=v1.1%20Installations&color=cyan)
 ![GitHub stars](https://img.shields.io/github/stars/Ctrlpanel-gg/panel) <!--
 this need update --> <!-- [![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) -->
 ![License](https://img.shields.io/github/license/Ctrlpanel-gg/panel)
