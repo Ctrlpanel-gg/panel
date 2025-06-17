@@ -1,19 +1,22 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-zinc-950 via-primary-950 to-zinc-900 relative overflow-hidden">
-    <!-- Background Effects -->
-    <div class="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
-    <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-blue/5 rounded-full blur-3xl"></div>
+<div class="relative min-h-screen bg-gradient-to-br from-zinc-950 via-primary-950 to-zinc-900 overflow-hidden">
+    <!-- Optimized Background Effects -->
+    <div aria-hidden="true" class="fixed inset-0">
+        <div class="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
+        <div class="absolute -top-40 -left-40 w-80 h-80 bg-primary-500/5 rounded-full blur-3xl pointer-events-none transform-gpu"></div>
+        <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-accent-blue/5 rounded-full blur-3xl pointer-events-none transform-gpu"></div>
+    </div>
 
+    <!-- Main Content Container -->
     <div class="relative z-10 p-4 sm:p-8">
         <!-- Hero Header -->
         <header class="mb-8 sm:mb-12">
             <div class="max-w-7xl mx-auto">
-                <div class="glass-panel p-6 sm:p-8 lg:p-10 overflow-hidden relative">
-                    <!-- Background Gradient -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-primary-600/10 via-transparent to-accent-blue/10"></div>
+                <div class="glass-panel p-6 sm:p-8 lg:p-10 overflow-hidden relative transform-gpu">
+                    <!-- Optimized Background Gradient -->
+                    <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-r from-primary-600/10 via-transparent to-accent-blue/10 pointer-events-none"></div>
                     
                     <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between">
                         <div class="flex-1">
@@ -49,8 +52,8 @@
         <!-- Admin Warning -->
         @if (!file_exists(base_path() . '/install.lock') && Auth::user()->hasRole("Admin"))
             <div class="max-w-7xl mx-auto mb-8">
-                <div class="glass-panel p-6 bg-red-500/5 border-red-500/20 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent"></div>
+                <div class="glass-panel p-6 bg-red-500/5 border-red-500/20 relative overflow-hidden transform-gpu">
+                    <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent pointer-events-none"></div>
                     <div class="relative z-10">
                         <div class="flex items-start gap-4">
                             <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
@@ -75,8 +78,8 @@
         <!-- Alert Message -->
         @if ($general_settings->alert_enabled && !empty($general_settings->alert_message))
             <div class="max-w-7xl mx-auto mb-8">
-                <div class="glass-panel p-6 bg-amber-500/5 border-amber-500/20 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent"></div>
+                <div class="glass-panel p-6 bg-amber-500/5 border-amber-500/20 relative overflow-hidden transform-gpu">
+                    <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-transparent pointer-events-none"></div>
                     <div class="relative z-10">
                         <div class="flex items-start gap-4">
                             <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
@@ -94,9 +97,9 @@
         <!-- Enhanced Stats Grid -->
         <div class="max-w-7xl mx-auto mb-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Servers Card -->
+                <!-- Optimized Stats Cards -->
                 <div class="group">
-                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-primary-500/30 relative overflow-hidden">
+                    <div class="glass-panel p-6 h-full transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg relative overflow-hidden transform-gpu">
                         <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div class="relative z-10">
                             <div class="flex items-center justify-between mb-4">
@@ -121,7 +124,7 @@
 
                 <!-- Credits Card -->
                 <div class="group">
-                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-emerald-500/30 relative overflow-hidden">
+                    <div class="glass-panel p-6 h-full transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg relative overflow-hidden transform-gpu">
                         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div class="relative z-10">
                             <div class="flex items-center justify-between mb-4">
@@ -146,7 +149,7 @@
 
                 <!-- Usage Card -->
                 <div class="group">
-                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-amber-500/30 relative overflow-hidden">
+                    <div class="glass-panel p-6 h-full transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg relative overflow-hidden transform-gpu">
                         <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div class="relative z-10">
                             <div class="flex items-center justify-between mb-4">
@@ -172,7 +175,7 @@
                 <!-- Credits Remaining Card -->
                 @if ($credits > 0.01 && $usage > 0)
                 <div class="group">
-                    <div class="glass-panel p-6 h-full transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-red-500/30 relative overflow-hidden">
+                    <div class="glass-panel p-6 h-full transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg relative overflow-hidden transform-gpu">
                         <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div class="relative z-10">
                             <div class="flex items-center justify-between mb-4">
@@ -201,8 +204,8 @@
         <!-- Main Content -->
         <div class="max-w-7xl mx-auto">
             <!-- Toast notification for URL copy -->
-            <div id="url-copy-toast" class="fixed top-5 right-5 z-[9999] hidden">
-                <div class="flex items-center w-full max-w-xs p-4 text-zinc-300 bg-zinc-900/95 rounded-xl shadow-2xl border border-zinc-800/50 backdrop-blur-sm" role="alert">
+            <div id="url-copy-toast" class="fixed top-5 right-5 z-[9999] hidden transform-gpu">
+                <div class="flex items-center w-full max-w-xs p-4 text-zinc-300 bg-zinc-900/95 rounded-xl shadow-lg border border-zinc-800/50 backdrop-blur-sm" role="alert">
                     <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-500 bg-emerald-500/10 rounded-lg">
                         <i class="fas fa-check"></i>
                     </div>
@@ -520,96 +523,98 @@
 </div>
 
 <script>
-    var originalText = document.getElementById('RefLink')?.innerText;
-    var link = "{{ route('register') . '?ref=' . Auth::user()->referral_code }}";
-    var timeoutID;
+    // Optimized JavaScript with debouncing
+    const originalText = document.getElementById('RefLink')?.innerText;
+    const link = "{{ route('register') . '?ref=' . Auth::user()->referral_code }}";
+    let timeoutID;
 
-    function hoverIn() {
-        document.getElementById('RefLink').innerText = link;
-        timeoutID = setTimeout(function() {
-            document.getElementById('RefLink').innerText = originalText;
-        }, 2000);
+    function debounce(func, wait) {
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeoutID);
+                func(...args);
+            };
+            clearTimeout(timeoutID);
+            timeoutID = setTimeout(later, wait);
+        };
     }
 
-    function hoverOut() {
-        document.getElementById('RefLink').innerText = originalText;
-        clearTimeout(timeoutID);
-    }
+    const hoverIn = debounce(() => {
+        const refLink = document.getElementById('RefLink');
+        if (refLink) {
+            refLink.innerText = link;
+            timeoutID = setTimeout(() => {
+                refLink.innerText = originalText;
+            }, 2000);
+        }
+    }, 100);
 
-    function onClickCopy() {
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(link).then(() => {
-                Swal.fire({
-                    icon: 'success',
-                    title: '{{ __('URL copied to clipboard') }}',
-                    position: 'top-middle',
-                    showConfirmButton: false,
-                    background: '#343a40',
-                    toast: false,
-                    timer: 10000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    }
-                })
-            })
-        } else {
-            console.log('Browser Not compatible')
+    const hoverOut = () => {
+        const refLink = document.getElementById('RefLink');
+        if (refLink) {
+            refLink.innerText = originalText;
+            clearTimeout(timeoutID);
+        }
+    };
+
+    // Optimized copy function with better UX
+    async function onClickCopy() {
+        try {
+            await navigator.clipboard.writeText(link);
+            Toast.fire({
+                icon: 'success',
+                title: 'Link copied to clipboard'
+            });
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            Toast.fire({
+                icon: 'error',
+                title: 'Failed to copy link'
+            });
         }
     }
     
-    // Toggle details visibility
+    // Optimized toggle function with animation handling
     function toggleDetails(detailsId) {
         const details = document.getElementById(detailsId);
         const iconId = detailsId.replace('details-home-', 'icon-');
         const icon = document.getElementById(iconId);
         
-        if (details.classList.contains('hidden')) {
-            details.classList.remove('hidden');
-            details.classList.add('animate-in', 'fade-in', 'duration-200');
-            if (icon) {
-                icon.classList.add('rotate-180');
+        if (!details) return;
+
+        const isHidden = details.classList.contains('hidden');
+        
+        // Use requestAnimationFrame for smooth animations
+        requestAnimationFrame(() => {
+            if (isHidden) {
+                details.classList.remove('hidden');
+                details.classList.add('animate-in', 'fade-in');
+                icon?.classList.add('rotate-180');
+            } else {
+                details.classList.add('hidden');
+                details.classList.remove('animate-in', 'fade-in');
+                icon?.classList.remove('rotate-180');
             }
-        } else {
-            details.classList.add('hidden');
-            details.classList.remove('animate-in', 'fade-in');
-            if (icon) {
-                icon.classList.remove('rotate-180');
-            }
-        }
+        });
     }
 </script>
 
 <style>
-    /* Optimized animations */
+    /* Optimized animations using transform instead of opacity */
     .fade-in {
-        @apply transition-opacity duration-200;
+        @apply transition-all duration-200 ease-out;
     }
 
     .animate-in {
-        animation: enter 200ms ease-out;
+        animation: slideIn 200ms ease-out forwards;
     }
 
     .rotate-180 {
         transform: rotate(180deg);
+        transition: transform 200ms ease-out;
     }
 
-    .transition-transform {
-        transition: transform 0.2s ease-out;
-    }
-
-    /* Replace heavy  with lighter alternative */
-    . {
-        @apply bg-zinc-800/30;
-    }
-
-    /* Optimize hover styles */
-    .stats-card:hover {
-        background-color: rgba(39, 39, 42, 0.5);
-    }
-
-    @keyframes enter {
+    @keyframes slideIn {
         from {
             opacity: 0;
             transform: translateY(4px);
@@ -618,6 +623,22 @@
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    /* Hardware accelerated animations */
+    .glass-panel {
+        @apply backdrop-blur-sm bg-zinc-900/20 border border-zinc-800/50;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
+
+    .stats-card {
+        @apply transition-colors duration-200;
+        transform: translateZ(0);
+    }
+
+    .stats-card:hover {
+        @apply bg-zinc-800/30;
     }
 </style>
 @endsection
