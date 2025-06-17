@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Helpers\CallHomeHelper;
 use App\Models\UsefulLink;
 use Exception;
 use Illuminate\Pagination\Paginator;
@@ -61,6 +62,8 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.url') && parse_url(config('app.url'), PHP_URL_SCHEME) === 'https') {
             URL::forceScheme('https');
         }
+
+        CallHomeHelper::callHomeOnce();
 
         //get the Github Branch the panel is running on
         try {
