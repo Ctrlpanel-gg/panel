@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Log;
 class CallHomeHelper
 {
     /**
-     * Führt einen CallHome-Request nur einmal pro Installation aus.
      *
      * @return void
      */
@@ -30,7 +29,7 @@ class CallHomeHelper
         try {
             $url = parse_url(config('app.url'), PHP_URL_HOST);
             $urlHash = md5($url);
-            Http::post('https://utils.ctrlpanel.gg/callhome.php', [
+            Http::async()->post('https://utils.ctrlpanel.gg/callhome.php', [
                 'url' => $urlHash,
             ]);
             file_put_contents($flagFile, now());
