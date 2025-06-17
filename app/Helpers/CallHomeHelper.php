@@ -34,7 +34,6 @@ class CallHomeHelper
             ]);
             file_put_contents($flagFile, now());
         } catch (\Exception $e) {
-            // Optional: Fehler loggen
             Log::error('CallHome fehlgeschlagen: ' . $e->getMessage());
         }
     }
