@@ -29,13 +29,14 @@ class CallHomeHelper
         try {
             $url = parse_url(config('app.url'), PHP_URL_HOST);
             $urlHash = md5($url);
-            Http::async()->post('https://utils.ctrlpanel.gg/callhome.php', [
-                'url' => $urlHash,
+            $promise = Http::async()->post('https://utils.ctrlpanel.gg/callhome.php', [
+                'id' => $urlHash,
             ]);
-            file_put_contents($flagFile, now());
+            $response = $promise->wait();
+            Log::info('CallHome: request sent');
+            file_put_contents($flagFile, $response->body());
         } catch (\Exception $e) {
-            // Optional: Fehler loggen
-            Log::error('CallHome fehlgeschlagen: ' . $e->getMessage());
+            Log::error('CallHome fail: ' . $e->getMessage());
         }
     }
 }
