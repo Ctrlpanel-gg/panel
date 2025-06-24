@@ -205,19 +205,34 @@ class UserController extends Controller
         }
 
 
-// Update password separately with validation, if permission is granted
+        // Update password separately with validation, if permission is granted
         if (!is_null($request->input('new_password')) && $this->canAny([self::CHANGE_PASSWORD_PERMISSION, self::WRITE_PERMISSION])) {
             $request->validate([
                 'new_password' => 'required|string|min:8',
                 'new_password_confirmation' => 'required|same:new_password',
             ]);
 
-            $dataArray['password'] = Hash::make($request->input('new_password'));
+            $dataArray['password'] = $request->input('new_password');
         }
 
-// Only update with the collected data
+        // Only update with the collected data
         if (!empty($dataArray)) {
             $user->update($dataArray);
+
+            try {
+                $this->pterodactyl->updateUser($user->pterodactyl_id, [
+                    "email" => $user->email,
+                    "username" => $user->name,
+                    "first_name" => $user->name,
+                    "last_name" => $user->name,
+                    "language" => "en",
+                    "password" => $user->password
+                ]);
+            } catch (Exception $e) {
+                report($e);
+
+                return redirect()->back()->with('error', __('User updated, but failed to update on pterodactyl: ' . $e->getMessage()));
+            }
         }
 
         event(new UserUpdateCreditsEvent($user));
