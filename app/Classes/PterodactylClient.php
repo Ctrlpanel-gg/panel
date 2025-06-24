@@ -65,7 +65,7 @@ class PterodactylClient
     /**
      * @return HttpException
      */
-    private function getException(string $message = '', int $status = null): HttpException
+    private function getException(string $message = '', ?int $status = null): HttpException|Exception
     {
         Log::Error('PterodactylClient: ' . $message);
         if ($status == 404) {
