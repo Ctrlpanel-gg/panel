@@ -213,7 +213,7 @@ class UserController extends Controller
                 'new_password_confirmation' => 'required|same:new_password',
             ]);
 
-            $dataArray['password'] = $request->input('new_password');
+            $dataArray['password'] = Hash::make($request->input('new_password'));
         }
 
         // Only update with the collected data
@@ -221,14 +221,16 @@ class UserController extends Controller
             $user->update($dataArray);
 
             try {
-                $this->pterodactyl->updateUser($user->pterodactyl_id, [
+                $pteroData = array_filter([
                     "email" => $user->email,
                     "username" => $user->name,
                     "first_name" => $user->name,
                     "last_name" => $user->name,
                     "language" => "en",
-                    "password" => $user->password
+                    "password" => $request->filled('new_password') ? $request->input('new_password') : null
                 ]);
+
+                $this->pterodactyl->updateUser($user->pterodactyl_id, $pteroData);
             } catch (Exception $e) {
                 Log::error($e->getMessage());
 
