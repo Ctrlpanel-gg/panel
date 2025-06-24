@@ -28,6 +28,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
 use App\Models\Role;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -229,7 +230,7 @@ class UserController extends Controller
                     "password" => $user->password
                 ]);
             } catch (Exception $e) {
-                report($e);
+                Log::error($e->getMessage());
 
                 return redirect()->back()->with('error', __('User updated, but failed to update on pterodactyl: ' . $e->getMessage()));
             }
