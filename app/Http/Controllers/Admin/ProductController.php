@@ -174,7 +174,7 @@ class ProductController extends Controller
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
             'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
-            'default_priority' => 'required|numeric|in:1,2,3'
+            'default_priority' => ['required', new Enum(Priority::class)]
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
