@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Priority;
 use App\Facades\Currency;
 use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Node;
@@ -36,6 +37,10 @@ class Product extends Model
     protected $appends = [
         'display_price',
         'display_minimum_credits',
+    ];
+
+    protected $casts = [
+        'default_priority' => Priority::class
     ];
 
     public static function boot()

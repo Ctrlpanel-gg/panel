@@ -152,6 +152,29 @@
                                   </template>
                                 </select>
                               </div>
+                              <div class="form-group">
+                                <label for="priority">
+                                    {{ __('Priority') }}
+                                    <i
+                                        data-toggle="popover"
+                                        data-trigger="hover"
+                                        data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
+                                        class="fas fa-info-circle"></i>
+                                </label>
+                                <select id="priority" style="width:100%" class="custom-select"
+                                        name="priority" required autocomplete="off"
+                                        @error('priority') is-invalid @enderror>
+                                    <option value="" selected>
+                                        {{ __('Select') }}
+                                    </option>
+                                    @foreach (App\Enums\Priority::cases() as $priority)
+                                        <option value="{{ $priority->value }}">
+                                            {{ $priority->label() }} - {{ $priority->description() }}
+                                        </option>
+                                    @endforeachs
+                                </select>
+                              </div>
+
                               <template x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
                                 <div class="p-2 m-2 alert alert-danger">
                                   {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
@@ -241,6 +264,13 @@
                                                         {{ __('Billing Period') }}</span>
 
                                                     <span class="d-inline-block" x-text="billingPeriodTranslations[product.billing_period]"></span>
+                                                </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">
+                                                        <i class="fas fa-clock"></i>
+                                                        {{ __('Default Priority') }}
+                                                    </span>
+                                                    
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
@@ -443,13 +473,6 @@
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
                         product.cpu = product.cpu / 100;
-                    })
-
-                    //format price to have no decimals if it is a whole number
-                    this.products.forEach(product => {
-                        if (product.price % 1 === 0) {
-                            product.price = Math.round(product.price);
-                        }
                     })
 
                     this.locationDescription = this.locations.find(location => location.id == this.selectedLocation).description ?? null;

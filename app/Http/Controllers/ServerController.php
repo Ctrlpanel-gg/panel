@@ -16,6 +16,7 @@ use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Enums\Priority;
 use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Enum;
 
 class ServerController extends Controller
 {
@@ -117,7 +119,8 @@ class ServerController extends Controller
             'location' => 'required|exists:locations,id',
             'egg' => 'required|exists:eggs,id',
             'product' => 'required|exists:products,id',
-            'egg_variables' => 'nullable|string'
+            'egg_variables' => 'nullable|string',
+            'priority' => ['nullable', new Enum(Priority::class)],
         ]);
 
         $server = $this->createServer($request);
@@ -144,7 +147,6 @@ class ServerController extends Controller
 
         if ($request->has('product')) {
             $product = Product::findOrFail($request->input('product'));
-            $location = $request->input('location');
 
             $validationResult = $this->validateProductRequirements($product, $request);
             if ($validationResult !== true) {
@@ -263,7 +265,8 @@ class ServerController extends Controller
         $server = $request->user()->servers()->create([
             'name' => $request->input('name'),
             'product_id' => $product->id,
-            'last_billed' => Carbon::now()
+            'last_billed' => Carbon::now(),
+            'priority' => $request->input('priority', $product->default_priority),
         ]);
 
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);
