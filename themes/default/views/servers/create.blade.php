@@ -171,7 +171,7 @@
                                         <option value="{{ $priority->value }}">
                                             {{ $priority->label() }} - {{ $priority->description() }}
                                         </option>
-                                    @endforeachs
+                                    @endforeach
                                 </select>
                               </div>
 
