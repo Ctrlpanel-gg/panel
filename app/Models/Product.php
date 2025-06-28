@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Priority;
+use App\Enums\BillingPriority;
 use App\Facades\Currency;
 use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Node;
@@ -40,7 +40,7 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'default_priority' => Priority::class
+        'default_billing_priority' => BillingPriority::class
     ];
 
     public static function boot()

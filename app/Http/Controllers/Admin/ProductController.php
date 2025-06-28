@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\Priority;
+use App\Enums\BillingPriority;
 use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Pterodactyl\Location;
@@ -96,7 +96,7 @@ class ProductController extends Controller
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
             'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
-            'default_priority' => ['required', new Enum(Priority::class)]
+            'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
         ]);
 
 
@@ -174,7 +174,7 @@ class ProductController extends Controller
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
             'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
-            'default_priority' => ['required', new Enum(Priority::class)]
+            'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
         ]);
 
         $disabled = ! is_null($request->input('disabled'));

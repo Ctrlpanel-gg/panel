@@ -16,7 +16,7 @@ use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
-use App\Enums\Priority;
+use App\Enums\BillingPriority;
 use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -120,7 +120,7 @@ class ServerController extends Controller
             'egg' => 'required|exists:eggs,id',
             'product' => 'required|exists:products,id',
             'egg_variables' => 'nullable|string',
-            'priority' => ['nullable', new Enum(Priority::class)],
+            'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
         ]);
 
         $server = $this->createServer($request);
@@ -266,7 +266,7 @@ class ServerController extends Controller
             'name' => $request->input('name'),
             'product_id' => $product->id,
             'last_billed' => Carbon::now(),
-            'priority' => $request->input('priority', $product->default_priority),
+            'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
         ]);
 
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);

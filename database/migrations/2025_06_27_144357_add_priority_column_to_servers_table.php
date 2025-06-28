@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('servers', function (Blueprint $table) {
-            $table->tinyInteger('priority')->nullable()->after('identifier');
+            $table->tinyInteger('billing_priority')->nullable()->after('identifier');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('servers', function (Blueprint $table) {
-            $table->dropColumn('priority');
+            $table->dropColumn('billing_priority');
         });
     }
 };

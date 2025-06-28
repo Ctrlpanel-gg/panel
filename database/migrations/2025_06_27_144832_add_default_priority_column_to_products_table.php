@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->tinyInteger('default_priority')->default(2)->after('oom_killer');
+            $table->tinyInteger('default_billing_priority')->default(2)->after('oom_killer');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('default_priority');
+            $table->dropColumn('default_billing_priority');
         });
     }
 };

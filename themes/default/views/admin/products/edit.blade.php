@@ -131,36 +131,26 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="default_priority">
-                                                {{ __('Default Priority') }}
+                                            <label for="default_billing_priority">
+                                                {{ __('Default Billing Priority') }}
                                                 <i
                                                     data-toggle="popover"
                                                     data-trigger="hover"
-                                                    data-content="{{ __('Defines the priority in which servers will be charged using this product.') }}"
+                                                    data-content="{{ __('Defines the priority at which the servers in this product will be charged.') }}"
                                                     class="fas fa-info-circle"></i>
                                             </label>
                                             <select
-                                                id="default_priority" style="width:100%" class="custom-select"
-                                                name="default_priority" required autocomplete="off"
-                                                @error('default_priority') is-invalid @enderror
+                                                id="default_billing_priority" style="width:100%" class="custom-select"
+                                                name="default_billing_priority" required autocomplete="off"
+                                                @error('default_billing_priority') is-invalid @enderror
                                             >
-                                                @foreach(App\Enums\Priority::options() as $value => $label)
-                                                    <option value="{{ $value }}" @selected($product->default_priority->value == $value)>
+                                                @foreach(App\Enums\BillingPriority::options() as $value => $label)
+                                                    <option value="{{ $value }}" @selected($product->default_billing_priority->value == $value)>
                                                         {{ $label }}
                                                     </option>
                                                 @endforeach
-
-                                                {{-- <option value="1" @selected($product->default_priority == 1)>
-                                                    {{ __('High') }}
-                                                </option>
-                                                <option value="2" @selected($product->default_priority == 2)>
-                                                    {{ __('Medium') }}
-                                                </option>
-                                                <option value="3" @selected($product->default_priority == 3)>
-                                                    {{ __('Low') }}
-                                                </option> --}}
                                             </select>
-                                            @error('default_priority')
+                                            @error('default_billing_priority')
 												<div class="invalid-feedback">
 													{{ $message }}
 												</div>

@@ -153,21 +153,21 @@
                                 </select>
                               </div>
                               <div class="form-group">
-                                <label for="priority">
-                                    {{ __('Priority') }}
+                                <label for="billing_priority">
+                                    {{ __('Billing Priority') }}
                                     <i
                                         data-toggle="popover"
                                         data-trigger="hover"
                                         data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
                                         class="fas fa-info-circle"></i>
                                 </label>
-                                <select id="priority" style="width:100%" class="custom-select"
-                                        name="priority" required autocomplete="off"
-                                        @error('priority') is-invalid @enderror>
+                                <select id="billing_priority" style="width:100%" class="custom-select"
+                                        name="billing_priority" required autocomplete="off"
+                                        @error('billing_priority') is-invalid @enderror>
                                     <option value="" selected>
                                         {{ __('Select') }}
                                     </option>
-                                    @foreach (App\Enums\Priority::cases() as $priority)
+                                    @foreach (App\Enums\BillingPriority::cases() as $priority)
                                         <option value="{{ $priority->value }}">
                                             {{ $priority->label() }} - {{ $priority->description() }}
                                         </option>

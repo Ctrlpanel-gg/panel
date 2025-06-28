@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum Priority: int
+enum BillingPriority: int
 {
     case HIGH = 1;
     case MEDIUM = 2;

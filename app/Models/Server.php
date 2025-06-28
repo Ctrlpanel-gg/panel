@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Classes\PterodactylClient;
-use App\Enums\Priority;
+use App\Enums\BillingPriority;
 use App\Settings\PterodactylSettings;
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -58,7 +58,7 @@ class Server extends Model
         "description",
         "suspended",
         "identifier",
-        "priority",
+        "billing_priority",
         "product_id",
         "pterodactyl_id",
         "last_billed",
@@ -70,7 +70,7 @@ class Server extends Model
      */
     protected $casts = [
         'suspended' => 'datetime',
-        'priority' => Priority::class
+        'billing_priority' => BillingPriority::class
     ];
 
     public function __construct()
@@ -168,10 +168,10 @@ class Server extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    public function scopeByEffectivePriority($query)
+    public function scopeByBillingPriority($query)
     {
-        return $query->orderByRaw('COALESCE(servers.priority, (
-                SELECT default_priority
+        return $query->orderByRaw('COALESCE(servers.billing_priority, (
+                SELECT default_billing_priority
                 FROM products
                 WHERE products.id = servers.product_id
             ))')
