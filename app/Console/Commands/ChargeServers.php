@@ -52,7 +52,7 @@ class ChargeServers extends Command
     {
         Server::whereNull('suspended')
             ->with(['user', 'product'])
-            ->byEffectivePriority()
+            ->byBillingPriority()
             ->chunk(10, function ($servers) {
                 /** @var Server $server */
                 foreach ($servers as $server) {
