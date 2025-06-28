@@ -6,16 +6,15 @@ use Carbon\Carbon;
 use App\Classes\PterodactylClient;
 use App\Enums\BillingPriority;
 use App\Settings\PterodactylSettings;
-use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Client\Response;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Exception;
 
 /**
  * Class Server
@@ -166,6 +165,11 @@ class Server extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function getEffectiveBillingPriorityAttribute()
+    {
+        return $this->billing_priority ?? $this->product->default_billing_priority;
     }
 
     public function scopeByBillingPriority($query)

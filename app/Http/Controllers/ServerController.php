@@ -479,6 +479,23 @@ class ServerController extends Controller
         }
     }
 
+    public function updateBillingPriority(Server $server, Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'billing_priority' => ['required', new Enum(BillingPriority::class)],
+        ]);
+
+        if ($server->user_id !== Auth::id()) {
+            return redirect()->route('servers.index')
+                ->with('error', __('This is not your Server!'));
+        }
+
+        $server->update($data);
+
+        return redirect()->route('servers.show', ['server' => $server->id])
+            ->with('success', __('Billing priority updated successfully'));
+    }
+
     private function validateUpgrade(Server $server, Product $oldProduct, Product $newProduct): bool
     {
         $user = Auth::user();
