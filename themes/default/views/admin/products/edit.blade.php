@@ -58,10 +58,9 @@
                                                 class="fas fa-info-circle"></i></label>
                                     </div>
                                 </div>
-
+                                
                                 <div class="row">
-                                    <div class="col-lg-6">
-
+                                    <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="name">{{ __('Name') }}</label>
                                             <input value="{{ $product->name }}" id="name" name="name"
@@ -73,66 +72,8 @@
                                                 </div>
                                             @enderror
                                         </div>
-
-                                        <div class="form-group">
-                                            <label for="price">{{ __('Price in') }} {{ $credits_display_name }}</label>
-                                            <input value="{{ Currency::formatForForm($product->price) }}" id="price" name="price"
-                                                type="number" step=".0001"
-                                                class="form-control @error('price') is-invalid @enderror"
-                                                required="required">
-                                            @error('price')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="memory">{{ __('Memory') }}</label>
-                                            <input value="{{ $product->memory }}" id="memory" name="memory"
-                                                type="number" class="form-control @error('memory') is-invalid @enderror"
-                                                required="required">
-                                            @error('memory')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="cpu">{{ __('Cpu') }}</label>
-                                            <input value="{{ $product->cpu }}" id="cpu" name="cpu" type="number"
-                                                class="form-control @error('cpu') is-invalid @enderror" required="required">
-                                            @error('cpu')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label for="swap">{{ __('Swap') }}</label>
-                                            <input value="{{ $product->swap }}" id="swap" name="swap"
-                                                type="number" class="form-control @error('swap') is-invalid @enderror"
-                                                required="required">
-                                            @error('swap')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="allocations">{{ __('Allocations') }}</label>
-                                            <input value="{{ $product->allocations }}" id="allocations" name="allocations"
-                                                type="number"
-                                                class="form-control @error('allocations') is-invalid @enderror"
-                                                required="required">
-                                            @error('allocations')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="description">{{ __('Description') }} <i data-toggle="popover"
                                                     data-trigger="hover"
@@ -146,62 +87,38 @@
                                                 </div>
                                             @enderror
                                         </div>
-
-                                        <div class="form-group">
-                                            <input type="checkbox" @if ($product->oom_killer) checked @endif
-                                                value="1" id="oom" name="oom_killer" class="">
-
-                                            <label for="oom_killer">{{ __('OOM Killer') }} <i data-toggle="popover"
-                                                    data-trigger="hover"
-                                                    data-content="{{ __('Enable or Disable the OOM Killer for this Product.') }}"
-                                                    class="fas fa-info-circle"></i></label>
-                                        </div>
-
                                     </div>
+                                </div>
+                                <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="disk">{{ __('Disk') }}</label>
-                                            <input value="{{ $product->disk }}" id="disk" name="disk"
-                                                type="number" class="form-control @error('disk') is-invalid @enderror"
-                                                required="required">
-                                            @error('disk')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-
                                         <div class="form-group">
                                             <label for="billing_period">{{ __('Billing Period') }} <i
                                                     data-toggle="popover" data-trigger="hover"
                                                     data-content="{{ __('Period when the user will be charged for the given price') }}"
                                                     class="fas fa-info-circle"></i></label>
-
+    
                                             <select id="billing_period" style="width:100%" class="custom-select"
                                                 name="billing_period" required autocomplete="off"
                                                 @error('billing_period') is-invalid @enderror>
-                                                <option value="hourly" @if ($product->billing_period == 'hourly') selected @endif>
+                                                <option value="hourly" @selected($product->billing_period == 'hourly')>
                                                     {{ __('Hourly') }}
                                                 </option>
-                                                <option value="daily" @if ($product->billing_period == 'daily') selected @endif>
+                                                <option value="daily" @selected($product->billing_period == 'daily')>
                                                     {{ __('Daily') }}
                                                 </option>
-                                                <option value="weekly" @if ($product->billing_period == 'weekly') selected @endif>
+                                                <option value="weekly" @selected($product->billing_period == 'weekly')>
                                                     {{ __('Weekly') }}
                                                 </option>
-                                                <option value="monthly" @if ($product->billing_period == 'monthly') selected @endif>
+                                                <option value="monthly" @selected($product->billing_period == 'monthly')>
                                                     {{ __('Monthly') }}
                                                 </option>
-                                                <option value="quarterly"
-                                                    @if ($product->billing_period == 'quarterly') selected @endif>
+                                                <option value="quarterly" @selected($product->billing_period == 'quarterly')>
                                                     {{ __('Quarterly') }}
                                                 </option>
-                                                <option value="half-annually"
-                                                    @if ($product->billing_period == 'half-annually') selected @endif>
+                                                <option value="half-annually" @selected($product->billing_period == 'half-annually')>
                                                     {{ __('Half Annually') }}
                                                 </option>
-                                                <option value="annually"
-                                                    @if ($product->billing_period == 'annually') selected @endif>
+                                                <option value="annually" @selected($product->billing_period == 'annually')>
                                                     {{ __('Annually') }}
                                                 </option>
                                             </select>
@@ -211,7 +128,52 @@
                                                 </div>
                                             @enderror
                                         </div>
-
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="default_billing_priority">
+                                                {{ __('Default Billing Priority') }}
+                                                <i
+                                                    data-toggle="popover"
+                                                    data-trigger="hover"
+                                                    data-content="{{ __('Defines the priority at which the servers in this product will be charged.') }}"
+                                                    class="fas fa-info-circle"></i>
+                                            </label>
+                                            <select
+                                                id="default_billing_priority" style="width:100%" class="custom-select"
+                                                name="default_billing_priority" required autocomplete="off"
+                                                @error('default_billing_priority') is-invalid @enderror
+                                            >
+                                                @foreach(App\Enums\BillingPriority::options() as $value => $label)
+                                                    <option value="{{ $value }}" @selected($product->default_billing_priority->value == $value)>
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('default_billing_priority')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="price">{{ __('Price in') }} {{ $credits_display_name }}</label>
+                                            <input value="{{ Currency::formatForForm($product->price) }}" id="price" name="price"
+                                                type="number" step=".0001"
+                                                class="form-control @error('price') is-invalid @enderror"
+                                                required="required">
+                                            @error('price')
+                                                <div class="invalid-feedback">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="minimum_credits">{{ __('Minimum') }} {{ $credits_display_name }}
                                                 <i data-toggle="popover" data-trigger="hover"
@@ -226,6 +188,50 @@
                                                 </div>
                                             @enderror
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="cpu">{{ __('Cpu') }}</label>
+                                            <input value="{{ $product->cpu }}" id="cpu" name="cpu" type="number"
+                                                class="form-control @error('cpu') is-invalid @enderror" required="required">
+                                            @error('cpu')
+                                                <div class="invalid-feedback">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="disk">{{ __('Disk') }}</label>
+                                            <input value="{{ $product->disk }}" id="disk" name="disk"
+                                                type="number" class="form-control @error('disk') is-invalid @enderror"
+                                                required="required">
+                                            @error('disk')
+                                                <div class="invalid-feedback">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="memory">{{ __('Memory') }}</label>
+                                            <input value="{{ $product->memory }}" id="memory" name="memory"
+                                                type="number" class="form-control @error('memory') is-invalid @enderror"
+                                                required="required">
+                                            @error('memory')
+                                                <div class="invalid-feedback">
+                                                    {{ $message }}
+                                                </div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="io">{{ __('IO') }}</label>
                                             <input value="{{ $product->io }}" id="io" name="io"
@@ -237,54 +243,104 @@
                                                 </div>
                                             @enderror
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="databases">{{ __('Databases') }}</label>
-                                            <input value="{{ $product->databases }}" id="databases" name="databases"
-                                                type="number"
-                                                class="form-control @error('databases') is-invalid @enderror"
+                                            <label for="swap">{{ __('Swap') }}</label>
+                                            <input value="{{ $product->swap }}" id="swap" name="swap"
+                                                type="number" class="form-control @error('swap') is-invalid @enderror"
                                                 required="required">
-                                            @error('databases')
+                                            @error('swap')
                                                 <div class="invalid-feedback">
                                                     {{ $message }}
                                                 </div>
                                             @enderror
                                         </div>
+                                    </div>
+                                    <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="backups">{{ __('Backups') }}</label>
-                                            <input value="{{ $product->backups }}" id="backups" name="backups"
-                                                type="number"
-                                                class="form-control @error('backups') is-invalid @enderror"
+                                            <label for="serverlimit">{{ __('Serverlimit') }}</label>
+                                            <i data-toggle="popover" data-trigger="hover"
+                                            data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}"
+                                            class="fas fa-info-circle"></i>
+                                            <input value="{{ $product->serverlimit ??  0 }}"
+                                                id="serverlimit" name="serverlimit" type="number"
+                                                class="form-control @error('serverlimit') is-invalid @enderror"
                                                 required="required">
-                                            @error('backups')
+                                            @error('serverlimit')
                                                 <div class="invalid-feedback">
                                                     {{ $message }}
                                                 </div>
                                             @enderror
-                                        </div>
-                                      <div class="form-group">
-                                        <label for="serverlimit">{{ __('Serverlimit') }}</label>
-                                        <i data-toggle="popover" data-trigger="hover"
-                                           data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}"
-                                           class="fas fa-info-circle"></i>
-                                        <input value="{{ $product->serverlimit ??  0 }}"
-                                               id="serverlimit" name="serverlimit" type="number"
-                                               class="form-control @error('serverlimit') is-invalid @enderror"
-                                               required="required">
-                                        @error('serverlimit')
-                                        <div class="invalid-feedback">
-                                          {{ $message }}
-                                        </div>
-                                        @enderror
                                       </div>
                                     </div>
                                 </div>
-
+                                <div class="row">
+                                    <div class="col-lg-4">
+										<div class="form-group">
+											<label for="allocations">{{ __('Allocations') }}</label>
+											<input value="{{ $product->allocations ?? (old('allocations') ?? 0) }}"
+												id="allocations" name="allocations" type="number"
+												class="form-control @error('allocations') is-invalid @enderror"
+												required="required">
+											@error('allocations')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label for="databases">{{ __('Databases') }}</label>
+											<input value="{{ $product->databases ?? (old('databases') ?? 1) }}"
+												id="databases" name="databases" type="number"
+												class="form-control @error('databases') is-invalid @enderror"
+												required="required">
+											@error('databases')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label for="backups">{{ __('Backups') }}</label>
+											<input value="{{ $product->backups ?? (old('backups') ?? 1) }}"
+												id="backups" name="backups" type="number"
+												class="form-control @error('backups') is-invalid @enderror"
+												required="required">
+											@error('backups')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
+									</div>
+								</div>
+                                <div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<input type="checkbox" value="1" id="oom_killer" name="oom_killer">
+											<label for="oom_killer">
+                                                {{ __('OOM Killer') }}
+                                                <i data-toggle="popover"
+                                                    data-trigger="hover"
+                                                    data-content="{{ __('Enable or Disable the OOM Killer for this Product.') }}"
+                                                    class="fas fa-info-circle">
+                                                </i>
+                                            </label>
+										</div>
+									</div>
+								</div>
                                 <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('Submit') }}
                                     </button>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -368,7 +424,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            $('.custom-select').select2();
+            $('.custom-select').select2({
+                minimumResultsForSearch: -1
+            });
 
             document.getElementById('select-all-eggs').addEventListener('click', function() {
                 $('#eggs option').prop('selected', true);
