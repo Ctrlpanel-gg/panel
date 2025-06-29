@@ -39,7 +39,7 @@ class GeneralSettings extends Settings
             'store_enabled' => 'nullable|string',
             'sales_tax' => 'nullable|numeric',
             'credits_display_name' => 'required|string',
-            'recaptcha_version' => 'nullable|string|in:v2,v3',
+            'recaptcha_version' => 'nullable|string|in:v2,v3,turnstile',
             'recaptcha_site_key' => 'nullable|string',
             'recaptcha_secret_key' => 'nullable|string',
             'phpmyadmin_url' => 'nullable|string',
@@ -99,6 +99,7 @@ class GeneralSettings extends Settings
                 'options' => [
                     'v2' => 'Recaptcha V2',
                     'v3' => 'Recaptcha v3',
+                    'turnstile' => 'Cloudflare Turnstile',
                     null => 'Disable',
                 ],
             ],

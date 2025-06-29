@@ -13,6 +13,7 @@
         "ext-intl": "*",
         "ext-mysqli": "*",
         "biscolab/laravel-recaptcha": "^6.1",
+        "coderflex/laravel-turnstile": "^2.1",
         "doctrine/dbal": "^4.0.4",
         "guzzlehttp/guzzle": "^7.5",
         "hidehalo/nanoid-php": "^1.1.12",

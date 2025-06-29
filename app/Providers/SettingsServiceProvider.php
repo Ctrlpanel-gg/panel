@@ -63,6 +63,9 @@ class SettingsServiceProvider extends ServiceProvider
             Config::set('recaptchav3.sitekey', $this->generalSettings->recaptcha_site_key ?: "");
             Config::set('recaptchav3.secret', $this->generalSettings->recaptcha_secret_key ?: "");
 
+            Config::set('turnstile.turnstile_site_key', $this->generalSettings->recaptcha_site_key ?: "");
+            Config::set('turnstile.turnstile_secret_key', $this->generalSettings->recaptcha_secret_key ?: "");
+
         } catch (Exception $e) {
             Log::error("Couldn't find settings. Probably the installation is not complete. " . $e);
         }
