@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 class DisableRecaptcha extends Command
 {
     protected $signature = 'cp:recaptcha:toggle';
-    protected $description = 'Toggle Recaptcha version between null, v2, and v3';
+    protected $description = 'Toggle Recaptcha version between null, v2, and v3 and Cloudflare turnstile.';
 
     protected GeneralSettings $settings;
 
@@ -26,7 +26,8 @@ class DisableRecaptcha extends Command
         return match ($current) {
             null => 'v2',
             'v2' => 'v3',
-            'v3' => null,
+            'v3' => "turnstile",
+            'turnstile' => null,
             default => null,
         };
     }

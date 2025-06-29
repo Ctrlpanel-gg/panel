@@ -15,8 +15,8 @@ use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
+use Coderflex\LaravelTurnstile\Rules\TurnstileCheck;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -98,6 +98,9 @@ class RegisterController extends Controller
                     break;
                 case "v3":
                     $validationRules['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.5'];
+                    break;
+                case "turnstile":
+                    $validationRules['cf-turnstile-response'] = ['required', new TurnstileCheck()];
                     break;
             }
         }

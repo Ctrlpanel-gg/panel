@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Settings\GeneralSettings;
+use Coderflex\LaravelTurnstile\Rules\TurnstileCheck;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 
@@ -50,6 +51,9 @@ class ForgotPasswordController extends Controller
                     break;
                 case "v3":
                     $validateData['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.4'];
+                    break;
+                case "turnstile":
+                    $validateData['cf-turnstile-response'] = ['required', new TurnstileCheck()];
                     break;
             }
         }
