@@ -23,7 +23,7 @@ class ProductSeeder extends Seeder
             'disk' => 1000,
             'databases' => 1,
             'billing_period' => 'hourly',
-            'default_priority' => BillingPriority::MEDIUM,
+            'default_billing_priority' => BillingPriority::MEDIUM,
         ]);
 
         Product::create([
@@ -34,7 +34,8 @@ class ProductSeeder extends Seeder
             'disk' => 2000,
             'databases' => 2,
             'billing_period' => 'hourly',
-            'default_priority' => BillingPriority::MEDIUM,
+            'default_billing_priority' => BillingPriority::MEDIUM,
+
         ]);
 
         Product::create([
@@ -45,7 +46,7 @@ class ProductSeeder extends Seeder
             'disk' => 5000,
             'databases' => 5,
             'billing_period' => 'hourly',
-            'default_priority' => BillingPriority::MEDIUM,
+            'default_billing_priority' => BillingPriority::MEDIUM,
         ]);
     }
 }
