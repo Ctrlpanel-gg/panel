@@ -2,8 +2,8 @@
 
 namespace Database\Seeders\Seeds;
 
+use App\Enums\BillingPriority;
 use App\Models\Product;
-use App\Enums\Priority;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -23,7 +23,7 @@ class ProductSeeder extends Seeder
             'disk' => 1000,
             'databases' => 1,
             'billing_period' => 'hourly',
-            'default_priority' => Priority::MEDIUM,
+            'default_priority' => BillingPriority::MEDIUM,
         ]);
 
         Product::create([
@@ -34,7 +34,7 @@ class ProductSeeder extends Seeder
             'disk' => 2000,
             'databases' => 2,
             'billing_period' => 'hourly',
-            'default_priority' => Priority::MEDIUM,
+            'default_priority' => BillingPriority::MEDIUM,
         ]);
 
         Product::create([
@@ -45,7 +45,7 @@ class ProductSeeder extends Seeder
             'disk' => 5000,
             'databases' => 5,
             'billing_period' => 'hourly',
-            'default_priority' => Priority::MEDIUM,
+            'default_priority' => BillingPriority::MEDIUM,
         ]);
     }
 }
