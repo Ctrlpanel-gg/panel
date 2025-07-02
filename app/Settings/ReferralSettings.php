@@ -2,19 +2,32 @@
 
 namespace App\Settings;
 
+use App\Casts\Settings\CurrencyCast;
 use Spatie\LaravelSettings\Settings;
 
 class ReferralSettings extends Settings
 {
     public bool $always_give_commission = false;
     public bool $enabled = false;
-    public ?float $reward = null;
+    public ?int $reward = null;
     public string $mode = 'commission';
     public ?int $percentage = null;
 
     public static function group(): string
     {
         return 'referral';
+    }
+
+    /**
+     * Casts the settings to the correct type.
+     *
+     * @return array<string, CurrencyCast>
+     */
+    public static function casts(): array
+    {
+        return [
+            'reward' => CurrencyCast::class,
+        ];
     }
 
     /**
@@ -55,8 +68,9 @@ class ReferralSettings extends Settings
             'reward' => [
                 'label' => 'Reward',
                 'type' => 'number',
-                'step' => '0.01',
+                'step' => '0.001',
                 'description' => 'Reward in credits for the referrer.',
+                'mustBeConverted' => true,
             ],
             'mode' => [
                 'label' => 'Mode',

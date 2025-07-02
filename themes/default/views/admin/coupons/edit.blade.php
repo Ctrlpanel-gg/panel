@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{__('Coupon')}}</h1>
                 </div>
@@ -32,7 +32,7 @@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title">
-                                <i class="fas fa-money-check-alt mr-2"></i>{{__('Coupon details')}}
+                                <i class="mr-2 fas fa-money-check-alt"></i>{{__('Coupon details')}}
                             </h5>
                         </div>
                         <div class="card-body">
@@ -40,7 +40,7 @@
                             @csrf
                             @method('PATCH')
 
-                            <div class="d-flex flex-row-reverse">
+                            <div class="flex-row-reverse d-flex">
                               <div class="custom-control custom-switch">
                                 <input
                                   type="checkbox"
@@ -109,7 +109,7 @@
                               @enderror
                             </div>
                             <div class="form-group">
-                              <div class="custom-control mb-3 p-0">
+                              <div class="p-0 mb-3 custom-control">
                                 <label for="type">
                                   {{ __('Coupon Type') }}
                                   <i
@@ -157,7 +157,7 @@
                                     min="1"
                                     max="100"
                                     class="form-control @error('value') is-invalid @enderror"
-                                    value="{{ $coupon->value }}"
+                                    value="{{ $coupon->type == 'amount' ? Currency::formatForForm($coupon->value) : $coupon->value }}"
                                   >
                                   <span id="input_percentage" class="input-group-text">%</span>
                                 </div>
@@ -229,7 +229,7 @@
                                 </div>
                               @enderror
                             </div>
-                            <div class="form-group text-right mb-0">
+                            <div class="mb-0 text-right form-group">
                               <button type="submit" class="btn btn-primary">
                                 {{__('Submit')}}
                               </button>

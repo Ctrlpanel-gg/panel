@@ -65,7 +65,7 @@ class PterodactylClient
     /**
      * @return HttpException
      */
-    private function getException(string $message = '', int $status = null): HttpException
+    private function getException(string $message = '', ?int $status = null): HttpException|Exception
     {
         Log::Error('PterodactylClient: ' . $message);
         if ($status == 404) {
@@ -296,10 +296,6 @@ class PterodactylClient
                 ],
             ]);
 
-            if ($response->failed()) {
-                throw self::getException('Failed to create server on pterodactyl', $response->status());
-            }
-
             return $response;
         } catch (Exception $e) {
             throw $e;
@@ -352,6 +348,28 @@ class PterodactylClient
         }
 
         return $response->json()['attributes'];
+    }
+
+    /**
+     * Update user on Pterodactyl
+     *
+     * @param int $pterodactylId
+     * @param array $data
+     * @throws HttpException
+     * @return \Illuminate\Http\Client\Response
+     */
+    public function updateUser(int $pterodactylId, array $data)
+    {
+        try {
+            $response = $this->application->patch("application/users/{$pterodactylId}", $data);
+        } catch (Exception $e) {
+            throw self::getException($e->getMessage());
+        }
+        if ($response->failed()) {
+            throw self::getException('Failed to update user on pterodactyl - ', $response->status());
+        }
+
+        return $response;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Facades\Currency;
 use App\Helpers\ExtensionHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Foundation\Application;
@@ -68,6 +69,10 @@ class SettingsController extends Controller
 
                 if($optionInputData[$key]['type'] === 'number') {
                     $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
+
+                    if ($optionInputData[$key]['mustBeConverted'] ?? false) {
+                        $optionsData[$key]['converted_value'] = Currency::formatForForm($value);
+                    }
                 }
             }
 

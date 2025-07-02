@@ -9,7 +9,6 @@ use App\Enums\PaymentStatus;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
-use App\Traits\Coupon as CouponTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -27,8 +26,6 @@ use PayPalHttp\HttpException;
  */
 class PayPalExtension extends PaymentExtension
 {
-    use CouponTrait;
-
     public static function getConfig(): array
     {
         return [
@@ -37,8 +34,11 @@ class PayPalExtension extends PaymentExtension
         ];
     }
 
-    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
+        // Converts from cents to decimal places.
+        $totalPrice = $totalPrice / 1000;
+
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
         $request->body = [
@@ -48,12 +48,12 @@ class PayPalExtension extends PaymentExtension
                     "reference_id" => uniqid(),
                     "description" => $shopProduct->display,
                     "amount" => [
-                        "value" => $totalPriceString,
+                        "value" => $totalPrice,
                         'currency_code' => strtoupper($shopProduct->currency_code),
                         'breakdown' => [
                             'item_total' => [
                                 'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => $totalPriceString,
+                                'value' => $totalPrice,
                             ],
 
                             /* Removed due to errors in the coupon discount calculation. Its not used in other paymentgateways aswell and basically nice to have but unnessecary
@@ -127,7 +127,7 @@ class PayPalExtension extends PaymentExtension
 
                 // redirect to the payment success page with success message
                 Redirect::route('home')->with('success', 'Payment successful')->send();
-            } elseif (env('APP_ENV') == 'local') {
+            } elseif (config('app.env') == 'local') {
                 // If call returns body in response, you can get the deserialized version from the result attribute of the response
                 $payment->delete();
                 dd($response);
@@ -139,7 +139,7 @@ class PayPalExtension extends PaymentExtension
                 abort(500);
             }
         } catch (HttpException $ex) {
-            if (env('APP_ENV') == 'local') {
+            if (config('app.env') == 'local') {
                 echo $ex->statusCode;
                 $payment->delete();
                 dd($ex->getMessage());

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\BillingPriority;
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Pterodactyl\Location;
 use App\Models\Pterodactyl\Nest;
@@ -16,6 +18,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class ProductController extends Controller
 {
@@ -57,7 +60,7 @@ class ProductController extends Controller
     public function clone(Product $product, GeneralSettings $general_settings)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
-
+        
         return view('admin.products.create', [
             'product' => $product,
             'credits_display_name' =>  $general_settings->credits_display_name,
@@ -82,7 +85,7 @@ class ProductController extends Controller
             'swap' => 'required|numeric|max:1000000|min:0',
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
-            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'minimum_credits' => 'nullable|numeric|max:1000000',
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'databases' => 'required|numeric|max:1000000|min:0',
@@ -93,6 +96,7 @@ class ProductController extends Controller
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
             'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
+            'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
         ]);
 
 
@@ -160,7 +164,7 @@ class ProductController extends Controller
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:5',
             'io' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'required|numeric|max:1000000|min:-1',
+            'minimum_credits' => 'nullable|numeric|max:1000000',
             'databases' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
@@ -170,6 +174,7 @@ class ProductController extends Controller
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
             'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
+            'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -266,8 +271,11 @@ class ProductController extends Controller
                     </form>
                 ';
             })
-            ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings) {
-                return $product->minimum_credits==-1 ? $user_settings->min_credits_to_make_server : $product->minimum_credits;
+            ->editColumn('price', function (Product $product, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatForDisplay($product->price);
+            })
+            ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings, CurrencyHelper $currencyHelper) {
+                return $product->minimum_credits ? $currencyHelper->formatForDisplay($product->minimum_credits) : $currencyHelper->formatForDisplay($user_settings->min_credits_to_make_server);
             })
             ->editColumn('serverlimit', function (Product $product) {
                 return $product->serverlimit == 0 ? "∞" : $product->serverlimit;

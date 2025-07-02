@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Store') }}</h1>
                 </div>
@@ -27,7 +27,7 @@
             <form id="payment_form" action="{{ route('payment.pay') }}" method="POST">
                 @csrf
                 @method('post')
-                <div class="row d-flex justify-content-center flex-wrap">
+                <div class="flex-wrap row d-flex justify-content-center">
                     @if (!$productIsFree)
                         <div class="col-xl-4">
                             <div class="card">
@@ -36,7 +36,6 @@
                                     <ul class="list-group ">
                                         <li class="list-group-item">
                                             <div class="row">
-                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
                                                 <input type="hidden" name="payment_method" :value="payment_method"
                                                     x-model="payment_method">
                                                 <div class="col-lg-12">
@@ -51,7 +50,7 @@
                                                                         for="{{ $gateway->name }}">
                                                                         <span class="mr-3">{{ $gateway->name }}</span>
                                                                     </label>
-                                                                    <button class="btn btn-primary rounded" type="button"
+                                                                    <button class="rounded btn btn-primary" type="button"
                                                                         name="payment_method" id="{{ $gateway->name }}"
                                                                         value="{{ $gateway->name }}"
                                                                         :class="payment_method === '{{ $gateway->name }}' ?
@@ -74,7 +73,7 @@
                                                     @if ($isCouponsEnabled)
                                                         <span class="h4">{{ __('Coupon') }}</span>
 
-                                                        <div class="d-flex mt-2">
+                                                        <div class="mt-2 d-flex">
                                                             <input type="text" id="coupon_code" name="coupon_code"
                                                                 value="{{ old('coupon_code') }}" :value="coupon_code"
                                                                 class="form-control @error('coupon_code') is_invalid @enderror"
@@ -82,7 +81,7 @@
                                                                 x-on:change.debounce="setCouponCode($event)"
                                                                 x-model="coupon_code" />
                                                             <button type="button" id="send_coupon_code"
-                                                                @click="checkCoupon()" class="btn btn-success ml-3"
+                                                                @click="checkCoupon()" class="ml-3 btn btn-success"
                                                                 :disabled="!coupon_code.length"
                                                                 :class="!coupon_code.length ? 'disabled' : ''"
                                                                 :value="coupon_code">
@@ -114,7 +113,7 @@
                             </div>
 
                             <div class="card-body">
-                                <ul class="list-group mb-3">
+                                <ul class="mb-3 list-group">
                                     <li class="list-group-item">
                                         <div>
                                             <h5 class="my-0">{{ __('Product details') }}</h5>
@@ -127,11 +126,11 @@
                                             </li>
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Amount') }}</span>
-                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->type == 'Credits' ? Currency::formatForDisplay($product->quantity) : $product->quantity }}</span>
                                             </li>
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Total Amount') }}</span>
-                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->type == 'Credits' ? Currency::formatForDisplay($product->quantity) : $product->quantity }}</span>
                                             </li>
                                         </ul>
 
@@ -156,23 +155,25 @@
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Subtotal') }}</span>
                                                 <span class="text-muted d-inline-block">
-                                                    {{ $product->formatToCurrency($product->price) }}</span>
+                                                    {{ Currency::formatToCurrency($product->price, $product->currency_code) }}</span>
                                             </li>
-                                            <div class="d-flex justify-content-between">
-                                                <span class="text-muted d-inline-block">{{ __('Tax') }}
-                                                    @if ($taxpercent > 0)
-                                                        ({{ $taxpercent }}%):
-                                                    @endif
-                                                </span>
-                                                <span class="text-muted d-inline-block">
-                                                    + {{ $product->formatToCurrency($taxvalue) }}</span>
-                                            </div>
+                                            @if($taxpercent > 0 && $taxvalue > 0)
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted d-inline-block">{{ __('Tax') }}
+                                                        @if ($taxpercent > 0)
+                                                            ({{ $taxpercent }}%)
+                                                        @endif
+                                                    </span>
+                                                    <span class="text-muted d-inline-block">
+                                                        + {{ Currency::formatToCurrency($taxvalue, $product->currency_code) }}</span>
+                                                </div>
+                                            @endif
                                             <div id="coupon_discount_details" class="d-flex justify-content-between"
                                                 style="display: none !important;">
                                                 <span class="text-muted d-inline-block">
                                                     {{ __('Coupon Discount') }}
                                                 </span>
-                                                <span x-text="couponDiscountedValue" class="text-muted d-inline-block">
+                                                <span x-text="'- ' + (couponType == 'amount' ? formatToCurrency($currency.format(couponDiscountedValue)) : couponDiscountedValue + '%')" class="text-muted d-inline-block">
 
                                                 </span>
                                             </div>
@@ -181,7 +182,7 @@
                                                     <span class="text-muted d-inline-block">{{ __('Partner Discount') }}
                                                         ({{ $discountpercent }}%)</span>
                                                     <span class="text-muted d-inline-block">
-                                                        - {{ $product->formatToCurrency($discountvalue) }}
+                                                        - {{ Currency::formatToCurrency($discountvalue, $product->currency_code) }}
                                                     </span>
                                                 </div>
                                             @endif
@@ -190,7 +191,7 @@
                                                 <span class="text-muted d-inline-block">{{ __('Total') }}</span>
                                                 <input id="total_price_input" type="hidden" x-model="totalPrice">
                                                 <span class="text-muted d-inline-block"
-                                                    x-text="formatToCurrency(totalPrice)">
+                                                    x-text="formatToCurrency($currency.format(totalPrice))">
                                                 </span>
                                             </div>
                                             <template x-if="payment_method">
@@ -205,13 +206,12 @@
                                 </ul>
 
                                 <button
-                                    :disabled="(!payment_method || !clicked || coupon_code) &&
-                                    {{ !$productIsFree }}"
                                     id="submit_form_button"
-                                    :class="(!payment_method || !clicked || coupon_code) &&
-                                    {{ !$productIsFree }} ? 'disabled' : ''"
-                                    :x-text="coupon_code" class="btn btn-success float-right w-100">
-                                    <i class="far fa-credit-card mr-2" @click="clicked == true"></i>
+                                    :disabled="(!payment_method) && {{ !$productIsFree }}"
+                                    :class="(!payment_method) && {{ !$productIsFree }} ? 'disabled' : ''"
+                                    class="float-right btn btn-success w-100"
+                                >
+                                    <i class="mr-2 far fa-credit-card"></i>
                                     @if ($productIsFree)
                                         {{ __('Get for free') }}
                                     @else
@@ -223,7 +223,7 @@
                         </div>
                     </div>
                 </div>
-
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
             </form>
         </div>
@@ -236,14 +236,16 @@
             return {
                 // Get the product id from the url
                 productId: window.location.pathname.split('/').pop(),
-                payment_method: '',
+                payment_method: null,
                 coupon_code: '',
                 submitted: false,
                 totalPrice: {{ $total }},
+                couponType: null,
                 couponDiscountedValue: 0,
 
 
                 setCouponCode(event) {
+                    console.log(this.payment_method)
                     this.coupon_code = event.target.value
                 },
 
@@ -299,19 +301,15 @@
                 calcPriceWithCouponDiscount(couponValue, couponType) {
                     let newTotalPrice = this.totalPrice
 
-
-                    console.log(couponType)
                     if (couponType === 'percentage') {
                         newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
-                        this.couponDiscountedValue = "- " + couponValue + "%"
                     } else if (couponType === 'amount') {
-
                         newTotalPrice = newTotalPrice - couponValue
-                        this.couponDiscountedValue = "- " + this.formatToCurrency(couponValue)
                     }
 
-                    // format totalPrice to currency
-                    this.totalPrice = this.formatToCurrency(newTotalPrice)
+                    this.couponType = couponType
+                    this.couponDiscountedValue = couponValue
+                    this.totalPrice = newTotalPrice
                 },
 
                 formatToCurrency(amount) {

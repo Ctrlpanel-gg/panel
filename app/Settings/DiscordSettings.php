@@ -13,6 +13,8 @@ class DiscordSettings extends Settings
     public ?string $role_id = null;
     public ?bool $role_on_purchase = null;
     public ?string $role_id_on_purchase = null;
+    public ?bool $role_for_active_clients = null;
+    public ?string $role_id_for_active_clients = null;
 
     public static function group(): string
     {
@@ -33,6 +35,8 @@ class DiscordSettings extends Settings
             'role_id' => 'nullable|string',
             'role_on_purchase' => 'nullable|string',
             'role_id_on_purchase' => 'nullable|string',
+            'role_for_active_clients' => 'nullable|string',
+            'role_id_for_active_clients' => 'nullable|string',
         ];
     }
 
@@ -69,21 +73,35 @@ class DiscordSettings extends Settings
             'role_id' => [
                 'label' => 'Role ID',
                 'type' => 'string',
-                'description' => 'Role to give users when linking their discord Account.',
+                'description' => 'ID of the Discord-Role to give users when linking their discord Account.',
             ],
-            'role_on_purchase' => [
-                'label' => 'Role on Purchase',
+            'role_for_active_clients' => [
+                'label' => 'Role for active Clients',
                 'type' => 'select',
                 'options' => [
                     '0' => 'Disabled',
                     '1' => 'Enabled'
                 ],
-                'description' => 'Give the user a role on purchase of Credits/Servers (removes when user has no active servers)',
+                'description' => 'Give the user a role when creating/owning a Server (removes when user has no active servers)',
+            ],
+            'role_id_for_active_clients' => [
+                'label' => 'Role ID for active Clients',
+                'type' => 'string',
+                'description' => 'ID of the Discord-Role to give users when they have an active server.',
+            ],
+            'role_on_purchase' => [
+                'label' => 'Role on Credit-purchase',
+                'type' => 'select',
+                'options' => [
+                    '0' => 'Disabled',
+                    '1' => 'Enabled'
+                ],
+                'description' => 'Give the user a role when they buy credits with real money',
             ],
             'role_id_on_purchase' => [
                 'label' => 'Role ID on Purchase',
                 'type' => 'string',
-                'description' => 'The role ID for your Discord server on purchase.',
+                'description' => 'ID of the Discord-Role to give users when they purchase credits with real money.',
             ],
         ];
     }

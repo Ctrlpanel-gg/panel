@@ -6,6 +6,7 @@ use App\Enums\PaymentStatus;
 use App\Events\CouponUsedEvent;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\PartnerDiscount;
@@ -54,7 +55,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return Application|Factory|View
      */
-    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings, CouponSettings $coupon_settings)
+    public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings, CouponSettings $coupon_settings, CurrencyHelper $currencyHelper)
     {
         $this->checkPermission(self::BUY_PERMISSION);
 
@@ -156,11 +157,6 @@ class PaymentController extends Controller
                 return $this->handleFreeProduct($shopProduct);
             }
 
-            // Format the total price to a readable string
-            $totalPriceString = number_format($subtotal, 2, '.', '');
-            //reset the price after coupon use
-            $shopProduct->price = $totalPriceString;
-
             // create a new payment
             $payment = Payment::create([
                 'user_id' => $user->id,
@@ -172,13 +168,13 @@ class PaymentController extends Controller
                 'price' => $shopProduct->price,
                 'tax_value' => $shopProduct->getTaxValue(),
                 'tax_percent' => $shopProduct->getTaxPercent(),
-                'total_price' => $totalPriceString,
+                'total_price' => $subtotal,
                 'currency_code' => $shopProduct->currency_code,
                 'shop_item_product_id' => $shopProduct->id,
             ]);
 
             $paymentGatewayExtension = ExtensionHelper::getExtensionClass($paymentGateway);
-            $redirectUrl = $paymentGatewayExtension::getRedirectUrl($payment, $shopProduct, $totalPriceString);
+            $redirectUrl = $paymentGatewayExtension::getRedirectUrl($payment, $shopProduct, $subtotal);
 
         } catch (Exception $e) {
             Log::error($e->getMessage());
@@ -210,19 +206,21 @@ class PaymentController extends Controller
             ->addColumn('user', function (Payment $payment) {
                 return ($payment->user) ? '<a href="' . route('admin.users.show', $payment->user->id) . '">' . $payment->user->name . '</a>' : __('Unknown user');
             })
-            ->editColumn('price', function (Payment $payment) {
-                return $payment->formatToCurrency($payment->price);
+            ->editColumn('amount', function (Payment $payment, CurrencyHelper $currencyHelper) {
+                return $payment->type == 'Credits' ? $currencyHelper->formatForDisplay($payment->amount) : $payment->amount;
             })
-            ->editColumn('tax_value', function (Payment $payment) {
-                return $payment->formatToCurrency($payment->tax_value);
+            ->editColumn('price', function (Payment $payment, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatToCurrency($payment->price, $payment->currency_code);
+            })
+            ->editColumn('tax_value', function (Payment $payment, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatToCurrency($payment->tax_value, $payment->currency_code);
             })
             ->editColumn('tax_percent', function (Payment $payment) {
                 return $payment->tax_percent . ' %';
             })
-            ->editColumn('total_price', function (Payment $payment) {
-                return $payment->formatToCurrency($payment->total_price);
+            ->editColumn('total_price', function (Payment $payment, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatToCurrency($payment->total_price, $payment->currency_code);
             })
-
             ->editColumn('created_at', function (Payment $payment) {
                 return [
                     'display' => $payment->created_at ? $payment->created_at->diffForHumans() : '',

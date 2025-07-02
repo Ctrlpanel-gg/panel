@@ -46,6 +46,16 @@
                             @case("v3")
                               {!! RecaptchaV3::field('recaptchathree') !!}
                               @break
+                            @case("turnstile")
+                              <x-turnstile-widget
+                                theme="dark"
+                                language="en-us"
+                                size="normal"
+                              />
+                              @error('cf-turnstile-response')
+                              <p class="error">{{ $message }}</p>
+                              @enderror
+                              @break
                           @endswitch
 
                           @error('g-recaptcha-response')

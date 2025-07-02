@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Facades\Currency;
 use App\Settings\CouponSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Coupon extends Model
 {
@@ -44,6 +46,18 @@ class Coupon extends Model
         'max_uses' => 'integer',
         'expires_at' => 'timestamp'
     ];
+
+    /**
+     * Set the value to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function value(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $this->type == 'amount' ? Currency::prepareForDatabase($value) : $value
+        );
+    }
 
     /**
      * Returns the date format used by the coupons.

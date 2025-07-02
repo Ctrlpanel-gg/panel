@@ -2,7 +2,7 @@
 
 namespace App\Extensions\PaymentGateways\Stripe;
 
-use App\Classes\AbstractExtension;
+use App\Classes\PaymentExtension;
 use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
@@ -19,7 +19,7 @@ use Stripe\Exception\SignatureVerificationException;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
-class StripeExtension extends AbstractExtension
+class StripeExtension extends PaymentExtension
 {
     use CouponTrait;
 
@@ -43,11 +43,10 @@ class StripeExtension extends AbstractExtension
         ];
     }
 
-    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
         // check if the total price is valid for stripe
-        $totalPriceNumber = floatval($totalPriceString);
-        if (!self::checkPriceAmount($totalPriceNumber, strtoupper($shopProduct->currency_code), 'stripe')) {
+        if (!self::checkPriceAmount(floatval($totalPrice), strtoupper($shopProduct->currency_code), 'stripe')) {
             throw new Exception('Invalid price amount');
         }
 
@@ -61,7 +60,7 @@ class StripeExtension extends AbstractExtension
                             'name' => $shopProduct->display,
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => self::convertAmount($totalPriceString, $shopProduct->currency_code),
+                        'unit_amount_decimal' => self::convertAmount($totalPrice, $shopProduct->currency_code),
                     ],
                     'quantity' => 1,
                 ],
@@ -154,7 +153,7 @@ class StripeExtension extends AbstractExtension
                 }
             }
         } catch (Exception $e) {
-            if (env('APP_ENV') == 'local') {
+            if (config('app.env') == 'local') {
                 dd($e->getMessage());
             } else {
                 abort(422);
@@ -245,7 +244,7 @@ class StripeExtension extends AbstractExtension
     {
         $settings = new StripeSettings();
 
-        return env('APP_ENV') == 'local'
+        return config('app.env') == 'local'
             ? $settings->test_secret_key
             : $settings->secret_key;
     }
@@ -377,13 +376,13 @@ class StripeExtension extends AbstractExtension
     protected static function convertAmount(float $amount, string $currency): int
     {
         if (in_array($currency, self::ZERO_DECIMAL_CURRENCIES, true)) {
-            return $amount;
+            return $amount / 1000;
         }
 
         if (in_array($currency, self::THREE_DECIMAL_CURRENCIES, true)) {
-            return $amount * 1000;
+            return $amount;
         }
 
-        return $amount * 100;
+        return $amount / 10;
     }
 }

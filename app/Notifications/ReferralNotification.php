@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Facades\Currency;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
@@ -62,7 +63,7 @@ class ReferralNotification extends Notification implements ShouldQueue
         return [
             'title' => __('Someone registered using your Code!'),
             'content' => '
-                <p>You received '. $this->reward . ' ' . $this->credits_display_name . '</p>
+                <p>You received '. Currency::formatForDisplay($this->reward) . ' ' . $this->credits_display_name . '</p>
                 <p>because ' . $this->ref_user->name . ' registered with your Referral-Code!</p>
                 <p>Thank you very much for supporting us!.</p>
                 <p>'.config('app.name', 'Laravel').'</p>

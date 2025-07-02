@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
+use App\Facades\Currency;
 use App\Models\User;
 use App\Settings\DiscordSettings;
 use App\Models\PartnerDiscount;
@@ -12,6 +13,7 @@ use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 
 class UserPayment implements ShouldQueue
 {
@@ -58,15 +60,16 @@ class UserPayment implements ShouldQueue
     public function handle(PaymentEvent $event)
     {
         $user = $event->user;
+        $payment = $event->payment;
         $shopProduct = $event->shopProduct;
 
         // only update user if payment is paid
-        if ($event->payment->status != PaymentStatus::PAID) {
+        if ($payment->status != PaymentStatus::PAID) {
             return;
         }
 
         //update server limit
-        if (!$user->email_verified_reward && $this->server_limit_increment_after_irl_purchase !== 0) {
+        if (!$user->email_verified_reward && $this->server_limit_increment_after_irl_purchase !== 0 && $user->server_limit < $this->server_limit_increment_after_irl_purchase) {
             $user->increment('server_limit', $this->server_limit_increment_after_irl_purchase);
         }
 
@@ -112,16 +115,13 @@ class UserPayment implements ShouldQueue
         }
 
         //set discord role
-        if(!empty($this->bot_token) && $this->role_on_purchase && !empty($this->role_id_on_purchase)) {
+        if(!empty($this->bot_token) && $this->role_on_purchase && !empty($this->role_id_on_purchase) && !empty($user->discordUser)) {
             $discordUser = $user->discordUser;
             $success = $discordUser->addOrRemoveRole('add', $this->role_id_on_purchase);
 
-            if ($success) {
-                // LOGS DISCORD ROLE IN THE ACTIVITY LOG
-                activity()
-                    ->performedOn($user)
-                    ->causedBy($user)
-                    ->log('was added to role ' . $this->role_id_on_purchase . " on Discord");
+            if (!$success) {
+                //Activity Log moved directly to discordUser->AddOrRemoveRole()
+                Log::error("Couldnt add discord User. UserPayment Class L124");
             }
         }
 
@@ -130,6 +130,9 @@ class UserPayment implements ShouldQueue
         activity()
             ->performedOn($user)
             ->causedBy($user)
-            ->log('bought ' . $shopProduct->quantity . ' ' . $shopProduct->type . ' for ' . $shopProduct->price . $shopProduct->currency_code);
+            ->log($payment->type == 'Credits'
+                ? 'bought ' . Currency::formatForDisplay($payment->amount) . ' ' . $payment->type . ' for ' . Currency::formatForDisplay($payment->total_price) . $payment->currency_code
+                : 'bought ' . $payment->amount . ' ' . $shopProduct->type . ' for ' . Currency::formatForDisplay($payment->total_price) . $payment->currency_code
+            );
     }
 }

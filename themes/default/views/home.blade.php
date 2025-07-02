@@ -56,7 +56,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">{{ $general_settings->credits_display_name }}</span>
-                        <span class="info-box-number">{{ Auth::user()->Credits() }}</span>
+                        <span class="info-box-number">{{ Currency::formatForDisplay(Auth::user()->credits) }}</span>
                     </div>
                     <!-- /.info-box-content -->
                 </div>
@@ -67,32 +67,18 @@
             <!-- fix for small devices only -->
             <div class="clearfix hidden-md-up"></div>
 
-            <div class="col-12 col-sm-6 col-md">
-                <div class="mb-3 info-box">
-                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-chart-line"></i></span>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">{{ $general_settings->credits_display_name }}
-                            {{ __('Usage') }}</span>
-                        <span class="info-box-number">{{ number_format($usage, 2, '.', '') }}
-                            <sup>{{ __('per month') }}</sup></span>
-                    </div>
-                    <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-            </div>
 
             <!-- /.col -->
-            @if ($credits > 0.01 && $usage > 0)
-                <div class="col-12 col-sm-6 col-md-3">
-                    <div class="mb-3 info-box">
-                        <span class="info-box-icon {{ $bg }} elevation-1">
+            @if ($credits > 10 && $usage > 0)
+            <div class="col-12 col-sm-6 col-md">
+              <div class="mb-3 info-box">
+                        <span class="info-box-icon {{ $timeLeft['bg'] }} elevation-1">
                             <i class="fas fa-hourglass-half"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">{{ __('Out of Credits in', ['credits' =>
-                                $general_settings->credits_display_name]) }}
+                            <span class="info-box-text">{{ $timeLeft['message'] }}
                             </span>
-                            <span class="info-box-number">{{ $boxText }}<sup>{{ $unit }}</sup></span>
+                            <span class="info-box-number">{{ $timeLeft['value'] }}<sup>{{ $timeLeft['unit'] }}</sup></span>
                         </div>
                     </div>
                     <!-- /.info-box -->
@@ -196,7 +182,7 @@
                                             <tr>
                                                 <td>{{ $partnerDiscount->partner_discount }}%</td>
                                                 <td>{{ $partnerDiscount->registered_user_discount }}%</td>
-                                                <td>{{ $referral_settings->reward }}
+                                                <td>{{ Currency::formatForDisplay($referral_settings->reward) }}
                                                     {{ $general_settings->credits_display_name }}</td>
                                                 <td>{{ $partnerDiscount->referral_system_commission == -1 ?
                                                     $referral_settings->percentage : $partnerDiscount->referral_system_commission
@@ -219,8 +205,8 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<td>{{
-                                                    $referral_settings->reward }} {{ $general_settings->credits_display_name }}</td>
+                                                @if(in_array($referral_settings->mode, ["sign-up","both"]))<td>
+                                                    {{ Currency::formatForDisplay($referral_settings->reward) }} {{ $general_settings->credits_display_name }}</td>
                                                 @endif
                                                 @if(in_array($referral_settings->mode, ["commission","both"]))<td>{{
                                                     $referral_settings->percentage }}%</td> @endif
@@ -338,6 +324,7 @@
             </div>
             <!-- /.card -->
         </div>
+    </div>
 </section>
 <!-- END CONTENT -->
 <script>

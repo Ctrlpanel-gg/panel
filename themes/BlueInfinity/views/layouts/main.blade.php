@@ -82,7 +82,7 @@
         <a class="px-2 nav-link" href="#" id="userDropdown" role="button" data-toggle="dropdown"
            aria-haspopup="true" aria-expanded="false">
                         <span class="mr-1 text-gray-600 d-lg-inline">
-                            <small><i class="mr-2 fas fa-coins"></i></small>{{ Auth::user()->credits() }}
+                            <small><i class="mr-2 fas fa-coins"></i></small>{{ Currency::formatForDisplay(Auth::user()->credits) }}
                         </span>
         </a>
         <div class="shadow dropdown-menu dropdown-menu-right animated--grow-in"
@@ -199,7 +199,7 @@
             </a>
           </li>
 
-          @if (env('APP_ENV') == 'local' || $general_settings->store_enabled)
+          @if (config('app.env') == 'local' || $general_settings->store_enabled)
             <li class="nav-item">
               <a href="{{ route('store.index') }}"
                  class="nav-link @if (Request::routeIs('store.*') || Request::routeIs('checkout')) active @endif">
@@ -455,12 +455,12 @@
 
     @yield('content')
 
-    @include('models.redeem_voucher_modal')
+    @include('modals.redeem_voucher_modal')
   </div>
   <!-- /.content-wrapper -->
   <footer class="main-footer">
     <strong>Copyright &copy; 2021-{{ date('Y') }} <a
-        href="{{ url('/') }}">{{ env('APP_NAME', 'Laravel') }}</a>.</strong>
+        href="{{ url('/') }}">{{ config('app.name','Ctrlpanel.gg') }}</a>.</strong>
     All rights
     reserved. Powered by <a href="https://CtrlPanel.gg">CtrlPanel</a>.
     @if (!str_contains(config('BRANCHNAME'), 'main') && !str_contains(config('BRANCHNAME'), 'unknown'))

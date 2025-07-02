@@ -9,6 +9,7 @@ use App\Notifications\DynamicNotification;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Helpers\CurrencyHelper;
 use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
@@ -27,6 +28,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
 use App\Models\Role;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -204,7 +206,7 @@ class UserController extends Controller
         }
 
 
-// Update password separately with validation, if permission is granted
+        // Update password separately with validation, if permission is granted
         if (!is_null($request->input('new_password')) && $this->canAny([self::CHANGE_PASSWORD_PERMISSION, self::WRITE_PERMISSION])) {
             $request->validate([
                 'new_password' => 'required|string|min:8',
@@ -214,9 +216,26 @@ class UserController extends Controller
             $dataArray['password'] = Hash::make($request->input('new_password'));
         }
 
-// Only update with the collected data
+        // Only update with the collected data
         if (!empty($dataArray)) {
             $user->update($dataArray);
+
+            try {
+                $pteroData = array_filter([
+                    "email" => $user->email,
+                    "username" => $user->name,
+                    "first_name" => $user->name,
+                    "last_name" => $user->name,
+                    "language" => "en",
+                    "password" => $request->filled('new_password') ? $request->input('new_password') : null
+                ]);
+
+                $this->pterodactyl->updateUser($user->pterodactyl_id, $pteroData);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+
+                return redirect()->back()->with('error', __('User updated, but failed to update on pterodactyl: ' . $e->getMessage()));
+            }
         }
 
         event(new UserUpdateCreditsEvent($user));
@@ -409,8 +428,8 @@ class UserController extends Controller
             ->addColumn('avatar', function (User $user) {
                 return '<img width="28px" height="28px" class="ml-1 rounded-circle" src="' . $user->getAvatar() . '">';
             })
-            ->addColumn('credits', function (User $user) {
-                return '<i class="mr-2 fas fa-coins"></i> ' . $user->credits();
+            ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
+                return '<i class="mr-2 fas fa-coins"></i> ' . $currencyHelper->formatForDisplay($user->credits);
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();

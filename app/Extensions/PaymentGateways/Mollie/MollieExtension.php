@@ -2,7 +2,7 @@
 
 namespace App\Extensions\PaymentGateways\Mollie;
 
-use App\Classes\AbstractExtension;
+use App\Classes\PaymentExtension;
 use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
 use App\Events\UserUpdateCreditsEvent;
@@ -10,7 +10,6 @@ use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
-use App\Traits\Coupon as CouponTrait;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -22,10 +21,8 @@ use Illuminate\Support\Facades\Http;
 /**
  * Summary of PayPalExtension
  */
-class MollieExtension extends AbstractExtension
+class MollieExtension extends PaymentExtension
 {
-    use CouponTrait;
-
     public static function getConfig(): array
     {
         return [
@@ -36,8 +33,16 @@ class MollieExtension extends AbstractExtension
         ];
     }
 
-    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
+        /**
+         * Mollie requires the price to be a string with two decimal places.
+         * The price is in cents, so we need to divide by 10 to get the value in 100 factors.
+         * The price is also in the format of 0.00, so we need to format it to two decimal places.
+         */
+        $priceCents = $totalPrice / 10;
+        $totalPrice = number_format($priceCents / 100, 2, '.', '');
+
         $url = 'https://api.mollie.com/v2/payments';
         $settings = new MollieSettings();
         try {
@@ -47,7 +52,7 @@ class MollieExtension extends AbstractExtension
             ])->post($url, [
                 'amount' => [
                     'currency' => $shopProduct->currency_code,
-                    'value' => $totalPriceString,
+                    'value' => $totalPrice,
                 ],
                 'description' => "Order #{$payment->id} - " . $shopProduct->name,
                 'redirectUrl' => route('payment.MollieSuccess', ['payment_id' => $payment->id]),

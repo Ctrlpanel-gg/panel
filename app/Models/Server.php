@@ -4,17 +4,17 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Classes\PterodactylClient;
+use App\Enums\BillingPriority;
 use App\Settings\PterodactylSettings;
-use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Http\Client\Response;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Exception;
 
 /**
  * Class Server
@@ -57,6 +57,7 @@ class Server extends Model
         "description",
         "suspended",
         "identifier",
+        "billing_priority",
         "product_id",
         "pterodactyl_id",
         "last_billed",
@@ -68,6 +69,7 @@ class Server extends Model
      */
     protected $casts = [
         'suspended' => 'datetime',
+        'billing_priority' => BillingPriority::class
     ];
 
     public function __construct()
@@ -150,11 +152,11 @@ class Server extends Model
     }
 
     /**
-     * @return HasOne
+     * @return BelongsTo
      */
     public function product()
     {
-        return $this->hasOne(Product::class, 'id', 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
     /**
@@ -165,4 +167,18 @@ class Server extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    public function getEffectiveBillingPriorityAttribute()
+    {
+        return $this->billing_priority ?? $this->product->default_billing_priority;
+    }
+
+    public function scopeByBillingPriority($query)
+    {
+        return $query->orderByRaw('COALESCE(servers.billing_priority, (
+                SELECT default_billing_priority
+                FROM products
+                WHERE products.id = servers.product_id
+            ))')
+            ->orderBy('created_at', 'asc');
+    }
 }

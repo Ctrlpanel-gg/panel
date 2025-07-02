@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Store') }}</h1>
                 </div>
@@ -24,16 +24,16 @@
     <section class="content">
         <div class="container-fluid">
 
-            <div class="text-right mb-3">
+            <div class="mb-3 text-right">
                 <button type="button" data-toggle="modal" data-target="#redeemVoucherModal" class="btn btn-primary">
-                    <i class="fas fa-money-check-alt mr-2"></i>{{ __('Redeem code') }}
+                    <i class="mr-2 fas fa-money-check-alt"></i>{{ __('Redeem code') }}
                 </button>
             </div>
 
-            @if ($isStoreEnabled && $products->count() > 0)
+            @if ($isStoreEnabled && $shopProducts->count() > 0)
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fa fa-coins mr-2"></i>{{ $credits_display_name }}</h5>
+                        <h5 class="card-title"><i class="mr-2 fa fa-coins"></i>{{ $credits_display_name }}</h5>
                     </div>
                     <div class="card-body">
                         <table class="table table-striped table-responsive-sm">
@@ -46,21 +46,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($products as $product)
+                                @foreach ($shopProducts as $shopProduct)
                                     <tr>
-                                        <td>{{ $product->formatToCurrency($product->price) }}</td>
-                                        <td>{{ strtolower($product->type) == 'credits' ? $credits_display_name : $product->type }}
+                                        <td>{{ Currency::formatToCurrency($shopProduct->price, $shopProduct->currency_code) }}</td>
+                                        <td>{{ strtolower($shopProduct->type) == 'credits' ? $credits_display_name : $shopProduct->type }}
                                         </td>
                                         <td>
-                                            @if (strtolower($product->type) == 'credits')
-                                                <i class="fa fa-coins mr-2"></i>
-                                            @elseif (strtolower($product->type) == 'server slots')
-                                                <i class="fa fa-server mr-2"></i>
+                                            @if (strtolower($shopProduct->type) == 'credits')
+                                                <i class="mr-2 fa fa-coins"></i>
+                                            @elseif (strtolower($shopProduct->type) == 'server slots')
+                                                <i class="mr-2 fa fa-server"></i>
                                             @endif
 
-                                            {{ $product->display }}
+                                            {{ $shopProduct->display }}
                                         </td>
-                                        <td><a href="{{ route('checkout', $product->id) }}"
+                                        <td><a href="{{ route('checkout', $shopProduct->id) }}"
                                                 class="btn btn-info @cannot('user.shop.buy') disabled @endcannot">{{ __('Purchase') }}</a>
                                         </td>
                                     </tr>
@@ -73,8 +73,8 @@
                 <div class="alert alert-danger alert-dismissible">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                     <h4><i class="icon fa fa-ban"></i>
-                        @if ($products->count() == 0)
-                            {{ __('There are no store products!') }}
+                        @if ($shopProducts->count() == 0)
+                            {{ __('There are no store shopProducts!') }}
                         @else
                             {{ __('The store is not correctly configured!') }}
                         @endif

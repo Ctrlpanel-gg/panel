@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Events\UserUpdateCreditsEvent;
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Voucher;
@@ -202,8 +203,8 @@ class VoucherController extends Controller
             ->editColumn('name', function (User $user) {
                 return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.$user->name.'</a>';
             })
-            ->addColumn('credits', function (User $user) {
-                return '<i class="mr-2 fas fa-coins"></i> '.$user->credits();
+            ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
+                return '<i class="mr-2 fas fa-coins"></i> '. $currencyHelper->formatForDisplay($user->credits);
             })
             ->addColumn('last_seen', function (User $user) {
                 return $user->last_seen ? $user->last_seen->diffForHumans() : '';
@@ -245,8 +246,8 @@ class VoucherController extends Controller
             ->editColumn('uses', function (Voucher $voucher) {
                 return "{$voucher->used} / {$voucher->uses}";
             })
-            ->editColumn('credits', function (Voucher $voucher) {
-                return number_format($voucher->credits, 2, '.', '');
+            ->editColumn('credits', function (Voucher $voucher, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatForDisplay($voucher->credits);
             })
             ->editColumn('expires_at', function (Voucher $voucher) {
                 if (! $voucher->expires_at) {

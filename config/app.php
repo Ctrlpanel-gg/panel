@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Facade;
 
 return [
 
-    'version' => '1.0.8',
+    'version' => '1.1.0',
 
     /*
     |--------------------------------------------------------------------------
@@ -97,7 +97,8 @@ return [
     |
     */
 
-    'available_locales' => array_map('basename', preg_replace('/\\.[^.\\s]{3,4}$/', '', glob(base_path("lang").'/*.json', GLOB_BRACE))),
+    'available_locales' => array_map('basename', preg_replace('/\\.[^.\\s]{3,4}$/', '', glob(base_path("lang") . '/*.json'))),
+
 
     /*
     |--------------------------------------------------------------------------
@@ -214,6 +215,7 @@ return [
         Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
         App\Providers\SettingsServiceProvider::class,
         App\Providers\ExtensionServiceProvider::class,
+        App\Providers\CurrencyServiceProvider::class,
     ],
 
     /*
@@ -228,6 +230,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        'Currency' => App\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
     ])->toArray(),
 

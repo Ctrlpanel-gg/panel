@@ -16,6 +16,7 @@ use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Enums\BillingPriority;
 use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Enum;
 
 class ServerController extends Controller
 {
@@ -117,7 +119,8 @@ class ServerController extends Controller
             'location' => 'required|exists:locations,id',
             'egg' => 'required|exists:eggs,id',
             'product' => 'required|exists:products,id',
-            'egg_variables' => 'nullable|string'
+            'egg_variables' => 'nullable|string',
+            'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
         ]);
 
         $server = $this->createServer($request);
@@ -144,7 +147,6 @@ class ServerController extends Controller
 
         if ($request->has('product')) {
             $product = Product::findOrFail($request->input('product'));
-            $location = $request->input('location');
 
             $validationResult = $this->validateProductRequirements($product, $request);
             if ($validationResult !== true) {
@@ -176,9 +178,7 @@ class ServerController extends Controller
             return __('You can not create any more Servers with this product!');
         }
 
-        $minCredits = $product->minimum_credits == -1
-            ? $this->userSettings->min_credits_to_make_server
-            : $product->minimum_credits;
+        $minCredits = $product->minimum_credits ?: $this->userSettings->min_credits_to_make_server;
 
         if ($user->credits < $minCredits) {
             return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';
@@ -265,7 +265,8 @@ class ServerController extends Controller
         $server = $request->user()->servers()->create([
             'name' => $request->input('name'),
             'product_id' => $product->id,
-            'last_billed' => Carbon::now()
+            'last_billed' => Carbon::now(),
+            'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
         ]);
 
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);
@@ -300,16 +301,18 @@ class ServerController extends Controller
 
     private function handlePostCreation(User $user, Server $server): void
     {
+        logger('Product Price: ' . $server->product->price);
+
         $user->decrement('credits', $server->product->price);
 
         try {
-            if ($this->discordSettings->role_on_purchase &&
+            if ($this->discordSettings->role_for_active_clients &&
                 $user->discordUser &&
                 $user->servers->count() >= 1
             ) {
                 $user->discordUser->addOrRemoveRole(
                     'add',
-                    $this->discordSettings->role_id_on_purchase
+                    $this->discordSettings->role_id_for_active_clients
                 );
             }
         } catch (Exception $e) {
@@ -348,12 +351,12 @@ class ServerController extends Controller
 
     private function handleServerDeletion(Server $server): void
     {
-        if ($this->discordSettings->role_on_purchase) {
+        if ($this->discordSettings->role_for_active_clients) {
             $user = User::findOrFail($server->user_id);
             if ($user->discordUser && $user->servers->count() <= 1) {
                 $user->discordUser->addOrRemoveRole(
                     'remove',
-                    $this->discordSettings->role_id_on_purchase
+                    $this->discordSettings->role_id_for_active_clients
                 );
             }
         }
@@ -474,6 +477,23 @@ class ServerController extends Controller
             return redirect()->route('servers.show', ['server' => $server->id])
                 ->with('error', __('Upgrade failed: ') . $e->getMessage());
         }
+    }
+
+    public function updateBillingPriority(Server $server, Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'billing_priority' => ['required', new Enum(BillingPriority::class)],
+        ]);
+
+        if ($server->user_id !== Auth::id()) {
+            return redirect()->route('servers.index')
+                ->with('error', __('This is not your Server!'));
+        }
+
+        $server->update($data);
+
+        return redirect()->route('servers.show', ['server' => $server->id])
+            ->with('success', __('Billing priority updated successfully'));
     }
 
     private function validateUpgrade(Server $server, Product $oldProduct, Product $newProduct): bool
