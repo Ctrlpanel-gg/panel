@@ -37,7 +37,9 @@ class PayPalExtension extends PaymentExtension
     public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
         // Converts from cents to decimal places.
-        $totalPrice = $totalPrice / 1000;
+        $totalPrice = round($totalPrice / 1000,2);
+
+
 
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
