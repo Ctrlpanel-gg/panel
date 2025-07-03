@@ -267,10 +267,10 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block">
-                                                        <i class="fas fa-clock"></i>
-                                                        {{ __('Default Priority') }}
+                                                        <i class="fas fa-flag"></i>
+                                                        {{ __('Billing Priority') }}
                                                     </span>
-                                                    
+                                                    <span class="d-inline-block" x-text="product.default_billing_priority_label"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
