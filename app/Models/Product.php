@@ -37,6 +37,7 @@ class Product extends Model
     protected $appends = [
         'display_price',
         'display_minimum_credits',
+        'default_billing_priority_label',
     ];
 
     protected $casts = [
@@ -145,6 +146,11 @@ class Product extends Model
     public function getDisplayMinimumCreditsAttribute()
     {
         return $this->minimum_credits ? Currency::formatForDisplay($this->minimum_credits) : null;
+    }
+
+    public function getDefaultBillingPriorityLabelAttribute()
+    {
+        return $this->default_billing_priority->label();
     }
 
     public function getWeeklyPrice()
