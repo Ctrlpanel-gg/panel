@@ -6,6 +6,10 @@ use DevCoder\DotEnv;
 
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
 
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+$host = $_SERVER['HTTP_HOST'];
+
+
 if (isset($_POST['checkDB'])) {
     $values = [
         //SETTINGS::VALUE => REQUEST-VALUE (coming from the html-form)
@@ -45,7 +49,7 @@ if (isset($_POST['checkDB'])) {
         }
     } catch (Throwable $th) {
         wh_log('Creating APP_KEY failed', 'error');
-        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
+        header("LOCATION: {$protocol}://{$host}/index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
         exit();
     }
 
