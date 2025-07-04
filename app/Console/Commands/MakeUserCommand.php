@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Classes\PterodactylClient;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use App\Settings\PterodactylSettings;
 use App\Traits\Referral;
 use Illuminate\Console\Command;
@@ -46,7 +47,7 @@ class MakeUserCommand extends Command
      *
      * @return int
      */
-    public function handle(PterodactylSettings $ptero_settings)
+    public function handle(PterodactylSettings $ptero_settings, GeneralSettings $general_settings)
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
@@ -83,10 +84,22 @@ class MakeUserCommand extends Command
 
             return 0;
         }
+
+        $exists = User::where('email', $response['email'])
+            ->orWhere('pterodactyl_id', $response['id'])
+            ->exists();
+
+        if ($exists) {
+            $this->error('A user with this email or Pterodactyl ID already exists.');
+            return 0;
+        }
+
         $user = User::create([
             'name' => $response['first_name'],
             'email' => $response['email'],
             'password' => Hash::make($password),
+            'credits' => $general_settings->initial_credits,
+            'server_limit' => $general_settings->initial_server_limit,
             'referral_code' => $this->createReferralCode(),
             'pterodactyl_id' => $response['id'],
         ]);
