@@ -41,7 +41,9 @@ class OverViewController extends Controller
         $counters->put('users', collect());
         $counters['users']->active = User::where("suspended", 0)->count();
         $counters['users']->total = User::query()->count();
-        $counters->put('credits', number_format(User::query()->whereHas("roles", function($q){ $q->where("id", "!=", "1"); })->sum('credits'), 2, '.', ''));
+        $counters->put('credits', $currencyHelper->formatForDisplay(
+            User::query()->whereHas("roles", function($q){ $q->where("id", "!=", "1"); })->sum('credits')
+        ));
         $counters->put('payments', Payment::query()->count());
         $counters->put('eggs', Egg::query()->count());
         $counters->put('nests', Nest::query()->count());

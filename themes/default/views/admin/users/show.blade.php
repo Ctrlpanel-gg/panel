@@ -194,7 +194,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="mr-2 fas fa-coins"></i>{{ $user->CreditUsage() }}
+                                        <i class="mr-2 fas fa-coins"></i>{{ Currency::formatForDisplay($user->creditUsage()) }}
                                     </span>
                                 </div>
                             </div>
