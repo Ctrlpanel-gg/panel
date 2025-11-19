@@ -9,7 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta content="{{ $website_settings->seo_title }}" property="og:title">
     <meta content="{{ $website_settings->seo_description }}" property="og:description">
-    <meta content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('/logo.png') : asset('images/ctrlpanel_logo.png') }}' property="og:image">
+    <meta
+        content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('/logo.png') : asset('images/ctrlpanel_logo.png') }}'
+        property="og:image">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -19,7 +21,6 @@
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
 
-    <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -30,18 +31,21 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
-  @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
-  @if ($recaptchaVersion)
-    @switch($recaptchaVersion)
-      @case("v2")
-        {!! htmlScriptTagJsApi() !!}
-        @break
-      @case("v3")
-        {!! RecaptchaV3::initJs() !!}
-        @break
-    @endswitch
-  @endif
+    @php($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
+    @if ($recaptchaVersion)
+        @switch($recaptchaVersion)
+            @case('v2')
+                {!! htmlScriptTagJsApi() !!}
+            @break
+
+            @case('v3')
+                {!! RecaptchaV3::initJs() !!}
+            @break
+        @endswitch
+    @endif
     @vite('themes/default/sass/app.scss')
+    @vite('themes/default/css/app.css')
+    @vite('themes/default/js/app.js')
 </head>
 @yield('content')
 
