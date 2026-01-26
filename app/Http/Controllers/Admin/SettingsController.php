@@ -26,6 +26,7 @@ class SettingsController extends Controller
      */
     public function index()
     {
+        $this->checkAnyPermission([self::ICON_PERMISSION]);
         // get all other settings in app/Settings directory
         // group items by file name like $categories
         $settings = collect();
