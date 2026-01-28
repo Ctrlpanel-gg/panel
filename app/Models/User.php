@@ -228,9 +228,9 @@ class User extends Authenticatable implements MustVerifyEmail
         } elseif ($eventName === 'created' && isset($propertiesArray['attributes']['credits'])) {
             $credits = $propertiesArray['attributes']['credits'];
             if ($credits > 1000) {
-                $propertiesArray['attributes']['credits'] = Currency::formatForDisplay($credits);
+                $propertiesArray['attributes']['credits'] = (string) Currency::formatForDisplay($credits);
             } else {
-                $propertiesArray['attributes']['credits'] = $credits;
+                $propertiesArray['attributes']['credits'] = (string) $credits;
             }
             $activity->properties = $propertiesArray;
             return;
