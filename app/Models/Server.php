@@ -84,10 +84,9 @@ class Server extends Model
                     $attrs['API Memo'] = $apiMemo;
                     $olds['API Memo'] = null;
                 } else {
-                    if (!empty($request->user())) {
-                        $attrs['Via'] = 'web';
-                        $olds['Via'] = null;
-                    }
+                    // show that it was done via web for non-API requests
+                    $attrs['Via'] = 'web';
+                    $olds['Via'] = null;
                 }
 
                 $properties->put('attributes', $attrs);
