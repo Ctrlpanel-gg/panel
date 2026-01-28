@@ -86,13 +86,50 @@ class UserController extends Controller
         $this->checkPermission(self::READ_PERMISSION);
 
         //QUERY ALL REFERRALS A USER HAS
-        //i am not proud of this at all.
+        $referralRecords = DB::table('user_referrals')->where('referral_id', '=', $user->id)->get();
         $allReferrals = [];
-        $referrals = DB::table('user_referrals')->where('referral_id', '=', $user->id)->get();
-        foreach ($referrals as $referral) {
-            array_push($allReferrals, $allReferrals['id'] = User::query()->findOrFail($referral->registered_user_id));
+
+        foreach ($referralRecords as $referral) {
+            $deleted = $referral->deleted_at !== null;
+
+            if ($deleted) {
+                $deletedId = $referral->deleted_user_id;
+                $name = $referral->deleted_username ? $referral->deleted_username . ' (deleted)' : 'Deleted User';
+
+                $allReferrals[] = (object)[
+                    'id' => $deletedId,
+                    'name' => $name,
+                    'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                    'deleted' => true,
+                ];
+            } else {
+                $userObj = User::query()->find($referral->registered_user_id);
+                if ($userObj) {
+                    $allReferrals[] = (object)[
+                        'id' => $userObj->id,
+                        'name' => $userObj->name,
+                        'created_at' => $userObj->created_at,
+                        'deleted' => false,
+                    ];
+                } else {
+                    if ($referral->deleted_user_id) {
+                        $allReferrals[] = (object)[
+                            'id' => $referral->deleted_user_id,
+                            'name' => ($referral->deleted_username ? $referral->deleted_username . ' (deleted)' : 'Deleted User'),
+                            'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                            'deleted' => true,
+                        ];
+                    } else {
+                        $allReferrals[] = (object)[
+                            'id' => 'N/A',
+                            'name' => 'Unknown (deleted)',
+                            'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                            'deleted' => true,
+                        ];
+                    }
+                }
+            }
         }
-        array_pop($allReferrals);
 
         return view('admin.users.show')->with([
             'user' => $user,
@@ -385,7 +422,7 @@ class UserController extends Controller
             try {
                 $user->notify(new DynamicNotification($data['via'], $database, $mail));
                 $successCount++;
-            } catch (\Throwable $e)
+            } catch (\Throwable $e) {
                 Log::error('Mass notification error for user ' . $user->id . ': ' . $e->getMessage());
             }
         }
