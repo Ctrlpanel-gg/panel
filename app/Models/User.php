@@ -209,17 +209,100 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Coupon::class, 'user_coupons');
     }
 
-    // tap into activity log to convert db value to display value
+    // tap into activity log to convert db value to display value, attach API metadata and add pseudo-attributes for UI
     public function tapActivity(Activity $activity, string $eventName)
     {
-        if (($eventName === 'deleted' || $eventName === 'created') && $activity->properties->has('attributes')) {
-            $attributes = $activity->properties->get('attributes');
-            if (isset($attributes['credits'])) {
-                $attributes['credits'] = Currency::formatForDisplay($attributes['credits']);
-                $activity->properties->put('attributes', $attributes);
+        $propertiesArray = $activity->properties->toArray();
+        $properties = collect($propertiesArray);
+
+        // Preserve existing credits formatting for created/deleted events and return early
+        if ($eventName === 'deleted' && isset($propertiesArray['old']['credits'])) {
+            $credits = $propertiesArray['old']['credits'];
+            if ($credits > 1000) {
+                $propertiesArray['old']['credits'] = (string) Currency::formatForDisplay($credits);
+            } else {
+                $propertiesArray['old']['credits'] = (string) $credits;
+            }
+            $activity->properties = $propertiesArray;
+            return;
+        } elseif ($eventName === 'created' && isset($propertiesArray['attributes']['credits'])) {
+            $credits = $propertiesArray['attributes']['credits'];
+            if ($credits > 1000) {
+                $propertiesArray['attributes']['credits'] = Currency::formatForDisplay($credits);
+            } else {
+                $propertiesArray['attributes']['credits'] = $credits;
+            }
+            $activity->properties = $propertiesArray;
+            return;
+        }
+
+        $request = request();
+        $apiMemo = $request->attributes->get('application_api_memo');
+        $reason = $request->input('reason');
+
+        // Attach top-level reason/lines and via/api_memo for updated/deleted events
+        if (in_array($eventName, ['updated', 'deleted'])) {
+            if (!empty($reason)) {
+                $properties->put('reason', $reason);
+                $lines = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $reason))));
+                if (!empty($lines)) {
+                    $properties->put('reason_lines', $lines);
+                }
+            }
+
+            if ($apiMemo) {
+                $properties->put('via', 'api');
+                $properties->put('api_memo', $apiMemo);
+            } elseif ($request->is('api/*')) {
+                $properties->put('via', 'api');
+            } else {
+                $properties->put('via', 'web');
             }
         }
 
+        if ($eventName === 'updated') {
+            // If suspended attribute changed, integrate notes into the attributes list (so UI shows it in the same Updated block)
+            if ($properties->has('attributes') && array_key_exists('suspended', $properties->get('attributes'))) {
+                $attrs = $properties->get('attributes');
+                $olds = $properties->get('old', []);
+
+                // Add separate pseudo-attributes so each appears on its own line in the Updated list
+                if (!empty($reason)) {
+                    $attrs['Reason'] = $reason;
+                    // set corresponding old value to null so blade renders it as an info line
+                    $olds['Reason'] = null;
+                }
+
+                if ($apiMemo) {
+                    $attrs['Via'] = 'api';
+                    $olds['Via'] = null;
+
+                    $attrs['API Memo'] = $apiMemo;
+                    $olds['API Memo'] = null;
+                } else {
+                    // show that it was done via web when authenticated
+                    if (!empty($request->user())) {
+                        $attrs['Via'] = 'web';
+                        $olds['Via'] = null;
+                    }
+                }
+
+                $properties->put('attributes', $attrs);
+                $properties->put('old', $olds);
+
+                // Set causer to authenticated user if present; do NOT attach ApplicationApi or token
+                if (auth()->check()) {
+                    $activity->causer_id = auth()->id();
+                    $activity->causer_type = auth()->user()::class;
+                }
+
+                $activity->properties = $properties->toArray();
+                return;
+            }
+        }
+
+        // Default: write back any modified properties
+        $activity->properties = $properties->toArray();
     }
 
     /**

@@ -28,6 +28,9 @@ class ApiAuthToken
 
         $token->updateLastUsed();
 
+        // Only attach non-sensitive `memo` to the request (do NOT expose the raw token)
+        $request->attributes->set('application_api_memo', $token->memo);
+
         return $next($request);
     }
 }

@@ -34,6 +34,80 @@ class Server extends Model
             ->dontSubmitEmptyLogs();
     }
 
+    // tap into activity log to attach API metadata and add pseudo-attributes for UI
+    public function tapActivity(
+        \Spatie\Activitylog\Models\Activity $activity,
+        string $eventName
+    ) {
+        $propertiesArray = $activity->properties->toArray();
+        $properties = collect($propertiesArray);
+
+        $request = request();
+        $apiMemo = $request->attributes->get('application_api_memo');
+        $reason = $request->input('reason');
+
+        // Attach top-level reason/lines and via/api_memo for updated/deleted events
+        if (in_array($eventName, ['updated', 'deleted'])) {
+            if (!empty($reason)) {
+                $properties->put('reason', $reason);
+                $lines = array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $reason))));
+                if (!empty($lines)) {
+                    $properties->put('reason_lines', $lines);
+                }
+            }
+
+            if ($apiMemo) {
+                $properties->put('via', 'api');
+                $properties->put('api_memo', $apiMemo);
+            } elseif ($request->is('api/*')) {
+                $properties->put('via', 'api');
+            } else {
+                $properties->put('via', 'web');
+            }
+        }
+
+        // If an update toggled `suspended`, add pseudo-attributes so the UI shows Reason/Via/API Memo in the same "Updated" block
+        if ($eventName === 'updated') {
+            $attrs = $properties->get('attributes', []);
+            if (is_array($attrs) && array_key_exists('suspended', $attrs)) {
+                $olds = $properties->get('old', []);
+
+                if (!empty($reason)) {
+                    $attrs['Reason'] = $reason;
+                    $olds['Reason'] = null;
+                }
+
+                if ($apiMemo) {
+                    $attrs['Via'] = 'api';
+                    $olds['Via'] = null;
+
+                    $attrs['API Memo'] = $apiMemo;
+                    $olds['API Memo'] = null;
+                } else {
+                    if (!empty($request->user())) {
+                        $attrs['Via'] = 'web';
+                        $olds['Via'] = null;
+                    }
+                }
+
+                $properties->put('attributes', $attrs);
+                $properties->put('old', $olds);
+
+                // Set causer to authenticated user if present; do NOT attach ApplicationApi or token
+                if (auth()->check()) {
+                    $activity->causer_id = auth()->id();
+                    $activity->causer_type = auth()->user()::class;
+                }
+
+                $activity->properties = $properties->toArray();
+                return;
+            }
+        }
+
+        // Default: write back any modified properties
+        $activity->properties = $properties->toArray();
+    }
+
     /**
      * @var bool
      */
