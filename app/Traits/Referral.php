@@ -16,7 +16,7 @@ trait Referral
         // check if code already exists
         if (User::where('referral_code', $code)->exists()) {
             // if exists, generate another code
-            return $this->generateReferralCode();
+            return $this->createReferralCode();
         }
         return $code;
     }
