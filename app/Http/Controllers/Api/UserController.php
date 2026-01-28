@@ -123,6 +123,12 @@ class UserController extends Controller
 
     /**
      * increments the users credits or/and server_limit
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return User
+     *
+     * @throws ValidationException
      */
     public function increment(Request $request, int $id)
     {
@@ -158,6 +164,12 @@ class UserController extends Controller
 
     /**
      * decrements the users credits or/and server_limit
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return User
+     *
+     * @throws ValidationException
      */
     public function decrement(Request $request, int $id)
     {
@@ -192,16 +204,22 @@ class UserController extends Controller
 
     /**
      * Suspends the user
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return User
+     *
+     * @throws ValidationException
      */
     public function suspend(Request $request, int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
-        
+
         $request->validate([
             'reason' => 'sometimes|string|max:320',
         ]);
-        
+
         $reason = $request->input('reason');
 
         if ($user->isSuspended()) {
@@ -211,27 +229,27 @@ class UserController extends Controller
         }
         $user->suspend();
 
-        $logMessage = "The user " . $user->name . " (ID: " . $user->id . ") was suspended via API";
-        if ($reason) {
-            $logMessage .= ". Reason: " . e($reason);
-        }
-        activity()->performedOn($user)->log($logMessage);
-
         return $user;
     }
 
     /**
      * Unsuspend the user
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return User
+     *
+     * @throws ValidationException
      */
     public function unsuspend(Request $request, int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
-        
+
         $request->validate([
             'reason' => 'sometimes|string|max:320',
         ]);
-        
+
         $reason = $request->input('reason');
 
         if (! $user->isSuspended()) {
@@ -242,35 +260,26 @@ class UserController extends Controller
 
         $user->unSuspend();
 
-        $logMessage = "The user " . $user->name . " (ID: " . $user->id . ") was unsuspended via API";
-        if ($reason) {
-            $logMessage .= ". Reason: " . e($reason);
-        }
-        activity()->performedOn($user)->log($logMessage);
-
         return $user;
     }
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @return Response
      */
     public function destroy(Request $request, int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
-        
+
         $request->validate([
             'reason' => 'sometimes|string|max:320',
         ]);
-        
+
         $reason = $request->input('reason');
-
-        $logMessage = "The user " . $user->name . " (ID: " . $user->id . ") was deleted via API";
-        if ($reason) {
-            $logMessage .= ". Reason: " . e($reason);
-        }
-
-        activity()->performedOn($user)->log($logMessage);
 
         $user->delete();
 
