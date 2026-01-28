@@ -138,7 +138,7 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'credits' => Currency::prepareForDatabase($this->initial_credits),
+            'credits' => $this->initial_credits,
             'server_limit' => $this->initial_server_limit,
             'password' => Hash::make($data['password']),
             'referral_code' => $this->createReferralCode(),
