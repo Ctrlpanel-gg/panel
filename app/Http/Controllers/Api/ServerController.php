@@ -18,6 +18,12 @@ class ServerController extends Controller
 
     public const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  Request  $request
+     * @return LengthAwarePaginator
+     */
     public function index(Request $request)
     {
         $query = QueryBuilder::for(Server::class)
@@ -27,6 +33,12 @@ class ServerController extends Controller
         return $query->paginate($request->input('per_page') ?? 50);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  Server  $server
+     * @return Server|Collection|Model
+     */
     public function show(Server $server)
     {
         $query = QueryBuilder::for(Server::class)
@@ -38,6 +50,10 @@ class ServerController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * @param  Request  $request
+     * @param  Server  $server
+     * @return Server
      */
     public function destroy(Request $request, Server $server)
     {
@@ -46,20 +62,19 @@ class ServerController extends Controller
         ]);
 
         $reason = $request->input('reason');
-        
-        $logMessage = "The server with ID: " . $server->id . " was deleted via API";
-        
-        if ($reason) {
-            $logMessage .= ". Reason: " . e($reason);
-        }
-
-        activity()->performedOn($server)->log($logMessage);
 
         $server->delete();
 
         return $server;
     }
 
+    /**
+     * suspend server
+     *
+     * @param  Request  $request
+     * @param  Server  $server
+     * @return Server|JsonResponse
+     */
     public function suspend(Request $request, Server $server)
     {
         $request->validate([
@@ -74,15 +89,16 @@ class ServerController extends Controller
             return response()->json(['message' => $exception->getMessage()], 500);
         }
 
-        $logMessage = "The server with ID: " . $server->id . " was suspended via API";
-        if ($reason) {
-            $logMessage .= ". Reason: " . e($reason);
-        }
-        activity()->performedOn($server)->log($logMessage);
-
         return $server->load('product');
     }
 
+    /**
+     * unsuspend server
+     *
+     * @param  Request  $request
+     * @param  Server  $server
+     * @return Server|JsonResponse
+     */
     public function unSuspend(Request $request, Server $server)
     {
         $request->validate([
@@ -96,12 +112,6 @@ class ServerController extends Controller
         } catch (Exception $exception) {
             return response()->json(['message' => $exception->getMessage()], 500);
         }
-
-        $logMessage = "The server with ID: " . $server->id . " was unsuspended via API";
-        if ($reason) {
-            $logMessage .= ". Reason: " . e($reason);
-        }
-        activity()->performedOn($server)->log($logMessage);
 
         return $server->load('product');
     }
