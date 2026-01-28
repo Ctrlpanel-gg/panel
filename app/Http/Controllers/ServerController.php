@@ -1,4 +1,3 @@
-app/Http/Controllers/ServerController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -113,12 +112,11 @@ class ServerController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $lockKey = 'server_create_lock_' . Auth::id();
-        if (Cache::has($lockKey)) {
+        $lock = Cache::lock('server_create_lock_' . Auth::id(), 10);
+        if (!$lock->get()) {
             return redirect()->route('servers.index')
                 ->with('error', __('Please wait a moment before creating another server.'));
         }
-        Cache::put($lockKey, true, 5);
 
         $validationResult = $this->validateServerCreation($request);
         if ($validationResult) return $validationResult;
@@ -314,6 +312,8 @@ class ServerController extends Controller
 
         $user->decrement('credits', $server->product->price);
 
+        Cache::forget('user_credits_left:' . $user->id);
+
         try {
             if ($this->discordSettings->role_for_active_clients &&
                 $user->discordUser &&
@@ -371,6 +371,7 @@ class ServerController extends Controller
         }
 
         $server->delete();
+        Cache::forget('user_credits_left:' . $server->user_id);
     }
 
     public function cancel(Server $server): RedirectResponse
