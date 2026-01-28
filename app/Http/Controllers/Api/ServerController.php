@@ -61,7 +61,7 @@ class ServerController extends Controller
             'reason' => 'sometimes|string|max:320',
         ]);
 
-        $reason = $request->input('reason');
+        // Reason is captured by the model's activity log (tapActivity) — no local use required here.
 
         $server->delete();
 
@@ -81,7 +81,7 @@ class ServerController extends Controller
             'reason' => 'sometimes|string|max:320',
         ]);
 
-        $reason = $request->input('reason');
+        // Reason is captured by the model's activity log (tapActivity) — no local use required here.
 
         try {
             $server->suspend();
@@ -105,7 +105,7 @@ class ServerController extends Controller
             'reason' => 'sometimes|string|max:320',
         ]);
 
-        $reason = $request->input('reason');
+        // Reason is captured by the model's activity log (tapActivity) — no local use required here.
 
         try {
             $server->unSuspend();
