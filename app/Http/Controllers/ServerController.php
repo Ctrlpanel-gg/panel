@@ -118,29 +118,48 @@ class ServerController extends Controller
                 ->with('error', __('Please wait a moment before creating another server.'));
         }
 
-        $validationResult = $this->validateServerCreation($request);
-        if ($validationResult) return $validationResult;
+        $lockAcquired = true;
+        try {
+            $validationResult = $this->validateServerCreation($request);
+            if ($validationResult) return $validationResult;
 
-        $request->validate([
-            'name' => 'required|max:191',
-            'location' => 'required|exists:locations,id',
-            'egg' => 'required|exists:eggs,id',
-            'product' => 'required|exists:products,id',
-            'egg_variables' => 'nullable|string',
-            'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
-        ]);
+            $request->validate([
+                'name' => 'required|max:191',
+                'location' => 'required|exists:locations,id',
+                'egg' => 'required|exists:eggs,id',
+                'product' => 'required|exists:products,id',
+                'egg_variables' => 'nullable|string',
+                'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
+            ]);
 
-        $server = $this->createServer($request);
+            $server = $this->createServer($request);
 
-        if (!$server) {
+            if (!$server) {
+                return redirect()->route('servers.index')
+                    ->with('error', __('Server creation failed'));
+            }
+
+            // Release the lock early so post-creation work doesn't block retries
+            try {
+                $lock->release();
+                $lockAcquired = false;
+            } catch (\Throwable $e) {
+                Log::debug('Failed to release server creation lock (early): ' . $e->getMessage());
+            }
+
+            $this->handlePostCreation($request->user(), $server);
+
             return redirect()->route('servers.index')
-                ->with('error', __('Server creation failed'));
+                ->with('success', __('Server created'));
+        } finally {
+            if ($lockAcquired) {
+                try {
+                    $lock->release();
+                } catch (\Throwable $e) {
+                    Log::debug('Failed to release server creation lock: ' . $e->getMessage());
+                }
+            }
         }
-
-        $this->handlePostCreation($request->user(), $server);
-
-        return redirect()->route('servers.index')
-            ->with('success', __('Server created'));
     }
 
     private function validateServerCreation(Request $request): ?RedirectResponse
