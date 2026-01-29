@@ -85,15 +85,22 @@ class UserController extends Controller
     {
         $this->checkPermission(self::READ_PERMISSION);
 
-        //QUERY ALL REFERRALS A USER HAS
+        // QUERY ALL REFERRALS A USER HAS (efficiently)
         $referralRecords = DB::table('user_referrals')->where('referral_id', '=', $user->id)->get();
         $allReferrals = [];
+
+        // Collect all registered_user_ids to avoid N+1 queries
+        $registeredIds = $referralRecords->pluck('registered_user_id')->filter()->unique()->values()->all();
+        $userMap = [];
+        if (!empty($registeredIds)) {
+            $userMap = User::whereIn('id', $registeredIds)->get()->keyBy('id');
+        }
 
         foreach ($referralRecords as $referral) {
             $deleted = $referral->deleted_at !== null;
 
             if ($deleted) {
-                $deletedId = $referral->deleted_user_id;
+                $deletedId = $referral->deleted_user_id ?? null;
                 $name = $referral->deleted_username ? $referral->deleted_username . ' (deleted)' : 'Deleted User';
 
                 $allReferrals[] = (object)[
@@ -102,31 +109,37 @@ class UserController extends Controller
                     'created_at' => \Carbon\Carbon::parse($referral->created_at),
                     'deleted' => true,
                 ];
+
+                continue;
+            }
+
+            // If the referred user still exists, use their data
+            $registeredId = $referral->registered_user_id;
+            $userObj = $registeredId && isset($userMap[$registeredId]) ? $userMap[$registeredId] : null;
+
+            if ($userObj) {
+                $allReferrals[] = (object)[
+                    'id' => $userObj->id,
+                    'name' => $userObj->name,
+                    'created_at' => $userObj->created_at,
+                    'deleted' => false,
+                ];
             } else {
-                $userObj = User::query()->find($referral->registered_user_id);
-                if ($userObj) {
+                // fallback to deleted_user_id if present, otherwise mark as unknown
+                if ($referral->deleted_user_id) {
                     $allReferrals[] = (object)[
-                        'id' => $userObj->id,
-                        'name' => $userObj->name,
-                        'created_at' => $userObj->created_at,
-                        'deleted' => false,
+                        'id' => $referral->deleted_user_id,
+                        'name' => ($referral->deleted_username ? $referral->deleted_username . ' (deleted)' : 'Deleted User'),
+                        'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                        'deleted' => true,
                     ];
                 } else {
-                    if ($referral->deleted_user_id) {
-                        $allReferrals[] = (object)[
-                            'id' => $referral->deleted_user_id,
-                            'name' => ($referral->deleted_username ? $referral->deleted_username . ' (deleted)' : 'Deleted User'),
-                            'created_at' => \Carbon\Carbon::parse($referral->created_at),
-                            'deleted' => true,
-                        ];
-                    } else {
-                        $allReferrals[] = (object)[
-                            'id' => null,
-                            'name' => 'Unknown (deleted)',
-                            'created_at' => \Carbon\Carbon::parse($referral->created_at),
-                            'deleted' => true,
-                        ];
-                    }
+                    $allReferrals[] = (object)[
+                        'id' => null,
+                        'name' => 'Unknown (deleted)',
+                        'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                        'deleted' => true,
+                    ];
                 }
             }
         }

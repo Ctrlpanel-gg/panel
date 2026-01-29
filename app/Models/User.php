@@ -130,10 +130,11 @@ class User extends Authenticatable implements MustVerifyEmail
             $user->discordUser()->delete();
 
             // --- Referral logic ---
-            // get all referrals (incl. of deleted ones)
+            // Using DB::table to update referral records directly to avoid triggering additional Eloquent events
+            // when performing cascading deletes. We update only the exact referral rows using the composite
+            // key (referral_id + registered_user_id) to avoid affecting unrelated records.
             $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();
             foreach ($referralRecords as $ref) {
-                // mark ref as deleted and persist the deleted user id and name
                 DB::table('user_referrals')
                     ->where('referral_id', $ref->referral_id)
                     ->where('registered_user_id', $ref->registered_user_id)
