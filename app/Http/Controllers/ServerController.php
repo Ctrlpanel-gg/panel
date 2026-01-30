@@ -29,6 +29,8 @@ use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Support\Facades\Cache;
+use App\Jobs\HandlePostServerCreationJob;
+use Illuminate\Support\Facades\DB;
 
 class ServerController extends Controller
 {
@@ -139,15 +141,37 @@ class ServerController extends Controller
                     ->with('error', __('Server creation failed'));
             }
 
-            // Release the lock early so post-creation work doesn't block retries
+            // Atomically deduct credits before releasing lock to prevent race conditions
+            $price = $server->product->price;
+            $userId = $request->user()->id;
+
+            $decremented = DB::table('users')
+                ->where('id', $userId)
+                ->where('credits', '>=', $price)
+                ->decrement('credits', $price);
+
+            if ($decremented === 0) {
+                // Not enough credits — cleanup created server and return error
+                try {
+                    $server->delete();
+                } catch (\Throwable $e) {
+                    Log::error('Failed to delete server after insufficient credits', ['server_id' => $server->id, 'error' => $e->getMessage()]);
+                }
+
+                return redirect()->route('servers.index')
+                    ->with('error', __('Not enough :credits to create server', ['credits' => $this->generalSettings->credits_display_name]));
+            }
+
+            // Invalidate cached credits and dispatch async post-creation tasks
+            Cache::forget('user_credits_left:' . $userId);
+            HandlePostServerCreationJob::dispatch($userId, $server->id);
+
             try {
                 $lock->release();
                 $lockAcquired = false;
             } catch (\Throwable $e) {
-                Log::debug('Failed to release server creation lock (early): ' . $e->getMessage());
+                Log::debug('Failed to release server creation lock: ' . $e->getMessage());
             }
-
-            $this->handlePostCreation($request->user(), $server);
 
             return redirect()->route('servers.index')
                 ->with('success', __('Server created'));
@@ -327,12 +351,6 @@ class ServerController extends Controller
 
     private function handlePostCreation(User $user, Server $server): void
     {
-        logger('Product Price: ' . $server->product->price);
-
-        $user->decrement('credits', $server->product->price);
-
-        Cache::forget('user_credits_left:' . $user->id);
-
         try {
             if ($this->discordSettings->role_for_active_clients &&
                 $user->discordUser &&

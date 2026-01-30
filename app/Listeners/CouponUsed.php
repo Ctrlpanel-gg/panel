@@ -72,8 +72,8 @@ class CouponUsed
         }
 
         if ($this->delete_coupon_on_expires) {
-            if (!is_null($event->coupon->expired_at)) {
-                if ($event->coupon->expires_at <= Carbon::now()->timestamp) {
+            if (!is_null($event->coupon->expires_at)) {
+                if ($event->coupon->expires_at <= Carbon::now(config('app.timezone'))->timestamp) {
                     $event->coupon->delete();
                 }
             }
