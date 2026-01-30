@@ -9,7 +9,6 @@ class CouponSettings extends Settings
     public bool $enabled = false;
     public ?bool $delete_coupon_on_expires = false;
     public ?bool $delete_coupon_on_uses_reached = false;
-    public ?int $max_uses_per_user = null;
 
     public static function group(): string
     {
@@ -26,7 +25,6 @@ class CouponSettings extends Settings
             'enabled' => "nullable|boolean",
             'delete_coupon_on_expires' => 'nullable|boolean',
             'delete_coupon_on_uses_reached' => 'nullable|boolean',
-            'max_uses_per_user' => 'nullable|integer',
         ];
     }
 
@@ -54,11 +52,6 @@ class CouponSettings extends Settings
                 'label' => 'Delete Coupon When Max Uses Reached',
                 'type' => 'boolean',
                 'description' => 'Delete a coupon as soon as its maximum usage is reached.'
-            ],
-            'max_uses_per_user' => [
-                'label' => 'Max Uses Per User',
-                'type' => 'number',
-                'description' => 'Maximum number of uses that a user can make of the same coupon.'
             ],
         ];
     }

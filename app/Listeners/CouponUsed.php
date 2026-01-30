@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\CouponUsedEvent;
 use App\Settings\CouponSettings;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CouponUsed
 {
@@ -33,14 +34,40 @@ class CouponUsed
         // Automatically increments the coupon usage.
         $this->incrementUses($event);
 
-        // Increment per-user usage by attaching to user_coupons pivot
+        // Increment per-user usage by updating pivot 'uses' in a race-safe manner
         if ($event->user && $event->coupon) {
-            $exists = $event->user->coupons()->where('coupon_id', $event->coupon->id)->exists();
-            if (!$exists) {
-                $event->user->coupons()->attach($event->coupon->id, [
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+            $couponId = $event->coupon->id;
+            $userId = $event->user->id;
+
+            // First, try to increment an existing pivot row atomically.
+            $updated = DB::table('user_coupons')
+                ->where('user_id', $userId)
+                ->where('coupon_id', $couponId)
+                ->increment('uses', 1);
+
+            if ($updated === 0) {
+                // No existing row — attempt to create it. Handle duplicate-key race by catching the exception and incrementing again.
+                try {
+                    DB::table('user_coupons')->insert([
+                        'user_id' => $userId,
+                        'coupon_id' => $couponId,
+                        'uses' => 1,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } catch (\Exception $e) {
+                    // Likely a duplicate key/insertion race — try incrementing again.
+                    DB::table('user_coupons')
+                        ->where('user_id', $userId)
+                        ->where('coupon_id', $couponId)
+                        ->increment('uses', 1);
+                }
+            } else {
+                // Update timestamp on subsequent uses
+                DB::table('user_coupons')
+                    ->where('user_id', $userId)
+                    ->where('coupon_id', $couponId)
+                    ->update(['updated_at' => now()]);
             }
         }
 
