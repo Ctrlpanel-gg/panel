@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Events\CouponUsedEvent;
 use App\Settings\CouponSettings;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class CouponUsed
 {
@@ -39,35 +38,47 @@ class CouponUsed
             $couponId = $event->coupon->id;
             $userId = $event->user->id;
 
-            // First, try to increment an existing pivot row atomically.
-            $updated = DB::table('user_coupons')
-                ->where('user_id', $userId)
-                ->where('coupon_id', $couponId)
-                ->increment('uses', 1);
+            $exists = $event->user->coupons()->where('coupons.id', $couponId)->exists();
 
-            if ($updated === 0) {
-                // No existing row — attempt to create it. Handle duplicate-key race by catching the exception and incrementing again.
+            if ($exists) {
+                // Pivot exists — read current pivot then update via Eloquent
+                $current = $event->user->coupons()->where('coupons.id', $couponId)->first();
+                $newUses = ($current->pivot->uses ?? 0) + 1;
+                $event->user->coupons()->updateExistingPivot($couponId, [
+                    'uses' => $newUses,
+                    'updated_at' => now(),
+                ]);
+            } else {
+                // No pivot row — attempt to attach; handle duplicate-key race by reading & updating pivot on failure.
                 try {
-                    DB::table('user_coupons')->insert([
-                        'user_id' => $userId,
-                        'coupon_id' => $couponId,
+                    $event->user->coupons()->attach($couponId, [
                         'uses' => 1,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
-                } catch (\Exception $e) {
-                    // Likely a duplicate key/insertion race — try incrementing again.
-                    DB::table('user_coupons')
-                        ->where('user_id', $userId)
-                        ->where('coupon_id', $couponId)
-                        ->increment('uses', 1);
+                } catch (\Illuminate\Database\QueryException $e) {
+                    $errorInfo = $e->errorInfo ?? null;
+                    $sqlState = $errorInfo[0] ?? null; // SQLSTATE code
+                    $driverCode = $errorInfo[1] ?? null; // Driver-specific code (MySQL 1062)
+
+                    // Handle unique constraint violation only
+                    if ($sqlState === '23505' || $driverCode === 1062) {
+                        $current = $event->user->coupons()->where('coupons.id', $couponId)->first();
+                        if ($current) {
+                            $newUses = ($current->pivot->uses ?? 0) + 1;
+                            $event->user->coupons()->updateExistingPivot($couponId, [
+                                'uses' => $newUses,
+                                'updated_at' => now(),
+                            ]);
+                        } else {
+                            // Unexpected: rethrow to surface the issue
+                            throw $e;
+                        }
+                    } else {
+                        // Unknown DB error — rethrow so it gets logged/handled upstream
+                        throw $e;
+                    }
                 }
-            } else {
-                // Update timestamp on subsequent uses
-                DB::table('user_coupons')
-                    ->where('user_id', $userId)
-                    ->where('coupon_id', $couponId)
-                    ->update(['updated_at' => now()]);
             }
         }
 
