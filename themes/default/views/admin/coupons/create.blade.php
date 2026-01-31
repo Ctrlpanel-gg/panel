@@ -163,7 +163,7 @@
                                     <input name="max_uses_per_user" id="max_uses_per_user" type="number" step="1"
                                         min="-1"
                                         class="form-control @error('max_uses_per_user') is-invalid @enderror"
-                                        value="{{ old('max_uses_per_user') }}" required>
+                                        value="{{ old('max_uses_per_user', 1) }}" required>
                                     <small
                                         class="form-text text-muted">{{ __('Required: set -1 for unlimited or a positive integer greater than zero.') }}</small>
                                     @error('max_uses_per_user')

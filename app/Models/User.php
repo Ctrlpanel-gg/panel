@@ -435,7 +435,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $referee = DB::table('user_referrals')->where("registered_user_id", $this->id)->first();
 
         if ($referee && $referee->referral_id) {
-            $referrer = User::find($referee->referral_id);
+            $referrer = User::withTrashed()->find($referee->referral_id);
             return $referrer;
         }
         return null;

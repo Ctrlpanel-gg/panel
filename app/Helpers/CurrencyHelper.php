@@ -80,8 +80,32 @@ class CurrencyHelper
 
             return $result;
         } catch (\Throwable $e) {
-            // Fallback: safe, simple formatting using dot decimal and comma thousands
-            return number_format($display, $decimals, '.', ',');
+            // Fallback: simple locale-aware formatting without relying on intl.
+            // Determine locale prefix (e.g., "bg-BG" -> "bg")
+            $prefix = strtolower(explode('-', (string) $locale)[0]);
+
+            // Locales that commonly use comma as decimal separator
+            $europeanStyleLocales = ['bg', 'cs', 'da', 'de', 'es', 'fi', 'fr', 'hu', 'it', 'nl', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sv', 'tr'];
+
+            $decimalSeparator = '.';
+            $thousandsSeparator = ',';
+            if (in_array($prefix, $europeanStyleLocales, true)) {
+                $decimalSeparator = ',';
+                $thousandsSeparator = '.';
+            }
+
+            try {
+                logger()->warning('CurrencyHelper::formatForDisplay fell back to PHP number_format', [
+                    'locale' => $locale,
+                    'prefix' => $prefix,
+                    'decimals' => $decimals,
+                    'error' => $e->getMessage(),
+                ]);
+            } catch (\Throwable $logEx) {
+                // swallow logging errors to avoid impacting formatting
+            }
+
+            return number_format($display, $decimals, $decimalSeparator, $thousandsSeparator);
         }
     }
 

@@ -93,7 +93,7 @@ class UserController extends Controller
         $registeredIds = $referralRecords->pluck('registered_user_id')->filter()->unique()->values()->all();
         $userMap = [];
         if (!empty($registeredIds)) {
-            $userMap = User::whereIn('id', $registeredIds)->get()->keyBy('id');
+            $userMap = User::withTrashed()->whereIn('id', $registeredIds)->get()->keyBy('id');
         }
 
         foreach ($referralRecords as $referral) {
