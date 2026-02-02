@@ -168,7 +168,6 @@ class SettingsController extends Controller
                 'credits_reward_after_verify_discord',
                 'credits_reward_after_verify_email',
                 'initial_credits',
-                'min_credits_to_make_server',
             ];
 
             if (in_array($key, $currencyKeys) && $inputValue !== null && $inputValue !== '') {

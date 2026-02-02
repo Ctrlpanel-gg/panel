@@ -5,23 +5,20 @@ namespace App\Listeners;
 use App\Notifications\ServersUnsuspendedNotification;
 use App\Events\UserUpdateCreditsEvent;
 use App\Models\Server;
-use App\Settings\UserSettings;
+
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Exception;
 
 class UnsuspendServers implements ShouldQueue
 {
-    private $min_credits_to_make_server;
-
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(UserSettings $user_settings)
+    public function __construct()
     {
-        // Settings are stored in scaled units already (handled when saving). Use as-is.
-        $this->min_credits_to_make_server = $user_settings->min_credits_to_make_server;
+        // No global minimum credits setting anymore; decisions are made using product price.
     }
 
     /**
@@ -35,18 +32,18 @@ class UnsuspendServers implements ShouldQueue
     public function handle(UserUpdateCreditsEvent $event)
     {
         $unsuspendedServers = [];
+        $userCredits = $event->user->credits;
 
-        if ($event->user->credits >= $this->min_credits_to_make_server) {
-            $suspendedServers = $event->user->servers()->with('product')->whereNotNull('suspended')->get();
+        $suspendedServers = $event->user->servers()->with('product')->whereNotNull('suspended')->get();
 
-            foreach ($suspendedServers as $server) {
-                if ($server->product->price > $event->user->credits) {
-                    continue;
-                }
-
-                $unsuspendedServers[] = $server->unSuspend();
-                $event->user->decrement('credits', $server->product->price);
+        foreach ($suspendedServers as $server) {
+            if ($server->product->price > $userCredits) {
+                continue;
             }
+
+            $unsuspendedServers[] = $server->unSuspend();
+            $userCredits -= $server->product->price;
+            $event->user->decrement('credits', $server->product->price);
         }
 
         if (!empty($unsuspendedServers)) {

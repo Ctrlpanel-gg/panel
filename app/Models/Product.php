@@ -145,7 +145,12 @@ class Product extends Model
      */
     public function getDisplayMinimumCreditsAttribute()
     {
-        return $this->minimum_credits ? Currency::formatForDisplay($this->minimum_credits) : null;
+        // If minimum_credits is not set or is default (-1), show the product price as the effective minimum.
+        if (is_null($this->minimum_credits) || $this->minimum_credits == -1) {
+            return Currency::formatForDisplay($this->price);
+        }
+
+        return Currency::formatForDisplay($this->minimum_credits);
     }
 
     public function getDefaultBillingPriorityLabelAttribute()
