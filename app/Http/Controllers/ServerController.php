@@ -178,9 +178,12 @@ class ServerController extends Controller
             return __('You can not create any more Servers with this product!');
         }
 
+        if ($user->credits < $product->price) {
+            return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';
+        }
+        
         $minCredits = $product->minimum_credits ?: $this->userSettings->min_credits_to_make_server;
-
-        if ($user->credits < $minCredits) {
+        if ($product->minimum_credits && $user->credits < $minCredits) {
             return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';
         }
 
