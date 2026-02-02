@@ -297,23 +297,24 @@
                                     </div>
                                     <div>
                                         <button type="button"
-                                            :disabled="(product.minimum_credits > user.credits && product.price > user.credits) ||
+                                            :disabled="product.price > user.credits ||
                                                 product.doesNotFit == true ||
                                                 product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
                                                 submitClicked"
-                                            :class="(product.minimum_credits > user.credits && product.price > user.credits) ||
+                                            :class="product.price > user.credits ||
                                                 product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);"
-                                                x-text="product.doesNotFit == true
-                                                    ? '{{ __('Server cant fit on this Location') }}'
-                                                    : (product.servers_count >= product.serverlimit && product.serverlimit != 0
-                                                        ? '{{ __('Max. Servers with configuration reached') }}'
-                                                        : (product.minimum_credits > user.credits && product.price > user.credits
-                                                            ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
-                                                            : '{{ __('Create server') }}'))">                                        </button>
+                                            x-text="product.doesNotFit == true
+                                                ? '{{ __('Server cant fit on this Location') }}'
+                                                : (product.servers_count >= product.serverlimit && product.serverlimit != 0
+                                                    ? '{{ __('Max. Servers with configuration reached') }}'
+                                                    : (product.price > user.credits
+                                                        ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
+                                                        : '{{ __('Create server') }}'))">
+                                        </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
-                                        <template x-if="product.price > user.credits || product.minimum_credits > user.credits">
+                                        <template x-if="product.price > user.credits">
                                             <a href="{{ route('store.index') }}">
                                                 <button type="button" class="mt-2 btn btn-warning btn-block">
                                                     {{ __('Buy more') }} {{ $credits_display_name }}
