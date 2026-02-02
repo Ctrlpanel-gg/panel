@@ -56,7 +56,7 @@
                             <th>{{__('Eggs')}}</th>
                             <th>{{__('Min Credits')}}</th>
                             <th>{{__('Servers')}}</th>
-                             <th>{{__('Serverlimit')}}</th>
+                             <th>{{__('Server limit')}}</th>
                             <th>{{__('Created at')}}</th>
                             <th>{{ __('Actions') }}</th>
                         </tr>
