@@ -177,7 +177,7 @@
                                         <div class="form-group">
                                             <label for="minimum_credits">{{ __('Minimum') }} {{ $credits_display_name }}
                                                 <i data-toggle="popover" data-trigger="hover"
-                                                    data-content="{{ __('Setting to empty will use the value from configuration.') }}"
+                                                    data-content="{{ __('This value cannot be less than the product price.') }}"
                                                     class="fas fa-info-circle"></i></label>
                                             <input value="{{ $product->minimum_credits ? Currency::formatForForm($product->minimum_credits) : null }}" id="minimum_credits"
                                                 name="minimum_credits" type="number"
