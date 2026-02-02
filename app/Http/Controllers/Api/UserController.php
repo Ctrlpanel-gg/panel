@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Classes\Pterodactyl;
 use App\Classes\PterodactylClient;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
@@ -35,9 +34,10 @@ class UserController extends Controller
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
-    const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'roles', 'discordUser'];
 
-    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
+    public const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'roles', 'discordUser'];
+
+    public const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
 
     /**
      * Display a listing of the resource.
@@ -99,8 +99,6 @@ class UserController extends Controller
 
         event(new UserUpdateCreditsEvent($user));
 
-        //Update Users Password on Pterodactyl
-        //Username,Mail,First and Lastname are required aswell
         $response = $this->pterodactyl->application->patch('/application/users/'.$user->pterodactyl_id, [
             'username' => $request->name,
             'first_name' => $request->name,
@@ -125,12 +123,6 @@ class UserController extends Controller
 
     /**
      * increments the users credits or/and server_limit
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return User
-     *
-     * @throws ValidationException
      */
     public function increment(Request $request, int $id)
     {
@@ -166,12 +158,6 @@ class UserController extends Controller
 
     /**
      * decrements the users credits or/and server_limit
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return User
-     *
-     * @throws ValidationException
      */
     public function decrement(Request $request, int $id)
     {
@@ -206,17 +192,17 @@ class UserController extends Controller
 
     /**
      * Suspends the user
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return bool
-     *
-     * @throws ValidationException
      */
     public function suspend(Request $request, int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        
+        $request->validate([
+            'reason' => 'sometimes|string|max:320',
+        ]);
+        
+        $reason = $request->input('reason');
 
         if ($user->isSuspended()) {
             throw ValidationException::withMessages([
@@ -225,22 +211,28 @@ class UserController extends Controller
         }
         $user->suspend();
 
+        $logMessage = "The user " . $user->name . " (ID: " . $user->id . ") was suspended via API";
+        if ($reason) {
+            $logMessage .= ". Reason: " . e($reason);
+        }
+        activity()->performedOn($user)->log($logMessage);
+
         return $user;
     }
 
     /**
      * Unsuspend the user
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return bool
-     *
-     * @throws ValidationException
      */
     public function unsuspend(Request $request, int $id)
     {
         $discordUser = DiscordUser::find($id);
         $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        
+        $request->validate([
+            'reason' => 'sometimes|string|max:320',
+        ]);
+        
+        $reason = $request->input('reason');
 
         if (! $user->isSuspended()) {
             throw ValidationException::withMessages([
@@ -250,14 +242,41 @@ class UserController extends Controller
 
         $user->unSuspend();
 
+        $logMessage = "The user " . $user->name . " (ID: " . $user->id . ") was unsuspended via API";
+        if ($reason) {
+            $logMessage .= ". Reason: " . e($reason);
+        }
+        activity()->performedOn($user)->log($logMessage);
+
         return $user;
     }
 
     /**
-     * Create a unique Referral Code for User
-     *
-     * @return string
+     * Remove the specified resource from storage.
      */
+    public function destroy(Request $request, int $id)
+    {
+        $discordUser = DiscordUser::find($id);
+        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        
+        $request->validate([
+            'reason' => 'sometimes|string|max:320',
+        ]);
+        
+        $reason = $request->input('reason');
+
+        $logMessage = "The user " . $user->name . " (ID: " . $user->id . ") was deleted via API";
+        if ($reason) {
+            $logMessage .= ". Reason: " . e($reason);
+        }
+
+        activity()->performedOn($user)->log($logMessage);
+
+        $user->delete();
+
+        return response($user, 200);
+    }
+
     protected function createReferralCode()
     {
         $referralcode = STR::random(8);
@@ -268,9 +287,6 @@ class UserController extends Controller
         return $referralcode;
     }
 
-    /**
-     * @throws ValidationException
-     */
     public function store(Request $request, UserSettings $userSettings)
     {
         $request->validate([
@@ -279,7 +295,6 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8', 'max:191'],
         ]);
 
-        // Prevent the creation of new users via API if this is enabled.
         if (! $userSettings->creation_enabled) {
             throw ValidationException::withMessages([
                 'error' => 'The creation of new users has been blocked by the system administrator.',
@@ -317,7 +332,7 @@ class UserController extends Controller
         $user->update([
             'pterodactyl_id' => $response->json()['attributes']['id'],
         ]);
-        //INCREMENT REFERRAL-USER CREDITS
+
         if (! empty($request->input('referral_code'))) {
             $ref_code = $request->input('referral_code');
             $new_user = $user->id;
@@ -326,7 +341,6 @@ class UserController extends Controller
                     $ref_user->increment('credits', config('SETTINGS::REFERRAL::REWARD'));
                     $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
                 }
-                //INSERT INTO USER_REFERRALS TABLE
                 DB::table('user_referrals')->insert([
                     'referral_id' => $ref_user->id,
                     'registered_user_id' => $user->id,
@@ -338,21 +352,5 @@ class UserController extends Controller
         $user->sendEmailVerificationNotification();
 
         return $user;
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return Application|Response|ResponseFactory
-     */
-    public function destroy(int $id)
-    {
-        $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
-
-        $user->delete();
-
-        return response($user, 200);
     }
 }

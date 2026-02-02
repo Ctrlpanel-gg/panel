@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\ChargeServers::class,
         Commands\DeleteExpiredCoupons::class,
+        Commands\NotifyServerSuspension::class,
     ];
 
     /**
@@ -27,6 +28,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('servers:charge')->everyMinute();
+        $schedule->command('servers:notify-suspension')->daily();
         $schedule->command('cp:versioncheck:get')->daily();
         $schedule->command('payments:open:clear')->daily();
         $schedule->command('coupons:delete')->daily();

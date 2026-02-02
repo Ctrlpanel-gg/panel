@@ -20,7 +20,7 @@ class UnsuspendServers implements ShouldQueue
      */
     public function __construct(UserSettings $user_settings)
     {
-        $this->min_credits_to_make_server = $user_settings->min_credits_to_make_server;
+        $this->min_credits_to_make_server = ($user_settings->min_credits_to_make_server) / 1000;
     }
 
     /**

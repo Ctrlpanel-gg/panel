@@ -66,22 +66,28 @@ class AppServiceProvider extends ServiceProvider
         CallHomeHelper::callHomeOnce();
 
         //get the Github Branch the panel is running on
-        try {
-            $stringfromfile = file(base_path() . '/.git/HEAD');
-
-            $firstLine = $stringfromfile[0]; //get the string from the array
-
-            $explodedstring = explode('/', $firstLine, 3); //seperate out by the "/" in the string
-
-            $branchname = $explodedstring[2]; //get the one that is always the branch name
-        } catch (Exception $e) {
+        $headFile = base_path() . '/.git/HEAD';
+        $headFileMissing = false;
+        if (file_exists($headFile)) {
+            try {
+                $stringfromfile = file($headFile);
+                $firstLine = $stringfromfile[0]; //get the string from the array
+                $explodedstring = explode('/', $firstLine, 3); //seperate out by the "/" in the string
+                $branchname = isset($explodedstring[2]) ? trim($explodedstring[2]) : 'unknown';
+            } catch (Exception $e) {
+                $branchname = 'unknown';
+                Log::notice($e);
+            }
+        } else {
             $branchname = 'unknown';
-            Log::notice($e);
+            $headFileMissing = true;
         }
         config(['BRANCHNAME' => $branchname]);
+        view()->share('headFileMissing', $headFileMissing);
 
         // Do not run this code if no APP_KEY is set
-        if (config('app.key') == null) return;
+        if (config('app.key') == null)
+            return;
 
         try {
             if (Schema::hasColumn('useful_links', 'position')) {

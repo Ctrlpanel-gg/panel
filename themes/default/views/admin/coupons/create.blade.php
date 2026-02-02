@@ -1,24 +1,24 @@
 @extends('layouts.main')
 
 @section('content')
-   <!-- CONTENT HEADER -->
-   <section class="content-header">
+  <!-- CONTENT HEADER -->
+  <section class="content-header">
     <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1>{{__('Coupon')}}</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
-                    <li class="breadcrumb-item"><a href="{{route('admin.coupons.index')}}">{{__('Coupons')}}</a>
-                    </li>
-                    <li class="breadcrumb-item"><a class="text-muted"
-                                                   href="{{route('admin.coupons.create')}}">{{__('Create')}}</a>
-                    </li>
-                </ol>
-            </div>
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>{{__('Coupon')}}</h1>
         </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+            <li class="breadcrumb-item"><a href="{{route('admin.coupons.index')}}">{{__('Coupons')}}</a>
+            </li>
+            <li class="breadcrumb-item"><a class="text-muted"
+                href="{{route('admin.coupons.create')}}">{{__('Create')}}</a>
+            </li>
+          </ol>
+        </div>
+      </div>
     </div>
   </section>
   <!-- END CONTENT HEADER -->
@@ -41,17 +41,10 @@
 
                 <div class="d-flex flex-row-reverse">
                   <div class="custom-control custom-switch">
-                    <input
-                      type="checkbox"
-                      id="random_codes"
-                      name="random_codes"
-                      class="custom-control-input"
-                    >
+                    <input type="checkbox" id="random_codes" name="random_codes" class="custom-control-input">
                     <label for="random_codes" class="custom-control-label">
                       {{ __('Random Codes') }}
-                      <i
-                        data-toggle="popover"
-                        data-trigger="hover"
+                      <i data-toggle="popover" data-trigger="hover"
                         data-content="{{__('Replace the creation of a single code with several at once with a custom field.')}}"
                         class="fas fa-info-circle">
                       </i>
@@ -61,22 +54,12 @@
                 <div id="range_codes_element" style="display: none;" class="form-group">
                   <label for="range_codes">
                     {{ __('Range Codes') }}
-                    <i
-                      data-toggle="popover"
-                      data-trigger="hover"
-                      data-content="{{__('Generate a number of random codes.')}}"
-                      class="fas fa-info-circle">
+                    <i data-toggle="popover" data-trigger="hover"
+                      data-content="{{__('Generate a number of random codes.')}}" class="fas fa-info-circle">
                     </i>
                   </label>
-                  <input
-                    type="number"
-                    id="range_codes"
-                    name="range_codes"
-                    step="any"
-                    min="1"
-                    max="100"
-                    class="form-control @error('range_codes') is-invalid @enderror"
-                  >
+                  <input type="number" id="range_codes" name="range_codes" step="any" min="1" max="100"
+                    class="form-control @error('range_codes') is-invalid @enderror">
                   @error('range_codes')
                     <div class="text-danger">
                       {{ $message }}
@@ -86,21 +69,12 @@
                 <div id="coupon_code_element" class="form-group">
                   <label for="code">
                     {{ __('Coupon Code') }}
-                    <i
-                      data-toggle="popover"
-                      data-trigger="hover"
-                      data-content="{{__('The coupon code to be registered.')}}"
-                      class="fas fa-info-circle">
+                    <i data-toggle="popover" data-trigger="hover"
+                      data-content="{{__('The coupon code to be registered.')}}" class="fas fa-info-circle">
                     </i>
                   </label>
-                  <input
-                    type="text"
-                    id="code"
-                    name="code"
-                    placeholder="SUMMER"
-                    class="form-control @error('code') is-invalid @enderror"
-                    value="{{ old('code') }}"
-                  >
+                  <input type="text" id="code" name="code" placeholder="SUMMER"
+                    class="form-control @error('code') is-invalid @enderror" value="{{ old('code') }}">
                   @error('code')
                     <div class="text-danger">
                       {{ $message }}
@@ -111,22 +85,14 @@
                   <div class="custom-control mb-3 p-0">
                     <label for="type">
                       {{ __('Coupon Type') }}
-                      <i
-                        data-toggle="popover"
-                        data-trigger="hover"
-                        data-content="{{__('The way the coupon should discount.')}}"
-                        class="fas fa-info-circle">
+                      <i data-toggle="popover" data-trigger="hover"
+                        data-content="{{__('The way the coupon should discount.')}}" class="fas fa-info-circle">
                       </i>
                     </label>
-                    <select
-                      name="type"
-                      id="type"
-                      class="custom-select @error('type') is_invalid @enderror"
-                      style="width: 100%; cursor: pointer;"
-                      autocomplete="off"
-                      required
-                    >
-                      <option value="percentage" @if(old('type') == 'percentage') selected @endif>{{ __('Percentage') }}</option>
+                    <select name="type" id="type" class="custom-select @error('type') is_invalid @enderror"
+                      style="width: 100%; cursor: pointer;" autocomplete="off" required>
+                      <option value="percentage" @if(old('type') == 'percentage') selected @endif>{{ __('Percentage') }}
+                      </option>
                       <option value="amount" @if(old('type') == 'amount') selected @endif>{{ __('Amount') }}</option>
                     </select>
                     @error('type')
@@ -140,24 +106,13 @@
                   <div class="input-group d-flex flex-column">
                     <label for="value">
                       {{ __('Coupon Value') }}
-                      <i
-                        data-toggle="popover"
-                        data-trigger="hover"
-                        data-content="{{__('The value that the coupon will represent.')}}"
-                        class="fas fa-info-circle">
+                      <i data-toggle="popover" data-trigger="hover"
+                        data-content="{{__('The value that the coupon will represent.')}}" class="fas fa-info-circle">
                       </i>
                     </label>
                     <div class="d-flex">
-                      <input
-                        name="value"
-                        id="value"
-                        type="number"
-                        step="any"
-                        min="1"
-                        max="100"
-                        class="form-control @error('value') is-invalid @enderror"
-                        value="{{ old('value') }}"
-                      >
+                      <input name="value" id="value" type="number" step="any" min="1" max="100"
+                        class="form-control @error('value') is-invalid @enderror" value="{{ old('value') }}">
                       <span id="input_percentage" class="input-group-text">%</span>
                     </div>
                     @error('value')
@@ -170,23 +125,14 @@
                 <div class="form-group">
                   <label for="max_uses">
                     {{ __('Max uses') }}
-                    <i
-                      data-toggle="popover"
-                      data-trigger="hover"
-                      data-content="{{__('The maximum number of times the coupon can be used.')}}"
+                    <i data-toggle="popover" data-trigger="hover"
+                      data-content="{{__('The maximum number of times the coupon can be used. Set to -1 for unlimited uses.')}}"
                       class="fas fa-info-circle">
                     </i>
                   </label>
-                  <input
-                    name="max_uses"
-                    id="max_uses"
-                    type="number"
-                    step="any"
-                    min="1"
-                    max="100"
-                    class="form-control @error('max_uses') is-invalid @enderror"
-                    value="{{ old('max_uses') }}"
-                  >
+                  <input name="max_uses" id="max_uses" type="number" step="any" min="-1"
+                    class="form-control @error('max_uses') is-invalid @enderror" value="{{ old('max_uses') }}">
+                  <small class="form-text text-muted">{{__('Set to -1 for unlimited uses.')}}</small>
                   @error('max_uses')
                     <div class="text-danger">
                       {{ $message }}
@@ -196,27 +142,16 @@
                 <div class="d-flex flex-column input-group form-group date" id="expires_at" data-target-input="nearest">
                   <label for="expires_at">
                     {{ __('Expires at') }}
-                    <i
-                      data-toggle="popover"
-                      data-trigger="hover"
+                    <i data-toggle="popover" data-trigger="hover"
                       data-content="{{__('The date when the coupon will expire (If no date is provided, the coupon never expires).')}}"
                       class="fas fa-info-circle">
                     </i>
                   </label>
                   <div class="d-flex">
-                    <input
-                      value="{{ old('expires_at') }}"
-                      name="expires_at"
-                      placeholder="yyyy-mm-dd hh:mm:ss"
-                      type="text"
+                    <input value="{{ old('expires_at') }}" name="expires_at" placeholder="yyyy-mm-dd hh:mm:ss" type="text"
                       class="form-control @error('expires_at') is-invalid @enderror datetimepicker-input"
-                      data-target="#expires_at"
-                    />
-                    <div
-                      class="input-group-append"
-                      data-target="#expires_at"
-                      data-toggle="datetimepicker"
-                    >
+                      data-target="#expires_at" />
+                    <div class="input-group-append" data-target="#expires_at" data-toggle="datetimepicker">
                       <div class="input-group-text">
                         <i class="fa fa-calendar"></i>
                       </div>
@@ -242,10 +177,10 @@
       </div>
     </div>
   </section>
-   <!-- END CONTENT -->
+  <!-- END CONTENT -->
 
   <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
       $('#expires_at').datetimepicker({
         format: 'Y-MM-DD HH:mm:ss',
         icons: {
@@ -260,7 +195,7 @@
           close: 'far fa-times-circle'
         }
       });
-      $('#random_codes').change(function() {
+      $('#random_codes').change(function () {
         if ($(this).is(':checked')) {
           $('#coupon_code_element').prop('disabled', true).hide()
           $('#range_codes_element').prop('disabled', false).show()
@@ -279,7 +214,7 @@
         }
       })
 
-      $('#type').change(function() {
+      $('#type').change(function () {
         if ($(this).val() == 'percentage') {
           $('#input_percentage').prop('disabled', false).show()
         } else {

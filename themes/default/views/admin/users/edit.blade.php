@@ -137,7 +137,7 @@
                         <div class="card-body">
                             <div class="col">
                                 <div class="form-group"><label>{{__('New Password')}}</label> <input
-                                        class="form-control @error('new_password') is-invalid @enderror"
+                                        autocomplete="new-password" class="form-control @error('new_password') is-invalid @enderror"
                                         name="new_password" id="new_password" type="password" placeholder="••••••">
 
                                     @error('new_password')

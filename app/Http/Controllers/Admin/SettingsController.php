@@ -67,7 +67,7 @@ class SettingsController extends Controller
                     'identifier' => $optionInputData[$key]['identifier'] ?? 'option'
                 ];
 
-                if($optionInputData[$key]['type'] === 'number') {
+                if ($optionInputData[$key]['type'] === 'number') {
                     $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
 
                     if ($optionInputData[$key]['mustBeConverted'] ?? false) {
@@ -83,7 +83,7 @@ class SettingsController extends Controller
 
             if (isset($optionInputData['position'])) {
                 $optionsData['position'] = $optionInputData['position'];
-            }else{
+            } else {
                 $optionsData['position'] = 99;
             }
 
@@ -150,7 +150,8 @@ class SettingsController extends Controller
             $rpType = $rp->getType();
 
             if ($rpType == 'bool') {
-                $settingsClass->$key = $request->has($key);
+                // Always assign false if key is missing (checkbox unchecked)
+                $settingsClass->$key = $request->has($key) ? true : false;
                 continue;
             }
             if ($rp->name == 'available') {
@@ -159,8 +160,22 @@ class SettingsController extends Controller
             }
 
             $nullable = $rpType->allowsNull();
-            if ($nullable) $settingsClass->$key = $request->input($key) ?? null;
-            else $settingsClass->$key = $request->input($key);
+            $inputValue = $nullable ? ($request->input($key) ?? null) : $request->input($key);
+
+            // using currency facade for reward and other currency fields
+            $currencyKeys = [
+                'reward',
+                'credits_reward_after_verify_discord',
+                'credits_reward_after_verify_email',
+                'initial_credits',
+                'min_credits_to_make_server',
+            ];
+
+            if (in_array($key, $currencyKeys) && $inputValue !== null && $inputValue !== '') {
+                $inputValue = Currency::prepareForDatabase($inputValue);
+            }
+
+            $settingsClass->$key = $inputValue;
         }
         $settingsClass->save();
 

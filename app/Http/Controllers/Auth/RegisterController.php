@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Facades\Currency;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
@@ -137,7 +138,7 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'credits' => $this->initial_credits,
+            'credits' => Currency::prepareForDatabase($this->initial_credits),
             'server_limit' => $this->initial_server_limit,
             'password' => Hash::make($data['password']),
             'referral_code' => $this->createReferralCode(),
@@ -186,7 +187,7 @@ class RegisterController extends Controller
             $new_user = $user->id;
             if ($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
                 if ($this->referral_mode === 'sign-up' || $this->referral_mode === 'both') {
-                    $ref_user->increment('credits', $this->referral_reward);
+                    $ref_user->increment('credits', ($this->referral_reward));
                     $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
 
                     //LOGS REFERRALS IN THE ACTIVITY LOG

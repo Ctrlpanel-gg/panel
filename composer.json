@@ -32,7 +32,6 @@
         "spatie/laravel-permission": "^6.10",
         "spatie/laravel-query-builder": "^6.2",
         "spatie/laravel-settings": "^3.4",
-        "spatie/laravel-validation-rules": "^3.4.0",
         "stripe/stripe-php": "^7.128",
         "symfony/http-client": "^7.1.8",
         "symfony/intl": "^7.1.8",
@@ -69,7 +68,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "exclude-from-classmap": [
+            "app/Extensions/PaymentGateways/**/migrations"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -22,12 +22,12 @@ trait Coupon
         ], 404);
 
         if (!is_null($coupon)) {
-            if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
+            // Unlimited uses if max_uses is -1
+            if ($coupon->max_uses !== -1 && $coupon->getStatus() == 'USES_LIMIT_REACHED') {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('This coupon has reached the maximum amount of uses.')
                 ], 422);
-
                 return $response;
             }
 
@@ -40,12 +40,11 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->isMaxUsesReached($requestUser, $coupon_settings)) {
+            if ($coupon->isMaxUsesReached($requestUser)) {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('You have reached the maximum uses of this coupon.')
                 ], 422);
-
                 return $response;
             }
 
@@ -71,12 +70,14 @@ trait Coupon
 
     public function isCouponValid(string $couponCode, User $user, string $productId): bool
     {
-        if (is_null($couponCode)) return false;
+        if (is_null($couponCode))
+            return false;
 
         $coupon = CouponModel::where('code', $couponCode)->firstOrFail();
         $shopProduct = ShopProduct::findOrFail($productId);
 
-        if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
+        // Unlimited uses if max_uses is -1
+        if ($coupon->max_uses !== -1 && $coupon->getStatus() == 'USES_LIMIT_REACHED') {
             return false;
         }
 

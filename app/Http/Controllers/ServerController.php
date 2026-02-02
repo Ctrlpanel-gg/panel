@@ -1,3 +1,4 @@
+app/Http/Controllers/ServerController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -28,6 +29,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Support\Facades\Cache;
 
 class ServerController extends Controller
 {
@@ -110,6 +112,13 @@ class ServerController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $lockKey = 'server_create_lock_' . Auth::id();
+        if (Cache::has($lockKey)) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Please wait a moment before creating another server.'));
+        }
+        Cache::put($lockKey, true, 5);
+
         $validationResult = $this->validateServerCreation($request);
         if ($validationResult) return $validationResult;
 
@@ -404,7 +413,7 @@ class ServerController extends Controller
 
         //$currentProductEggs = $currentProduct->eggs->pluck('id')->toArray();
 
-        return Product::orderBy('created_at')
+        return Product::orderBy('price', 'asc')
             ->with('nodes')->with('eggs')
             ->whereHas('nodes', function (Builder $builder) use ($nodeId) {
                 $builder->where('id', $nodeId);

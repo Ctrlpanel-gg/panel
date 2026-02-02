@@ -24,7 +24,7 @@ if (isset($_POST['createUser'])) {
         $adminToken = run_console("php artisan settings:get 'PterodactylSettings' 'admin_token' --sameline");
     } catch (Throwable $th) {
         wh_log("Getting Pterodactyl information failed.", 'error');
-        send_error_message($th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
+        send_error_message($th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__, 4) . '/storage/logs' . "!");
 
         exit();
     }
@@ -80,7 +80,8 @@ if (isset($_POST['createUser'])) {
 
     $random = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8); // random referal
 
-    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '250', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
+    $initialCredits = (int) run_console("php artisan settings:get 'UserSettings' 'initial_credits' --sameline") ?: 250000;
+    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '" . $initialCredits . "', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
     $query2 = "INSERT INTO `" . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\\\Models\\\User', '1')";
     try {
         $db->query($query1);

@@ -10,6 +10,7 @@ use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\PartnerDiscount;
+use App\Models\Coupon;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\ShopProduct;
@@ -71,7 +72,8 @@ class PaymentController extends Controller
                 $extensionName = basename($extension);
 
                 $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
-                if ($extensionSettings->enabled == false) continue;
+                if ($extensionSettings->enabled == false)
+                    continue;
 
 
                 $payment = new \stdClass();
@@ -89,7 +91,7 @@ class PaymentController extends Controller
             'taxvalue' => $shopProduct->getTaxValue(),
             'taxpercent' => $shopProduct->getTaxPercent(),
             'total' => $shopProduct->getTotalPrice(),
-            'paymentGateways'   => $paymentGateways,
+            'paymentGateways' => $paymentGateways,
             'productIsFree' => $price <= 0,
             'credits_display_name' => $general_settings->credits_display_name,
             'isCouponsEnabled' => $coupon_settings->enabled,
@@ -148,8 +150,7 @@ class PaymentController extends Controller
             if ($couponCode) {
                 if ($this->isCouponValid($couponCode, $user, $shopProduct->id)) {
                     $subtotal = $this->applyCoupon($couponCode, $subtotal);
-
-                    event(new CouponUsedEvent($couponCode));
+                    event(new CouponUsedEvent($couponCode, $user));
                 }
             }
 
