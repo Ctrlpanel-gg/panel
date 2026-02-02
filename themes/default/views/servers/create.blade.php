@@ -274,9 +274,9 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
-                                                        {{ __('Minimum') }} {{ $credits_display_name }}</span>
+                                                        {{ __('Price') }} {{ $credits_display_name }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="!product.minimum_credits ? '{{ Currency::formatForDisplay($min_credits_to_make_server) }}' : product.display_minimum_credits"></span>
+                                                        x-text="product.display_price"></span>
                                                 </li>
                                             </ul>
                                         </div>
