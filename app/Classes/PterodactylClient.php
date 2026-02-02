@@ -169,6 +169,34 @@ class PterodactylClient
     }
 
     /**
+     * Find a server on Pterodactyl by its external_id (our local server id).
+     * This paginates through servers until a matching external_id is found.
+     * Returns the server attributes array or null if not found.
+     */
+    public function findServerByExternalId(string $externalId)
+    {
+        // Use the dedicated external lookup endpoint for efficiency and correctness
+        try {
+            $response = $this->application->get("application/servers/external/{$externalId}?include=egg,node,nest,location,allocations,user");
+        } catch (Exception $e) {
+            Log::error('Failed to query pterodactyl server by external_id: ' . $e->getMessage());
+            return null;
+        }
+
+        if ($response->failed()) {
+            // 404 -> server not found
+            if ($response->status() === 404) {
+                return null;
+            }
+
+            Log::error('Failed to query pterodactyl server by external_id: HTTP ' . $response->status());
+            throw self::getException('Failed to get server by external_id', $response->status());
+        }
+
+        return $response->json()['attributes'];
+    }
+
+    /**
      * @return null
      *
      * @throws Exception
