@@ -23,7 +23,7 @@
                 <b><i class="fas fa-shield-alt"></i> {{__("Version Outdated:")}}</b></br>
                 {{__("You are running on")}} v{{config("app.version")}}-{{config("BRANCHNAME")}}.
                     {{__("The latest Version is")}} v{{Storage::get('latestVersion')}}</br>
-                <a href="https://CtrlPanel.gg/docs/Installation/updating">{{__("Consider updating now")}}</a>
+                <a href="https://ctrlpanel.gg/docs/category/updating">{{__("Consider updating now")}}</a>
             </div>
         @endif
     </section>
@@ -43,7 +43,7 @@
                             class="mr-2 fab fa-github"></i> {{__('Github')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://CtrlPanel.gg/docs/Contributing/donating" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://ctrlpanel.gg/docs/contributing/donating" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-money-bill"></i> {{__('Support CtrlPanel')}}</a>
                 </div>
             </div>
