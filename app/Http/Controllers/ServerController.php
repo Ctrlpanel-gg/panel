@@ -102,7 +102,6 @@ class ServerController extends Controller
             })->get(),
             'user' => Auth::user(),
             'server_creation_enabled' => $this->serverSettings->creation_enabled,
-            'min_credits_to_make_server' => $this->userSettings->min_credits_to_make_server,
             'credits_display_name' => $this->generalSettings->credits_display_name,
             'location_description_enabled' => $this->serverSettings->location_description_enabled,
             'store_enabled' => $this->generalSettings->store_enabled
@@ -179,11 +178,6 @@ class ServerController extends Controller
         }
 
         if ($user->credits < $product->price) {
-            return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';
-        }
-        
-        $minCredits = $product->minimum_credits ?: $this->userSettings->min_credits_to_make_server;
-        if ($product->minimum_credits && $user->credits < $minCredits) {
             return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';
         }
 
