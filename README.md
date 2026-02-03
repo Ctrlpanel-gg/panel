@@ -38,7 +38,7 @@ Try it!
 
 Demo Server: [demo.CtrlPanel.gg](https://demo.CtrlPanel.gg)
 
-_It is a temporary live demo; all data will be deleted._
+*It is a temporary live demo; all data will be deleted.*
 
 ## 🔧 How to Install
 
