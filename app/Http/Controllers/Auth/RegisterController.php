@@ -179,8 +179,10 @@ class RegisterController extends Controller
         ]);
 
         // delete activity log for user creation where description = 'created' or 'deleted' and subject_id = user_id
-        DB::table('activity_log')->where('description', 'created')->orWhere('description', 'deleted')->where('subject_id', $user->id)->delete();
-
+        DB::table('activity_log')
+            ->whereIn('description', ['created', 'deleted'])
+            ->where('subject_id', $user->id)
+            ->delete();
         //INCREMENT REFERRAL-USER CREDITS
         if (!empty($data['referral_code'])) {
             $ref_code = $data['referral_code'];
