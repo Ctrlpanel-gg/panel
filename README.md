@@ -57,9 +57,9 @@ more info: [Docker](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/dock
 Requirements:
 
 - Platform
-  - Major Linux distros such as Debian, Ubuntu, CentOS, Fedora, and ArchLinux etc.
+    - Major Linux distros such as Debian, Ubuntu, CentOS, Fedora, and ArchLinux etc.
 
-Follow the [documentation](https://ctrlpanel.gg/docs/intro) to know how to install.
+Follow the [documentation](https://ctrlpanel.gg/docs) to know how to install.
 
 ### MarketPlace
 
@@ -67,7 +67,7 @@ If you need more functionality, check out [Marketplace](https://market.ctrlpanel
 
 ## 🆙 How to Update
 
-Please read: [Update Instructions](https://ctrlpanel.gg/docs/Installation/updating)
+Please read: [Update Instructions](https://ctrlpanel.gg/docs/category/updating)
 
 ## 🆕 What's Next?
 
@@ -85,4 +85,4 @@ Thanks to all contributors and supporters!
 
 ## ♥️ Donations
 
-If you like what we do, please consider [supporting](https://ctrlpanel.gg/docs/Contributing/donating) us.
+If you like what we do, please consider [supporting](https://ctrlpanel.gg/docs/contributing/donating) us.
