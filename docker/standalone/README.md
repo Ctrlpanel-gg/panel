@@ -23,7 +23,7 @@ Recommended way via Docker Compose:
 
 The control panel will be available at http://localhost/install and will be a completely fresh installation.
 
-Note that while the container contains the full CtrlPanel installation, you will still need to perform the basic setup. You can find instructions for this [here](https://ctrlpanel.gg/docs/Installation/getting-started#basic-setup).
+Note that while the container contains the full CtrlPanel installation, you will still need to perform the basic setup. You can find instructions for this [here](https://ctrlpanel.gg/docs/getting-started/basic-configuration).
 
 ## 🏗️ Migrating from a previous bare metal installation
 
