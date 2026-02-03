@@ -12,12 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Add a backup column so this data migration is reversible.
         Schema::table('products', function (Blueprint $table) {
-            // If minimum_credits == -1 (default) -> set to price
-            DB::statement("UPDATE products SET minimum_credits = price WHERE minimum_credits = -1");
-            // If minimum_credits < price -> set to price
-            DB::statement("UPDATE products SET minimum_credits = price WHERE minimum_credits < price");
+            $table->integer('minimum_credits_old')->nullable()->after('minimum_credits');
         });
+
+        // Copy existing values into the backup column
+        DB::statement("UPDATE products SET minimum_credits_old = minimum_credits");
+
+        // If minimum_credits < price -> set to price
+        DB::statement("UPDATE products SET minimum_credits = price WHERE minimum_credits < price");
     }
 
     /**
@@ -25,7 +29,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // This is a data migration that is not safely reversible.
-        // Intentionally left empty.
+        // Restore original values from backup column
+        DB::statement("UPDATE products SET minimum_credits = minimum_credits_old");
+
+        // Drop the backup column
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('minimum_credits_old');
+        });
     }
 };
