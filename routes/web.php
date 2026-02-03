@@ -69,7 +69,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::patch('/servers/{server}/billing_priority', [ServerController::class, 'updateBillingPriority'])->name('servers.updateBillingPriority');
     Route::delete('/servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
     Route::patch('/servers/{server}', [ServerController::class, 'update'])->name('servers.update');
-    Route::resource('servers', ServerController::class);
+    Route::resource('servers', ServerController::class)->except(['update', 'destroy']);
 
     try {
         $serverSettings = app(App\Settings\ServerSettings::class);
