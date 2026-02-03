@@ -86,7 +86,7 @@ class ProductController extends Controller
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => ['required', $this->getSwapValidator()],
             'description' => 'required|string|max:191',
-            'disk' => 'required|numeric|max:1000000|min:5',
+            'disk' => 'required|numeric|max:1000000|min:0',
             'minimum_credits' => 'nullable|numeric|max:1000000|gte:price',
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
