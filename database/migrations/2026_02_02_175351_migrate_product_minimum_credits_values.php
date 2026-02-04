@@ -18,10 +18,10 @@ return new class extends Migration
         });
 
         // Copy existing values into the backup column
-        DB::statement("UPDATE products SET minimum_credits_old = minimum_credits");
+        DB::table('products')->update(['minimum_credits_old' => DB::raw('minimum_credits')]);
 
         // If minimum_credits < price -> set to price
-        DB::statement("UPDATE products SET minimum_credits = price WHERE minimum_credits < price");
+        DB::table('products')->whereColumn('minimum_credits', '<', 'price')->update(['minimum_credits' => DB::raw('price')]);
     }
 
     /**
@@ -30,7 +30,7 @@ return new class extends Migration
     public function down(): void
     {
         // Restore original values from backup column
-        DB::statement("UPDATE products SET minimum_credits = minimum_credits_old");
+        DB::table('products')->update(['minimum_credits' => DB::raw('minimum_credits_old')]);
 
         // Drop the backup column
         Schema::table('products', function (Blueprint $table) {
