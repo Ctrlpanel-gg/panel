@@ -567,34 +567,33 @@
                             title: '{{ __('Required Variables') }}',
                             html: `
                           ${variables.map(variable => `
-                                            <div class="text-left form-group">
-                                              <div class="d-flex justify-content-between">
-                                                <label for="${variable.env_variable}">${variable.name}</label>
-                                                ${variable.description
-                                                ? `
+                                                <div class="text-left form-group">
+                                                  <div class="d-flex justify-content-between">
+                                                    <label for="${variable.env_variable}">${variable.name}</label>
+                                                    ${variable.description
+                                                    ? `
                                     <span>
                                       <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
                                     </span>
                                   `
-                                                : ''
-                                            }
-                                              </div>
-                                              ${variable.rules.includes("in:")
-                                                ? (() => {
-                                                    const inValues = variable.rules
-                                                        .match(/in:([^|]+)/)[1]
-                                                        .split(',');
-                                                    return `
+                                                    : ''
+                                                }
+                                                  </div>
+                                                  ${variable.rules.includes("in:")
+                                                    ? (() => {
+                                                        const inValues = variable.rules
+                                                            .match(/in:([^|]+)/)[1]
+                                                            .split(',');
+                                                        return `
                                       <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
                                           ${inValues.map(value => `
-                                                              <option value="${value}">${value}</option>
-                                                          `).join('')}
+                                                                  <option value="${value}">${value}</option>
+                                                              `).join('')}
                                       </select>
                                     `;
-                                                })()
-                                                : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
-                        } < div id = "${variable.env_variable}-error"
-                        class = "mt-1" > < /div> </div >
+                                                    })()
+                                                    : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
+                        } <div id="${variable.env_variable}-error" class="mt-1"> </div> </div>
                         `).join('')
                             }
                         `,
@@ -658,8 +657,8 @@
                         document.getElementById('serverForm').submit();
                     }
                 });
-            } // end dispatchModal
-        } // end returned object
-        } // end function serverApp
+            }
+        }
+        }
     </script>
 @endsection
