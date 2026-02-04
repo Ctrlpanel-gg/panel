@@ -42,7 +42,8 @@ class UnsuspendServers implements ShouldQueue
             }
 
             $unsuspendedServers[] = $server->unSuspend();
-            $event->user->decrement('credits', $server->product->price);
+            $event->user->decrement('credits', $server->product->price); //db update
+            $userCredits -= $server->product->price; //update local tracker so subsequent checks use the new value.
         }
 
         if (!empty($unsuspendedServers)) {

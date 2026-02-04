@@ -148,7 +148,7 @@
                                             <label for="price">{{ __('Price in') }} {{ $credits_display_name }}</label>
                                             <input
                                                 value="{{ old('price', isset($product) ? Currency::formatForForm($product->price) : '') }}"
-                                                id="price" name="price" step=". 0001" type="number"
+                                                id="price" name="price" step=".0001" type="number"
                                                 class="form-control @error('price') is-invalid @enderror"
                                                 required="required">
                                             @error('price')
