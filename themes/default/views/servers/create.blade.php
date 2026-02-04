@@ -296,12 +296,12 @@
                                     </div>
                                     <div>
                                         <button type="button"
-                                            :disabled="(product.price > user.credits) ||
+                                            :disabled="(product.effective_minimum > user.credits) ||
                                             product.doesNotFit == true ||
                                                 product.servers_count >= product.serverlimit && product.serverlimit !=
                                                 0 ||
                                                 submitClicked"
-                                            :class="(product.price > user.credits) ||
+                                            :class="(product.effective_minimum > user.credits) ||
                                             product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);"
@@ -309,12 +309,12 @@
                                                         ? '{{ __('Server cant fit on this Location') }}'
                                                         : (product.servers_count >= product.serverlimit && product.serverlimit != 0
                                                             ? '{{ __('Max. Servers with configuration reached') }}'
-                                                            : (product.price > user.credits
+                                                            : (product.effective_minimum > user.credits
                                                                 ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
                                                                 : '{{ __('Create server') }}'))">
                                         </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
-                                            <template x-if="product.price > user.credits">
+                                            <template x-if="product.effective_minimum > user.credits">
                                                 <a href="{{ route('store.index') }}">
                                                     <button type="button" class="mt-2 btn btn-warning btn-block">
                                                         {{ __('Buy more') }} {{ $credits_display_name }}
@@ -474,6 +474,9 @@
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
                         product.cpu = product.cpu / 100;
+                        // Determine effective minimum credits: after the migration, minimum_credits will be either null or a value (no -1).
+                        product.effective_minimum = product.minimum_credits === null ? parseFloat(product
+                            .price) : parseFloat(product.minimum_credits);
                     })
 
                     this.locationDescription = this.locations.find(location => location.id == this.selectedLocation)
@@ -555,46 +558,48 @@
                 getProductOptionText(product) {
                     let text = product.name + ' (' + product.description + ')';
 
-                    if (product.price > this.user.credits) {
+                    // Use effective_minimum for credit checks (values are scaled x1000 in DB).
+                    if (product.effective_minimum > this.user.credits) {
                         return '{{ __('Not enough credits!') }} | ' + text;
                     }
 
                     return text;
                 },
 
+
                 dispatchModal(variables) {
                     Swal.fire({
-                            title: '{{ __('Required Variables') }}',
-                            html: `
+                        title: '{{ __('Required Variables') }}',
+                        html: `
                           ${variables.map(variable => `
-                                                <div class="text-left form-group">
-                                                  <div class="d-flex justify-content-between">
-                                                    <label for="${variable.env_variable}">${variable.name}</label>
-                                                    ${variable.description
-                                                    ? `
+                                                    <div class="text-left form-group">
+                                                      <div class="d-flex justify-content-between">
+                                                        <label for="${variable.env_variable}">${variable.name}</label>
+                                                        ${variable.description
+                                                        ? `
                                     <span>
                                       <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
                                     </span>
                                   `
-                                                    : ''
-                                                }
-                                                  </div>
-                                                  ${variable.rules.includes("in:")
-                                                    ? (() => {
-                                                        const inValues = variable.rules
-                                                            .match(/in:([^|]+)/)[1]
-                                                            .split(',');
-                                                        return `
+                                                        : ''
+                                                    }
+                                                      </div>
+                                                      ${variable.rules.includes("in:")
+                                                        ? (() => {
+                                                            const inValues = variable.rules
+                                                                .match(/in:([^|]+)/)[1]
+                                                                .split(',');
+                                                            return `
                                       <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
                                           ${inValues.map(value => `
-                                                                  <option value="${value}">${value}</option>
-                                                              `).join('')}
+                                                                      <option value="${value}">${value}</option>
+                                                                  `).join('')}
                                       </select>
                                     `;
-                                                    })()
-                                                    : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
-                        } <div id="${variable.env_variable}-error" class="mt-1"> </div> </div>
-                        `).join('')
+                                                        })()
+                                                        : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
+                        {{-- blade-formatter-disable-next-line --}}
+                        } <div id="${variable.env_variable}-error" class="mt-1"> </div> </div> `).join('')
                             }
                         `,
                         confirmButtonText: '{{ __('Submit') }}',
@@ -602,63 +607,64 @@
                         cancelButtonText: '{{ __('Cancel') }}',
                         showLoaderOnConfirm: true,
                         preConfirm: async () => {
-                                const filledVariables = variables.map(variable => {
-                                    const value = document.getElementById(variable.env_variable).value;
-                                    return {
-                                        ...variable,
-                                        filled_value: value
-                                    };
+                            const filledVariables = variables.map(variable => {
+                                const value = document.getElementById(variable.env_variable).value;
+                                return {
+                                    ...variable,
+                                    filled_value: value
+                                };
+                            });
+
+                            const response = await fetch(
+                            '{{ route('servers.validateDeploymentVariables') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    variables: filledVariables
+                                })
+                            })
+
+                            if (!response.ok) {
+                                const errorData = await response.json();
+
+                                variables.forEach(variable => {
+                                    const errorContainer = document.getElementById(
+                                        `${variable.env_variable}-error`);
+                                    if (errorContainer) {
+                                        errorContainer.innerHTML = '';
+                                    }
                                 });
 
-                                const response = await fetch('{{ route('servers.validateDeploymentVariables') }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
-                                    body: JSON.stringify({
-                                        variables: filledVariables
-                                    })
-                                })
-
-                                if (!response.ok) {
-                                    const errorData = await response.json();
-
-                                    variables.forEach(variable => {
-                                        const errorContainer = document.getElementById(
-                                            `${variable.env_variable}-error`);
+                                if (errorData.errors) {
+                                    Object.entries(errorData.errors).forEach(([key, messages]) => {
+                                        const errorContainer = document.getElementById(`${key}-error`);
                                         if (errorContainer) {
-                                            errorContainer.innerHTML = '';
-                                        }
-                                    });
-
-                                    if (errorData.errors) {
-                                        Object.entries(errorData.errors).forEach(([key, messages]) => {
-                                            const errorContainer = document.getElementById(`${key}-error`);
-                                            if (errorContainer) {
-                                                errorContainer.innerHTML = messages.map(message => `
+                                            errorContainer.innerHTML = messages.map(message => `
                                             <small class="text-danger">${message}</small>
                                         `).join('');
-                                            }
-                                        });
-                                    }
-
-                                    return false;
+                                        }
+                                    });
                                 }
 
-                                return response.json();
-                            },
-                            didOpen: () => {
-                                $('[data-toggle="tooltip"]').tooltip();
-                            },
+                                return false;
+                            }
+
+                            return response.json();
+                        },
+                        didOpen: () => {
+                            $('[data-toggle="tooltip"]').tooltip();
+                        },
                     }).then((result) => {
-                    if (result.isConfirmed && result.value.success) {
-                        document.getElementById('egg_variables').value = JSON.stringify(result.value.variables);
-                        document.getElementById('serverForm').submit();
-                    }
-                });
-            }
-        }
-        }
+                        if (result.isConfirmed && result.value.success) {
+                            document.getElementById('egg_variables').value = JSON.stringify(result.value.variables);
+                            document.getElementById('serverForm').submit();
+                        }
+                    });
+                } // end dispatchModal
+            } // end returned object
+        } // end function serverApp
     </script>
 @endsection
