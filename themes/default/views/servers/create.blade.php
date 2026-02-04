@@ -593,10 +593,8 @@
                                     `;
                                     })()
                                     : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
-                        } <
-                        div id = "${variable.env_variable}-error"
-                        class = "mt-1" > < /div> <
-                        /div>
+                        } <div id = "${variable.env_variable}-error"
+                        class = "mt-1" > </div> </div>
                         `).join('')
                             }
                         `,
