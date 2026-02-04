@@ -22,6 +22,9 @@ return new class extends Migration
 
         // If minimum_credits < price -> set to price
         DB::table('products')->whereColumn('minimum_credits', '<', 'price')->update(['minimum_credits' => DB::raw('price')]);
+
+        // If minimum_credits == -1 (default) -> set to price
+        DB::table('products')->where('minimum_credits', -1)->update(['minimum_credits' => DB::raw('price')]);
     }
 
     /**
