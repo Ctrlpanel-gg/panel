@@ -145,7 +145,9 @@ class Product extends Model
      */
     public function getDisplayMinimumCreditsAttribute()
     {
-        // If minimum_credits is not set or is default (-1), show the product price as the effective minimum.
+        // Backward compatibility: before the migration, -1 was stored as a default minimum_credits
+        // to mean "use the product price". We still treat null or -1 this way in case the migration
+        // has not run yet or legacy data remains.
         if (is_null($this->minimum_credits) || $this->minimum_credits == -1) {
             return Currency::formatForDisplay($this->price);
         }
