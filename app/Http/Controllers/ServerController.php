@@ -105,7 +105,6 @@ class ServerController extends Controller
             })->get(),
             'user' => Auth::user(),
             'server_creation_enabled' => $this->serverSettings->creation_enabled,
-            'min_credits_to_make_server' => $this->userSettings->min_credits_to_make_server,
             'credits_display_name' => $this->generalSettings->credits_display_name,
             'location_description_enabled' => $this->serverSettings->location_description_enabled,
             'store_enabled' => $this->generalSettings->store_enabled
@@ -154,7 +153,8 @@ class ServerController extends Controller
             // solve cross-system consistency with the panel — add compensation logic.
 
             // Reserve credits first (atomic decrement). This prevents races where another
-            // operation spends the credits between validation and charging.
+            // operation spends the credits between validation and charging."
+            // FIX APPLIED BELOW (& IN ReconcileServerCreationJob.php)
             $product = Product::findOrFail($request->input('product'));
             $price = $product->price;
             $userId = $request->user()->id;
@@ -303,7 +303,12 @@ class ServerController extends Controller
             return __('You can not create any more Servers with this product!');
         }
 
-        $minCredits = $product->minimum_credits ?: $this->userSettings->min_credits_to_make_server;
+        // Determine effective minimum credits: if minimum_credits is not set, use product price.
+        if (is_null($product->minimum_credits)) {
+            $minCredits = $product->price;
+        } else {
+            $minCredits = $product->minimum_credits;
+        }
 
         if ($user->credits < $minCredits) {
             return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';

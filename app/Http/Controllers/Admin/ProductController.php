@@ -87,7 +87,7 @@ class ProductController extends Controller
             'swap' => ['required', $this->getSwapValidator()],
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'nullable|numeric|max:1000000',
+            'minimum_credits' => 'nullable|numeric|max:1000000|gte:price',
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'databases' => 'required|numeric|max:1000000|min:0',
@@ -119,13 +119,13 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return Application|Factory|View
      */
-    public function show(Product $product, UserSettings $user_settings, GeneralSettings $general_settings)
+    public function show(Product $product, GeneralSettings $general_settings)
     {
         $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
         return view('admin.products.show', [
             'product' => $product,
-            'minimum_credits' => $user_settings->min_credits_to_make_server,
+            'minimum_credits' => $product->minimum_credits ?? $product->price,
             'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
@@ -166,7 +166,7 @@ class ProductController extends Controller
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:0',
             'io' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'nullable|numeric|max:1000000',
+            'minimum_credits' => 'nullable|numeric|max:1000000|gte:price',
             'databases' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
@@ -276,8 +276,9 @@ class ProductController extends Controller
             ->editColumn('price', function (Product $product, CurrencyHelper $currencyHelper) {
                 return $currencyHelper->formatForDisplay($product->price);
             })
-            ->editColumn('minimum_credits', function (Product $product, UserSettings $user_settings, CurrencyHelper $currencyHelper) {
-                return $product->minimum_credits ? $currencyHelper->formatForDisplay($product->minimum_credits) : $currencyHelper->formatForDisplay($user_settings->min_credits_to_make_server);
+            ->editColumn('minimum_credits', function (Product $product, CurrencyHelper $currencyHelper) {
+                $value = $product->minimum_credits ?? $product->price;
+                return $currencyHelper->formatForDisplay($value);
             })
             ->editColumn('serverlimit', function (Product $product) {
                 return $product->serverlimit == 0 ? "∞" : $product->serverlimit;
