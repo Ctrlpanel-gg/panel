@@ -27,13 +27,23 @@ return new class extends Migration
             $table->string('billing_period')->after('minimum_credits');
         });
 
-        DB::table('products')->select('id', 'default_billing_period')->get()->each(function ($product) {
-            $period = BillingPeriod::fromValue($product->default_billing_period);
+        $periodMapping = [
+            BillingPeriod::HOURLY->value => 'hourly',
+            BillingPeriod::DAILY->value => 'daily',
+            BillingPeriod::WEEKLY->value => 'weekly',
+            BillingPeriod::MONTHLY->value => 'monthly',
+            BillingPeriod::QUARTERLY->value => 'quarterly',
+            BillingPeriod::HALF_ANNUALLY->value => 'half-annually',
+            BillingPeriod::ANNUALLY->value => 'annually',
+        ];
+
+        DB::table('products')->select('id', 'default_billing_period')->get()->each(function ($product) use ($periodMapping) {
+            $period = $periodMapping[$product->default_billing_period] ?? null;
             
             if ($period) {
                 DB::table('products')
                     ->where('id', $product->id)
-                    ->update(['billing_period' => str_replace(' ', '-', strtolower($period->label()))]);
+                    ->update(['billing_period' => $period]);
             }
         });
     }
