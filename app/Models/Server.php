@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Classes\PterodactylClient;
+use App\Enums\BillingPeriod;
 use App\Enums\BillingPriority;
 use App\Settings\PterodactylSettings;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -73,7 +74,8 @@ class Server extends Model
         'suspended' => 'datetime',
         'last_billed' => 'datetime',
         'canceled' => 'datetime',
-        'billing_priority' => BillingPriority::class
+        'billing_priority' => BillingPriority::class,
+        'billing_period' => BillingPeriod::class,
     ];
 
     public function __construct()

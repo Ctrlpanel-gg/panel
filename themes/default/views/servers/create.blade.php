@@ -163,9 +163,13 @@
                                                 data-content="{{ __('Defines the period for server billing. If not provided, the value of selected product will be used.') }}"
                                                 class="fas fa-info-circle"></i>
                                         </label>
-                                        <select id="billing_period" style="width:100%" class="custom-select"
-                                                name="billing_period" required autocomplete="off"
-                                                @error('billing_period') is-invalid @enderror>
+                                        <select
+                                            id="billing_period" 
+                                            style="width:100%"
+                                            class="custom-select @error('billing_period') is-invalid @enderror"
+                                            name="billing_period"
+                                            autocomplete="off"
+                                        >
                                             <option value="">
                                                 {{ __('None') }}
                                             </option>
@@ -187,9 +191,12 @@
                                                 data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
                                                 class="fas fa-info-circle"></i>
                                         </label>
-                                        <select id="billing_priority" style="width:100%" class="custom-select"
-                                                name="billing_priority" required autocomplete="off"
-                                                @error('billing_priority') is-invalid @enderror>
+                                        <select
+                                            id="billing_priority"
+                                            style="width:100%"
+                                            class="custom-select @error('billing_priority') is-invalid @enderror"
+                                            name="billing_priority" autocomplete="off"
+                                        >
                                             <option value="" selected>
                                                 {{ __('None') }}
                                             </option>
@@ -213,17 +220,7 @@
                 </div>
 
                 <div class="w-100"></div>
-              <div class="col" x-show="selectedLocation != null" x-data="{
-                                      billingPeriodTranslations: {
-                                          'monthly': '{{ __('per Month') }}',
-                                          'half-annually': '{{ __('per 6 Months') }}',
-                                          'quarterly': '{{ __('per 3 Months') }}',
-                                          'annually': '{{ __('per Year') }}',
-                                          'weekly': '{{ __('per Week') }}',
-                                          'daily': '{{ __('per Day') }}',
-                                          'hourly': '{{ __('per Hour') }}'
-                                      }
-                                  }">
+              <div class="col" x-show="selectedLocation != null">
                     <div class="mt-4 row justify-content-center">
                         <template x-for="product in products" :key="product.id">
                             <div class="ml-2 mr-2 card col-xl-3 col-lg-3 col-md-4 col-sm-10 ">
@@ -317,7 +314,7 @@
                                     <div class="mt-auto border rounded border-secondary">
                                         <div class="p-2 d-flex justify-content-between">
                                             <span class="mr-4 d-inline-block"
-                                                x-text="'{{ __('Price') }}' + ' (' + billingPeriodTranslations[product.billing_period] + ')'">
+                                                x-text="'{{ __('Price') }}' + ' (' + product.default_billing_period_label + ')'">
                                             </span>
                                             <span class="d-inline-block"
                                                 x-text="product.display_price + ' {{ $credits_display_name }}'"></span>

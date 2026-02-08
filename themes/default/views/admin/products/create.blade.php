@@ -87,7 +87,7 @@
 													class="fas fa-info-circle"></i></label>
 											<select id="default_billing_period" style="width:100%" class="custom-select" name="default_billing_period" required autocomplete="off" @error('default_billing_period') is-invalid @enderror>
 												@foreach (App\Enums\BillingPeriod::options() as $value => $label)
-                                                    <option value="{{ $value }}" @selected(old('default_billing_period', $product->default_billing_period->value ?? '') == $value || $value == App\Enums\BillingPeriod::HOURLY->value)>{{ $label }}</option>
+                                                    <option value="{{ $value }}" @selected(old('default_billing_period', $product?->default_billing_period?->value ?? '') == $value || $value == App\Enums\BillingPeriod::HOURLY->value)>{{ $label }}</option>
                                                 @endforeach
 											</select>
 											@error('default_billing_period')
@@ -115,7 +115,7 @@
                                                 @error('default_billing_priority') is-invalid @enderror
                                             >
                                                 @foreach(App\Enums\BillingPriority::options() as $value => $label)
-                                                    <option value="{{ $value }}" @selected(old('default_billing_priority', $product->default_billing_priority->value ?? '') == $value || $value == App\Enums\BillingPriority::MEDIUM->value)>
+                                                    <option value="{{ $value }}" @selected(old('default_billing_priority', $product?->default_billing_priority?->value ?? '') == $value || $value == App\Enums\BillingPriority::MEDIUM->value)>
                                                         {{ $label }}
                                                     </option>
                                                 @endforeach
