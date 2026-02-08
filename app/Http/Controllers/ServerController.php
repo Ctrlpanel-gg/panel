@@ -1,4 +1,3 @@
-app/Http/Controllers/ServerController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -25,6 +24,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
@@ -388,7 +388,7 @@ class ServerController extends Controller
         }
     }
 
-    public function show(Server $server): \Illuminate\View\View
+    public function show(Server $server): \Illuminate\View\View|RedirectResponse
     {
         if ($server->user_id !== Auth::id()) {
             return back()->with('error', __('This is not your Server!'));
