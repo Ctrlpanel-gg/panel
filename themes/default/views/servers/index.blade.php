@@ -106,7 +106,7 @@
                                         <span>{{ $server->product->name }}
                                         </span>
                                         <i data-toggle="popover" data-trigger="hover" data-html="true"
-                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>{{ __('OOM Killer') }}: {{ $server->product->oom_killer ? __("enabled") : __("disabled") }} <br/> {{ __('Billing Period') }}: {{$server->product->billing_period}}"
+                                            data-content="{{ __('CPU') }}: {{ $server->product->cpu / 100 }} {{ __('vCores') }} <br/>{{ __('RAM') }}: {{ $server->product->memory }} MB <br/>{{ __('Disk') }}: {{ $server->product->disk }} MB <br/>{{ __('Backups') }}: {{ $server->product->backups }} <br/> {{ __('MySQL Databases') }}: {{ $server->product->databases }} <br/> {{ __('Allocations') }}: {{ $server->product->allocations }} <br/>{{ __('OOM Killer') }}: {{ $server->product->oom_killer ? __("enabled") : __("disabled") }} <br/> {{ __('Billing Period') }}: {{ $server->billing_period->label() }}"
                                             class="fas fa-info-circle"></i>
                                     </div>
                                 </div>
@@ -120,31 +120,7 @@
                                         @if ($server->suspended)
                                             -
                                         @else
-                                            @switch($server->product->billing_period)
-                                                @case('monthly')
-                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addMonth()->toDayDateTimeString(); }}
-                                                    @break
-                                                @case('weekly')
-                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addWeek()->toDayDateTimeString(); }}
-                                                    @break
-                                                @case('daily')
-                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addDay()->toDayDateTimeString(); }}
-                                                    @break
-                                                @case('hourly')
-                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addHour()->toDayDateTimeString(); }}
-                                                    @break
-                                                @case('quarterly')
-                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addMonths(3)->toDayDateTimeString(); }}
-                                                    @break
-                                                @case('half-annually')
-                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addMonths(6)->toDayDateTimeString(); }}
-                                                    @break
-                                                @case('annually')
-                                                    {{ \Carbon\Carbon::parse($server->last_billed)->addYear()->toDayDateTimeString(); }}
-                                                    @break
-                                                @default
-                                                    {{ __('Unknown') }}
-                                            @endswitch
+                                            {{ $server->getNextBillingDate()->toDayDateTimeString() }}
                                         @endif
                                         </span>
                                     </div>
@@ -159,23 +135,9 @@
                                     </div>
                                     <div class="text-center col-8">
                                         <div class="text-muted">
-                                        @if($server->product->billing_period == 'monthly')
-                                            {{ __('per Month') }}
-                                        @elseif($server->product->billing_period == 'half-annually')
-                                            {{ __('per 6 Months') }}
-                                        @elseif($server->product->billing_period == 'quarterly')
-                                            {{ __('per 3 Months') }}
-                                        @elseif($server->product->billing_period == 'annually')
-                                            {{ __('per Year') }}
-                                        @elseif($server->product->billing_period == 'weekly')
-                                            {{ __('per Week') }}
-                                        @elseif($server->product->billing_period == 'daily')
-                                            {{ __('per Day') }}
-                                        @elseif($server->product->billing_period == 'hourly')
-                                            {{ __('per Hour') }}
-                                        @endif
+                                            {{ $server->billing_period->perPeriod() }}
                                             <i data-toggle="popover" data-trigger="hover"
-                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . Currency::formatForDisplay($server->product->getMonthlyPrice()) . " ". $credits_display_name . " ". __('per Month')}}"
+                                               data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->billing_period->label() . ". " . __("This however calculates to ") . Currency::formatForDisplay($server->getMonthlyPrice()) . " ". $credits_display_name . " ". __('per Month')}}"
                                                class="fas fa-info-circle"></i>
                                             </div>
                                         <span>

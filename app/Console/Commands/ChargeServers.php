@@ -61,19 +61,8 @@ class ChargeServers extends Command
                     $product = $server->product;
                     /** @var User $user */
                     $user = $server->user;
-
-                    $billing_period = BillingPeriod::from($server->billing_period->value ?? $product->default_billing_period->value);
-
-                    // check if server is due to be charged by comparing its last_billed date with the current date and the billing period
-                    $newBillingDate = match($billing_period) {
-                        BillingPeriod::ANNUALLY => Carbon::parse($server->last_billed)->addYear(),
-                        BillingPeriod::HALF_ANNUALLY => Carbon::parse($server->last_billed)->addMonths(6),
-                        BillingPeriod::QUARTERLY => Carbon::parse($server->last_billed)->addMonths(3),
-                        BillingPeriod::MONTHLY => Carbon::parse($server->last_billed)->addMonth(),
-                        BillingPeriod::WEEKLY => Carbon::parse($server->last_billed)->addWeek(),
-                        BillingPeriod::DAILY => Carbon::parse($server->last_billed)->addDay(),
-                        BillingPeriod::HOURLY => Carbon::parse($server->last_billed)->addHour(),
-                    };
+                    
+                    $newBillingDate = $server->getNextBillingDate();
 
                     if (!($newBillingDate->isPast())) {
                         continue;

@@ -254,7 +254,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function unSuspend()
     {
         foreach ($this->getServersWithProduct() as $server) {
-            if ($this->credits >= $server->product->getHourlyPrice()) {
+            if ($this->credits >= $server->getHourlyPrice()) {
                 $server->unSuspend();
             }
         }
@@ -280,7 +280,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $usage = 0;
 
         foreach ($this->getServersWithProduct() as $server) {
-            $usage += $server->product->getMonthlyPrice();
+            $usage += $server->getMonthlyPrice();
         }
 
         return $usage;

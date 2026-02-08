@@ -38,6 +38,19 @@ enum BillingPeriod: int
         };
     }
 
+    public function perPeriod(): string
+    {
+        return match($this) {
+            self::HOURLY => __('per Hour'),
+            self::DAILY => __('per Day'),
+            self::WEEKLY => __('per Week'),
+            self::MONTHLY => __('per Month'),
+            self::QUARTERLY => __('per 3 Months'),
+            self::HALF_ANNUALLY => __('per 6 Months'),
+            self::ANNUALLY => __('per Year'),
+        };
+    }
+
     public static function options(): array
     {
         return collect(self::cases())->mapWithKeys(function ($period) {

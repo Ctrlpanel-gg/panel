@@ -178,6 +178,52 @@ class Server extends Model
         return $this->billing_priority ?? $this->product->default_billing_priority;
     }
 
+    public function getBillingPeriodAttribute($value)
+    {
+        return $value ? $value : $this->product->default_billing_period;
+    }
+
+    public function getHourlyPrice()
+    {
+        return match($this->billing_period) {
+            BillingPeriod::DAILY => $this->product->price / 24,
+            BillingPeriod::WEEKLY => $this->product->price / 24 / 7,
+            BillingPeriod::MONTHLY => $this->product->price / 24 / 30,
+            BillingPeriod::QUARTERLY => $this->product->price / 24 / 30 / 3,
+            BillingPeriod::HALF_ANNUALLY => $this->product->price / 24 / 30 / 6,
+            BillingPeriod::ANNUALLY => $this->product->price / 24 / 365,
+            default => $this->product->price,
+        };
+    }
+
+    public function getMonthlyPrice()
+    {
+        return match($this->billing_period) {
+            BillingPeriod::HOURLY => $this->product->price * 24 * 30,
+            BillingPeriod::DAILY => $this->product->price * 30,
+            BillingPeriod::WEEKLY => $this->product->price * 4,
+            BillingPeriod::MONTHLY => $this->product->price,
+            BillingPeriod::QUARTERLY => $this->product->price / 3,
+            BillingPeriod::HALF_ANNUALLY => $this->product->price / 6,
+            BillingPeriod::ANNUALLY => $this->product->price / 12,
+            default => $this->product->price,
+        };
+    }
+
+    public function getNextBillingDate()
+    {
+        return match($this->billing_period) {
+            BillingPeriod::ANNUALLY => Carbon::parse($this->last_billed)->addYear(),
+            BillingPeriod::HALF_ANNUALLY => Carbon::parse($this->last_billed)->addMonths(6),
+            BillingPeriod::QUARTERLY => Carbon::parse($this->last_billed)->addMonths(3),
+            BillingPeriod::MONTHLY => Carbon::parse($this->last_billed)->addMonth(),
+            BillingPeriod::WEEKLY => Carbon::parse($this->last_billed)->addWeek(),
+            BillingPeriod::DAILY => Carbon::parse($this->last_billed)->addDay(),
+            BillingPeriod::HOURLY => Carbon::parse($this->last_billed)->addHour(),
+            default => null,
+        };
+    }
+
     public function scopeByBillingPriority($query)
     {
         return $query->orderByRaw('COALESCE(servers.billing_priority, (
