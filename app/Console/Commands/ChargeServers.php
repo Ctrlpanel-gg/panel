@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\BillingPeriod;
 use App\Models\Product;
 use App\Models\Server;
 use App\Models\User;
@@ -61,40 +62,22 @@ class ChargeServers extends Command
                     /** @var User $user */
                     $user = $server->user;
 
-                    $billing_period = $product->billing_period;
+                    $billing_period = BillingPeriod::from($server->billing_period->value ?? $product->default_billing_period->value);
 
                     // check if server is due to be charged by comparing its last_billed date with the current date and the billing period
-                    $newBillingDate = null;
-                    switch ($billing_period) {
-                        case 'annually':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addYear();
-                            break;
-                        case 'half-annually':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addMonths(6);
-                            break;
-                        case 'quarterly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addMonths(3);
-                            break;
-                        case 'monthly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addMonth();
-                            break;
-                        case 'weekly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addWeek();
-                            break;
-                        case 'daily':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addDay();
-                            break;
-                        case 'hourly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addHour();
-                        default:
-                            $newBillingDate = Carbon::parse($server->last_billed)->addHour();
-                            break;
-                    }
+                    $newBillingDate = match($billing_period) {
+                        BillingPeriod::ANNUALLY => Carbon::parse($server->last_billed)->addYear(),
+                        BillingPeriod::HALF_ANNUALLY => Carbon::parse($server->last_billed)->addMonths(6),
+                        BillingPeriod::QUARTERLY => Carbon::parse($server->last_billed)->addMonths(3),
+                        BillingPeriod::MONTHLY => Carbon::parse($server->last_billed)->addMonth(),
+                        BillingPeriod::WEEKLY => Carbon::parse($server->last_billed)->addWeek(),
+                        BillingPeriod::DAILY => Carbon::parse($server->last_billed)->addDay(),
+                        BillingPeriod::HOURLY => Carbon::parse($server->last_billed)->addHour(),
+                    };
 
                     if (!($newBillingDate->isPast())) {
                         continue;
                     }
-
 
                     $isCanceled = $server->canceled;
                     $hasInsufficientCredits = $user->credits < $product->price && $product->price != 0;
