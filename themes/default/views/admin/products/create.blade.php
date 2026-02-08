@@ -81,36 +81,16 @@
                                 <div class="row">
                                     <div class="col-lg-6">
 										<div class="form-group">
-											<label for="billing_period">{{ __('Billing Period') }} <i
+											<label for="default_billing_period">{{ __('Billing Period') }} <i
 													data-toggle="popover" data-trigger="hover"
 													data-content="{{ __('Period when the user will be charged for the given price') }}"
 													class="fas fa-info-circle"></i></label>
-											<select id="billing_period" style="width:100%" class="custom-select"
-													name="billing_period" required autocomplete="off"
-													@error('billing_period') is-invalid @enderror>
-												<option value="hourly" @selected(old('billing_period', $product->billing_period ?? '') == 'hourly')>
-													{{ __('Hourly') }}
-												</option>
-												<option value="daily" @selected(old('billing_period', $product->billing_period ?? '') == 'daily')>
-													{{ __('Daily') }}
-												</option>
-												<option value="weekly" @selected(old('billing_period', $product->billing_period ?? '') == 'weekly')>
-													{{ __('Weekly') }}
-												</option>
-												<option value="monthly" @selected(old('billing_period', $product->billing_period ?? '') == 'monthly')>
-													{{ __('Monthly') }}
-												</option>
-												<option value="quarterly" @selected(old('billing_period', $product->billing_period ?? '') == 'quarterly')>
-													{{ __('Quarterly') }}
-												</option>
-												<option value="half-annually" @selected(old('billing_period', $product->billing_period ?? '') == 'half-annually')>
-													{{ __('Half Annually') }}
-												</option>
-												<option value="annually" @selected(old('billing_period', $product->billing_period ?? '') == 'annually')>
-													{{ __('Annually') }}
-												</option>
+											<select id="default_billing_period" style="width:100%" class="custom-select" name="default_billing_period" required autocomplete="off" @error('default_billing_period') is-invalid @enderror>
+												@foreach (App\Enums\BillingPeriod::options() as $value => $label)
+                                                    <option value="{{ $value }}" @selected(old('default_billing_period', $product->default_billing_period->value ?? '') == $value || $value == App\Enums\BillingPeriod::HOURLY->value)>{{ $label }}</option>
+                                                @endforeach
 											</select>
-											@error('billing_period')
+											@error('default_billing_period')
 												<div class="invalid-feedback">
 													{{ $message }}
 												</div>

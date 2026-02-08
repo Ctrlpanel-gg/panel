@@ -16,6 +16,7 @@ use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Enums\BillingPeriod;
 use App\Enums\BillingPriority;
 use App\Settings\GeneralSettings;
 use Exception;
@@ -129,6 +130,7 @@ class ServerController extends Controller
             'product' => 'required|exists:products,id',
             'egg_variables' => 'nullable|string',
             'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
+            'billing_period' => ['nullable', new Enum(BillingPeriod::class)],
         ]);
 
         $server = $this->createServer($request);
@@ -275,6 +277,7 @@ class ServerController extends Controller
             'product_id' => $product->id,
             'last_billed' => Carbon::now(),
             'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
+            'billing_period' => $request->input('billing_period', $product->default_billing_period),
         ]);
 
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);
@@ -309,8 +312,6 @@ class ServerController extends Controller
 
     private function handlePostCreation(User $user, Server $server): void
     {
-        logger('Product Price: ' . $server->product->price);
-
         $user->decrement('credits', $server->product->price);
 
         try {

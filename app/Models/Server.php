@@ -58,6 +58,7 @@ class Server extends Model
         "suspended",
         "identifier",
         "billing_priority",
+        "billing_period",
         "product_id",
         "pterodactyl_id",
         "user_id",

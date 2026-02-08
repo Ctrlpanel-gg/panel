@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\BillingPeriod;
 use App\Enums\BillingPriority;
 use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
@@ -95,7 +96,7 @@ class ProductController extends Controller
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
-            'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
+            'default_billing_period' => ['required', new Enum(BillingPeriod::class)],
             'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
         ]);
 
@@ -173,7 +174,7 @@ class ProductController extends Controller
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
-            'billing_period' => 'required|in:hourly,daily,weekly,monthly,quarterly,half-annually,annually',
+            'default_billing_period' => ['required', new Enum(BillingPeriod::class)],
             'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
         ]);
 
@@ -256,6 +257,9 @@ class ProductController extends Controller
             })
             ->addColumn('eggs', function (Product $product) {
                 return $product->eggs()->count();
+            })
+            ->addColumn('default_billing_period', function (Product $product) {
+                return $product->default_billing_period->label();
             })
             ->editColumn('disabled', function (Product $product) {
                 $checked = $product->disabled == false ? 'checked' : '';

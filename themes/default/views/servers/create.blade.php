@@ -152,27 +152,55 @@
                                   </template>
                                 </select>
                               </div>
-                              <div class="form-group">
-                                <label for="billing_priority">
-                                    {{ __('Billing Priority') }}
-                                    <i
-                                        data-toggle="popover"
-                                        data-trigger="hover"
-                                        data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
-                                        class="fas fa-info-circle"></i>
-                                </label>
-                                <select id="billing_priority" style="width:100%" class="custom-select"
-                                        name="billing_priority" required autocomplete="off"
-                                        @error('billing_priority') is-invalid @enderror>
-                                    <option value="" selected>
-                                        {{ __('Select') }}
-                                    </option>
-                                    @foreach (App\Enums\BillingPriority::cases() as $priority)
-                                        <option value="{{ $priority->value }}">
-                                            {{ $priority->label() }} - {{ $priority->description() }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                              <div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+                                        <label for="billing_period">
+                                            {{ __('Billing Period') }}
+                                            <i
+                                                data-toggle="popover"
+                                                data-trigger="hover"
+                                                data-content="{{ __('Defines the period for server billing. If not provided, the value of selected product will be used.') }}"
+                                                class="fas fa-info-circle"></i>
+                                        </label>
+                                        <select id="billing_period" style="width:100%" class="custom-select"
+                                                name="billing_period" required autocomplete="off"
+                                                @error('billing_period') is-invalid @enderror>
+                                            <option value="">
+                                                {{ __('None') }}
+                                            </option>
+                                            @foreach (App\Enums\BillingPeriod::cases() as $period)
+                                                <option value="{{ $period->value }}" @selected(old('billing_period') == $period->value || $period->value == App\Enums\BillingPeriod::HOURLY->value)>
+                                                    {{ $period->label() }} - {{ $period->description() }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+                                        <label for="billing_priority">
+                                            {{ __('Billing Priority') }}
+                                            <i
+                                                data-toggle="popover"
+                                                data-trigger="hover"
+                                                data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
+                                                class="fas fa-info-circle"></i>
+                                        </label>
+                                        <select id="billing_priority" style="width:100%" class="custom-select"
+                                                name="billing_priority" required autocomplete="off"
+                                                @error('billing_priority') is-invalid @enderror>
+                                            <option value="" selected>
+                                                {{ __('None') }}
+                                            </option>
+                                            @foreach (App\Enums\BillingPriority::cases() as $priority)
+                                                <option value="{{ $priority->value }}" @selected(old('billing_priority') == $priority->value || $priority->value == App\Enums\BillingPriority::MEDIUM->value)>
+                                                    {{ $priority->label() }} - {{ $priority->description() }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+								</div>
                               </div>
 
                               <template x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
@@ -263,7 +291,7 @@
                                                     <span class="d-inline-block"><i class="fas fa-clock"></i>
                                                         {{ __('Billing Period') }}</span>
 
-                                                    <span class="d-inline-block" x-text="billingPeriodTranslations[product.billing_period]"></span>
+                                                    <span class="d-inline-block" x-text="product.default_billing_period_label"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block">
