@@ -29,15 +29,15 @@ class UserSettings extends Settings
      *
      * @return array<string, CurrencyCast>
      */
-    // public static function casts(): array
-    // {
-    //     return [
-    //         'credits_reward_after_verify_discord' => CurrencyCast::class,
-    //         'credits_reward_after_verify_email' => CurrencyCast::class,
-    //         'initial_credits' => CurrencyCast::class,
-    //         'min_credits_to_make_server' => CurrencyCast::class,
-    //     ];
-    // }
+    public static function casts(): array
+    {
+        return [
+            'credits_reward_after_verify_discord' => CurrencyCast::class,
+            'credits_reward_after_verify_email' => CurrencyCast::class,
+            'initial_credits' => CurrencyCast::class,
+            'min_credits_to_make_server' => CurrencyCast::class,
+        ];
+    }
 
     /**
      * Summary of validations array

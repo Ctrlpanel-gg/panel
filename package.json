@@ -18,9 +18,8 @@
         "sass-loader": "^10.1.1"
     },
     "dependencies": {
-        "tinymce": "^7.9.1",
-        "vite": "^6.4.1",
-
+        "tinymce": "^7.0.0",
+        "vite": "^6.1.0",
         "laravel-vite-plugin": "^0.7.3"
     }
 }

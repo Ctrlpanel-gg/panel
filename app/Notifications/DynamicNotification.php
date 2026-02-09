@@ -32,7 +32,7 @@ class DynamicNotification extends Notification implements ShouldQueue
      * @param  array  $database
      * @param  MailMessage  $mail
      */
-    public function __construct($via, $database, $mail)
+    public function __construct($via, $database = null, $mail = null)
     {
         $this->via = $via;
         $this->database = $database;

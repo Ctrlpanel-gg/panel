@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Facades\Currency;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use App\Settings\UserSettings;
@@ -36,13 +35,13 @@ class WelcomeMessage extends Notification implements ShouldQueue
      */
     public function __construct(User $user)
     {
-        $general_settings = new GeneralSettings();
+        $general_settings= new GeneralSettings();
         $user_settings = new UserSettings();
 
         $this->user = $user;
         $this->credits_display_name = $general_settings->credits_display_name;
-        $this->credits_reward_after_verify_discord = Currency::formatForDisplay($user_settings->credits_reward_after_verify_discord);
-        $this->credits_reward_after_verify_email = Currency::formatForDisplay($user_settings->credits_reward_after_verify_email);
+        $this->credits_reward_after_verify_discord = $user_settings->credits_reward_after_verify_discord;
+        $this->credits_reward_after_verify_email = $user_settings->credits_reward_after_verify_email;
         $this->server_limit_increment_after_verify_discord = $user_settings->server_limit_increment_after_verify_discord;
         $this->server_limit_increment_after_verify_email = $user_settings->server_limit_increment_after_verify_email;
     }
@@ -62,17 +61,17 @@ class WelcomeMessage extends Notification implements ShouldQueue
     {
         $AdditionalLine = '';
         if ($this->credits_reward_after_verify_email != 0) {
-            $AdditionalLine .= __('Verifying your e-mail address will grant you ') . $this->credits_reward_after_verify_email . ' ' . __('additional') . ' ' . $this->credits_display_name . '. <br />';
+            $AdditionalLine .= __('Verifying your e-mail address will grant you ').$this->credits_reward_after_verify_email.' '.__('additional').' '.$this->credits_display_name.'. <br />';
         }
         if ($this->server_limit_increment_after_verify_email != 0) {
-            $AdditionalLine .= __('Verifying your e-mail will also increase your Server Limit by ') . $this->server_limit_increment_after_verify_email . '. <br />';
+            $AdditionalLine .= __('Verifying your e-mail will also increase your Server Limit by ').$this->server_limit_increment_after_verify_email.'. <br />';
         }
         $AdditionalLine .= '<br />';
         if ($this->credits_reward_after_verify_discord != 0) {
-            $AdditionalLine .= __('You can also verify your discord account to get another ') . $this->credits_reward_after_verify_discord . ' ' . $this->credits_display_name . '. <br />';
+            $AdditionalLine .= __('You can also verify your discord account to get another ').$this->credits_reward_after_verify_discord.' '.$this->credits_display_name.'. <br />';
         }
         if ($this->server_limit_increment_after_verify_discord != 0) {
-            $AdditionalLine .= __('Verifying your Discord account will also increase your Server Limit by ') . $this->server_limit_increment_after_verify_discord . '. <br />';
+            $AdditionalLine .= __('Verifying your Discord account will also increase your Server Limit by ').$this->server_limit_increment_after_verify_discord.'. <br />';
         }
 
         return $AdditionalLine;
@@ -89,16 +88,16 @@ class WelcomeMessage extends Notification implements ShouldQueue
         return [
             'title' => __('Getting started!'),
             'content' => '
-               <p> ' . __('Hello') . " <strong>{$this->user->name}</strong>, " . __('Welcome to our dashboard') . '!</p>
-                <h5>' . __('Verification') . '</h5>
-                <p>' . __('You can verify your e-mail address and link/verify your Discord account.') . '</p>
+               <p> '.__('Hello')." <strong>{$this->user->name}</strong>, ".__('Welcome to our dashboard').'!</p>
+                <h5>'.__('Verification').'</h5>
+                <p>'.__('You can verify your e-mail address and link/verify your Discord account.').'</p>
                 <p>
-                  ' . $this->AdditionalLines() . '
+                  '.$this->AdditionalLines().'
                 </p>
-                <h5>' . __('Information') . '</h5>
-                <p>' . __('This dashboard can be used to create and delete servers') . '.<br /> ' . __('These servers can be used and managed on our pterodactyl panel') . '.<br /> ' . __('If you have any questions, please join our Discord server and #create-a-ticket') . '.</p>
-                <p>' . __('We hope you can enjoy this hosting experience and if you have any suggestions please let us know') . '!</p>
-                <p>' . __('Regards') . ',<br />' . config('app.name', 'Laravel') . '</p>
+                <h5>'.__('Information').'</h5>
+                <p>'.__('This dashboard can be used to create and delete servers').'.<br /> '.__('These servers can be used and managed on our pterodactyl panel').'.<br /> '.__('If you have any questions, please join our Discord server and #create-a-ticket').'.</p>
+                <p>'.__('We hope you can enjoy this hosting experience and if you have any suggestions please let us know').'!</p>
+                <p>'.__('Regards').',<br />'.config('app.name', 'Laravel').'</p>
             ',
         ];
     }

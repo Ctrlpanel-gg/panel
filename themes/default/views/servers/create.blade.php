@@ -27,7 +27,8 @@
         <div class="container-xxl">
             <!-- FORM -->
             <form action="{{ route('servers.store') }}" x-on:submit="submitClicked = true" method="post"
-                class="row justify-content-center" id="serverForm">
+                class="row justify-content-center"
+                id="serverForm">
                 @csrf
                 <div class="col-xl-6 col-lg-8 col-md-8 col-sm-10">
                     <div class="card">
@@ -134,26 +135,28 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                              <div class="form-group">
                                 <label for="location">{{ __('Location') }}</label>
                                 @if ($location_description_enabled)
                                     <i x-show="locationDescription != null" data-toggle="popover" data-trigger="click"
                                         x-bind:data-content="locationDescription" class="fas fa-info-circle"></i>
                                 @endif
-                                <select name="location" required id="location" x-model="selectedLocation"
-                                    :disabled="!fetchedLocations" @change="fetchProducts();" class="custom-select">
-                                    <option x-text="getLocationInputText()" disabled selected hidden value="null">
+                                <select name="location" required id="location" x-model="selectedLocation" :disabled="!fetchedLocations"
+                                        @change="fetchProducts();" class="custom-select">
+                                  <option x-text="getLocationInputText()" disabled selected hidden value="null">
+                                  </option>
+                                  <template x-for="location in locations" :key="location.id">
+                                    <option x-text="location.name" :value="location.id">
                                     </option>
-                                    <template x-for="location in locations" :key="location.id">
-                                        <option x-text="location.name" :value="location.id">
-                                        </option>
-                                    </template>
+                                  </template>
                                 </select>
-                            </div>
-                            <div class="form-group">
+                              </div>
+                              <div class="form-group">
                                 <label for="billing_priority">
                                     {{ __('Billing Priority') }}
-                                    <i data-toggle="popover" data-trigger="hover"
+                                    <i
+                                        data-toggle="popover"
+                                        data-trigger="hover"
                                         data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
                                         class="fas fa-info-circle"></i>
                                 </label>
@@ -170,14 +173,13 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                              </div>
 
-                            <template
-                                x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
+                              <template x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
                                 <div class="p-2 m-2 alert alert-danger">
-                                    {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
+                                  {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
                                 </div>
-                            </template>
+                              </template>
                         </div>
                     </div>
                 </div>
@@ -198,20 +200,22 @@
                         <template x-for="product in products" :key="product.id">
                             <div class="ml-2 mr-2 card col-xl-3 col-lg-3 col-md-4 col-sm-10 ">
                                 <div class="card-body d-flex flex-column">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <!-- Product Name -->
-                                        <h4 class="mb-0 card-title" x-text="product.name"></h4>
+                                  <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Product Name -->
+                                    <h4 class="mb-0 card-title" x-text="product.name"></h4>
 
-                                        <!-- Server Limit and Count -->
-                                        <span class="text-muted"
-                                            x-text="product.serverlimit == 0 ? (product.servers_count + ' / ∞') : (product.servers_count + ' / ' + product.serverlimit)">
-                                        </span>
-                                    </div>
+                                    <!-- Server Limit and Count -->
+                                    <span class="text-muted"
+                                          x-text="product.serverlimit > 0
+                                              ? product.servers_count + ' / ' + product.serverlimit
+                                              : '{{ __('No limit') }}'">
+                                    </span>
+                                  </div>
 
 
                                     <div class="mt-2">
                                         <div>
-                                            <p class="mb-1 card-text text-muted">{{ __('Resource Data:') }}</p>
+                                          <p class="mb-1 card-text text-muted">{{ __('Resource Data:') }}</p>
 
 
 
@@ -220,13 +224,13 @@
                                                     <span class="d-inline-block"><i class="fas fa-microchip"></i>
                                                         {{ __('CPU') }}</span>
                                                     <span class=" d-inline-block"
-                                                        x-text="product.cpu == 0 ? 'Unlimited' : (product.cpu + ' {{ __('vCores') }}')"></span>
+                                                        x-text="product.cpu + ' {{ __('vCores') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-memory"></i>
                                                         {{ __('Memory') }}</span>
                                                     <span class=" d-inline-block"
-                                                        x-text="product.memory == 0 ? 'Unlimited' : (product.memory + ' {{ __('MB') }}')"></span>
+                                                        x-text="product.memory + ' {{ __('MB') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <div>
@@ -236,7 +240,7 @@
                                                         </span>
                                                     </div>
                                                     <span class="d-inline-block"
-                                                        x-text="product.disk == 0 ? 'Unlimited' : (product.disk + ' {{ __('MB') }}')"></span>
+                                                        x-text="product.disk + ' {{ __('MB') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-save"></i>
@@ -259,16 +263,14 @@
                                                     <span class="d-inline-block"><i class="fas fa-clock"></i>
                                                         {{ __('Billing Period') }}</span>
 
-                                                    <span class="d-inline-block"
-                                                        x-text="billingPeriodTranslations[product.billing_period]"></span>
+                                                    <span class="d-inline-block" x-text="billingPeriodTranslations[product.billing_period]"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block">
                                                         <i class="fas fa-flag"></i>
                                                         {{ __('Billing Priority') }}
                                                     </span>
-                                                    <span class="d-inline-block"
-                                                        x-text="product.default_billing_priority_label"></span>
+                                                    <span class="d-inline-block" x-text="product.default_billing_priority_label"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
@@ -409,11 +411,11 @@
 
                     let hasEmptyRequiredVariables = this.hasEmptyRequiredVariables(this.selectedEggObject.environment);
 
-                    if (hasEmptyRequiredVariables.length > 0) {
-                        this.dispatchModal(hasEmptyRequiredVariables);
+                    if(hasEmptyRequiredVariables.length > 0) {
+                      this.dispatchModal(hasEmptyRequiredVariables);
                     } else {
-                        document.getElementById('product').value = productId;
-                        document.getElementById('serverForm').submit();
+                      document.getElementById('product').value = productId;
+                      document.getElementById('serverForm').submit();
                     }
                 },
 
@@ -517,16 +519,16 @@
                     return !!this.name;
                 },
 
-                hasEmptyRequiredVariables(environment) {
-                    if (!environment) return [];
+              hasEmptyRequiredVariables(environment) {
+                if (!environment) return [];
 
-                    return environment.filter((variable) => {
-                        const hasRequiredRule = variable.rules?.includes("required");
-                        const isDefaultNull = !variable.default_value;
+                return environment.filter((variable) => {
+                  const hasRequiredRule = variable.rules?.includes("required");
+                  const isDefaultNull = !variable.default_value;
 
-                        return hasRequiredRule && isDefaultNull;
-                    });
-                },
+                  return hasRequiredRule && isDefaultNull;
+                });
+              },
 
                 getLocationInputText() {
                     if (this.fetchedLocations) {
@@ -648,19 +650,7 @@
                                         }
                                     });
                                 }
-
-                                return false;
-                            }
-
-                            return response.json();
-                        },
-                        didOpen: () => {
-                            $('[data-toggle="tooltip"]').tooltip();
-                        },
-                    }).then((result) => {
-                        if (result.isConfirmed && result.value.success) {
-                            document.getElementById('egg_variables').value = JSON.stringify(result.value.variables);
-                            document.getElementById('serverForm').submit();
+                            });
                         }
                     });
                 } // end dispatchModal

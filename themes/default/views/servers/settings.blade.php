@@ -56,7 +56,7 @@
                           <div class="numbers">
                             <p class="mb-0 text-sm text-uppercase font-weight-bold">{{ __('CPU') }}</p>
                             <h5 class="font-weight-bolder">
-                              <span class="text-sm text-success font-weight-bolder">@if($server->product->cpu == 0){{ 'Unlimited' }} @else {{$server->product->cpu}} % @endif</span>
+                              <span class="text-sm text-success font-weight-bolder">@if($server->product->cpu == 0){{ __('Unlimited') }} @else {{$server->product->cpu}} % @endif</span>
                             </h5>
                           </div>
                         </div>
@@ -77,7 +77,7 @@
                           <div class="numbers">
                             <p class="mb-0 text-sm text-uppercase font-weight-bold">{{ __('MEMORY') }}</p>
                             <h5 class="font-weight-bolder">
-                              <span class="text-sm text-success font-weight-bolder">@if($server->product->memory == 0){{ 'Unlimited' }} @else {{$server->product->memory}}MB @endif</span>
+                              <span class="text-sm text-success font-weight-bolder">@if($server->product->memory == 0){{ __('Unlimited') }} @else {{$server->product->memory}}MB @endif</span>
                             </h5>
                           </div>
                         </div>
@@ -98,7 +98,7 @@
                           <div class="numbers">
                             <p class="mb-0 text-sm text-uppercase font-weight-bold">{{ __('STORAGE') }}</p>
                             <h5 class="font-weight-bolder">
-                              <span class="text-sm text-success font-weight-bolder">@if($server->product->disk == 0){{ 'Unlimited' }} @else {{$server->product->disk}}MB @endif</span>
+                              <span class="text-sm text-success font-weight-bolder">@if($server->product->disk == 0){{ __('Unlimited') }} @else {{$server->product->disk}}MB @endif</span>
                             </h5>
                           </div>
                         </div>
@@ -121,7 +121,7 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-
+        
                                 <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
@@ -230,7 +230,7 @@
                                         </div>
                                     </div>
                                 </div>
-
+        
                             </div>
                         </div>
                         <div class="card-footer">
@@ -256,7 +256,7 @@
                                                 <strong>{{__("Current Product")}}: </strong> {{ $server->product->name }}
                                                 <br>
                                                 <br>
-
+        
                                             <form action="{{ route('servers.upgrade', ['server' => $server->id]) }}" method="POST" class="upgrade-form">
                                               @csrf
                                                   <select x-on:change="$el.value ? $refs.upgradeSubmit.disabled = false : $refs.upgradeSubmit.disabled = true" name="product_upgrade" id="product_upgrade" class="form-input2 form-control">
@@ -268,7 +268,7 @@
                                                           @endif
                                                       @endforeach
                                                   </select>
-
+        
                                                   <br> <strong>{{__("Caution") }}:</strong> {{__("Upgrading/Downgrading your server will reset your billing cycle to now. Your overpayed Credits will be refunded. The price for the new billing cycle will be withdrawed")}}. <br>
                                                   <br> {{__("Server will be automatically restarted once upgraded")}}
                                               </div>

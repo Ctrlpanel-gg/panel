@@ -57,7 +57,7 @@ class Coupon extends Model
     protected function value(): Attribute
     {
         return Attribute::make(
-            set: fn($value) => $this->type == 'amount' ? Currency::prepareForDatabase($value) : $value
+            set: fn ($value) => $this->type == 'amount' ? Currency::prepareForDatabase($value) : $value
         );
     }
 
@@ -78,7 +78,7 @@ class Coupon extends Model
      */
     public function getStatus()
     {
-        if ($this->uses >= $this->max_uses && $this->max_uses != -1) {
+        if ($this->uses >= $this->max_uses) {
             return 'USES_LIMIT_REACHED';
         }
 

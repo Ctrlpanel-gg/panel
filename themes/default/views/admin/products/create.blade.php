@@ -135,10 +135,10 @@
                                                 @endforeach
                                             </select>
                                             @error('default_billing_priority')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
                                         </div>
                                     </div>
                                 </div>
@@ -192,51 +192,65 @@
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="disk">{{ __('Disk') }}</label>
-                                            <input value="{{ $product->disk ?? (old('disk') ?? 1000) }}" id="disk"
-                                                name="disk" type="number"
-                                                class="form-control @error('disk') is-invalid @enderror"
-                                                required="required">
-                                            @error('disk')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-                                    </div>
+										<div class="form-group">
+											<label for="disk">{{ __('Disk') }}</label>
+											<input value="{{ $product->disk ?? (old('disk') ?? 1000) }}" id="disk"
+												name="disk" type="number"
+												class="form-control @error('disk') is-invalid @enderror"
+												required="required">
+											@error('disk')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
+									</div>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="memory">{{ __('Memory') }}</label>
-                                            <input value="{{ $product->memory ?? old('memory') }}" id="memory"
-                                                name="memory" type="number"
-                                                class="form-control @error('memory') is-invalid @enderror"
-                                                required="required">
-                                            @error('memory')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-                                    </div>
+										<div class="form-group">
+											<label for="memory">{{ __('Memory') }}</label>
+											<input value="{{ $product->memory ?? old('memory') }}" id="memory"
+												name="memory" type="number"
+												class="form-control @error('memory') is-invalid @enderror"
+												required="required">
+											@error('memory')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
+									</div>
                                     <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="io">{{ __('IO') }}</label>
-                                            <input value="{{ $product->io ?? (old('io') ?? 500) }}" id="io"
-                                                name="io" type="number"
-                                                class="form-control @error('io') is-invalid @enderror"
-                                                required="required">
-                                            @error('io')
-                                                <div class="invalid-feedback">
-                                                    {{ $message }}
-                                                </div>
-                                            @enderror
-                                        </div>
-                                    </div>
+										<div class="form-group">
+											<label for="io">{{ __('IO') }}</label>
+											<input value="{{ $product->io ?? (old('io') ?? 500) }}" id="io"
+												name="io" type="number"
+												class="form-control @error('io') is-invalid @enderror"
+												required="required">
+											@error('io')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
+									</div>
                                 </div>
-                                <div class="row">
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label for="swap">{{ __('Swap') }}</label>
+											<input value="{{ $product->swap ?? old('swap') }}" id="swap"
+												name="swap" type="number"
+												class="form-control @error('swap') is-invalid @enderror"
+												required="required">
+											@error('swap')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
+									</div>
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="swap">{{ __('Swap') }}</label>
@@ -269,8 +283,8 @@
                                             @enderror
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
+								</div>
+								<div class="row">
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label for="allocations">{{ __('Allocations') }}</label>
@@ -315,20 +329,20 @@
                                     </div>
                                 </div>
 
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <input type="checkbox" value="1" id="oom_killer" name="oom_killer">
-                                            <label for="oom_killer">
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<input type="checkbox" value="1" id="oom_killer" name="oom_killer">
+											<label for="oom_killer">
                                                 {{ __('OOM Killer') }}
                                                 <i data-toggle="popover" data-trigger="hover"
                                                     data-content="{{ __('Enable or Disable the OOM Killer for this Product. ') }}"
                                                     class="fas fa-info-circle">
                                                 </i>
                                             </label>
-                                        </div>
-                                    </div>
-                                </div>
+										</div>
+									</div>
+								</div>
 
                                 <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">
@@ -388,14 +402,14 @@
                                                 class="ml-2 btn btn-sm btn-secondary">{{ __('Deselect All') }}</button>
                                         </div>
                                     </div>
-                                    <select id="eggs" style="width: 100%"
+                                    <select id="eggs" style="width:100%"
                                         class="custom-select @error('eggs') is-invalid @enderror" name="eggs[]"
                                         multiple="multiple" autocomplete="off">
                                         @foreach ($nests as $nest)
                                             <optgroup label="{{ $nest->name }}" class="nest-group"
                                                 data-nest-id="{{ $nest->id }}">
                                                 @foreach ($nest->eggs as $egg)
-                                                    <option class="egg-option" data-nest-id="{{ $nest->id }}"
+                                                    <option
                                                         @if (isset($product)) @if ($product->eggs->contains('id', $egg->id)) selected @endif
                                                         @endif
                                                         value="{{ $egg->id }}">{{ $egg->name }}</option>
@@ -413,8 +427,8 @@
                                     </div>
                                 </div>
                                 <div class="text-muted">
-                                    {{ __('No Eggs or Nodes shown? ') }} <a
-                                        href="{{ route('admin.overview. sync') }}">{{ __('Sync now') }}</a>
+                                    {{ __('No Eggs or Nodes shown?') }} <a
+                                        href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>
                                 </div>
                             </div>
                         </div>
@@ -427,13 +441,13 @@
 
         </div>
     </section>
+    <!-- END CONTENT -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             $('[data-toggle="popover"]').popover();
             $('.custom-select').select2({
-                minimumResultsForSearch: -1,
-                closeOnSelect: false
+                minimumResultsForSearch: -1
             });
 
             $(document).on('click', '.select2-results__group', function(e) {
@@ -463,8 +477,7 @@
                 $('#eggs').trigger('change');
             });
 
-            document.getElementById('deselect-all-eggs').addEventListener('click', function(e) {
-                e.preventDefault();
+            document.getElementById('deselect-all-eggs').addEventListener('click', function() {
                 $('#eggs option').prop('selected', false);
                 $('#eggs').trigger('change');
             });

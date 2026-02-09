@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Facades\Currency;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\ReferralNotification;
 use App\Providers\RouteServiceProvider;
 use App\Traits\Referral;
-use Carbon\Carbon;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
 use App\Helpers\CurrencyHelper;
@@ -16,29 +13,17 @@ use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
+use App\Actions\ProcessReferralAction;
 use Coderflex\LaravelTurnstile\Rules\TurnstileCheck;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
 {
-    private $pterodactyl;
-    private $currency_helper;
-    private $credits_display_name;
-    private $website_show_tos;
-    private $register_ip_check;
-    private $initial_credits;
-    private $initial_server_limit;
-    private $referral_mode;
-    private $referral_reward;
-    private $recaptcha_version;
-
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -64,19 +49,25 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct(PterodactylSettings $ptero_settings, GeneralSettings $general_settings, WebsiteSettings $website_settings, UserSettings $user_settings, ReferralSettings $referral_settings, CurrencyHelper $currencyHelper)
-    {
+    public function __construct(
+        protected PterodactylSettings $pterodactylSettings,
+        protected CurrencyHelper $currencyHelper,
+        protected GeneralSettings $generalSettings,
+        protected WebsiteSettings $websiteSettings,
+        protected UserSettings $userSettings,
+        protected ReferralSettings $referralSettings,
+        protected PterodactylClient $pterodactylClient,
+        private ProcessReferralAction $processReferralAction,
+    ) {
         $this->middleware('guest');
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
-        $this->currency_helper = $currencyHelper;
-        $this->credits_display_name = $general_settings->credits_display_name;
-        $this->recaptcha_version = $general_settings->recaptcha_version;
-        $this->website_show_tos = $website_settings->show_tos;
-        $this->register_ip_check = $user_settings->register_ip_check;
-        $this->initial_credits = $user_settings->initial_credits;
-        $this->initial_server_limit = $user_settings->initial_server_limit;
-        $this->referral_mode = $referral_settings->mode;
-        $this->referral_reward = $referral_settings->reward;
+        $this->pterodactylSettings = $pterodactylSettings;
+        $this->pterodactylClient = new PterodactylClient($pterodactylSettings);
+        $this->currencyHelper = $currencyHelper;
+        $this->generalSettings = $generalSettings;
+        $this->websiteSettings = $websiteSettings;
+        $this->userSettings = $userSettings;
+        $this->referralSettings = $referralSettings;
+        $this->processReferralAction = $processReferralAction;
     }
 
     /**
@@ -92,8 +83,8 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:64', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
-        if ($this->recaptcha_version) {
-            switch ($this->recaptcha_version) {
+        if ($this->generalSettings->recaptcha_version) {
+            switch ($this->generalSettings->recaptcha_version) {
                 case "v2":
                     $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
                     break;
@@ -105,11 +96,11 @@ class RegisterController extends Controller
                     break;
             }
         }
-        if ($this->website_show_tos) {
+        if ($this->websiteSettings->show_tos) {
             $validationRules['terms'] = ['required'];
         }
 
-        if ($this->register_ip_check) {
+        if ($this->userSettings->register_ip_check) {
 
             //check if ip has already made an account
             $data['ip'] = session()->get('ip') ?? request()->ip();
@@ -149,17 +140,16 @@ class RegisterController extends Controller
 
         $response = $this->pterodactyl->application->post('/application/users', [
             'external_id' => null,
-            'username' => $user->name,
-            'email' => $user->email,
-            'first_name' => $user->name,
-            'last_name' => $user->name,
+            'username' => $data['name'],
+            'email' => $data['email'],
+            'first_name' => $data['name'],
+            'last_name' => $data['name'],
             'password' => $data['password'],
             'root_admin' => false,
             'language' => 'en',
         ]);
-
+        
         if ($response->failed()) {
-            $user->delete();
             Log::error('Pterodactyl Registration Error: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error'));
             throw ValidationException::withMessages([
                 'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
@@ -167,14 +157,19 @@ class RegisterController extends Controller
         }
 
         if (!isset($response->json()['attributes']['id'])) {
-            $user->delete();
             Log::error('Pterodactyl Registration Error: Missing user ID in response');
             throw ValidationException::withMessages([
                 'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
             ]);
         }
 
-        $user->update([
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'credits' => $this->userSettings->initial_credits,
+            'server_limit' => $this->userSettings->initial_server_limit,
+            'password' => Hash::make($data['password']),
+            'referral_code' => $this->createReferralCode(),
             'pterodactyl_id' => $response->json()['attributes']['id'],
         ]);
 
@@ -185,27 +180,7 @@ class RegisterController extends Controller
             ->delete();
         //INCREMENT REFERRAL-USER CREDITS
         if (!empty($data['referral_code'])) {
-            $ref_code = $data['referral_code'];
-            $new_user = $user->id;
-            if ($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
-                if ($this->referral_mode === 'sign-up' || $this->referral_mode === 'both') {
-                    $ref_user->increment('credits', ($this->referral_reward));
-                    $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
-
-                    //LOGS REFERRALS IN THE ACTIVITY LOG
-                    activity()
-                        ->performedOn($user)
-                        ->causedBy($ref_user)
-                        ->log('gained ' . $this->currency_helper->formatForDisplay($this->referral_reward) . ' ' . $this->credits_display_name . ' for sign-up-referral of ' . $user->name . ' (ID:' . $user->id . ')');
-                }
-                //INSERT INTO USER_REFERRALS TABLE
-                DB::table('user_referrals')->insert([
-                    'referral_id' => $ref_user->id,
-                    'registered_user_id' => $user->id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]);
-            }
+            $this->processReferralAction->execute($user, $data['referral_code'], true);
         }
 
         return $user;

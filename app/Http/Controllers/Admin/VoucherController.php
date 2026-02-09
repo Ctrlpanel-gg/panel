@@ -150,7 +150,7 @@ class VoucherController extends Controller
      *
      * @throws ValidationException
      */
-    public function redeem(Request $request, GeneralSettings $general_settings, CurrencyHelper $currencyHelper)
+    public function redeem(Request $request, GeneralSettings $general_settings)
     {
         //general validations
         $request->validate([
@@ -191,7 +191,7 @@ class VoucherController extends Controller
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => "{$currencyHelper->formatForDisplay($voucher->credits)} ". $general_settings->credits_display_name .' '.__('have been added to your balance!'),
+            'success' => "{$voucher->credits} ". $general_settings->credits_display_name .' '.__('have been added to your balance!'),
         ]);
     }
 

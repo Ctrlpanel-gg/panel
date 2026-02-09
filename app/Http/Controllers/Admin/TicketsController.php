@@ -146,7 +146,7 @@ class TicketsController extends Controller
                                 '.method_field('POST').'
                             <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="text-white btn btn-sm '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
                             </form>
-                            <form class="d-inline ticket-delete-form"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
+                            <form class="d-inline"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>

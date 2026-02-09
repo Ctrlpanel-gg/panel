@@ -18,20 +18,12 @@
                 </div>
             </div>
         </div>
-        @if (!empty($headFileMissing) && $headFileMissing && Auth::user()->hasRole('Admin'))
-            <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
-                <strong>Warning:</strong> The <code>.git/HEAD</code> file is missing. Please restore it if possible to ensure correct version and branch information.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
         @if(Storage::get('latestVersion') && config("app.version") < Storage::get('latestVersion'))
             <div class="alert alert-danger" role="alert">
                 <b><i class="fas fa-shield-alt"></i> {{__("Version Outdated:")}}</b></br>
                 {{__("You are running on")}} v{{config("app.version")}}-{{config("BRANCHNAME")}}.
                     {{__("The latest Version is")}} v{{Storage::get('latestVersion')}}</br>
-                <a href="https://ctrlpanel.gg/docs/category/updating">{{__("Consider updating now")}}</a>
+                <a href="https://CtrlPanel.gg/docs/Installation/updating">{{__("Consider updating now")}}</a>
             </div>
         @endif
     </section>
@@ -43,7 +35,7 @@
 
             <div class="mb-3 row">
                 <div class="col-md-3">
-                    <a href="https://ctrlpanel.gg/docs" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://CtrlPanel.gg/docs/intro" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-link"></i> {{__('Documentation')}}</a>
                 </div>
                 <div class="col-md-3">
@@ -51,7 +43,7 @@
                             class="mr-2 fab fa-github"></i> {{__('Github')}}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://ctrlpanel.gg/docs/contributing/donating" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://CtrlPanel.gg/docs/Contributing/donating" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-money-bill"></i> {{__('Support CtrlPanel')}}</a>
                 </div>
             </div>

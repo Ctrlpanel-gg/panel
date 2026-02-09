@@ -67,7 +67,7 @@ class SettingsController extends Controller
                     'identifier' => $optionInputData[$key]['identifier'] ?? 'option'
                 ];
 
-                if ($optionInputData[$key]['type'] === 'number') {
+                if($optionInputData[$key]['type'] === 'number') {
                     $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
 
                     if ($optionInputData[$key]['mustBeConverted'] ?? false) {
@@ -83,7 +83,7 @@ class SettingsController extends Controller
 
             if (isset($optionInputData['position'])) {
                 $optionsData['position'] = $optionInputData['position'];
-            } else {
+            }else{
                 $optionsData['position'] = 99;
             }
 
@@ -150,8 +150,7 @@ class SettingsController extends Controller
             $rpType = $rp->getType();
 
             if ($rpType == 'bool') {
-                // Always assign false if key is missing (checkbox unchecked)
-                $settingsClass->$key = $request->has($key) ? true : false;
+                $settingsClass->$key = $request->has($key);
                 continue;
             }
             if ($rp->name == 'available') {

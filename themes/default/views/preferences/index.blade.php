@@ -6,11 +6,11 @@
         <div class="container-fluid">
             <div class="mb-2 row">
                 <div class="col-sm-6">
-                    <h1>{{ __('Preferences') }}</h1>
+                    <h1>{{__('Preferences')}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -21,13 +21,6 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
-            @if ($currencyOverrideAlert)
-                <div class="alert alert-warning alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <h5><i class="icon fas fa-exclamation-triangle"></i> {{ __('Currency Format Override') }}</h5>
-                    {{ $currencyOverrideAlert }}
-                </div>
-            @endif
             <!-- CUSTOM CONTENT -->
             <form method="post" action="{{ route('preferences.update') }}">
                 @csrf
@@ -35,22 +28,18 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">{{ __('Language') }}</h3>
+                                <h3 class="card-title">{{__('Language')}}</h3>
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
-                                    <label for="locale">{{ __('Language') }}</label>
-                                    <select name="locale" id="locale" @if (!$localeSettings->clients_can_change) disabled @endif
-                                        class="custom-select w-100">
+                                    <label for="locale">{{__('Language')}}</label>
+                                    <select name="locale" id="locale" @if(!$localeSettings->clients_can_change) disabled @endif class="custom-select w-100">
                                         @foreach (explode(',', $localeSettings->available) as $key)
-                                            <option value="{{ $key }}"
-                                                @if (session('locale') == $key) selected @endif>{{ ucfirst($key) }}
-                                            </option>
+                                            <option value="{{ $key }}" @if(session('locale') == $key) selected @endif>{{ ucfirst($key) }}</option>
                                         @endforeach
                                     </select>
-                                    @if (!$localeSettings->clients_can_change)
-                                        <small><i class="fas fa-info-circle"></i>
-                                            {{ __('Changing the locale has been disabled by the System-Admins') }}</small>
+                                  @if(!$localeSettings->clients_can_change)
+                                    <small><i class="fas fa-info-circle"></i> {{__("Changing the locale has been disabled by the System-Admins")}}</small>
                                     @endif
                                 </div>
                                 <div class="row">

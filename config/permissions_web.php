@@ -29,6 +29,7 @@ return [
     'Overview Sync' => 'admin.overview.sync',
 
     'View Api Keys' => 'admin.api.read',
+    'View Api Docs Page' => 'admin.api.docs',
     'Manage Api Keys' => 'admin.api.write',
 
     'View User List' => 'admin.users.read',

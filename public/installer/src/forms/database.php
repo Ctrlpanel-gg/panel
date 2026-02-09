@@ -4,9 +4,6 @@ use DevCoder\DotEnv;
 
 (new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
 
-// Include installer functions to get $host variable and helper functions
-require_once dirname(__FILE__, 2) . '/functions/installer.php';
-
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
 
 if (isset($_POST['checkDB'])) {
@@ -48,7 +45,7 @@ if (isset($_POST['checkDB'])) {
         }
     } catch (Throwable $th) {
         wh_log('Creating APP_KEY failed', 'error');
-        header("LOCATION: {$protocol}://{$host}/installer/index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
+        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
         exit();
     }
 

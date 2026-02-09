@@ -22,7 +22,7 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
-use Spatie\Activitylog\Models\Activity;
+
 /**
  * Class User
  */
@@ -91,7 +91,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'server_limit' => 'float',
+        'server_limit' => 'integer',
         'email_verified_reward' => 'boolean'
     ];
 
@@ -158,8 +158,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return Attribute::make(
             // We only convert when the user already exists, to avoid 2 conversions.
-            set: fn($value) => $this->exists ? Currency::prepareForDatabase($value) : $value,
+            set: fn ($value) => $this->exists ? Currency::prepareForDatabase($value) : $value,
         );
+    }
+
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable')
+            ->orderBy('created_at', 'desc');
     }
 
     /**
@@ -328,7 +334,7 @@ class User extends Authenticatable implements MustVerifyEmail
             if (!$executed) {
                 return redirect()->back()->with('error', 'Too many requests. Try again in ' . RateLimiter::availableIn('verify-mail:' . $this->id) . ' seconds.');
             }
-        } catch (\Exception $exception) {
+        }catch (\Exception $exception){
             Log::error($exception->getMessage());
             return redirect()->back()->with('error', __("Something went wrong. Please try again later!"));
         }
@@ -438,6 +444,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $referrer = User::withTrashed()->find($referee->referral_id);
             return $referrer;
         }
+        
         return null;
     }
 

@@ -2,155 +2,209 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\DiscordUser;
+use App\Http\Resources\NotificationResource;
 use App\Models\User;
-use App\Notifications\DynamicNotification;
-use Illuminate\Database\Eloquent\Builder;
+use App\Http\Controllers\Controller;
+use App\Models\Notification as ModelNotification;
+use App\Http\Requests\Api\Notifications\SendToAllUsersNotificationRequest;
+use App\Http\Requests\Api\Notifications\SendToUsersNotificationRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
-use Spatie\ValidationRules\Rules\Delimited;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 
 class NotificationController extends Controller
 {
+    public function __construct(protected NotificationService $notificationService)
+    {}
+
     /**
-     * Display all notifications of an user.
+     * Show a list of notifications for a user.
      *
      * @param  Request  $request
-     * @param  int  $userId
-     * @return Response
+     * @param  User  $user
+     * @return NotificationResource
+     * 
+     * @throws ModelNotFoundException
      */
-    public function index(Request $request, int $userId)
+    public function index(Request $request, User $user)
     {
-        $discordUser = DiscordUser::find($userId);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
+        $notifications = $user->notifications()->paginate($request->query('per_page', 50));
 
-        return $user->notifications()->paginate($request->query('per_page', 50));
+        return NotificationResource::collection($notifications);
     }
 
     /**
-     * Display a specific notification
+     * Show a specific notification of a user.
      *
-     * @param  int  $userId
-     * @param  int  $notificationId
-     * @return JsonResponse
+     * @param  Request  $request
+     * @param  User  $user
+     * @param  ModelNotification  $notification
+     * @return NotificationResource
+     * 
+     * @throws ModelNotFoundException
      */
-    public function view(int $userId, $notificationId)
+    public function view(Request $request, User $user, ModelNotification $notification)
     {
-        $discordUser = DiscordUser::find($userId);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
-
-        $notification = $user->notifications()->where('id', $notificationId)->get()->first();
-
-        if (! $notification) {
-            return response()->json(['message' => 'Notification not found.'], 404);
-        }
-
-        return $notification;
+        return NotificationResource::make($notification);
     }
 
     /**
-     * Send a notification to an user.
+     * Send a notification to specific users.
      *
-     * @param  Request  $request
+     * @param  SendToUsersNotificationRequest  $request
      * @return JsonResponse
      *
      * @throws ValidationException
      */
-    public function send(Request $request)
+    public function sendToUsers(SendToUsersNotificationRequest $request)
     {
-        $data = $request->validate([
-            'via' => ['required', new Delimited('in:mail,database')],
-            'all' => 'required_without:users|boolean',
-            'users' => ['required_without:all'],
-            'title' => 'required|string|min:1',
-            'content' => 'required|string|min:1',
-        ]);
-        $via = explode(',', $data['via']);
-        $mail = null;
-        $database = null;
-
-        if (in_array('database', $via)) {
-            $database = [
+        try {
+            $data = $request->validated();
+            
+            $via = match($data['via']) {
+                'mail' => ['mail'],
+                'database' => ['database'],
+                'both' => ['mail', 'database'],
+            };
+            
+            $database = in_array('database', $via) ? [
                 'title' => $data['title'],
                 'content' => $data['content'],
-            ];
-        }
-        if (in_array('mail', $via)) {
-            $mail = (new MailMessage)
-                ->subject($data['title'])
-                ->line(new HtmlString($data['content']));
-        }
+            ] : null;
+            
+            $mail = in_array('mail', $via) ? 
+                (new MailMessage)
+                    ->subject($data['title'])
+                    ->line(new HtmlString($data['content']))
+                : null;
+            
+            $users = $this->getTargetUsers($data);
+            
+            $this->notificationService->sendToUsers($users, $via, $database, $mail);
 
-        $all = $data['all'] ?? false;
-        if ($all) {
-            $users = User::all();
-        } else {
-            $userIds = explode(',', $data['users']);
-            $users = User::query()
-                ->whereIn('id', $userIds)
-                ->orWhereHas('discordUser', function (Builder $builder) use ($userIds) {
-                    $builder->whereIn('id', $userIds);
-                })
-                ->get();
-        }
-
-        if ($users->count() == 0) {
-            throw ValidationException::withMessages([
-                'users' => ['No users found!'],
+            return response()->json([
+                'message' => 'Notification sent successfully.',
+                'meta' => [
+                    'user_count' => $users->count(),
+                    'channels' => $via
+                ]
             ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Failed to send notification.',
+                'message' => $e->getMessage()
+            ], 500);
         }
-        try {
-            Notification::send($users, new DynamicNotification($via, $database, $mail));
-        }
-        catch (Exception $e) {
-            return response()->json(['message' => 'The attempt to send the email failed with the error: ' . $e->getMessage()], 500);
-        }
-
-        return response()->json(['message' => 'Notification successfully sent.', 'user_count' => $users->count()]);
     }
 
     /**
-     * Delete all notifications from an user
+     * Send a notification to all users.
      *
-     * @param  int  $userId
+     * @param  SendToAllUsersNotificationRequest  $request
      * @return JsonResponse
      */
-    public function delete(int $userId)
+    public function sendToAll(SendToAllUsersNotificationRequest $request)
     {
-        $discordUser = DiscordUser::find($userId);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
+        try {
+            $data = $request->validated();
+            
+            $via = match($data['via']) {
+                'mail' => ['mail'],
+                'database' => ['database'],
+                'both' => ['mail', 'database'],
+            };
+            
+            $database = in_array('database', $via) ? [
+                'title' => $data['title'],
+                'content' => $data['content'],
+            ] : null;
+            
+            $mail = in_array('mail', $via) ? 
+                (new MailMessage)
+                    ->subject($data['title'])
+                    ->line(new HtmlString($data['content']))
+                : null;
+            
+            $users = User::all();
+            
+            $this->notificationService->sendToUsers($users, $via, $database, $mail);
 
+            return response()->json([
+                'message' => 'Notification sent successfully.',
+                'meta' => [
+                    'user_count' => $users->count(),
+                    'channels' => $via
+                ]
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Failed to send notification.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete all notifications from an user.
+     *
+     * @param  Request  $request
+     * @param  User  $user
+     * @return JsonResponse
+     * 
+     * @throws ModelNotFoundException
+     */
+    public function destroyAll(Request $request, User $user)
+    {
         $count = $user->notifications()->delete();
 
-        return response()->json(['message' => 'All notifications have been successfully deleted.', 'count' => $count]);
+        return response()->json([
+            'message' => 'All notifications deleted successfully',
+            'meta' => [
+                'deleted_count' => $count
+            ]
+        ], 200);
     }
 
     /**
-     * Delete a specific notification
+     * Delete a specific notification from an user.
      *
-     * @param  int  $userId
-     * @param  int  $notificationId
-     * @return JsonResponse
+     * @param Request $request
+     * @param  User  $user
+     * @param  ModelNotification  $notification
+     * @return \Illuminate\Http\Response
+     * 
+     * @throws ModelNotFoundException
      */
-    public function deleteOne(int $userId, $notificationid)
+    public function destroyOne(Request $request, User $user, ModelNotification $notification)
     {
-        $discordUser = DiscordUser::find($userId);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($userId);
-
-        $notification = $user->notifications()->where('id', $notificationid)->get()->first();
-
-        if (! $notification) {
-            return response()->json(['message' => 'Notification not found.'], 404);
-        }
-
         $notification->delete();
 
-        return response()->json($notification);
+        return response()->noContent();
+    }
+
+    /**
+     * Get target users based on the request data.
+     *
+     * @param array $data
+     * @return \Illuminate\Database\Eloquent\Collection
+     * 
+     * @throws ValidationException
+     */
+    private function getTargetUsers(array $data): \Illuminate\Database\Eloquent\Collection
+    {        
+        $users = User::query()->whereIn('id', $data['users'])->get();
+
+        if ($users->isEmpty()) {
+            throw ValidationException::withMessages([
+                'users' => ['No users found with the provided IDs.'],
+            ]);
+        }
+
+        return $users;
     }
 }

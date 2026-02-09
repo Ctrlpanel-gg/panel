@@ -34,6 +34,11 @@ public/install/logs.txt
 install.lock
 public/install/logs/installer.log
 
+#Ignore Scribe files
+/.scribe
+/public/vendor
+/themes/scribe
+
 /.idea
 cpggdatabase.sql
 /dump.rdb

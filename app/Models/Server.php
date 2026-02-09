@@ -133,9 +133,9 @@ class Server extends Model
         "billing_priority",
         "product_id",
         "pterodactyl_id",
+        "user_id",
         "last_billed",
-        "canceled",
-        "suspension_warning_sent_at"
+        "canceled"
     ];
 
     /**
@@ -143,6 +143,8 @@ class Server extends Model
      */
     protected $casts = [
         'suspended' => 'datetime',
+        'last_billed' => 'datetime',
+        'canceled' => 'datetime',
         'billing_priority' => BillingPriority::class
     ];
 
@@ -218,7 +220,6 @@ class Server extends Model
             $this->update([
                 'suspended' => null,
                 'last_billed' => Carbon::now()->toDateTimeString(),
-                'suspension_warning_sent_at' => null,
             ]);
         }
 

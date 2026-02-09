@@ -6,7 +6,7 @@ use NumberFormatter;
 
 class CurrencyHelper
 {
-    private function convertForDisplay($amount)
+    public function convertForDisplay($amount)
     {
         return $amount / 1000;
     }
@@ -119,9 +119,9 @@ class CurrencyHelper
         return (int)($amount * 1000);
     }
 
-    public function formatToCurrency(int $amount, $currency_code, $locale = null)
+    public function formatToCurrency(int $amount, $currency_code, $locale = null,)
     {
-        $locale = $this->getEffectiveLocale($locale, false);
+        $locale = $locale ?: str_replace('_', '-', app()->getLocale());
 
         try {
             $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
@@ -135,18 +135,5 @@ class CurrencyHelper
             // Fallback: return a simple formatted number with the currency code appended
             return number_format($this->convertForDisplay($amount), 2, '.', ',') . ' ' . strtoupper($currency_code);
         }
-    }
-
-    /**
-     * Formats the given amount for use in commands.
-     *
-     * Converts the amount from the smallest currency unit to a float.
-     *
-     * @param int $amount Amount in the smallest currency unit (e.g., thousandths).
-     * @return float Converted amount for commands.
-     */
-    public function formatForCommands($amount)
-    {
-        return $this->convertForDisplay($amount);
     }
 }
