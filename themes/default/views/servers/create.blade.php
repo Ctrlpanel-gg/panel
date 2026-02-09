@@ -197,7 +197,7 @@
                                             class="custom-select @error('billing_priority') is-invalid @enderror"
                                             name="billing_priority" autocomplete="off"
                                         >
-                                            <option value="" selected>
+                                            <option value="">
                                                 {{ __('None') }}
                                             </option>
                                             @foreach (App\Enums\BillingPriority::cases() as $priority)
