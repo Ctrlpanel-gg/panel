@@ -168,6 +168,9 @@ class HomeController extends Controller
 
         if ($credits > 0) {
             $cacheKey = 'user_credits_left:' . $user->id;
+
+            //dd('aqui');
+
             $calculation = Cache::remember($cacheKey, now()->addMinutes(5), function() use ($user, $credits) {
                 return $this->calculateCreditRunout($user, $credits);
             });

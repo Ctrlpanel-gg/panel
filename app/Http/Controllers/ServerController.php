@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class ServerController extends Controller
@@ -113,6 +114,10 @@ class ServerController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        logger($request->all());
+
+        sleep(3);
+
         $lockKey = 'server_create_lock_' . Auth::id();
         if (Cache::has($lockKey)) {
             return redirect()->route('servers.index')
@@ -130,7 +135,13 @@ class ServerController extends Controller
             'product' => 'required|exists:products,id',
             'egg_variables' => 'nullable|string',
             'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
-            'billing_period' => ['nullable', new Enum(BillingPeriod::class)],
+            'billing_period' => [
+                'required',
+                new Enum(BillingPeriod::class),
+                Rule::exists('product_billing_periods', 'billing_period')->where(function ($query) use ($request) {
+                    $query->where('product_id', $request->input('product'));
+                })
+            ],
         ]);
 
         $server = $this->createServer($request);
@@ -277,7 +288,7 @@ class ServerController extends Controller
             'product_id' => $product->id,
             'last_billed' => Carbon::now(),
             'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
-            'billing_period' => $request->input('billing_period', $product->default_billing_period),
+            'billing_period' => $request->input('billing_period'),
         ]);
 
         $allocationId = $this->pterodactyl->getFreeAllocationId($node);

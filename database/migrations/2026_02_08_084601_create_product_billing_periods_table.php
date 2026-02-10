@@ -13,8 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->tinyInteger('default_billing_period')->after('default_billing_priority');
+        Schema::create('product_billing_periods', function (Blueprint $table) {
+            $table->id();
+            $table->foreignUuid('product_id')->constrained()->cascadeOnDelete();
+            $table->tinyInteger('billing_period');
+            $table->timestamps();
+
+            $table->unique(['product_id', 'billing_period']);
         });
 
         $periodMapping = [
@@ -31,9 +36,14 @@ return new class extends Migration
             $period = $periodMapping[$product->billing_period] ?? null;
             
             if ($period) {
-                DB::table('products')
-                    ->where('id', $product->id)
-                    ->update(['default_billing_period' => $period]);
+                DB::table('product_billing_periods')->insert(
+                    [
+                        'product_id' => $product->id,
+                        'billing_period' => $period,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                );
             }
         });
     }
@@ -43,8 +53,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('default_billing_period');
-        });
+        Schema::dropIfExists('product_billing_periods');
     }
 };

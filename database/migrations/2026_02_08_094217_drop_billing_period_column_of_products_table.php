@@ -37,12 +37,12 @@ return new class extends Migration
             BillingPeriod::ANNUALLY->value => 'annually',
         ];
 
-        DB::table('products')->select('id', 'default_billing_period')->get()->each(function ($product) use ($periodMapping) {
-            $period = $periodMapping[$product->default_billing_period] ?? null;
+        DB::table('product_billing_periods')->select('product_id', 'billing_period')->get()->each(function ($product) use ($periodMapping) {
+            $period = $periodMapping[$product->billing_period] ?? null;
             
             if ($period) {
                 DB::table('products')
-                    ->where('id', $product->id)
+                    ->where('id', $product->product_id)
                     ->update(['billing_period' => $period]);
             }
         });

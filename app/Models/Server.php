@@ -178,11 +178,6 @@ class Server extends Model
         return $this->billing_priority ?? $this->product->default_billing_priority;
     }
 
-    public function getBillingPeriodAttribute($value)
-    {
-        return $value ? $value : $this->product->default_billing_period;
-    }
-
     public function getHourlyPrice()
     {
         return match($this->billing_period) {

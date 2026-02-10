@@ -150,6 +150,7 @@ class ProductController extends Controller
             ->withCount(['servers' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             }])
+            ->with('billingPeriods')
             ->get();
 
         // Check if the product fits in at least one node

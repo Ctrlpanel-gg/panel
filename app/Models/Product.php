@@ -39,12 +39,12 @@ class Product extends Model
         'display_price',
         'display_minimum_credits',
         'default_billing_priority_label',
-        'default_billing_period_label',
+        //'default_billing_period_label',
     ];
 
     protected $casts = [
         'default_billing_priority' => BillingPriority::class,
-        'default_billing_period' => BillingPeriod::class,
+        //'default_billing_period' => BillingPeriod::class,
     ];
 
     public static function boot()
@@ -112,14 +112,22 @@ class Product extends Model
         return $this->default_billing_priority->label();
     }
 
-    public function getDefaultBillingPeriodLabelAttribute()
-    {
-        return $this->default_billing_period->label();
-    }
+    // public function getDefaultBillingPeriodLabelAttribute()
+    // {
+    //     return $this->default_billing_period->label();
+    // }
 
     public function getWeeklyPrice()
     {
         return $this->price / 4;
+    }
+
+    /**
+    * @return hasMany
+    */
+    public function billingPeriods()
+    {
+        return $this->hasMany(ProductBillingPeriod::class);
     }
 
     /**

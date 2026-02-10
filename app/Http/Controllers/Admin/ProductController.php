@@ -51,9 +51,11 @@ class ProductController extends Controller
     public function create(GeneralSettings $general_settings)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
+
         return view('admin.products.create', [
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
+            'billing_periods' => BillingPeriod::options(),
             'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
@@ -67,6 +69,7 @@ class ProductController extends Controller
             'credits_display_name' =>  $general_settings->credits_display_name,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
+            'billing_periods' => BillingPeriod::options(),
         ]);
     }
 
@@ -96,10 +99,10 @@ class ProductController extends Controller
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
-            'default_billing_period' => ['required', new Enum(BillingPeriod::class)],
-            'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
+            'default_billing_priority' => ['required', new Enum(BillingPriority::class)],
+            'billing_periods' => 'required|array',
+            'billing_periods.*' => ['required', new Enum(BillingPeriod::class)],
         ]);
-
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
@@ -108,6 +111,10 @@ class ProductController extends Controller
         //link nodes and eggs
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
+
+        $product->billingPeriods()->createMany(
+            collect($request->array('billing_periods', []))->map(fn($period) => ['billing_period' => $period])->toArray()
+        );
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been created!'));
     }
@@ -143,6 +150,7 @@ class ProductController extends Controller
             'product' => $product,
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
+            'billing_periods' => BillingPeriod::options(),
             'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
@@ -174,8 +182,10 @@ class ProductController extends Controller
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
-            'default_billing_period' => ['required', new Enum(BillingPeriod::class)],
-            'default_billing_priority' => ['required', new Enum(BillingPriority::class)]
+            // 'default_billing_period' => ['required', new Enum(BillingPeriod::class)],
+            'default_billing_priority' => ['required', new Enum(BillingPriority::class)],
+            'billing_periods' => 'required|array',
+            'billing_periods.*' => ['required', new Enum(BillingPeriod::class)],
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -187,6 +197,21 @@ class ProductController extends Controller
         $product->nodes()->detach();
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
+
+        // $billingPeriods = collect($request->array('billing_periods', []))->map(fn($period) => ['billing_period' => $period])->toArray();
+
+        $product->billingPeriods()
+            ->whereNotIn('billing_period', $request->array('billing_periods', []))
+            ->delete();
+
+        foreach ($request->array('billing_periods', []) as $period) {
+            $product->billingPeriods()->updateOrCreate(
+                ['product_id' => $product->id, 'billing_period' => $period],
+                ['billing_period' => $period]
+            );
+        }
+
+        // $product->billingPeriods()->createMany($billingPeriods);
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been updated!'));
     }
@@ -257,9 +282,6 @@ class ProductController extends Controller
             })
             ->addColumn('eggs', function (Product $product) {
                 return $product->eggs()->count();
-            })
-            ->addColumn('default_billing_period', function (Product $product) {
-                return $product->default_billing_period->label();
             })
             ->editColumn('disabled', function (Product $product) {
                 $checked = $product->disabled == false ? 'checked' : '';

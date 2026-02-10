@@ -71,21 +71,27 @@
 
                                 <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="default_billing_period">{{ __('Billing Period') }} <i
-                                                    data-toggle="popover" data-trigger="hover"
-                                                    data-content="{{ __('Period when the user will be charged for the given price') }}"
-                                                    class="fas fa-info-circle"></i></label>
-    
-                                            <select id="default_billing_period" style="width:100%" class="custom-select" name="default_billing_period" required autocomplete="off" @error('default_billing_period') is-invalid @enderror>
-                                                @foreach (App\Enums\BillingPeriod::options() as $value => $label)
-                                                    <option value="{{ $value }}" @selected($product->default_billing_period->value == $value)>{{ $label }}</option>
+                                        <div class="form-group">                                            
+                                            <label for="billing_periods">{{ __('Billing Period') }} <i
+													data-toggle="popover" data-trigger="hover"
+													data-content="{{ __('Period when the user will be charged for the given price') }}"
+													class="fas fa-info-circle"></i></label>
+                                            <select
+                                                id="billing_periods"
+                                                style="width:100%"
+                                                class="custom-select @error('billing_periods') is-invalid @enderror" name="billing_periods[]"
+                                                multiple="multiple" autocomplete="off"
+                                            >
+                                                @foreach ($billing_periods as $value => $label)
+                                                    <option value="{{ $value }}" @selected($product->billingPeriods->contains('billing_period', $value))>{{ $label }}</option>
                                                 @endforeach
                                             </select>
-                                            @error('default_billing_period')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
+                                            @error('billing_periods')
+												<div class="invalid-feedback">
+													{{ $message }}
+												</div>
+											@enderror
+										</div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">

@@ -152,7 +152,7 @@
                                   </template>
                                 </select>
                               </div>
-                              <div class="row">
+                              {{-- <div class="row">
 								<div class="col-md-6">
 									<div class="form-group">
                                         <label for="billing_period">
@@ -182,33 +182,33 @@
                                     </div>
 								</div>
 								<div class="col-md-6">
-									<div class="form-group">
-                                        <label for="billing_priority">
-                                            {{ __('Billing Priority') }}
-                                            <i
-                                                data-toggle="popover"
-                                                data-trigger="hover"
-                                                data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
-                                                class="fas fa-info-circle"></i>
-                                        </label>
-                                        <select
-                                            id="billing_priority"
-                                            style="width:100%"
-                                            class="custom-select @error('billing_priority') is-invalid @enderror"
-                                            name="billing_priority" autocomplete="off"
-                                        >
-                                            <option value="">
-                                                {{ __('None') }}
-                                            </option>
-                                            @foreach (App\Enums\BillingPriority::cases() as $priority)
-                                                <option value="{{ $priority->value }}" @selected(old('billing_priority') == $priority->value || $priority->value == App\Enums\BillingPriority::MEDIUM->value)>
-                                                    {{ $priority->label() }} - {{ $priority->description() }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-								</div>
-                              </div>
+                                </div>
+                            </div> --}}
+                            <div class="form-group">
+                                <label for="billing_priority">
+                                    {{ __('Billing Priority') }}
+                                    <i
+                                        data-toggle="popover"
+                                        data-trigger="hover"
+                                        data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
+                                        class="fas fa-info-circle"></i>
+                                </label>
+                                <select
+                                    id="billing_priority"
+                                    style="width:100%"
+                                    class="custom-select @error('billing_priority') is-invalid @enderror"
+                                    name="billing_priority" autocomplete="off"
+                                >
+                                    <option value="">
+                                        {{ __('None') }}
+                                    </option>
+                                    @foreach (App\Enums\BillingPriority::cases() as $priority)
+                                        <option value="{{ $priority->value }}" @selected(old('billing_priority') == $priority->value || $priority->value == App\Enums\BillingPriority::MEDIUM->value)>
+                                            {{ $priority->label() }} - {{ $priority->description() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
                               <template x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
                                 <div class="p-2 m-2 alert alert-danger">
@@ -285,12 +285,6 @@
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
-                                                    <span class="d-inline-block"><i class="fas fa-clock"></i>
-                                                        {{ __('Billing Period') }}</span>
-
-                                                    <span class="d-inline-block" x-text="product.default_billing_period_label"></span>
-                                                </li>
-                                                <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block">
                                                         <i class="fas fa-flag"></i>
                                                         {{ __('Billing Priority') }}
@@ -311,13 +305,34 @@
                                                 x-text="product.description"></p>
                                         </div>
                                     </div>
-                                    <div class="mt-auto border rounded border-secondary">
-                                        <div class="p-2 d-flex justify-content-between">
-                                            <span class="mr-4 d-inline-block"
-                                                x-text="'{{ __('Price') }}' + ' (' + product.default_billing_period_label + ')'">
-                                            </span>
-                                            <span class="d-inline-block"
-                                                x-text="product.display_price + ' {{ $credits_display_name }}'"></span>
+                                    <div class="mt-auto">
+                                        <div class="mb-2">
+                                            <label x-bind:for="'billing-period-' + product.id">{{ __('Billing Period') }}</label>
+                                            <select
+                                                x-bind:id="'billing-period-' + product.id"
+                                                class="custom-select @error('billing_priority') is-invalid @enderror" 
+                                                name="billing_period"
+                                                autocomplete="off"
+                                            >
+                                                <template x-for="period in product.billing_periods" :key="period.billing_period">
+                                                    <option
+                                                        x-bind:value="period.billing_period" 
+                                                        x-bind:data-period-label="period.per_period"
+                                                        x-bind:selected="product.billing_periods.length === 1"
+                                                    >
+                                                        <span x-text="period.period_label + ' - ' + period.period_description"></span>
+                                                    </option>
+                                                </template>
+                                            </select>
+                                        </div>
+                                        <div class="border rounded border-secondary">
+                                            <div class="p-2 d-flex justify-content-between">
+                                                <span class="mr-4 d-inline-block"
+                                                    x-text="'{{ __('Price') }}'">
+                                                </span>
+                                                <span class="d-inline-block"
+                                                    x-text="product.display_price + ' {{ $credits_display_name }}'"></span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div>
@@ -357,6 +372,7 @@
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="product" id="product" x-model="selectedProduct">
                 <input type="hidden" name="egg_variables" id="egg_variables">
+                <input type="hidden" name="billing_period" id="billing-period">
             </form>
             <!-- END FORM -->
 
@@ -437,6 +453,7 @@
                       this.dispatchModal(hasEmptyRequiredVariables);
                     } else {
                       document.getElementById('product').value = productId;
+                      document.getElementById('billing-period').value = document.getElementById('billing-period-' + productId).value;
                       document.getElementById('serverForm').submit();
                     }
                 },
@@ -503,6 +520,8 @@
                     this.locationDescription = this.locations.find(location => location.id == this.selectedLocation).description ?? null;
                     this.loading = false;
                     this.updateSelectedObjects()
+
+                    console.log(this.products);
                 },
 
 
