@@ -114,10 +114,6 @@ class ServerController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        logger($request->all());
-
-        sleep(3);
-
         $lockKey = 'server_create_lock_' . Auth::id();
         if (Cache::has($lockKey)) {
             return redirect()->route('servers.index')
