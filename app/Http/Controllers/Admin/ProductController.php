@@ -182,7 +182,6 @@ class ProductController extends Controller
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
-            // 'default_billing_period' => ['required', new Enum(BillingPeriod::class)],
             'default_billing_priority' => ['required', new Enum(BillingPriority::class)],
             'billing_periods' => 'required|array',
             'billing_periods.*' => ['required', new Enum(BillingPeriod::class)],
@@ -198,8 +197,6 @@ class ProductController extends Controller
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
 
-        // $billingPeriods = collect($request->array('billing_periods', []))->map(fn($period) => ['billing_period' => $period])->toArray();
-
         $product->billingPeriods()
             ->whereNotIn('billing_period', $request->array('billing_periods', []))
             ->delete();
@@ -210,8 +207,6 @@ class ProductController extends Controller
                 ['billing_period' => $period]
             );
         }
-
-        // $product->billingPeriods()->createMany($billingPeriods);
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been updated!'));
     }
