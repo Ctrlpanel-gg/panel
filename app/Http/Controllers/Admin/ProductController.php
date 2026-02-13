@@ -56,6 +56,7 @@ class ProductController extends Controller
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
             'billing_periods' => BillingPeriod::options(),
+            'billing_priorities' => BillingPriority::options(),
             'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
@@ -70,6 +71,7 @@ class ProductController extends Controller
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
             'billing_periods' => BillingPeriod::options(),
+            'billing_priorities' => BillingPriority::options(),
         ]);
     }
 
@@ -100,8 +102,9 @@ class ProductController extends Controller
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
             'default_billing_priority' => ['required', new Enum(BillingPriority::class)],
-            'billing_periods' => 'required|array',
-            'billing_periods.*' => ['required', new Enum(BillingPeriod::class)],
+            'billing_periods' => 'required|array|min:1',
+            'billing_periods.*.billing_period' => ['required', 'integer', new Enum(BillingPeriod::class)],
+            'billing_periods.*.price' => 'required|numeric|min:0',
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -113,7 +116,10 @@ class ProductController extends Controller
         $product->nodes()->attach($request->input('nodes'));
 
         $product->billingPeriods()->createMany(
-            collect($request->array('billing_periods', []))->map(fn($period) => ['billing_period' => $period])->toArray()
+            collect($request->array('billing_periods', []))->map(fn($period) => [
+                'billing_period' => $period['billing_period'],
+                'price' => $period['price']
+            ])->toArray()
         );
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been created!'));
@@ -151,6 +157,7 @@ class ProductController extends Controller
             'locations' => Location::with('nodes')->get(),
             'nests' => Nest::with('eggs')->get(),
             'billing_periods' => BillingPeriod::options(),
+            'billing_priorities' => BillingPriority::options(),
             'credits_display_name' => $general_settings->credits_display_name
         ]);
     }
@@ -162,7 +169,7 @@ class ProductController extends Controller
      * @param  Product  $product
      * @return RedirectResponse
      */
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(Request $request, Product $product)
     {
         $request->validate([
             'name' => 'required|max:30',
@@ -183,8 +190,9 @@ class ProductController extends Controller
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
             'default_billing_priority' => ['required', new Enum(BillingPriority::class)],
-            'billing_periods' => 'required|array',
-            'billing_periods.*' => ['required', new Enum(BillingPeriod::class)],
+            'billing_periods' => 'required|array|min:1',
+            'billing_periods.*.billing_period' => ['required', 'integer', new Enum(BillingPeriod::class)],
+            'billing_periods.*.price' => 'required|numeric|min:0',
         ]);
 
         $disabled = ! is_null($request->input('disabled'));
@@ -197,14 +205,16 @@ class ProductController extends Controller
         $product->eggs()->attach($request->input('eggs'));
         $product->nodes()->attach($request->input('nodes'));
 
+        $billingPeriods = collect($request->billing_periods)->pluck('billing_period')->toArray();
+
         $product->billingPeriods()
-            ->whereNotIn('billing_period', $request->array('billing_periods', []))
+            ->whereNotIn('billing_period', $billingPeriods)
             ->delete();
 
         foreach ($request->array('billing_periods', []) as $period) {
             $product->billingPeriods()->updateOrCreate(
-                ['product_id' => $product->id, 'billing_period' => $period],
-                ['billing_period' => $period]
+                ['product_id' => $product->id, 'billing_period' => $period['billing_period']],
+                ['billing_period' => $period['billing_period'], 'price' => $period['price']]
             );
         }
 

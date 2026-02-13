@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use App\Enums\BillingPeriod;
+use App\Facades\Currency;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class ProductBillingPeriod extends Model
 {
     protected $fillable = [
         'product_id',
         'billing_period',
+        'price'
     ];
 
     protected $casts = [
@@ -21,6 +24,19 @@ class ProductBillingPeriod extends Model
         'per_period',
         'period_description',
     ];
+
+    /**
+     * Set the price to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function price(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => Currency::formatForForm($value),
+            set: fn ($value) => Currency::prepareForDatabase($value)
+        );
+    }
 
     /**
      * @return belongsTo

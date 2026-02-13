@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignUuid('product_id')->constrained()->cascadeOnDelete();
             $table->tinyInteger('billing_period');
+            $table->bigInteger('price')->default(0);
             $table->timestamps();
 
             $table->unique(['product_id', 'billing_period']);
@@ -32,7 +33,7 @@ return new class extends Migration
             'annually' => BillingPeriod::ANNUALLY->value,
         ];
 
-        DB::table('products')->select('id', 'billing_period')->get()->each(function ($product) use($periodMapping) {
+        DB::table('products')->select('id', 'billing_period', 'price')->get()->each(function ($product) use($periodMapping) {
             $period = $periodMapping[$product->billing_period] ?? null;
             
             if ($period) {
@@ -40,6 +41,7 @@ return new class extends Migration
                     [
                         'product_id' => $product->id,
                         'billing_period' => $period,
+                        'price' => $product->price,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]
