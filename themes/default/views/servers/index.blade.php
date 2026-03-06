@@ -1,7 +1,6 @@
 @extends('layouts.main')
 
 @section('content')
-    <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
             <div class="mb-2 row">
@@ -19,13 +18,9 @@
             </div>
         </div>
     </section>
-    <!-- END CONTENT HEADER -->
-
-    <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
 
-            <!-- CUSTOM CONTENT -->
             <div class="mb-3 d-flex justify-content-md-start justify-content-center ">
                 <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled="disabled" title="Server limit reached!" @endif
                    @cannot("user.server.create") disabled="disabled" title="No Permission!" @endcannot
@@ -177,7 +172,7 @@
                                             <i data-toggle="popover" data-trigger="hover"
                                                data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . Currency::formatForDisplay($server->product->getMonthlyPrice()) . " ". $credits_display_name . " ". __('per Month')}}"
                                                class="fas fa-info-circle"></i>
-                                            </div>
+                                        </div>
                                         <span>
                                             {{ $server->product->display_price }}
                                         </span>
@@ -194,16 +189,26 @@
                                 <i class="mx-2 fas fa-tools"></i>
                             </a>
                             <a href="{{ route('servers.show', ['server' => $server->id])}}"
-                            	class="mr-3 text-center btn btn-info"
-                            	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
+                                class="mr-3 text-center btn btn-info"
+                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
                                 <i class="mx-2 fas fa-cog"></i>
                             </a>
-                            <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
-                                class="text-center btn btn-warning"
-                                {{ $server->suspended || $server->canceled ? "disabled" : "" }}
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
-                                <i class="mx-2 fas fa-ban"></i>
-                            </button>
+                            
+                            @if ($server->canceled)
+                                <button onclick="handleServerUncancel('{{ $server->id }}');" target="__blank"
+                                    class="text-center btn btn-success"
+                                    data-toggle="tooltip" data-placement="bottom" title="{{ __('Restore Server') }}">
+                                    <i class="mx-2 fas fa-check"></i>
+                                </button>
+                            @else
+                                <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
+                                    class="text-center btn btn-warning"
+                                    {{ $server->suspended ? "disabled" : "" }}
+                                    data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
+                                    <i class="mx-2 fas fa-ban"></i>
+                                </button>
+                            @endif
+
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
                                 class="float-right mr-2 text-center btn btn-danger"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
@@ -214,11 +219,8 @@
                  @endif
                 @endforeach
             </div>
-            <!-- END CUSTOM CONTENT -->
         </div>
     </section>
-    <!-- END CONTENT -->
-
     <script>
         const handleServerCancel = (serverId) => {
             // Handle server cancel with sweetalert
@@ -235,6 +237,39 @@
                 if (result.value) {
                     // Delete server
                     fetch("{{ route('servers.cancel', '') }}" + '/' + serverId, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    }).then(() => {
+                        window.location.reload();
+                    }).catch((error) => {
+                        Swal.fire({
+                            title: "{{ __('Error') }}",
+                            text: "{{ __('Something went wrong, please try again later.') }}",
+                            icon: 'error',
+                            confirmButtonColor: '#d9534f',
+                        })
+                    })
+                    return
+                }
+            })
+        }
+
+        const handleServerUncancel = (serverId) => {
+            // Handle server uncancel with sweetalert
+            Swal.fire({
+                title: "{{ __('Restore Server?') }}",
+                text: "{{ __('This will restore your server and cancel the cancellation. Your server will no longer be suspended at the end of the billing period.') }}",
+                icon: 'info',
+                confirmButtonColor: '#28a745',
+                showCancelButton: true,
+                confirmButtonText: "{{ __('Yes, restore it!') }}",
+                cancelButtonText: "{{ __('No, abort!') }}",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    fetch("{{ route('servers.uncancel', '') }}" + '/' + serverId, {
                         method: 'PATCH',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
