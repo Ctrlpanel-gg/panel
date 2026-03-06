@@ -199,10 +199,15 @@
                                 <i class="mx-2 fas fa-cog"></i>
                             </a>
                             
-                            @if ($server->canceled)
+                            @if ($server->canceled && !$server->suspended)
                                 <button onclick="handleServerUncancel('{{ $server->id }}');" target="__blank"
                                     class="text-center btn btn-success"
                                     data-toggle="tooltip" data-placement="bottom" title="{{ __('Restore Server') }}">
+                                    <i class="mx-2 fas fa-check"></i>
+                                </button>
+                            @elseif ($server->canceled && $server->suspended)
+                                <button class="text-center btn btn-success" disabled
+                                    data-toggle="tooltip" data-placement="bottom" title="{{ __('Server is suspended and cannot be fully restored.') }}">
                                     <i class="mx-2 fas fa-check"></i>
                                 </button>
                             @else
