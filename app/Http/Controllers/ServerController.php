@@ -388,6 +388,22 @@ class ServerController extends Controller
         }
     }
 
+    public function uncancel(Server $server): RedirectResponse
+    {
+        if ($server->user_id !== Auth::id()) {
+            return back()->with('error', __('This is not your Server!'));
+        }
+
+        try {
+            $server->update(['canceled' => null]);
+            return redirect()->route('servers.index')
+                ->with('success', __('Server cancellation has been revoked'));
+        } catch (Exception $e) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server cancellation revoke failed: ') . $e->getMessage());
+        }
+    }
+
     public function show(Server $server): \Illuminate\View\View
     {
         if ($server->user_id !== Auth::id()) {
