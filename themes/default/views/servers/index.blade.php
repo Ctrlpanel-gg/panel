@@ -1,6 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
+    <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
             <div class="mb-2 row">
@@ -18,9 +19,13 @@
             </div>
         </div>
     </section>
+    <!-- END CONTENT HEADER -->
+
+    <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
 
+            <!-- CUSTOM CONTENT -->
             <div class="mb-3 d-flex justify-content-md-start justify-content-center ">
                 <a @if (Auth::user()->Servers->count() >= Auth::user()->server_limit) disabled="disabled" title="Server limit reached!" @endif
                    @cannot("user.server.create") disabled="disabled" title="No Permission!" @endcannot
@@ -219,8 +224,11 @@
                  @endif
                 @endforeach
             </div>
+            <!-- END CUSTOM CONTENT -->
         </div>
     </section>
+    <!-- END CONTENT -->
+     
     <script>
         const handleServerCancel = (serverId) => {
             // Handle server cancel with sweetalert
