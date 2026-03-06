@@ -287,7 +287,10 @@
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
-                    }).then(() => {
+                    }).then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Failed to restore server');
+                        }
                         window.location.reload();
                     }).catch((error) => {
                         Swal.fire({
