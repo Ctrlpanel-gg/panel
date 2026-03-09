@@ -6,14 +6,14 @@
         <div class="container-fluid">
             <div class="mb-2 row">
                 <div class="col-sm-6">
-                    <h1>{{__('Products')}}</h1>
+                    <h1>{{ __('Products') }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{__('Dashboard')}}</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">{{__('Products')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">{{ __('Products') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                href="{{ route('admin.products.show', $product->id) }}">{{__('Show')}}</a>
+                                href="{{ route('admin.products.show', $product->id) }}">{{ __('Show') }}</a>
                         </li>
                     </ol>
                 </div>
@@ -28,7 +28,7 @@
 
             <div class="card">
                 <div class="card-header d-flex justify-content-between">
-                    <h5 class="card-title"><i class="mr-2 fas fa-sliders-h"></i>{{__('Product')}}</h5>
+                    <h5 class="card-title"><i class="mr-2 fas fa-sliders-h"></i>{{ __('Product') }}</h5>
                     <div class="ml-auto">
                         <a data-content="Edit" data-trigger="hover" data-toggle="tooltip"
                             href="{{ route('admin.products.edit', $product->id) }}" class="mr-1 btn btn-sm btn-info"><i
@@ -48,7 +48,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('ID')}}</label>
+                                    <label>{{ __('ID') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -61,7 +61,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Name')}}</label>
+                                    <label>{{ __('Name') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -74,7 +74,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Price')}}</label>
+                                    <label>{{ __('Price') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -87,11 +87,12 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Minimum')}} {{ $credits_display_name }}</label>
+                                    <label>{{ __('Minimum') }} {{ $credits_display_name }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="mr-1 fas fa-coins"></i>{{ !$product->minimum_credits ? Currency::formatForDisplay($minimum_credits) : $product->display_minimum_credits }}
+                                        <i
+                                            class="mr-1 fas fa-coins"></i>{{ !$product->minimum_credits ? Currency::formatForDisplay($minimum_credits) : $product->display_minimum_credits }}
                                     </span>
                                 </div>
                             </div>
@@ -101,11 +102,11 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Memory')}}</label>
+                                    <label>{{ __('Memory') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $product->memory }}
+                                        {{ $product->memory == 0 ? '∞' : $product->memory }}
                                     </span>
                                 </div>
                             </div>
@@ -114,11 +115,11 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('CPU')}}</label>
+                                    <label>{{ __('CPU') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $product->cpu }}
+                                        {{ $product->cpu == 0 ? '∞' : $product->cpu }}
                                     </span>
                                 </div>
                             </div>
@@ -127,11 +128,11 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Swap')}}</label>
+                                    <label>{{ __('Swap') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $product->swap }}
+                                        {{ $product->swap == -1 ? '∞' : $product->swap }}
                                     </span>
                                 </div>
                             </div>
@@ -140,11 +141,11 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Disk')}}</label>
+                                    <label>{{ __('Disk') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $product->disk }}
+                                        {{ $product->disk == 0 ? '∞' : $product->disk }}
                                     </span>
                                 </div>
                             </div>
@@ -153,7 +154,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('IO')}}</label>
+                                    <label>{{ __('IO') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -166,7 +167,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Databases')}}</label>
+                                    <label>{{ __('Databases') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -179,7 +180,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Allocations')}}</label>
+                                    <label>{{ __('Allocations') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -192,7 +193,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Created at')}}</label>
+                                    <label>{{ __('Created at') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -206,7 +207,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Description')}}</label>
+                                    <label>{{ __('Description') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span class="d-block text-truncate">
@@ -220,7 +221,7 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
-                                    <label>{{__('Updated at')}}</label>
+                                    <label>{{ __('Updated at') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
@@ -236,11 +237,11 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title"><i class="mr-2 fas fa-server"></i>{{__('Servers')}}</h5>
+                    <h5 class="card-title"><i class="mr-2 fas fa-server"></i>{{ __('Servers') }}</h5>
                 </div>
                 <div class="card-body table-responsive">
 
-                    @include('admin.servers.table' , ['filter' => '?product=' . $product->id])
+                    @include('admin.servers.table', ['filter' => '?product=' . $product->id])
 
                 </div>
             </div>
@@ -251,7 +252,4 @@
         </div>
     </section>
     <!-- END CONTENT -->
-
-
-
 @endsection

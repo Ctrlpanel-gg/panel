@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Facades\Currency;
 use App\Models\User;
 use App\Settings\GeneralSettings;
 use App\Settings\UserSettings;
@@ -40,8 +41,8 @@ class WelcomeMessage extends Notification implements ShouldQueue
 
         $this->user = $user;
         $this->credits_display_name = $general_settings->credits_display_name;
-        $this->credits_reward_after_verify_discord = $user_settings->credits_reward_after_verify_discord;
-        $this->credits_reward_after_verify_email = $user_settings->credits_reward_after_verify_email;
+        $this->credits_reward_after_verify_discord = Currency::formatForDisplay($user_settings->credits_reward_after_verify_discord);
+        $this->credits_reward_after_verify_email = Currency::formatForDisplay($user_settings->credits_reward_after_verify_email);
         $this->server_limit_increment_after_verify_discord = $user_settings->server_limit_increment_after_verify_discord;
         $this->server_limit_increment_after_verify_email = $user_settings->server_limit_increment_after_verify_email;
     }

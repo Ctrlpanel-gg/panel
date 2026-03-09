@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use App\Settings\CouponSettings;
 use App\Models\Coupon as CouponModel;
 use App\Models\ShopProduct;
 use App\Models\User;
@@ -15,7 +14,6 @@ trait Coupon
     {
         $coupon = CouponModel::where('code', $couponCode)->first();
         $shopProduct = ShopProduct::findOrFail($productId);
-        $coupon_settings = new CouponSettings;
         $response = response()->json([
             'isValid' => false,
             'error' => __('This coupon does not exist.')
@@ -40,7 +38,7 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->isMaxUsesReached($requestUser, $coupon_settings)) {
+            if ($coupon->isMaxUsesReached($requestUser)) {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('You have reached the maximum uses of this coupon.')

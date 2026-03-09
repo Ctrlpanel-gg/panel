@@ -56,6 +56,7 @@ class Server extends Model
         "name",
         "description",
         "suspended",
+        "suspension_warning_sent_at",
         "identifier",
         "billing_priority",
         "product_id",
@@ -147,6 +148,7 @@ class Server extends Model
             $this->update([
                 'suspended' => null,
                 'last_billed' => Carbon::now()->toDateTimeString(),
+                'suspension_warning_sent_at' => null,
             ]);
         }
 

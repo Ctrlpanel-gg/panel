@@ -65,9 +65,16 @@ class AppServiceProvider extends ServiceProvider
 
         CallHomeHelper::callHomeOnce();
 
-        //get the Github Branch the panel is running on
+        // get the Github Branch the panel is running on
+        $headFileMissing = false;
         try {
-            $stringfromfile = file(base_path() . '/.git/HEAD');
+            $headFilePath = base_path() . '/.git/HEAD';
+            if (!file_exists($headFilePath)) {
+                $headFileMissing = true;
+                throw new Exception('.git/HEAD file not found');
+            }
+
+            $stringfromfile = file($headFilePath);
 
             $firstLine = $stringfromfile[0]; //get the string from the array
 
@@ -79,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
             Log::notice($e);
         }
         config(['BRANCHNAME' => $branchname]);
+        view()->share('headFileMissing', $headFileMissing);
 
         // Do not run this code if no APP_KEY is set
         if (config('app.key') == null) return;
