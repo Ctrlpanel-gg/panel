@@ -310,8 +310,23 @@ class ProductController extends Controller
     private function getSwapValidator(): callable
     {
         return function ($attribute, $value, $fail) {
-            if ($value != -1 && $value != 0 && (!ctype_digit((string) $value) || strlen((string) $value) > 100)) {
-                $fail(__('Swap must be -1 for unlimited, 0 for disabled, or a positive integer with at most 100 digits.'));
+            // valid values: -1 (unlimited), 0 (disabled), or a positive integer within column range
+            if ($value === null) {
+                return;
+            }
+
+            if ($value == -1 || $value == 0) {
+                return;
+            }
+
+            if (!ctype_digit((string) $value)) {
+                $fail(__('Swap must be -1 for unlimited, 0 for disabled, or a positive integer.'));
+                return;
+            }
+
+            $int = (int) $value;
+            if ($int < 1 || $int > 1000000) {
+                $fail(__('Swap must be -1 for unlimited, 0 for disabled, or a positive integer up to :max.', ['max' => 1000000]));
             }
         };
     }

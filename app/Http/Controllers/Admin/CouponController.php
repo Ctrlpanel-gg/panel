@@ -170,13 +170,16 @@ class CouponController extends Controller
         $random_codes_amount = $request->input('range_codes');
         $rules = [
             "type" => "required|string|in:percentage,amount",
-               // Set to -1 for unlimited uses globally, or a positive integer with at most 100 digits.
+               // Set to -1 for unlimited uses globally, or a positive integer within DB range.
                "max_uses" => [
                    'required',
                    'integer',
                    function ($attribute, $value, $fail) {
-                       if ($value != -1 && ($value <= 0 || strlen((string) $value) > 100)) {
-                           $fail(__('Max uses must be -1 for unlimited or a positive integer with at most 100 digits.'));
+                       if ($value === -1) {
+                           return;
+                       }
+                       if ($value <= 0 || $value > 2147483647) {
+                           $fail(__('Max uses must be -1 for unlimited or a positive integer up to :max.', ['max' => 2147483647]));
                        }
                    }
                ],
@@ -185,8 +188,11 @@ class CouponController extends Controller
                    'nullable',
                    'integer',
                    function ($attribute, $value, $fail) {
-                       if (!is_null($value) && $value != -1 && ($value <= 0 || strlen((string) $value) > 100)) {
-                           $fail(__('Max uses per user must be -1 for unlimited, or a positive integer with at most 100 digits.'));
+                       if (is_null($value) || $value === -1) {
+                           return;
+                       }
+                       if ($value <= 0 || $value > 2147483647) {
+                           $fail(__('Max uses per user must be -1 for unlimited, or a positive integer up to :max.', ['max' => 2147483647]));
                        }
                    }
                ],

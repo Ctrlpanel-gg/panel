@@ -40,7 +40,8 @@ class ServerSuspensionWarningNotification extends Notification
         $serverList = $sortedServers->map(function ($serverData) {
             $server = $serverData['server'];
 
-            return '• ' . $server->name . ' (will be suspended on ' . $serverData['suspension_date']->format('M j, Y \a\t g:i A') . ')';
+            // escape name to prevent XSS
+            return '• ' . e($server->name) . ' (will be suspended on ' . $serverData['suspension_date']->format('M j, Y \a\t g:i A') . ')';
         })->implode("\n");
 
         $currencyHelper = app(CurrencyHelper::class);
@@ -51,7 +52,7 @@ class ServerSuspensionWarningNotification extends Notification
 
         return (new MailMessage)
             ->subject('Server Suspension Warning - Action Required')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello ' . e($notifiable->name) . ',')
             ->line('Your server(s) are scheduled for suspension due to insufficient credits:')
             ->line($serverList)
             ->line('Credit Status:')
@@ -82,7 +83,7 @@ class ServerSuspensionWarningNotification extends Notification
                 $priorityText = ' <strong>(Highest priority - suspended last)</strong>';
             }
 
-            return '<li>' . $server->name . ' (will be suspended on ' . $serverData['suspension_date']->format('M j, Y \a\t g:i A') . ')' . $priorityText . '</li>';
+            return '<li>' . e($server->name) . ' (will be suspended on ' . $serverData['suspension_date']->format('M j, Y \a\t g:i A') . ')' . $priorityText . '</li>';
         })->implode('');
 
         $currencyHelper = app(CurrencyHelper::class);
@@ -94,7 +95,7 @@ class ServerSuspensionWarningNotification extends Notification
         return [
             'title' => 'Server Suspension Warning - Action Required',
             'content' => '
-                <p><strong>Hello ' . $notifiable->name . ',</strong></p>
+                <p><strong>Hello ' . e($notifiable->name) . ',</strong></p>
                 <p>Your server(s) are scheduled for suspension due to insufficient credits:</p>
                 <ul>' . $serverList . '</ul>
                 <div style="border: 1px solid #dee2e6; padding: 12px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #ffc107;">
