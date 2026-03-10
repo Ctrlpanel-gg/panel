@@ -59,7 +59,7 @@
                                         class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
                                 {{ __('Due to system settings you are required to verify your discord account!') }} <br>
-                                {{ __('It looks like this hasnt been set-up correctly! Please contact support.') }}'
+                                {{ __('It looks like this hasnt been set-up correctly! Please contact support.') }}
                             </div>
                         @endif
                     @endif
