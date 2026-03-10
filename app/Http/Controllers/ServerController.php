@@ -186,12 +186,11 @@ class ServerController extends Controller
             return __('You can not create any more Servers with this product!');
         }
 
-        // Determine effective minimum credits: if minimum_credits is not set, use product price.
-        if (is_null($product->minimum_credits)) {
-            $minCredits = $product->price;
-        } else {
-            $minCredits = $product->minimum_credits;
-        }
+        // Determine effective minimum credits; fallback to price when the stored
+        // value is missing or nonsensical (e.g. a legacy -1 entry).
+        $minCredits = ($product->minimum_credits === null || $product->minimum_credits < $product->price)
+            ? $product->price
+            : $product->minimum_credits;
 
         if ($user->credits < $minCredits) {
             return __('You do not have the required amount of :credits to use this product!', [

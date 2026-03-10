@@ -41,7 +41,8 @@ class ProductResource extends JsonResource
             'default_billing_priority' => $this->default_billing_priority,
             'disabled' => $this->disabled,
             'minimum_credits' => $this->currencyHelper->convertForDisplay(
-                is_null($this->minimum_credits) || $this->minimum_credits === -1
+                // if the stored value is null or below price (e.g. legacy -1), use price
+                (is_null($this->minimum_credits) || $this->minimum_credits < $this->price)
                     ? $this->price
                     : $this->minimum_credits
             ),

@@ -14,19 +14,20 @@ return new class extends Migration
     {
         // Add a backup column so this data migration is reversible.
         Schema::table('products', function (Blueprint $table) {
-            $table->integer('minimum_credits_old')->nullable()->after('minimum_credits');
+            // use bigInteger to mirror the original column type (credits are stored
+            // in thousandths and easily exceed a 32‑bit range)
+            $table->bigInteger('minimum_credits_old')->nullable()->after('minimum_credits');
         });
 
         // Copy existing values into the backup column
         DB::table('products')->update(['minimum_credits_old' => DB::raw('minimum_credits')]);
 
-        // If minimum_credits is less than price, equals -1 (legacy default), or is NULL
-        // then set it to price.  NULL represents the "use product price" behaviour so we
-        // normalise those rows here as well.  Using a single query avoids running two
-        // separate updates on the same rows.
+        // Any row where the stored value is below the product price (NULL or
+        // a legacy sentinel) should be normalised to the price.  this covers
+        // both NULLs and any negative / invalid numbers without explicitly
+        // referencing "-1".
         DB::table('products')->where(function ($query) {
             $query->whereColumn('minimum_credits', '<', 'price')
-                  ->orWhere('minimum_credits', -1)
                   ->orWhereNull('minimum_credits');
         })->update(['minimum_credits' => DB::raw('price')]);
     }

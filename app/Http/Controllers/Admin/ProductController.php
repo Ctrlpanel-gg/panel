@@ -275,7 +275,10 @@ class ProductController extends Controller
                 return $currencyHelper->formatForDisplay($product->price);
             })
             ->editColumn('minimum_credits', function (Product $product, CurrencyHelper $currencyHelper) {
-                $value = $product->minimum_credits ?? $product->price;
+                // use price if stored value is null or less than price (covers legacy -1)
+                $value = (is_null($product->minimum_credits) || $product->minimum_credits < $product->price)
+                    ? $product->price
+                    : $product->minimum_credits;
                 return $currencyHelper->formatForDisplay($value);
             })
             ->editColumn('serverlimit', function (Product $product) {

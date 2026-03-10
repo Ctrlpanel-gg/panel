@@ -101,7 +101,10 @@ class ServerCreationService
         }
 
         // Check if user has enough credits to create the server.
-        $minCredits = is_null($product->minimum_credits) ? $product->price : $product->minimum_credits;
+        // if the column is null or smaller than price, treat price as minimum
+        $minCredits = ($product->minimum_credits === null || $product->minimum_credits < $product->price)
+            ? $product->price
+            : $product->minimum_credits;
 
         if ($user->credits < $minCredits) {
             throw new \Exception(

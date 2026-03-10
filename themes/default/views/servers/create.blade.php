@@ -474,8 +474,12 @@
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
                         product.cpu = product.cpu / 100;
-                        // Determine effective minimum credits: if minimum_credits is null, use product price.
-                        product.effective_minimum = product.minimum_credits === null ? parseFloat(product.price) : parseFloat(product.minimum_credits);
+                        // Determine effective minimum credits: fallback to price when stored value
+                        // is missing or less than price. legacy -1 rows are covered by the comparison.
+                        let minVal = parseFloat(product.minimum_credits);
+                        product.effective_minimum = (product.minimum_credits === null || minVal < parseFloat(product.price))
+                            ? parseFloat(product.price)
+                            : minVal;
                     })
 
                     this.locationDescription = this.locations.find(location => location.id == this.selectedLocation)
