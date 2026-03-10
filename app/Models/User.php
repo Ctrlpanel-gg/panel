@@ -129,6 +129,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->discordUser()->delete();
 
+            $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();
+            foreach ($referralRecords as $ref) {
+                DB::table('user_referrals')
+                    ->where('referral_id', $ref->referral_id)
+                    ->where('registered_user_id', $ref->registered_user_id)
+                    ->update([
+                        'deleted_at' => now(),
+                        'deleted_username' => $user->name,
+                        'deleted_user_id' => $user->id,
+                    ]);
+            }
+
             $user->pterodactyl->application->delete("/application/users/{$user->pterodactyl_id}");
         });
     }
@@ -330,11 +342,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $referee = DB::table('user_referrals')->where("registered_user_id", $this->id)->first();
 
-        if ($referee) {
-            $referee = User::where("id", $referee->referral_id)->firstOrFail();
-            return $referee;
+        if ($referee && $referee->referral_id) {
+            return User::find($referee->referral_id);
         }
-        
+
         return null;
     }
 

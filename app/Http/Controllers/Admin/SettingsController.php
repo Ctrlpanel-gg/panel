@@ -149,7 +149,7 @@ class SettingsController extends Controller
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
 
-            if ($rpType == 'bool') {
+            if ($rpType && $rpType->getName() === 'bool') {
                 $settingsClass->$key = $request->has($key);
                 continue;
             }
@@ -158,9 +158,27 @@ class SettingsController extends Controller
                 continue;
             }
 
-            $nullable = $rpType->allowsNull();
-            if ($nullable) $settingsClass->$key = $request->input($key) ?? null;
-            else $settingsClass->$key = $request->input($key);
+            $inputValue = $request->input($key);
+
+            // User/referral currency values are stored in thousandths.
+            $currencyKeys = [
+                'reward',
+                'credits_reward_after_verify_discord',
+                'credits_reward_after_verify_email',
+                'initial_credits',
+                'min_credits_to_make_server',
+            ];
+
+            if (in_array($key, $currencyKeys, true) && !is_null($inputValue) && $inputValue !== '') {
+                $inputValue = Currency::prepareForDatabase($inputValue);
+            }
+
+            $nullable = $rpType ? $rpType->allowsNull() : true;
+            if ($nullable) {
+                $settingsClass->$key = $inputValue ?? null;
+            } else {
+                $settingsClass->$key = $inputValue;
+            }
         }
         $settingsClass->save();
 

@@ -42,9 +42,13 @@ class CouponUsed
         }
 
         if ($this->delete_coupon_on_uses_reached) {
-            if ($event->coupon->uses >= $event->coupon->max_uses) {
+            if ($event->coupon->max_uses !== -1 && $event->coupon->uses >= $event->coupon->max_uses) {
                 $event->coupon->delete();
             }
+        }
+
+        if ($event->user) {
+            $event->coupon->users()->syncWithoutDetaching([$event->user->id]);
         }
     }
 

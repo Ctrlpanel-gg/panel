@@ -34,6 +34,7 @@ class Coupon extends Model
         'value',
         'uses',
         'max_uses',
+        'max_uses_per_user',
         'expires_at'
     ];
 
@@ -44,6 +45,7 @@ class Coupon extends Model
         'value' => 'float',
         'uses' => 'integer',
         'max_uses' => 'integer',
+        'max_uses_per_user' => 'integer',
         'expires_at' => 'timestamp'
     ];
 
@@ -76,7 +78,7 @@ class Coupon extends Model
      */
     public function getStatus()
     {
-        if ($this->uses >= $this->max_uses) {
+        if ($this->max_uses !== -1 && $this->uses >= $this->max_uses) {
             return 'USES_LIMIT_REACHED';
         }
 
@@ -100,8 +102,13 @@ class Coupon extends Model
     {
         $coupon_settings = new CouponSettings;
         $coupon_uses = $user->coupons()->where('id', $this->id)->count();
+        $maxUsesPerUser = $this->max_uses_per_user ?? $coupon_settings->max_uses_per_user;
 
-        return $coupon_uses >= $coupon_settings->max_uses_per_user;
+        if ($maxUsesPerUser === -1) {
+            return false;
+        }
+
+        return $coupon_uses >= $maxUsesPerUser;
     }
 
     /**

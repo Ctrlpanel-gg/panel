@@ -2,7 +2,6 @@
 
 namespace App\Settings;
 
-use App\Casts\Settings\CurrencyCast;
 use Spatie\LaravelSettings\Settings;
 
 class UserSettings extends Settings
@@ -23,21 +22,6 @@ class UserSettings extends Settings
     public static function group(): string
     {
         return 'user';
-    }
-
-    /**
-     * Casts the settings to the correct type.
-     *
-     * @return array<string, CurrencyCast>
-     */
-    public static function casts(): array
-    {
-        return [
-            'credits_reward_after_verify_discord' => CurrencyCast::class,
-            'credits_reward_after_verify_email' => CurrencyCast::class,
-            'initial_credits' => CurrencyCast::class,
-            'min_credits_to_make_server' => CurrencyCast::class,
-        ];
     }
 
     /**

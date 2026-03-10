@@ -77,6 +77,7 @@ class CouponController extends Controller
                     'type' => $request->input('type'),
                     'value' => $request->input('value'),
                     'max_uses' => $request->input('max_uses'),
+                       'max_uses_per_user' => $this->normalizeMaxUsesPerUser($request),
                     'expires_at' => $request->input('expires_at'),
                     'created_at' => Carbon::now(), // Does not fill in by itself when using the 'insert' method.
                     'updated_at' => Carbon::now()
@@ -84,7 +85,9 @@ class CouponController extends Controller
             }
             Coupon::insert($data);
         } else {
-            Coupon::create($request->except('_token'));
+                $data = $request->except('_token');
+                $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
+                Coupon::create($data);
         }
 
         return redirect()->route('admin.coupons.index')->with('success', __("The coupon's was registered successfully."));
@@ -140,7 +143,9 @@ class CouponController extends Controller
         }
 
         $request->validate($rules);
-        $coupon->update($request->except('_token'));
+            $data = $request->except('_token');
+            $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
+            $coupon->update($data);
 
         return redirect()->route('admin.coupons.index')->with('success', __('coupon has been updated!'));
     }
@@ -165,7 +170,32 @@ class CouponController extends Controller
         $random_codes_amount = $request->input('range_codes');
         $rules = [
             "type" => "required|string|in:percentage,amount",
-            "max_uses" => "required|integer|digits_between:1,100",
+               // Set to -1 for unlimited uses globally, or a positive integer within DB range.
+               "max_uses" => [
+               'required',
+               'integer',
+               function ($attribute, $value, $fail) {
+                   if ((int)$value === -1) {
+                   return;
+                   }
+                   if ((int)$value <= 0 || (int)$value > 2147483647) {
+                   $fail(__('Max uses must be -1 for unlimited or a positive integer up to :max.', ['max' => 2147483647]));
+                   }
+               }
+               ],
+               // Set to -1 for unlimited per user. Empty falls back to coupon settings.
+               "max_uses_per_user" => [
+               'nullable',
+               'integer',
+               function ($attribute, $value, $fail) {
+                   if ((int)$value === -1 || is_null($value)) {
+                   return;
+                   }
+                   if ((int)$value <= 0 || (int)$value > 2147483647) {
+                   $fail(__('Max uses per user must be -1 for unlimited, or a positive integer up to :max.', ['max' => 2147483647]));
+                   }
+               }
+               ],
             "value" => "required|numeric|between:0,100",
             "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())
         ];
@@ -179,6 +209,21 @@ class CouponController extends Controller
         return $rules;
     }
 
+    /**
+     * Normalize optional per-user max uses input.
+     * Empty input means fallback to global coupon settings.
+     */
+    private function normalizeMaxUsesPerUser(Request $request): ?int
+    {
+        $value = $request->input('max_uses_per_user');
+
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return (int) $value;
+    }
+
     public function redeem(Request $request)
     {
         return $this->validateCoupon($request->user(), $request->input('couponCode'), $request->input('productId'));
@@ -189,7 +234,7 @@ class CouponController extends Controller
         $query = Coupon::selectRaw('
             coupons.*,
             CASE
-                WHEN coupons.uses >= coupons.max_uses THEN "USES_LIMIT_REACHED"
+                   WHEN coupons.max_uses != -1 AND coupons.uses >= coupons.max_uses THEN "USES_LIMIT_REACHED"
                 WHEN coupons.expires_at IS NOT NULL AND coupons.expires_at < NOW() THEN "EXPIRED"
                 ELSE "VALID"
             END as derived_status
@@ -214,7 +259,9 @@ class CouponController extends Controller
                 return '<span class="badge badge-'.$color.'">'.$status.'</span>';
             })
             ->editColumn('uses', function (Coupon $coupon) {
-                return "{$coupon->uses} / {$coupon->max_uses}";
+                 $maxUses = $coupon->max_uses == -1 ? '∞' : $coupon->max_uses;
+
+                 return "{$coupon->uses} / {$maxUses}";
             })
             ->editColumn('value', function (Coupon $coupon, CurrencyHelper $currencyHelper) {
                 if ($coupon->type === 'percentage') {

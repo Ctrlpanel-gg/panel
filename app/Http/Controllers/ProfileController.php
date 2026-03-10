@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Currency;
 use App\Models\User;
 use App\Settings\UserSettings;
 use App\Settings\PterodactylSettings;
@@ -29,6 +30,7 @@ class ProfileController extends Controller
 
         return view('profile.index')->with([
             'user' => Auth::user(),
+            // raw numeric value for logical checks; formatting occurs in blades when needed
             'credits_reward_after_verify_discord' => $user_settings->credits_reward_after_verify_discord,
             'force_email_verification' => $user_settings->force_email_verification,
             'force_discord_verification' => $user_settings->force_discord_verification,

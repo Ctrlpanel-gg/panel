@@ -1,4 +1,3 @@
-app/Http/Controllers/ServerController.php
 <?php
 
 namespace App\Http\Controllers;
@@ -25,6 +24,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
@@ -312,6 +312,7 @@ class ServerController extends Controller
         logger('Product Price: ' . $server->product->price);
 
         $user->decrement('credits', $server->product->price);
+        Cache::forget('user_credits_left:' . $user->id);
 
         try {
             if ($this->discordSettings->role_for_active_clients &&
@@ -370,6 +371,7 @@ class ServerController extends Controller
         }
 
         $server->delete();
+        Cache::forget('user_credits_left:' . $server->user_id);
     }
 
     public function cancel(Server $server): RedirectResponse

@@ -77,12 +77,14 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:0',
             'cpu' => 'required|numeric|max:1000000|min:0',
-            'swap' => 'required|numeric|max:1000000|min:0',
+            'swap' => ['required', $this->getSwapValidator()],
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:0',
             'minimum_credits' => 'nullable|numeric|max:1000000',
@@ -158,11 +160,11 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',
-            'memory' => 'required|numeric|max:1000000|min:5',
+            'memory' => 'required|numeric|max:1000000|min:0',
             'cpu' => 'required|numeric|max:1000000|min:0',
-            'swap' => 'required|numeric|max:1000000|min:0',
+            'swap' => ['required', $this->getSwapValidator()],
             'description' => 'required|string|max:191',
-            'disk' => 'required|numeric|max:1000000|min:5',
+            'disk' => 'required|numeric|max:1000000|min:0',
             'io' => 'required|numeric|max:1000000|min:0',
             'minimum_credits' => 'nullable|numeric|max:1000000',
             'databases' => 'required|numeric|max:1000000|min:0',
@@ -280,6 +282,18 @@ class ProductController extends Controller
             ->editColumn('serverlimit', function (Product $product) {
                 return $product->serverlimit == 0 ? "∞" : $product->serverlimit;
             })
+            ->editColumn('memory', function (Product $product) {
+                return $product->memory == 0 ? "∞" : $product->memory;
+            })
+            ->editColumn('cpu', function (Product $product) {
+                return $product->cpu == 0 ? "∞" : $product->cpu;
+            })
+            ->editColumn('swap', function (Product $product) {
+                return $product->swap == -1 ? "∞" : $product->swap;
+            })
+            ->editColumn('disk', function (Product $product) {
+                return $product->disk == 0 ? "∞" : $product->disk;
+            })
             ->editColumn('oom_killer', function (Product $product) {
                 return $product->oom_killer ? __("enabled") : __("disabled");
             })
@@ -288,5 +302,32 @@ class ProductController extends Controller
             })
             ->rawColumns(['actions', 'disabled'])
             ->make();
+    }
+
+    /**
+     * Allow -1 (unlimited), 0 (disabled), or a positive integer.
+     */
+    private function getSwapValidator(): callable
+    {
+        return function ($attribute, $value, $fail) {
+            // valid values: -1 (unlimited), 0 (disabled), or a positive integer within column range
+            if ($value === null) {
+                return;
+            }
+
+            if ($value == -1 || $value == 0) {
+                return;
+            }
+
+            if (!ctype_digit((string) $value)) {
+                $fail(__('Swap must be -1 for unlimited, 0 for disabled, or a positive integer.'));
+                return;
+            }
+
+            $int = (int) $value;
+            if ($int < 1 || $int > 1000000) {
+                $fail(__('Swap must be -1 for unlimited, 0 for disabled, or a positive integer up to :max.', ['max' => 1000000]));
+            }
+        };
     }
 }

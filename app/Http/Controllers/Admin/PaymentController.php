@@ -149,7 +149,7 @@ class PaymentController extends Controller
                 if ($this->isCouponValid($couponCode, $user, $shopProduct->id)) {
                     $subtotal = $this->applyCoupon($couponCode, $subtotal);
 
-                    event(new CouponUsedEvent($couponCode));
+                    event(new CouponUsedEvent($couponCode, $user));
                 }
             }
 
