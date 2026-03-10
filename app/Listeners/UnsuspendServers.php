@@ -61,8 +61,17 @@ class UnsuspendServers implements ShouldQueue
         });
 
         // communicate with panel after transaction completes
+        // any remote call may fail; if it does we refund the reserved credits
+        // so the user is not charged for a server that stayed suspended.
         foreach ($serversToUnsuspend as $server) {
-            $unsuspendedServers[] = $server->unSuspend();
+            try {
+                $unsuspendedServers[] = $server->unSuspend();
+            } catch (Exception $e) {
+                // refund and swallow the exception to prevent queue retries
+                $event->user->increment('credits', $server->product->price);
+                // optionally log the error for later investigation
+                
+            }
         }
 
         // ensure the original user model reflects the latest credits before notifying
