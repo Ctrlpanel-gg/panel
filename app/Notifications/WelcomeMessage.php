@@ -41,8 +41,9 @@ class WelcomeMessage extends Notification implements ShouldQueue
 
         $this->user = $user;
         $this->credits_display_name = $general_settings->credits_display_name;
-        $this->credits_reward_after_verify_discord = Currency::formatForDisplay($user_settings->credits_reward_after_verify_discord);
-        $this->credits_reward_after_verify_email = Currency::formatForDisplay($user_settings->credits_reward_after_verify_email);
+        // keep rewards as raw numbers for logic; formatting will happen during render
+        $this->credits_reward_after_verify_discord = $user_settings->credits_reward_after_verify_discord;
+        $this->credits_reward_after_verify_email = $user_settings->credits_reward_after_verify_email;
         $this->server_limit_increment_after_verify_discord = $user_settings->server_limit_increment_after_verify_discord;
         $this->server_limit_increment_after_verify_email = $user_settings->server_limit_increment_after_verify_email;
     }
@@ -62,14 +63,14 @@ class WelcomeMessage extends Notification implements ShouldQueue
     {
         $AdditionalLine = '';
         if ($this->credits_reward_after_verify_email != 0) {
-            $AdditionalLine .= __('Verifying your e-mail address will grant you ').$this->credits_reward_after_verify_email.' '.__('additional').' '.$this->credits_display_name.'. <br />';
+            $AdditionalLine .= __('Verifying your e-mail address will grant you ').Currency::formatForDisplay($this->credits_reward_after_verify_email).' '.__('additional').' '.$this->credits_display_name.'. <br />';
         }
         if ($this->server_limit_increment_after_verify_email != 0) {
             $AdditionalLine .= __('Verifying your e-mail will also increase your Server Limit by ').$this->server_limit_increment_after_verify_email.'. <br />';
         }
         $AdditionalLine .= '<br />';
         if ($this->credits_reward_after_verify_discord != 0) {
-            $AdditionalLine .= __('You can also verify your discord account to get another ').$this->credits_reward_after_verify_discord.' '.$this->credits_display_name.'. <br />';
+            $AdditionalLine .= __('You can also verify your discord account to get another ').Currency::formatForDisplay($this->credits_reward_after_verify_discord).' '.$this->credits_display_name.'. <br />';
         }
         if ($this->server_limit_increment_after_verify_discord != 0) {
             $AdditionalLine .= __('Verifying your Discord account will also increase your Server Limit by ').$this->server_limit_increment_after_verify_discord.'. <br />';

@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Notifications\ServerSuspensionWarningNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-
+use Illuminate\Support\Facades\Log;
 class NotifyServerSuspension extends Command
 {
     /**
@@ -67,9 +67,8 @@ class NotifyServerSuspension extends Command
                     $daysUntilSuspension = Carbon::now()->diffInDays($suspensionDate, false);
 
                     if ($daysUntilSuspension > 0 && $daysUntilSuspension <= 3) {
-                        $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> will be suspended in <fg=cyan>{$daysUntilSuspension}</> days. Sending warning...");
+                        $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> will be suspended in <fg=cyan>{$daysUntilSuspension}</> days. Queued warning...");
 
-                        $server->update(['suspension_warning_sent_at' => now()]);
                         $serversNotified++;
 
                         if (!isset($this->usersToNotify[$user->id])) {
@@ -146,8 +145,18 @@ class NotifyServerSuspension extends Command
                 $servers = $userData['servers'];
 
                 if ($servers->isNotEmpty()) {
-                    $this->line("<fg=yellow>Notified user:</> <fg=blue>{$user->name}</>");
-                    $user->notify(new ServerSuspensionWarningNotification($servers));
+                    try {
+                        $this->line("<fg=yellow>Notified user:</> <fg=blue>{$user->name}</>");
+                        $user->notify(new ServerSuspensionWarningNotification($servers));
+
+                        // mark each server as warned only after successful notification
+                        foreach ($servers as $entry) {
+                            $entry['server']->update(['suspension_warning_sent_at' => now()]);
+                        }
+                    } catch (\Throwable $e) {
+                        Log::error('Failed to notify user ' . $user->id . ' about suspension warning: ' . $e->getMessage());
+                        // keep servers unmarked so that next run may retry
+                    }
                 }
             }
         }

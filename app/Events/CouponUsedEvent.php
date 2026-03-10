@@ -25,7 +25,11 @@ class CouponUsedEvent
     {
 
         $this->couponCode = $couponCode;
-        $this->coupon = Coupon::where('code', $couponCode)->first();
+        // use firstOrFail() so the property always holds a Coupon instance;
+        // if the record has been deleted between validation and dispatch this
+        // will raise a ModelNotFoundException instead of yielding null and
+        // later causing a TypeError in listeners.
+        $this->coupon = Coupon::where('code', $couponCode)->firstOrFail();
         $this->user = $user;
     }
 }

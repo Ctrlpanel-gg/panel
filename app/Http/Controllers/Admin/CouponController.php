@@ -172,29 +172,29 @@ class CouponController extends Controller
             "type" => "required|string|in:percentage,amount",
                // Set to -1 for unlimited uses globally, or a positive integer within DB range.
                "max_uses" => [
-                   'required',
-                   'integer',
-                   function ($attribute, $value, $fail) {
-                       if ($value === -1) {
-                           return;
-                       }
-                       if ($value <= 0 || $value > 2147483647) {
-                           $fail(__('Max uses must be -1 for unlimited or a positive integer up to :max.', ['max' => 2147483647]));
-                       }
+               'required',
+               'integer',
+               function ($attribute, $value, $fail) {
+                   if ((int)$value === -1) {
+                   return;
                    }
+                   if ((int)$value <= 0 || (int)$value > 2147483647) {
+                   $fail(__('Max uses must be -1 for unlimited or a positive integer up to :max.', ['max' => 2147483647]));
+                   }
+               }
                ],
                // Set to -1 for unlimited per user. Empty falls back to coupon settings.
                "max_uses_per_user" => [
-                   'nullable',
-                   'integer',
-                   function ($attribute, $value, $fail) {
-                       if (is_null($value) || $value === -1) {
-                           return;
-                       }
-                       if ($value <= 0 || $value > 2147483647) {
-                           $fail(__('Max uses per user must be -1 for unlimited, or a positive integer up to :max.', ['max' => 2147483647]));
-                       }
+               'nullable',
+               'integer',
+               function ($attribute, $value, $fail) {
+                   if ((int)$value === -1 || is_null($value)) {
+                   return;
                    }
+                   if ((int)$value <= 0 || (int)$value > 2147483647) {
+                   $fail(__('Max uses per user must be -1 for unlimited, or a positive integer up to :max.', ['max' => 2147483647]));
+                   }
+               }
                ],
             "value" => "required|numeric|between:0,100",
             "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())

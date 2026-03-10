@@ -114,10 +114,12 @@ class ServerSuspensionWarningNotification extends Notification
 
     private function getSortedServersByPriority()
     {
+        // sortBy preserves original keys which can break positional indexing later
+        // so we reset them with values() to ensure 0..n-1 ordering
         return $this->servers->sortBy(function ($serverData) {
             $server = $serverData['server'];
 
             return $server->billing_priority ?? $server->product->default_billing_priority;
-        });
+        })->values();
     }
 }
