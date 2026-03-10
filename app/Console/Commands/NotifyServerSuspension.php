@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Notifications\ServerSuspensionWarningNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 class NotifyServerSuspension extends Command
 {
@@ -36,57 +37,30 @@ class NotifyServerSuspension extends Command
     {
         $serversChecked = 0;
         $serversNotified = 0;
+        $warningsCleared = 0;
 
-        // Clear warnings for servers that are no longer at risk.
-        $this->clearResolvedWarnings();
+        User::whereHas('servers', fn ($query) => $query->whereNull('suspended'))
+            ->with(['servers' => function ($query) {
+                $query->whereNull('suspended')
+                    ->with('product')
+                    ->byBillingPriority();
+            }])
+            ->chunk(100, function ($users) use (&$serversChecked, &$serversNotified, &$warningsCleared) {
+                /** @var User $user */
+                foreach ($users as $user) {
+                    $analysis = $this->analyzeUserServers($user);
 
-        Server::whereNull('suspended')
-            ->whereNull('suspension_warning_sent_at')
-            ->with(['user', 'product'])
-            ->byBillingPriority()
-            ->chunk(10, function ($servers) use (&$serversChecked, &$serversNotified) {
-                /** @var Server $server */
-                foreach ($servers as $server) {
-                    $serversChecked++;
-
-                    /** @var Product|null $product */
-                    $product = $server->product;
-                    /** @var User|null $user */
-                    $user = $server->user;
-
-                    if (!$product || !$user) {
-                        continue;
-                    }
-
-                    $suspensionDate = $this->getSuspensionDate($server, $product->billing_period);
-
-                    if (!$this->hasInsufficientCredits($user, $product)) {
-                        continue;
-                    }
-
-                    $daysUntilSuspension = Carbon::now()->diffInDays($suspensionDate, false);
-
-                    if ($daysUntilSuspension > 0 && $daysUntilSuspension <= 3) {
-                        $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> will be suspended in <fg=cyan>{$daysUntilSuspension}</> days. Queued warning...");
-
-                        $serversNotified++;
-
-                        if (!isset($this->usersToNotify[$user->id])) {
-                            $this->usersToNotify[$user->id] = [
-                                'user' => $user,
-                                'servers' => collect(),
-                            ];
-                        }
-
-                        $this->usersToNotify[$user->id]['servers']->push([
-                            'server' => $server,
-                            'suspension_date' => $suspensionDate,
-                        ]);
-                    }
+                    $serversChecked += $analysis['checked_servers'];
+                    $serversNotified += $this->queueWarningsForUser($user, $analysis['at_risk_entries']);
+                    $warningsCleared += $this->clearResolvedWarningsForUser($user, $analysis['at_risk_server_ids']);
                 }
             });
 
         $this->notifyUsers();
+
+        if ($warningsCleared > 0) {
+            $this->info("Cleared warnings for {$warningsCleared} servers that are no longer at risk");
+        }
 
         $this->info("Completed! Checked: {$serversChecked} servers, Sent warnings for: {$serversNotified} servers");
 
@@ -106,35 +80,133 @@ class NotifyServerSuspension extends Command
         };
     }
 
-    private function clearResolvedWarnings(): void
+    /**
+     * @return array{checked_servers:int,at_risk_entries:Collection<int, array{server: Server, suspension_date: Carbon}>,at_risk_server_ids:array<int, string>}
+     */
+    private function analyzeUserServers(User $user): array
     {
-        $clearedCount = 0;
+        $now = Carbon::now();
+        $servers = $user->servers->filter(fn (Server $server) => $server->product !== null && is_null($server->suspended))->values();
 
-        Server::whereNotNull('suspension_warning_sent_at')
-            ->whereNull('suspended')
-            ->with(['user', 'product'])
-            ->chunk(10, function ($servers) use (&$clearedCount) {
-                foreach ($servers as $server) {
-                    /** @var Product|null $product */
-                    $product = $server->product;
-                    /** @var User|null $user */
-                    $user = $server->user;
+        $serverEntries = $servers->map(function (Server $server) {
+            /** @var Product $product */
+            $product = $server->product;
 
-                    if (!$product || !$user) {
-                        continue;
-                    }
+            return [
+                'server' => $server,
+                'suspension_date' => $this->getSuspensionDate($server, $product->billing_period),
+            ];
+        })
+            ->sortBy('suspension_date')
+            ->values();
 
-                    if (!$this->hasInsufficientCredits($user, $product)) {
-                        $server->update(['suspension_warning_sent_at' => null]);
-                        $clearedCount++;
-                        $this->line("<fg=green>{$server->name}</> from user: <fg=blue>{$user->name}</> - Warning cleared (sufficient credits)");
-                    }
-                }
-            });
+        // Simulate billing in chronological order and identify at-risk servers (O(n))
+        $remainingCredits = (int) $user->credits;
+        $atRiskEntries = collect();
+        $atRiskServerIds = [];
 
-        if ($clearedCount > 0) {
-            $this->info("Cleared warnings for {$clearedCount} servers that now have sufficient credits");
+        foreach ($serverEntries as $entry) {
+            /** @var Server $server */
+            $server = $entry['server'];
+            /** @var Carbon $suspensionDate */
+            $suspensionDate = $entry['suspension_date'];
+
+            if (!is_null($server->canceled)) {
+                continue;
+            }
+
+            $daysUntilSuspension = $now->diffInDays($suspensionDate, false);
+            if ($daysUntilSuspension <= 0 || $daysUntilSuspension > 3) {
+                continue;
+            }
+
+            /** @var Product $product */
+            $product = $server->product;
+
+            // Check if this server would be suspended due to insufficient credits
+            if ($remainingCredits < $product->price && $product->price !== 0) {
+                $atRiskEntries->push($entry);
+                $atRiskServerIds[] = $server->id;
+            } else {
+                $remainingCredits -= $product->price;
+            }
         }
+
+        return [
+            'checked_servers' => $servers->count(),
+            'at_risk_entries' => $atRiskEntries->values(),
+            'at_risk_server_ids' => $atRiskServerIds,
+        ];
+    }
+
+    /**
+     * @param  Collection<int, array{server: Server, suspension_date: Carbon}>  $atRiskEntries
+     */
+    private function queueWarningsForUser(User $user, Collection $atRiskEntries): int
+    {
+        $queuedCount = 0;
+        $now = Carbon::now();
+
+        foreach ($atRiskEntries as $entry) {
+            /** @var Server $server */
+            $server = $entry['server'];
+            /** @var Carbon $suspensionDate */
+            $suspensionDate = $entry['suspension_date'];
+
+            if (!is_null($server->suspension_warning_sent_at)) {
+                continue;
+            }
+
+            $daysUntilSuspension = $now->diffInDays($suspensionDate, false);
+            $this->line("<fg=yellow>{$server->name}</> from user: <fg=blue>{$user->name}</> will be suspended in <fg=cyan>{$daysUntilSuspension}</> days. Queued warning...");
+
+            if (!isset($this->usersToNotify[$user->id])) {
+                $this->usersToNotify[$user->id] = [
+                    'user' => $user,
+                    'servers' => collect(),
+                ];
+            }
+
+            $this->usersToNotify[$user->id]['servers']->push($entry);
+            $queuedCount++;
+        }
+
+        return $queuedCount;
+    }
+
+    /**
+     * @param  array<int, string>  $atRiskServerIds
+     */
+    private function clearResolvedWarningsForUser(User $user, array $atRiskServerIds): int
+    {
+        $serversToClear = [];
+
+        // Build a set-like lookup array for at-risk server IDs to avoid O(n * m) in_array checks.
+        $atRiskServerIdSet = [];
+        foreach ($atRiskServerIds as $id) {
+            // Include type information in the key to preserve strict (===) semantics.
+            $atRiskServerIdSet[gettype($id) . ':' . $id] = true;
+        }
+
+        foreach ($user->servers as $server) {
+            if (is_null($server->suspension_warning_sent_at)) {
+                continue;
+            }
+
+            $lookupKey = gettype($server->id) . ':' . $server->id;
+            if (isset($atRiskServerIdSet[$lookupKey])) {
+                continue;
+            }
+
+            $serversToClear[] = $server->id;
+            $this->line("<fg=green>{$server->name}</> from user: <fg=blue>{$user->name}</> - Warning cleared (no longer at risk)");
+        }
+
+        if (empty($serversToClear)) {
+            return 0;
+        }
+
+        return Server::whereIn('id', $serversToClear)->update(['suspension_warning_sent_at' => null]);
     }
 
     public function notifyUsers(): bool
@@ -166,9 +238,4 @@ class NotifyServerSuspension extends Command
         return true;
     }
 
-    private function hasInsufficientCredits($user, $product): bool
-    {
-        // Direct integer comparison; both values are in thousandths.
-        return $user->credits < $product->price && $product->price != 0;
-    }
 }
