@@ -34,6 +34,7 @@ class CreateProductRequest extends FormRequest
             'minimum_credits' => ['nullable', 'numeric',
                 'max:' . MysqlLimits::CREDITS_MAX,
                 'min:' . MysqlLimits::CREDITS_MIN,
+                'gte:price',
             ],
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',

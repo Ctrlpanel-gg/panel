@@ -276,7 +276,7 @@
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
                                                         {{ __('Minimum') }} {{ $credits_display_name }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="!product.minimum_credits ? '{{ Currency::formatForDisplay($min_credits_to_make_server) }}' : product.display_minimum_credits"></span>
+                                                        x-text="product.display_minimum_credits"></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -297,23 +297,24 @@
                                     </div>
                                     <div>
                                         <button type="button"
-                                            :disabled="(product.minimum_credits > user.credits && product.price > user.credits) ||
+                                            :disabled="(product.effective_minimum > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
                                                 submitClicked"
-                                            :class="(product.minimum_credits > user.credits && product.price > user.credits) ||
+                                            :class="(product.effective_minimum > user.credits) ||
                                                 product.doesNotFit == true ||
                                                 submitClicked ? 'disabled' : ''"
                                             class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);"
-                                                x-text="product.doesNotFit == true
+                                            x-text="product.doesNotFit == true
                                                     ? '{{ __('Server cant fit on this Location') }}'
                                                     : (product.servers_count >= product.serverlimit && product.serverlimit != 0
                                                         ? '{{ __('Max. Servers with configuration reached') }}'
-                                                        : (product.minimum_credits > user.credits && product.price > user.credits
+                                                        : (product.effective_minimum > user.credits
                                                             ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
-                                                            : '{{ __('Create server') }}'))">                                        </button>
+                                                            : '{{ __('Create server') }}'))">
+                                        </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
-                                        <template x-if="product.price > user.credits || product.minimum_credits > user.credits">
+                                            <template x-if="product.effective_minimum > user.credits">
                                             <a href="{{ route('store.index') }}">
                                                 <button type="button" class="mt-2 btn btn-warning btn-block">
                                                     {{ __('Buy more') }} {{ $credits_display_name }}
@@ -473,9 +474,12 @@
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
                         product.cpu = product.cpu / 100;
+                        // Determine effective minimum credits: if minimum_credits is null, use product price.
+                        product.effective_minimum = product.minimum_credits === null ? parseFloat(product.price) : parseFloat(product.minimum_credits);
                     })
 
-                    this.locationDescription = this.locations.find(location => location.id == this.selectedLocation).description ?? null;
+                    this.locationDescription = this.locations.find(location => location.id == this.selectedLocation)
+                        .description ?? null;
                     this.loading = false;
                     this.updateSelectedObjects()
                 },
@@ -492,8 +496,8 @@
                     this.selectedLocationObject = {};
                     this.locations.forEach(location => {
                         if (!this.selectedLocationObject?.id) {
-                            this.selectedLocationObject = location.nodes.find(node => node.id == this.selectedLocation) ??
-                                {};
+                            this.selectedLocationObject = location.nodes.find(node => node.id == this
+                                .selectedLocation) ?? {};
                         }
                     })
 
@@ -553,7 +557,8 @@
                 getProductOptionText(product) {
                     let text = product.name + ' (' + product.description + ')';
 
-                    if (product.minimum_credits > this.user.credits) {
+                    // Use effective_minimum for credit checks (minimum_credits is per-product; null uses price)
+                    if (product.effective_minimum > this.user.credits) {
                         return '{{ __('Not enough credits!') }} | ' + text;
                     }
 

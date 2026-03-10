@@ -145,7 +145,14 @@ class Product extends Model
      */
     public function getDisplayMinimumCreditsAttribute()
     {
-        return $this->minimum_credits ? Currency::formatForDisplay($this->minimum_credits) : null;
+        // Backward compatibility: before the migration, -1 was stored as a default minimum_credits
+        // to mean "use the product price". We still treat null or -1 this way in case the migration
+        // has not run yet or legacy data remains.
+        if (is_null($this->minimum_credits) || $this->minimum_credits == -1) {
+            return Currency::formatForDisplay($this->price);
+        }
+
+        return Currency::formatForDisplay($this->minimum_credits);
     }
 
     public function getDefaultBillingPriorityLabelAttribute()
