@@ -262,7 +262,7 @@
                                 <!-- Upgrade Button trigger modal -->
                                 @if ($server_enable_upgrade && Auth::user()->can('user.server.upgrade'))
                                     <button type="button" data-toggle="modal"
-                                        data-target="#UpgradeModal{{ $server->id }}" target="__blank"
+                                        data-target="#UpgradeModal{{ $server->id }}"
                                         class="btn btn-info btn-md">
                                         <i class="mr-2 fas fa-upload"></i>
                                         <span>{{ __('Upgrade / Downgrade') }}</span>
@@ -322,7 +322,6 @@
                                                         class="btn btn-primary upgrade-once" style="width: 100%"
                                                         disabled><strong>{{ __('Change Product') }}</strong></button>
                                                 </div>
-                                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                 </form>
                                             </div>
                                         </div>
@@ -360,7 +359,6 @@
                                                     <button data-toggle="popover" data-trigger="hover"
                                                         data-placement="top"
                                                         class="mr-1 btn btn-danger">{{ __('Delete') }}</button>
-                                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                                 </form>
                                             </div>
                                         </div>
@@ -393,7 +391,7 @@
                             <div class="text-center col-md-12">
                                 <!-- Billing Priority Button trigger modal -->
                                 <button type="button" data-toggle="modal" data-target="#BillingPriorityModal"
-                                    target="__blank" class="btn btn-info btn-md">
+                                    class="btn btn-info btn-md">
                                     <i class="mr-2 fas fa-flag"></i>
                                     <span>{{ __('Change Billing Priority') }}</span>
                                 </button>

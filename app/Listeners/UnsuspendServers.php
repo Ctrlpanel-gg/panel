@@ -7,6 +7,7 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Models\Server;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class UnsuspendServers implements ShouldQueue
@@ -50,7 +51,7 @@ class UnsuspendServers implements ShouldQueue
 
             foreach ($suspendedServers as $server) {
                 if ($server->product->price > $userCredits) {
-                    continue;
+                    break;
                 }
 
                 // reserve this server for unsuspension after the transaction
@@ -67,14 +68,16 @@ class UnsuspendServers implements ShouldQueue
             try {
                 $unsuspendedServers[] = $server->unSuspend();
             } catch (Exception $e) {
-                // refund and swallow the exception to prevent queue retries
+                // refund and log the exception for investigation
                 $event->user->increment('credits', $server->product->price);
-                // optionally log the error for later investigation
-                
+                Log::error('Failed to unsuspend server', [
+                    'server_id' => $server->id,
+                    'user_id' => $event->user->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 
-        // ensure the original user model reflects the latest credits before notifying
         $event->user->refresh();
 
         if (!empty($unsuspendedServers)) {
