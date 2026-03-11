@@ -78,75 +78,33 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-lg-6">
-										<div class="form-group">
-											<label for="billing_period">{{ __('Billing Period') }} <i
-													data-toggle="popover" data-trigger="hover"
-													data-content="{{ __('Period when the user will be charged for the given price') }}"
-													class="fas fa-info-circle"></i></label>
-											<select id="billing_period" style="width:100%" class="custom-select"
-													name="billing_period" required autocomplete="off"
-													@error('billing_period') is-invalid @enderror>
-												<option value="hourly" @selected(old('billing_period', $product->billing_period ?? '') == 'hourly')>
-													{{ __('Hourly') }}
-												</option>
-												<option value="daily" @selected(old('billing_period', $product->billing_period ?? '') == 'daily')>
-													{{ __('Daily') }}
-												</option>
-												<option value="weekly" @selected(old('billing_period', $product->billing_period ?? '') == 'weekly')>
-													{{ __('Weekly') }}
-												</option>
-												<option value="monthly" @selected(old('billing_period', $product->billing_period ?? '') == 'monthly')>
-													{{ __('Monthly') }}
-												</option>
-												<option value="quarterly" @selected(old('billing_period', $product->billing_period ?? '') == 'quarterly')>
-													{{ __('Quarterly') }}
-												</option>
-												<option value="half-annually" @selected(old('billing_period', $product->billing_period ?? '') == 'half-annually')>
-													{{ __('Half Annually') }}
-												</option>
-												<option value="annually" @selected(old('billing_period', $product->billing_period ?? '') == 'annually')>
-													{{ __('Annually') }}
-												</option>
-											</select>
-											@error('billing_period')
-												<div class="invalid-feedback">
-													{{ $message }}
-												</div>
-											@enderror
-										</div>
-									</div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="default_billing_priority">
-                                                {{ __('Default Billing Priority') }}
-                                                <i
-                                                    data-toggle="popover"
-                                                    data-trigger="hover"
-                                                    data-content="{{ __('Defines the priority at which the servers in this product will be charged.') }}"
-                                                    class="fas fa-info-circle"></i>
-                                            </label>
-                                            <select
-                                                id="default_billing_priority"
-                                                style="width:100%"
-                                                class="custom-select"
-                                                name="default_billing_priority" required autocomplete="off"
-                                                @error('default_billing_priority') is-invalid @enderror
-                                            >
-                                                @foreach(App\Enums\BillingPriority::options() as $value => $label)
-                                                    <option value="{{ $value }}" @selected(old('default_billing_priority', $product->default_billing_priority->value ?? '') == $value || $value == App\Enums\BillingPriority::MEDIUM->value)>
-                                                        {{ $label }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('default_billing_priority')
-												<div class="invalid-feedback">
-													{{ $message }}
-												</div>
-											@enderror
+                                <div class="form-group">
+                                    <label for="default_billing_priority">
+                                        {{ __('Default Billing Priority') }}
+                                        <i
+                                            data-toggle="popover"
+                                            data-trigger="hover"
+                                            data-content="{{ __('Defines the priority at which the servers in this product will be charged.') }}"
+                                            class="fas fa-info-circle"></i>
+                                    </label>
+                                    <select
+                                        id="default_billing_priority"
+                                        style="width:100%"
+                                        class="custom-select"
+                                        name="default_billing_priority" required autocomplete="off"
+                                        @error('default_billing_priority') is-invalid @enderror
+                                    >
+                                        @foreach($billing_priorities as $value => $label)
+                                            <option value="{{ $value }}" @selected(old('default_billing_priority', $product?->default_billing_priority?->value ?? '') == $value || $value == App\Enums\BillingPriority::MEDIUM->value)>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('default_billing_priority')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
                                         </div>
-                                    </div>
+                                    @enderror
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-6">
@@ -350,6 +308,57 @@
                     <div class="col-lg-6">
                         <div class="card">
                             <div class="card-header">
+                                <h5 class="card-title">{{ __('Billing Periods & Prices') }}
+                                    <i data-toggle="popover" data-trigger="hover" data-content="{{ __('Set the price for each billing cycle. Only selected periods will be available to users.') }}" class="fas fa-info-circle"></i>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div x-data="billingPeriodsManager()" class="mb-3">                                    
+                                    @foreach($billing_periods as $value => $label)
+                                        <div class="mb-2 row align-items-center">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        class="form-check-input"
+                                                        id="period-{{ $value }}"
+                                                        x-model="periods[{{ $value }}].enabled"
+                                                        x-on:change="togglePrice({{ $value }})"
+                                                    >
+                                                    <label class="form-check-label" for="period-{{ $value }}">
+                                                        {{ $label }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center">
+                                                    <input 
+                                                        type="number" 
+                                                        step="0.01"
+                                                        class="form-control form-control-sm"
+                                                        x-ref="price{{ $value }}"
+                                                        x-model="periods[{{ $value }}].price"
+                                                        :disabled="!periods[{{ $value }}].enabled"
+                                                        placeholder="0.00"
+                                                    >
+                                                    <span class="ml-2 text-muted">{{ $credits_display_name }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    
+                                    <template x-for="(period, index) in enabledPeriods" :key="index">
+                                        <div>
+                                            <input type="hidden" :name="`billing_periods[${index}][billing_period]`" :value="period.id">
+                                            <input type="hidden" :name="`billing_periods[${index}][price]`" :value="period.price">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
                                 <h5 class="card-title">{{ __('Product Linking') }}
                                     <i data-toggle="popover" data-trigger="hover"
                                         data-content="{{ __('Link your products to nodes and eggs to create dynamic pricing for each option') }}"
@@ -450,5 +459,43 @@
                 $('#eggs').trigger('change');
             });
         });
+
+        function billingPeriodsManager() {
+            @php
+                $existingPeriods = isset($product) ? $product->billingPeriods->mapWithKeys(function($bp) {
+                    return [$bp->billing_period->value => $bp];
+                }) : collect();
+            @endphp
+
+            return {
+                periods: {
+                    @foreach($billing_periods as $value => $label)
+                        {{ $value }}: {
+                            enabled: {{ isset($existingPeriods[$value]) ? 'true' : 'false' }},
+                            price: '{{ isset($existingPeriods[$value]) ? $existingPeriods[$value]->price : '' }}'
+                        },
+                    @endforeach
+                },
+                
+                togglePrice(periodId) {
+                    if (!this.periods[periodId].enabled) {
+                        this.periods[periodId].price = '';
+                    } else {
+                        this.$nextTick(() => {
+                            this.$refs['price' + periodId].focus();
+                        });
+                    }
+                },
+                
+                get enabledPeriods() {
+                    return Object.entries(this.periods)
+                        .filter(([id, data]) => data.enabled && data.price && data.price > 0)
+                        .map(([id, data]) => ({
+                            id: id,
+                            price: data.price
+                        }));
+                }
+            }
+        }
     </script>
 @endsection

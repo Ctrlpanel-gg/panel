@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\BillingPeriod;
 use App\Models\Product;
 use App\Models\Server;
 use App\Models\User;
@@ -60,41 +61,12 @@ class ChargeServers extends Command
                     $product = $server->product;
                     /** @var User $user */
                     $user = $server->user;
-
-                    $billing_period = $product->billing_period;
-
-                    // check if server is due to be charged by comparing its last_billed date with the current date and the billing period
-                    $newBillingDate = null;
-                    switch ($billing_period) {
-                        case 'annually':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addYear();
-                            break;
-                        case 'half-annually':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addMonths(6);
-                            break;
-                        case 'quarterly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addMonths(3);
-                            break;
-                        case 'monthly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addMonth();
-                            break;
-                        case 'weekly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addWeek();
-                            break;
-                        case 'daily':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addDay();
-                            break;
-                        case 'hourly':
-                            $newBillingDate = Carbon::parse($server->last_billed)->addHour();
-                        default:
-                            $newBillingDate = Carbon::parse($server->last_billed)->addHour();
-                            break;
-                    }
+                    
+                    $newBillingDate = $server->getNextBillingDate();
 
                     if (!($newBillingDate->isPast())) {
                         continue;
                     }
-
 
                     $isCanceled = $server->canceled;
                     $hasInsufficientCredits = $user->credits < $product->price && $product->price != 0;

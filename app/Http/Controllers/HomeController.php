@@ -41,20 +41,12 @@ class HomeController extends Controller
         $serverStates = [];
         foreach ($servers as $server) {
             $product = $server->product;
-            $period = $product->billing_period;
+            $period = $server->billing_period;
             $price = $product->price;
             $lastBilled = $server->last_billed ? Carbon::parse($server->last_billed) : now();
             $nextBilling = $lastBilled->copy();
             while ($nextBilling->lessThanOrEqualTo(now())) {
-                switch ($period) {
-                    case 'hourly': $nextBilling->addHour(); break;
-                    case 'daily': $nextBilling->addDay(); break;
-                    case 'weekly': $nextBilling->addWeek(); break;
-                    case 'monthly': $nextBilling->addMonth(); break;
-                    case 'quarterly': $nextBilling->addMonths(3); break;
-                    case 'half-annually': $nextBilling->addMonths(6); break;
-                    case 'annually': $nextBilling->addYear(); break;
-                }
+                $nextBilling = $server->getNextBillingDate();
             }
             $serverStates[] = [
                 'server' => $server,
@@ -81,7 +73,7 @@ class HomeController extends Controller
             $actions = [];
             foreach ($dueServers as $idx => $s) {
                 $sum += $s['price'];
-                $actions[] = $s['product']->name . ' (' . $s['period'] . ')';
+                $actions[] = $s['product']->name . ' (' . $s['period']->label() . ')';
             }
             if ($currentCredits < $sum) {
                 $runOutDate = $minDate;
@@ -176,6 +168,7 @@ class HomeController extends Controller
 
         if ($credits > 0) {
             $cacheKey = 'user_credits_left:' . $user->id;
+
             $calculation = Cache::remember($cacheKey, now()->addMinutes(5), function() use ($user, $credits) {
                 return $this->calculateCreditRunout($user, $credits);
             });

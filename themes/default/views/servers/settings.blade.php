@@ -122,7 +122,7 @@
                         <div class="card-body">
                             <div class="row">
         
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('Server ID')}}</label>
@@ -134,7 +134,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('Pterodactyl ID')}}</label>
@@ -146,31 +146,31 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('Hourly Price')}}</label>
                                         </div>
                                         <div class="col-sm-8 col-md-7">
                                             <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                              {{ Currency::formatForDisplay($server->product->getHourlyPrice()) }}
+                                              {{ Currency::formatForDisplay($server->getHourlyPrice()) }}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('Monthly Price')}}</label>
                                         </div>
                                         <div class="col-sm-8 col-md-7">
                                             <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                              {{ Currency::formatForDisplay($server->product->getMonthlyPrice()) }}
+                                              {{ Currency::formatForDisplay($server->getMonthlyPrice()) }}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('Location')}}</label>
@@ -182,7 +182,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('Node')}}</label>
@@ -194,7 +194,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('Backups')}}</label>
@@ -206,7 +206,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('OOM Killer')}}</label>
@@ -218,7 +218,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12 col-md-6 mb-3 mb-md-0">
+                                <div class="mb-3 col-sm-12 col-md-6 mb-md-0">
                                     <div class="row">
                                         <div class="col-sm-4 col-md-5">
                                             <label>{{__('MySQL Database')}}</label>
