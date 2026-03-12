@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Enum;
 
+
 class ServerController extends Controller
 {
     private const CREATE_PERMISSION = 'user.server.create';
@@ -103,7 +104,6 @@ class ServerController extends Controller
             })->get(),
             'user' => Auth::user(),
             'server_creation_enabled' => $this->serverSettings->creation_enabled,
-            'min_credits_to_make_server' => $this->userSettings->min_credits_to_make_server,
             'credits_display_name' => $this->generalSettings->credits_display_name,
             'location_description_enabled' => $this->serverSettings->location_description_enabled,
             'store_enabled' => $this->generalSettings->store_enabled
@@ -186,10 +186,16 @@ class ServerController extends Controller
             return __('You can not create any more Servers with this product!');
         }
 
-        $minCredits = $product->minimum_credits ?: $this->userSettings->min_credits_to_make_server;
+        // Determine effective minimum credits; fallback to price when the stored
+        // value is missing or nonsensical (e.g. a legacy -1 entry).
+        $minCredits = ($product->minimum_credits === null || $product->minimum_credits < $product->price)
+            ? $product->price
+            : $product->minimum_credits;
 
         if ($user->credits < $minCredits) {
-            return 'You do not have the required amount of ' . $this->generalSettings->credits_display_name . ' to use this product!';
+            return __('You do not have the required amount of :credits to use this product!', [
+                'credits' => $this->generalSettings->credits_display_name,
+            ]);
         }
 
         return true;
@@ -443,6 +449,7 @@ class ServerController extends Controller
                 return $product;
             });
     }
+
 
     public function upgrade(Server $server, Request $request): RedirectResponse
     {

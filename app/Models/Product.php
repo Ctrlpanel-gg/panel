@@ -145,7 +145,15 @@ class Product extends Model
      */
     public function getDisplayMinimumCreditsAttribute()
     {
-        return $this->minimum_credits ? Currency::formatForDisplay($this->minimum_credits) : null;
+        // The minimum credits should never be less than the product price. Any
+        // NULL or numeric value below price will be treated as the price itself.
+        // legacy -1 rows will automatically be captured by the < comparison, and
+        // the migration cleans them up ahead of time.
+        if (is_null($this->minimum_credits) || $this->minimum_credits < $this->price) {
+            return Currency::formatForDisplay($this->price);
+        }
+
+        return Currency::formatForDisplay($this->minimum_credits);
     }
 
     public function getDefaultBillingPriorityLabelAttribute()

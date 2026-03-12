@@ -40,7 +40,12 @@ class ProductResource extends JsonResource
             'oom_killer' => $this->oom_killer,
             'default_billing_priority' => $this->default_billing_priority,
             'disabled' => $this->disabled,
-            'minimum_credits' => $this->minimum_credits ? $this->currencyHelper->convertForDisplay($this->minimum_credits) : null,
+            'minimum_credits' => $this->currencyHelper->convertForDisplay(
+                // if the stored value is null or below price (e.g. legacy -1), use price
+                (is_null($this->minimum_credits) || $this->minimum_credits < $this->price)
+                    ? $this->price
+                    : $this->minimum_credits
+            ),
             'billing_period' => $this->billing_period,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),

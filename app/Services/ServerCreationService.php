@@ -39,7 +39,7 @@ class ServerCreationService
      * @param Product $product
      * @param mixed $data
      * @return Server
-     * 
+     *
      * @throws \Exception
      */
     public function handle(User $user, Product $product, mixed $data): Server
@@ -101,7 +101,10 @@ class ServerCreationService
         }
 
         // Check if user has enough credits to create the server.
-        $minCredits = $product->minimum_credits ?: $this->userSettings->min_credits_to_make_server;
+        // if the column is null or smaller than price, treat price as minimum
+        $minCredits = ($product->minimum_credits === null || $product->minimum_credits < $product->price)
+            ? $product->price
+            : $product->minimum_credits;
 
         if ($user->credits < $minCredits) {
             throw new \Exception(

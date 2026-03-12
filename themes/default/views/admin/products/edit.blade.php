@@ -10,8 +10,10 @@
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('admin.products.index') }}">{{ __('Products') }}</a></li>
-                        <li class="breadcrumb-item"><a class="text-muted" href="{{ route('admin.products.edit', $product->id) }}">{{ __('Edit') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.products.index') }}">{{ __('Products') }}</a>
+                        </li>
+                        <li class="breadcrumb-item"><a class="text-muted"
+                                href="{{ route('admin.products.edit', $product->id) }}">{{ __('Edit') }}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,7 +30,8 @@
                     <div class="col-lg-6">
                         @if ($product->servers()->count() > 0)
                             <div class="callout callout-danger">
-                                <h4>{{ __('Editing the resource options will not automatically update the servers on pterodactyls side!') }}</h4>
+                                <h4>{{ __('Editing the resource options will not automatically update the servers on pterodactyls side!') }}
+                                </h4>
                             </div>
                         @endif
 
@@ -39,18 +42,23 @@
                             <div class="card-body">
                                 <div class="flex-row-reverse d-flex">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" @checked($product->disabled) name="disabled" class="custom-control-input custom-control-input-danger" id="switch1">
-                                        <label class="custom-control-label" for="switch1">{{ __('Disabled') }} 
-                                            <i data-toggle="popover" data-trigger="hover" data-content="{{ __('Will hide this option from being selected') }}" class="fas fa-info-circle"></i>
+                                        <input type="checkbox" @checked($product->disabled) name="disabled"
+                                            class="custom-control-input custom-control-input-danger" id="switch1">
+                                        <label class="custom-control-label" for="switch1">{{ __('Disabled') }}
+                                            <i data-toggle="popover" data-trigger="hover"
+                                                data-content="{{ __('Will hide this option from being selected') }}"
+                                                class="fas fa-info-circle"></i>
                                         </label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="name">{{ __('Name') }}</label>
-                                            <input value="{{ $product->name }}" id="name" name="name" type="text" class="form-control @error('name') is-invalid @enderror" required="required">
+                                            <input value="{{ $product->name }}" id="name" name="name"
+                                                type="text" class="form-control @error('name') is-invalid @enderror"
+                                                required="required">
                                             @error('name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -58,10 +66,13 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="description">{{ __('Description') }} 
-                                                <i data-toggle="popover" data-trigger="hover" data-content="{{ __('This is what the users sees') }}" class="fas fa-info-circle"></i>
+                                            <label for="description">{{ __('Description') }}
+                                                <i data-toggle="popover" data-trigger="hover"
+                                                    data-content="{{ __('This is what the users sees') }}"
+                                                    class="fas fa-info-circle"></i>
                                             </label>
-                                            <textarea id="description" name="description" type="text" class="form-control @error('description') is-invalid @enderror" required="required">{{ $product->description }}</textarea>
+                                            <textarea id="description" name="description" type="text"
+                                                class="form-control @error('description') is-invalid @enderror" required="required">{{ $product->description }}</textarea>
                                             @error('description')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -72,11 +83,11 @@
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="billing_period">{{ __('Billing Period') }} <i
-                                                    data-toggle="popover" data-trigger="hover"
+                                            <label for="billing_period">{{ __('Billing Period') }} <i data-toggle="popover"
+                                                    data-trigger="hover"
                                                     data-content="{{ __('Period when the user will be charged for the given price') }}"
                                                     class="fas fa-info-circle"></i></label>
-    
+
                                             <select id="billing_period" style="width:100%" class="custom-select"
                                                 name="billing_period" required autocomplete="off"
                                                 @error('billing_period') is-invalid @enderror>
@@ -110,11 +121,15 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="default_billing_priority">{{ __('Default Billing Priority') }}
-                                                <i data-toggle="popover" data-trigger="hover" data-content="{{ __('Defines the priority at which the servers in this product will be charged.') }}" class="fas fa-info-circle"></i>
+                                                <i data-toggle="popover" data-trigger="hover"
+                                                    data-content="{{ __('Defines the priority at which the servers in this product will be charged.') }}"
+                                                    class="fas fa-info-circle"></i>
                                             </label>
-                                            <select id="default_billing_priority" style="width:100%" class="custom-select" name="default_billing_priority" required autocomplete="off">
-                                                @foreach(App\Enums\BillingPriority::options() as $value => $label)
-                                                    <option value="{{ $value }}" @selected($product->default_billing_priority->value == $value)>{{ $label }}</option>
+                                            <select id="default_billing_priority" style="width:100%" class="custom-select"
+                                                name="default_billing_priority" required autocomplete="off">
+                                                @foreach (App\Enums\BillingPriority::options() as $value => $label)
+                                                    <option value="{{ $value }}" @selected($product->default_billing_priority->value == $value)>
+                                                        {{ $label }}</option>
                                                 @endforeach
                                             </select>
                                             @error('default_billing_priority')
@@ -128,7 +143,10 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="price">{{ __('Price in') }} {{ $credits_display_name }}</label>
-                                            <input value="{{ Currency::formatForForm($product->price) }}" id="price" name="price" type="number" step="0.0001" class="form-control @error('price') is-invalid @enderror" required="required">
+                                            <input value="{{ Currency::formatForForm($product->price) }}" id="price"
+                                                name="price" type="number" step="0.0001"
+                                                class="form-control @error('price') is-invalid @enderror"
+                                                required="required">
                                             @error('price')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -137,9 +155,15 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="minimum_credits">{{ __('Minimum') }} {{ $credits_display_name }}
-                                                <i data-toggle="popover" data-trigger="hover" data-content="{{ __('Setting to empty will use the value from configuration.') }}" class="fas fa-info-circle"></i>
+                                                <i data-toggle="popover" data-trigger="hover"
+                                                    data-content="{{ __('Leave empty to use the product price. Minimum credits cannot be less than the product price.') }}"
+                                                    class="fas fa-info-circle"></i>
                                             </label>
-                                            <input value="{{ $product->minimum_credits ? Currency::formatForForm($product->minimum_credits) : null }}" id="minimum_credits" name="minimum_credits" type="number" step="0.0001" class="form-control @error('minimum_credits') is-invalid @enderror">
+                                            <input
+                                                value="{{ !is_null($product->minimum_credits) ? Currency::formatForForm($product->minimum_credits) : null }}"
+                                                id="minimum_credits" name="minimum_credits" type="number"
+                                                step="0.0001"
+                                                class="form-control @error('minimum_credits') is-invalid @enderror">
                                             @error('minimum_credits')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -151,8 +175,9 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="cpu">{{ __('Cpu') }}</label>
-                                            <input value="{{ $product->cpu }}" id="cpu" name="cpu" type="number"
-                                                class="form-control @error('cpu') is-invalid @enderror" required="required">
+                                            <input value="{{ $product->cpu }}" id="cpu" name="cpu"
+                                                type="number" class="form-control @error('cpu') is-invalid @enderror"
+                                                required="required">
                                             @error('cpu')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -186,7 +211,9 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="io">{{ __('IO') }}</label>
-                                            <input value="{{ $product->io }}" id="io" name="io" type="number" class="form-control @error('io') is-invalid @enderror" required="required">
+                                            <input value="{{ $product->io }}" id="io" name="io"
+                                                type="number" class="form-control @error('io') is-invalid @enderror"
+                                                required="required">
                                             @error('io')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -209,8 +236,13 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="serverlimit">{{ __('Server limit') }}</label>
-                                            <i data-toggle="popover" data-trigger="hover" data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}" class="fas fa-info-circle"></i>
-                                            <input value="{{ $product->serverlimit ?? 0 }}" id="serverlimit" name="serverlimit" type="number" class="form-control @error('serverlimit') is-invalid @enderror" required="required">
+                                            <i data-toggle="popover" data-trigger="hover"
+                                                data-content="{{ __('The maximum amount of Servers that can be created with this Product per User. 0 = unlimited') }}"
+                                                class="fas fa-info-circle"></i>
+                                            <input value="{{ $product->serverlimit ?? 0 }}" id="serverlimit"
+                                                name="serverlimit" type="number"
+                                                class="form-control @error('serverlimit') is-invalid @enderror"
+                                                required="required">
                                             @error('serverlimit')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -222,7 +254,10 @@
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label for="allocations">{{ __('Allocations') }}</label>
-                                            <input value="{{ $product->allocations ?? 0 }}" id="allocations" name="allocations" type="number" class="form-control @error('allocations') is-invalid @enderror" required="required">
+                                            <input value="{{ $product->allocations ?? 0 }}" id="allocations"
+                                                name="allocations" type="number"
+                                                class="form-control @error('allocations') is-invalid @enderror"
+                                                required="required">
                                             @error('allocations')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -231,7 +266,10 @@
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label for="databases">{{ __('Databases') }}</label>
-                                            <input value="{{ $product->databases ?? 1 }}" id="databases" name="databases" type="number" class="form-control @error('databases') is-invalid @enderror" required="required">
+                                            <input value="{{ $product->databases ?? 1 }}" id="databases"
+                                                name="databases" type="number"
+                                                class="form-control @error('databases') is-invalid @enderror"
+                                                required="required">
                                             @error('databases')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -240,7 +278,10 @@
                                     <div class="col-lg-4">
                                         <div class="form-group">
                                             <label for="backups">{{ __('Backups') }}</label>
-                                            <input value="{{ $product->backups ?? 1 }}" id="backups" name="backups" type="number" class="form-control @error('backups') is-invalid @enderror" required="required">
+                                            <input value="{{ $product->backups ?? 1 }}" id="backups" name="backups"
+                                                type="number"
+                                                class="form-control @error('backups') is-invalid @enderror"
+                                                required="required">
                                             @error('backups')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -249,20 +290,20 @@
                                 </div>
 
                                 <div class="row">
-									<div class="col-lg-6">
-										<div class="form-group">
-											<input type="checkbox" value="1" id="oom_killer" name="oom_killer" {{ old('oom_killer', $product->oom_killer) ? 'checked' : '' }}>
-											<label for="oom_killer">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <input type="checkbox" value="1" id="oom_killer" name="oom_killer"
+                                                {{ old('oom_killer', $product->oom_killer) ? 'checked' : '' }}>
+                                            <label for="oom_killer">
                                                 {{ __('OOM Killer') }}
-                                                <i data-toggle="popover"
-                                                    data-trigger="hover"
+                                                <i data-toggle="popover" data-trigger="hover"
                                                     data-content="{{ __('Enable or Disable the OOM Killer for this Product.') }}"
                                                     class="fas fa-info-circle">
                                                 </i>
                                             </label>
-										</div>
-									</div>
-								</div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
                                 </div>
@@ -274,17 +315,22 @@
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="card-title">{{ __('Product Linking') }}
-                                    <i data-toggle="popover" data-trigger="hover" data-content="{{ __('Link your products to nodes and eggs to create dynamic pricing for each option') }}" class="fas fa-info-circle"></i>
+                                    <i data-toggle="popover" data-trigger="hover"
+                                        data-content="{{ __('Link your products to nodes and eggs to create dynamic pricing for each option') }}"
+                                        class="fas fa-info-circle"></i>
                                 </h5>
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
                                     <label for="nodes">{{ __('Nodes') }}</label>
-                                    <select id="nodes" style="width:100%" class="custom-select @error('nodes') is-invalid @enderror" name="nodes[]" multiple="multiple" autocomplete="off">
+                                    <select id="nodes" style="width:100%"
+                                        class="custom-select @error('nodes') is-invalid @enderror" name="nodes[]"
+                                        multiple="multiple" autocomplete="off">
                                         @foreach ($locations as $location)
                                             <optgroup label="{{ $location->name }}">
                                                 @foreach ($location->nodes as $node)
-                                                    <option value="{{ $node->id }}" @selected($product->nodes->contains('id', $node->id))>{{ $node->name }}</option>
+                                                    <option value="{{ $node->id }}" @selected($product->nodes->contains('id', $node->id))>
+                                                        {{ $node->name }}</option>
                                                 @endforeach
                                             </optgroup>
                                         @endforeach
@@ -292,22 +338,30 @@
                                     @error('nodes')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
-                                    <div class="text-muted">{{ __('This product will only be available for these nodes') }}</div>
+                                    <div class="text-muted">
+                                        {{ __('This product will only be available for these nodes') }}</div>
                                 </div>
 
                                 <div class="form-group">
                                     <div class="mb-2 d-flex justify-content-between align-items-center">
                                         <label for="eggs" class="mb-0">{{ __('Eggs') }}</label>
                                         <div>
-                                            <button type="button" id="select-all-eggs" class="btn btn-sm btn-secondary">{{ __('Select All') }}</button>
-                                            <button type="button" id="deselect-all-eggs" class="ml-2 btn btn-sm btn-secondary">{{ __('Deselect All') }}</button>
+                                            <button type="button" id="select-all-eggs"
+                                                class="btn btn-sm btn-secondary">{{ __('Select All') }}</button>
+                                            <button type="button" id="deselect-all-eggs"
+                                                class="ml-2 btn btn-sm btn-secondary">{{ __('Deselect All') }}</button>
                                         </div>
                                     </div>
-                                    <select id="eggs" style="width:100%" class="custom-select @error('eggs') is-invalid @enderror" name="eggs[]" multiple="multiple" autocomplete="off">
+                                    <select id="eggs" style="width:100%"
+                                        class="custom-select @error('eggs') is-invalid @enderror" name="eggs[]"
+                                        multiple="multiple" autocomplete="off">
                                         @foreach ($nests as $nest)
-                                            <optgroup label="{{ $nest->name }}" class="nest-group" data-nest-id="{{ $nest->id }}">
+                                            <optgroup label="{{ $nest->name }}" class="nest-group"
+                                                data-nest-id="{{ $nest->id }}">
                                                 @foreach ($nest->eggs as $egg)
-                                                    <option class="egg-option" data-nest-id="{{ $nest->id }}" value="{{ $egg->id }}" @selected($product->eggs->contains('id', $egg->id))>{{ $egg->name }}</option>
+                                                    <option class="egg-option" data-nest-id="{{ $nest->id }}"
+                                                        value="{{ $egg->id }}" @selected($product->eggs->contains('id', $egg->id))>
+                                                        {{ $egg->name }}</option>
                                                 @endforeach
                                             </optgroup>
                                         @endforeach
@@ -315,10 +369,12 @@
                                     @error('eggs')
                                         <div class="text-danger">{{ $message }}</div>
                                     @enderror
-                                    <div class="text-muted">{{ __('This product will only be available for these eggs') }}</div>
+                                    <div class="text-muted">{{ __('This product will only be available for these eggs') }}
+                                    </div>
                                 </div>
                                 <div class="text-muted">
-                                    {{ __('No Eggs or Nodes shown? ') }} <a href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>
+                                    {{ __('No Eggs or Nodes shown? ') }} <a
+                                        href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>
                                 </div>
                             </div>
                         </div>
@@ -335,6 +391,7 @@
             cursor: pointer !important;
             transition: background-color 0.2s;
         }
+
         .select2-results__group:hover {
             background-color: #007bff;
             color: #ffffff;
@@ -344,7 +401,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             $('[data-toggle="popover"]').popover();
-            
+
             $('.custom-select').select2({
                 minimumResultsForSearch: -1,
                 closeOnSelect: false
@@ -353,9 +410,9 @@
             $(document).on('click', '.select2-results__group', function(e) {
                 var groupName = $(this).text();
                 var $select = $('#eggs');
-                
+
                 var options = $select.find('option');
-                
+
                 var groupOptions = options.filter(function() {
                     return $(this).closest('optgroup').attr('label') === groupName;
                 });
