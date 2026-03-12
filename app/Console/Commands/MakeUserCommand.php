@@ -88,6 +88,7 @@ class MakeUserCommand extends Command
             'email' => $response['email'],
             'password' => Hash::make($password),
             'referral_code' => $this->createReferralCode(),
+            'credits' => config('SETTINGS::USER:INITIAL_CREDITS', 150),
             'pterodactyl_id' => $response['id'],
         ]);
 
