@@ -167,35 +167,47 @@
     <!-- END CONTENT -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-             setInterval(function() {
-                fetch("{{ route('admin.ticket.comments', $ticket->ticket_id) }}")
-                .then(response => response.json())
-                .then(data => {
-                    let html = '';
-                    data.forEach(comment => {
-                        let rolesHtml = '';
-                        comment.user.roles.forEach(role => {
-                             rolesHtml += `<span style='background-color: ${role.color}' class='badge'>${role.name}</span> `;
-                        });
+            function escapeHtml(value) {
+                if (value === null || value === undefined) {
+                    return '';
+                }
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
 
-                        html += `
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="card-title"><img
-                                            src="${comment.user.avatar}"
-                                            class="user-image" alt="User Image">
-                                        <a href="/admin/users/${comment.user.id}">${comment.user.name}</a>
-                                        ${rolesHtml}
-                                    </h5>
-                                    <span class="badge badge-primary">${comment.created_at}</span>
+            setInterval(function() {
+                fetch("{{ route('admin.ticket.comments', $ticket->ticket_id) }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = '';
+                        data.forEach(comment => {
+                            let rolesHtml = '';
+                            comment.user.roles.forEach(role => {
+                                rolesHtml += `<span style='background-color: ${escapeHtml(role.color)}' class='badge'>${escapeHtml(role.name)}</span> `;
+                            });
+
+                            html += `
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title"><img
+                                                src="${escapeHtml(comment.user.avatar)}"
+                                                class="user-image" alt="User Image">
+                                            <a href="/admin/users/${escapeHtml(comment.user.id)}">${escapeHtml(comment.user.name)}</a>
+                                            ${rolesHtml}
+                                        </h5>
+                                        <span class="badge badge-primary">${escapeHtml(comment.created_at)}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body" style="white-space:pre-wrap">${comment.ticketcomment}</div>
-                        </div>`;
+                                <div class="card-body" style="white-space:pre-wrap">${escapeHtml(comment.ticketcomment)}</div>
+                            </div>`;
+                        });
+                        document.getElementById('ticket-comments').innerHTML = html;
                     });
-                    document.getElementById('ticket-comments').innerHTML = html;
-                });
             }, 15000);
         });
     </script>
