@@ -206,10 +206,11 @@
                                     <i class="mx-2 fas fa-check"></i>
                                 </button>
                             @elseif ($server->canceled && $server->suspended)
-                                <button class="text-center btn btn-success" disabled
-                                    data-toggle="tooltip" data-placement="bottom" title="{{ __('Server is suspended and cannot be fully restored.') }}">
-                                    <i class="mx-2 fas fa-check"></i>
-                                </button>
+                                <span data-toggle="tooltip" data-placement="bottom" title="{{ __('Server is suspended and cannot be fully restored.') }}">
+                                    <button class="text-center btn btn-success" disabled>
+                                        <i class="mx-2 fas fa-check"></i>
+                                    </button>
+                                </span>
                             @else
                                 <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                     class="text-center btn btn-warning"
