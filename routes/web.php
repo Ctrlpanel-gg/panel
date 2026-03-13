@@ -208,7 +208,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('ticket/datatable', [AdminTicketsController::class, 'datatable'])->name('ticket.datatable');
         Route::get('ticket/show/{ticket_id}', [AdminTicketsController::class, 'show'])->name('ticket.show');
         
-        Route::get('ticket/comments/{ticket_id}', [AdminTicketsController::class, 'getComments'])->name('ticket.comments');
+        Route::get('ticket/comments/{ticket_id}', [AdminTicketsController::class, 'show'])->name('ticket.comments');
         
         Route::post('ticket/reply', [AdminTicketsController::class, 'reply'])->name('ticket.reply');
         Route::post('ticket/status/{ticket_id}', [AdminTicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
