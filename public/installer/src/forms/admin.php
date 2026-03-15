@@ -80,7 +80,20 @@ if (isset($_POST['createUser'])) {
 
     $random = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8); // random referal
 
-    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '250000', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
+    try {
+        $settingValue = run_console("php artisan settings:get 'UserSettings' 'initial_credits' --sameline");
+        if (!empty($settingValue) && is_numeric($settingValue)) {
+            $creditsInDatabase = (int)$settingValue;
+            wh_log('Successfully retrieved initial_credits from UserSettings: ' . $creditsInDatabase, 'debug');
+        } else {
+            wh_log('UserSettings initial_credits is empty or invalid, using default: 250000', 'warning');
+        }
+    } catch (Throwable $th) {
+        wh_log('Could not retrieve initial_credits setting, using default of 250000', 'warning');
+        wh_log('Error: ' . $th->getMessage(), 'warning');
+    }
+
+    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '$creditsInDatabase', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
     $query2 = "INSERT INTO `" . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\\\Models\\\User', '1')";
     try {
         $db->query($query1);
