@@ -115,7 +115,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('ticket/new', [TicketsController::class, 'store'])->name('ticket.new.store');
     Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
     
-    Route::get('ticket/comments/{ticket_id}', [TicketsController::class, 'getComments'])->name('ticket.comments');
+    Route::get('ticket/comments/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.comments');
     
     Route::post('ticket/reply', [TicketsController::class, 'reply'])->name('ticket.reply');
 
