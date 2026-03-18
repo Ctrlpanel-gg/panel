@@ -407,6 +407,8 @@ class PterodactylClient
      * @param  Server  $server
      * @param  Product  $product
      * @return Response
+     * 
+     * @deprecated Use updateServerBuild instead.
      */
     public function updateServer(Server $server, Product $product)
     {
@@ -428,6 +430,43 @@ class PterodactylClient
     }
 
     /**
+     * Update server build.
+     *
+     * @param  Server  $server
+     * @return Response
+     * 
+     * @throws Exception
+     */
+    public function updateServerBuild(string $pterodactylId, int $pterodactylAllocation, Product $product)
+    {
+        try {
+            $response = $this->application->patch("application/servers/{$pterodactylId}/build", [
+                'allocation' => $pterodactylAllocation,
+                'memory' => $product->memory,
+                'swap' => $product->swap,
+                'disk' => $product->disk,
+                'io' => $product->io,
+                'cpu' => $product->cpu,
+                'threads' => null,
+                'oom_disabled' => $product->oom_killer,
+                'feature_limits' => [
+                    'databases' => $product->databases,
+                    'backups' => $product->backups,
+                    'allocations' => $product->allocations,
+                ],
+            ]);
+
+            if ($response->failed()) {
+                throw self::getException('Server not found on Pterodactyl', 404);
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            throw self::getException($e->getMessage());
+        }
+    }
+
+    /**
      * Update the owner of a server
      *
      * @param  int  $userId
@@ -440,6 +479,25 @@ class PterodactylClient
             'name' => $server->name,
             'user' => $userId,
         ]);
+    }
+
+    /**
+     * Update server details
+     *
+     * @param  Server  $server
+     * @param  array  $data
+     * @return Response
+     * 
+     * @throws HttpException
+     * @throws Exception
+     */
+    public function updateServerDetails(Server $server, array $data)
+    {
+        try {
+            return $this->application->patch("application/servers/{$server->pterodactyl_id}/details", $data);
+        } catch (Exception $e) {
+            throw self::getException($e->getMessage());
+        }
     }
 
     /**
@@ -495,15 +553,16 @@ class PterodactylClient
     private function getEnvironmentVariables(Egg $egg, $variables)
     {
         $environment = [];
-        $variables = json_decode($variables, true);
+        // Support for front-end and api variables format.
+        $variables = collect(is_string($variables) ? json_decode($variables, true) : $variables);
 
         foreach ($egg->environment as $envVariable) {
-            $matchedVariable = collect($variables)->firstWhere('env_variable', $envVariable['env_variable']);
-
-            $environment[$envVariable['env_variable']] = $matchedVariable
-                ? $matchedVariable['filled_value']
-                : $envVariable['default_value'];
+            if (!empty($envVariable['default_value'])) {
+                $environment[$envVariable['env_variable']] = $envVariable['default_value'];
+            }
         }
+
+        $environment = array_merge($environment, $variables->toArray());
 
         return $environment;
     }

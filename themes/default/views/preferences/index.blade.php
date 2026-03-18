@@ -21,7 +21,7 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
-            @if ($currencyOverrideAlert)
+            @if (!empty($currencyOverrideAlert))
                 <div class="alert alert-warning alert-dismissible">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                     <h5><i class="icon fas fa-exclamation-triangle"></i> {{ __('Currency Format Override') }}</h5>

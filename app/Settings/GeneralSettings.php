@@ -2,8 +2,9 @@
 
 namespace App\Settings;
 
-use Spatie\LaravelSettings\Settings;
 use App\Helpers\CurrencyHelper;
+use Spatie\LaravelSettings\Settings;
+
 class GeneralSettings extends Settings
 {
     public bool $store_enabled = false;
@@ -53,6 +54,20 @@ class GeneralSettings extends Settings
         return $validations;
     }
 
+    public static function getCurrencyFormatOptions()
+    {
+        $options = [];
+        $locales = config('app.available_locales');
+        $helper = app(CurrencyHelper::class);
+
+        foreach ($locales as $locale) {
+            $sample = $helper->formatForDisplay(1234560, 2, $locale, true);
+            $options[$locale] = "$locale: $sample";
+        }
+
+        return $options;
+    }
+
     public static function getThemes()
     {
         $themes = array_diff(scandir(base_path('themes')), array('..', '.'));
@@ -66,20 +81,7 @@ class GeneralSettings extends Settings
         return $themesWithLabels;
     }
 
-    public static function getCurrencyFormatOptions()
-    {
-        $options = [];
-        $locales = config('app.available_locales');
-        $helper = app(CurrencyHelper::class);
 
-        foreach ($locales as $locale) {
-            // Format a sample amount (1234.56 in database units = 1234560)
-            $sample = $helper->formatForDisplay(1234560, 2, $locale, true);
-            $options[$locale] = "$locale: $sample";
-        }
-
-        return $options;
-    }
 
     /**
      * Summary of optionTypes
@@ -112,7 +114,7 @@ class GeneralSettings extends Settings
                 'label' => 'Currency Format Override',
                 'description' => 'Force all currency displays to use this locale\'s formatting, overriding the current locale.',
                 'options' => array_merge(['' => 'Auto (Use Current Locale)'], self::getCurrencyFormatOptions()),
-                'identifier' => 'value'
+                'identifier' => 'value',
             ],
             'recaptcha_version' => [
                 'type' => 'select',

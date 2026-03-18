@@ -24,7 +24,6 @@ class PreferencesController extends Controller
         $generalSettings = $this->generalSettings;
 
         $currencyOverrideAlert = null;
-        // Only show alert when an override is actively set (non-empty string)
         if (!empty($generalSettings->currency_format_override)) {
             $currencyOverrideAlert = __('Global currency format override is enabled. All currency and number displays use :locale formatting. Your language preference does not affect currency formatting.', ['locale' => $generalSettings->currency_format_override]);
         }

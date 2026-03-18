@@ -4,13 +4,14 @@ namespace App\Console\Commands;
 
 use App\Classes\PterodactylClient;
 use App\Models\User;
-use App\Settings\UserSettings;
+use App\Settings\GeneralSettings;
 use App\Settings\PterodactylSettings;
+use App\Settings\UserSettings;
 use App\Traits\Referral;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Facades\Currency;
+
 class MakeUserCommand extends Command
 {
     use Referral;

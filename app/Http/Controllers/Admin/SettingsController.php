@@ -67,7 +67,7 @@ class SettingsController extends Controller
                     'identifier' => $optionInputData[$key]['identifier'] ?? 'option'
                 ];
 
-                if ($optionInputData[$key]['type'] === 'number') {
+                if($optionInputData[$key]['type'] === 'number') {
                     $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
 
                     if ($optionInputData[$key]['mustBeConverted'] ?? false) {
@@ -83,7 +83,7 @@ class SettingsController extends Controller
 
             if (isset($optionInputData['position'])) {
                 $optionsData['position'] = $optionInputData['position'];
-            } else {
+            }else{
                 $optionsData['position'] = 99;
             }
 
@@ -149,9 +149,8 @@ class SettingsController extends Controller
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
 
-            if ($rpType == 'bool') {
-                // Always assign false if key is missing (checkbox unchecked)
-                $settingsClass->$key = $request->has($key) ? true : false;
+            if ($rpType && $rpType->getName() === 'bool') {
+                $settingsClass->$key = $request->has($key);
                 continue;
             }
             if ($rp->name == 'available') {
@@ -159,23 +158,26 @@ class SettingsController extends Controller
                 continue;
             }
 
-            $nullable = $rpType->allowsNull();
-            $inputValue = $nullable ? ($request->input($key) ?? null) : $request->input($key);
+            $inputValue = $request->input($key);
 
-            // using currency facade for reward and other currency fields
+            // User/referral currency values are stored in thousandths.
             $currencyKeys = [
                 'reward',
                 'credits_reward_after_verify_discord',
                 'credits_reward_after_verify_email',
                 'initial_credits',
-                'min_credits_to_make_server',
             ];
 
-            if (in_array($key, $currencyKeys) && $inputValue !== null && $inputValue !== '') {
+            if (in_array($key, $currencyKeys, true) && !is_null($inputValue) && $inputValue !== '') {
                 $inputValue = Currency::prepareForDatabase($inputValue);
             }
 
-            $settingsClass->$key = $inputValue;
+            $nullable = $rpType ? $rpType->allowsNull() : true;
+            if ($nullable) {
+                $settingsClass->$key = $inputValue ?? null;
+            } else {
+                $settingsClass->$key = $inputValue;
+            }
         }
         $settingsClass->save();
 

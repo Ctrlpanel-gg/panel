@@ -14,15 +14,8 @@ class ReferralNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * @var User
-     */
-    private $user;
-
     private $ref_user;
-
     private $reward;
-
     private $credits_display_name;
 
     /**
@@ -30,15 +23,14 @@ class ReferralNotification extends Notification implements ShouldQueue
      *
      * @param  User  $user
      */
-    public function __construct(int $user, int $ref_user)
+    public function __construct(User $ref_user)
     {
         $general_settings= new GeneralSettings();
         $referral_settings = new ReferralSettings();
 
         $this->credits_display_name = $general_settings->credits_display_name;
         $this->reward = $referral_settings->reward;
-        $this->user = User::findOrFail($user);
-        $this->ref_user = User::findOrFail($ref_user);
+        $this->ref_user = $ref_user;
     }
 
     /**

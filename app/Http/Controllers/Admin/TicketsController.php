@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Moderation\Exception;
 use App\Models\Server;
 use App\Models\Ticket;
 use App\Models\TicketBlacklist;
@@ -13,6 +12,7 @@ use App\Models\User;
 use App\Notifications\Ticket\User\ReplyNotification;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

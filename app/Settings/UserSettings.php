@@ -2,7 +2,6 @@
 
 namespace App\Settings;
 
-use App\Casts\Settings\CurrencyCast;
 use Spatie\LaravelSettings\Settings;
 
 class UserSettings extends Settings
@@ -15,7 +14,6 @@ class UserSettings extends Settings
     public bool $force_email_verification = false;
     public int $initial_credits = 250000;
     public int $initial_server_limit = 1;
-    public int $min_credits_to_make_server = 0;
     public int $server_limit_increment_after_irl_purchase = 0;
     public int $server_limit_increment_after_verify_discord = 0;
     public int $server_limit_increment_after_verify_email = 0;
@@ -24,21 +22,6 @@ class UserSettings extends Settings
     {
         return 'user';
     }
-
-    /**
-     * Casts the settings to the correct type.
-     *
-     * @return array<string, CurrencyCast>
-     */
-    // public static function casts(): array
-    // {
-    //     return [
-    //         'credits_reward_after_verify_discord' => CurrencyCast::class,
-    //         'credits_reward_after_verify_email' => CurrencyCast::class,
-    //         'initial_credits' => CurrencyCast::class,
-    //         'min_credits_to_make_server' => CurrencyCast::class,
-    //     ];
-    // }
 
     /**
      * Summary of validations array
@@ -53,7 +36,6 @@ class UserSettings extends Settings
             'force_email_verification' => 'nullable|string',
             'initial_credits' => 'required|numeric',
             'initial_server_limit' => 'required|numeric',
-            'min_credits_to_make_server' => 'required|numeric',
             'server_limit_increment_after_irl_purchase' => 'required|numeric',
             'server_limit_increment_after_verify_discord' => 'required|numeric',
             'server_limit_increment_after_verify_email' => 'required|numeric',
@@ -105,12 +87,7 @@ class UserSettings extends Settings
                 'type' => 'number',
                 'description' => 'The amount of servers a user can create when they register.',
             ],
-            'min_credits_to_make_server' => [
-                'label' => 'Min Credits To Make Server',
-                'type' => 'number',
-                'description' => 'The minimum amount of credits a user needs to create a server.',
-                'mustBeConverted' => true,
-            ],
+
             'server_limit_increment_after_irl_purchase' => [
                 'label' => 'Server Limit Increase After first purchase',
                 'type' => 'number',

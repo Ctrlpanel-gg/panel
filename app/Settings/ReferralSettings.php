@@ -2,7 +2,6 @@
 
 namespace App\Settings;
 
-use App\Casts\Settings\CurrencyCast;
 use Spatie\LaravelSettings\Settings;
 
 class ReferralSettings extends Settings
@@ -17,18 +16,6 @@ class ReferralSettings extends Settings
     {
         return 'referral';
     }
-
-    // /**
-    //  * Casts the settings to the correct type.
-    //  *
-    //  * @return array<string, CurrencyCast>
-    //  */
-    // public static function casts(): array
-    // {
-    //     return [
-    //         'reward' => CurrencyCast::class,
-    //     ];
-    // }
 
     /**
      * Summary of validations array

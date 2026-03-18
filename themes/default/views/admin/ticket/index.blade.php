@@ -6,13 +6,13 @@
         <div class="container-fluid">
             <div class="mb-2 row">
                 <div class="col-sm-6">
-                    <h1>{{__('Ticket')}}</h1>
+                    <h1>{{ __('Ticket') }}</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Dashboard') }}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.ticket.index')}}">{{__('Ticket List')}}</a></li>
+                                href="{{ route('admin.ticket.index') }}">{{ __('Ticket List') }}</a></li>
                     </ol>
                 </div>
             </div>
@@ -28,9 +28,10 @@
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
-                        <h5 class="card-title"><i class="mr-2 fas fa-ticket-alt"></i>{{__('Ticket List')}}</h5>
+                        <h5 class="card-title"><i class="mr-2 fas fa-ticket-alt"></i>{{ __('Ticket List') }}</h5>
                     </div>
-                    <a href="{{route("admin.ticket.category.index")}}"><button class="float-right btn btn-primary">+ {{__("Add Category")}}</button></a>
+                    <a href="{{ route('admin.ticket.category.index') }}"><button class="float-right btn btn-primary">+
+                            {{ __('Add Category') }}</button></a>
                 </div>
 
 
@@ -39,15 +40,15 @@
 
                     <table id="datatable" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th>{{__('Category')}}</th>
-                            <th>{{__('Title')}}</th>
-                            <th>{{__('User')}}</th>
-                            <th>{{__('Priority')}}</th>
-                            <th>{{__('Status')}}</th>
-                            <th>{{__('Last Updated')}}</th>
-                            <th>{{__('Actions')}}</th>
-                        </tr>
+                            <tr>
+                                <th>{{ __('Category') }}</th>
+                                <th>{{ __('Title') }}</th>
+                                <th>{{ __('User') }}</th>
+                                <th>{{ __('Priority') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Last Updated') }}</th>
+                                <th>{{ __('Actions') }}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         </tbody>
@@ -72,18 +73,39 @@
                 processing: true,
                 serverSide: true,
                 stateSave: true,
-                ajax: "{{route('admin.ticket.datatable')}}",
-                order: [[ 4, "desc" ]],
-                columns: [
-                    {data: 'category'},
-                    {data: 'title'},
-                    {data: 'user_id'},
-                    {data: 'priority'},
-                    {data: 'status'},
-                    {data: 'updated_at', type: 'num', render: {_: 'display', sort: 'raw'}},
-                    {data: 'actions', sortable: false},
+                ajax: "{{ route('admin.ticket.datatable') }}",
+                order: [
+                    [4, "desc"]
                 ],
-                fnDrawCallback: function( oSettings ) {
+                columns: [{
+                        data: 'category'
+                    },
+                    {
+                        data: 'title'
+                    },
+                    {
+                        data: 'user_id'
+                    },
+                    {
+                        data: 'priority'
+                    },
+                    {
+                        data: 'status'
+                    },
+                    {
+                        data: 'updated_at',
+                        type: 'num',
+                        render: {
+                            _: 'display',
+                            sort: 'raw'
+                        }
+                    },
+                    {
+                        data: 'actions',
+                        sortable: false
+                    },
+                ],
+                fnDrawCallback: function(oSettings) {
                     $('[data-toggle="popover"]').popover();
                 }
             });

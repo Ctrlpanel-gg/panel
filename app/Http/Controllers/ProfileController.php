@@ -30,7 +30,8 @@ class ProfileController extends Controller
 
         return view('profile.index')->with([
             'user' => Auth::user(),
-            'credits_reward_after_verify_discord' => Currency::formatForDisplay($user_settings->credits_reward_after_verify_discord),
+            // raw numeric value for logical checks; formatting occurs in blades when needed
+            'credits_reward_after_verify_discord' => $user_settings->credits_reward_after_verify_discord,
             'force_email_verification' => $user_settings->force_email_verification,
             'force_discord_verification' => $user_settings->force_discord_verification,
             'discord_client_id' => $discord_settings->client_id,
@@ -42,8 +43,7 @@ class ProfileController extends Controller
     public function selfDestroyUser()
     {
         $user = Auth::user();
-        if ($user->hasRole("Admin"))
-            return back()->with("error", "You cannot delete yourself as an admin!");
+        if ($user->hasRole("Admin")) return back()->with("error", "You cannot delete yourself as an admin!");
 
         $user->delete();
 
