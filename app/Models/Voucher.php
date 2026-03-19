@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Exception;
@@ -18,6 +19,23 @@ use Exception;
 class Voucher extends Model
 {
     use HasFactory, LogsActivity, CausesActivity;
+
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        $properties = $activity->properties?->toArray() ?? [];
+
+        foreach (['attributes', 'old'] as $section) {
+            if (!isset($properties[$section]) || !is_array($properties[$section])) {
+                continue;
+            }
+
+            if (array_key_exists('credits', $properties[$section]) && is_numeric($properties[$section]['credits'])) {
+                $properties[$section]['credits'] = Currency::convertForDisplay((float) $properties[$section]['credits']);
+            }
+        }
+
+        $activity->properties = $properties;
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
