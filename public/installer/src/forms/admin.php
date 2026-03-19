@@ -80,6 +80,8 @@ if (isset($_POST['createUser'])) {
 
     $random = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 8); // random referal
 
+    $creditsInDatabase = 250000; // default
+
     try {
         $settingValue = run_console("php artisan settings:get 'UserSettings' 'initial_credits' --sameline");
         if (!empty($settingValue) && is_numeric($settingValue)) {
@@ -87,10 +89,12 @@ if (isset($_POST['createUser'])) {
             wh_log('Successfully retrieved initial_credits from UserSettings: ' . $creditsInDatabase, 'debug');
         } else {
             wh_log('UserSettings initial_credits is empty or invalid, using default: 250000', 'warning');
+            $creditsInDatabase = 250000;
         }
     } catch (Throwable $th) {
         wh_log('Could not retrieve initial_credits setting, using default of 250000', 'warning');
         wh_log('Error: ' . $th->getMessage(), 'warning');
+        $creditsInDatabase = 250000;
     }
 
     $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '$creditsInDatabase', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
