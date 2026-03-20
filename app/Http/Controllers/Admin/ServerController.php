@@ -80,6 +80,12 @@ class ServerController extends Controller
      */
     public function update(Request $request, Server $server, DiscordSettings $discord_settings)
     {
+        $this->checkAnyPermission([
+            self::WRITE_PERMISSION,
+            self::CHANGEOWNER_PERMISSION,
+            self::CHANGE_IDENTIFIER_PERMISSION,
+        ]);
+
         $request->validate([
             'identifier' => 'required|string',
             'user_id' => 'required|integer',

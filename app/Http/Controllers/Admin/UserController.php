@@ -194,6 +194,18 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $this->checkAnyPermission([
+            self::WRITE_PERMISSION,
+            self::CHANGE_EMAIL_PERMISSION,
+            self::CHANGE_CREDITS_PERMISSION,
+            self::CHANGE_USERNAME_PERMISSION,
+            self::CHANGE_PASSWORD_PERMISSION,
+            self::CHANGE_ROLE_PERMISSION,
+            self::CHANGE_REFERRAL_PERMISSION,
+            self::CHANGE_PTERO_PERMISSION,
+            self::CHANGE_SERVERLIMIT_PERMISSION,
+        ]);
+
         $data = $request->validate([
             'name' => 'required|string|min:4|max:30',
             'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
