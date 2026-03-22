@@ -52,6 +52,11 @@ class Server extends Model
     /**
      * @var string[]
      */
+    public const STATUS_PROVISIONING = 'provisioning';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_PENDING_RECONCILIATION = 'pending_reconciliation';
+
     protected $fillable = [
         "name",
         "description",
@@ -63,7 +68,8 @@ class Server extends Model
         "pterodactyl_id",
         "user_id",
         "last_billed",
-        "canceled"
+        "canceled",
+        "status"
     ];
 
     /**

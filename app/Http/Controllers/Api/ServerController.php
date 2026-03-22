@@ -68,7 +68,7 @@ class ServerController extends Controller
      * @param  Request  $request
      * @param  string  $serverId
      * @return ServerResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function show(Request $request, string $serverId)
@@ -86,7 +86,7 @@ class ServerController extends Controller
      *
      * @param  Request  $request
      * @return ServerResource
-     * 
+     *
      * @throws ValidationException
      */
     public function store(CreateServerRequest $request)
@@ -98,10 +98,6 @@ class ServerController extends Controller
 
         try {
             $server = $this->serverCreationService->handle($user, $product, $data);
-
-            $user->decrement("credits", $product->price);
-
-            event(new ServerCreatedEvent($user, $server));
 
             return ServerResource::make($server->fresh());
         } catch (Exception $e) {
@@ -117,7 +113,7 @@ class ServerController extends Controller
      * @param UpdateServerRequest $request
      * @param Server $server
      * @return ServerResource
-     * 
+     *
      * @throws ModelNotFoundException
      * @throws Exception
      */
@@ -157,7 +153,7 @@ class ServerController extends Controller
      * @param  UpdateServerBuildRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function updateBuild(UpdateServerBuildRequest $request, Server $server)
@@ -182,7 +178,7 @@ class ServerController extends Controller
      * @param  DeleteServerRequest  $request
      * @param  Server  $server
      * @return \Illuminate\Http\Response
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function destroy(DeleteServerRequest $request, Server $server)
@@ -214,7 +210,7 @@ class ServerController extends Controller
      * @param  SuspendServerRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function suspend(SuspendServerRequest $request, Server $server)
@@ -244,7 +240,7 @@ class ServerController extends Controller
      * @param  UnsuspendServerRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function unSuspend(UnsuspendServerRequest $request, Server $server)
