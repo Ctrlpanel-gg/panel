@@ -10,8 +10,9 @@ use App\Models\Product;
 use App\Models\Server;
 use App\Models\User;
 use App\Notifications\ServerCreationError;
+use App\Services\ServerCreationService;
+use App\Services\ServerUpgradeService;
 use App\Settings\DiscordSettings;
-use Carbon\Carbon;
 use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
 use App\Settings\PterodactylSettings;
@@ -20,7 +21,6 @@ use App\Enums\BillingPriority;
 use App\Settings\GeneralSettings;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,15 +35,6 @@ class ServerController extends Controller
 {
     private const CREATE_PERMISSION = 'user.server.create';
     private const UPGRADE_PERMISSION = 'user.server.upgrade';
-    private const BILLING_PERIODS = [
-        'hourly' => 3600,
-        'daily' => 86400,
-        'weekly' => 604800,
-        'monthly' => 2592000,
-        'quarterly' => 7776000,
-        'half-annually' => 15552000,
-        'annually' => 31104000
-    ];
 
     private PterodactylClient $pterodactyl;
     private PterodactylSettings $pteroSettings;
@@ -51,13 +42,17 @@ class ServerController extends Controller
     private ServerSettings $serverSettings;
     private UserSettings $userSettings;
     private DiscordSettings $discordSettings;
+    private ServerCreationService $serverCreationService;
+    private ServerUpgradeService $serverUpgradeService;
 
     public function __construct(
         PterodactylSettings $pteroSettings,
         GeneralSettings $generalSettings,
         ServerSettings $serverSettings,
         UserSettings $userSettings,
-        DiscordSettings $discordSettings
+        DiscordSettings $discordSettings,
+        ServerCreationService $serverCreationService,
+        ServerUpgradeService $serverUpgradeService
     ) {
         $this->pteroSettings = $pteroSettings;
         $this->pterodactyl = new PterodactylClient($pteroSettings);
@@ -65,6 +60,8 @@ class ServerController extends Controller
         $this->serverSettings = $serverSettings;
         $this->userSettings = $userSettings;
         $this->discordSettings = $discordSettings;
+        $this->serverCreationService = $serverCreationService;
+        $this->serverUpgradeService = $serverUpgradeService;
     }
 
     public function index(): \Illuminate\View\View
@@ -131,11 +128,17 @@ class ServerController extends Controller
             'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
         ]);
 
-        $server = $this->createServer($request);
+        try {
+            $server = $this->createServer($request);
+        } catch (Exception $e) {
+            Log::error('Server creation failed', [
+                'user_id' => $request->user()->id,
+                'product_id' => $request->input('product'),
+                'error' => $e->getMessage(),
+            ]);
 
-        if (!$server) {
             return redirect()->route('servers.index')
-                ->with('error', __('Server creation failed'));
+                ->with('error', __('Server creation failed: ') . $e->getMessage());
         }
 
         $this->handlePostCreation($request->user(), $server);
@@ -268,49 +271,23 @@ class ServerController extends Controller
         }
     }
 
-    private function createServer(Request $request): ?Server
+    private function createServer(Request $request): Server
     {
         $product = Product::findOrFail($request->input('product'));
-        $egg = $product->eggs()->findOrFail($request->input('egg'));
-        $node = $this->findAvailableNode($request->input('location'), $product);
+        $eggVariables = json_decode($request->input('egg_variables', '[]'), true);
 
-        if (!$node) return null;
+        if (!is_array($eggVariables)) {
+            $eggVariables = [];
+        }
 
-        $server = $request->user()->servers()->create([
+        return $this->serverCreationService->handle($request->user(), $product, [
             'name' => $request->input('name'),
             'product_id' => $product->id,
-            'last_billed' => Carbon::now(),
+            'egg_id' => (int) $request->input('egg'),
+            'location_id' => (int) $request->input('location'),
+            'egg_variables' => $eggVariables,
             'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
         ]);
-
-        $allocationId = $this->pterodactyl->getFreeAllocationId($node);
-        if (!$allocationId) {
-            Log::error('No AllocationID found.', [
-                'server_id' => $server->id,
-                'node_id' => $node->id,
-            ]);
-            $server->delete();
-            return null;
-        }
-
-        $response = $this->pterodactyl->createServer($server, $egg, $allocationId, $request->input('egg_variables'));
-        if ($response->failed()) {
-            Log::error('Failed to create server on Pterodactyl', [
-                'server_id' => $server->id,
-                'status' => $response->status(),
-                'error' => $response->json()
-            ]);
-            $server->delete();
-            return null;
-        }
-
-        $serverAttributes = $response->json()['attributes'];
-        $server->update([
-            'pterodactyl_id' => $serverAttributes['id'],
-            'identifier' => $serverAttributes['identifier']
-        ]);
-
-        return $server;
     }
 
     private function handlePostCreation(User $user, Server $server): void
@@ -466,7 +443,6 @@ class ServerController extends Controller
         }
 
         $user = Auth::user();
-        $oldProduct = Product::find($server->product->id);
         $newProduct = Product::find($request->product_upgrade);
 
         if (!$newProduct) {
@@ -474,19 +450,14 @@ class ServerController extends Controller
                 ->with('error', __('Selected product not found'));
         }
 
-        if (!$this->validateUpgrade($server, $oldProduct, $newProduct)) {
-            return redirect()->route('servers.show', ['server' => $server->id])
-                ->with('error', __('Insufficient resources or credits for upgrade'));
-        }
-
         try {
-            $this->processUpgrade($server, $oldProduct, $newProduct, $user);
+            $this->serverUpgradeService->handle($user, $newProduct, $server);
             return redirect()->route('servers.show', ['server' => $server->id])
                 ->with('success', __('Server Successfully Upgraded'));
         } catch (Exception $e) {
             Log::error('Server upgrade failed', [
                 'server_id' => $server->id,
-                'old_product' => $oldProduct->id,
+                'old_product' => $server->product->id,
                 'new_product' => $newProduct->id,
                 'error' => $e->getMessage()
             ]);
@@ -511,79 +482,6 @@ class ServerController extends Controller
 
         return redirect()->route('servers.show', ['server' => $server->id])
             ->with('success', __('Billing priority updated successfully'));
-    }
-
-    private function validateUpgrade(Server $server, Product $oldProduct, Product $newProduct): bool
-    {
-        $user = Auth::user();
-        if (!$server->product) {
-            return false;
-        }
-
-        $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-        if (!$serverInfo) {
-            return false;
-        }
-
-        $nodeId = $serverInfo['relationships']['node']['attributes']['id'];
-        $node = Node::findOrFail($nodeId);
-
-        // Check node resources
-        $requireMemory = $newProduct->memory - $oldProduct->memory;
-        $requireDisk = $newProduct->disk - $oldProduct->disk;
-        if (!$this->pterodactyl->checkNodeResources($node, $requireMemory, $requireDisk)) {
-            return false;
-        }
-
-        // Check if user has enough credits after refund
-        $refundAmount = $this->calculateRefund($server, $oldProduct);
-        if ($user->credits < ($newProduct->price - $refundAmount)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private function processUpgrade(Server $server, Product $oldProduct, Product $newProduct, User $user): void
-    {
-        $server->allocation = $this->pterodactyl->getServerAttributes($server->pterodactyl_id)['allocation'];
-
-        $response = $this->pterodactyl->updateServer($server, $newProduct);
-        if ($response->failed()) {
-            throw new Exception("Failed to update server on Pterodactyl");
-        }
-
-        $restartResponse = $this->pterodactyl->powerAction($server, 'restart');
-        if ($restartResponse->failed()) {
-            throw new Exception('Could not restart the server: ' . $restartResponse->json()['errors'][0]['detail']);
-        }
-
-        // Calculate refund
-        $refund = $this->calculateRefund($server, $oldProduct);
-        if ($refund > 0) {
-            $user->increment('credits', $refund);
-        }
-
-        // Update server
-        unset($server->allocation);
-        $server->update([
-            'product_id' => $newProduct->id,
-            'updated_at' => now(),
-            'last_billed' => now(),
-            'canceled' => null,
-        ]);
-
-        // Charge for new product
-        $user->decrement('credits', $newProduct->price);
-    }
-
-    private function calculateRefund(Server $server, Product $oldProduct): float
-    {
-        $billingPeriod = $oldProduct->billing_period;
-        $billingPeriodSeconds = self::BILLING_PERIODS[$billingPeriod];
-        $timeUsed = now()->diffInSeconds($server->last_billed, true);
-
-        return $oldProduct->price - ($oldProduct->price * ($timeUsed / $billingPeriodSeconds));
     }
 
     private function findAvailableNode(string $locationId, Product $product): ?Node

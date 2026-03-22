@@ -30,7 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles;
 
-    private PterodactylClient $pterodactyl;
+    private ?PterodactylClient $pterodactyl = null;
 
     /**
      * @var string[]
@@ -95,12 +95,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_reward' => 'boolean'
     ];
 
-    public function __construct()
+    public function __construct(array $attributes = [])
     {
-        parent::__construct();
-
-        $ptero_settings = new PterodactylSettings();
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
+        parent::__construct($attributes);
     }
 
     public static function boot()
@@ -141,8 +138,17 @@ class User extends Authenticatable implements MustVerifyEmail
                     ]);
             }
 
-            $user->pterodactyl->application->delete("/application/users/{$user->pterodactyl_id}");
+            $user->pterodactyl()->application->delete("/application/users/{$user->pterodactyl_id}");
         });
+    }
+
+    private function pterodactyl(): PterodactylClient
+    {
+        if ($this->pterodactyl === null) {
+            $this->pterodactyl = new PterodactylClient(app(PterodactylSettings::class));
+        }
+
+        return $this->pterodactyl;
     }
 
     /**

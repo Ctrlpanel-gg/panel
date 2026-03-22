@@ -80,6 +80,12 @@ class ServerController extends Controller
      */
     public function update(Request $request, Server $server, DiscordSettings $discord_settings)
     {
+        $this->checkAnyPermission([
+            self::WRITE_PERMISSION,
+            self::CHANGEOWNER_PERMISSION,
+            self::CHANGE_IDENTIFIER_PERMISSION,
+        ]);
+
         $request->validate([
             'identifier' => 'required|string',
             'user_id' => 'required|integer',
@@ -175,6 +181,8 @@ class ServerController extends Controller
      */
     public function cancel(Server $server)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         try {
             $server->update([
                 'canceled' => now(),
@@ -219,6 +227,8 @@ class ServerController extends Controller
 
     public function syncServers()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $CPServers = Server::get();
 
         $CPIDArray = [];
@@ -264,6 +274,8 @@ class ServerController extends Controller
      */
     public function dataTable(Request $request)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $query = Server::with(['user', 'product']);
 
 

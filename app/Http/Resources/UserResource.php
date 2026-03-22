@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Helpers\CurrencyHelper;
+use App\Models\ApplicationApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,23 +24,27 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        /** @var ApplicationApi|null $apiToken */
+        $apiToken = $request->attributes->get('apiToken');
+        $canViewSensitiveFields = ! $apiToken || $apiToken->hasAbility(ApplicationApi::ABILITY_USERS_SENSITIVE);
+
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
             'credits' => $this->currencyHelper->convertForDisplay($this->credits),
             'server_limit' => $this->server_limit,
-            'pterodactyl_id' => $this->pterodactyl_id,
             'avatar' => $this->avatar,
-            'ip' => $this->ip,
             'suspended' => $this->suspended,
-            'referral_code' => $this->referral_code,
             'email_verified_reward' => $this->email_verified_reward,
-            'discord_verified_at' => $this->discord_verified_at,
-            'last_seen' => $this->last_seen,
-            'email_verified_at' => $this->email_verified_at,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
+            'email' => $this->when($canViewSensitiveFields, $this->email),
+            'pterodactyl_id' => $this->when($canViewSensitiveFields, $this->pterodactyl_id),
+            'ip' => $this->when($canViewSensitiveFields, $this->ip),
+            'referral_code' => $this->when($canViewSensitiveFields, $this->referral_code),
+            'discord_verified_at' => $this->when($canViewSensitiveFields, $this->discord_verified_at),
+            'last_seen' => $this->when($canViewSensitiveFields, $this->last_seen),
+            'email_verified_at' => $this->when($canViewSensitiveFields, $this->email_verified_at),
             'servers_count' => $this->whenCounted('servers'),
             'servers_exists' => $this->whenExistsLoaded('servers'),
             'servers' => ServerResource::collection($this->whenLoaded('servers')),

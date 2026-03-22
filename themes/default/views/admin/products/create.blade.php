@@ -412,8 +412,9 @@
                                     </div>
                                 </div>
                                 <div class="text-muted">
-                                    {{ __('No Eggs or Nodes shown?') }} <a
-                                        href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>
+                                    {{ __('No Eggs or Nodes shown?') }}
+                                    <button type="submit" formmethod="POST" formaction="{{ route('admin.overview.sync') }}"
+                                        formnovalidate class="btn btn-link p-0 align-baseline">{{ __('Sync now') }}</button>
                                 </div>
                             </div>
                         </div>

@@ -1,5 +1,10 @@
 <?php
 
+$allowedOrigins = array_values(array_filter(array_map(
+    'trim',
+    explode(',', env('CORS_ALLOWED_ORIGINS', env('APP_URL', 'http://localhost')))
+)));
+
 return [
 
     /*
@@ -19,11 +24,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => $allowedOrigins,
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => ['Content-Type', 'X-Requested-With', 'Authorization', 'Accept', 'Origin'],
 
     'exposed_headers' => [],
 

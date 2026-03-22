@@ -2,37 +2,37 @@
 
 namespace Tests\Unit;
 
-use App\Classes\Pterodactyl;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Classes\PterodactylClient;
+use Database\Seeders\GeneralPermissionsSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TestUserCommand extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
-    /**
-     * A basic feature test example.
-     *
-     * @dataProvider invalidPteroIdDataProvider
-     *
-     * @param  array  $apiResponse
-     * @param  int  $expectedExitCode
-     * @return void
-     */
+    #[Test]
+    #[DataProvider('invalidPteroIdDataProvider')]
     public function testMakeUserCommand(array $apiResponse, int $expectedExitCode): void
     {
-        $pterodactyl = $this->getMockBuilder(Pterodactyl::class)->getMock();
+        $this->seed(GeneralPermissionsSeeder::class);
+
+        $pterodactyl = $this->getMockBuilder(PterodactylClient::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $pterodactyl->expects(self::once())->method('getUser')->willReturn($apiResponse);
 
-        $this->app->instance(Pterodactyl::class, $pterodactyl);
+        $this->app->instance(PterodactylClient::class, $pterodactyl);
 
         $this->artisan('make:user')
-            ->expectsQuestion('Please specify your Pterodactyl ID.', 0)
-            ->expectsQuestion('Please specify your password.', 'password')
+            ->expectsQuestion('Please specify your Pterodactyl ID.', 1)
+            ->expectsQuestion('password', 'password')
             ->assertExitCode($expectedExitCode);
     }
 
-    public function invalidPteroIdDataProvider(): array
+    public static function invalidPteroIdDataProvider(): array
     {
         return [
             'Good Response' => [

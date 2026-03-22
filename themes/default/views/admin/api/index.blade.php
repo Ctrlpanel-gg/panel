@@ -22,14 +22,23 @@
     <!-- MAIN CONTENT -->
     <section class="content">
         <div class="container-fluid">
+            @if (session('plain_text_api_token'))
+                <div class="alert alert-warning">
+                    <strong>{{ __('Copy this token now:') }}</strong>
+                    <code>{{ session('plain_text_api_token') }}</code>
+                    <div class="mt-1 small">{{ __('It will not be shown again after this page load.') }}</div>
+                </div>
+            @endif
 
             <div class="card">
 
                 <div class="card-header">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title"><i class="fa fa-gamepad mr-2"></i>{{__('Application API')}}</h5>
-                        <a href="{{route('admin.api.create')}}" class="btn btn-sm btn-primary"><i
-                                class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
+                        @can('admin.api.write')
+                            <a href="{{route('admin.api.create')}}" class="btn btn-sm btn-primary"><i
+                                    class="fas fa-plus mr-1"></i>{{__('Create new')}}</a>
+                        @endcan
                     </div>
                 </div>
 
@@ -40,7 +49,10 @@
                         <tr>
                             <th>{{__('Token')}}</th>
                             <th>{{__('Memo')}}</th>
+                            <th>{{__('Scopes')}}</th>
                             <th>{{__('Last used')}}</th>
+                            <th>{{__('Expires')}}</th>
+                            <th>{{__('Status')}}</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -75,7 +87,10 @@
                 columns: [
                     {data: 'token'},
                     {data: 'memo'},
+                    {data: 'abilities'},
                     {data: 'last_used'},
+                    {data: 'expires_at'},
+                    {data: 'status'},
                     {data: 'actions' , sortable : false},
                 ],
                 fnDrawCallback: function( oSettings ) {

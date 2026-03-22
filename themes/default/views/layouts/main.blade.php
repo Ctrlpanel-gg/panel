@@ -67,7 +67,7 @@
                             class="mr-2 fas fa-home"></i>{{ __('Home') }}</a>
             </li>
 
-            @foreach ($useful_links as $link)
+            @foreach (($useful_links ?? collect()) as $link)
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
                                 class="{{ $link->icon }}"></i> {{ $link->title }}</a>

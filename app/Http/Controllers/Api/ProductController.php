@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Product;
 use App\Http\Resources\ProductResource;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\Concerns\InteractsWithScopedApiTokens;
+use App\Models\Product;
 use App\Http\Requests\Api\Products\CreateProductRequest;
 use App\Http\Requests\Api\Products\UpdateProductRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,6 +14,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class ProductController extends Controller
 {
+    use InteractsWithScopedApiTokens;
+
     const ALLOWED_INCLUDES = ['servers.user', 'eggs.nest', 'nodes.location'];
     const ALLOWED_FILTERS = ['name', 'description', 'price'];
 
@@ -24,6 +27,8 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
+        $this->ensureGlobalToken($request);
+
         $products = QueryBuilder::for(Product::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
@@ -40,6 +45,8 @@ class ProductController extends Controller
      */
     public function store(CreateProductRequest $request)
     {
+        $this->ensureGlobalToken($request);
+
         $data = $request->validated();
 
         $product = Product::create($data);
@@ -68,11 +75,13 @@ class ProductController extends Controller
      * 
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, string $productId)
+    public function show(Request $request, Product $product)
     {
+        $this->ensureGlobalToken($request);
+
         $product = QueryBuilder::for(Product::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $productId)
+            ->whereKey($product->id)
             ->firstOrFail();
 
         return ProductResource::make($product);
@@ -89,6 +98,8 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
+        $this->ensureGlobalToken($request);
+
         $data = $request->validated();
 
         $product->update($data);
@@ -117,6 +128,8 @@ class ProductController extends Controller
      */
     public function destroy(Request $request, Product $product)
     {
+        $this->ensureGlobalToken($request);
+
         if ($product->servers()->exists()) {
             return response()->json([
                 'message' => 'Cannot delete product with associated servers.',

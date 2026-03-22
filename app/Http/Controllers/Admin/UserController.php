@@ -49,11 +49,10 @@ class UserController extends Controller
     const LOGIN_PERMISSION = "admin.users.login_as";
 
 
-    private $pterodactyl;
+    private ?PterodactylClient $pterodactyl = null;
 
-    public function __construct(PterodactylSettings $ptero_settings)
+    public function __construct()
     {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
 
     /**
@@ -145,6 +144,8 @@ class UserController extends Controller
      */
     public function json(Request $request)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $users = QueryBuilder::for(User::query())
             ->allowedFilters(['id', 'name', 'pterodactyl_id', 'email'])
             ->paginate(25);
@@ -194,6 +195,18 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $this->checkAnyPermission([
+            self::WRITE_PERMISSION,
+            self::CHANGE_USERNAME_PERMISSION,
+            self::CHANGE_CREDITS_PERMISSION,
+            self::CHANGE_PTERO_PERMISSION,
+            self::CHANGE_REFERRAL_PERMISSION,
+            self::CHANGE_EMAIL_PERMISSION,
+            self::CHANGE_SERVERLIMIT_PERMISSION,
+            self::CHANGE_PASSWORD_PERMISSION,
+            self::CHANGE_ROLE_PERMISSION,
+        ]);
+
         $data = $request->validate([
             'name' => 'required|string|min:4|max:30',
             'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
@@ -209,7 +222,7 @@ class UserController extends Controller
             $user->syncRoles($collectedRoles);
         }
 
-        if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
+        if (isset($this->pterodactyl()->getUser($request->input('pterodactyl_id'))['errors'])) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => [__("User does not exists on pterodactyl's panel")],
             ]);
@@ -266,7 +279,7 @@ class UserController extends Controller
                     "password" => $request->filled('new_password') ? $request->input('new_password') : null
                 ]);
 
-                $this->pterodactyl->updateUser($user->pterodactyl_id, $pteroData);
+                $this->pterodactyl()->updateUser($user->pterodactyl_id, $pteroData);
             } catch (Exception $e) {
                 Log::error($e->getMessage());
 
@@ -277,6 +290,15 @@ class UserController extends Controller
         event(new UserUpdateCreditsEvent($user));
 
         return redirect()->route('admin.users.index')->with('success', 'User updated!');
+    }
+
+    private function pterodactyl(): PterodactylClient
+    {
+        if ($this->pterodactyl === null) {
+            $this->pterodactyl = new PterodactylClient(app(PterodactylSettings::class));
+        }
+
+        return $this->pterodactyl;
     }
 
     /**
@@ -306,7 +328,14 @@ class UserController extends Controller
      */
     public function verifyEmail(User $user)
     {
+        $this->checkAnyPermission([self::CHANGE_EMAIL_PERMISSION, self::WRITE_PERMISSION]);
+
         $user->verifyEmail();
+
+        activity()
+            ->performedOn($user)
+            ->causedBy(Auth::user())
+            ->log('verified email via admin panel');
 
         return redirect()->back()->with('success', __('Email has been verified!'));
     }
@@ -390,7 +419,7 @@ class UserController extends Controller
         if (in_array('mail', $data['via'])) {
             $mail = (new MailMessage)
                 ->subject($data['title'])
-                ->markdown('mail.custom', ['content' => $data['content']]);
+                ->line(strip_tags($data['content']));
         }
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
@@ -481,8 +510,14 @@ class UserController extends Controller
                 $suspendText = $user->isSuspended() ? __('Unsuspend') : __('Suspend');
 
                 return '
-                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-envelope"></i></a>
+                <form class="d-inline" method="post" action="' . route('admin.users.loginas', $user->id) . '">
+                             ' . csrf_field() . '
+                            <button data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></button>
+                          </form>
+                <form class="d-inline" method="post" action="' . route('admin.users.verifyEmail', $user->id) . '">
+                             ' . csrf_field() . '
+                            <button data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-info"><i class="fas fa-envelope"></i></button>
+                          </form>
                 <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                 <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
                 <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">

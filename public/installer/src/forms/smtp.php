@@ -46,26 +46,21 @@ if (isset($_POST['checkSMTP'])) {
 
     wh_log('SMTP Settings are correct', 'debug');
     wh_log('Updating Database', 'debug');
-    $db = new mysqli(getenv('DB_HOST'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'), getenv('DB_DATABASE'), getenv('DB_PORT'));
-    if ($db->connect_error) {
-        wh_log($db->connect_error, 'error');
-        send_error_message("Could not connect to the Database");
-        exit();
-    }
     $values = [
         'mail_mailer' => $_POST['method'],
         'mail_host' => $_POST['host'],
-        'mail_port' => $_POST['port'],
+        'mail_port' => (int) $_POST['port'],
         'mail_username' => $_POST['user'],
         'mail_password' => $_POST['pass'],
-        'mail_encryption' => $_POST['encryption'],
+        'mail_encryption' => $_POST['encryption'] === 'null' ? null : $_POST['encryption'],
         'mail_from_address' => $_POST['user'],
+        'mail_from_name' => $_POST['user'],
     ];
 
     foreach ($values as $key => $value) {
-        wh_log("[MailSettings] Setting" . $key , 'debug');
+        wh_log("[MailSettings] Setting " . $key , 'debug');
         try {
-            run_console("php artisan settings:set 'MailSettings' '$key' '$value'", null, null, null, false);
+            run_console("php artisan settings:set 'MailSettings' " . escapeshellarg($key) . ' ' . escapeshellarg((string) $value), null, null, null, false);
         } catch (\Exception $e) {
             wh_log($e->getMessage(), 'error');
             send_error_message("Could not update the SMTP Settings in the Database");

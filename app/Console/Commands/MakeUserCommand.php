@@ -4,13 +4,12 @@ namespace App\Console\Commands;
 
 use App\Classes\PterodactylClient;
 use App\Models\User;
-use App\Settings\GeneralSettings;
-use App\Settings\PterodactylSettings;
 use App\Settings\UserSettings;
 use App\Traits\Referral;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class MakeUserCommand extends Command
 {
@@ -48,9 +47,9 @@ class MakeUserCommand extends Command
      *
      * @return int
      */
-    public function handle(PterodactylSettings $ptero_settings, UserSettings $user_settings)
+    public function handle(PterodactylClient $pterodactyl, UserSettings $user_settings)
     {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->pterodactyl = $pterodactyl;
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
         $password = $this->secret('password') ?? $this->ask('Please specify your password.');
 
@@ -86,6 +85,14 @@ class MakeUserCommand extends Command
             return 0;
         }
 
+        foreach (['id', 'email', 'first_name'] as $requiredKey) {
+            if (! array_key_exists($requiredKey, $response) || blank($response[$requiredKey])) {
+                $this->error("Invalid response from Pterodactyl: missing {$requiredKey}.");
+
+                return 0;
+            }
+        }
+
         $exists = User::where('email', $response['email'])
             ->orWhere('pterodactyl_id', $response['id'])
             ->exists();
@@ -113,7 +120,18 @@ class MakeUserCommand extends Command
             ['Referral code', $user->referral_code],
         ]);
 
-        $user->syncRoles(1);
+        $adminRole = Role::query()
+            ->where('id', 1)
+            ->orWhere('name', 'Admin')
+            ->first();
+
+        if (! $adminRole) {
+            $this->error('Admin role not found. Please seed roles and permissions first.');
+
+            return 0;
+        }
+
+        $user->syncRoles($adminRole);
 
         return 1;
     }

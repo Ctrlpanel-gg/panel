@@ -24,7 +24,7 @@ class Server extends Model
     use HasFactory;
     use LogsActivity;
 
-    private PterodactylClient $pterodactyl;
+    private ?PterodactylClient $pterodactyl = null;
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -76,12 +76,9 @@ class Server extends Model
         'billing_priority' => BillingPriority::class
     ];
 
-    public function __construct()
+    public function __construct(array $attributes = [])
     {
-        parent::__construct();
-
-        $ptero_settings = new PterodactylSettings();
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
+        parent::__construct($attributes);
     }
 
     public static function boot()
@@ -95,7 +92,7 @@ class Server extends Model
         });
 
         static::deleting(function (Server $server) {
-            $response = $server->pterodactyl->application->delete("/application/servers/{$server->pterodactyl_id}");
+            $response = $server->pterodactyl()->application->delete("/application/servers/{$server->pterodactyl_id}");
             if ($response->failed() && !is_null($server->pterodactyl_id)) {
                 //only return error when it's not a 404 error
                 if ($response['errors'][0]['status'] != '404') {
@@ -118,7 +115,7 @@ class Server extends Model
      */
     public function getPterodactylServer()
     {
-        return $this->pterodactyl->application->get("/application/servers/{$this->pterodactyl_id}");
+        return $this->pterodactyl()->application->get("/application/servers/{$this->pterodactyl_id}");
     }
 
     /**
@@ -126,7 +123,7 @@ class Server extends Model
      */
     public function suspend()
     {
-        $response = $this->pterodactyl->suspendServer($this);
+        $response = $this->pterodactyl()->suspendServer($this);
 
         if ($response->successful()) {
             $this->update([
@@ -142,7 +139,7 @@ class Server extends Model
      */
     public function unSuspend()
     {
-        $response = $this->pterodactyl->unSuspendServer($this);
+        $response = $this->pterodactyl()->unSuspendServer($this);
 
         if ($response->successful()) {
             $this->update([
@@ -185,5 +182,14 @@ class Server extends Model
                 WHERE products.id = servers.product_id
             ))')
             ->orderBy('created_at', 'asc');
+    }
+
+    private function pterodactyl(): PterodactylClient
+    {
+        if ($this->pterodactyl === null) {
+            $this->pterodactyl = new PterodactylClient(app(PterodactylSettings::class));
+        }
+
+        return $this->pterodactyl;
     }
 }

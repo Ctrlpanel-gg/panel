@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Classes\PterodactylClient;
 use App\Events\ServerCreatedEvent;
 use App\Events\ServerDeletedEvent;
+use App\Http\Controllers\Api\Concerns\InteractsWithScopedApiTokens;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Server;
@@ -28,16 +29,15 @@ use Exception;
 
 class ServerController extends Controller
 {
-    protected PterodactylSettings $pterodactylSettings;
-    protected PterodactylClient $pterodactylClient;
+    use InteractsWithScopedApiTokens;
+
+    protected ?PterodactylClient $pterodactylClient = null;
 
     public function __construct(
         protected ServerCreationService $serverCreationService,
         protected ServerUpgradeService $serverUpgradeService
     )
     {
-        $this->pterodactylSettings = app(PterodactylSettings::class);
-        $this->pterodactylClient = app(PterodactylClient::class, [$this->pterodactylSettings]);
     }
 
     public const ALLOWED_INCLUDES = ['product', 'user'];
@@ -51,7 +51,10 @@ class ServerController extends Controller
      */
     public function index(Request $request)
     {
-        $servers = QueryBuilder::for(Server::class)
+        $servers = $this->restrictServersToTokenOwner(
+            $request,
+            QueryBuilder::for(Server::class)
+        )
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters([
                 AllowedFilter::exact('suspended')->nullable(),
@@ -71,11 +74,16 @@ class ServerController extends Controller
      * 
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, string $serverId)
+    public function show(Request $request, Server $server)
     {
-        $server = QueryBuilder::for(Server::class)
+        $this->ensureCanAccessServer($request, $server);
+
+        $server = $this->restrictServersToTokenOwner(
+            $request,
+            QueryBuilder::for(Server::class)
+        )
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $serverId)
+            ->whereKey($server->id)
             ->firstOrFail();
 
         return ServerResource::make($server);
@@ -93,13 +101,15 @@ class ServerController extends Controller
     {
         $data = $request->validated();
 
+        if ($this->ownerScopedUserId($request) !== null && $this->ownerScopedUserId($request) !== (int) $data['user_id']) {
+            abort(403, 'This API token is restricted to its owner.');
+        }
+
         $user = User::findOrFail($data['user_id']);
         $product = Product::with('eggs')->findOrFail($data['product_id']);
 
         try {
             $server = $this->serverCreationService->handle($user, $product, $data);
-
-            $user->decrement("credits", $product->price);
 
             event(new ServerCreatedEvent($user, $server));
 
@@ -123,7 +133,13 @@ class ServerController extends Controller
      */
     public function update(UpdateServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
+
+        if ($this->ownerScopedUserId($request) !== null && isset($data['user_id']) && $this->ownerScopedUserId($request) !== (int) $data['user_id']) {
+            abort(403, 'This API token is restricted to its owner.');
+        }
 
         $server->fill($data);
 
@@ -131,7 +147,7 @@ class ServerController extends Controller
             if ($server->isDirty(['name', 'description', 'user_id'])) {
                 $pteroData = array_merge($request->only(['name', 'description']), ['user' => $data['user_id']]);
 
-                $response = $this->pterodactylClient->updateServerDetails($server, $pteroData);
+                $response = $this->pterodactylClient()->updateServerDetails($server, $pteroData);
 
                 if (!$response->successful()) {
                     $response->throw();
@@ -162,7 +178,13 @@ class ServerController extends Controller
      */
     public function updateBuild(UpdateServerBuildRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
+
+        if ($this->ownerScopedUserId($request) !== null && $this->ownerScopedUserId($request) !== (int) $data['user_id']) {
+            abort(403, 'This API token is restricted to its owner.');
+        }
 
         $user = User::findOrFail($data['user_id']);
         $product = Product::findOrFail($data['product_id']);
@@ -187,6 +209,8 @@ class ServerController extends Controller
      */
     public function destroy(DeleteServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
 
         try {
@@ -219,6 +243,8 @@ class ServerController extends Controller
      */
     public function suspend(SuspendServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
 
         try {
@@ -249,6 +275,8 @@ class ServerController extends Controller
      */
     public function unSuspend(UnsuspendServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
 
         try {
@@ -266,5 +294,14 @@ class ServerController extends Controller
         }
 
         return ServerResource::make($server);
+    }
+
+    private function pterodactylClient(): PterodactylClient
+    {
+        if ($this->pterodactylClient === null) {
+            $this->pterodactylClient = app(PterodactylClient::class, [app(PterodactylSettings::class)]);
+        }
+
+        return $this->pterodactylClient;
     }
 }

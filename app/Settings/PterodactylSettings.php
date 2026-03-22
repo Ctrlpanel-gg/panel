@@ -6,8 +6,8 @@ use Spatie\LaravelSettings\Settings;
 
 class PterodactylSettings extends Settings
 {
-    public string $admin_token = '';
-    public string $user_token = '';
+    public ?string $admin_token = null;
+    public ?string $user_token = null;
     public string $panel_url = '';
     public int $per_page_limit = 50;
 
@@ -15,7 +15,7 @@ class PterodactylSettings extends Settings
     {
         return 'pterodactyl';
     }
-/*
+
     public static function encrypted(): array
     {
         return [
@@ -23,7 +23,6 @@ class PterodactylSettings extends Settings
             'user_token',
         ];
     }
-*/
     /**
      * Get url with ensured ending backslash
      *
@@ -42,8 +41,8 @@ class PterodactylSettings extends Settings
     {
         return [
             'panel_url' => 'required|string|url',
-            'admin_token' => 'required|string',
-            'user_token' => 'required|string',
+            'admin_token' => 'nullable|string',
+            'user_token' => 'nullable|string',
             'per_page_limit' => 'required|integer|min:1|max:10000',
         ];
     }
@@ -65,12 +64,12 @@ class PterodactylSettings extends Settings
             ],
             'admin_token' => [
                 'label' => 'Admin Token',
-                'type' => 'string',
+                'type' => 'password',
                 'description' => 'The admin user token for your Pterodactyl panel.',
             ],
             'user_token' => [
                 'label' => 'User Token',
-                'type' => 'string',
+                'type' => 'password',
                 'description' => 'The user token for your Pterodactyl panel.',
             ],
             'per_page_limit' => [

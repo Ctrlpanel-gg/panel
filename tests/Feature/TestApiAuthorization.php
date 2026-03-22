@@ -3,22 +3,18 @@
 namespace Tests\Feature;
 
 use App\Models\ApplicationApi;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class TestApiAuthorization extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
-    /**
-     * A basic feature test example.
-     *
-     * @dataProvider ApiRoutesThatRequireAuthorization
-     *
-     * @return void
-     * @test
-     */
+    #[Test]
+    #[DataProvider('ApiRoutesThatRequireAuthorization')]
     public function test_api_route_without_auth_headers(string $method, string $route)
     {
         $response = $this->withHeaders([
@@ -29,13 +25,8 @@ class TestApiAuthorization extends TestCase
         $response->assertJson(['message' => 'Missing Authorization header']);
     }
 
-    /**
-     * A basic feature test example.
-     *
-     * @dataProvider ApiRoutesThatRequireAuthorization
-     *
-     * @return void
-     */
+    #[Test]
+    #[DataProvider('ApiRoutesThatRequireAuthorization')]
     public function test_api_route_with_auth_headers_but_invalid_token(string $method, string $route)
     {
         $response = $this->withHeaders([
@@ -47,26 +38,43 @@ class TestApiAuthorization extends TestCase
         $response->assertJson(['message' => 'Invalid Authorization token']);
     }
 
-    /**
-     * A basic feature test example.
-     *
-     * @dataProvider ApiRoutesThatRequireAuthorization
-     *
-     * @return void
-     */
+    #[Test]
+    #[DataProvider('ApiRoutesThatRequireAuthorization')]
     public function test_api_route_with_valid_auth_headers(string $method, string $route)
     {
-        $applicationApi = ApplicationApi::factory()->create();
+        [, $plainTextToken] = ApplicationApi::issue(
+            null,
+            'Test token',
+            ApplicationApi::availableAbilities()
+        );
 
         $response = $this->withHeaders([
             'Accept' => 'application/json',
-            'Authorization' => 'Bearer '.$applicationApi->token,
+            'Authorization' => 'Bearer '.$plainTextToken,
         ])->{$method}($route);
 
         $response->assertStatus(200);
     }
 
-    public function ApiRoutesThatRequireAuthorization(): array
+    #[Test]
+    public function test_api_route_with_valid_token_but_missing_scope_is_forbidden()
+    {
+        [, $plainTextToken] = ApplicationApi::issue(
+            null,
+            'Users only token',
+            [ApplicationApi::ABILITY_USERS_READ]
+        );
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $plainTextToken,
+        ])->get('/api/servers');
+
+        $response->assertStatus(403);
+        $response->assertJson(['message' => 'The API token does not have the required scope']);
+    }
+
+    public static function ApiRoutesThatRequireAuthorization(): array
     {
         return [
             'List Users' => [

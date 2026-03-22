@@ -120,20 +120,20 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
 
     //admin
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('canAccessAdminArea')->group(function () {
         //Roles
         Route::get('roles/datatable', [RoleController::class, 'datatable'])->name('roles.datatable');
         Route::resource('roles', RoleController::class);
         //overview
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
-        Route::get('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
+        Route::post('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
         Route::resource('activitylogs', ActivityLogController::class);
 
         //users
         Route::get('users.json', [UserController::class, 'json'])->name('users.json');
-        Route::get('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
-        Route::get('users/verifyEmail/{user}', [UserController::class, 'verifyEmail'])->name('users.verifyEmail');
+        Route::post('users/loginas/{user}', [UserController::class, 'loginAs'])->name('users.loginas');
+        Route::post('users/verifyEmail/{user}', [UserController::class, 'verifyEmail'])->name('users.verifyEmail');
         Route::get('users/datatable', [UserController::class, 'datatable'])->name('users.datatable');
         Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications.index');
         Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications.notify');
@@ -144,7 +144,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
         Route::post('servers/togglesuspend/{server}', [AdminServerController::class, 'toggleSuspended'])->name('servers.togglesuspend');
         Route::patch('/servers/cancel/{server}', [AdminServerController::class, 'cancel'])->name('servers.cancel');
-        Route::get('servers/sync', [AdminServerController::class, 'syncServers'])->name('servers.sync');
+        Route::post('servers/sync', [AdminServerController::class, 'syncServers'])->name('servers.sync');
         Route::resource('servers', AdminServerController::class);
 
         //products

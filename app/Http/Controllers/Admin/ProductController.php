@@ -78,7 +78,7 @@ class ProductController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:0',
@@ -103,11 +103,11 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
+        $product = Product::create($this->productPayload($validated, $disabled, $oomkiller));
 
         //link nodes and eggs
-        $product->eggs()->attach($request->input('eggs'));
-        $product->nodes()->attach($request->input('nodes'));
+        $product->eggs()->attach($validated['eggs']);
+        $product->nodes()->attach($validated['nodes']);
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been created!'));
     }
@@ -155,7 +155,9 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product): RedirectResponse
     {
-        $request->validate([
+        $this->checkPermission(self::EDIT_PERMISSION);
+
+        $validated = $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:0',
@@ -179,13 +181,13 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $product->update(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
+        $product->update($this->productPayload($validated, $disabled, $oomkiller));
 
         //link nodes and eggs
         $product->eggs()->detach();
         $product->nodes()->detach();
-        $product->eggs()->attach($request->input('eggs'));
-        $product->nodes()->attach($request->input('nodes'));
+        $product->eggs()->attach($validated['eggs']);
+        $product->nodes()->attach($validated['nodes']);
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been updated!'));
     }
@@ -231,6 +233,8 @@ class ProductController extends Controller
      */
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION, self::EDIT_PERMISSION, self::DELETE_PERMISSION]);
+
         $query = Product::with(['servers']);
 
         return datatables($query)
@@ -331,5 +335,28 @@ class ProductController extends Controller
                 $fail(__('Swap must be -1 for unlimited, 0 for disabled, or a positive integer up to :max.', ['max' => 1000000]));
             }
         };
+    }
+
+    private function productPayload(array $validated, bool $disabled, bool $oomkiller): array
+    {
+        return [
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'memory' => $validated['memory'],
+            'cpu' => $validated['cpu'],
+            'swap' => $validated['swap'],
+            'description' => $validated['description'],
+            'disk' => $validated['disk'],
+            'minimum_credits' => $validated['minimum_credits'] ?? null,
+            'io' => $validated['io'],
+            'serverlimit' => $validated['serverlimit'],
+            'databases' => $validated['databases'],
+            'backups' => $validated['backups'],
+            'allocations' => $validated['allocations'],
+            'disabled' => $disabled,
+            'oom_killer' => $oomkiller,
+            'billing_period' => $validated['billing_period'],
+            'default_billing_priority' => $validated['default_billing_priority'],
+        ];
     }
 }

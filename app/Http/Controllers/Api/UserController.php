@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Classes\PterodactylClient;
 use App\Events\UserUpdateCreditsEvent;
 use App\Helpers\CurrencyHelper;
+use App\Http\Controllers\Api\Concerns\InteractsWithScopedApiTokens;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
@@ -32,14 +33,14 @@ use Spatie\QueryBuilder\QueryBuilder;
 class UserController extends Controller
 {
     use Referral;
+    use InteractsWithScopedApiTokens;
 
-    private $pterodactyl;
+    private ?PterodactylClient $pterodactyl = null;
     private $currencyHelper;
     private $referralSettings;
 
-    public function __construct(PterodactylSettings $ptero_settings, ReferralSettings $referralSettings, CurrencyHelper $currencyHelper)
+    public function __construct(ReferralSettings $referralSettings, CurrencyHelper $currencyHelper)
     {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
         $this->referralSettings = $referralSettings;
         $this->currencyHelper = $currencyHelper;
     }
@@ -55,7 +56,10 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = QueryBuilder::for(User::class)
+        $users = $this->restrictUsersToTokenOwner(
+            $request,
+            QueryBuilder::for(User::class)
+        )
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
             ->paginate($request->input('per_page') ?? 50);
@@ -74,11 +78,16 @@ class UserController extends Controller
      * 
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, int $userId)
+    public function show(Request $request, User $user)
     {
-        $user = QueryBuilder::for(User::class)
+        $this->ensureCanAccessUser($request, $user);
+
+        $user = $this->restrictUsersToTokenOwner(
+            $request,
+            QueryBuilder::for(User::class)
+        )
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $userId)
+            ->whereKey($user->id)
             ->firstOrFail();
 
         return UserResource::make($user);
@@ -96,7 +105,13 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $data = $request->validated();
+
+        if ($this->ownerScopedUserId($request) !== null && isset($data['role_id'])) {
+            abort(403, 'This API token cannot change roles.');
+        }
 
         try {
             $payload = array_filter([
@@ -107,7 +122,7 @@ class UserController extends Controller
                 'password' => isset($data['password']) ? $data['password'] : null,
             ]);
 
-            $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, $payload);
+            $response = $this->pterodactyl()->application->patch('/application/users/' . $user->pterodactyl_id, $payload);
 
             if ($response->failed()) {
                 throw ValidationException::withMessages([
@@ -153,6 +168,8 @@ class UserController extends Controller
      */
     public function increment(IncrementRequest $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $data = $request->validated();
 
         if (isset($data['credits'])) {
@@ -180,6 +197,8 @@ class UserController extends Controller
      */
     public function decrement(DecrementRequest $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $data = $request->validated();
 
         if (isset($data['credits'])) {
@@ -204,6 +223,8 @@ class UserController extends Controller
      */
     public function suspend(SuspendUserRequest $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $data = $request->validated();
 
         if ($user->isSuspended()) {
@@ -236,6 +257,8 @@ class UserController extends Controller
      */
     public function unsuspend(UnsuspendUserRequest $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $data = $request->validated();
 
         if (!$user->isSuspended()) {
@@ -267,6 +290,8 @@ class UserController extends Controller
      */
     public function store(CreateUserRequest $request, UserSettings $userSettings)
     {
+        $this->ensureGlobalToken($request);
+
         $data = $request->validated();
 
         DB::beginTransaction();
@@ -286,7 +311,7 @@ class UserController extends Controller
 
             $this->incrementReferralUserCredits($user, $data);
 
-            $response = $this->pterodactyl->application->post('/application/users', [
+            $response = $this->pterodactyl()->application->post('/application/users', [
                 'external_id' => "0",
                 'username' => $data['name'],
                 'email' => $data['email'],
@@ -334,6 +359,8 @@ class UserController extends Controller
      */
     public function destroy(DeleteUserRequest $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $data = $request->validated();
 
         $logMessage = sprintf("The user %s (ID: %d) was deleted via API", $user->name, $user->id);
@@ -376,5 +403,14 @@ class UserController extends Controller
                 'updated_at' => Carbon::now(),
             ]);
         }
+    }
+
+    private function pterodactyl(): PterodactylClient
+    {
+        if ($this->pterodactyl === null) {
+            $this->pterodactyl = new PterodactylClient(app(PterodactylSettings::class));
+        }
+
+        return $this->pterodactyl;
     }
 }

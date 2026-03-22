@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class VoucherController extends Controller
@@ -157,41 +158,56 @@ class VoucherController extends Controller
             'code' => 'required|exists:vouchers,code',
         ]);
 
-        //get voucher by code
-        $voucher = Voucher::where('code', '=', $request->input('code'))->firstOrFail();
+        $redeemedCredits = DB::transaction(function () use ($request, $general_settings) {
+            $voucher = Voucher::query()
+                ->where('code', '=', $request->input('code'))
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        //extra validations
-        if ($voucher->getStatus() == 'USES_LIMIT_REACHED') {
-            throw ValidationException::withMessages([
-                'code' => __('This voucher has reached the maximum amount of uses'),
-            ]);
-        }
+            $user = User::query()
+                ->whereKey($request->user()->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        if ($voucher->getStatus() == 'EXPIRED') {
-            throw ValidationException::withMessages([
-                'code' => __('This voucher has expired'),
-            ]);
-        }
+            $existingRedemption = DB::table('user_voucher')
+                ->where('user_id', $user->id)
+                ->where('voucher_id', $voucher->id)
+                ->lockForUpdate()
+                ->exists();
 
-        if (! $request->user()->vouchers()->where('id', '=', $voucher->id)->get()->isEmpty()) {
-            throw ValidationException::withMessages([
-                'code' => __('You already redeemed this voucher code'),
-            ]);
-        }
+            if ($existingRedemption) {
+                throw ValidationException::withMessages([
+                    'code' => __('You already redeemed this voucher code'),
+                ]);
+            }
 
-        if ($request->user()->credits + $voucher->credits >= 99999999) {
-            throw ValidationException::withMessages([
-                'code' => "You can't redeem this voucher because you would exceed the  limit of " . $general_settings->credits_display_name,
-            ]);
-        }
+            if ($voucher->users()->count() >= $voucher->uses) {
+                throw ValidationException::withMessages([
+                    'code' => __('This voucher has reached the maximum amount of uses'),
+                ]);
+            }
 
-        //redeem voucher
-        $voucher->redeem($request->user());
+            if ($voucher->expires_at !== null && $voucher->expires_at->isPast()) {
+                throw ValidationException::withMessages([
+                    'code' => __('This voucher has expired'),
+                ]);
+            }
+
+            if ($user->credits + $voucher->credits >= 99999999) {
+                throw ValidationException::withMessages([
+                    'code' => "You can't redeem this voucher because you would exceed the  limit of " . $general_settings->credits_display_name,
+                ]);
+            }
+
+            $voucher->redeem($user);
+
+            return $voucher->credits;
+        });
 
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => $currencyHelper->formatForDisplay($voucher->credits) . ' ' . $general_settings->credits_display_name . ' ' . __('have been added to your balance!'),
+            'success' => $currencyHelper->formatForDisplay($redeemedCredits) . ' ' . $general_settings->credits_display_name . ' ' . __('have been added to your balance!'),
         ]);
     }
 

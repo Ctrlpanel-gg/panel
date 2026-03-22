@@ -14,9 +14,6 @@ use Exception;
 
 class SettingsServiceProvider extends ServiceProvider
 {
-    protected $discordSettings;
-    protected $generalSettings;
-
     /**
      * Register any application services.
      *
@@ -30,25 +27,23 @@ class SettingsServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      *
-     * @param  DiscordSettings  $discordSettings
-     * @param  GeneralSettings  $generalSettings
      * @return void
      */
-    public function boot(DiscordSettings $discordSettings, GeneralSettings $generalSettings)
+    public function boot()
     {
-        $this->discordSettings = $discordSettings;
-        $this->generalSettings = $generalSettings;
-
         if (config('app.key') == null) return;
         if (!Schema::hasColumn('settings', 'payload')) return;
 
         try {
+            $discordSettings = $this->app->make(DiscordSettings::class);
+            $generalSettings = $this->app->make(GeneralSettings::class);
+
             /*
              * DISCORD
              */
             // Inject the settings into the config
-            Config::set('services.discord.client_id', $this->discordSettings->client_id ?: "");
-            Config::set('services.discord.client_secret', $this->discordSettings->client_secret ?: "");
+            Config::set('services.discord.client_id', $discordSettings->client_id ?: "");
+            Config::set('services.discord.client_secret', $discordSettings->client_secret ?: "");
             Config::set('services.discord.redirect', config('app.url', 'http://localhost') . '/auth/callback');
             // optional
             Config::set('services.discord.allow_gif_avatars',  true);
@@ -57,14 +52,14 @@ class SettingsServiceProvider extends ServiceProvider
             /*
              * RECAPTCHA
              */
-            Config::set('recaptcha.api_site_key', $this->generalSettings->recaptcha_site_key ?: "");
-            Config::set('recaptcha.api_secret_key', $this->generalSettings->recaptcha_secret_key ?: "");
+            Config::set('recaptcha.api_site_key', $generalSettings->recaptcha_site_key ?: "");
+            Config::set('recaptcha.api_secret_key', $generalSettings->recaptcha_secret_key ?: "");
 
-            Config::set('recaptchav3.sitekey', $this->generalSettings->recaptcha_site_key ?: "");
-            Config::set('recaptchav3.secret', $this->generalSettings->recaptcha_secret_key ?: "");
+            Config::set('recaptchav3.sitekey', $generalSettings->recaptcha_site_key ?: "");
+            Config::set('recaptchav3.secret', $generalSettings->recaptcha_secret_key ?: "");
 
-            Config::set('turnstile.turnstile_site_key', $this->generalSettings->recaptcha_site_key ?: "");
-            Config::set('turnstile.turnstile_secret_key', $this->generalSettings->recaptcha_secret_key ?: "");
+            Config::set('turnstile.turnstile_site_key', $generalSettings->recaptcha_site_key ?: "");
+            Config::set('turnstile.turnstile_secret_key', $generalSettings->recaptcha_secret_key ?: "");
 
         } catch (Exception $e) {
             Log::error("Couldn't find settings. Probably the installation is not complete. " . $e);

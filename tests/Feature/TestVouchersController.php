@@ -4,8 +4,11 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Voucher;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 /**
@@ -13,36 +16,24 @@ use Tests\TestCase;
  */
 class TestVouchersController extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
-    /**
-     * @dataProvider accessibleRoutesDataProvider
-     *
-     * @param  string  $method
-     * @param  string  $route
-     * @param  int  $expectedStatus
-     */
+    #[Test]
+    #[DataProvider('accessibleRoutesDataProvider')]
     public function test_accessible_routes(string $method, string $route, int $expectedStatus)
     {
         Voucher::factory()->create([
             'id' => 1,
         ]);
 
-        $response = $this->actingAs(User::factory()->create([
-            'role' => 'admin',
-            'pterodactyl_id' => '1',
-        ]))->{$method}($route);
+        $response = $this->actingAs($this->getTestUser())
+            ->{$method}($route);
 
         $response->assertStatus($expectedStatus);
     }
 
-    /**
-     * @dataProvider VoucherDataProvider
-     *
-     * @param  array  $dataSet
-     * @param  int  $expectedCount
-     * @param  bool  $assertValidationErrors
-     */
+    #[Test]
+    #[DataProvider('VoucherDataProvider')]
     public function test_creating_vouchers(array $dataSet, int $expectedCount, bool $assertValidationErrors)
     {
         $response = $this->actingAs($this->getTestUser())->post(route('admin.vouchers.store'), $dataSet);
@@ -62,19 +53,25 @@ class TestVouchersController extends TestCase
      */
     private function getTestUser(): User
     {
-        return User::factory()->create([
-            'role' => 'admin',
+        $user = User::factory()->create([
             'pterodactyl_id' => '1',
+            'email_verified_at' => now(),
         ]);
+
+        $permission = Permission::firstOrCreate([
+            'name' => 'admin.voucher.write',
+            'guard_name' => 'web',
+        ], [
+            'readable_name' => 'Manage Vouchers',
+        ]);
+
+        $user->givePermissionTo($permission);
+
+        return $user;
     }
 
-    /**
-     * @dataProvider VoucherDataProvider
-     *
-     * @param  array  $dataSet
-     * @param  int  $expectedCount
-     * @param  bool  $assertValidationErrors
-     */
+    #[Test]
+    #[DataProvider('VoucherDataProvider')]
     public function test_updating_voucher(array $dataSet, int $expectedCount, bool $assertValidationErrors)
     {
         $voucher = Voucher::factory()->create([
@@ -93,13 +90,14 @@ class TestVouchersController extends TestCase
         $this->assertDatabaseCount('vouchers', 1);
     }
 
+    #[Test]
     public function test_deleting_vouchers()
     {
         $voucher = Voucher::factory()->create([
             'id' => 1,
         ]);
 
-        $response = $this->actingAs($this->getTestUser())->delete(route('admin.vouchers.update', $voucher->id));
+        $response = $this->actingAs($this->getTestUser())->delete(route('admin.vouchers.destroy', $voucher->id));
 
         $response->assertRedirect();
         $this->assertDatabaseCount('vouchers', 0);
@@ -108,7 +106,7 @@ class TestVouchersController extends TestCase
     /**
      * @return array
      */
-    public function VoucherDataProvider(): array
+    public static function VoucherDataProvider(): array
     {
         return [
             'Valid dataset 1' => [
@@ -299,7 +297,7 @@ class TestVouchersController extends TestCase
     /**
      * @return array[]
      */
-    public function accessibleRoutesDataProvider(): array
+    public static function accessibleRoutesDataProvider(): array
     {
         return [
             'index page' => [

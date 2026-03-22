@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\InteractsWithScopedApiTokens;
 use App\Http\Resources\NotificationResource;
 use App\Models\User;
 use App\Http\Controllers\Controller;
@@ -12,13 +13,14 @@ use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 
 class NotificationController extends Controller
 {
+    use InteractsWithScopedApiTokens;
+
     public function __construct(protected NotificationService $notificationService)
     {}
 
@@ -33,6 +35,8 @@ class NotificationController extends Controller
      */
     public function index(Request $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $notifications = $user->notifications()->paginate($request->query('per_page', 50));
 
         return NotificationResource::collection($notifications);
@@ -50,6 +54,8 @@ class NotificationController extends Controller
      */
     public function view(Request $request, User $user, ModelNotification $notification)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         return NotificationResource::make($notification);
     }
 
@@ -65,6 +71,7 @@ class NotificationController extends Controller
     {
         try {
             $data = $request->validated();
+            $this->ensureTargetsOnlyTokenOwner($request, $data['users']);
             
             $via = match($data['via']) {
                 'mail' => ['mail'],
@@ -74,13 +81,13 @@ class NotificationController extends Controller
             
             $database = in_array('database', $via) ? [
                 'title' => $data['title'],
-                'content' => $data['content'],
+                'content' => strip_tags($data['content']),
             ] : null;
             
             $mail = in_array('mail', $via) ? 
                 (new MailMessage)
                     ->subject($data['title'])
-                    ->line(new HtmlString($data['content']))
+                    ->line(strip_tags($data['content']))
                 : null;
             
             $users = $this->getTargetUsers($data);
@@ -111,6 +118,8 @@ class NotificationController extends Controller
     public function sendToAll(SendToAllUsersNotificationRequest $request)
     {
         try {
+            $this->ensureGlobalToken($request);
+
             $data = $request->validated();
             
             $via = match($data['via']) {
@@ -121,13 +130,13 @@ class NotificationController extends Controller
             
             $database = in_array('database', $via) ? [
                 'title' => $data['title'],
-                'content' => $data['content'],
+                'content' => strip_tags($data['content']),
             ] : null;
             
             $mail = in_array('mail', $via) ? 
                 (new MailMessage)
                     ->subject($data['title'])
-                    ->line(new HtmlString($data['content']))
+                    ->line(strip_tags($data['content']))
                 : null;
             
             $users = User::all();
@@ -160,6 +169,8 @@ class NotificationController extends Controller
      */
     public function destroyAll(Request $request, User $user)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $count = $user->notifications()->delete();
 
         return response()->json([
@@ -182,6 +193,8 @@ class NotificationController extends Controller
      */
     public function destroyOne(Request $request, User $user, ModelNotification $notification)
     {
+        $this->ensureCanAccessUser($request, $user);
+
         $notification->delete();
 
         return response()->noContent();

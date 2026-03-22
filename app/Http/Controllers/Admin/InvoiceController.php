@@ -12,8 +12,12 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
+    private const VIEW_PERMISSION = 'admin.payments.read';
+
     public function downloadAllInvoices()
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
         $zip = new ZipArchive;
         $zip_save_path = storage_path('invoices.zip');
 
@@ -45,6 +49,8 @@ class InvoiceController extends Controller
 
     public function downloadSingleInvoice(Request $request)
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
         $id = $request->input('id');
         try {
             $invoice = Invoice::where('payment_id', '=', $id)->firstOrFail();

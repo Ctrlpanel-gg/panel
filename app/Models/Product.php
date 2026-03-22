@@ -29,7 +29,25 @@ class Product extends Model
     }
     public $incrementing = false;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'memory',
+        'cpu',
+        'swap',
+        'disk',
+        'io',
+        'databases',
+        'backups',
+        'allocations',
+        'serverlimit',
+        'minimum_credits',
+        'disabled',
+        'oom_killer',
+        'billing_period',
+        'default_billing_priority',
+    ];
 
     /**
      * @var string[]

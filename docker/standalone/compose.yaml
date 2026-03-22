@@ -22,12 +22,12 @@ services:
     restart: unless-stopped
     tty: true
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_DATABASE: ctrlpanel
       MYSQL_USER: ctrlpaneluser
-      MYSQL_PASSWORD: root # change it
-      MYSQL_ROOT_PASSWORD: root # change it
+      MYSQL_PASSWORD: change-me-before-use
+      MYSQL_ROOT_PASSWORD: change-me-before-use
     volumes:
       - "./mysql:/var/lib/mysql:delegated"
     networks:
@@ -40,11 +40,11 @@ services:
     depends_on:
       - mysql
     ports:
-      - '8080:80'
+      - '127.0.0.1:8080:80'
     environment:
       - PMA_HOST=ctrlpanel_mysql
       - PMA_USER=root # change it
-      - PMA_PASSWORD=root # change it
+      - PMA_PASSWORD=change-me-before-use # change it
       - PMA_ARBITRARY=1
     networks:
       - ctrlpanel
@@ -54,7 +54,7 @@ services:
     container_name: ctrlpanel_redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     networks:
       - ctrlpanel
 

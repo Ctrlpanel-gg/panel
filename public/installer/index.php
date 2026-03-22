@@ -1,20 +1,34 @@
 <?php
-// report all error
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 session_start();
 
-if (!file_exists('../../.env')) {
-    echo shell_exec('cp ../../.env.example ../../.env');
+use DevCoder\DotEnv;
+
+require_once 'dotenv.php';
+
+$environmentFile = dirname(__FILE__, 2) . '/../.env';
+
+if (file_exists($environmentFile)) {
+    (new DotEnv($environmentFile))->load();
 }
 
-use DevCoder\DotEnv;
+$webInstallerEnabled = filter_var(getenv('ENABLE_WEB_INSTALLER') ?: false, FILTER_VALIDATE_BOOLEAN);
+$appEnvironment = strtolower(getenv('APP_ENV') ?: 'production');
+$remoteAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+$isLocalRequest = in_array($remoteAddress, ['127.0.0.1', '::1'], true);
+$isDevelopmentEnvironment = in_array($appEnvironment, ['local', 'development'], true);
+
+if (! $webInstallerEnabled && ! $isLocalRequest && ! $isDevelopmentEnvironment) {
+    http_response_code(403);
+    exit('The web installer is disabled for this environment. Set ENABLE_WEB_INSTALLER=true temporarily if you need to run it.');
+}
+
+if (! file_exists($environmentFile)) {
+    copy(dirname(__FILE__, 2) . '/../.env.example', $environmentFile);
+}
 
 // Include systems
 require_once '../../vendor/autoload.php';
-require_once 'dotenv.php';
 require_once './src/functions/installer.php';
 
 // Include the function files

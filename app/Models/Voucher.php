@@ -144,13 +144,9 @@ class Voucher extends Model
      */
     public function redeem(User $user)
     {
-        try {
-            $user->increment('credits', $this->credits);
-            $this->users()->attach($user);
-            $this->logRedeem($user);
-        } catch (Exception $exception) {
-            throw $exception;
-        }
+        $user->increment('credits', $this->credits);
+        $this->users()->attach($user);
+        $this->logRedeem($user);
 
         return $this->credits;
     }

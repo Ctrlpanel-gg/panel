@@ -16,9 +16,20 @@ class InstallerLock
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!file_exists(base_path()."/install.lock")){
+        if (app()->environment('testing')) {
+            return $next($request);
+        }
+
+        if (! file_exists(base_path() . "/install.lock")) {
+            $webInstallerEnabled = filter_var(env('ENABLE_WEB_INSTALLER', false), FILTER_VALIDATE_BOOLEAN);
+
+            if (app()->environment('production') && ! $webInstallerEnabled) {
+                abort(503, __('The application is not installed and the web installer is disabled in production.'));
+            }
+
             return redirect('/installer');
         }
+
         return $next($request);
     }
 }

@@ -230,7 +230,8 @@
                                                                         @case($value['type'] == 'password')
                                                                             <input type="password" class="form-control"
                                                                                 name="{{ $key }}"
-                                                                                value="{{ $value['value'] }}">
+                                                                                value=""
+                                                                                placeholder="{{ !empty($value['configured']) ? __('Configured. Leave blank to keep current value.') : __('Enter a new value') }}">
                                                                         @break
 
                                                                         @case($value['type'] == 'boolean')
