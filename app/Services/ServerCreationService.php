@@ -56,8 +56,10 @@ class ServerCreationService
         $lockKey = "server_provisioning_user_{$user->id}";
         $lock = Cache::lock($lockKey, 30);
 
-        if (!$lock->block(10)) {
-            throw new \Exception('Another provisioning request is in progress for this user.');
+        try {
+            $lock->block(10);
+        } catch (\Illuminate\Contracts\Cache\LockTimeoutException $exception) {
+            throw new \Exception('Another provisioning request is in progress for this user. Please try again in a few seconds.');
         }
 
         $server = null;
@@ -256,8 +258,14 @@ class ServerCreationService
             }
 
             if ($remoteResponse->status() === 404) {
-                $this->refundCredits($user, $chargedPrice);
-                $server->update(['status' => Server::STATUS_FAILED]);
+                // Atomic status transition to avoid double refund when update fails.
+                $updated = Server::where('id', $server->id)
+                    ->where('status', '!=', Server::STATUS_FAILED)
+                    ->update(['status' => Server::STATUS_FAILED]);
+
+                if ($updated === 1) {
+                    $this->refundCredits($user, $chargedPrice);
+                }
 
                 return $server;
             }
