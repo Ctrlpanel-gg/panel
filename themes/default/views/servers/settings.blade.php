@@ -262,8 +262,7 @@
                                 <!-- Upgrade Button trigger modal -->
                                 @if ($server_enable_upgrade && Auth::user()->can('user.server.upgrade'))
                                     <button type="button" data-toggle="modal"
-                                        data-target="#UpgradeModal{{ $server->id }}"
-                                        class="btn btn-info btn-md">
+                                        data-target="#UpgradeModal{{ $server->id }}" class="btn btn-info btn-md">
                                         <i class="mr-2 fas fa-upload"></i>
                                         <span>{{ __('Upgrade / Downgrade') }}</span>
                                     </button>
@@ -300,7 +299,7 @@
                                                                         @if ($product->doesNotFit) disabled @endif>
                                                                         {{ $product->name }} [ {{ $credits_display_name }}
                                                                         {{ $product->display_price }} @if ($product->doesNotFit)
-                                                                            ] {{ __('Server can't fit on this node') }}
+                                                                            ] {{ __("Server can't fit on this node") }}
                                                                         @else
                                                                             / {{ __('Required') }}:
                                                                             {{ $product->display_minimum_credits }}
