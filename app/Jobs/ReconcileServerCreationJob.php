@@ -129,15 +129,23 @@ class ReconcileServerCreationJob implements ShouldQueue
             }
 
             if ($response->status() === 404) {
-                if ($server->status !== Server::STATUS_FAILED) {
+                $updated = Server::where('id', $server->id)
+                    ->where('status', '!=', Server::STATUS_FAILED)
+                    ->update(['status' => Server::STATUS_FAILED]);
+
+                if ($updated === 1) {
                     $creditService->refund($server->user, $this->chargedPrice);
-                    $server->update(['status' => Server::STATUS_FAILED]);
+                    Log::critical('ReconcileServerCreationJob failed after retries with remote 404; refunded credits', [
+                        'server_id' => $this->serverId,
+                        'amount' => $this->chargedPrice,
+                        'error' => $exception->getMessage(),
+                    ]);
+                } else {
+                    Log::info('ReconcileServerCreationJob failed after retries with remote 404; no refund needed because status already failed', [
+                        'server_id' => $this->serverId,
+                    ]);
                 }
 
-                Log::critical('ReconcileServerCreationJob failed after retries with remote 404; refunded credits', [
-                    'server_id' => $this->serverId,
-                    'error' => $exception->getMessage(),
-                ]);
                 return;
             }
 

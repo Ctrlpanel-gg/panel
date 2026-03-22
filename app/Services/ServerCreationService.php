@@ -267,7 +267,7 @@ class ServerCreationService
 
             return $server;
         } catch (\Throwable $e) {
-            return $this->handleProvisionUncertain($server, $product->price, $e);
+            return $this->handleProvisionUncertain($server, $chargedPrice, $e);
         }
     }
 
