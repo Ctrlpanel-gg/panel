@@ -51,7 +51,7 @@ class ServerCreationService
      */
     public function handle(User $user, Product $product, mixed $data): Server
     {
-        $egg = $product->eggs->firstWhere('id', $data['egg_id']);
+        $egg = null;
 
         $lockKey = "server_provisioning_user_{$user->id}";
         $lock = Cache::lock($lockKey, 30);
@@ -66,9 +66,15 @@ class ServerCreationService
         try {
             $validatedData = $this->validateAndPrepare($user, $product, $data);
 
-            DB::transaction(function () use ($user, $product, $validatedData, $data, &$server, &$creditsReserved) {
-                $this->reserveCredits($user, $product->price);
-                $creditsReserved = true;
+            $egg = $product->eggs()->find($data['egg_id']);
+            if (!$egg) {
+                throw new \Exception('Egg not attached to this product.');
+            }
+
+            $credits = (int) round($product->price);
+
+            DB::transaction(function () use ($user, $product, $credits, $validatedData, $data, &$server) {
+                $this->reserveCredits($user, $credits);
 
                 $server = Server::create([
                     'name' => $data['name'],
@@ -81,22 +87,36 @@ class ServerCreationService
                 ]);
             });
 
+            // Only mark credits as reserved after the transaction has committed.
+            $creditsReserved = true;
+
+            if (!$server) {
+                throw new \Exception('Server creation record failed to persist.');
+            }
+
             try {
                 $response = $this->pterodactylClient->createServer($server, $egg, $validatedData['allocation_id'], $validatedData['egg_variables'] ?? null);
 
                 if ($response->successful()) {
-                    return $this->handleProvisionSuccess($server, $response, $product->price);
+                    return $this->handleProvisionSuccess($server, $response, $credits);
                 }
 
-                return $this->handleProvisionFailure($server, $user, $product, $response);
-            } catch (\Exception $e) {
-                return $this->handleProvisionUncertain($server, $product->price, $e);
+                return $this->handleProvisionFailure($server, $user, $product, $response, $credits);
+            } catch (\Throwable $e) {
+                return $this->handleProvisionUncertain($server, $credits, $e);
             }
-        } catch (\Exception $e) {
-            if ($creditsReserved && is_null($server)) {
-                $this->refundCredits($user, $product->price);
+        } catch (\Throwable $e) {
+            if ($creditsReserved) {
+                if ($server) {
+                    if ($server->status !== Server::STATUS_ACTIVE && $server->status !== Server::STATUS_FAILED) {
+                        $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
+                        dispatch(new ReconcileServerCreationJob($server->id, $credits));
+                    }
+                } else {
+                    $this->refundCredits($user, $credits);
+                }
             }
-            throw new \Exception($e->getMessage());
+            throw $e;
         } finally {
             $lock->release();
         }
@@ -167,17 +187,17 @@ class ServerCreationService
         ];
     }
 
-    private function reserveCredits(User $user, float $price): void
+    private function reserveCredits(User $user, int $price): void
     {
         $this->creditService->reserve($user, $price);
     }
 
-    private function refundCredits(User $user, float $price): void
+    private function refundCredits(User $user, int $price): void
     {
         $this->creditService->refund($user, $price);
     }
 
-    private function handleProvisionSuccess(Server $server, $response, float $chargedPrice): Server
+    private function handleProvisionSuccess(Server $server, $response, int $chargedPrice): Server
     {
         $serverAttributes = $response->json()['attributes'] ?? null;
 
@@ -208,7 +228,7 @@ class ServerCreationService
         }
     }
 
-    private function handleProvisionFailure(Server $server, User $user, Product $product, $response): Server
+    private function handleProvisionFailure(Server $server, User $user, Product $product, $response, int $chargedPrice): Server
     {
         logger()->warning('Provisioning failed on Pterodactyl, re-checking remote state', [
             'server_id' => $server->id,
@@ -236,17 +256,17 @@ class ServerCreationService
             }
 
             if ($remoteResponse->status() === 404) {
-                $this->refundCredits($user, $product->price);
+                $this->refundCredits($user, $chargedPrice);
                 $server->update(['status' => Server::STATUS_FAILED]);
 
-                throw new \Exception('Server creation failed and did not exist on remote; user credits have been refunded.');
+                return $server;
             }
 
             $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
-            dispatch(new ReconcileServerCreationJob($server->id, $product->price));
+            dispatch(new ReconcileServerCreationJob($server->id, $chargedPrice));
 
             return $server;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $this->handleProvisionUncertain($server, $product->price, $e);
         }
     }
@@ -259,7 +279,7 @@ class ServerCreationService
      * Pterodactyl state, so we mark the server as pending reconciliation and delegate
      * detailed error handling and state correction to ReconcileServerCreationJob.
      */
-    private function handleProvisionUncertain(Server $server, float $chargedPrice, \Exception $exception): Server
+    private function handleProvisionUncertain(Server $server, int $chargedPrice, \Throwable $exception): Server
     {
         logger()->warning('Provisioning uncertain, scheduling reconciliation', [
             'server_id' => $server->id,

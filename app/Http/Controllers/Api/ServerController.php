@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Classes\PterodactylClient;
-use App\Events\ServerCreatedEvent;
 use App\Events\ServerDeletedEvent;
 use App\Models\Product;
 use App\Models\User;

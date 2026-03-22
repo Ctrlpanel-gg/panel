@@ -291,71 +291,22 @@ class ServerController extends Controller
         }
     }
 
+    /**
+     * @deprecated Once everyone is migrated to ServerCreationService.
+     */
     private function createServer(Request $request): ?Server
     {
-        $product = Product::findOrFail($request->input('product'));
-        $egg = $product->eggs()->findOrFail($request->input('egg'));
-        $node = $this->findAvailableNode($request->input('location'), $product);
-
-        if (!$node) return null;
-
-        $server = $request->user()->servers()->create([
-            'name' => $request->input('name'),
-            'product_id' => $product->id,
-            'last_billed' => Carbon::now(),
-            'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
-        ]);
-
-        $allocationId = $this->pterodactyl->getFreeAllocationId($node);
-        if (!$allocationId) {
-            Log::error('No AllocationID found.', [
-                'server_id' => $server->id,
-                'node_id' => $node->id,
-            ]);
-            $server->delete();
-            return null;
-        }
-
-        $response = $this->pterodactyl->createServer($server, $egg, $allocationId, $request->input('egg_variables'));
-        if ($response->failed()) {
-            Log::error('Failed to create server on Pterodactyl', [
-                'server_id' => $server->id,
-                'status' => $response->status(),
-                'error' => $response->json()
-            ]);
-            $server->delete();
-            return null;
-        }
-
-        $serverAttributes = $response->json()['attributes'];
-        $server->update([
-            'pterodactyl_id' => $serverAttributes['id'],
-            'identifier' => $serverAttributes['identifier']
-        ]);
-
-        return $server;
+        // Legacy path; use ServerCreationService::handle() instead.
+        throw new \BadMethodCallException('createServer() is deprecated. Use ServerCreationService::handle().');
     }
 
+    /**
+     * @deprecated Once everyone is migrated to ServerCreationService.
+     */
     private function handlePostCreation(User $user, Server $server): void
     {
-        logger('Product Price: ' . $server->product->price);
-
-        $user->decrement('credits', $server->product->price);
-        Cache::forget('user_credits_left:' . $user->id);
-
-        try {
-            if ($this->discordSettings->role_for_active_clients &&
-                $user->discordUser &&
-                $user->servers->count() >= 1
-            ) {
-                $user->discordUser->addOrRemoveRole(
-                    'add',
-                    $this->discordSettings->role_id_for_active_clients
-                );
-            }
-        } catch (Exception $e) {
-            Log::debug('Discord role update failed: ' . $e->getMessage());
-        }
+        // Legacy path; use PostServerCreationJob for idempotent async processing.
+        throw new \BadMethodCallException('handlePostCreation() is deprecated. Use PostServerCreationJob instead.');
     }
 
     public function destroy(Server $server): RedirectResponse

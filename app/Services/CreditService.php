@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Cache;
 
 class CreditService
 {
-    public function reserve(User $user, float $amount): void
+
+    public function reserve(User $user, int $amount): void
     {
         $reserved = User::where('id', $user->id)
             ->where('credits', '>=', $amount)
@@ -21,7 +22,7 @@ class CreditService
         Cache::forget('user_credits_left:' . $user->id);
     }
 
-    public function refund(User $user, float $amount): void
+    public function refund(User $user, int $amount): void
     {
         User::where('id', $user->id)->increment('credits', $amount);
 

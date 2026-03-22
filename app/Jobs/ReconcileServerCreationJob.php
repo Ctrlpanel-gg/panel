@@ -18,9 +18,9 @@ class ReconcileServerCreationJob implements ShouldQueue
 
     public int $tries = 5;
     public string $serverId;
-    public float $chargedPrice;
+    public int $chargedPrice;
 
-    public function __construct(string $serverId, float $chargedPrice)
+    public function __construct(string $serverId, int $chargedPrice)
     {
         $this->serverId = $serverId;
         $this->chargedPrice = $chargedPrice;
@@ -78,11 +78,19 @@ class ReconcileServerCreationJob implements ShouldQueue
         }
 
         if ($response->status() === 404) {
-            // Avoid double refunds if already failed or already handled by another instance.
-            if ($server->status !== Server::STATUS_FAILED) {
+            // Atomic transition to FAILED to avoid double refunds in concurrent workers.
+            $updated = Server::where('id', $server->id)
+                ->where('status', '!=', Server::STATUS_FAILED)
+                ->update(['status' => Server::STATUS_FAILED]);
+
+            if ($updated === 1) {
                 $creditService->refund($server->user, $this->chargedPrice);
-                $server->update(['status' => Server::STATUS_FAILED]);
+                Log::info('ReconcileServerCreationJob: refunded credits on confirmed 404', [
+                    'server_id' => $server->id,
+                    'amount' => $this->chargedPrice,
+                ]);
             }
+
             return;
         }
 
@@ -97,11 +105,54 @@ class ReconcileServerCreationJob implements ShouldQueue
             return;
         }
 
-        $server->update(['status' => Server::STATUS_FAILED]);
+        $pterodactylClient = app(PterodactylClient::class);
+        $creditService = app(CreditService::class);
 
-        Log::critical('ReconcileServerCreationJob failed after maximum retries', [
-            'server_id' => $this->serverId,
-            'error' => $exception->getMessage(),
-        ]);
+        try {
+            $response = $pterodactylClient->getServerByExternalId($server->id);
+            if ($response->successful()) {
+                $attributes = $response->json()['attributes'] ?? null;
+                if ($attributes && isset($attributes['id']) && isset($attributes['identifier'])) {
+                    $server->update([
+                        'pterodactyl_id' => $attributes['id'],
+                        'identifier' => $attributes['identifier'],
+                        'status' => Server::STATUS_ACTIVE,
+                    ]);
+                    dispatch(new PostServerCreationJob($server->id));
+
+                    Log::critical('ReconcileServerCreationJob failed after retries but remote server found; marked active', [
+                        'server_id' => $this->serverId,
+                        'error' => $exception->getMessage(),
+                    ]);
+                    return;
+                }
+            }
+
+            if ($response->status() === 404) {
+                if ($server->status !== Server::STATUS_FAILED) {
+                    $creditService->refund($server->user, $this->chargedPrice);
+                    $server->update(['status' => Server::STATUS_FAILED]);
+                }
+
+                Log::critical('ReconcileServerCreationJob failed after retries with remote 404; refunded credits', [
+                    'server_id' => $this->serverId,
+                    'error' => $exception->getMessage(),
+                ]);
+                return;
+            }
+
+            $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
+            Log::critical('ReconcileServerCreationJob failed after maximum retries; remote state unknown, keeping pending_reconciliation', [
+                'server_id' => $this->serverId,
+                'error' => $exception->getMessage(),
+            ]);
+        } catch (\Exception $e) {
+            // If remote check also fails, preserve pending state and log.
+            $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
+            Log::critical('ReconcileServerCreationJob failed and remote check failed; keeping pending_reconciliation', [
+                'server_id' => $this->serverId,
+                'exception' => $e->getMessage(),
+            ]);
+        }
     }
 }
