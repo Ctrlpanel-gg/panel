@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Settings\LocaleSettings;
 use App\Settings\ReferralSettings;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PartnerController extends Controller
 {
@@ -33,7 +34,7 @@ class PartnerController extends Controller
 
         return view('admin.partners.create', [
             'partners' => PartnerDiscount::get(),
-            'users' => User::orderBy('name')->get(),
+            'users' => User::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -48,7 +49,7 @@ class PartnerController extends Controller
         $this->checkPermission(self::WRITE_PERMISSION);
 
         $validated = $request->validate([
-            'user_id' => 'required|integer|min:0',
+            'user_id' => ['required', 'integer', 'exists:users,id', Rule::unique('partner_discounts', 'user_id')],
             'partner_discount' => 'required|integer|max:100|min:0',
             'registered_user_discount' => 'required|integer|max:100|min:0',
             'referral_system_commission' => 'nullable|integer|min:-1|max:100',
@@ -76,7 +77,7 @@ class PartnerController extends Controller
         return view('admin.partners.edit', [
             'partners' => PartnerDiscount::get(),
             'partner' => $partner,
-            'users' => User::orderBy('name')->get(),
+            'users' => User::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -92,7 +93,7 @@ class PartnerController extends Controller
         $this->checkPermission(self::WRITE_PERMISSION);
 
         $validated = $request->validate([
-            'user_id' => 'required|integer|min:0',
+            'user_id' => ['required', 'integer', 'exists:users,id', Rule::unique('partner_discounts', 'user_id')->ignore($partner->id)],
             'partner_discount' => 'required|integer|max:100|min:0',
             'registered_user_discount' => 'required|integer|max:100|min:0',
             'referral_system_commission' => 'nullable|integer|min:-1|max:100',
@@ -124,7 +125,7 @@ class PartnerController extends Controller
     {
         $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
-        $query = PartnerDiscount::query();
+        $query = PartnerDiscount::query()->with('user');
 
         return datatables($query)
             ->addColumn('actions', function (PartnerDiscount $partner) {
@@ -138,7 +139,9 @@ class PartnerController extends Controller
                 ';
             })
             ->addColumn('user', function (PartnerDiscount $partner) {
-                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id) . '">' . e($user->name) . '</a>' : __('Unknown user');
+                return $partner->user
+                    ? '<a href="'.route('admin.users.show', $partner->user_id) . '">' . e($partner->user->name) . '</a>'
+                    : __('Unknown user');
             })
             ->editColumn('created_at', function (PartnerDiscount $partner) {
                 return $partner->created_at ? $partner->created_at->diffForHumans() : '';

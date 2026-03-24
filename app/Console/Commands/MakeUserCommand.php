@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Constants\Roles;
 use App\Classes\PterodactylClient;
 use App\Models\User;
 use App\Settings\UserSettings;
@@ -51,7 +52,7 @@ class MakeUserCommand extends Command
     {
         $this->pterodactyl = $pterodactyl;
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
-        $password = $this->secret('password') ?? $this->ask('Please specify your password.');
+        $password = $this->option('password') ?? $this->secret('password');
 
         // Validate user input
         $validator = Validator::make([
@@ -121,7 +122,7 @@ class MakeUserCommand extends Command
         ]);
 
         $adminRole = Role::query()
-            ->where('id', 1)
+            ->where('id', Roles::ADMIN_ROLE_ID)
             ->orWhere('name', 'Admin')
             ->first();
 

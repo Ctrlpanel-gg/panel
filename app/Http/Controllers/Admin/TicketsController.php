@@ -13,8 +13,10 @@ use App\Notifications\Ticket\User\ReplyNotification;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TicketsController extends Controller
 {
@@ -38,9 +40,8 @@ class TicketsController extends Controller
     {
         $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
         try {
-        $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
-        } catch (Exception $e)
-        {
+            $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
         $ticketcomments = $ticket->ticketcomments;
@@ -55,9 +56,8 @@ class TicketsController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
         try {
-        $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
-        } catch(Exception $e)
-        {
+            $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
 
@@ -77,14 +77,15 @@ class TicketsController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
         try {
-        $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
-        } catch (Exception $e)
-        {
+            $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
 
-        TicketComment::where('ticket_id', $ticket->id)->delete();
-        $ticket->delete();
+        DB::transaction(function () use ($ticket) {
+            TicketComment::where('ticket_id', $ticket->id)->delete();
+            $ticket->delete();
+        });
 
         return redirect()->back()->with('success', __('A ticket has been deleted, ID: #').$ticket_id);
     }
@@ -97,7 +98,7 @@ class TicketsController extends Controller
         $this->validate($request, ['ticketcomment' => 'required']);
         try {
             $ticket = Ticket::where('id', $request->input('ticket_id'))->firstOrFail();
-        } catch (Exception $e){
+        } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
         }
         $ticket->status = 'Answered';
@@ -108,9 +109,8 @@ class TicketsController extends Controller
             'ticketcomment' => $request->input('ticketcomment'),
         ]);
         try {
-        $user = User::where('id', $ticket->user_id)->firstOrFail();
-        } catch(Exception $e)
-        {
+            $user = User::where('id', $ticket->user_id)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('warning', __('User not found on the server. Check on the admin database or try again later.'));
         }
         $newmessage = $request->input('ticketcomment');
@@ -199,20 +199,24 @@ class TicketsController extends Controller
     {
         $this->checkPermission(self::BLACKLIST_WRITE_PERMISSION);
 
-        try {
-            $user = User::where('id', $request->user_id)->firstOrFail();
+        $validated = $request->validate([
+            'user_id' => ['required', 'integer', 'exists:users,id'],
+            'reason' => ['nullable', 'string', 'max:2000'],
+        ]);
 
-            if (auth()->user()->roles()->first()->power < $user->roles()->first()->power) {
+        try {
+            $user = User::where('id', $validated['user_id'])->firstOrFail();
+
+            if ((int) auth()->user()->roles()->max('power') < (int) $user->roles()->max('power')) {
                 return redirect()->back()->with('warning', __('You cannot blacklist a user with higher power than you.'));
             }
 
             $check = TicketBlacklist::where('user_id', $user->id)->first();
-        }
-        catch (Exception $e){
+        } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
         }
         if ($check) {
-            $check->reason = $request->reason;
+            $check->reason = $validated['reason'] ?? null;
             $check->status = 'True';
             $check->save();
 
@@ -221,7 +225,7 @@ class TicketsController extends Controller
         TicketBlacklist::create([
             'user_id' => $user->id,
             'status' => 'True',
-            'reason' => $request->reason,
+            'reason' => $validated['reason'] ?? null,
         ]);
 
         return redirect()->back()->with('success', __('Successfully add User to blacklist, User name: '.$user->name));
@@ -231,7 +235,7 @@ class TicketsController extends Controller
     {
         $this->checkPermission(self::BLACKLIST_WRITE_PERMISSION);
 
-        $blacklist = TicketBlacklist::where('id', $id)->first();
+        $blacklist = TicketBlacklist::where('id', $id)->firstOrFail();
         $blacklist->delete();
 
         return redirect()->back()->with('success', __('Successfully remove User from blacklist, User name: '.$blacklist->user->name));
@@ -242,9 +246,8 @@ class TicketsController extends Controller
         $this->checkPermission(self::BLACKLIST_WRITE_PERMISSION);
 
         try {
-            $blacklist = TicketBlacklist::where('id', $id)->first();
-        }
-        catch (Exception $e){
+            $blacklist = TicketBlacklist::where('id', $id)->firstOrFail();
+        } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('warning', __('User not found on the server. Check the admin database or try again later.'));
         }
         if ($blacklist->status == 'True') {

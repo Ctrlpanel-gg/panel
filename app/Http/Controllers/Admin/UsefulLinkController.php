@@ -83,7 +83,7 @@ class UsefulLinkController extends Controller
      */
     public function show(UsefulLink $usefullink)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -145,7 +145,7 @@ class UsefulLinkController extends Controller
         $this->checkPermission(self::WRITE_PERMISSION);
         $usefullink->delete();
 
-        return redirect()->back()->with('success', __('product has been removed!'));
+        return redirect()->back()->with('success', __('link has been removed!'));
     }
 
     public function dataTable()

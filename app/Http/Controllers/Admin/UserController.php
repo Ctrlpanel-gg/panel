@@ -527,17 +527,23 @@ class UserController extends Controller
     {
         $this->checkPermission(self::NOTIFY_PERMISSION);
 
-//TODO: reimplement the required validation on all,users and roles . didnt work -- required_without:users,roles
         $data = $request->validate([
             'via' => 'required|min:1|array',
             'via.*' => 'required|string|in:mail,database',
             'all' => 'boolean',
             'users' => 'min:1|array',
+            'users.*' => 'integer|exists:users,id',
             'roles' => 'min:1|array',
             'roles.*' => 'required_without:all,users|exists:roles,id',
             'title' => 'required|string|min:1',
             'content' => 'required|string|min:1',
         ]);
+
+        if (! ($data['all'] ?? false) && empty($data['users']) && empty($data['roles'])) {
+            throw ValidationException::withMessages([
+                'users' => __('Please choose at least one recipient group or enable "all users".'),
+            ]);
+        }
 
         $mail = null;
         $database = null;
@@ -617,12 +623,22 @@ class UserController extends Controller
     {
         $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
-        $query = User::with('discordUser')
+        $query = User::query()
+            ->with(['discordUser', 'roles'])
             ->withCount('servers')
-            ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-            ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->selectRaw('users.*, roles.name as role_name, (SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count')
-            ->where('model_has_roles.model_type', User::class);
+            ->select('users.*')
+            ->addSelect([
+                'role_name' => Role::query()
+                    ->select('roles.name')
+                    ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+                    ->whereColumn('model_has_roles.model_id', 'users.id')
+                    ->where('model_has_roles.model_type', User::class)
+                    ->orderByDesc('roles.power')
+                    ->limit(1),
+                'referrals_count' => DB::table('user_referrals')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('user_referrals.referral_id', 'users.id'),
+            ]);
 
         return datatables($query)
             ->addColumn('avatar', function (User $user) {
@@ -651,22 +667,35 @@ class UserController extends Controller
                               </form>';
                 }
 
-                $actions[] = '
-                <form class="d-inline" method="post" action="' . route('admin.users.verifyEmail', $user->id) . '">
-                             ' . csrf_field() . '
-                            <button data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-info"><i class="fas fa-envelope"></i></button>
-                          </form>
-                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
-                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-                <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
-                             ' . csrf_field() . '
-                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="fas ' . $suspendIcon . '"></i></button>
-                          </form>
-                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
-                             ' . csrf_field() . '
-                             ' . method_field('DELETE') . '
-                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                        </form>';
+                if (auth()->user()?->can(self::WRITE_PERMISSION)) {
+                    $actions[] = '
+                    <form class="d-inline" method="post" action="' . route('admin.users.verifyEmail', $user->id) . '">
+                                ' . csrf_field() . '
+                                <button data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-info"><i class="fas fa-envelope"></i></button>
+                              </form>
+                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::READ_PERMISSION)) {
+                    $actions[] = '<a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-eye"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::SUSPEND_PERMISSION)) {
+                    $actions[] = '
+                    <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
+                                ' . csrf_field() . '
+                                <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="fas ' . $suspendIcon . '"></i></button>
+                              </form>';
+                }
+
+                if (auth()->user()?->can(self::DELETE_PERMISSION)) {
+                    $actions[] = '
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
+                                ' . csrf_field() . '
+                                ' . method_field('DELETE') . '
+                                <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </form>';
+                }
 
                 return implode('', $actions);
             })

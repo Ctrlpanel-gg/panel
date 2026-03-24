@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Settings\DiscordSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 use Exception;
@@ -35,11 +36,9 @@ class SocialiteController extends Controller
         $botToken = $discord_settings->bot_token;
         $guildId = $discord_settings->guild_id;
         $roleId = $discord_settings->role_id;
+        $isNewLink = is_null($user->discordUser);
 
-        //save / update discord_users
-
-        //check if discord account is already linked to an cpgg account
-        if (is_null($user->discordUser)) {
+        if ($isNewLink) {
             $discordLinked = DiscordUser::where('id', '=', $discord->id)->first();
             if ($discordLinked !== null) {
                 return redirect()->route('profile.index')->with(
@@ -47,21 +46,8 @@ class SocialiteController extends Controller
                         'Discord account already linked!'
                     );
             }
-
-            //create discord user in db
-            DiscordUser::create(array_merge($discord->user, ['user_id' => Auth::user()->id]));
-            $user->refresh();
-
-            //update user
-            Auth::user()->increment('credits', $user_settings->credits_reward_after_verify_discord);
-            Auth::user()->increment('server_limit', $user_settings->server_limit_increment_after_verify_discord);
-            Auth::user()->update(['discord_verified_at' => now()]);
-        } else {
-            $user->discordUser->update($discord->user);
         }
 
-        //force user into discord server
-        //TODO Add event on failure, to notify ppl involved
         if (! empty($guildId) && ! empty($botToken)) {
             try {
                 $response = Http::withHeaders(
@@ -80,10 +66,6 @@ class SocialiteController extends Controller
                         ($response->json('message') ?? 'Unknown error')
                     );
                 }
-
-                if (!empty($roleId)) {
-                    $user->discordUser->addOrRemoveRole('add', $roleId);
-                }
             } catch (Exception $e) {
                 logger()->error($e->getMessage());
 
@@ -92,6 +74,23 @@ class SocialiteController extends Controller
                     'Failed to join discord server!'
                 );
             }
+        }
+
+        DB::transaction(function () use ($user, $discord, $user_settings, $isNewLink) {
+            if ($isNewLink) {
+                DiscordUser::create(array_merge($discord->user, ['user_id' => $user->id]));
+                $user->increment('credits', $user_settings->credits_reward_after_verify_discord);
+                $user->increment('server_limit', $user_settings->server_limit_increment_after_verify_discord);
+            } else {
+                $user->discordUser->update($discord->user);
+            }
+
+            $user->update(['discord_verified_at' => now()]);
+        });
+
+        if (! empty($roleId)) {
+            $user->refresh();
+            $user->discordUser?->addOrRemoveRole('add', $roleId);
         }
 
         return redirect()->route('profile.index')->with(

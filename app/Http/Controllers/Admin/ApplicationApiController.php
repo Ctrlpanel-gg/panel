@@ -85,7 +85,7 @@ class ApplicationApiController extends Controller
      */
     public function show(ApplicationApi $applicationApi)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -118,7 +118,7 @@ class ApplicationApiController extends Controller
             'memo' => 'nullable|string|max:60',
             'abilities' => 'required|array|min:1',
             'abilities.*' => 'required|string|in:' . implode(',', ApplicationApi::availableAbilities()),
-            'expires_at' => 'nullable|date',
+            'expires_at' => 'nullable|date|after:now',
             'revoked' => 'nullable|boolean',
             'rotate_token' => 'nullable|boolean',
         ]);

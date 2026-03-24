@@ -61,7 +61,7 @@ class VoucherController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
             'uses' => 'required|numeric|max:2147483647|min:1',
@@ -69,7 +69,7 @@ class VoucherController extends Controller
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
-        Voucher::create($request->except('_token'));
+        Voucher::create($validated);
 
         return redirect()->route('admin.vouchers.index')->with('success', __('voucher has been created!'));
     }
@@ -82,7 +82,7 @@ class VoucherController extends Controller
      */
     public function show(Voucher $voucher)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -111,7 +111,7 @@ class VoucherController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
             'uses' => 'required|numeric|max:2147483647|min:1',
@@ -119,7 +119,7 @@ class VoucherController extends Controller
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
-        $voucher->update($request->except('_token'));
+        $voucher->update($validated);
 
         return redirect()->route('admin.vouchers.index')->with('success', __('voucher has been updated!'));
     }

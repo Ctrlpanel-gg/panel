@@ -9,6 +9,7 @@ use App\Settings\LocaleSettings;
 use App\Traits\Coupon as CouponTrait;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class CouponController extends Controller
 {
@@ -66,30 +67,27 @@ class CouponController extends Controller
             return redirect()->back()->with('error', __('At least one of the two code inputs must be provided.'))->withInput($request->all());
         }
 
-        $request->validate($rules);
+        $validated = $request->validate($rules);
 
         if (array_key_exists('range_codes', $rules)) {
-            $data = [];
+            $data = $validated;
+            $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
             $coupons = Coupon::generateRandomCoupon($random_codes_amount);
 
-            // Scroll through all the randomly generated coupons.
             foreach ($coupons as $coupon) {
-                $data[] = [
+                Coupon::create([
                     'code' => $coupon,
-                    'type' => $request->input('type'),
-                    'value' => $request->input('value'),
-                    'max_uses' => $request->input('max_uses'),
-                       'max_uses_per_user' => $this->normalizeMaxUsesPerUser($request),
-                    'expires_at' => $request->input('expires_at'),
-                    'created_at' => Carbon::now(), // Does not fill in by itself when using the 'insert' method.
-                    'updated_at' => Carbon::now()
-                ];
+                    'type' => $data['type'],
+                    'value' => $data['value'],
+                    'max_uses' => $data['max_uses'],
+                    'max_uses_per_user' => $data['max_uses_per_user'],
+                    'expires_at' => $data['expires_at'] ?? null,
+                ]);
             }
-            Coupon::insert($data);
         } else {
-                $data = $request->except('_token');
-                $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
-                Coupon::create($data);
+            $data = $validated;
+            $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
+            Coupon::create($data);
         }
 
         return redirect()->route('admin.coupons.index')->with('success', __("The coupon's was registered successfully."));
@@ -103,7 +101,7 @@ class CouponController extends Controller
      */
     public function show(Coupon $coupon)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -118,7 +116,7 @@ class CouponController extends Controller
 
         return view('admin.coupons.edit', [
             'coupon' => $coupon,
-            'expired_at' => $coupon->expires_at ? Carbon::createFromTimestamp($coupon->expires_at) : null
+            'expired_at' => $coupon->expires_at ? Carbon::createFromTimestamp((int) $coupon->expires_at) : null
         ]);
     }
 
@@ -135,7 +133,7 @@ class CouponController extends Controller
 
         $coupon_code = $request->input('code');
         $random_codes_amount = $request->input('range_codes');
-        $rules = $this->requestRules($request);
+        $rules = $this->requestRules($request, $coupon);
 
         // If for some reason you pass both fields at once.
         if ($coupon_code && $random_codes_amount) {
@@ -146,10 +144,10 @@ class CouponController extends Controller
             return redirect()->back()->with('error', __('At least one of the two code inputs must be provided.'))->withInput($request->all());
         }
 
-        $request->validate($rules);
-            $data = $request->except('_token');
-            $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
-            $coupon->update($data);
+        $validated = $request->validate($rules);
+        $data = $validated;
+        $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
+        $coupon->update($data);
 
         return redirect()->route('admin.coupons.index')->with('success', __('coupon has been updated!'));
     }
@@ -168,10 +166,14 @@ class CouponController extends Controller
         return redirect()->back()->with('success', __('coupon has been removed!'));
     }
 
-    private function requestRules(Request $request)
+    private function requestRules(Request $request, ?Coupon $coupon = null)
     {
         $coupon_code = $request->input('code');
         $random_codes_amount = $request->input('range_codes');
+        $valueRules = $request->input('type') === 'amount'
+            ? ['required', 'numeric', 'min:0', 'max:99999999']
+            : ['required', 'numeric', 'between:0,100'];
+
         $rules = [
             "type" => "required|string|in:percentage,amount",
                // Set to -1 for unlimited uses globally, or a positive integer within DB range.
@@ -200,12 +202,17 @@ class CouponController extends Controller
                    }
                }
                ],
-            "value" => "required|numeric|between:0,100",
+            "value" => $valueRules,
             "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())
         ];
 
         if ($coupon_code) {
-            $rules['code'] = "required|string|min:4";
+            $codeRule = Rule::unique('coupons', 'code');
+            if ($coupon) {
+                $codeRule = $codeRule->ignore($coupon->id);
+            }
+
+            $rules['code'] = ['required', 'string', 'min:4', $codeRule];
         } elseif ($random_codes_amount) {
             $rules['range_codes'] = 'required|integer|digits_between:1,100';
         }
@@ -281,10 +288,10 @@ class CouponController extends Controller
                     return __('Never');
                 }
 
-                return Carbon::createFromTimestamp($coupon->expires_at);
+                return Carbon::createFromTimestamp((int) $coupon->expires_at);
             })
             ->editColumn('created_at', function(Coupon $coupon) {
-                return Carbon::createFromTimeString($coupon->created_at);
+                return $coupon->created_at ? $coupon->created_at->diffForHumans() : '';
             })
             ->editColumn('code', function (Coupon $coupon) {
                 return "<code>{$coupon->code}</code>";

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TicketCategoryController extends Controller
 {
@@ -80,19 +81,18 @@ class TicketCategoryController extends Controller
         $this->checkPermission(self::WRITE_PERMISSION);
 
         $category = TicketCategory::where("id",$id)->firstOrFail();
+        $defaultCategory = TicketCategory::query()->where('name', 'Other')->first();
 
-        if($category->id == 5 ){ //cannot delete "other" category
+        if (! $defaultCategory || $category->is($defaultCategory)) {
             return back()->with("error","You cannot delete that category");
         }
 
-        $tickets = Ticket::where("ticketcategory_id",$category->id)->get();
+        DB::transaction(function () use ($category, $defaultCategory) {
+            Ticket::where("ticketcategory_id", $category->id)
+                ->update(['ticketcategory_id' => $defaultCategory->id]);
 
-        foreach($tickets as $ticket){
-            $ticket->ticketcategory_id = "5";
-            $ticket->save();
-        }
-
-        $category->delete();
+            $category->delete();
+        });
 
         return redirect()
             ->route('admin.ticket.category.index')

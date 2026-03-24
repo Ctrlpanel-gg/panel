@@ -129,7 +129,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('overview', [OverViewController::class, 'index'])->name('overview.index');
         Route::post('overview/sync', [OverViewController::class, 'syncPterodactyl'])->name('overview.sync');
 
-        Route::resource('activitylogs', ActivityLogController::class);
+        Route::resource('activitylogs', ActivityLogController::class)->only(['index']);
 
         //users
         Route::get('users.json', [UserController::class, 'json'])->name('users.json');

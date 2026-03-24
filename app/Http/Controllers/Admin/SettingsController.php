@@ -143,13 +143,13 @@ class SettingsController extends Controller
     {
         $category = strtolower((string) request()->get('category'));
 
-        $this->checkPermission("settings." . $category . ".write");
-
         $settings_class = $this->availableSettingsClasses()[$category] ?? null;
 
         if ($settings_class === null) {
             abort(403, __('User does not have the right permissions.'));
         }
+
+        $this->checkPermission("settings." . $category . ".write");
 
         if (method_exists($settings_class, 'getValidations')) {
             $validations = $settings_class::getValidations();
@@ -179,7 +179,7 @@ class SettingsController extends Controller
                 continue;
             }
             if ($rp->name == 'available') {
-                $settingsClass->$key = implode(",", $request->$key);
+                $settingsClass->$key = implode(",", (array) $request->input($key, []));
                 continue;
             }
 
