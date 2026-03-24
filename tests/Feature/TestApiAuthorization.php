@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\ApplicationApi;
-use App\Models\Notification;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -92,8 +91,10 @@ class TestApiAuthorization extends TestCase
             'email_verified_at' => now(),
         ]);
 
+        $notificationId = (string) Str::uuid();
+
         DB::table('notifications')->insert([
-            'id' => (string) Str::uuid(),
+            'id' => $notificationId,
             'type' => 'Tests\\Notifications\\ForeignNotification',
             'notifiable_type' => $otherUser->getMorphClass(),
             'notifiable_id' => $otherUser->id,
@@ -102,8 +103,6 @@ class TestApiAuthorization extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        $notification = Notification::query()->latest('created_at')->firstOrFail();
 
         [, $plainTextToken] = ApplicationApi::issue(
             $owner->id,
@@ -114,7 +113,7 @@ class TestApiAuthorization extends TestCase
         $response = $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $plainTextToken,
-        ])->get("/api/notifications/{$owner->id}/{$notification->id}");
+        ])->get("/api/notifications/{$owner->id}/{$notificationId}");
 
         $response->assertStatus(404);
     }
