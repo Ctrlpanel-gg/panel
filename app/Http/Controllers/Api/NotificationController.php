@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Exception;
+use Throwable;
 
 class NotificationController extends Controller
 {
@@ -55,6 +55,7 @@ class NotificationController extends Controller
     public function view(Request $request, User $user, ModelNotification $notification)
     {
         $this->ensureCanAccessUser($request, $user);
+        $this->ensureNotificationBelongsToUser($user, $notification);
 
         return NotificationResource::make($notification);
     }
@@ -101,10 +102,14 @@ class NotificationController extends Controller
                     'channels' => $via
                 ]
             ]);
-        } catch (Exception $e) {
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
             return response()->json([
                 'error' => 'Failed to send notification.',
-                'message' => $e->getMessage()
+                'message' => __('Failed to send notification.')
             ], 500);
         }
     }
@@ -138,22 +143,28 @@ class NotificationController extends Controller
                     ->subject($data['title'])
                     ->line(strip_tags($data['content']))
                 : null;
-            
-            $users = User::all();
-            
-            $this->notificationService->sendToUsers($users, $via, $database, $mail);
+
+            $userCount = User::query()->count();
+            User::query()
+                ->chunkById(500, function ($users) use ($via, $database, $mail) {
+                    $this->notificationService->sendToUsers($users, $via, $database, $mail);
+                });
 
             return response()->json([
                 'message' => 'Notification sent successfully.',
                 'meta' => [
-                    'user_count' => $users->count(),
+                    'user_count' => $userCount,
                     'channels' => $via
                 ]
             ]);
-        } catch (Exception $e) {
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (Throwable $e) {
+            report($e);
+
             return response()->json([
                 'error' => 'Failed to send notification.',
-                'message' => $e->getMessage()
+                'message' => __('Failed to send notification.')
             ], 500);
         }
     }
@@ -194,6 +205,7 @@ class NotificationController extends Controller
     public function destroyOne(Request $request, User $user, ModelNotification $notification)
     {
         $this->ensureCanAccessUser($request, $user);
+        $this->ensureNotificationBelongsToUser($user, $notification);
 
         $notification->delete();
 
@@ -219,5 +231,15 @@ class NotificationController extends Controller
         }
 
         return $users;
+    }
+
+    private function ensureNotificationBelongsToUser(User $user, ModelNotification $notification): void
+    {
+        if (
+            $notification->notifiable_type !== $user->getMorphClass()
+            || (string) $notification->notifiable_id !== (string) $user->getKey()
+        ) {
+            abort(404);
+        }
     }
 }

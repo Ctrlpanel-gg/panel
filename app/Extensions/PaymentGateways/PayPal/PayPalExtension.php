@@ -9,6 +9,7 @@ use App\Enums\PaymentStatus;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
+use App\Notifications\ConfirmPaymentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -47,7 +48,8 @@ class PayPalExtension extends PaymentExtension
             "intent" => "CAPTURE",
             "purchase_units" => [
                 [
-                    "reference_id" => uniqid(),
+                    "reference_id" => (string) \Illuminate\Support\Str::ulid(),
+                    "custom_id" => $payment->id,
                     "description" => $shopProduct->display,
                     "amount" => [
                         "value" => $totalPrice,
@@ -102,13 +104,22 @@ class PayPalExtension extends PaymentExtension
     }
 
 
-    static function PaypalSuccess(Request $laravelRequest): void
+    public static function PaypalSuccess(Request $laravelRequest): \Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
         $user = User::findOrFail($user->id);
 
         $payment = Payment::findOrFail($laravelRequest->payment);
+        if ($payment->payment_method !== 'PayPal') {
+            abort(403);
+        }
+
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+        $paymentOwner = User::findOrFail($payment->user_id);
+
+        if ($payment->user_id !== $user->id) {
+            abort(403);
+        }
 
         $request = new OrdersCaptureRequest($laravelRequest->input('token'));
         $request->prefer('return=representation');
@@ -117,27 +128,45 @@ class PayPalExtension extends PaymentExtension
             // Call API with your client and get a response for your call
             $response = self::getPayPalClient()->execute($request);
             if ($response->statusCode == 201 || $response->statusCode == 200) {
-                //update payment
-                $payment->update([
-                    'status' => PaymentStatus::PAID,
-                    'payment_id' => $response->result->id,
-                ]);
+                $customId = $response->result->purchase_units[0]->custom_id ?? null;
+                if ($customId !== $payment->id) {
+                    abort(403);
+                }
 
+                self::assertCapturedAmountMatches($payment, $response->result);
 
-                event(new UserUpdateCreditsEvent($user));
-                event(new PaymentEvent($user, $payment, $shopProduct));
+                $updated = Payment::whereKey($payment->id)
+                    ->where('status', '!=', PaymentStatus::PAID->value)
+                    ->update([
+                        'status' => PaymentStatus::PAID->value,
+                        'payment_id' => $response->result->id,
+                    ]);
+
+                if ($updated === 0) {
+                    return Redirect::route('home')->with('success', 'Payment successful');
+                }
+
+                $payment = $payment->fresh();
+                $paymentOwner->notify(new ConfirmPaymentNotification($payment));
+                event(new UserUpdateCreditsEvent($paymentOwner));
+                event(new PaymentEvent($paymentOwner, $payment, $shopProduct));
 
                 // redirect to the payment success page with success message
-                Redirect::route('home')->with('success', 'Payment successful')->send();
+                return Redirect::route('home')->with('success', 'Payment successful');
             } elseif (config('app.env') == 'local') {
                 // If call returns body in response, you can get the deserialized version from the result attribute of the response
                 $payment->delete();
                 dd($response);
             } else {
-                $payment->update([
+                $updateData = [
                     'status' => PaymentStatus::CANCELED,
-                    'payment_id' => $response->result->id,
-                ]);
+                ];
+
+                if (! empty($response->result->id ?? null)) {
+                    $updateData['payment_id'] = $response->result->id;
+                }
+
+                $payment->update($updateData);
                 abort(500);
             }
         } catch (HttpException $ex) {
@@ -148,10 +177,35 @@ class PayPalExtension extends PaymentExtension
             } else {
                 $payment->update([
                     'status' => PaymentStatus::CANCELED,
-                    'payment_id' => $response->result->id,
                 ]);
                 abort(422);
             }
+        }
+    }
+
+    private static function assertCapturedAmountMatches(Payment $payment, object $result): void
+    {
+        $purchaseUnit = $result->purchase_units[0] ?? null;
+        $capturedAmount = $purchaseUnit->payments->captures[0]->amount ?? $purchaseUnit->amount ?? null;
+
+        if ($capturedAmount === null) {
+            throw new \Exception('PayPal capture amount missing.');
+        }
+
+        $expectedAmount = number_format($payment->total_price / 1000, 2, '.', '');
+        $actualAmount = number_format((float) ($capturedAmount->value ?? 0), 2, '.', '');
+        $actualCurrency = strtoupper((string) ($capturedAmount->currency_code ?? ''));
+
+        if ($actualCurrency !== strtoupper($payment->currency_code) || $actualAmount !== $expectedAmount) {
+            Log::critical('PayPal payment amount mismatch detected', [
+                'payment_id' => $payment->id,
+                'expected_amount' => $expectedAmount,
+                'received_amount' => $actualAmount,
+                'expected_currency' => strtoupper($payment->currency_code),
+                'received_currency' => $actualCurrency,
+            ]);
+
+            throw new \Exception('PayPal payment amount verification failed.');
         }
     }
 

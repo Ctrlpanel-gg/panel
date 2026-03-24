@@ -59,6 +59,8 @@ class VoucherController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
@@ -107,6 +109,8 @@ class VoucherController extends Controller
      */
     public function update(Request $request, Voucher $voucher)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
@@ -213,11 +217,13 @@ class VoucherController extends Controller
 
     public function usersDataTable(Voucher $voucher)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $users = $voucher->users();
 
         return datatables($users)
             ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.$user->name.'</a>';
+                return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.e($user->name).'</a>';
             })
             ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
                 return '<i class="mr-2 fas fa-coins"></i> '. $currencyHelper->formatForDisplay($user->credits);
@@ -231,6 +237,8 @@ class VoucherController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Voucher::selectRaw('
             vouchers.*,
             CASE

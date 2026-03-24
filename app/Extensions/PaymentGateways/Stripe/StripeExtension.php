@@ -12,8 +12,11 @@ use App\Models\User;
 use App\Traits\Coupon as CouponTrait;
 use App\Notifications\ConfirmPaymentNotification;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Stripe;
@@ -95,14 +98,21 @@ class StripeExtension extends PaymentExtension
     /**
      * @param  Request  $request
      */
-    public static function StripeSuccess(Request $request)
+    public static function StripeSuccess(Request $request): RedirectResponse
     {
         $user = Auth::user();
         $user = User::findOrFail($user->id);
         $payment = Payment::findOrFail($request->input('payment'));
-        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+        if ($payment->payment_method !== 'Stripe') {
+            abort(403);
+        }
 
-        Redirect::route('home')->with('success', 'Please wait for success')->send();
+        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+        $paymentOwner = User::findOrFail($payment->user_id);
+
+        if ($payment->user_id !== $user->id) {
+            abort(403);
+        }
 
         $stripeClient = self::getStripeClient();
         try {
@@ -110,47 +120,54 @@ class StripeExtension extends PaymentExtension
             $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
             $paymentIntent = $stripeClient->paymentIntents->retrieve($paymentSession->payment_intent);
 
-            //get DB entry of this payment ID if existing
-            $paymentDbEntry = Payment::where('payment_id', $paymentSession->payment_intent)->count();
+            self::assertStripePaymentMatches($payment, $paymentIntent);
 
-            // check if payment is 100% completed and payment does not exist in db already
-            if ($paymentSession->status == 'complete' && $paymentIntent->status == 'succeeded' && $paymentDbEntry == 0) {
-
-                //update payment
-                $payment->update([
-                    'payment_id' => $paymentSession->payment_intent,
-                    'status' => PaymentStatus::PAID,
-                ]);
-
-                //payment notification
-                $user->notify(new ConfirmPaymentNotification($payment));
-                event(new UserUpdateCreditsEvent($user));
-                event(new PaymentEvent($user, $payment, $shopProduct));
-
-                //redirect back to home
-                Redirect::route('home')->with('success', 'Payment successful')->send();
-            } else {
-                if ($paymentIntent->status == 'processing') {
-
-                    //update payment
-                    $payment->update([
+            if ($paymentIntent->status == 'succeeded') {
+                $updated = Payment::whereKey($payment->id)
+                    ->where('status', '!=', PaymentStatus::PAID->value)
+                    ->update([
                         'payment_id' => $paymentSession->payment_intent,
-                        'status' => PaymentStatus::PROCESSING,
+                        'status' => PaymentStatus::PAID->value,
                     ]);
 
-                    event(new PaymentEvent($user, $payment, $shopProduct));
-
-                    Redirect::route('home')->with('success', 'Your payment is being processed')->send();
+                if ($updated > 0) {
+                    $payment = $payment->fresh();
+                    $paymentOwner->notify(new ConfirmPaymentNotification($payment));
+                    event(new UserUpdateCreditsEvent($paymentOwner));
+                    event(new PaymentEvent($paymentOwner, $payment, $shopProduct));
                 }
 
-                if ($paymentDbEntry == 0 && $paymentIntent->status != 'processing') {
-                    $stripeClient->paymentIntents->cancel($paymentIntent->id);
+                return Redirect::route('home')->with('success', 'Payment successful');
+            }
 
-                    //redirect back to home
-                    Redirect::route('home')->with('info', __('Your payment has been canceled!'))->send();
-                } else {
-                    abort(402);
+            if ($paymentIntent->status == 'processing') {
+                $updated = Payment::whereKey($payment->id)
+                    ->where('status', '!=', PaymentStatus::PAID->value)
+                    ->update([
+                        'payment_id' => $paymentSession->payment_intent,
+                        'status' => PaymentStatus::PROCESSING->value,
+                    ]);
+
+                if ($updated > 0) {
+                    $payment = $payment->fresh();
+                    event(new PaymentEvent($paymentOwner, $payment, $shopProduct));
+
+                    return Redirect::route('home')->with('success', 'Your payment is being processed');
                 }
+
+                return Redirect::route('home')->with('success', 'Payment successful');
+            }
+
+            $freshPayment = $payment->fresh();
+            if ($freshPayment->status === PaymentStatus::PAID) {
+                return Redirect::route('home')->with('success', 'Payment successful');
+            }
+
+            if ($paymentIntent->status != 'processing') {
+                $stripeClient->paymentIntents->cancel($paymentIntent->id);
+
+                //redirect back to home
+                return Redirect::route('home')->with('info', __('Your payment has been canceled!'));
             }
         } catch (Exception $e) {
             if (config('app.env') == 'local') {
@@ -164,25 +181,35 @@ class StripeExtension extends PaymentExtension
     /**
      * @param  Request  $request
      */
-    public static function handleStripePaymentSuccessHook($paymentIntent)
+    public static function handleStripePaymentSuccessHook($paymentIntent): JsonResponse
     {
         try {
-            $payment = Payment::where('id', $paymentIntent->metadata->payment_id)->with('user')->first();
-            $user = User::where('id', $payment->user_id)->first();
+            $payment = Payment::findOrFail($paymentIntent->metadata->payment_id);
+            if ($payment->payment_method !== 'Stripe') {
+                abort(403);
+            }
+
+            $user = User::findOrFail($payment->user_id);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
-            if ($paymentIntent->status == 'succeeded' && $payment->status == 'processing') {
+            self::assertStripePaymentMatches($payment, $paymentIntent);
 
-                //update payment db entry status
-                $payment->update([
-                    'payment_id' => $payment->payment_id ?? $paymentIntent->id,
-                    'status' => PaymentStatus::PAID,
-                ]);
+            if ($paymentIntent->status == 'succeeded') {
+                $updated = Payment::whereKey($payment->id)
+                    ->where('status', '!=', PaymentStatus::PAID->value)
+                    ->update([
+                        'payment_id' => $payment->payment_id ?? $paymentIntent->id,
+                        'status' => PaymentStatus::PAID->value,
+                    ]);
 
-                //payment notification
-                $user->notify(new ConfirmPaymentNotification($payment));
-                event(new UserUpdateCreditsEvent($user));
-                event(new PaymentEvent($user, $payment, $shopProduct));
+                if ($updated > 0) {
+                    $payment = $payment->fresh();
+
+                    //payment notification
+                    $user->notify(new ConfirmPaymentNotification($payment));
+                    event(new UserUpdateCreditsEvent($user));
+                    event(new PaymentEvent($user, $payment, $shopProduct));
+                }
             }
 
             // return 200
@@ -195,7 +222,7 @@ class StripeExtension extends PaymentExtension
     /**
      * @param  Request  $request
      */
-    public static function StripeWebhooks(Request $request)
+    public static function StripeWebhooks(Request $request): JsonResponse
     {
         Stripe::setApiKey(self::getStripeSecret());
 
@@ -222,10 +249,9 @@ class StripeExtension extends PaymentExtension
         switch ($event->type) {
             case 'payment_intent.succeeded':
                 $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
-                self::handleStripePaymentSuccessHook($paymentIntent);
-                break;
+                return self::handleStripePaymentSuccessHook($paymentIntent);
             default:
-                echo 'Received unknown event type ' . $event->type;
+                return response()->json(['success' => true]);
         }
     }
 
@@ -384,5 +410,32 @@ class StripeExtension extends PaymentExtension
         }
 
         return $amount / 10;
+    }
+
+    private static function assertStripePaymentMatches(Payment $payment, object $paymentIntent): void
+    {
+        if (($paymentIntent->metadata->payment_id ?? null) !== $payment->id) {
+            throw new Exception('Stripe payment metadata mismatch.');
+        }
+
+        $actualCurrency = strtoupper((string) ($paymentIntent->currency ?? ''));
+        $expectedCurrency = strtoupper($payment->currency_code);
+        $expectedAmount = self::convertAmount((float) $payment->total_price, $expectedCurrency);
+        $actualAmount = (int) (($paymentIntent->amount_received ?? 0) > 0
+            ? $paymentIntent->amount_received
+            : ($paymentIntent->amount ?? 0));
+
+        if ($actualCurrency !== $expectedCurrency || $actualAmount !== $expectedAmount) {
+            Log::critical('Stripe payment amount mismatch detected', [
+                'payment_id' => $payment->id,
+                'expected_amount' => $expectedAmount,
+                'received_amount' => $actualAmount,
+                'expected_currency' => $expectedCurrency,
+                'received_currency' => $actualCurrency,
+                'user_id' => $payment->user_id,
+            ]);
+
+            throw new Exception('Stripe payment amount verification failed.');
+        }
     }
 }

@@ -32,7 +32,7 @@ class ProductController extends Controller
         $products = QueryBuilder::for(Product::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
-            ->paginate($request->input('per_page') ?? 50);
+            ->paginate($this->perPage($request));
 
         return ProductResource::collection($products);
     }

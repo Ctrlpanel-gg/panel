@@ -46,7 +46,7 @@ trait InteractsWithScopedApiTokens
         $ownerUserId = $this->ownerScopedUserId($request);
 
         if ($ownerUserId !== null && $ownerUserId !== $user->id) {
-            abort(403, 'This API token is restricted to its owner.');
+            abort(404);
         }
     }
 
@@ -55,7 +55,7 @@ trait InteractsWithScopedApiTokens
         $ownerUserId = $this->ownerScopedUserId($request);
 
         if ($ownerUserId !== null && $ownerUserId !== $server->user_id) {
-            abort(403, 'This API token is restricted to its owner.');
+            abort(404);
         }
     }
 
@@ -70,7 +70,7 @@ trait InteractsWithScopedApiTokens
         $normalizedIds = array_values(array_unique(array_map('intval', $userIds)));
 
         if ($normalizedIds !== [$ownerUserId]) {
-            abort(403, 'This API token is restricted to its owner.');
+            abort(404);
         }
     }
 

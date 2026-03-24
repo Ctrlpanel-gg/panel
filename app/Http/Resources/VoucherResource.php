@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Helpers\CurrencyHelper;
+use App\Models\ApplicationApi;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Request;
 
@@ -23,7 +24,11 @@ class VoucherResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        /** @var ApplicationApi|null $apiToken */
+        $apiToken = $request->attributes->get('apiToken');
+        $canViewSensitiveFields = ! $apiToken || $apiToken->hasAbility(ApplicationApi::ABILITY_USERS_SENSITIVE);
+
+        $data = [
             'id' => $this->id,
             'code' => $this->code,
             'memo' => $this->memo,
@@ -32,9 +37,16 @@ class VoucherResource extends JsonResource
             'expires_at' => $this->expires_at ? $this->expires_at->toDateTimeString() : null,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
-            'users_count' => $this->whenCounted('users'),
-            'users_exists' => $this->whenExistsLoaded('users'),
-            'users' => UserResource::newCollection($this->whenLoaded('users')),
         ];
+
+        if ($canViewSensitiveFields) {
+            $data['users_count'] = $this->whenCounted('users');
+            $data['users_exists'] = $this->whenExistsLoaded('users');
+            if ($this->relationLoaded('users')) {
+                $data['users'] = UserResource::collection($this->users);
+            }
+        }
+
+        return $data;
     }
 }

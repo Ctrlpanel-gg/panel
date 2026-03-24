@@ -34,8 +34,7 @@ class ProfileController extends Controller
             'credits_reward_after_verify_discord' => $user_settings->credits_reward_after_verify_discord,
             'force_email_verification' => $user_settings->force_email_verification,
             'force_discord_verification' => $user_settings->force_discord_verification,
-            'discord_client_id' => $discord_settings->client_id,
-            'discord_client_secret' => $discord_settings->client_secret,
+            'discord_link_enabled' => !empty($discord_settings->client_id) && !empty($discord_settings->client_secret),
             'referral_enabled' => $referral_settings->enabled
         ]);
     }
@@ -59,94 +58,77 @@ class ProfileController extends Controller
     {
         //prevent other users from editing a user
         if ($id != Auth::user()->id) {
-            dd(401);
+            abort(403);
         }
         $user = User::findOrFail($id);
 
-        //update password if necessary
-        if (!is_null($request->input('new_password'))) {
-
-            //validate password request
-            $request->validate([
-                'current_password' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($user) {
-                        if (!Hash::check($value, $user->password)) {
-                            $fail('The ' . $attribute . ' is invalid.');
-                        }
-                    },
-                ],
-                'new_password' => 'required|string|min:8',
-                'new_password_confirmation' => 'required|same:new_password',
-            ]);
-
-            //Update Users Password on Pterodactyl
-            //Username,Mail,First and Lastname are required aswell
-            $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, [
-                'password' => $request->input('new_password'),
-                'username' => $request->input('name'),
-                'first_name' => $request->input('name'),
-                'last_name' => $request->input('name'),
-                'email' => $request->input('email'),
-
-            ]);
-            if ($response->failed()) {
-                throw ValidationException::withMessages([
-                    'pterodactyl_error_message' => $response->toException()->getMessage(),
-                    'pterodactyl_error_status' => $response->toException()->getCode(),
-                ]);
-            }
-            //update password
-            $user->update([
-                'password' => Hash::make($request->input('new_password')),
-            ]);
-        }
-
-        //validate request
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|min:4|max:30|alpha_num|unique:users,name,' . $id . ',id',
             'email' => 'required|email|max:64|unique:users,email,' . $id . ',id',
             'avatar' => 'nullable',
+            'current_password' => [
+                'required_with:new_password',
+                function ($attribute, $value, $fail) use ($user) {
+                    if (! empty($value) && ! Hash::check($value, $user->password)) {
+                        $fail('The ' . $attribute . ' is invalid.');
+                    }
+                },
+            ],
+            'new_password' => 'nullable|string|min:8',
+            'new_password_confirmation' => 'nullable|same:new_password',
         ]);
 
-        //update avatar
-        if (!is_null($request->input('avatar'))) {
-            $avatar = json_decode($request->input('avatar'));
-            if ($avatar->input->size > 3000000) {
-                abort(500);
+        $avatarValue = null;
+
+        if (!is_null($validated['avatar'] ?? null)) {
+            $avatar = json_decode($validated['avatar']);
+
+            if (! is_object($avatar) || ! isset($avatar->input->size, $avatar->output->image)) {
+                throw ValidationException::withMessages([
+                    'avatar' => __('The avatar payload is invalid.'),
+                ]);
             }
 
-            $user->update([
-                'avatar' => $avatar->output->image,
-            ]);
-        } else {
-            $user->update([
-                'avatar' => null,
-            ]);
+            if ($avatar->input->size > 3000000) {
+                throw ValidationException::withMessages([
+                    'avatar' => __('The avatar may not be greater than 3 MB.'),
+                ]);
+            }
+
+            $avatarValue = $avatar->output->image;
         }
 
         //update name and email on Pterodactyl
-        $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, [
-            'username' => $request->input('name'),
-            'first_name' => $request->input('name'),
-            'last_name' => $request->input('name'),
-            'email' => $request->input('email'),
-        ]);
+        $pterodactylPayload = array_filter([
+            'username' => $validated['name'],
+            'first_name' => $validated['name'],
+            'last_name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['new_password'] ?? null,
+        ], static fn ($value) => $value !== null);
+
+        $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, $pterodactylPayload);
 
         if ($response->failed()) {
+            logger()->warning('Failed to update profile in Pterodactyl.', [
+                'user_id' => $user->id,
+                'status' => $response->status(),
+            ]);
+
             throw ValidationException::withMessages([
-                'pterodactyl_error_message' => $response->toException()->getMessage(),
-                'pterodactyl_error_status' => $response->toException()->getCode(),
+                'pterodactyl_error_message' => __('Failed to update your account on Pterodactyl. Please try again later.'),
             ]);
         }
 
         //update name and email
         $user->update([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => ! empty($validated['new_password']) ? Hash::make($validated['new_password']) : $user->password,
+            'avatar' => $avatarValue,
         ]);
 
-        if ($request->input('email') != Auth::user()->email) {
+        if ($validated['email'] != Auth::user()->email) {
             $user->reVerifyEmail();
             $user->sendEmailVerificationNotification();
         }

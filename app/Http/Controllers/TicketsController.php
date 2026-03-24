@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Server;
 use App\Models\Ticket;
 use App\Models\TicketBlacklist;

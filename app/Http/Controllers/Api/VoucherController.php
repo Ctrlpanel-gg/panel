@@ -32,7 +32,7 @@ class VoucherController extends Controller
         $vouchers = QueryBuilder::for(Voucher::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
-            ->paginate($request->input('per_page') ?? 50);
+            ->paginate($this->perPage($request));
 
         return VoucherResource::collection($vouchers);
     }

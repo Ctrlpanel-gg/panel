@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
-use App\Http\Controllers\Admin\LegalController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -28,7 +27,6 @@ use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\TicketsController;
-use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -55,21 +53,23 @@ Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //resend verification email
-    Route::get('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
+    Route::post('/email/verification-notification', function (Request $request) {
+        if (! $request->user()->sendEmailVerificationNotification()) {
+            return back()->with('error', __('Too many requests. Please try again later.'));
+        }
 
         return back()->with('success', 'Verification link sent!');
     })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
 
     //normal routes
-    Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
-    Route::resource('notifications', NotificationController::class);
+    Route::post('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');
+    Route::resource('notifications', NotificationController::class)->only(['index', 'show']);
     Route::patch('/servers/cancel/{server}', [ServerController::class, 'cancel'])->name('servers.cancel');
     Route::post('/servers/validateDeploymentVariables', [ServerController::class, 'validateDeploymentVariables'])->name('servers.validateDeploymentVariables');
     Route::patch('/servers/{server}/billing_priority', [ServerController::class, 'updateBillingPriority'])->name('servers.updateBillingPriority');
     Route::delete('/servers/{server}', [ServerController::class, 'destroy'])->name('servers.destroy');
     // Route::patch('/servers/{server}', [ServerController::class, 'update'])->name('servers.update');
-    Route::resource('servers', ServerController::class);
+    Route::resource('servers', ServerController::class)->only(['index', 'create', 'store', 'show']);
 
     try {
         $serverSettings = app(App\Settings\ServerSettings::class);
@@ -81,8 +81,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     }
 
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
-    Route::resource('profile', ProfileController::class);
-    Route::resource('store', StoreController::class);
+    Route::resource('profile', ProfileController::class)->only(['index', 'update']);
+    Route::resource('store', StoreController::class)->only(['index']);
     Route::get('preferences', [PreferencesController::class, 'index'])->name('preferences.index');
     Route::post('preferences', [PreferencesController::class, 'update'])->name('preferences.update');
 
@@ -95,10 +95,11 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //payments
     Route::get('checkout/{shopProduct}', [PaymentController::class, 'checkOut'])->name('checkout');
     Route::post('payment/pay', [PaymentController::class, 'pay'])->name('payment.pay');
-    Route::get('payment/FreePay/{shopProduct}', [PaymentController::class, 'FreePay'])->name('payment.FreePay');
+    Route::post('payment/FreePay/{shopProduct}', [PaymentController::class, 'handleFreeProduct'])->name('payment.FreePay');
     Route::get('payment/Cancel', [PaymentController::class, 'Cancel'])->name('payment.Cancel');
+    Route::post('coupons/redeem', [CouponController::class, 'redeem'])->name('coupon.redeem');
 
-    Route::get('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
+    Route::post('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
 
     //discord
     Route::get('/auth/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect');
@@ -138,14 +139,14 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('users/notifications', [UserController::class, 'notifications'])->name('users.notifications.index');
         Route::post('users/notifications', [UserController::class, 'notify'])->name('users.notifications.notify');
         Route::post('users/togglesuspend/{user}', [UserController::class, 'toggleSuspended'])->name('users.togglesuspend');
-        Route::resource('users', UserController::class);
+        Route::resource('users', UserController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
 
         //servers
         Route::get('servers/datatable', [AdminServerController::class, 'datatable'])->name('servers.datatable');
         Route::post('servers/togglesuspend/{server}', [AdminServerController::class, 'toggleSuspended'])->name('servers.togglesuspend');
         Route::patch('/servers/cancel/{server}', [AdminServerController::class, 'cancel'])->name('servers.cancel');
         Route::post('servers/sync', [AdminServerController::class, 'syncServers'])->name('servers.sync');
-        Route::resource('servers', AdminServerController::class);
+        Route::resource('servers', AdminServerController::class)->only(['index', 'edit', 'update', 'destroy']);
 
         //products
         Route::get('products/datatable', [ProductController::class, 'datatable'])->name('products.datatable');
@@ -156,7 +157,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         //store
         Route::get('store/datatable', [ShopProductController::class, 'datatable'])->name('store.datatable');
         Route::patch('store/disable/{shopProduct}', [ShopProductController::class, 'disable'])->name('store.disable');
-        Route::resource('store', ShopProductController::class)->parameters([
+        Route::resource('store', ShopProductController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy'])->parameters([
             'store' => 'shopProduct',
         ]);
 
@@ -186,12 +187,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
         //partners
         Route::get('partners/datatable', [PartnerController::class, 'datatable'])->name('partners.datatable');
-        Route::get('partners/{voucher}/users', [PartnerController::class, 'users'])->name('partners.users');
-        Route::resource('partners', PartnerController::class);
+        Route::resource('partners', PartnerController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
         //coupons
         Route::get('coupons/datatable', [CouponController::class, 'dataTable'])->name('coupons.datatable');
-        Route::post('coupons/redeem', [CouponController::class, 'redeem'])->name('coupon.redeem');
         Route::resource('coupons', CouponController::class);
 
         //api-keys
@@ -216,7 +215,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
 
         Route::get('ticket/category/datatable', [TicketCategoryController::class, 'datatable'])->name('ticket.category.datatable');
-        Route::resource("ticket/category", TicketCategoryController::class, ['as' => 'ticket']);
+        Route::resource("ticket/category", TicketCategoryController::class, ['as' => 'ticket'])->only(['index', 'store', 'update', 'destroy']);
     });
 
 

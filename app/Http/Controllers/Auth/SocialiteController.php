@@ -26,7 +26,7 @@ class SocialiteController extends Controller
     public function callback(DiscordSettings $discord_settings, UserSettings $user_settings)
     {
         if (Auth::guest()) {
-            return abort(500);
+            return redirect()->route('login')->with('error', __('Please sign in before linking your Discord account.'));
         }
 
         /** @var User $user */

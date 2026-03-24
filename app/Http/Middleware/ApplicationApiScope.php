@@ -20,6 +20,10 @@ class ApplicationApiScope
             return response()->json(['message' => 'Unauthenticated API token context'], 401);
         }
 
+        if (! $token->isActive()) {
+            return response()->json(['message' => 'Expired or revoked Authorization token'], 401);
+        }
+
         if (! $token->hasAnyAbility($abilities)) {
             return response()->json(['message' => 'The API token does not have the required scope'], 403);
         }

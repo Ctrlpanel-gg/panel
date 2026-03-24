@@ -292,7 +292,7 @@ class ServerController extends Controller
 
         return datatables($query)
             ->addColumn('user', function (Server $server) {
-                return '<a href="' . route('admin.users.show', $server->user->id) . '">' . $server->user->name . '</a>';
+                return '<a href="' . route('admin.users.show', $server->user->id) . '">' . e($server->user->name) . '</a>';
             })
             ->addColumn('resources', function (Server $server) {
                 return $server->product->name;

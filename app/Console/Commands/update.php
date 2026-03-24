@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Process\Process;
+use InvalidArgumentException;
 
 class update extends Command
 {
@@ -83,6 +84,9 @@ class update extends Command
                 }
             }
 
+            $user = $this->validateOwnershipIdentifier($this->option('user') ?? $user, 'user');
+            $group = $this->validateOwnershipIdentifier($this->option('group') ?? $group, 'group');
+
             ini_set('output_buffering', 0);
 
             if (! $this->confirm('Are you sure you want to run the upgrade process for your Dashboard?')) {
@@ -145,7 +149,7 @@ class update extends Command
 
             $this->withProgress($bar, function () use ($user, $group) {
                 $this->line("\$upgrader> chown -R {$user}:{$group} *");
-                $process = Process::fromShellCommandline("chown -R {$user}:{$group} *", $this->getLaravel()->basePath());
+                $process = new Process(['chown', '-R', "{$user}:{$group}", '.'], $this->getLaravel()->basePath());
                 $process->setTimeout(10 * 60);
                 $process->run(function ($type, $buffer) {
                     $this->{$type === Process::ERR ? 'error' : 'line'}($buffer);
@@ -168,5 +172,14 @@ class update extends Command
         $callback();
         $bar->advance();
         $bar->display();
+    }
+
+    private function validateOwnershipIdentifier(string $value, string $label): string
+    {
+        if (! preg_match('/^[A-Za-z0-9._-]+$/', $value)) {
+            throw new InvalidArgumentException("Invalid {$label} value supplied.");
+        }
+
+        return $value;
     }
 }

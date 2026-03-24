@@ -100,7 +100,13 @@ class SettingsController extends Controller
 
             $optionsData['settings_class'] = $className;
 
-            $settings[str_replace('Settings', '', class_basename($className))] = $optionsData;
+            $category = str_replace('Settings', '', class_basename($className));
+
+            if (! $this->canViewSettingsCategory($category)) {
+                continue;
+            }
+
+            $settings[$category] = $optionsData;
         }
 
         $settings = $settings->sortBy('position');
@@ -135,11 +141,15 @@ class SettingsController extends Controller
      */
     public function update(Request $request)
     {
-        $category = request()->get('category');
+        $category = strtolower((string) request()->get('category'));
 
-        $this->checkPermission("settings." . strtolower($category) . ".write");
+        $this->checkPermission("settings." . $category . ".write");
 
-        $settings_class = (string) request()->get('settings_class');
+        $settings_class = $this->availableSettingsClasses()[$category] ?? null;
+
+        if ($settings_class === null) {
+            abort(403, __('User does not have the right permissions.'));
+        }
 
         if (method_exists($settings_class, 'getValidations')) {
             $validations = $settings_class::getValidations();
@@ -253,12 +263,46 @@ class SettingsController extends Controller
             ->contains(fn (string $permission) => str_starts_with($permission, 'settings.'));
     }
 
+    private function availableSettingsClasses(): array
+    {
+        $settingsClasses = [];
+
+        $appSettings = array_diff(scandir(app_path('Settings')), ['.', '..']);
+        foreach ($appSettings as $appSetting) {
+            $className = 'App\\Settings\\' . str_replace('.php', '', $appSetting);
+            $settingsClasses[strtolower(str_replace('Settings', '', class_basename($className)))] = $className;
+        }
+
+        foreach (ExtensionHelper::getAllExtensionSettingsClasses() as $className) {
+            $settingsClasses[strtolower(str_replace('Settings', '', class_basename($className)))] = $className;
+        }
+
+        return $settingsClasses;
+    }
+
+    private function canViewSettingsCategory(string $category): bool
+    {
+        $user = request()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        $permission = 'settings.' . strtolower($category) . '.write';
+
+        return $user->can('*') || $user->can($permission);
+    }
+
     private function shouldSanitizeRichText(string $settingsClass, string $key): bool
     {
         return in_array([$settingsClass, $key], [
             ['App\\Settings\\GeneralSettings', 'alert_message'],
             ['App\\Settings\\WebsiteSettings', 'motd_message'],
             ['App\\Settings\\TicketSettings', 'information'],
+            ['App\\Settings\\TermsSettings', 'terms_of_service'],
+            ['App\\Settings\\TermsSettings', 'privacy_policy'],
+            ['App\\Settings\\TermsSettings', 'imprint'],
+            ['App\\Settings\\InvoiceSettings', 'additional_notes'],
         ], true);
     }
 }

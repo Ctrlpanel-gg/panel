@@ -41,8 +41,16 @@ class notify extends Command
      */
     public function handle()
     {
-        User::findOrFail($this->argument('id'))->notify(new ServerCreationError(Server::all()[0]));
+        $server = Server::query()->first();
+        if (! $server) {
+            $this->error('No server found to attach to the test notification.');
+            return self::FAILURE;
+        }
 
-        return 'message send';
+        User::findOrFail($this->argument('id'))->notify(new ServerCreationError($server));
+
+        $this->info('Message sent.');
+
+        return self::SUCCESS;
     }
 }

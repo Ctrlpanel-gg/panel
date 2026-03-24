@@ -9,6 +9,7 @@ use App\Models\ShopProduct;
 use App\Models\Invoice;
 use App\Notifications\InvoiceNotification;
 use App\Settings\InvoiceSettings;
+use App\Support\HtmlSanitizer;
 use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Buyer;
 use LaravelDaily\Invoices\Classes\InvoiceItem;
@@ -50,7 +51,7 @@ trait Invoiceable
 
         $notes = [
             __("Payment method") . ": " . $payment->payment_method,
-            $invoice_settings->additional_notes ? : "",
+            HtmlSanitizer::sanitizeRichText($invoice_settings->additional_notes) ?: "",
         ];
         $notes = implode("<br>", $notes);
 

@@ -36,7 +36,7 @@ class RoleController extends Controller
 
         //datatables
         if ($request->ajax()) {
-            return $this->dataTableQuery();
+            return $this->dataTable();
         }
 
         $html = $this->dataTable();
@@ -186,6 +186,9 @@ class RoleController extends Controller
      */
     public function dataTable()
     {
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $this->checkAnyPermission($allConstants);
+
         $query = Role::query()->withCount(['users', 'permissions'])->get();
 
         return datatables($query)
@@ -206,7 +209,7 @@ class RoleController extends Controller
             })
 
             ->editColumn('name', function (Role $role) {
-                return "<span style='background-color: $role->color' class='badge'>$role->name</span>";
+                return "<span style='background-color: " . e($role->color) . "' class='badge'>" . e($role->name) . "</span>";
             })
             ->editColumn('users_count', function ($query) {
                 return $query->users_count;

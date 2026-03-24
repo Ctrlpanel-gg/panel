@@ -66,7 +66,7 @@ class ServerCreationService
 
                     $server->delete();
 
-                    throw new \Exception('Failed to create server on Pterodactyl: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error'));
+                    throw new \Exception('Failed to create server on Pterodactyl.');
                 }
 
                 $serverAttributes = $response->json()['attributes'];
@@ -80,7 +80,7 @@ class ServerCreationService
                 return $server;
             });
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+            throw new \Exception($e->getMessage(), $e->getCode());
         }
     }
 

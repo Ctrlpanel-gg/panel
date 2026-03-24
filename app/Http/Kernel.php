@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
+use App\Http\Middleware\ApiAuditTrail;
 use App\Http\Middleware\ApplicationApiScope;
 use App\Http\Middleware\CanAccessAdminArea;
 use App\Http\Middleware\CheckSuspended;
@@ -27,6 +28,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\SecurityHeaders::class,
 
     ];
 
@@ -80,6 +82,7 @@ class Kernel extends HttpKernel
         'canAccessDocsPage' => \App\Http\Middleware\CanAccessDocsPage::class,
         'canAccessAdminArea' => CanAccessAdminArea::class,
         'api.scope' => ApplicationApiScope::class,
+        'api.audit' => ApiAuditTrail::class,
     ];
 
 }

@@ -45,17 +45,20 @@ class PartnerController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $validated = $request->validate([
             'user_id' => 'required|integer|min:0',
             'partner_discount' => 'required|integer|max:100|min:0',
             'registered_user_discount' => 'required|integer|max:100|min:0',
+            'referral_system_commission' => 'nullable|integer|min:-1|max:100',
         ]);
 
-        if(PartnerDiscount::where("user_id",$request->user_id)->exists()){
+        if(PartnerDiscount::where("user_id",$validated['user_id'])->exists()){
             return redirect()->route('admin.partners.index')->with('error', __('Partner already exists'));
         }
 
-        PartnerDiscount::create($request->all());
+        PartnerDiscount::create($validated);
 
         return redirect()->route('admin.partners.index')->with('success', __('partner has been created!'));
     }
@@ -86,14 +89,16 @@ class PartnerController extends Controller
      */
     public function update(Request $request, PartnerDiscount $partner)
     {
-        //dd($request);
-        $request->validate([
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $validated = $request->validate([
             'user_id' => 'required|integer|min:0',
             'partner_discount' => 'required|integer|max:100|min:0',
             'registered_user_discount' => 'required|integer|max:100|min:0',
+            'referral_system_commission' => 'nullable|integer|min:-1|max:100',
         ]);
 
-        $partner->update($request->all());
+        $partner->update($validated);
 
         return redirect()->route('admin.partners.index')->with('success', __('partner has been updated!'));
     }
@@ -117,6 +122,8 @@ class PartnerController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = PartnerDiscount::query();
 
         return datatables($query)
@@ -131,7 +138,7 @@ class PartnerController extends Controller
                 ';
             })
             ->addColumn('user', function (PartnerDiscount $partner) {
-                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id) . '">' . $user->name . '</a>' : __('Unknown user');
+                return ($user = User::where('id', $partner->user_id)->first()) ? '<a href="'.route('admin.users.show', $partner->user_id) . '">' . e($user->name) . '</a>' : __('Unknown user');
             })
             ->editColumn('created_at', function (PartnerDiscount $partner) {
                 return $partner->created_at ? $partner->created_at->diffForHumans() : '';

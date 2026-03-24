@@ -34,7 +34,7 @@ class RoleController extends Controller
         $roles = QueryBuilder::for(Role::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
-            ->paginate($request->input('per_page') ?? 50);
+            ->paginate($this->perPage($request));
 
         return RoleResource::collection($roles);
     }

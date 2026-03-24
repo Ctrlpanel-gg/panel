@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('api.token')->group(function () {
+Route::middleware(['api.token', 'api.audit', 'throttle:60,1'])->group(function () {
     Route::get('users', [UserController::class, 'index'])->middleware('api.scope:users.read')->name('users.index');
     Route::post('users', [UserController::class, 'store'])->middleware('api.scope:users.write')->name('users.store');
     Route::get('users/{user}', [UserController::class, 'show'])->middleware('api.scope:users.read')->name('users.show');

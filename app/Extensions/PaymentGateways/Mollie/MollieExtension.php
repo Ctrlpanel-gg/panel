@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -64,7 +65,10 @@ class MollieExtension extends PaymentExtension
             ]);
 
             if ($response->status() != 201) {
-                Log::error('Mollie Payment: ' . $response->body());
+                Log::error('Mollie payment creation failed.', [
+                    'status' => $response->status(),
+                    'error' => $response->json('title') ?: $response->json('detail') ?: 'Unknown Mollie error',
+                ]);
                 throw new Exception('Payment failed');
             }
 
@@ -78,15 +82,24 @@ class MollieExtension extends PaymentExtension
     static function success(Request $request): RedirectResponse
     {
         $payment = Payment::findOrFail($request->input('payment_id'));
+        if ($payment->payment_method !== 'Mollie') {
+            abort(403);
+        }
+
+        $user = Auth::user();
+
+        if ($payment->user_id !== $user->id) {
+            abort(403);
+        }
 
         if ($payment->status === PaymentStatus::PAID) {
-            return Redirect::route('home')->with('success', 'Your payment has already been processed!')->send();
+            return Redirect::route('home')->with('success', 'Your payment has already been processed!');
         }
 
         $payment->status = PaymentStatus::PROCESSING;
         $payment->save();
 
-        return Redirect::route('home')->with('success', 'Your payment is being processed')->send();
+        return Redirect::route('home')->with('success', 'Your payment is being processed');
     }
 
     static function webhook(Request $request): JsonResponse
@@ -100,17 +113,35 @@ class MollieExtension extends PaymentExtension
                 'Authorization' => 'Bearer ' . $settings->api_key,
             ])->get($url);
             if ($response->status() != 200) {
-                Log::error('Mollie Payment Webhook: ' . $response->json()['title']);
+                Log::error('Mollie payment webhook lookup failed.', [
+                    'status' => $response->status(),
+                    'error' => $response->json('title') ?: $response->json('detail') ?: 'Unknown Mollie error',
+                ]);
                 return response()->json(['success' => false]);
             }
 
             $payment = Payment::findOrFail($response->json()['metadata']['payment_id']);
+            if ($payment->payment_method !== 'Mollie') {
+                abort(403);
+            }
+
             $user = User::findOrFail($payment->user_id);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
+            self::assertMolliePaymentMatches($payment, $response->json());
+
             if ($response->json()['status'] == 'paid') {
-                $payment->status = PaymentStatus::PAID;
-                $payment->save();
+                $updated = Payment::whereKey($payment->id)
+                    ->where('status', '!=', PaymentStatus::PAID->value)
+                    ->update([
+                        'status' => PaymentStatus::PAID->value,
+                    ]);
+
+                if ($updated === 0) {
+                    return response()->json(['success' => true]);
+                }
+
+                $payment = $payment->fresh();
                 $user->notify(new ConfirmPaymentNotification($payment));
                 event(new PaymentEvent($user, $payment, $shopProduct));
                 event(new UserUpdateCreditsEvent($user));
@@ -122,5 +153,27 @@ class MollieExtension extends PaymentExtension
 
         // return a 200 status code
         return response()->json(['success' => true]);
+    }
+
+    private static function assertMolliePaymentMatches(Payment $payment, array $remotePayment): void
+    {
+        $expectedAmount = number_format($payment->total_price / 1000, 2, '.', '');
+        $actualAmount = number_format((float) ($remotePayment['amount']['value'] ?? 0), 2, '.', '');
+        $expectedCurrency = strtoupper($payment->currency_code);
+        $actualCurrency = strtoupper((string) ($remotePayment['amount']['currency'] ?? ''));
+
+        if (($remotePayment['metadata']['payment_id'] ?? null) !== $payment->id
+            || $actualCurrency !== $expectedCurrency
+            || $actualAmount !== $expectedAmount) {
+            Log::critical('Mollie payment amount mismatch detected', [
+                'payment_id' => $payment->id,
+                'expected_amount' => $expectedAmount,
+                'received_amount' => $actualAmount,
+                'expected_currency' => $expectedCurrency,
+                'received_currency' => $actualCurrency,
+            ]);
+
+            throw new Exception('Mollie payment amount verification failed.');
+        }
     }
 }

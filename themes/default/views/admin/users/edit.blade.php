@@ -94,20 +94,26 @@
                                     </div>
                                     @enderror
                                 </div>
-                                <div class="form-group">
-                                    <label for="role">{{__('Role')}}</label>
-                                    <div>
-                                        <select id="roles" name="roles"
-                                                class="custom-select @error('role') is-invalid @enderror"
-                                                required="required">
-                                            @foreach($roles as $role)
-                                                <option style="color: {{$role->color}}"
-                                                        @if(isset($user) && $user->roles->contains($role)) selected
-                                                        @endif value="{{$role->id}}">{{$role->name}}</option>
-                                            @endforeach
-                                        </select>
+                                @if ($can_change_role)
+                                    <div class="form-group">
+                                        <label for="role_id">{{__('Role')}}</label>
+                                        <div>
+                                            <select id="role_id" name="role_id"
+                                                    class="custom-select @error('role_id') is-invalid @enderror">
+                                                @foreach($roles as $role)
+                                                    <option style="color: {{$role->color}}"
+                                                            @if(isset($user) && $user->roles->contains($role)) selected
+                                                            @endif value="{{$role->id}}">{{$role->name}}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        @error('role_id')
+                                        <div class="text-danger">
+                                            {{$message}}
+                                        </div>
+                                        @enderror
                                     </div>
-                                </div>
+                                @endif
                                     <div class="form-group">
                                         <label for="name">{{__('Referral-Code')}}</label>
                                         <input value="{{$user->referral_code}}" id="referral_code" name="referral_code" type="text"
@@ -118,12 +124,6 @@
                                         </div>
                                         @enderror
                                     </div>
-                                @error('role')
-                                <div class="text-danger">
-                                    {{$message}}
-                                </div>
-                                @enderror
-
                                 <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">{{__('Submit')}}</button>
                                 </div>

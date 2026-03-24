@@ -28,6 +28,8 @@ use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class PaymentController extends Controller
 {
@@ -57,23 +59,14 @@ class PaymentController extends Controller
      */
     public function checkOut(ShopProduct $shopProduct, GeneralSettings $general_settings, CouponSettings $coupon_settings, CurrencyHelper $currencyHelper)
     {
-        $this->checkPermission(self::BUY_PERMISSION);
+        $this->ensureStoreCheckoutAllowed($shopProduct);
 
         $discount = PartnerDiscount::getDiscount();
         $price = $shopProduct->price - ($shopProduct->price * $discount / 100);
 
         $paymentGateways = [];
         if ($price > 0) {
-            $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
-
-            // build a paymentgateways array that contains the routes for the payment gateways and the image path for the payment gateway which lays in public/images/Extensions/PaymentGateways with the extensionname in lowercase
-            foreach ($extensions as $extension) {
-                $extensionName = basename($extension);
-
-                $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
-                if ($extensionSettings->enabled == false) continue;
-
-
+            foreach (array_keys($this->enabledPaymentGatewayExtensions()) as $extensionName) {
                 $payment = new \stdClass();
                 $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
                 $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
@@ -101,23 +94,31 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function handleFreeProduct(ShopProduct $shopProduct)
+    public function handleFreeProduct(ShopProduct $shopProduct, ?float $subtotal = null)
     {
         /** @var User $user */
         $user = Auth::user();
 
-        //create a payment
+        $this->ensureStoreCheckoutAllowed($shopProduct);
+
+        $chargedAmount = $subtotal ?? $shopProduct->getTotalPrice();
+
+        if ($chargedAmount > 0) {
+            abort(403);
+        }
+
+        // create a payment for a free checkout
         $payment = Payment::create([
             'user_id' => $user->id,
-            'payment_id' => uniqid(),
+            'payment_id' => (string) \Illuminate\Support\Str::ulid(),
             'payment_method' => 'free',
             'type' => $shopProduct->type,
             'status' => PaymentStatus::PAID,
             'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * PartnerDiscount::getDiscount() / 100),
-            'tax_value' => $shopProduct->getTaxValue(),
-            'tax_percent' => $shopProduct->getTaxPercent(),
-            'total_price' => $shopProduct->getTotalPrice(),
+            'price' => 0,
+            'tax_value' => 0,
+            'tax_percent' => 0,
+            'total_price' => 0,
             'currency_code' => $shopProduct->currency_code,
             'shop_item_product_id' => $shopProduct->id,
         ]);
@@ -134,13 +135,21 @@ class PaymentController extends Controller
     public function pay(Request $request)
     {
         try {
+            $this->checkPermission(self::BUY_PERMISSION);
+
+            $data = $request->validate([
+                'product_id' => 'required|exists:shop_products,id',
+                'payment_method' => 'nullable|string|max:191',
+                'coupon_code' => 'nullable|string|max:191',
+            ]);
+
             $user = Auth::user();
             $user = User::findOrFail($user->id);
-            $productId = $request->product_id;
-            $shopProduct = ShopProduct::findOrFail($productId);
+            $shopProduct = ShopProduct::findOrFail($data['product_id']);
+            $this->ensureStoreCheckoutAllowed($shopProduct);
 
-            $paymentGateway = $request->payment_method;
-            $couponCode = $request->coupon_code;
+            $paymentGateway = $data['payment_method'] ?? null;
+            $couponCode = $data['coupon_code'] ?? null;
 
             $subtotal = $shopProduct->getTotalPrice();
 
@@ -154,7 +163,14 @@ class PaymentController extends Controller
             }
 
             if ($subtotal <= 0) {
-                return $this->handleFreeProduct($shopProduct);
+                return $this->handleFreeProduct($shopProduct, $subtotal);
+            }
+
+            $enabledPaymentGateways = $this->enabledPaymentGatewayExtensions();
+            if ($paymentGateway === null || !isset($enabledPaymentGateways[$paymentGateway])) {
+                throw ValidationException::withMessages([
+                    'payment_method' => __('Please select a valid payment method.'),
+                ]);
             }
 
             // create a new payment
@@ -173,9 +189,13 @@ class PaymentController extends Controller
                 'shop_item_product_id' => $shopProduct->id,
             ]);
 
-            $paymentGatewayExtension = ExtensionHelper::getExtensionClass($paymentGateway);
+            $paymentGatewayExtension = $enabledPaymentGateways[$paymentGateway];
             $redirectUrl = $paymentGatewayExtension::getRedirectUrl($payment, $shopProduct, $subtotal);
 
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (HttpExceptionInterface $e) {
+            throw $e;
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return redirect()->route('store.index')->with('error', __('Oops, something went wrong! Please try again later.'));
@@ -206,7 +226,7 @@ class PaymentController extends Controller
         return datatables($query)
 
             ->addColumn('user', function (Payment $payment) {
-                return ($payment->user) ? '<a href="' . route('admin.users.show', $payment->user->id) . '">' . $payment->user->name . '</a>' : __('Unknown user');
+                return ($payment->user) ? '<a href="' . route('admin.users.show', $payment->user->id) . '">' . e($payment->user->name) . '</a>' : __('Unknown user');
             })
             ->editColumn('amount', function (Payment $payment, CurrencyHelper $currencyHelper) {
                 return $payment->type == 'Credits' ? $currencyHelper->formatForDisplay($payment->amount) : $payment->amount;
@@ -240,5 +260,40 @@ class PaymentController extends Controller
             })
             ->rawColumns(['actions', 'user'])
             ->make(true);
+    }
+
+    private function ensureStoreCheckoutAllowed(ShopProduct $shopProduct): void
+    {
+        $this->checkPermission(self::BUY_PERMISSION);
+
+        if (! app(GeneralSettings::class)->store_enabled || $shopProduct->disabled) {
+            abort(404);
+        }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function enabledPaymentGatewayExtensions(): array
+    {
+        $gateways = [];
+
+        foreach (ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways') as $extension) {
+            $extensionName = basename($extension);
+            $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
+
+            if (! $extensionSettings?->enabled) {
+                continue;
+            }
+
+            $extensionClass = ExtensionHelper::getExtensionClass($extensionName);
+            if ($extensionClass === null) {
+                continue;
+            }
+
+            $gateways[$extensionName] = $extensionClass;
+        }
+
+        return $gateways;
     }
 }

@@ -64,10 +64,8 @@ class ServerUpgradeService
                     ]);
 
                     throw new \Exception(
-                        sprintf(
-                            'Failed to update server on Pterodactyl: %s',
-                            $updateServerResponse->json()['errors'][0]['detail'] ?? 'Unknown error'
-                        )
+                        'Failed to update server on Pterodactyl.',
+                        500
                     );
                 }
 
@@ -81,10 +79,8 @@ class ServerUpgradeService
                     ]);
 
                     throw new \Exception(
-                        sprintf(
-                            'Failed to restart server on Pterodactyl: %s',
-                            $powerActionResponse->json()['errors'][0]['detail'] ?? 'Unknown error'
-                        )
+                        'Failed to restart server on Pterodactyl.',
+                        500
                     );
                 }
 

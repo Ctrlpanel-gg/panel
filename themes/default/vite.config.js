@@ -20,6 +20,9 @@ export default defineConfig({
             },
         },
     ],
+    build: {
+        manifest: "manifest.json",
+    },
     resolve: {
         alias: {
             "@": "/themes/default/js",

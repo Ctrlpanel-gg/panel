@@ -63,7 +63,9 @@ class ShopProductController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $validated = $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',
             'currency_code' => ['required', 'string', 'max:3', Rule::in(config('currency_codes'))],
@@ -73,8 +75,8 @@ class ShopProductController extends Controller
             'display' => 'required|string|max:60',
         ]);
 
-        $disabled = !is_null($request->input('disabled'));
-        ShopProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
+        $disabled = $request->boolean('disabled');
+        ShopProduct::create(array_merge($validated, ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been created!'));
     }
@@ -105,7 +107,9 @@ class ShopProductController extends Controller
      */
     public function update(Request $request, ShopProduct $shopProduct)
     {
-        $request->validate([
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $validated = $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',
             'currency_code' => ['required', 'string', 'max:3', Rule::in(config('currency_codes'))],
@@ -115,8 +119,8 @@ class ShopProductController extends Controller
             'display' => 'required|string|max:60',
         ]);
 
-        $disabled = !is_null($request->input('disabled'));
-        $shopProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
+        $disabled = $request->boolean('disabled');
+        $shopProduct->update(array_merge($validated, ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been updated!'));
     }
@@ -151,6 +155,8 @@ class ShopProductController extends Controller
 
     public function dataTable(Request $request)
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = ShopProduct::query();
 
 

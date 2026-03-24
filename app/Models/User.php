@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
@@ -35,7 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * @var string[]
      */
-    protected static $logAttributes = ['name', 'email'];
+    protected static $logAttributes = ['name'];
 
     /**
      * @var string[]
@@ -226,12 +227,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(DiscordUser::class);
     }
 
-    public function sendEmailVerificationNotification()
+    public function sendEmailVerificationNotification(): bool
     {
         try {
+            $rateLimitKey = 'verify-mail:' . $this->id;
+
             // Rate limit the email verification notification to 5 attempt per 30 minutes
             $executed = RateLimiter::attempt(
-                key: 'verify-mail' . $this->id,
+                key: $rateLimitKey,
                 maxAttempts: 5,
                 callback: function () {
                     $this->notify(new QueuedVerifyEmail);
@@ -240,11 +243,14 @@ class User extends Authenticatable implements MustVerifyEmail
             );
 
             if (!$executed) {
-                return redirect()->back()->with('error', 'Too many requests. Try again in ' . RateLimiter::availableIn('verify-mail:' . $this->id) . ' seconds.');
+                return false;
             }
+
+            return true;
         }catch (\Exception $exception){
             Log::error($exception->getMessage());
-            return redirect()->back()->with('error', __("Something went wrong. Please try again later!"));
+
+            return false;
         }
     }
 
@@ -290,6 +296,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAvatar()
     {
+        if (! empty($this->avatar)) {
+            return $this->avatar;
+        }
+
         return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email)));
     }
 
@@ -358,9 +368,26 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'email', 'credits', 'server_limit', 'suspended', 'referral_code'])
+            ->logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'credits', 'server_limit', 'suspended', 'referral_code'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->dontLogIfAttributesChangedOnly(['credits', 'server_limit', 'updated_at']);
+    }
+
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        $properties = $activity->properties?->toArray() ?? [];
+
+        foreach (['attributes', 'old'] as $section) {
+            if (! isset($properties[$section]) || ! is_array($properties[$section])) {
+                continue;
+            }
+
+            if (array_key_exists('email', $properties[$section])) {
+                $properties[$section]['email'] = '[redacted]';
+            }
+        }
+
+        $activity->properties = $properties;
     }
 }

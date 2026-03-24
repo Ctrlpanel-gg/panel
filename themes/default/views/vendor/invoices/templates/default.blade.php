@@ -364,7 +364,7 @@
 
         @if($invoice->notes)
             <p>
-                {{ trans('invoices::invoice.notes') }}: {!! $invoice->notes !!}
+                {{ trans('invoices::invoice.notes') }}: {!! \App\Support\HtmlSanitizer::sanitizeRichText($invoice->notes) !!}
             </p>
         @endif
 

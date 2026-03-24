@@ -19,10 +19,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Models\Role;
 
 class ProductController extends Controller
 {
+    private const CREATE_PERMISSION = 'user.server.create';
+
     private $pterodactyl;
 
     public function __construct(PterodactylSettings $ptero_settings)
@@ -37,10 +38,12 @@ class ProductController extends Controller
      * @param  Egg  $egg
      * @return Collection|JsonResponse
      */
-    public function getNodesBasedOnEgg(Request $request, Egg $egg)
+    public function getNodesBasedOnEgg(Request $request, ?Egg $egg = null)
     {
-        if (is_null($egg->id)) {
-            return response()->json('Egg ID is required', '400');
+        $this->checkPermission(self::CREATE_PERMISSION);
+
+        if ($egg === null) {
+            return response()->json('Egg ID is required', 400);
         }
 
         //get products that include this egg
@@ -72,8 +75,14 @@ class ProductController extends Controller
      * @param  Egg  $egg
      * @return Collection|JsonResponse
      */
-    public function getLocationsBasedOnEgg(Request $request, Egg $egg)
+    public function getLocationsBasedOnEgg(Request $request, ?Egg $egg = null)
     {
+        $this->checkPermission(self::CREATE_PERMISSION);
+
+        if ($egg === null) {
+            return response()->json('Egg ID is required', 400);
+        }
+
         $nodes = $this->getNodesBasedOnEgg($request, $egg);
         foreach ($nodes as $key => $node) {
             $pteroNode = $this->pterodactyl->getNode($node->id);
@@ -105,7 +114,7 @@ class ProductController extends Controller
             // Rate limit the node full notification to 1 attempt per 30 minutes
             RateLimiter::attempt(
                 key: 'nodes-full-warning',
-                maxAttempts: 2,
+                maxAttempts: 1,
                 callback: function() {
                     // get admin role and check users
                     $users = User::permission("errors.view")->get();
@@ -117,7 +126,7 @@ class ProductController extends Controller
                         Log::warning("There are no nodes at all - Users couldnt be notified");
                     }
                  },
-                decaySeconds: 5
+                decaySeconds: 1800
             );
         }
 
@@ -129,9 +138,11 @@ class ProductController extends Controller
      * @param  Egg  $egg
      * @return Collection|JsonResponse
      */
-    public function getProductsBasedOnLocation(Egg $egg, int $location)
+    public function getProductsBasedOnLocation(?Egg $egg = null, ?int $location = null)
     {
-        if (is_null($egg->id) || is_null($location)) {
+        $this->checkPermission(self::CREATE_PERMISSION);
+
+        if ($egg === null || $location === null) {
             return response()->json('Location and Egg ID are required', 400);
         }
 

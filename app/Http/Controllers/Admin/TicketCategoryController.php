@@ -35,11 +35,11 @@ class TicketCategoryController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:191',
         ]);
 
-        TicketCategory::create($request->all());
+        TicketCategory::create($validated);
 
 
         return redirect(route("admin.ticket.category.index"))->with("success",__("Category created"));
@@ -101,6 +101,8 @@ class TicketCategoryController extends Controller
 
     public function datatable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = TicketCategory::withCount("tickets");
 
         return datatables($query)

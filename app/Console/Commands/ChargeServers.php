@@ -96,28 +96,47 @@ class ChargeServers extends Command
                     }
 
 
-                    $isCanceled = $server->canceled;
-                    $hasInsufficientCredits = $user->credits < $product->price && $product->price != 0;
+                    try {
+                        $charged = DB::transaction(function () use ($server) {
+                            $lockedServer = Server::query()->lockForUpdate()->with(['product', 'user'])->find($server->id);
 
-                    // check if the server is canceled or if user has enough credits to charge the server
-                    if ($isCanceled || $hasInsufficientCredits) {
-                        try {
-                            $this->suspendFunc($server, $user);
-                        } catch (Exception $exception) {
-                            $this->error($exception->getMessage());
-                        }
-                    } else {
-                        // charge credits to user
-                        $this->line("<fg=blue>{$user->name}</> Current credits: <fg=green>{$user->credits}</> Credits to be removed: <fg=red>{$product->price}</>");
+                            if (! $lockedServer || $lockedServer->suspended !== null) {
+                                return false;
+                            }
 
-                        if ($user->credits >= $product->price) {
-                            $user->decrement('credits', $product->price);
-                            $user->refresh();
-                            // update server last_billed date in db
-                            DB::table('servers')->where('id', $server->id)->update(['last_billed' => $newBillingDate]);
-                        } else {
+                            $lockedProduct = $lockedServer->product;
+                            $lockedUser = User::query()->lockForUpdate()->findOrFail($lockedServer->user_id);
+
+                            $nextBillingDate = match ($lockedProduct->billing_period) {
+                                'annually' => Carbon::parse($lockedServer->last_billed)->addYear(),
+                                'half-annually' => Carbon::parse($lockedServer->last_billed)->addMonths(6),
+                                'quarterly' => Carbon::parse($lockedServer->last_billed)->addMonths(3),
+                                'monthly' => Carbon::parse($lockedServer->last_billed)->addMonth(),
+                                'weekly' => Carbon::parse($lockedServer->last_billed)->addWeek(),
+                                'daily' => Carbon::parse($lockedServer->last_billed)->addDay(),
+                                default => Carbon::parse($lockedServer->last_billed)->addHour(),
+                            };
+
+                            if (! $nextBillingDate->isPast()) {
+                                return false;
+                            }
+
+                            if ($lockedServer->canceled || ($lockedUser->credits < $lockedProduct->price && $lockedProduct->price != 0)) {
+                                return false;
+                            }
+
+                            $this->line("<fg=blue>{$lockedUser->name}</> Current credits: <fg=green>{$lockedUser->credits}</> Credits to be removed: <fg=red>{$lockedProduct->price}</>");
+                            $lockedUser->decrement('credits', $lockedProduct->price);
+                            $lockedServer->update(['last_billed' => $nextBillingDate]);
+
+                            return true;
+                        });
+
+                        if (! $charged) {
                             $this->suspendFunc($server, $user);
                         }
+                    } catch (Exception $exception) {
+                        $this->error($exception->getMessage());
                     }
                 }
 

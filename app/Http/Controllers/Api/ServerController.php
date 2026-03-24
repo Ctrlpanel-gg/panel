@@ -60,7 +60,7 @@ class ServerController extends Controller
                 AllowedFilter::exact('suspended')->nullable(),
                 ...self::ALLOWED_FILTERS
             ])
-            ->paginate($request->input('per_page') ?? 50);
+            ->paginate($this->perPage($request));
 
         return ServerResource::collection($servers);
     }
@@ -115,9 +115,13 @@ class ServerController extends Controller
 
             return ServerResource::make($server->fresh());
         } catch (Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 401);
+            logger()->warning('Failed to create server via API.', [
+                'user_id' => $user->id,
+                'product_id' => $product->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($e, 'Failed to create the server.');
         }
     }
 
@@ -145,7 +149,11 @@ class ServerController extends Controller
 
         try {
             if ($server->isDirty(['name', 'description', 'user_id'])) {
-                $pteroData = array_merge($request->only(['name', 'description']), ['user' => $data['user_id']]);
+                $pteroData = [
+                    'name' => $data['name'] ?? $server->name,
+                    'description' => array_key_exists('description', $data) ? $data['description'] : $server->description,
+                    'user' => $data['user_id'] ?? $server->user_id,
+                ];
 
                 $response = $this->pterodactylClient()->updateServerDetails($server, $pteroData);
 
@@ -163,7 +171,7 @@ class ServerController extends Controller
                 'server_id' => $server->id
             ]);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            return $this->serverErrorResponse($e, 'Failed to update the server.');
         }
     }
 
@@ -194,7 +202,12 @@ class ServerController extends Controller
 
             return ServerResource::make($server->fresh());
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+            logger()->warning('Failed to update server build via API.', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($e, 'Failed to update the server build.');
         }
     }
 
@@ -226,7 +239,12 @@ class ServerController extends Controller
 
             $server->delete();
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            logger()->warning('Failed to delete server via API.', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($e, 'Failed to delete the server.');
         }
 
         return response()->noContent();
@@ -258,7 +276,12 @@ class ServerController extends Controller
 
             $server->suspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->warning('Failed to suspend server via API.', [
+                'server_id' => $server->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($exception, 'Failed to suspend the server.');
         }
 
         return ServerResource::make($server);
@@ -290,7 +313,12 @@ class ServerController extends Controller
 
             $server->unSuspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->warning('Failed to unsuspend server via API.', [
+                'server_id' => $server->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($exception, 'Failed to unsuspend the server.');
         }
 
         return ServerResource::make($server);
@@ -303,5 +331,41 @@ class ServerController extends Controller
         }
 
         return $this->pterodactylClient;
+    }
+
+    private function serverErrorResponse(Exception $exception, string $defaultMessage): JsonResponse
+    {
+        $message = $this->publicServerErrorMessage($exception->getMessage(), $defaultMessage);
+        $status = $message === $defaultMessage && $this->validClientErrorStatus($exception->getCode())
+            ? $exception->getCode()
+            : ($message === $defaultMessage ? 500 : 422);
+
+        return response()->json(['message' => $message], $status);
+    }
+
+    private function publicServerErrorMessage(string $message, string $defaultMessage): string
+    {
+        $safeMessages = [
+            'Server limit reached for this product.',
+            'Server limit reached for this user and product combination.',
+            'User must verify their email before creating a server.',
+            'User must link their Discord account before creating a server.',
+            'Server creation is currently disabled.',
+            'No available nodes for this product in the selected location.',
+            'No free allocation available on the selected node.',
+            'Insufficient resources on the node to upgrade the server.',
+            'Insufficient credits to upgrade the server.',
+        ];
+
+        if (in_array($message, $safeMessages, true) || str_starts_with($message, 'User do not have the required amount of ')) {
+            return $message;
+        }
+
+        return $defaultMessage;
+    }
+
+    private function validClientErrorStatus(mixed $status): bool
+    {
+        return is_int($status) && $status >= 400 && $status < 500;
     }
 }

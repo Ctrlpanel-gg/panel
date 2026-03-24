@@ -121,6 +121,8 @@ class TicketsController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Ticket::leftJoin('ticket_categories', 'tickets.ticketcategory_id', '=', 'ticket_categories.id')
             ->select(['tickets.*', 'ticket_categories.name as category_name']);
 
@@ -132,7 +134,7 @@ class TicketsController extends Controller
                 return '<a class="text-info"  href="'.route('admin.ticket.show', ['ticket_id' => $tickets->ticket_id]).'">'.'#'.$tickets->ticket_id.' - '.htmlspecialchars($tickets->title).'</a>';
             })
             ->editColumn('user_id', function (Ticket $tickets) {
-                return '<a href="'.route('admin.users.show', $tickets->user->id).'">'.$tickets->user->name.'</a>';
+                return '<a href="'.route('admin.users.show', $tickets->user->id).'">'.e($tickets->user->name).'</a>';
             })
             ->addColumn('actions', function (Ticket $tickets) {
                 $statusButtonColor = ($tickets->status == "Closed") ? 'btn-success' : 'btn-warning';
@@ -257,12 +259,14 @@ class TicketsController extends Controller
 
     public function dataTableBlacklist()
     {
+        $this->checkAnyPermission([self::BLACKLIST_READ_PERMISSION, self::BLACKLIST_WRITE_PERMISSION]);
+
         $query = TicketBlacklist::with(['user']);
         $query->select('ticket_blacklists.*');
 
         return datatables($query)
             ->editColumn('user', function (TicketBlacklist $blacklist) {
-                return '<a href="'.route('admin.users.show', $blacklist->user->id).'">'.$blacklist->user->name.'</a>';
+                return '<a href="'.route('admin.users.show', $blacklist->user->id).'">'.e($blacklist->user->name).'</a>';
             })
             ->editColumn('status', function (TicketBlacklist $blacklist) {
                 switch ($blacklist->status) {

@@ -22,7 +22,7 @@ class InvoiceController extends Controller
         $zip_save_path = storage_path('invoices.zip');
 
         if ($zip->open($zip_save_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            Log::error("Failed to create zip archive at path: " . $zipPath);
+            Log::error("Failed to create zip archive at path: " . $zip_save_path);
             return response()->json(['message' => 'Failed to create zip archive'], 500);
         }
 

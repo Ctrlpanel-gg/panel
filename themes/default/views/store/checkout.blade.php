@@ -251,7 +251,7 @@
 
                 async checkCoupon() {
                     const response = await (fetch(
-                            "{{ route('admin.coupon.redeem') }}", {
+                            "{{ route('coupon.redeem') }}", {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',

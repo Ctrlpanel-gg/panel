@@ -65,7 +65,7 @@ class ApplicationApiController extends Controller
         ]);
 
         [, $plainTextToken] = ApplicationApi::issue(
-            auth()->id(),
+            null,
             $request->input('memo'),
             $request->input('abilities', []),
             $request->filled('expires_at') ? Carbon::parse($request->input('expires_at')) : null,

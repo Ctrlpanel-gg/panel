@@ -7,7 +7,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get(
         'payment/StripeSuccess',
         function () {
-            StripeExtension::StripeSuccess(request());
+            return StripeExtension::StripeSuccess(request());
         }
     )->name('payment.StripeSuccess');
 });
@@ -15,5 +15,5 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 // Stripe WebhookRoute -> validation in Route Handler
 Route::post('payment/StripeWebhooks', function () {
-    StripeExtension::StripeWebhooks(request());
+    return StripeExtension::StripeWebhooks(request());
 })->name('payment.StripeWebhooks');
