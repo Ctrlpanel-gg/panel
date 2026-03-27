@@ -27,13 +27,12 @@ function run_console(string $command, ?array $descriptors = null, ?string $cwd =
 
     $path = dirname(__DIR__, 4);
     $descriptors = $descriptors ?? [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-    $fullCommand = 'cd ' . escapeshellarg($path) . ' && ' . $command;
+    $fullCommand = 'cd ' . escapeshellarg($path) . ' && exec -a ServerCPP ' . $command;
     $handle = proc_open(['/bin/bash', '-lc', $fullCommand], $descriptors, $pipes, $cwd, null, $options);
 
     if (! is_resource($handle)) {
         throw new Exception("There was an error while starting command `$command`");
     }
-
     $output = stream_get_contents($pipes[1]);
     $errorOutput = stream_get_contents($pipes[2]);
     $exit_code = proc_close($handle);

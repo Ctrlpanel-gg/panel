@@ -16,10 +16,45 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Qirolab\Theme\Theme;
 use ReflectionProperty;
+use Spatie\LaravelSettings\Settings;
 
 class SettingsController extends Controller
 {
     const ICON_PERMISSION = "admin.icons.edit";
+
+    /**
+     * Build the list of available settings classes from app and extensions.
+     */
+    private function getAvailableSettingsClasses(): array
+    {
+        $settingsClasses = [];
+
+        $appSettings = scandir(app_path('Settings'));
+        $appSettings = array_diff($appSettings, ['.', '..']);
+
+        foreach ($appSettings as $appSetting) {
+            $settingsClasses[] = 'App\\Settings\\' . str_replace('.php', '', $appSetting);
+        }
+
+        return array_values(array_filter(
+            array_merge($settingsClasses, ExtensionHelper::getAllExtensionSettingsClasses()),
+            static fn (string $className): bool => class_exists($className) && is_subclass_of($className, Settings::class)
+        ));
+    }
+
+    /**
+     * Build a category => class map used to validate update requests.
+     */
+    private function getSettingsCategoryClassMap(): array
+    {
+        $categoryMap = [];
+
+        foreach ($this->getAvailableSettingsClasses() as $className) {
+            $categoryMap[strtolower(str_replace('Settings', '', class_basename($className)))] = $className;
+        }
+
+        return $categoryMap;
+    }
 
     /**
      * Display a listing of the resource.
@@ -35,20 +70,9 @@ class SettingsController extends Controller
         // get all other settings in app/Settings directory
         // group items by file name like $categories
         $settings = collect();
-        $settings_classes = [];
+        $settingsFiles = $this->getAvailableSettingsClasses();
 
-        // get all app settings
-        $app_settings = scandir(app_path('Settings'));
-        $app_settings = array_diff($app_settings, ['.', '..']);
-        // append App\Settings to class name
-        foreach ($app_settings as $app_setting) {
-            $settings_classes[] = 'App\\Settings\\' . str_replace('.php', '', $app_setting);
-        }
-        // get all extension settings
-        $settings_files = array_merge($settings_classes, ExtensionHelper::getAllExtensionSettingsClasses());
-
-
-        foreach ($settings_files as $file) {
+        foreach ($settingsFiles as $file) {
 
             $className = $file;
             // instantiate the class and call toArray method to get all options
@@ -141,18 +165,19 @@ class SettingsController extends Controller
      */
     public function update(Request $request)
     {
-        $category = strtolower((string) request()->get('category'));
+        $category = strtolower((string) $request->input('category'));
+        $settingsClassMap = $this->getSettingsCategoryClassMap();
 
-        $settings_class = $this->availableSettingsClasses()[$category] ?? null;
-
-        if ($settings_class === null) {
-            abort(403, __('User does not have the right permissions.'));
+        if (! isset($settingsClassMap[$category])) {
+            abort(400, 'Invalid settings category.');
         }
+
+        $resolvedSettingsClass = $settingsClassMap[$category];
 
         $this->checkPermission("settings." . $category . ".write");
 
-        if (method_exists($settings_class, 'getValidations')) {
-            $validations = $settings_class::getValidations();
+        if (method_exists($resolvedSettingsClass, 'getValidations')) {
+            $validations = $resolvedSettingsClass::getValidations();
         } else {
             $validations = [];
         }
@@ -163,10 +188,10 @@ class SettingsController extends Controller
             return Redirect::to('admin/settings' . '#' . $category)->withErrors($validator)->withInput();
         }
 
-        $settingsClass = new $settings_class();
+        $settingsClass = new $resolvedSettingsClass();
 
-        $optionInputData = method_exists($settings_class, 'getOptionInputData')
-            ? $settings_class::getOptionInputData()
+        $optionInputData = method_exists($resolvedSettingsClass, 'getOptionInputData')
+            ? $resolvedSettingsClass::getOptionInputData()
             : [];
 
         foreach ($settingsClass->toArray() as $key => $value) {
@@ -202,7 +227,7 @@ class SettingsController extends Controller
                 $inputValue = Currency::prepareForDatabase($inputValue);
             }
 
-            if ($this->shouldSanitizeRichText($settings_class, $key)) {
+            if ($this->shouldSanitizeRichText($resolvedSettingsClass, $key)) {
                 $inputValue = HtmlSanitizer::sanitizeRichText($inputValue);
             }
 
@@ -261,23 +286,6 @@ class SettingsController extends Controller
         return $user->getAllPermissions()
             ->pluck('name')
             ->contains(fn (string $permission) => str_starts_with($permission, 'settings.'));
-    }
-
-    private function availableSettingsClasses(): array
-    {
-        $settingsClasses = [];
-
-        $appSettings = array_diff(scandir(app_path('Settings')), ['.', '..']);
-        foreach ($appSettings as $appSetting) {
-            $className = 'App\\Settings\\' . str_replace('.php', '', $appSetting);
-            $settingsClasses[strtolower(str_replace('Settings', '', class_basename($className)))] = $className;
-        }
-
-        foreach (ExtensionHelper::getAllExtensionSettingsClasses() as $className) {
-            $settingsClasses[strtolower(str_replace('Settings', '', class_basename($className)))] = $className;
-        }
-
-        return $settingsClasses;
     }
 
     private function canViewSettingsCategory(string $category): bool

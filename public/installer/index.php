@@ -6,7 +6,18 @@ use DevCoder\DotEnv;
 
 require_once 'dotenv.php';
 
-$environmentFile = dirname(__FILE__, 2) . '/../.env';
+$rootPath = dirname(__DIR__, 2);
+$environmentFile = $rootPath . '/.env';
+$environmentExampleFile = $rootPath . '/.env.example';
+$installLockFile = $rootPath . '/install.lock';
+
+if (file_exists($installLockFile)) {
+    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
+}
+
+if (! file_exists($environmentFile)) {
+    copy($environmentExampleFile, $environmentFile);
+}
 
 if (file_exists($environmentFile)) {
     (new DotEnv($environmentFile))->load();
@@ -21,10 +32,6 @@ $isDevelopmentEnvironment = in_array($appEnvironment, ['local', 'development'], 
 if (! $webInstallerEnabled && ! $isLocalRequest && ! $isDevelopmentEnvironment) {
     http_response_code(403);
     exit('The web installer is disabled for this environment. Set ENABLE_WEB_INSTALLER=true temporarily if you need to run it.');
-}
-
-if (! file_exists($environmentFile)) {
-    copy(dirname(__FILE__, 2) . '/../.env.example', $environmentFile);
 }
 
 // Include systems
@@ -45,13 +52,6 @@ include './src/forms/dashboard.php';
 include './src/forms/smtp.php';
 include './src/forms/pterodactyl.php';
 include './src/forms/admin.php';
-
-if (file_exists('../../install.lock')) {
-    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
-}
-
-// load all the .env value in php env
-(new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
 $stepConfig = [
     1 => ['view' => 'mandatory-checks', 'is_revertable' => false],

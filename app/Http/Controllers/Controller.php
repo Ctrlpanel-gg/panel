@@ -25,7 +25,8 @@ class Controller extends BaseController
         /** @var User $user */
         $user = Auth::user();
 
-        if (!$user->can($permission)) {
+        // If user is not authenticated or lacks the permission, deny access
+        if (!$user || !$user->can($permission)) {
             abort(403, __('User does not have the right permissions.'));
         }
     }
@@ -35,7 +36,8 @@ class Controller extends BaseController
         /** @var User $user */
         $user = Auth::user();
 
-        if (!$user->canAny($permission)) {
+        // If user is not authenticated or lacks any of the permissions, deny access
+        if (!$user || !$user->canAny($permission)) {
             abort(403, __('User does not have the right permissions.'));
         }
     }

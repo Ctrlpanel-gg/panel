@@ -153,6 +153,8 @@ class UserController extends Controller
             ->paginate(25);
 
         if ($request->query('user_id')) {
+            $request->validate(['user_id' => 'required|integer|exists:users,id']);
+
             $user = User::query()->findOrFail($request->input('user_id'));
             $user->avatarUrl = $user->getAvatar();
 
@@ -712,7 +714,10 @@ class UserController extends Controller
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');
             })
             ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="' . e($ptero_settings->panel_url) . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
+                $url = e(rtrim($ptero_settings->panel_url, '/'));
+                $pteroId = (int) $user->pterodactyl_id;
+
+                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="' . $url . '/admin/users/view/' . $pteroId . '">' . e($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
