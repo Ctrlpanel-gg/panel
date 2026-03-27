@@ -21,6 +21,14 @@ class DiscordSettings extends Settings
         return 'discord';
     }
 
+    public static function encrypted(): array
+    {
+        return [
+            'bot_token',
+            'client_secret',
+        ];
+    }
+
     /**
      * Summary of validations array
      * @return array<string, string>
@@ -52,7 +60,7 @@ class DiscordSettings extends Settings
             'position' => 5,
             'bot_token' => [
                 'label' => 'Bot Token',
-                'type' => 'string',
+                'type' => 'password',
                 'description' => 'The bot token for your Discord bot.',
             ],
             'client_id' => [
@@ -62,7 +70,7 @@ class DiscordSettings extends Settings
             ],
             'client_secret' => [
                 'label' => 'Client Secret',
-                'type' => 'string',
+                'type' => 'password',
                 'description' => 'The client secret for your Discord bot.',
             ],
             'guild_id' => [

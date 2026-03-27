@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Constants\Roles;
+use App\Http\Controllers\Api\Concerns\InteractsWithScopedApiTokens;
 use App\Http\Resources\RoleResource;
 use App\Models\User;
 use App\Models\Role;
@@ -15,6 +16,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class RoleController extends Controller
 {
+    use InteractsWithScopedApiTokens;
+
     const ALLOWED_INCLUDES = ['permissions', 'users'];
     const ALLOWED_FILTERS = ['name'];
 
@@ -26,10 +29,12 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        $this->ensureGlobalToken($request);
+
         $roles = QueryBuilder::for(Role::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
-            ->paginate($request->input('per_page') ?? 50);
+            ->paginate($this->perPage($request));
 
         return RoleResource::collection($roles);
     }
@@ -42,6 +47,8 @@ class RoleController extends Controller
      */
     public function store(CreateRoleRequest $request)
     {
+        $this->ensureGlobalToken($request);
+
         $data = $request->validated();
 
         $role = Role::create($data);
@@ -66,11 +73,13 @@ class RoleController extends Controller
      * 
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, int $roleId)
+    public function show(Request $request, Role $role)
     {
+        $this->ensureGlobalToken($request);
+
         $role = QueryBuilder::for(Role::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $roleId)
+            ->whereKey($role->id)
             ->firstOrFail();
 
         return RoleResource::make($role);
@@ -87,6 +96,8 @@ class RoleController extends Controller
      */
     public function update(UpdateRoleRequest $request, Role $role)
     {
+        $this->ensureGlobalToken($request);
+
         $data = $request->validated();
 
         if (isset($data['permissions'])) {
@@ -111,6 +122,8 @@ class RoleController extends Controller
      */
     public function destroy(Request $request, Role $role)
     {
+        $this->ensureGlobalToken($request);
+
         if (!$role->isDeletable()) {
             return response()->json(['error' => 'This role cannot be deleted.'], 403);
         }

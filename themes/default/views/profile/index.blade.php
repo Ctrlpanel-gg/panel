@@ -32,8 +32,12 @@
                             <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Required Email verification!') }}
                             </h5>
                             {{ __('You have not yet verified your email address') }}
-                            <a class="text-primary"
-                                href="{{ route('verification.send') }}">{{ __('Click here to resend verification email') }}</a>
+                            <form action="{{ route('verification.send') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-link p-0 align-baseline text-primary">
+                                    {{ __('Click here to resend verification email') }}
+                                </button>
+                            </form>
                             <br>
                             {{ __('Please contact support If you didnt receive your verification email.') }}
 
@@ -41,7 +45,7 @@
                     @endif
 
                     @if (is_null(Auth::user()->discordUser) && $force_discord_verification)
-                        @if (!empty($discord_client_id) && !empty($discord_client_secret))
+                        @if ($discord_link_enabled)
                             <div class="p-2 m-2 alert alert-warning">
                                 <h5>
                                     <i
@@ -151,13 +155,6 @@
                                                             </span>
                                                         @endforeach
                                                     @endif
-                                                    @if ($errors->has('pterodactyl_error_status'))
-                                                        @foreach ($errors->get('pterodactyl_error_status') as $err)
-                                                            <span class="text-danger" role="alert">
-                                                                <small><strong>{{ $err }}</strong></small>
-                                                            </span>
-                                                        @endforeach
-                                                    @endif
                                                     <div class="form-group"><label>{{ __('Name') }}</label> <input
                                                             class="form-control @error('name') is-invalid @enderror"
                                                             type="text" name="name" placeholder="{{ $user->name }}"
@@ -240,7 +237,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @if (!empty($discord_client_id) && !empty($discord_client_secret))
+                                        @if ($discord_link_enabled)
                                             <div class="mb-3 col-12 col-sm-5 offset-sm-1">
                                                 @if (is_null(Auth::user()->discordUser))
                                                     <b>{{ __('Link your discord account!') }}</b>

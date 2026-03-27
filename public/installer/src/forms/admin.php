@@ -85,7 +85,7 @@ if (isset($_POST['createUser'])) {
     try {
         $settingValue = run_console("php artisan settings:get 'UserSettings' 'initial_credits' --sameline");
         if (!empty($settingValue) && is_numeric($settingValue)) {
-            $creditsInDatabase = (int)$settingValue;
+            $creditsInDatabase = (int) $settingValue;
             wh_log('Successfully retrieved initial_credits from UserSettings: ' . $creditsInDatabase, 'debug');
         } else {
             wh_log('UserSettings initial_credits is empty or invalid, using default: 250000', 'warning');
@@ -97,11 +97,21 @@ if (isset($_POST['createUser'])) {
         $creditsInDatabase = 250000;
     }
 
-    $query1 = 'INSERT INTO `' . getenv('DB_DATABASE') . "`.`users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES ('$name', '$creditsInDatabase', '1', '$pteroID', '$mail', '$pass', CURRENT_TIMESTAMP, '$random')";
-    $query2 = "INSERT INTO `" . getenv('DB_DATABASE') . "`.`model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES ('1', 'App\\\Models\\\User', '1')";
     try {
-        $db->query($query1);
-        $db->query($query2);
+        $userInsert = $db->prepare(
+            'INSERT INTO `users` (`name`, `credits`, `server_limit`, `pterodactyl_id`, `email`, `password`, `created_at`, `referral_code`) VALUES (?, ?, 1, ?, ?, ?, CURRENT_TIMESTAMP, ?)'
+        );
+        $userInsert->bind_param('siisss', $name, $creditsInDatabase, $pteroID, $mail, $pass, $random);
+        $userInsert->execute();
+
+        $newUserId = $db->insert_id;
+
+        $roleInsert = $db->prepare(
+            'INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES (1, ?, ?)'
+        );
+        $modelType = 'App\\Models\\User';
+        $roleInsert->bind_param('si', $modelType, $newUserId);
+        $roleInsert->execute();
 
         wh_log('Created user with Email ' . $mail . ' and pterodactyl ID ' . $pteroID);
         next_step();

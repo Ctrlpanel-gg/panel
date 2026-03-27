@@ -48,7 +48,10 @@
                                     @if (Auth::user()->hasRole('Admin'))
                                         {{ __('Make sure to link your products to nodes and eggs.') }} <br>
                                         {{ __('There has to be at least 1 valid product for server creation') }}
-                                        <a href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>
+                                        <form action="{{ route('admin.overview.sync') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-link p-0 align-baseline">{{ __('Sync now') }}</button>
+                                        </form>
                                     @endif
 
                                 </p>
@@ -631,6 +634,7 @@
                                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                     },
                                     body: JSON.stringify({
+                                        egg_id: this.selectedEgg,
                                         variables: filledVariables
                                     })
                                 })

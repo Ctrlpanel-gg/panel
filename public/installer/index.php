@@ -1,24 +1,41 @@
 <?php
-// report all error
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 session_start();
 
-if (file_exists('../../install.lock')) {
+use DevCoder\DotEnv;
+
+require_once 'dotenv.php';
+
+$rootPath = dirname(__DIR__, 2);
+$environmentFile = $rootPath . '/.env';
+$environmentExampleFile = $rootPath . '/.env.example';
+$installLockFile = $rootPath . '/install.lock';
+
+if (file_exists($installLockFile)) {
     exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
 }
 
-if (!file_exists('../../.env')) {
-    echo shell_exec('cp ../../.env.example ../../.env');
+if (! file_exists($environmentFile)) {
+    copy($environmentExampleFile, $environmentFile);
 }
 
-use DevCoder\DotEnv;
+if (file_exists($environmentFile)) {
+    (new DotEnv($environmentFile))->load();
+}
+
+$webInstallerEnabled = filter_var(getenv('ENABLE_WEB_INSTALLER') ?: false, FILTER_VALIDATE_BOOLEAN);
+$appEnvironment = strtolower(getenv('APP_ENV') ?: 'production');
+$remoteAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+$isLocalRequest = in_array($remoteAddress, ['127.0.0.1', '::1'], true);
+$isDevelopmentEnvironment = in_array($appEnvironment, ['local', 'development'], true);
+
+if (! $webInstallerEnabled && ! $isLocalRequest && ! $isDevelopmentEnvironment) {
+    http_response_code(403);
+    exit('The web installer is disabled for this environment. Set ENABLE_WEB_INSTALLER=true temporarily if you need to run it.');
+}
 
 // Include systems
 require_once '../../vendor/autoload.php';
-require_once 'dotenv.php';
 require_once './src/functions/installer.php';
 
 // Include the function files
@@ -35,13 +52,6 @@ include './src/forms/dashboard.php';
 include './src/forms/smtp.php';
 include './src/forms/pterodactyl.php';
 include './src/forms/admin.php';
-
-if (file_exists('../../install.lock')) {
-    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
-}
-
-// load all the .env value in php env
-(new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
 $stepConfig = [
     1 => ['view' => 'mandatory-checks', 'is_revertable' => false],

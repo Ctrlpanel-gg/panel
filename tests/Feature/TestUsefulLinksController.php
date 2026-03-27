@@ -2,10 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UsefulLinkLocation;
 use App\Models\UsefulLink;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 /**
@@ -13,36 +17,24 @@ use Tests\TestCase;
  */
 class TestUsefulLinksController extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
-    /**
-     * @dataProvider accessibleRoutesDataProvider
-     *
-     * @param  string  $method
-     * @param  string  $route
-     * @param  int  $expectedStatus
-     */
+    #[Test]
+    #[DataProvider('accessibleRoutesDataProvider')]
     public function test_accessible_routes(string $method, string $route, int $expectedStatus)
     {
         UsefulLink::factory()->create([
             'id' => 1,
         ]);
 
-        $response = $this->actingAs(User::factory()->create([
-            'role' => 'admin',
-            'pterodactyl_id' => '1',
-        ]))->{$method}($route);
+        $response = $this->actingAs($this->getTestUser())
+            ->{$method}($route);
 
         $response->assertStatus($expectedStatus);
     }
 
-    /**
-     * @dataProvider usefulLinkDataProvider
-     *
-     * @param  array  $dataSet
-     * @param  int  $expectedCount
-     * @param  bool  $assertValidationErrors
-     */
+    #[Test]
+    #[DataProvider('usefulLinkDataProvider')]
     public function test_creating_useful_link(array $dataSet, int $expectedCount, bool $assertValidationErrors)
     {
         $response = $this->actingAs($this->getTestUser())->post(route('admin.usefullinks.store'), $dataSet);
@@ -57,13 +49,8 @@ class TestUsefulLinksController extends TestCase
         $this->assertDatabaseCount('useful_links', $expectedCount);
     }
 
-    /**
-     * @dataProvider usefulLinkDataProvider
-     *
-     * @param  array  $dataSet
-     * @param  int  $expectedCount
-     * @param  bool  $assertValidationErrors
-     */
+    #[Test]
+    #[DataProvider('usefulLinkDataProvider')]
     public function test_updating_useful_link(array $dataSet, int $expectedCount, bool $assertValidationErrors)
     {
         $link = UsefulLink::factory()->create([
@@ -82,13 +69,14 @@ class TestUsefulLinksController extends TestCase
         $this->assertDatabaseCount('useful_links', 1);
     }
 
+    #[Test]
     public function test_deleting_useful_link()
     {
         $link = UsefulLink::factory()->create([
             'id' => 1,
         ]);
 
-        $response = $this->actingAs($this->getTestUser())->delete(route('admin.usefullinks.update', $link->id));
+        $response = $this->actingAs($this->getTestUser())->delete(route('admin.usefullinks.destroy', $link->id));
 
         $response->assertRedirect();
         $this->assertDatabaseCount('useful_links', 0);
@@ -99,16 +87,27 @@ class TestUsefulLinksController extends TestCase
      */
     private function getTestUser(): User
     {
-        return User::factory()->create([
-            'role' => 'admin',
+        $user = User::factory()->create([
             'pterodactyl_id' => '1',
+            'email_verified_at' => now(),
         ]);
+
+        $permission = Permission::firstOrCreate([
+            'name' => 'admin.useful_links.write',
+            'guard_name' => 'web',
+        ], [
+            'readable_name' => 'Manage Useful Links',
+        ]);
+
+        $user->givePermissionTo($permission);
+
+        return $user;
     }
 
     /**
      * @return array
      */
-    public function usefulLinkDataProvider(): array
+    public static function usefulLinkDataProvider(): array
     {
         return [
             'Valid dataset 1' => [
@@ -117,6 +116,7 @@ class TestUsefulLinksController extends TestCase
                     'title' => 'Bitsec.Dev Dashboard',
                     'link' => 'https://manage.bitsec.dev.com',
                     'description' => Str::random(1500),
+                    'position' => [UsefulLinkLocation::dashboard->value],
                 ],
                 'expectedCount' => 1,
                 'assertValidationErrors' => false,
@@ -127,6 +127,7 @@ class TestUsefulLinksController extends TestCase
                     'title' => Str::random(30),
                     'link' => 'https://somerandomsite.com',
                     'description' => Str::random(1500),
+                    'position' => [UsefulLinkLocation::topbar->value],
                 ],
                 'expectedCount' => 1,
                 'assertValidationErrors' => false,
@@ -137,6 +138,7 @@ class TestUsefulLinksController extends TestCase
                     'title' => 'Some Random Title',
                     'link' => '1221',
                     'description' => '<p>Some Random HTML</p>',
+                    'position' => [UsefulLinkLocation::dashboard->value],
                 ],
                 'expectedCount' => 0,
                 'assertValidationErrors' => true,
@@ -147,6 +149,7 @@ class TestUsefulLinksController extends TestCase
                     'title' => '',
                     'link' => 'https://somerandomsite.com',
                     'description' => '<p>Some Random HTML</p>',
+                    'position' => [UsefulLinkLocation::dashboard->value],
                 ],
                 'expectedCount' => 0,
                 'assertValidationErrors' => true,
@@ -157,6 +160,7 @@ class TestUsefulLinksController extends TestCase
                     'title' => Str::random(200),
                     'link' => 'https://valid.com',
                     'description' => '<p>Some Random HTML</p>',
+                    'position' => [UsefulLinkLocation::dashboard->value],
                 ],
                 'expectedCount' => 0,
                 'assertValidationErrors' => true,
@@ -167,6 +171,7 @@ class TestUsefulLinksController extends TestCase
                     'title' => 'Some Random Valid Title',
                     'link' => 'https://valid.com',
                     'description' => Str::random(2100),
+                    'position' => [UsefulLinkLocation::dashboard->value],
                 ],
                 'expectedCount' => 0,
                 'assertValidationErrors' => true,
@@ -176,6 +181,7 @@ class TestUsefulLinksController extends TestCase
                     'title' => 'Some Random Valid Title',
                     'link' => 'https://valid.com',
                     'description' => Str::random(200),
+                    'position' => [UsefulLinkLocation::dashboard->value],
                 ],
                 'expectedCount' => 0,
                 'assertValidationErrors' => true,
@@ -186,7 +192,7 @@ class TestUsefulLinksController extends TestCase
     /**
      * @return array[]
      */
-    public function accessibleRoutesDataProvider(): array
+    public static function accessibleRoutesDataProvider(): array
     {
         return [
             'index page' => [

@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Settings\GeneralSettings;
 use App\Settings\LocaleSettings;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -78,7 +79,7 @@ class ProductController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:0',
@@ -92,7 +93,9 @@ class ProductController extends Controller
             'databases' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
             'allocations' => 'required|numeric|max:1000000|min:0',
+            'nodes' => 'required|array|min:1',
             'nodes.*' => 'required|exists:nodes,id',
+            'eggs' => 'required|array|min:1',
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
@@ -103,11 +106,11 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $product = Product::create(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
+        $product = Product::create($this->productPayload($validated, $disabled, $oomkiller));
 
         //link nodes and eggs
-        $product->eggs()->attach($request->input('eggs'));
-        $product->nodes()->attach($request->input('nodes'));
+        $product->eggs()->attach($validated['eggs']);
+        $product->nodes()->attach($validated['nodes']);
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been created!'));
     }
@@ -120,7 +123,7 @@ class ProductController extends Controller
      */
     public function show(Product $product, GeneralSettings $general_settings)
     {
-        $this->checkAnyPermission([self::READ_PERMISSION,self::WRITE_PERMISSION]);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::EDIT_PERMISSION, self::DELETE_PERMISSION]);
 
         return view('admin.products.show', [
             'product' => $product,
@@ -157,7 +160,7 @@ class ProductController extends Controller
     {
         $this->checkPermission(self::EDIT_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',
             'memory' => 'required|numeric|max:1000000|min:0',
@@ -171,7 +174,9 @@ class ProductController extends Controller
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
             'allocations' => 'required|numeric|max:1000000|min:0',
+            'nodes' => 'required|array|min:1',
             'nodes.*' => 'required|exists:nodes,id',
+            'eggs' => 'required|array|min:1',
             'eggs.*' => 'required|exists:eggs,id',
             'disabled' => 'nullable',
             'oom_killer' => 'nullable',
@@ -181,13 +186,12 @@ class ProductController extends Controller
 
         $disabled = ! is_null($request->input('disabled'));
         $oomkiller = ! is_null($request->input('oom_killer'));
-        $product->update(array_merge($request->all(), ['disabled' => $disabled, 'oom_killer' => $oomkiller]));
+        DB::transaction(function () use ($product, $validated, $disabled, $oomkiller) {
+            $product->update($this->productPayload($validated, $disabled, $oomkiller));
 
-        //link nodes and eggs
-        $product->eggs()->detach();
-        $product->nodes()->detach();
-        $product->eggs()->attach($request->input('eggs'));
-        $product->nodes()->attach($request->input('nodes'));
+            $product->eggs()->sync($validated['eggs']);
+            $product->nodes()->sync($validated['nodes']);
+        });
 
         return redirect()->route('admin.products.index')->with('success', __('Product has been updated!'));
     }
@@ -199,7 +203,7 @@ class ProductController extends Controller
      */
     public function disable(Product $product)
     {
-        $this->checkPermission(self::WRITE_PERMISSION);
+        $this->checkPermission(self::EDIT_PERMISSION);
 
         $product->update(['disabled' => ! $product->disabled]);
 
@@ -233,23 +237,37 @@ class ProductController extends Controller
      */
     public function dataTable()
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION, self::EDIT_PERMISSION, self::DELETE_PERMISSION]);
 
         $query = Product::with(['servers']);
 
         return datatables($query)
             ->addColumn('actions', function (Product $product) {
-                return '
-                            <a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
-                            <a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="mr-1 text-white btn btn-sm btn-primary"><i class="fas fa-clone"></i></a>
-                            <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
+                $actions = [];
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.destroy', $product->id).'">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                           <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                       </form>
-                ';
+                if (auth()->user()?->can(self::READ_PERMISSION)) {
+                    $actions[] = '<a data-content="'.__('Show').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.show', $product->id).'" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::WRITE_PERMISSION)) {
+                    $actions[] = '<a data-content="'.__('Clone').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.clone', $product->id).'" class="mr-1 text-white btn btn-sm btn-primary"><i class="fas fa-clone"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::EDIT_PERMISSION)) {
+                    $actions[] = '<a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.products.edit', $product->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::DELETE_PERMISSION)) {
+                    $actions[] = '
+                        <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.products.destroy', $product->id).'">
+                        '.csrf_field().'
+                        '.method_field('DELETE').'
+                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    ';
+                }
+
+                return implode('', $actions);
             })
 
             ->addColumn('servers', function (Product $product) {
@@ -262,6 +280,10 @@ class ProductController extends Controller
                 return $product->eggs()->count();
             })
             ->editColumn('disabled', function (Product $product) {
+                if (! auth()->user()?->can(self::EDIT_PERMISSION)) {
+                    return $product->disabled ? __('disabled') : __('enabled');
+                }
+
                 $checked = $product->disabled == false ? 'checked' : '';
 
                 return '
@@ -335,5 +357,28 @@ class ProductController extends Controller
                 $fail(__('Swap must be -1 for unlimited, 0 for disabled, or a positive integer up to :max.', ['max' => 1000000]));
             }
         };
+    }
+
+    private function productPayload(array $validated, bool $disabled, bool $oomkiller): array
+    {
+        return [
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+            'memory' => $validated['memory'],
+            'cpu' => $validated['cpu'],
+            'swap' => $validated['swap'],
+            'description' => $validated['description'],
+            'disk' => $validated['disk'],
+            'minimum_credits' => $validated['minimum_credits'] ?? null,
+            'io' => $validated['io'],
+            'serverlimit' => $validated['serverlimit'],
+            'databases' => $validated['databases'],
+            'backups' => $validated['backups'],
+            'allocations' => $validated['allocations'],
+            'disabled' => $disabled,
+            'oom_killer' => $oomkiller,
+            'billing_period' => $validated['billing_period'],
+            'default_billing_priority' => $validated['default_billing_priority'],
+        ];
     }
 }

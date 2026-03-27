@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\Server;
 use App\Models\Ticket;
 use App\Models\TicketBlacklist;
@@ -240,8 +241,6 @@ class TicketsController extends Controller
                                 ' . csrf_field() . '
                                 ' . method_field('POST') . '
                             <button data-content="' . __($statusButtonText) . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white ' . $statusButtonColor . '  mr-1"><i class="fas ' . $statusButtonIcon . '"></i></button>
-                            </form>
-
                             </form>
                 ';
             })

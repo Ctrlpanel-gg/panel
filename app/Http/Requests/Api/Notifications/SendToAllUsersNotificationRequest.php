@@ -23,8 +23,8 @@ class SendToAllUsersNotificationRequest extends FormRequest
     {
         return [
             'via' => 'required|in:mail,database,both',
-            'title' => 'required|string|min:1',
-            'content' => 'required|string|min:1',
+            'title' => 'required|string|min:1|max:255',
+            'content' => 'required|string|min:1|max:5000',
         ];
     }
 }

@@ -3,6 +3,9 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
+use App\Http\Middleware\ApiAuditTrail;
+use App\Http\Middleware\ApplicationApiScope;
+use App\Http\Middleware\CanAccessAdminArea;
 use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\InstallerLock;
 use App\Http\Middleware\LastSeen;
@@ -18,13 +21,14 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\SecurityHeaders::class,
 
     ];
 
@@ -76,6 +80,9 @@ class Kernel extends HttpKernel
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         'canAccessDocsPage' => \App\Http\Middleware\CanAccessDocsPage::class,
+        'canAccessAdminArea' => CanAccessAdminArea::class,
+        'api.scope' => ApplicationApiScope::class,
+        'api.audit' => ApiAuditTrail::class,
     ];
 
 }

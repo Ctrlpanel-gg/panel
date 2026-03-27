@@ -126,8 +126,11 @@
                                 <div class="card-title ">
                                     <span><i class="mr-2 fas fa-kiwi-bird"></i>{{ __('Pterodactyl') }}</span>
                                 </div>
-                                <a href="{{ route('admin.overview.sync') }}" class="btn btn-primary btn-sm"><i
-                                        class="mr-2 fas fa-sync"></i>{{ __('Sync') }}</a>
+                                <form action="{{ route('admin.overview.sync') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary btn-sm"><i
+                                            class="mr-2 fas fa-sync"></i>{{ __('Sync') }}</button>
+                                </form>
                             </div>
                         </div>
                         <div class="py-1 card-body">
@@ -252,8 +255,11 @@
                                         {{ __('Note') }}:
                                         {{ __('If this error persists even after changing the limit, it might mean a server was deleted on Pterodactyl, but not on CtrlPanel. Try clicking the button below.') }}
                                     </p>
-                                    <a href="{{ route('admin.servers.sync') }}" class="btn btn-primary btn-md"><i
-                                            class="mr-2 fas fa-sync"></i>{{ __('Sync servers') }}</a>
+                                    <form action="{{ route('admin.servers.sync') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary btn-md"><i
+                                                class="mr-2 fas fa-sync"></i>{{ __('Sync servers') }}</button>
+                                    </form>
                                 </div>
                             @endif
                             <div class="overflow-auto">

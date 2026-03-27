@@ -20,12 +20,33 @@ class ProcessReferralAction
 
     public function execute(User $user, string $referral_code, bool $log_activity = false)
     {
-        $ref_user = User::query()->where('referral_code', $referral_code)->first();
+        return DB::transaction(function () use ($user, $referral_code, $log_activity) {
+            $refUser = User::query()
+                ->where('referral_code', $referral_code)
+                ->lockForUpdate()
+                ->first();
 
-        if ($ref_user) {
+            if ($refUser === null || $refUser->id === $user->id) {
+                return false;
+            }
+
+            $existingReferral = DB::table('user_referrals')
+                ->where('registered_user_id', $user->id)
+                ->exists();
+
+            if ($existingReferral) {
+                return false;
+            }
+
+            DB::table('user_referrals')->insert([
+                'referral_id' => $refUser->id,
+                'registered_user_id' => $user->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
             if ($this->referralSettings->mode === 'sign-up' || $this->referralSettings->mode === 'both') {
-                $ref_user->increment('credits', $this->referralSettings->reward);
-                $ref_user->notify(new ReferralNotification($user));
+                $refUser->increment('credits', $this->referralSettings->reward);
 
                 if ($log_activity) {
                     $log = sprintf(
@@ -38,17 +59,16 @@ class ProcessReferralAction
 
                     activity()
                         ->performedOn($user)
-                        ->causedBy($ref_user)
+                        ->causedBy($refUser)
                         ->log($log);
                 }
+
+                DB::afterCommit(static function () use ($refUser, $user): void {
+                    $refUser->notify(new ReferralNotification($user));
+                });
             }
 
-            DB::table('user_referrals')->insert([
-                'referral_id' => $ref_user->id,
-                'registered_user_id' => $user->id,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+            return true;
+        });
     }
 }

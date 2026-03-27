@@ -159,7 +159,7 @@
                   <div class="icheck-primary">
                     <input type="checkbox" id="agreeTerms" name="terms" value="agree">
                     <label for="agreeTerms">
-                      {{__("I agree to the")}} <a target="_blank"
+                      {{__("I agree to the")}} <a target="_blank" rel="noopener noreferrer"
                                                   href="{{ route('terms', 'tos') }}">{{__("Terms of Service")}}</a>
                     </label>
                   </div>
@@ -191,13 +191,13 @@
   <div class="fixed-bottom ">
     <div class="container text-center">
       @if ($website_settings->show_imprint)
-        <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+        <a target="_blank" rel="noopener noreferrer" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
       @endif
       @if ($website_settings->show_privacy)
-        <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+        <a target="_blank" rel="noopener noreferrer" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
       @endif
       @if ($website_settings->show_tos)
-        | <a target="_blank"
+        | <a target="_blank" rel="noopener noreferrer"
              href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
       @endif
     </div>

@@ -27,6 +27,13 @@ class GeneralSettings extends Settings
         return 'general';
     }
 
+    public static function encrypted(): array
+    {
+        return [
+            'recaptcha_secret_key',
+        ];
+    }
+
 
 
     /**
@@ -133,7 +140,7 @@ class GeneralSettings extends Settings
                 'description' => 'The site key for reCAPTCHA.'
             ],
             'recaptcha_secret_key' => [
-                'type' => 'string',
+                'type' => 'password',
                 'label' => 'reCAPTCHA Secret Key',
                 'description' => 'The secret key for reCAPTCHA.'
             ],

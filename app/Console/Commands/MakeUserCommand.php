@@ -2,15 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Constants\Roles;
 use App\Classes\PterodactylClient;
 use App\Models\User;
-use App\Settings\GeneralSettings;
-use App\Settings\PterodactylSettings;
 use App\Settings\UserSettings;
 use App\Traits\Referral;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class MakeUserCommand extends Command
 {
@@ -48,11 +48,11 @@ class MakeUserCommand extends Command
      *
      * @return int
      */
-    public function handle(PterodactylSettings $ptero_settings, UserSettings $user_settings)
+    public function handle(PterodactylClient $pterodactyl, UserSettings $user_settings)
     {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->pterodactyl = $pterodactyl;
         $ptero_id = $this->option('ptero_id') ?? $this->ask('Please specify your Pterodactyl ID.');
-        $password = $this->secret('password') ?? $this->ask('Please specify your password.');
+        $password = $this->option('password') ?? $this->secret('password');
 
         // Validate user input
         $validator = Validator::make([
@@ -66,7 +66,7 @@ class MakeUserCommand extends Command
         if ($validator->fails()) {
             $this->error($validator->errors()->first());
 
-            return 0;
+            return Command::FAILURE;
         }
 
         //TODO: Do something with response (check for status code and give hints based upon that)
@@ -83,7 +83,15 @@ class MakeUserCommand extends Command
                 $this->error("detail: {$response['errors'][0]['detail']}");
             }
 
-            return 0;
+            return Command::FAILURE;
+        }
+
+        foreach (['id', 'email', 'first_name'] as $requiredKey) {
+            if (! array_key_exists($requiredKey, $response) || blank($response[$requiredKey])) {
+                $this->error("Invalid response from Pterodactyl: missing {$requiredKey}.");
+
+                return Command::FAILURE;
+            }
         }
 
         $exists = User::where('email', $response['email'])
@@ -92,7 +100,7 @@ class MakeUserCommand extends Command
 
         if ($exists) {
             $this->error('A user with this email or Pterodactyl ID already exists.');
-            return 0;
+            return Command::FAILURE;
         }
 
         $user = User::create([
@@ -113,8 +121,19 @@ class MakeUserCommand extends Command
             ['Referral code', $user->referral_code],
         ]);
 
-        $user->syncRoles(1);
+        $adminRole = Role::query()
+            ->where('id', Roles::ADMIN_ROLE_ID)
+            ->orWhere('name', 'Admin')
+            ->first();
 
-        return 1;
+        if (! $adminRole) {
+            $this->error('Admin role not found. Please seed roles and permissions first.');
+
+            return Command::FAILURE;
+        }
+
+        $user->syncRoles($adminRole);
+
+        return Command::SUCCESS;
     }
 }

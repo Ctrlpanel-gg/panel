@@ -45,6 +45,42 @@
                                     @enderror
                                 </div>
 
+                                <div class="form-group">
+                                    <label for="expires_at">{{ __('Expires At') }}</label>
+                                    <input value="{{ old('expires_at') }}" id="expires_at" name="expires_at" type="datetime-local"
+                                           class="form-control @error('expires_at') is-invalid @enderror">
+                                    @error('expires_at')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group">
+                                    <label>{{ __('Scopes') }}</label>
+                                    @foreach($availableAbilities as $group => $abilities)
+                                        <div class="mb-2 card card-body">
+                                            <strong class="mb-2">{{ __($group) }}</strong>
+                                            @foreach($abilities as $ability => $label)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="abilities[]" value="{{ $ability }}"
+                                                           id="ability_{{ str_replace('.', '_', $ability) }}"
+                                                           {{ in_array($ability, old('abilities', \App\Models\ApplicationApi::availableAbilities()), true) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="ability_{{ str_replace('.', '_', $ability) }}">
+                                                        {{ __($label) }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endforeach
+                                    @error('abilities')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                    @enderror
+                                    @error('abilities.*')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="form-group text-right">
                                     <button type="submit" class="btn btn-primary">
                                         {{__('Submit')}}

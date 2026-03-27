@@ -14,6 +14,7 @@ use App\Settings\UserSettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role;
 
 class UserPayment implements ShouldQueue
 {
@@ -95,8 +96,11 @@ class UserPayment implements ShouldQueue
             }
         }
         //update role give Referral-reward
-        if ($user->hasRole(4)) {
-            $user->syncRoles(3);
+        if ($user->hasRole('User')) {
+            $clientRole = Role::query()->where('name', 'Client')->first();
+            if ($clientRole) {
+                $user->syncRoles($clientRole);
+            }
 
             //give referral commission only on first purchase
             if (($this->referral_mode === "commission" || $this->referral_mode === "both") && $shopProduct->type == "Credits" && !$this->referral_always_give_commission) {

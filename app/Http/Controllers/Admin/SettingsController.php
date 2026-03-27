@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Facades\Currency;
 use App\Helpers\ExtensionHelper;
 use App\Http\Controllers\Controller;
+use App\Support\HtmlSanitizer;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Qirolab\Theme\Theme;
+use ReflectionProperty;
 use Spatie\LaravelSettings\Settings;
 
 class SettingsController extends Controller
@@ -61,6 +63,12 @@ class SettingsController extends Controller
      */
     public function index()
     {
+        if (! $this->canManageSettings()) {
+            abort(403, __('User does not have the right permissions.'));
+        }
+
+        // get all other settings in app/Settings directory
+        // group items by file name like $categories
         $settings = collect();
         $settingsFiles = $this->getAvailableSettingsClasses();
 
@@ -89,7 +97,12 @@ class SettingsController extends Controller
                     'identifier' => $optionInputData[$key]['identifier'] ?? 'option'
                 ];
 
-                if($optionInputData[$key]['type'] === 'number') {
+                if (($optionInputData[$key]['type'] ?? null) === 'password') {
+                    $optionsData[$key]['configured'] = ! empty($value);
+                    $optionsData[$key]['value'] = '';
+                }
+
+                if (($optionInputData[$key]['type'] ?? null) === 'number') {
                     $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
 
                     if ($optionInputData[$key]['mustBeConverted'] ?? false) {
@@ -111,7 +124,13 @@ class SettingsController extends Controller
 
             $optionsData['settings_class'] = $className;
 
-            $settings[str_replace('Settings', '', class_basename($className))] = $optionsData;
+            $category = str_replace('Settings', '', class_basename($className));
+
+            if (! $this->canViewSettingsCategory($category)) {
+                continue;
+            }
+
+            $settings[$category] = $optionsData;
         }
 
         $settings = $settings->sortBy('position');
@@ -149,15 +168,11 @@ class SettingsController extends Controller
         $category = strtolower((string) $request->input('category'));
         $settingsClassMap = $this->getSettingsCategoryClassMap();
 
-        if (!isset($settingsClassMap[$category])) {
+        if (! isset($settingsClassMap[$category])) {
             abort(400, 'Invalid settings category.');
         }
 
         $resolvedSettingsClass = $settingsClassMap[$category];
-        $requestedSettingsClass = (string) $request->input('settings_class');
-        if ($requestedSettingsClass !== $resolvedSettingsClass) {
-            abort(400, 'Invalid settings class.');
-        }
 
         $this->checkPermission("settings." . $category . ".write");
 
@@ -175,9 +190,13 @@ class SettingsController extends Controller
 
         $settingsClass = new $resolvedSettingsClass();
 
+        $optionInputData = method_exists($resolvedSettingsClass, 'getOptionInputData')
+            ? $resolvedSettingsClass::getOptionInputData()
+            : [];
+
         foreach ($settingsClass->toArray() as $key => $value) {
             // Get the type of the settingsclass property
-            $rp = new \ReflectionProperty($settingsClass, $key);
+            $rp = new ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
 
             if ($rpType && $rpType->getName() === 'bool') {
@@ -185,11 +204,16 @@ class SettingsController extends Controller
                 continue;
             }
             if ($rp->name == 'available') {
-                $settingsClass->$key = implode(",", $request->$key);
+                $settingsClass->$key = implode(",", (array) $request->input($key, []));
                 continue;
             }
 
             $inputValue = $request->input($key);
+            $fieldType = $optionInputData[$key]['type'] ?? null;
+
+            if ($fieldType === 'password' && ($inputValue === null || $inputValue === '')) {
+                continue;
+            }
 
             // User/referral currency values are stored in thousandths.
             $currencyKeys = [
@@ -201,6 +225,10 @@ class SettingsController extends Controller
 
             if (in_array($key, $currencyKeys, true) && !is_null($inputValue) && $inputValue !== '') {
                 $inputValue = Currency::prepareForDatabase($inputValue);
+            }
+
+            if ($this->shouldSanitizeRichText($resolvedSettingsClass, $key)) {
+                $inputValue = HtmlSanitizer::sanitizeRichText($inputValue);
             }
 
             $nullable = $rpType ? $rpType->allowsNull() : true;
@@ -241,5 +269,48 @@ class SettingsController extends Controller
         }
 
         return Redirect::to('admin/settings#icons')->with('success', 'Icons updated successfully.');
+    }
+
+    private function canManageSettings(): bool
+    {
+        $user = request()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->can('*') || $user->can(self::ICON_PERMISSION)) {
+            return true;
+        }
+
+        return $user->getAllPermissions()
+            ->pluck('name')
+            ->contains(fn (string $permission) => str_starts_with($permission, 'settings.'));
+    }
+
+    private function canViewSettingsCategory(string $category): bool
+    {
+        $user = request()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        $permission = 'settings.' . strtolower($category) . '.write';
+
+        return $user->can('*') || $user->can($permission);
+    }
+
+    private function shouldSanitizeRichText(string $settingsClass, string $key): bool
+    {
+        return in_array([$settingsClass, $key], [
+            ['App\\Settings\\GeneralSettings', 'alert_message'],
+            ['App\\Settings\\WebsiteSettings', 'motd_message'],
+            ['App\\Settings\\TicketSettings', 'information'],
+            ['App\\Settings\\TermsSettings', 'terms_of_service'],
+            ['App\\Settings\\TermsSettings', 'privacy_policy'],
+            ['App\\Settings\\TermsSettings', 'imprint'],
+            ['App\\Settings\\InvoiceSettings', 'additional_notes'],
+        ], true);
     }
 }

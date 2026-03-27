@@ -3,16 +3,23 @@
 use Illuminate\Support\Facades\Route;
 use App\Extensions\PaymentGateways\MercadoPago\MercadoPagoExtension;
 
-Route::middleware(['web', 'auth'])->group(function () {
+Route::middleware(['web'])->group(function () {
     Route::get(
         'payment/MercadoPagoSuccess',
         function () {
-            MercadoPagoExtension::Success(request());
+            return MercadoPagoExtension::Success(request());
         }
     )->name('payment.MercadoPagoSuccess');
+
+    Route::get(
+        'payment/MercadoPagoPending',
+        function () {
+            return MercadoPagoExtension::Pending(request());
+        }
+    )->name('payment.MercadoPagoPending');
 });
 
 
 Route::post('payment/MercadoPagoWebhook', function () {
-    MercadoPagoExtension::Webhook(request());
+    return MercadoPagoExtension::Webhook(request());
 })->name('payment.MercadoPagoWebhook');

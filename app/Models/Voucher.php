@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
@@ -27,6 +28,10 @@ class Voucher extends Model
         foreach (['attributes', 'old'] as $section) {
             if (!isset($properties[$section]) || !is_array($properties[$section])) {
                 continue;
+            }
+
+            if (array_key_exists('code', $properties[$section])) {
+                $properties[$section]['code'] = '[redacted]';
             }
 
             if (array_key_exists('credits', $properties[$section]) && is_numeric($properties[$section]['credits'])) {
@@ -144,15 +149,27 @@ class Voucher extends Model
      */
     public function redeem(User $user)
     {
-        try {
-            $user->increment('credits', $this->credits);
-            $this->users()->attach($user);
-            $this->logRedeem($user);
-        } catch (Exception $exception) {
-            throw $exception;
-        }
+        return DB::transaction(function () use ($user) {
+            $voucher = self::query()->lockForUpdate()->findOrFail($this->id);
 
-        return $this->credits;
+            if ($voucher->users()->whereKey($user->id)->exists()) {
+                throw new Exception(__('Voucher has already been redeemed by this user.'));
+            }
+
+            if ($voucher->users()->count() >= $voucher->uses) {
+                throw new Exception(__('Voucher usage limit has been reached.'));
+            }
+
+            if ($voucher->expires_at?->isPast()) {
+                throw new Exception(__('Voucher has expired.'));
+            }
+
+            $user->increment('credits', $voucher->credits);
+            $voucher->users()->attach($user);
+            $voucher->logRedeem($user);
+
+            return $voucher->credits;
+        });
     }
 
     /**

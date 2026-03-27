@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\PaymentStatus;
 use App\Models\Payment;
 use Illuminate\Console\Command;
 
@@ -28,15 +29,17 @@ class CleanupOpenPayments extends Command
      */
     public function handle()
     {
-        // delete all payments that have state "open" and are older than 1 hour
+        // Stale open payments are marked canceled so late provider callbacks can still be reconciled.
         try {
-            Payment::where('status', 'open')->where('updated_at', '<', now()->subHour())->delete();
+            Payment::where('status', PaymentStatus::OPEN->value)
+                ->where('updated_at', '<', now()->subHour())
+                ->update(['status' => PaymentStatus::CANCELED->value]);
         } catch (\Exception $e) {
             $this->error('Could not delete payments: ' . $e->getMessage());
             return 1;
         }
 
-        $this->info('Successfully deleted all open payments');
+        $this->info('Successfully marked stale open payments as canceled');
         return Command::SUCCESS;
     }
 }

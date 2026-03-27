@@ -66,7 +66,7 @@
 
                         </div>
                         <div class="card-body">
-                            <p>{!! $ticketsettings->information !!}</p>
+                            <p>{!! \App\Support\HtmlSanitizer::sanitizeRichText($ticketsettings->information) !!}</p>
 
                         </div>
                     </div>
@@ -101,4 +101,3 @@
         });
     </script>
 @endsection
-

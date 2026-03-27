@@ -17,10 +17,6 @@ class LastSeen
      */
     public function handle(Request $request, Closure $next)
     {
-        if (config('app.env', 'local') == 'local') {
-            return $next($request);
-        }
-
         if (! Auth::check()) {
             return $next($request);
         }

@@ -16,9 +16,13 @@ class CurrencyHelper
         $effectiveLocale = $locale ?: str_replace('_', '-', app()->getLocale());
 
         if (!$ignoreOverride) {
-            $override = resolve(\App\Settings\GeneralSettings::class)->currency_format_override ?? null;
-            if ($override) {
-                $effectiveLocale = $override;
+            try {
+                $override = resolve(\App\Settings\GeneralSettings::class)->currency_format_override ?? null;
+                if ($override) {
+                    $effectiveLocale = $override;
+                }
+            } catch (\Throwable) {
+                // Fall back to the active locale if settings are not yet readable.
             }
         }
 
@@ -50,7 +54,7 @@ class CurrencyHelper
 
     public function prepareForDatabase($amount)
     {
-        return (int)($amount * 1000);
+        return (int) round($amount * 1000);
     }
 
     public function formatToCurrency(int $amount, $currency_code, $locale = null)

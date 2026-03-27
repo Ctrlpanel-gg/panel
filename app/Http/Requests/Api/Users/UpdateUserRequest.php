@@ -23,8 +23,8 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:4|max:30',
-            'email' => 'required|string|email',
+            'name' => 'sometimes|string|min:4|max:30',
+            'email' => 'sometimes|string|email',
             'password' => 'sometimes|string|min:8|max:191',
             'credits' => ['sometimes', 'numeric',
                 'min:' . MysqlLimits::CREDITS_MIN,

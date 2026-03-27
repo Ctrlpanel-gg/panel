@@ -11,6 +11,7 @@ use App\Listeners\AssociateDiscordRoles;
 use App\Listeners\CouponUsed;
 use App\Listeners\CreateInvoice;
 use App\Listeners\DisassociateDiscordRoles;
+use App\Listeners\SendWelcomeMessage;
 use App\Listeners\UnsuspendServers;
 use App\Listeners\UserPayment;
 use App\Listeners\Verified as ListenerVerified;
@@ -30,6 +31,7 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+            SendWelcomeMessage::class,
         ],
         UserUpdateCreditsEvent::class => [
             UnsuspendServers::class,

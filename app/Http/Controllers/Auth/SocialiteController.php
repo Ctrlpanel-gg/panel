@@ -7,39 +7,71 @@ use App\Models\DiscordUser;
 use App\Models\User;
 use App\Settings\DiscordSettings;
 use App\Settings\UserSettings;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 use Exception;
 
 class SocialiteController extends Controller
 {
+    private function discordDriver(?string $redirectUrl = null)
+    {
+        return Socialite::driver('discord')->redirectUrl($redirectUrl ?? route('auth.callback'));
+    }
+
     public function redirect(DiscordSettings $discord_settings)
     {
         $scopes = !empty($discord_settings->bot_token) && !empty($discord_settings->guild_id) ? ['guilds.join'] : [];
 
-        return ( Socialite::driver('discord')
+        return ($this->discordDriver()
             ->scopes($scopes)
             ->redirect());
     }
 
-    public function callback(DiscordSettings $discord_settings, UserSettings $user_settings)
+    public function callback(Request $request, DiscordSettings $discord_settings, UserSettings $user_settings)
     {
+        $redirectRoute = Auth::guest() ? 'login' : 'profile.index';
+
+        if ($request->filled('error')) {
+            return redirect()->route($redirectRoute)->with('error', __('Discord authorization was denied.'));
+        }
+
+        if (str_contains((string) $request->query('scope', ''), 'openid')) {
+            return redirect()->route($redirectRoute)->with(
+                'error',
+                __('Unexpected OAuth callback. Check that your Discord redirect URI points to the Discord callback route.')
+            );
+        }
+
         if (Auth::guest()) {
-            return abort(500);
+            return redirect()->route('login')->with('error', __('Please sign in before linking your Discord account.'));
         }
 
         /** @var User $user */
         $user = Auth::user();
-        $discord = Socialite::driver('discord')->user();
+        try {
+            $discord = $this->discordDriver($request->url())->user();
+        } catch (\Throwable $e) {
+            logger()->warning('Discord callback failed', [
+                'message' => $e->getMessage(),
+                'scope' => $request->query('scope'),
+                'has_code' => $request->filled('code'),
+            ]);
+
+            return redirect()->route('profile.index')->with(
+                'error',
+                __('Failed to validate the Discord callback. Check the configured Discord redirect URI and try again.')
+            );
+        }
+
         $botToken = $discord_settings->bot_token;
         $guildId = $discord_settings->guild_id;
         $roleId = $discord_settings->role_id;
+        $isNewLink = is_null($user->discordUser);
 
-        //save / update discord_users
-
-        //check if discord account is already linked to an cpgg account
-        if (is_null($user->discordUser)) {
+        if ($isNewLink) {
             $discordLinked = DiscordUser::where('id', '=', $discord->id)->first();
             if ($discordLinked !== null) {
                 return redirect()->route('profile.index')->with(
@@ -47,21 +79,8 @@ class SocialiteController extends Controller
                         'Discord account already linked!'
                     );
             }
-
-            //create discord user in db
-            DiscordUser::create(array_merge($discord->user, ['user_id' => Auth::user()->id]));
-            $user->refresh();
-
-            //update user
-            Auth::user()->increment('credits', $user_settings->credits_reward_after_verify_discord);
-            Auth::user()->increment('server_limit', $user_settings->server_limit_increment_after_verify_discord);
-            Auth::user()->update(['discord_verified_at' => now()]);
-        } else {
-            $user->discordUser->update($discord->user);
         }
 
-        //force user into discord server
-        //TODO Add event on failure, to notify ppl involved
         if (! empty($guildId) && ! empty($botToken)) {
             try {
                 $response = Http::withHeaders(
@@ -69,7 +88,7 @@ class SocialiteController extends Controller
                         'Authorization' => 'Bot '. $botToken,
                         'Content-Type' => 'application/json',
                     ]
-                )->put(
+                )->timeout(30)->connectTimeout(10)->put(
                     "https://discord.com/api/guilds/{$guildId}/members/{$discord->id}",
                     ['access_token' => $discord->token]
                 );
@@ -80,10 +99,6 @@ class SocialiteController extends Controller
                         ($response->json('message') ?? 'Unknown error')
                     );
                 }
-
-                if (!empty($roleId)) {
-                    $user->discordUser->addOrRemoveRole('add', $roleId);
-                }
             } catch (Exception $e) {
                 logger()->error($e->getMessage());
 
@@ -92,6 +107,23 @@ class SocialiteController extends Controller
                     'Failed to join discord server!'
                 );
             }
+        }
+
+        DB::transaction(function () use ($user, $discord, $user_settings, $isNewLink) {
+            if ($isNewLink) {
+                DiscordUser::create(array_merge($discord->user, ['user_id' => $user->id]));
+                $user->increment('credits', $user_settings->credits_reward_after_verify_discord);
+                $user->increment('server_limit', $user_settings->server_limit_increment_after_verify_discord);
+            } else {
+                $user->discordUser->update($discord->user);
+            }
+
+            $user->update(['discord_verified_at' => now()]);
+        });
+
+        if (! empty($roleId)) {
+            $user->refresh();
+            $user->discordUser?->addOrRemoveRole('add', $roleId);
         }
 
         return redirect()->route('profile.index')->with(

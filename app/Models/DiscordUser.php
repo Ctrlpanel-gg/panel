@@ -67,16 +67,20 @@ class DiscordUser extends Model
                         'Content-Type' => 'application/json',
                         'X-Audit-Log-Reason' => 'Role added by panel'
                     ]
-                )->put($url),
+                )->timeout(30)->connectTimeout(10)->put($url),
                 'remove' => Http::withHeaders(
                     [
                         'Authorization' => 'Bot ' . $discordSettings->bot_token,
                         'Content-Type' => 'application/json',
                         'X-Audit-Log-Reason' => 'Role removed by panel'
                     ]
-                )->delete($url),
+                )->timeout(30)->connectTimeout(10)->delete($url),
                 default => null
             };
+
+            if ($response === null) {
+                throw new Exception('Invalid Discord role action supplied.');
+            }
 
             if ($response->failed()) {
                 throw new Exception(
@@ -89,7 +93,7 @@ class DiscordUser extends Model
             activity()
                 ->performedOn($this->user)
                 ->causedBy($this->user)
-                ->log('was added to role ' . $this->role_id_on_purchase . " on Discord");
+                ->log('was ' . $action . 'ed role ' . $role_id . ' on Discord');
 
 
             return true;

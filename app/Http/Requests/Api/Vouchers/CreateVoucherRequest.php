@@ -25,7 +25,7 @@ class CreateVoucherRequest extends FormRequest
         return [
             'memo' => 'nullable|string|max:191',
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
-            'uses' => 'required|numeric|max:2147483647|min:1',
+            'uses' => 'required|integer|max:2147483647|min:1',
             'credits' => ['required', 'numeric', 
                 'min:' . MysqlLimits::CREDITS_MIN,
                 'max:' . MysqlLimits::CREDITS_MAX,

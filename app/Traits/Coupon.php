@@ -69,10 +69,16 @@ trait Coupon
 
     public function isCouponValid(string $couponCode, User $user, string $productId): bool
     {
-        if (is_null($couponCode)) return false;
+        if (is_null($couponCode)) {
+            return false;
+        }
 
-        $coupon = CouponModel::where('code', $couponCode)->firstOrFail();
-        $shopProduct = ShopProduct::findOrFail($productId);
+        $coupon = CouponModel::where('code', $couponCode)->first();
+        $shopProduct = ShopProduct::find($productId);
+
+        if ($coupon === null || $shopProduct === null) {
+            return false;
+        }
 
         if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
             return false;
@@ -93,12 +99,16 @@ trait Coupon
         return true;
     }
 
-    public function applyCoupon(string $couponCode, int $price)
+    public function applyCoupon(string $couponCode, int $price): int
     {
         $coupon = CouponModel::where('code', $couponCode)->first();
 
+        if ($coupon === null) {
+            return $price;
+        }
+
         if ($coupon->type === 'percentage') {
-            return $price - ($price * $coupon->value / 100);
+            return max(0, (int) round($price - (($price * $coupon->value) / 100)));
         }
 
         if ($coupon->type === 'amount') {
@@ -108,6 +118,6 @@ trait Coupon
             }
         }
 
-        return $price - $coupon->value;
+        return max(0, $price - (int) $coupon->value);
     }
 }

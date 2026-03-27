@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 
@@ -60,5 +61,10 @@ class Controller extends BaseController
         $user = Auth::user();
 
         return $user->canAny($permission);
+    }
+
+    protected function perPage(Request $request, int $default = 50, int $max = 100): int
+    {
+        return max(1, min((int) $request->input('per_page', $default), $max));
     }
 }

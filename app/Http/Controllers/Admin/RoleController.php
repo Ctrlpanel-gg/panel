@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\Roles;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Exception;
+use Illuminate\Validation\Rule;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -36,7 +38,7 @@ class RoleController extends Controller
 
         //datatables
         if ($request->ajax()) {
-            return $this->dataTableQuery();
+            return $this->dataTable();
         }
 
         $html = $this->dataTable();
@@ -66,14 +68,23 @@ class RoleController extends Controller
     {
         $this->checkPermission(self::CREATE_PERMISSION);
 
-        $role = Role::create([
-            'name' => $request->name,
-            'color' => $request->color,
-            'power' => $request->power
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:191', Rule::unique('roles', 'name')],
+            'color' => ['required', 'string', 'max:20'],
+            'power' => ['required', 'integer', 'min:0', 'max:' . max(0, $this->currentUserPower() - 1)],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
 
-        if ($request->permissions) {
-            $collectedPermissions = collect($request->permissions)->map(fn($val)=>(int)$val);
+        $role = Role::create([
+            'name' => $validated['name'],
+            'color' => $validated['color'],
+            'power' => $validated['power'],
+            'guard_name' => 'web',
+        ]);
+
+        if (! empty($validated['permissions'])) {
+            $collectedPermissions = collect($validated['permissions'])->map(fn ($val) => (int) $val);
             $role->givePermissionTo($collectedPermissions);
         }
 
@@ -100,7 +111,7 @@ class RoleController extends Controller
     {
         $this->checkPermission(self::EDIT_PERMISSION);
 
-        if(Auth::user()->roles[0]->power < $role->power){
+        if ($this->currentUserPower() < $role->power) {
             return back()->with("error","You dont have enough Power to edit that Role");
         }
 
@@ -119,38 +130,36 @@ class RoleController extends Controller
     {
         $this->checkPermission(self::EDIT_PERMISSION);
 
-        if(Auth::user()->roles[0]->power < $role->power){
+        if ($this->currentUserPower() < $role->power) {
             return back()->with("error","You dont have enough Power to edit that Role");
         }
 
-        if ($request->permissions) {
-            if($role->id != 1){ //disable admin permissions change
-                $collectedPermissions = collect($request->permissions)->map(fn($val)=>(int)$val);
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:191', Rule::unique('roles', 'name')->ignore($role->id)],
+            'color' => ['required', 'string', 'max:20'],
+            'power' => ['required', 'integer', 'min:0', 'max:' . max(0, $this->currentUserPower() - 1)],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['integer', 'exists:permissions,id'],
+        ]);
+
+        if (! empty($validated['permissions'])) {
+            if (! $this->isAdminRole($role)) {
+                $collectedPermissions = collect($validated['permissions'])->map(fn ($val) => (int) $val);
                 $role->syncPermissions($collectedPermissions);
             }
+        } elseif (! $this->isAdminRole($role)) {
+            $role->syncPermissions([]);
         }
 
-        //if($role->id == 1 || $role->id == 3 || $role->id == 4){ //dont let the user change the names of these roles
-        //    $role->update([
-        //        'color' => $request->color
-        //    ]);
-        //}else{
-            $role->update([
-                'name' => $request->name,
-                'color' => $request->color,
-                'power' => $request->power
-            ]);
-        //}
+        $role->update([
+            'name' => $validated['name'],
+            'color' => $validated['color'],
+            'power' => $validated['power'],
+        ]);
 
-        //if($role->id == 1){
-        //    return redirect()->route('admin.roles.index')->with('success', __('Role updated. Name and Permissions of this Role cannot be changed'));
-        //}elseif($role->id == 4 || $role->id == 3){
-        //    return redirect()->route('admin.roles.index')->with('success', __('Role updated. Name of this Role cannot be changed'));
-       // }else{
-            return redirect()
-                ->route('admin.roles.index')
-                ->with('success', __('Role saved'));
-        //}
+        return redirect()
+            ->route('admin.roles.index')
+            ->with('success', __('Role saved'));
     }
 
     /**
@@ -162,15 +171,22 @@ class RoleController extends Controller
     {
         $this->checkPermission(self::DELETE_PERMISSION);
 
-        if($role->id == 1 || $role->id == 3 || $role->id == 4){ //cannot delete the hard coded roles
+        if (! $role->isDeletable()) {
             return back()->with("error","You cannot delete that role");
+        }
+
+        $defaultRole = Role::query()
+            ->find(Roles::USER_ROLE_ID)
+            ?? Role::query()->where('name', 'User')->first();
+
+        if (! $defaultRole) {
+            return back()->with('error', __('Default user role could not be found.'));
         }
 
         $users = User::role($role)->get();
 
-        foreach($users as $user){
-            //$user->syncRoles(['Member']);
-            $user->syncRoles(4);
+        foreach ($users as $user) {
+            $user->syncRoles([$defaultRole]);
         }
 
         $role->delete();
@@ -186,7 +202,8 @@ class RoleController extends Controller
      */
     public function dataTable()
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
+        $this->checkAnyPermission($allConstants);
 
         $query = Role::query()->withCount(['users', 'permissions'])->get();
 
@@ -195,16 +212,25 @@ class RoleController extends Controller
                 return $role->id;
             })
             ->addColumn('actions', function (Role $role) {
-                return '
-                            <a title="Edit" href="'.route("admin.roles.edit", $role).'" class="btn btn-sm btn-info"><i
-                                    class="fa fas fa-edit"></i></a>
-                            <form class="d-inline" method="post" action="'.route("admin.roles.destroy", $role).'">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                                <button title="Delete" type="submit" class="btn btn-sm btn-danger confirm"><i
-                                        class="fa fas fa-trash"></i></button>
-                            </form>
-                ';
+                $actions = [];
+
+                if (auth()->user()?->can(self::EDIT_PERMISSION) && $this->currentUserPower() >= $role->power) {
+                    $actions[] = '
+                        <a title="Edit" href="'.route("admin.roles.edit", $role).'" class="btn btn-sm btn-info"><i class="fa fas fa-edit"></i></a>
+                    ';
+                }
+
+                if (auth()->user()?->can(self::DELETE_PERMISSION) && $role->isDeletable()) {
+                    $actions[] = '
+                        <form class="d-inline" method="post" action="'.route("admin.roles.destroy", $role).'">
+                        ' . csrf_field() . '
+                        ' . method_field("DELETE") . '
+                            <button title="Delete" type="submit" class="btn btn-sm btn-danger confirm"><i class="fa fas fa-trash"></i></button>
+                        </form>
+                    ';
+                }
+
+                return implode('', $actions);
             })
 
             ->editColumn('name', function (Role $role) {
@@ -222,5 +248,15 @@ class RoleController extends Controller
             })
             ->rawColumns(['actions', 'name'])
             ->make(true);
+    }
+
+    private function currentUserPower(): int
+    {
+        return (int) (Auth::user()?->roles()->max('power') ?? 0);
+    }
+
+    private function isAdminRole(Role $role): bool
+    {
+        return $role->id === Roles::ADMIN_ROLE_ID || $role->name === 'Admin';
     }
 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Helpers\CallHomeHelper;
 use App\Models\UsefulLink;
+use App\Support\RecaptchaV2;
 use Exception;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
@@ -57,6 +58,14 @@ class AppServiceProvider extends ServiceProvider
 
             return $ok;
         });
+
+        Validator::extend(
+            'recaptcha',
+            function ($attribute, $value) {
+                return RecaptchaV2::verify($value, request()?->ip());
+            },
+            __('Please verify the reCAPTCHA challenge.')
+        );
 
         // Force HTTPS if APP_URL is set to https
         if (config('app.url') && parse_url(config('app.url'), PHP_URL_SCHEME) === 'https') {

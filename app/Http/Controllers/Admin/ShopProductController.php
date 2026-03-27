@@ -65,7 +65,7 @@ class ShopProductController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',
             'currency_code' => ['required', 'string', 'max:3', Rule::in(config('currency_codes'))],
@@ -75,8 +75,8 @@ class ShopProductController extends Controller
             'display' => 'required|string|max:60',
         ]);
 
-        $disabled = !is_null($request->input('disabled'));
-        ShopProduct::create(array_merge($request->all(), ['disabled' => $disabled]));
+        $disabled = $request->boolean('disabled');
+        ShopProduct::create(array_merge($validated, ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been created!'));
     }
@@ -109,7 +109,7 @@ class ShopProductController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',
             'currency_code' => ['required', 'string', 'max:3', Rule::in(config('currency_codes'))],
@@ -119,8 +119,8 @@ class ShopProductController extends Controller
             'display' => 'required|string|max:60',
         ]);
 
-        $disabled = !is_null($request->input('disabled'));
-        $shopProduct->update(array_merge($request->all(), ['disabled' => $disabled]));
+        $disabled = $request->boolean('disabled');
+        $shopProduct->update(array_merge($validated, ['disabled' => $disabled]));
 
         return redirect()->route('admin.store.index')->with('success', __('Store item has been updated!'));
     }
@@ -162,17 +162,26 @@ class ShopProductController extends Controller
 
         return datatables($query)
             ->addColumn('actions', function (ShopProduct $shopProduct) {
-                return '
-                            <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $shopProduct->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
+                $actions = [];
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                       </form>
-                ';
+                if (auth()->user()?->can(self::WRITE_PERMISSION)) {
+                    $actions[] = '<a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $shopProduct->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>';
+                    $actions[] = '
+                        <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">
+                        ' . csrf_field() . '
+                        ' . method_field('DELETE') . '
+                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    ';
+                }
+
+                return implode('', $actions);
             })
             ->editColumn('disabled', function (ShopProduct $shopProduct) {
+                if (! auth()->user()?->can(self::DISABLE_PERMISSION)) {
+                    return $shopProduct->disabled ? __('disabled') : __('enabled');
+                }
+
                 $checked = $shopProduct->disabled == false ? 'checked' : '';
 
                 return '

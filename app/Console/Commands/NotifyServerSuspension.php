@@ -64,7 +64,7 @@ class NotifyServerSuspension extends Command
 
         $this->info("Completed! Checked: {$serversChecked} servers, Sent warnings for: {$serversNotified} servers");
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function getSuspensionDate(Server $server, string $billingPeriod): Carbon

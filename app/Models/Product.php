@@ -29,7 +29,25 @@ class Product extends Model
     }
     public $incrementing = false;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'memory',
+        'cpu',
+        'swap',
+        'disk',
+        'io',
+        'databases',
+        'backups',
+        'allocations',
+        'serverlimit',
+        'minimum_credits',
+        'disabled',
+        'oom_killer',
+        'billing_period',
+        'default_billing_priority',
+    ];
 
     /**
      * @var string[]
@@ -80,7 +98,7 @@ class Product extends Model
     protected function minimumCredits(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => $value ? Currency::prepareForDatabase($value) : null
+            set: fn ($value) => $value === null || $value === '' ? null : Currency::prepareForDatabase($value)
         );
     }
 

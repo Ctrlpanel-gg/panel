@@ -30,8 +30,11 @@
             <div class="card-title ">
               <span><i class="mr-2 fas fa-server"></i>{{ __('Servers') }}</span>
             </div>
-            <a href="{{ route('admin.servers.sync') }}" class="btn btn-primary btn-sm"><i
-                class="mr-2 fas fa-sync"></i>{{ __('Sync') }}</a>
+            <form action="{{ route('admin.servers.sync') }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="btn btn-primary btn-sm"><i
+                        class="mr-2 fas fa-sync"></i>{{ __('Sync') }}</button>
+            </form>
           </div>
         </div>
         <div class="card-body table-responsive">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Classes\PterodactylClient;
 use App\Events\ServerCreatedEvent;
 use App\Events\ServerDeletedEvent;
+use App\Http\Controllers\Api\Concerns\InteractsWithScopedApiTokens;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Server;
@@ -22,22 +23,22 @@ use App\Settings\PterodactylSettings;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Exception;
 
 class ServerController extends Controller
 {
-    protected PterodactylSettings $pterodactylSettings;
-    protected PterodactylClient $pterodactylClient;
+    use InteractsWithScopedApiTokens;
+
+    protected ?PterodactylClient $pterodactylClient = null;
 
     public function __construct(
         protected ServerCreationService $serverCreationService,
         protected ServerUpgradeService $serverUpgradeService
     )
     {
-        $this->pterodactylSettings = app(PterodactylSettings::class);
-        $this->pterodactylClient = app(PterodactylClient::class, [$this->pterodactylSettings]);
     }
 
     public const ALLOWED_INCLUDES = ['product', 'user'];
@@ -51,13 +52,16 @@ class ServerController extends Controller
      */
     public function index(Request $request)
     {
-        $servers = QueryBuilder::for(Server::class)
+        $servers = $this->restrictServersToTokenOwner(
+            $request,
+            QueryBuilder::for(Server::class)
+        )
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters([
                 AllowedFilter::exact('suspended')->nullable(),
                 ...self::ALLOWED_FILTERS
             ])
-            ->paginate($request->input('per_page') ?? 50);
+            ->paginate($this->perPage($request));
 
         return ServerResource::collection($servers);
     }
@@ -71,11 +75,16 @@ class ServerController extends Controller
      * 
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, string $serverId)
+    public function show(Request $request, Server $server)
     {
-        $server = QueryBuilder::for(Server::class)
+        $this->ensureCanAccessServer($request, $server);
+
+        $server = $this->restrictServersToTokenOwner(
+            $request,
+            QueryBuilder::for(Server::class)
+        )
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $serverId)
+            ->whereKey($server->id)
             ->firstOrFail();
 
         return ServerResource::make($server);
@@ -93,21 +102,27 @@ class ServerController extends Controller
     {
         $data = $request->validated();
 
+        if ($this->ownerScopedUserId($request) !== null && $this->ownerScopedUserId($request) !== (int) $data['user_id']) {
+            abort(403, 'This API token is restricted to its owner.');
+        }
+
         $user = User::findOrFail($data['user_id']);
         $product = Product::with('eggs')->findOrFail($data['product_id']);
 
         try {
             $server = $this->serverCreationService->handle($user, $product, $data);
 
-            $user->decrement("credits", $product->price);
-
             event(new ServerCreatedEvent($user, $server));
 
             return ServerResource::make($server->fresh());
         } catch (Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 401);
+            logger()->warning('Failed to create server via API.', [
+                'user_id' => $user->id,
+                'product_id' => $product->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($e, 'Failed to create the server.');
         }
     }
 
@@ -123,22 +138,52 @@ class ServerController extends Controller
      */
     public function update(UpdateServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
 
-        $server->fill($data);
+        if ($this->ownerScopedUserId($request) !== null && isset($data['user_id']) && $this->ownerScopedUserId($request) !== (int) $data['user_id']) {
+            abort(403, 'This API token is restricted to its owner.');
+        }
 
         try {
-            if ($server->isDirty(['name', 'description', 'user_id'])) {
-                $pteroData = array_merge($request->only(['name', 'description']), ['user' => $data['user_id']]);
+            $server = DB::transaction(function () use ($server, $data) {
+                $lockedServer = Server::query()->whereKey($server->id)->lockForUpdate()->firstOrFail();
+                $lockedServer->fill($data);
 
-                $response = $this->pterodactylClient->updateServerDetails($server, $pteroData);
+                if ($lockedServer->isDirty(['name', 'description', 'user_id'])) {
+                    $ownerChanged = $lockedServer->isDirty('user_id');
+                    $remoteUserId = $lockedServer->user_id;
 
-                if (!$response->successful()) {
-                    $response->throw();
+                    if ($ownerChanged) {
+                        $owner = User::findOrFail($lockedServer->user_id);
+
+                        if (! $owner->pterodactyl_id) {
+                            throw new Exception('Selected user is not synced with Pterodactyl.', 422);
+                        }
+
+                        $remoteUserId = $owner->pterodactyl_id;
+                    }
+
+                    $pteroData = [
+                        'name' => $lockedServer->name,
+                        'description' => $lockedServer->description,
+                        'user' => $remoteUserId,
+                    ];
+
+                    $lockedServer->save();
+
+                    $response = $this->pterodactylClient()->updateServerDetails($lockedServer, $pteroData);
+
+                    if (! $response->successful()) {
+                        $response->throw();
+                    }
+                } elseif ($lockedServer->isDirty()) {
+                    $lockedServer->save();
                 }
-            }
 
-            $server->save();
+                return $lockedServer;
+            });
 
             return ServerResource::make($server->refresh());
         } catch (Exception $e) {
@@ -147,7 +192,7 @@ class ServerController extends Controller
                 'server_id' => $server->id
             ]);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            return $this->serverErrorResponse($e, 'Failed to update the server.');
         }
     }
 
@@ -162,7 +207,13 @@ class ServerController extends Controller
      */
     public function updateBuild(UpdateServerBuildRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
+
+        if ($this->ownerScopedUserId($request) !== null && $this->ownerScopedUserId($request) !== (int) $data['user_id']) {
+            abort(403, 'This API token is restricted to its owner.');
+        }
 
         $user = User::findOrFail($data['user_id']);
         $product = Product::findOrFail($data['product_id']);
@@ -172,7 +223,12 @@ class ServerController extends Controller
 
             return ServerResource::make($server->fresh());
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+            logger()->warning('Failed to update server build via API.', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($e, 'Failed to update the server build.');
         }
     }
 
@@ -187,6 +243,8 @@ class ServerController extends Controller
      */
     public function destroy(DeleteServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
 
         try {
@@ -202,7 +260,12 @@ class ServerController extends Controller
 
             $server->delete();
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            logger()->warning('Failed to delete server via API.', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($e, 'Failed to delete the server.');
         }
 
         return response()->noContent();
@@ -219,6 +282,8 @@ class ServerController extends Controller
      */
     public function suspend(SuspendServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
 
         try {
@@ -232,7 +297,12 @@ class ServerController extends Controller
 
             $server->suspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->warning('Failed to suspend server via API.', [
+                'server_id' => $server->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($exception, 'Failed to suspend the server.');
         }
 
         return ServerResource::make($server);
@@ -249,6 +319,8 @@ class ServerController extends Controller
      */
     public function unSuspend(UnsuspendServerRequest $request, Server $server)
     {
+        $this->ensureCanAccessServer($request, $server);
+
         $data = $request->validated();
 
         try {
@@ -262,9 +334,63 @@ class ServerController extends Controller
 
             $server->unSuspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->warning('Failed to unsuspend server via API.', [
+                'server_id' => $server->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return $this->serverErrorResponse($exception, 'Failed to unsuspend the server.');
         }
 
         return ServerResource::make($server);
+    }
+
+    private function pterodactylClient(): PterodactylClient
+    {
+        if ($this->pterodactylClient === null) {
+            $this->pterodactylClient = app(PterodactylClient::class, [app(PterodactylSettings::class)]);
+        }
+
+        return $this->pterodactylClient;
+    }
+
+    private function serverErrorResponse(Exception $exception, string $defaultMessage): JsonResponse
+    {
+        $message = $this->publicServerErrorMessage($exception->getMessage(), $defaultMessage);
+        $status = $message === $defaultMessage && $this->validClientErrorStatus($exception->getCode())
+            ? $exception->getCode()
+            : ($message === $defaultMessage ? 500 : 422);
+
+        return response()->json(['message' => $message], $status);
+    }
+
+    private function publicServerErrorMessage(string $message, string $defaultMessage): string
+    {
+        $safeMessages = [
+            'Server limit reached for this product.',
+            'Server limit reached for this user and product combination.',
+            'User must verify their email before creating a server.',
+            'User must link their Discord account before creating a server.',
+            'Server creation is currently disabled.',
+            'No available nodes for this product in the selected location.',
+            'No free allocation available on the selected node.',
+            'Insufficient resources on the node to upgrade the server.',
+            'Insufficient credits to upgrade the server.',
+            'Selected egg is not available for this product.',
+            'Selected product is not available on the current node.',
+            'Selected product is not compatible with the current egg.',
+            'Selected user is not synced with Pterodactyl.',
+        ];
+
+        if (in_array($message, $safeMessages, true) || str_starts_with($message, 'User do not have the required amount of ')) {
+            return $message;
+        }
+
+        return $defaultMessage;
+    }
+
+    private function validClientErrorStatus(mixed $status): bool
+    {
+        return is_int($status) && $status >= 400 && $status < 500;
     }
 }

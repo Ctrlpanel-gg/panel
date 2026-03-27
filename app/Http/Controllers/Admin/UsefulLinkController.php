@@ -6,12 +6,14 @@ use App\Enums\UsefulLinkLocation;
 use App\Http\Controllers\Controller;
 use App\Models\UsefulLink;
 use App\Settings\LocaleSettings;
+use App\Support\HtmlSanitizer;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rules\Enum;
 
 class UsefulLinkController extends Controller
 {
@@ -52,20 +54,22 @@ class UsefulLinkController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'icon' => 'required|string',
             'title' => 'required|string|max:60',
             'link' => 'required|url|string|max:191',
             'description' => 'required|string|max:2000',
+            'position' => 'required|array|min:1',
+            'position.*' => ['required', new Enum(UsefulLinkLocation::class)],
         ]);
 
 
         UsefulLink::create([
-            'icon' => $request->icon,
-            'title' => $request->title,
-            'link' => $request->link,
-            'description' => $request->description,
-            'position' => implode(",",$request->position),
+            'icon' => HtmlSanitizer::sanitizeIconClass($validated['icon']),
+            'title' => $validated['title'],
+            'link' => $validated['link'],
+            'description' => HtmlSanitizer::sanitizeRichText($validated['description']),
+            'position' => implode(",", $validated['position']),
         ]);
 
         return redirect()->route('admin.usefullinks.index')->with('success', __('link has been created!'));
@@ -79,7 +83,7 @@ class UsefulLinkController extends Controller
      */
     public function show(UsefulLink $usefullink)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -110,19 +114,21 @@ class UsefulLinkController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'icon' => 'required|string',
             'title' => 'required|string|max:60',
             'link' => 'required|url|string|max:191',
             'description' => 'required|string|max:2000',
+            'position' => 'required|array|min:1',
+            'position.*' => ['required', new Enum(UsefulLinkLocation::class)],
         ]);
 
         $usefullink->update([
-            'icon' => $request->icon,
-            'title' => $request->title,
-            'link' => $request->link,
-            'description' => $request->description,
-            'position' => implode(",",$request->position),
+            'icon' => HtmlSanitizer::sanitizeIconClass($validated['icon']),
+            'title' => $validated['title'],
+            'link' => $validated['link'],
+            'description' => HtmlSanitizer::sanitizeRichText($validated['description']),
+            'position' => implode(",", $validated['position']),
         ]);
 
         return redirect()->route('admin.usefullinks.index')->with('success', __('link has been updated!'));
@@ -139,7 +145,7 @@ class UsefulLinkController extends Controller
         $this->checkPermission(self::WRITE_PERMISSION);
         $usefullink->delete();
 
-        return redirect()->back()->with('success', __('product has been removed!'));
+        return redirect()->back()->with('success', __('link has been removed!'));
     }
 
     public function dataTable()
@@ -164,7 +170,7 @@ class UsefulLinkController extends Controller
                 return $link->created_at ? $link->created_at->diffForHumans() : '';
             })
             ->editColumn('icon', function (UsefulLink $link) {
-                return "<i class='{$link->icon}'></i>";
+                return '<i class="' . e(HtmlSanitizer::sanitizeIconClass($link->icon)) . '"></i>';
             })
             ->rawColumns(['actions', 'icon'])
             ->make();

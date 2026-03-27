@@ -139,10 +139,13 @@
           {{-- </a> --}}
           @if (session()->get('previousUser'))
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{{ route('users.logbackin') }}">
-              <i class="mr-2 text-gray-400 fas fa-sign-in-alt fa-sm fa-fw"></i>
-              {{ __('Log back in') }}
-            </a>
+            <form method="post" action="{{ route('users.logbackin') }}">
+              @csrf
+              <button class="dropdown-item" type="submit">
+                <i class="mr-2 text-gray-400 fas fa-sign-in-alt fa-sm fa-fw"></i>
+                {{ __('Log back in') }}
+              </button>
+            </form>
           @endif
           <div class="dropdown-divider"></div>
           <form method="post" action="{{ route('logout') }}">
@@ -470,13 +473,13 @@
     {{-- Show imprint and privacy link --}}
     <div class="float-right d-none d-sm-inline-block">
       @if ($website_settings->show_imprint)
-        <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+        <a target="_blank" rel="noopener noreferrer" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
       @endif
       @if ($website_settings->show_privacy)
-        <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+        <a target="_blank" rel="noopener noreferrer" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
       @endif
       @if ($website_settings->show_tos)
-        | <a target="_blank"
+        | <a target="_blank" rel="noopener noreferrer"
              href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
       @endif
     </div>

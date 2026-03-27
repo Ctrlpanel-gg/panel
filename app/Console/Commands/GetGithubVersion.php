@@ -32,7 +32,20 @@ class GetGithubVersion extends Command
     public function handle()
     {
         try{
-            $latestVersion = Http::get('https://api.github.com/repos/ctrlpanel-gg/panel/tags')->json()[0]['name'];
+            $response = Http::timeout(10)
+                ->connectTimeout(5)
+                ->get('https://api.github.com/repos/ctrlpanel-gg/panel/tags');
+
+            if ($response->failed()) {
+                throw new Exception('Failed to fetch tags from GitHub.');
+            }
+
+            $latestVersion = data_get($response->json(), '0.name');
+
+            if (! is_string($latestVersion) || blank($latestVersion)) {
+                throw new Exception('GitHub response did not include a valid tag name.');
+            }
+
             Storage::disk('local')->put('latestVersion', $latestVersion);
         } catch (Exception $e) {
             Storage::disk('local')->put('latestVersion', "unknown");

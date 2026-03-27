@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class VoucherController extends Controller
@@ -60,7 +61,7 @@ class VoucherController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
             'uses' => 'required|numeric|max:2147483647|min:1',
@@ -68,7 +69,7 @@ class VoucherController extends Controller
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
-        Voucher::create($request->except('_token'));
+        Voucher::create($validated);
 
         return redirect()->route('admin.vouchers.index')->with('success', __('voucher has been created!'));
     }
@@ -81,7 +82,7 @@ class VoucherController extends Controller
      */
     public function show(Voucher $voucher)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -110,7 +111,7 @@ class VoucherController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $request->validate([
+        $validated = $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
             'uses' => 'required|numeric|max:2147483647|min:1',
@@ -118,7 +119,7 @@ class VoucherController extends Controller
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
-        $voucher->update($request->except('_token'));
+        $voucher->update($validated);
 
         return redirect()->route('admin.vouchers.index')->with('success', __('voucher has been updated!'));
     }
@@ -161,41 +162,56 @@ class VoucherController extends Controller
             'code' => 'required|exists:vouchers,code',
         ]);
 
-        //get voucher by code
-        $voucher = Voucher::where('code', '=', $request->input('code'))->firstOrFail();
+        $redeemedCredits = DB::transaction(function () use ($request, $general_settings) {
+            $voucher = Voucher::query()
+                ->where('code', '=', $request->input('code'))
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        //extra validations
-        if ($voucher->getStatus() == 'USES_LIMIT_REACHED') {
-            throw ValidationException::withMessages([
-                'code' => __('This voucher has reached the maximum amount of uses'),
-            ]);
-        }
+            $user = User::query()
+                ->whereKey($request->user()->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        if ($voucher->getStatus() == 'EXPIRED') {
-            throw ValidationException::withMessages([
-                'code' => __('This voucher has expired'),
-            ]);
-        }
+            $existingRedemption = DB::table('user_voucher')
+                ->where('user_id', $user->id)
+                ->where('voucher_id', $voucher->id)
+                ->lockForUpdate()
+                ->exists();
 
-        if (! $request->user()->vouchers()->where('id', '=', $voucher->id)->get()->isEmpty()) {
-            throw ValidationException::withMessages([
-                'code' => __('You already redeemed this voucher code'),
-            ]);
-        }
+            if ($existingRedemption) {
+                throw ValidationException::withMessages([
+                    'code' => __('You already redeemed this voucher code'),
+                ]);
+            }
 
-        if ($request->user()->credits + $voucher->credits >= 99999999) {
-            throw ValidationException::withMessages([
-                'code' => "You can't redeem this voucher because you would exceed the  limit of " . $general_settings->credits_display_name,
-            ]);
-        }
+            if ($voucher->users()->count() >= $voucher->uses) {
+                throw ValidationException::withMessages([
+                    'code' => __('This voucher has reached the maximum amount of uses'),
+                ]);
+            }
 
-        //redeem voucher
-        $voucher->redeem($request->user());
+            if ($voucher->expires_at !== null && $voucher->expires_at->isPast()) {
+                throw ValidationException::withMessages([
+                    'code' => __('This voucher has expired'),
+                ]);
+            }
+
+            if ($user->credits + $voucher->credits >= 99999999) {
+                throw ValidationException::withMessages([
+                    'code' => "You can't redeem this voucher because you would exceed the  limit of " . $general_settings->credits_display_name,
+                ]);
+            }
+
+            $voucher->redeem($user);
+
+            return $voucher->credits;
+        });
 
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => $currencyHelper->formatForDisplay($voucher->credits) . ' ' . $general_settings->credits_display_name . ' ' . __('have been added to your balance!'),
+            'success' => $currencyHelper->formatForDisplay($redeemedCredits) . ' ' . $general_settings->credits_display_name . ' ' . __('have been added to your balance!'),
         ]);
     }
 
@@ -207,7 +223,7 @@ class VoucherController extends Controller
 
         return datatables($users)
             ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.$user->name.'</a>';
+                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="'.route('admin.users.show', $user->id).'">'.e($user->name).'</a>';
             })
             ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
                 return '<i class="mr-2 fas fa-coins"></i> '. $currencyHelper->formatForDisplay($user->credits);

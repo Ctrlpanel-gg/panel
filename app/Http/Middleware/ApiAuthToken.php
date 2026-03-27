@@ -21,13 +21,20 @@ class ApiAuthToken
             return response()->json(['message' => 'Missing Authorization header'], 403);
         }
 
-        $token = ApplicationApi::find($request->bearerToken());
+        $token = ApplicationApi::findToken($request->bearerToken());
         if (is_null($token)) {
             return response()->json(['message' => 'Invalid Authorization token'], 401);
         }
 
+        if (! $token->isActive()) {
+            return response()->json(['message' => 'Expired or revoked Authorization token'], 401);
+        }
+
+        $request->attributes->set('apiToken', $token);
+
+        $response = $next($request);
         $token->updateLastUsed();
 
-        return $next($request);
+        return $response;
     }
 }

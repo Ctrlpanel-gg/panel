@@ -29,9 +29,12 @@
                 <div class="col-md-8">
                     <p>{{__('All notifications')}}</p>
                 </div>
-                    <a class="float-right">
-                        <a href="{{route('notifications.readAll')}}"><button class="btn btn-info btn-xs">{{__('Mark all as read')}}</button></a>
-
+                    <div class="float-right">
+                        <form method="post" action="{{ route('notifications.readAll') }}">
+                            @csrf
+                            <button class="btn btn-info btn-xs" type="submit">{{ __('Mark all as read') }}</button>
+                        </form>
+                    </div>
 
                 @foreach($notifications as $notification)
                     <div class="col-md-8">

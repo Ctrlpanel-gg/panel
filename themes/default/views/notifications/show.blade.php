@@ -36,7 +36,7 @@
                         </div>
 
                         <div class="card-body">
-                           {!! $notification->data['content'] !!}
+                           {{ $notification->data['content'] }}
                         </div>
                     </div>
                 </div>

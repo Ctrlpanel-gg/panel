@@ -38,7 +38,7 @@
                 </a>
                 @if (Auth::user()->Servers->count() > 0 && !empty($phpmyadmin_url))
                     <a
-                        href="{{ $phpmyadmin_url }}" target="_blank"
+                        href="{{ $phpmyadmin_url }}" target="_blank" rel="noopener noreferrer"
                         class="ml-2 btn btn-secondary"><i title="manage"
                         class="mr-2 fas fa-database"></i><span>{{ __('Database') }}</span>
                     </a>

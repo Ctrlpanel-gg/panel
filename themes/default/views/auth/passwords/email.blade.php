@@ -91,13 +91,13 @@
             <div class="container text-center">
                 @php($website_settings = app(App\Settings\WebsiteSettings::class))
                 @if ($website_settings->show_imprint)
-                    <a target="_blank" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
+                    <a target="_blank" rel="noopener noreferrer" href="{{ route('terms', 'imprint') }}"><strong>{{ __('Imprint') }}</strong></a> |
                 @endif
                 @if ($website_settings->show_privacy)
-                    <a target="_blank" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
+                    <a target="_blank" rel="noopener noreferrer" href="{{ route('terms', 'privacy') }}"><strong>{{ __('Privacy') }}</strong></a>
                 @endif
                 @if ($website_settings->show_tos)
-                    | <a target="_blank"
+                    | <a target="_blank" rel="noopener noreferrer"
                         href="{{ route('terms', 'tos') }}"><strong>{{ __('Terms of Service') }}</strong></a>
                 @endif
             </div>

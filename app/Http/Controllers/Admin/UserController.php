@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\Roles;
 use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -49,11 +51,10 @@ class UserController extends Controller
     const LOGIN_PERMISSION = "admin.users.login_as";
 
 
-    private $pterodactyl;
+    private ?PterodactylClient $pterodactyl = null;
 
-    public function __construct(PterodactylSettings $ptero_settings)
+    public function __construct()
     {
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
 
     /**
@@ -179,11 +180,14 @@ class UserController extends Controller
         $permissions = array_filter($allConstants, fn($key) => str_starts_with($key, 'admin.users.write'));
         $this->checkAnyPermission($permissions);
 
-        $roles = Role::all();
+        $canChangeRole = $this->can(self::CHANGE_ROLE_PERMISSION) && $this->canManageUserRoles($user);
+        $roles = $canChangeRole ? $this->assignableRolesFor(Auth::user()) : collect();
+
         return view('admin.users.edit')->with([
             'user' => $user,
             'credits_display_name' => $general_settings->credits_display_name,
-            'roles' => $roles
+            'roles' => $roles,
+            'can_change_role' => $canChangeRole,
         ]);
     }
 
@@ -200,14 +204,14 @@ class UserController extends Controller
     {
         $this->checkAnyPermission([
             self::WRITE_PERMISSION,
-            self::CHANGE_EMAIL_PERMISSION,
-            self::CHANGE_CREDITS_PERMISSION,
             self::CHANGE_USERNAME_PERMISSION,
+            self::CHANGE_CREDITS_PERMISSION,
+            self::CHANGE_PTERO_PERMISSION,
+            self::CHANGE_REFERRAL_PERMISSION,
+            self::CHANGE_EMAIL_PERMISSION,
+            self::CHANGE_SERVERLIMIT_PERMISSION,
             self::CHANGE_PASSWORD_PERMISSION,
             self::CHANGE_ROLE_PERMISSION,
-            self::CHANGE_REFERRAL_PERMISSION,
-            self::CHANGE_PTERO_PERMISSION,
-            self::CHANGE_SERVERLIMIT_PERMISSION,
         ]);
 
         $data = $request->validate([
@@ -219,13 +223,40 @@ class UserController extends Controller
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
 
-        //update roles
-        if ($request->roles && $this->can(self::CHANGE_ROLE_PERMISSION)) {
-            $collectedRoles = collect($request->roles)->map(fn($val)=>(int)$val);
-            $user->syncRoles($collectedRoles);
+        $rolesToSync = null;
+        if ($request->filled('role_id') || $request->filled('roles')) {
+            if (! $this->can(self::CHANGE_ROLE_PERMISSION) || ! $this->canManageUserRoles($user)) {
+                abort(403, __('You are not allowed to change this user\'s role.'));
+            }
+
+            $rolesToSync = $this->requestedRoleIds($request);
+
+            if ($rolesToSync->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'role_id' => [__('Please select a valid role.')],
+                ]);
+            }
+
+            $requestedRoles = Role::query()
+                ->with('permissions')
+                ->whereIn('id', $rolesToSync)
+                ->get();
+
+            if ($requestedRoles->count() !== $rolesToSync->count()) {
+                throw ValidationException::withMessages([
+                    'role_id' => [__('Please select a valid role.')],
+                ]);
+            }
+
+            foreach ($requestedRoles as $role) {
+                if (! $this->canAssignRole(Auth::user(), $role)) {
+                    abort(403, __('You are not allowed to assign the selected role.'));
+                }
+            }
         }
 
-        if (isset($this->pterodactyl->getUser($request->input('pterodactyl_id'))['errors'])) {
+        $pterodactylId = (int) $request->input('pterodactyl_id');
+        if (isset($this->pterodactyl()->getUser($pterodactylId)['errors'])) {
             throw ValidationException::withMessages([
                 'pterodactyl_id' => [__("User does not exists on pterodactyl's panel")],
             ]);
@@ -257,6 +288,10 @@ class UserController extends Controller
             $dataArray['server_limit'] = $request->input('server_limit');
         }
 
+        $shouldSyncPterodactyl = $request->filled('new_password')
+            || array_key_exists('name', $dataArray)
+            || array_key_exists('email', $dataArray)
+            || array_key_exists('pterodactyl_id', $dataArray);
 
         // Update password separately with validation, if permission is granted
         if (!is_null($request->input('new_password')) && $this->canAny([self::CHANGE_PASSWORD_PERMISSION, self::WRITE_PERMISSION])) {
@@ -268,31 +303,128 @@ class UserController extends Controller
             $dataArray['password'] = Hash::make($request->input('new_password'));
         }
 
-        // Only update with the collected data
-        if (!empty($dataArray)) {
-            $user->update($dataArray);
+        try {
+            DB::transaction(function () use ($user, $rolesToSync, $dataArray, $shouldSyncPterodactyl, $request) {
+                if ($rolesToSync instanceof Collection) {
+                    $user->syncRoles($rolesToSync->all());
+                }
 
-            try {
-                $pteroData = array_filter([
-                    "email" => $user->email,
-                    "username" => $user->name,
-                    "first_name" => $user->name,
-                    "last_name" => $user->name,
-                    "language" => "en",
-                    "password" => $request->filled('new_password') ? $request->input('new_password') : null
-                ]);
+                if (!empty($dataArray)) {
+                    $user->update($dataArray);
+                }
 
-                $this->pterodactyl->updateUser($user->pterodactyl_id, $pteroData);
-            } catch (Exception $e) {
-                Log::error($e->getMessage());
+                if ($shouldSyncPterodactyl) {
+                    $pteroData = array_filter([
+                        "email" => $user->email,
+                        "username" => $user->name,
+                        "first_name" => $user->name,
+                        "last_name" => $user->name,
+                        "language" => "en",
+                        "password" => $request->filled('new_password') ? $request->input('new_password') : null
+                    ]);
 
-                return redirect()->back()->with('error', __('User updated, but failed to update on pterodactyl: ' . $e->getMessage()));
-            }
+                    $this->pterodactyl()->updateUser($user->pterodactyl_id, $pteroData);
+                }
+            });
+        } catch (Exception $e) {
+            Log::error('Failed to update user via admin panel.', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', __('Failed to update the user on Pterodactyl. The changes were not saved.'));
         }
 
         event(new UserUpdateCreditsEvent($user));
 
         return redirect()->route('admin.users.index')->with('success', 'User updated!');
+    }
+
+    private function pterodactyl(): PterodactylClient
+    {
+        if ($this->pterodactyl === null) {
+            $this->pterodactyl = new PterodactylClient(app(PterodactylSettings::class));
+        }
+
+        return $this->pterodactyl;
+    }
+
+    private function requestedRoleIds(Request $request): Collection
+    {
+        $requestedRoles = $request->input('role_id', $request->input('roles'));
+
+        if ($requestedRoles === null || $requestedRoles === '') {
+            return collect();
+        }
+
+        return collect(is_array($requestedRoles) ? $requestedRoles : [$requestedRoles])
+            ->filter(fn ($roleId) => $roleId !== null && $roleId !== '')
+            ->map(fn ($roleId) => (int) $roleId)
+            ->values();
+    }
+
+    private function assignableRolesFor(User $user): Collection
+    {
+        return Role::query()
+            ->with('permissions')
+            ->get()
+            ->filter(fn (Role $role) => $this->canAssignRole($user, $role))
+            ->sortByDesc('power')
+            ->values();
+    }
+
+    private function canManageUserRoles(User $user): bool
+    {
+        return $user->roles()
+            ->with('permissions')
+            ->get()
+            ->every(fn (Role $role) => $this->canAssignRole(Auth::user(), $role));
+    }
+
+    private function canAssignRole(User $actor, Role $role): bool
+    {
+        if ($actor->can('*') || $actor->hasRole('Admin')) {
+            return true;
+        }
+
+        if ($this->roleProvidesAdminAreaAccess($role)) {
+            return false;
+        }
+
+        return (int) ($role->power ?? 0) <= $this->highestRolePower($actor);
+    }
+
+    private function highestRolePower(User $user): int
+    {
+        return (int) ($user->roles()->max('power') ?? 0);
+    }
+
+    private function roleProvidesAdminAreaAccess(Role $role): bool
+    {
+        if ($role->id === Roles::ADMIN_ROLE_ID || $role->name === 'Admin') {
+            return true;
+        }
+
+        $permissions = $role->relationLoaded('permissions')
+            ? $role->permissions
+            : $role->permissions()->get();
+
+        return $permissions->pluck('name')->contains(
+            fn (string $permission) => $permission === '*'
+                || str_starts_with($permission, 'admin.')
+                || str_starts_with($permission, 'settings.')
+        );
+    }
+
+    private function userCanAccessAdminArea(User $user): bool
+    {
+        if ($user->can('*') || $user->hasRole('Admin')) {
+            return true;
+        }
+
+        return $user->getAllPermissions()
+            ->pluck('name')
+            ->contains(fn (string $permission) => str_starts_with($permission, 'admin.') || str_starts_with($permission, 'settings.'));
     }
 
     /**
@@ -305,7 +437,7 @@ class UserController extends Controller
     {
         $this->checkPermission(self::DELETE_PERMISSION);
 
-        if ($user->hasRole(1) && User::role(1)->count() === 1) {
+        if ($user->hasRole('Admin') && User::role('Admin')->count() === 1) {
             return redirect()->back()->with('error', __('You can not delete the last admin!'));
         }
 
@@ -322,9 +454,14 @@ class UserController extends Controller
      */
     public function verifyEmail(User $user)
     {
-        $this->checkPermission(self::WRITE_PERMISSION);
+        $this->checkAnyPermission([self::CHANGE_EMAIL_PERMISSION, self::WRITE_PERMISSION]);
 
         $user->verifyEmail();
+
+        activity()
+            ->performedOn($user)
+            ->causedBy(Auth::user())
+            ->log('verified email via admin panel');
 
         return redirect()->back()->with('success', __('Email has been verified!'));
     }
@@ -338,6 +475,10 @@ class UserController extends Controller
     {
         $this->checkPermission(self::LOGIN_PERMISSION);
 
+        if ($this->userCanAccessAdminArea($user)) {
+            abort(403, __('You cannot impersonate another administrative account.'));
+        }
+
         $request->session()->put('previousUser', Auth::user()->id);
         Auth::login($user);
 
@@ -350,10 +491,12 @@ class UserController extends Controller
      */
     public function logBackIn(Request $request)
     {
-        $this->checkPermission(self::LOGIN_PERMISSION);
+        $previousUserId = $request->session()->pull('previousUser');
+        if (empty($previousUserId)) {
+            abort(403, __('No impersonation session could be restored.'));
+        }
 
-        Auth::loginUsingId($request->session()->get('previousUser'), true);
-        $request->session()->remove('previousUser');
+        Auth::loginUsingId($previousUserId, true);
 
         return redirect()->route('admin.users.index');
     }
@@ -386,17 +529,23 @@ class UserController extends Controller
     {
         $this->checkPermission(self::NOTIFY_PERMISSION);
 
-//TODO: reimplement the required validation on all,users and roles . didnt work -- required_without:users,roles
         $data = $request->validate([
             'via' => 'required|min:1|array',
             'via.*' => 'required|string|in:mail,database',
             'all' => 'boolean',
             'users' => 'min:1|array',
+            'users.*' => 'integer|exists:users,id',
             'roles' => 'min:1|array',
             'roles.*' => 'required_without:all,users|exists:roles,id',
             'title' => 'required|string|min:1',
             'content' => 'required|string|min:1',
         ]);
+
+        if (! ($data['all'] ?? false) && empty($data['users']) && empty($data['roles'])) {
+            throw ValidationException::withMessages([
+                'users' => __('Please choose at least one recipient group or enable "all users".'),
+            ]);
+        }
 
         $mail = null;
         $database = null;
@@ -409,7 +558,7 @@ class UserController extends Controller
         if (in_array('mail', $data['via'])) {
             $mail = (new MailMessage)
                 ->subject($data['title'])
-                ->markdown('mail.custom', ['content' => $data['content']]);
+                ->line(strip_tags($data['content']));
         }
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
@@ -474,18 +623,28 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $this->checkPermission(self::READ_PERMISSION);
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
 
-        $query = User::with('discordUser')
+        $query = User::query()
+            ->with(['discordUser', 'roles'])
             ->withCount('servers')
-            ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-            ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->selectRaw('users.*, roles.name as role_name, (SELECT COUNT(*) FROM user_referrals WHERE user_referrals.referral_id = users.id) as referrals_count')
-            ->where('model_has_roles.model_type', User::class);
+            ->select('users.*')
+            ->addSelect([
+                'role_name' => Role::query()
+                    ->select('roles.name')
+                    ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+                    ->whereColumn('model_has_roles.model_id', 'users.id')
+                    ->where('model_has_roles.model_type', User::class)
+                    ->orderByDesc('roles.power')
+                    ->limit(1),
+                'referrals_count' => DB::table('user_referrals')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('user_referrals.referral_id', 'users.id'),
+            ]);
 
         return datatables($query)
             ->addColumn('avatar', function (User $user) {
-                return '<img width="28px" height="28px" class="ml-1 rounded-circle" src="' . $user->getAvatar() . '">';
+                return '<img width="28px" height="28px" class="ml-1 rounded-circle" src="' . e($user->getAvatar()) . '">';
             })
             ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
                 return '<i class="mr-2 fas fa-coins"></i> ' . $currencyHelper->formatForDisplay($user->credits);
@@ -500,28 +659,53 @@ class UserController extends Controller
                 $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
                 $suspendIcon = $user->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';
                 $suspendText = $user->isSuspended() ? __('Unsuspend') : __('Suspend');
+                $actions = [];
 
-                return '
-                <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-envelope"></i></a>
-                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
-                <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
-                <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
-                             ' . csrf_field() . '
-                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="fas ' . $suspendIcon . '"></i></button>
-                          </form>
-                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
-                             ' . csrf_field() . '
-                             ' . method_field('DELETE') . '
-                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                        </form>
-                ';
+                if (auth()->user()?->can(self::LOGIN_PERMISSION) && ! $this->userCanAccessAdminArea($user)) {
+                    $actions[] = '
+                    <form class="d-inline" method="post" action="' . route('admin.users.loginas', $user->id) . '">
+                                 ' . csrf_field() . '
+                                <button data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></button>
+                              </form>';
+                }
+
+                if (auth()->user()?->can(self::WRITE_PERMISSION)) {
+                    $actions[] = '
+                    <form class="d-inline" method="post" action="' . route('admin.users.verifyEmail', $user->id) . '">
+                                ' . csrf_field() . '
+                                <button data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-info"><i class="fas fa-envelope"></i></button>
+                              </form>
+                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::READ_PERMISSION)) {
+                    $actions[] = '<a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-eye"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::SUSPEND_PERMISSION)) {
+                    $actions[] = '
+                    <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
+                                ' . csrf_field() . '
+                                <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="fas ' . $suspendIcon . '"></i></button>
+                              </form>';
+                }
+
+                if (auth()->user()?->can(self::DELETE_PERMISSION)) {
+                    $actions[] = '
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
+                                ' . csrf_field() . '
+                                ' . method_field('DELETE') . '
+                                <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </form>';
+                }
+
+                return implode('', $actions);
             })
             ->editColumn('role', function (User $user) {
                 $html = '';
 
                 foreach ($user->roles as $role) {
-                    $html .= "<span style='background-color: $role->color' class='badge'>$role->name</span>";
+                    $html .= "<span style='background-color: " . e($role->color) . "' class='badge'>" . e($role->name) . "</span>";
                 }
 
                 return $html;
@@ -530,7 +714,10 @@ class UserController extends Controller
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');
             })
             ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
+                $url = e(rtrim($ptero_settings->panel_url, '/'));
+                $pteroId = (int) $user->pterodactyl_id;
+
+                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="' . $url . '/admin/users/view/' . $pteroId . '">' . e($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])

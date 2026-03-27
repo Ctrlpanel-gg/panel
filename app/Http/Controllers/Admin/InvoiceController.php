@@ -12,13 +12,17 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
+    private const VIEW_PERMISSION = 'admin.payments.read';
+
     public function downloadAllInvoices()
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
         $zip = new ZipArchive;
         $zip_save_path = storage_path('invoices.zip');
 
         if ($zip->open($zip_save_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            Log::error("Failed to create zip archive at path: " . $zipPath);
+            Log::error("Failed to create zip archive at path: " . $zip_save_path);
             return response()->json(['message' => 'Failed to create zip archive'], 500);
         }
 
@@ -45,6 +49,8 @@ class InvoiceController extends Controller
 
     public function downloadSingleInvoice(Request $request)
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
         $id = $request->input('id');
         try {
             $invoice = Invoice::where('payment_id', '=', $id)->firstOrFail();

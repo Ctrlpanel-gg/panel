@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Notifications\Auth\QueuedVerifyEmail;
-use App\Notifications\WelcomeMessage;
 use App\Classes\PterodactylClient;
 use App\Facades\Currency;
 use App\Settings\PterodactylSettings;
@@ -19,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
@@ -30,12 +30,12 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, LogsActivity, CausesActivity, HasRoles;
 
-    private PterodactylClient $pterodactyl;
+    private ?PterodactylClient $pterodactyl = null;
 
     /**
      * @var string[]
      */
-    protected static $logAttributes = ['name', 'email'];
+    protected static $logAttributes = ['name'];
 
     /**
      * @var string[]
@@ -95,54 +95,59 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_reward' => 'boolean'
     ];
 
-    public function __construct()
+    public function __construct(array $attributes = [])
     {
-        parent::__construct();
-
-        $ptero_settings = new PterodactylSettings();
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
+        parent::__construct($attributes);
     }
 
     public static function boot()
     {
         parent::boot();
 
-        static::created(function (User $user) {
-            $user->notify(new WelcomeMessage($user));
-        });
-
         static::deleting(function (User $user) {
+            DB::transaction(function () use ($user) {
+                foreach ($user->servers()->cursor() as $server) {
+                    $server->delete();
+                }
 
+                $user->payments()->delete();
+                $user->tickets()->delete();
+                $user->ticketBlackList()->delete();
+                $user->vouchers()->detach();
+                $user->discordUser()->delete();
 
-            // delete every server the user owns without using chunks
-            $user->servers()->each(function ($server) {
-                $server->delete();
+                $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();
+                foreach ($referralRecords as $ref) {
+                    DB::table('user_referrals')
+                        ->where('referral_id', $ref->referral_id)
+                        ->where('registered_user_id', $ref->registered_user_id)
+                        ->update([
+                            'deleted_at' => now(),
+                            'deleted_username' => $user->name,
+                            'deleted_user_id' => $user->id,
+                        ]);
+                }
+
+                if ($user->pterodactyl_id) {
+                    $response = $user->pterodactyl()->application->delete("/application/users/{$user->pterodactyl_id}");
+                    $status = (string) data_get($response->json(), 'errors.0.status', '');
+                    if ($response->failed() && $status !== '404') {
+                        throw new \RuntimeException(
+                            (string) data_get($response->json(), 'errors.0.detail', $response->body())
+                        );
+                    }
+                }
             });
-
-            $user->payments()->delete();
-
-            $user->tickets()->delete();
-
-            $user->ticketBlackList()->delete();
-
-            $user->vouchers()->detach();
-
-            $user->discordUser()->delete();
-
-            $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();
-            foreach ($referralRecords as $ref) {
-                DB::table('user_referrals')
-                    ->where('referral_id', $ref->referral_id)
-                    ->where('registered_user_id', $ref->registered_user_id)
-                    ->update([
-                        'deleted_at' => now(),
-                        'deleted_username' => $user->name,
-                        'deleted_user_id' => $user->id,
-                    ]);
-            }
-
-            $user->pterodactyl->application->delete("/application/users/{$user->pterodactyl_id}");
         });
+    }
+
+    private function pterodactyl(): PterodactylClient
+    {
+        if ($this->pterodactyl === null) {
+            $this->pterodactyl = new PterodactylClient(app(PterodactylSettings::class));
+        }
+
+        return $this->pterodactyl;
     }
 
     /**
@@ -170,6 +175,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function servers()
     {
         return $this->hasMany(Server::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function activeServers()
+    {
+        return $this->servers()
+            ->whereNull('canceled')
+            ->whereNull('suspended');
     }
 
     /**
@@ -220,12 +235,14 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(DiscordUser::class);
     }
 
-    public function sendEmailVerificationNotification()
+    public function sendEmailVerificationNotification(): bool
     {
         try {
+            $rateLimitKey = 'verify-mail:' . $this->id;
+
             // Rate limit the email verification notification to 5 attempt per 30 minutes
             $executed = RateLimiter::attempt(
-                key: 'verify-mail' . $this->id,
+                key: $rateLimitKey,
                 maxAttempts: 5,
                 callback: function () {
                     $this->notify(new QueuedVerifyEmail);
@@ -234,11 +251,14 @@ class User extends Authenticatable implements MustVerifyEmail
             );
 
             if (!$executed) {
-                return redirect()->back()->with('error', 'Too many requests. Try again in ' . RateLimiter::availableIn('verify-mail:' . $this->id) . ' seconds.');
+                return false;
             }
+
+            return true;
         }catch (\Exception $exception){
             Log::error($exception->getMessage());
-            return redirect()->back()->with('error', __("Something went wrong. Please try again later!"));
+
+            return false;
         }
     }
 
@@ -265,14 +285,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function unSuspend()
     {
-        foreach ($this->getServersWithProduct() as $server) {
-            if ($this->credits >= $server->product->getHourlyPrice()) {
+        $availableCredits = $this->credits;
+
+        foreach ($this->getSuspendedServersWithProduct() as $server) {
+            $hourlyPrice = $server->product->getHourlyPrice();
+            if ($availableCredits >= $hourlyPrice) {
                 $server->unSuspend();
+                $availableCredits -= $hourlyPrice;
             }
         }
 
         $this->update([
-            'suspended' => false,
+            'suspended' => $this->servers()->whereNotNull('suspended')->exists(),
         ]);
 
         return $this;
@@ -284,6 +308,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getAvatar()
     {
+        if (! empty($this->avatar)) {
+            return $this->avatar;
+        }
+
         return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email)));
     }
 
@@ -302,6 +330,15 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->servers()
             ->whereNull('suspended')
+            ->whereNull('canceled')
+            ->with('product')
+            ->get();
+    }
+
+    public function getSuspendedServersWithProduct()
+    {
+        return $this->servers()
+            ->whereNotNull('suspended')
             ->whereNull('canceled')
             ->with('product')
             ->get();
@@ -352,9 +389,26 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'email', 'credits', 'server_limit', 'suspended', 'referral_code'])
+            ->logOnly(['role', 'name', 'server_limit', 'pterodactyl_id', 'credits', 'server_limit', 'suspended', 'referral_code'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->dontLogIfAttributesChangedOnly(['credits', 'server_limit', 'updated_at']);
+    }
+
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        $properties = $activity->properties?->toArray() ?? [];
+
+        foreach (['attributes', 'old'] as $section) {
+            if (! isset($properties[$section]) || ! is_array($properties[$section])) {
+                continue;
+            }
+
+            if (array_key_exists('email', $properties[$section])) {
+                $properties[$section]['email'] = '[redacted]';
+            }
+        }
+
+        $activity->properties = $properties;
     }
 }

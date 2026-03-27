@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Helpers\CurrencyHelper;
+use App\Models\ApplicationApi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,21 +24,18 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        /** @var ApplicationApi|null $apiToken */
+        $apiToken = $request->attributes->get('apiToken');
+        $canViewSensitiveFields = ! $apiToken || $apiToken->hasAbility(ApplicationApi::ABILITY_USERS_SENSITIVE);
+
+        $data = [
             'id' => $this->id,
             'name' => $this->name,
-            'email' => $this->email,
             'credits' => $this->currencyHelper->convertForDisplay($this->credits),
             'server_limit' => $this->server_limit,
-            'pterodactyl_id' => $this->pterodactyl_id,
             'avatar' => $this->avatar,
-            'ip' => $this->ip,
             'suspended' => $this->suspended,
-            'referral_code' => $this->referral_code,
             'email_verified_reward' => $this->email_verified_reward,
-            'discord_verified_at' => $this->discord_verified_at,
-            'last_seen' => $this->last_seen,
-            'email_verified_at' => $this->email_verified_at,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
             'servers_count' => $this->whenCounted('servers'),
@@ -55,9 +53,24 @@ class UserResource extends JsonResource
             'roles_count' => $this->whenCounted('roles'),
             'roles_exists' => $this->whenExistsLoaded('roles'),
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
-            'discord_user' => DiscordUserResource::make($this->whenLoaded('discordUser')),
-            'discord_user_exists' => $this->whenExistsLoaded('discordUser'),
-            'discord_user_count' => $this->whenCounted('discordUser'),
         ];
+
+        if ($canViewSensitiveFields) {
+            $data['email'] = $this->email;
+            $data['pterodactyl_id'] = $this->pterodactyl_id;
+            $data['ip'] = $this->ip;
+            $data['referral_code'] = $this->referral_code;
+            $data['discord_verified_at'] = $this->discord_verified_at;
+            $data['last_seen'] = $this->last_seen;
+            $data['email_verified_at'] = $this->email_verified_at;
+            if ($this->relationLoaded('discordUser')) {
+                $data['discord_user'] = DiscordUserResource::make($this->discordUser);
+            }
+
+            $data['discord_user_exists'] = $this->whenExistsLoaded('discordUser');
+            $data['discord_user_count'] = $this->whenCounted('discordUser');
+        }
+
+        return $data;
     }
 }

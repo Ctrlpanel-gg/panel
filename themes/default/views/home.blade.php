@@ -30,7 +30,7 @@
 
     @if ($general_settings->alert_enabled && !empty($general_settings->alert_message))
         <div class="alert mt-4 alert-{{ $general_settings->alert_type }}" role="alert">
-            {!! $general_settings->alert_message !!}
+            {!! \App\Support\HtmlSanitizer::sanitizeRichText($general_settings->alert_message) !!}
         </div>
     @endif
 <!-- MAIN CONTENT -->
@@ -98,7 +98,7 @@
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            {!! $website_settings->motd_message !!}
+                            {!! \App\Support\HtmlSanitizer::sanitizeRichText($website_settings->motd_message) !!}
                         </div>
                         <!-- /.card-body -->
                     </div>
@@ -125,7 +125,7 @@
                                                 <i class="{{ $useful_link->icon }} mr-2"></i>{{ $useful_link->title }}
                                             </a>
                                         </h5>
-                                        {!! $useful_link->description !!}
+                                        {!! \App\Support\HtmlSanitizer::sanitizeRichText($useful_link->description) !!}
                                     </div>
                                 @endforeach
                             @else

@@ -34,6 +34,12 @@ class ValidateEggVariables implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        if (! array_key_exists('egg_id', $this->data)) {
+            $fail('The selected egg is invalid.');
+
+            return;
+        }
+
         $egg = DB::table('eggs')->where('id', $this->data['egg_id'])->first();
 
         if (!$egg) {
@@ -42,10 +48,21 @@ class ValidateEggVariables implements DataAwareRule, ValidationRule
             return;
         }
 
-        $environment = collect(json_decode($egg->environment, true));
+        $decodedEnvironment = json_decode($egg->environment, true);
+
+        if (! is_array($decodedEnvironment)) {
+            $fail('The selected egg has invalid environment metadata.');
+
+            return;
+        }
+
+        $environment = collect($decodedEnvironment);
 
         $environment = $environment->filter(function ($item) {
-            return str_contains($item['rules'], 'required') && empty($item['default_value']);
+            return is_array($item)
+                && isset($item['rules'], $item['env_variable'])
+                && str_contains((string) $item['rules'], 'required')
+                && empty($item['default_value']);
         });
 
         if (!$environment->isEmpty()) {

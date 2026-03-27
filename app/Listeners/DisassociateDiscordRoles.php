@@ -27,7 +27,11 @@ class DisassociateDiscordRoles implements ShouldQueue
     public function handle(ServerDeletedEvent $event): void
     {
         try {
-            if ($this->discordSettings->role_for_active_clients && $event->server->user->discordUser && $event->server->user->servers->count() <= 1) {
+            if (
+                $this->discordSettings->role_for_active_clients
+                && $event->server->user->discordUser
+                && ! $event->server->user->activeServers()->where('servers.id', '!=', $event->server->id)->exists()
+            ) {
                 $event->server->user->discordUser->addOrRemoveRole('remove', $this->discordSettings->role_id_for_active_clients);
             }
         } catch (Exception $e) {

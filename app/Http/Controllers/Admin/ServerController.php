@@ -96,8 +96,8 @@ class ServerController extends Controller
         ]);
 
         $request->validate([
-            'identifier' => 'required|string',
-            'user_id' => 'required|integer',
+            'identifier' => ['required', 'string', 'max:191'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
         ]);
 
 
@@ -118,13 +118,13 @@ class ServerController extends Controller
                         // remove the role from the old owner
                         $oldOwner = User::findOrFail($server->user_id);
                         $discordUser = $oldOwner->discordUser;
-                        if ($discordUser && $oldOwner->servers->count() <= 1) {
+                        if ($discordUser && ! $oldOwner->activeServers()->where('servers.id', '!=', $server->id)->exists()) {
                             $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                         }
 
                         // add the role to the new owner
                         $discordUser = $user->discordUser;
-                        if ($discordUser && $user->servers->count() >= 1) {
+                        if ($discordUser && is_null($server->canceled) && is_null($server->suspended)) {
                             $discordUser->addOrRemoveRole('add', $discord_settings->role_id_for_active_clients);
                         }
                     }
@@ -165,7 +165,7 @@ class ServerController extends Controller
                 if($discord_settings->role_for_active_clients) {
                     $user = User::findOrFail($server->user_id);
                     $discordUser = $user->discordUser;
-                    if($discordUser && $user->servers->count() <= 1) {
+                    if($discordUser && ! $user->activeServers()->where('servers.id', '!=', $server->id)->exists()) {
                         $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                     }
                 }
@@ -178,7 +178,12 @@ class ServerController extends Controller
 
             return redirect()->route('admin.servers.index')->with('success', __('Server removed'));
         } catch (Exception $e) {
-            return redirect()->route('admin.servers.index')->with('error', __('An exception has occurred while trying to remove a resource "') . $e->getMessage() . '"');
+            Log::warning('Failed to delete server from admin area.', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('admin.servers.index')->with('error', __('An exception has occurred while trying to remove this server.'));
         }
     }
 
@@ -195,9 +200,14 @@ class ServerController extends Controller
             $server->update([
                 'canceled' => now(),
             ]);
-            return redirect()->route('servers.index')->with('success', __('Server canceled'));
+            return redirect()->route('admin.servers.index')->with('success', __('Server canceled'));
         } catch (Exception $e) {
-            return redirect()->route('servers.index')->with('error', __('An exception has occurred while trying to cancel the server"') . $e->getMessage() . '"');
+            Log::warning('Failed to cancel server from admin area.', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->route('admin.servers.index')->with('error', __('An exception has occurred while trying to cancel the server.'));
         }
     }
 
@@ -294,9 +304,6 @@ class ServerController extends Controller
         }
         $query->select('servers.*');
 
-        Log::info($request->input('order'));
-
-
         return datatables($query)
             ->addColumn('user', function (Server $server) {
                 if ($server->user) {
@@ -312,11 +319,18 @@ class ServerController extends Controller
                 $suspendColor = $server->isSuspended() ? 'btn-success' : 'btn-warning';
                 $suspendIcon = $server->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';
                 $suspendText = $server->isSuspended() ? __('Unsuspend') : __('Suspend');
+                $actions = [];
 
-                return '
-                         <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.servers.edit', $server->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
+                if (auth()->user()?->can(self::WRITE_PERMISSION)
+                    || auth()->user()?->can(self::CHANGEOWNER_PERMISSION)
+                    || auth()->user()?->can(self::CHANGE_IDENTIFIER_PERMISSION)) {
+                    $actions[] = '<a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.servers.edit', $server->id) . '" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>';
+                }
+
+                if (auth()->user()?->can(self::SUSPEND_PERMISSION)) {
+                    $actions[] = '
                         <form class="d-inline" method="post" action="' . route('admin.servers.togglesuspend', $server->id) . '">
-                            ' . csrf_field() . '
+                        ' . csrf_field() . '
                         <button type="button"
                             class="btn btn-sm '.$suspendColor.' text-white mr-1 suspend-btn"
                             data-server-id="'. $server->id .'"
@@ -327,15 +341,21 @@ class ServerController extends Controller
                             data-placement="top">
                             <i class="far '.$suspendIcon .'"></i>
                         </button>
-                       </form>
+                        </form>
+                    ';
+                }
 
-                       <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
+                if (auth()->user()?->can(self::DELETE_PERMISSION)) {
+                    $actions[] = '
+                        <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
+                        ' . csrf_field() . '
+                        ' . method_field('DELETE') . '
+                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
+                        </form>
+                    ';
+                }
 
-                ';
+                return implode('', $actions);
             })
             ->addColumn('status', function (Server $server) {
                 $labelColor = $server->suspended ? 'text-danger' : 'text-success';
@@ -349,10 +369,10 @@ class ServerController extends Controller
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
             ->editColumn('name', function (Server $server, PterodactylSettings $ptero_settings) {
-            $url = e(rtrim($ptero_settings->panel_url, '/'));
-            $pteroId = (int) $server->pterodactyl_id;
+                $url = e(rtrim($ptero_settings->panel_url, '/'));
+                $pteroId = (int) $server->pterodactyl_id;
 
-            return '<a class="text-info" target="_blank" href="' . $url . '/admin/servers/view/' . $pteroId . '">' . e($server->name) . '</a>';
+                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="' . $url . '/admin/servers/view/' . $pteroId . '">' . e($server->name) . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();

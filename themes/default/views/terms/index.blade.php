@@ -11,7 +11,7 @@
           <div class="card">
               <div class="card-header">{{ $title }}</div>
               <div class="card-body">
-                  {!! $content !!}
+                  {!! \App\Support\HtmlSanitizer::sanitizeRichText($content) !!}
               </div>
           </div>
         </div>

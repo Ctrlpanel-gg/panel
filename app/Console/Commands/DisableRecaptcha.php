@@ -12,12 +12,11 @@ class DisableRecaptcha extends Command
     protected $signature = 'cp:recaptcha:toggle';
     protected $description = 'Toggle Recaptcha version between null, v2, and v3 and Cloudflare turnstile.';
 
-    protected GeneralSettings $settings;
+    protected ?GeneralSettings $settings = null;
 
-    public function __construct(GeneralSettings $settings)
+    public function __construct()
     {
         parent::__construct();
-        $this->settings = $settings;
     }
 
 
@@ -35,12 +34,13 @@ class DisableRecaptcha extends Command
     public function handle(): int
     {
         try {
-            $current = $this->settings->recaptcha_version;
+            $settings = $this->settings();
+            $current = $settings->recaptcha_version;
             $next = $this->getNextVersion($current);
 
 
-            $this->settings->recaptcha_version = $next;
-            $this->settings->save();
+            $settings->recaptcha_version = $next;
+            $settings->save();
 
             $this->info("Recaptcha version is now: " . ($next ?? 'disabled') . ". Run again to set it to " . ($this->getNextVersion($next) ?? 'disabled') . ".");
         } catch (Exception $e) {
@@ -49,5 +49,10 @@ class DisableRecaptcha extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function settings(): GeneralSettings
+    {
+        return $this->settings ??= app(GeneralSettings::class);
     }
 }

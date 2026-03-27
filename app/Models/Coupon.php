@@ -7,6 +7,7 @@ use App\Settings\CouponSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
@@ -16,6 +17,23 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 class Coupon extends Model
 {
     use HasFactory, LogsActivity, CausesActivity;
+
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        $properties = $activity->properties?->toArray() ?? [];
+
+        foreach (['attributes', 'old'] as $section) {
+            if (!isset($properties[$section]) || !is_array($properties[$section])) {
+                continue;
+            }
+
+            if (array_key_exists('code', $properties[$section])) {
+                $properties[$section]['code'] = '[redacted]';
+            }
+        }
+
+        $activity->properties = $properties;
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -122,8 +140,16 @@ class Coupon extends Model
     {
         $coupons = [];
 
-        for ($i = 0; $i < $amount; $i++) {
+        while (count($coupons) < $amount) {
             $random_coupon = strtoupper(bin2hex(random_bytes(3)));
+
+            if (in_array($random_coupon, $coupons, true)) {
+                continue;
+            }
+
+            if (self::query()->where('code', $random_coupon)->exists()) {
+                continue;
+            }
 
             $coupons[] = $random_coupon;
         }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -37,10 +38,15 @@ class PartnerDiscount extends Model
     {
         if ($partnerDiscount = PartnerDiscount::where('user_id', $user_id)->first()) {
             if ($partnerDiscount->referral_system_commission >= 0) {
-                return $partnerDiscount->referral_system_commission >= 0;
+                return $partnerDiscount->referral_system_commission;
             }
         }
 
         return $percentage;
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

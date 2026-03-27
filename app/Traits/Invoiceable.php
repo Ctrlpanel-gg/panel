@@ -9,6 +9,8 @@ use App\Models\ShopProduct;
 use App\Models\Invoice;
 use App\Notifications\InvoiceNotification;
 use App\Settings\InvoiceSettings;
+use App\Support\HtmlSanitizer;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use LaravelDaily\Invoices\Classes\Buyer;
 use LaravelDaily\Invoices\Classes\InvoiceItem;
@@ -21,10 +23,14 @@ trait Invoiceable
     public function createInvoice(Payment $payment, ShopProduct $shopProduct, InvoiceSettings $invoice_settings)
     {
         $user = $payment->user;
-        //create invoice
-        $lastInvoiceID = Invoice::where("invoice_name", "like", "%" . now()->format('mY') . "%")->count("id");
-        $newInvoiceID = $lastInvoiceID + 1;
         $logoPath = storage_path('app/public/logo.png');
+        $invoiceRecord = Invoice::create([
+            'invoice_user' => $user->id,
+            'invoice_name' => 'pending-' . now()->format('YmdHisu') . '-' . $payment->payment_id,
+            'payment_id' => $payment->payment_id,
+        ]);
+        $invoiceSerialNumber = sprintf('%s-%s%d', $invoice_settings->prefix, now()->format('mY'), $invoiceRecord->id);
+        $invoiceRecord->update(['invoice_name' => $invoiceSerialNumber]);
 
         $seller = new Party([
             'name' => $invoice_settings->company_name,
@@ -50,7 +56,7 @@ trait Invoiceable
 
         $notes = [
             __("Payment method") . ": " . $payment->payment_method,
-            $invoice_settings->additional_notes ? : "",
+            HtmlSanitizer::sanitizeRichText($invoice_settings->additional_notes) ?: "",
         ];
         $notes = implode("<br>", $notes);
 
@@ -66,7 +72,7 @@ trait Invoiceable
             ->status(__($payment->status->value))
             ->series(now()->format('mY'))
             ->delimiter("-")
-            ->sequence($newInvoiceID)
+            ->sequence($invoiceRecord->id)
             ->serialNumberFormat($invoice_settings->prefix . '{DELIMITER}{SERIES}{SEQUENCE}')
             ->currencyCode(strtoupper($payment->currency_code))
             ->currencySymbol(Currencies::getSymbol(strtoupper($payment->currency_code)))
@@ -77,15 +83,15 @@ trait Invoiceable
         }
 
         //Save the invoice in "storage\app\invoice\USER_ID\YEAR"
-        $invoice->filename = $invoice->getSerialNumber() . '.pdf';
-        $invoice->render();
-        Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
+        try {
+            $invoice->filename = $invoiceSerialNumber . '.pdf';
+            $invoice->render();
+            Storage::disk("local")->put("invoice/" . $user->id . "/" . now()->format('Y') . "/" . $invoice->filename, $invoice->output);
+        } catch (\Throwable $exception) {
+            $invoiceRecord->delete();
 
-        Invoice::create([
-            'invoice_user' => $user->id,
-            'invoice_name' => $invoice->getSerialNumber(),
-            'payment_id' => $payment->payment_id,
-        ]);
+            throw $exception;
+        }
 
         //Send Invoice per Mail
         $user->notify(new InvoiceNotification($invoice->filename, $user, $payment));
