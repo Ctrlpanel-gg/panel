@@ -145,11 +145,15 @@ class UserController extends Controller
      */
     public function json(Request $request)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $users = QueryBuilder::for(User::query())
             ->allowedFilters(['id', 'name', 'pterodactyl_id', 'email'])
             ->paginate(25);
 
         if ($request->query('user_id')) {
+            $request->validate(['user_id' => 'required|integer|exists:users,id']);
+
             $user = User::query()->findOrFail($request->input('user_id'));
             $user->avatarUrl = $user->getAvatar();
 
@@ -306,6 +310,8 @@ class UserController extends Controller
      */
     public function verifyEmail(User $user)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $user->verifyEmail();
 
         return redirect()->back()->with('success', __('Email has been verified!'));
@@ -455,6 +461,8 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $query = User::with('discordUser')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')

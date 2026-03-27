@@ -199,6 +199,8 @@ class PaymentController extends Controller
      */
     public function dataTable()
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
         $query = Payment::with('user');
 
         return datatables($query)

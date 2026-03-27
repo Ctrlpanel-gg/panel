@@ -186,6 +186,8 @@ class RoleController extends Controller
      */
     public function dataTable()
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $query = Role::query()->withCount(['users', 'permissions'])->get();
 
         return datatables($query)

@@ -121,6 +121,8 @@ class TicketsController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Ticket::leftJoin('ticket_categories', 'tickets.ticketcategory_id', '=', 'ticket_categories.id')
             ->select(['tickets.*', 'ticket_categories.name as category_name']);
 
@@ -257,6 +259,8 @@ class TicketsController extends Controller
 
     public function dataTableBlacklist()
     {
+        $this->checkAnyPermission([self::BLACKLIST_READ_PERMISSION, self::BLACKLIST_WRITE_PERMISSION]);
+
         $query = TicketBlacklist::with(['user']);
         $query->select('ticket_blacklists.*');
 
