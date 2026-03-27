@@ -208,7 +208,8 @@ class RoleController extends Controller
             })
 
             ->editColumn('name', function (Role $role) {
-                return "<span style='background-color: $role->color' class='badge'>$role->name</span>";
+                $color = preg_match('/^[a-zA-Z0-9#\s\-(),]+$/', $role->color) ? $role->color : '#ccc';
+                return "<span style='background-color: " . e($color) . "' class='badge'>" . e($role->name) . "</span>";
             })
             ->editColumn('users_count', function ($query) {
                 return $query->users_count;
