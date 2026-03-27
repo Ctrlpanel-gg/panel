@@ -6,6 +6,10 @@ error_reporting(E_ALL);
 
 session_start();
 
+if (file_exists('../../install.lock')) {
+    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
+}
+
 if (!file_exists('../../.env')) {
     echo shell_exec('cp ../../.env.example ../../.env');
 }

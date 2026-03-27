@@ -64,8 +64,10 @@ if (isset($_POST['checkSMTP'])) {
 
     foreach ($values as $key => $value) {
         wh_log("[MailSettings] Setting" . $key , 'debug');
+        $safeValue = escapeshellarg($value);
+
         try {
-            run_console("php artisan settings:set 'MailSettings' '$key' '$value'", null, null, null, false);
+            run_console("php artisan settings:set 'MailSettings' '$key' $safeValue", null, null, null, false);
         } catch (\Exception $e) {
             wh_log($e->getMessage(), 'error');
             send_error_message("Could not update the SMTP Settings in the Database");
