@@ -233,6 +233,8 @@ class ProductController extends Controller
      */
     public function dataTable()
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $query = Product::with(['servers']);
 
         return datatables($query)

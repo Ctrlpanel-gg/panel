@@ -144,6 +144,8 @@ class UsefulLinkController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = UsefulLink::query();
 
         return datatables($query)

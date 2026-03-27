@@ -235,6 +235,8 @@ class CouponController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::WRITE_PERMISSION,self::READ_PERMISSION]);
+
         $query = Coupon::selectRaw('
             coupons.*,
             CASE
