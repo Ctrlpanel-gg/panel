@@ -302,22 +302,6 @@ class PterodactylClient
         }
     }
 
-    /**
-     * Get a server by external_id on Pterodactyl.
-     *
-     * @param string $externalId
-     * @return \Illuminate\Http\Client\Response
-     * @throws Exception
-     */
-    public function getServerByExternalId(string $externalId)
-    {
-        try {
-            return $this->application->get("application/servers/external/{$externalId}");
-        } catch (Exception $e) {
-            throw self::getException('Failed to get server by external_id from pterodactyl - ' . $e->getMessage());
-        }
-    }
-
     public function suspendServer(Server $server)
     {
         try {
@@ -423,7 +407,7 @@ class PterodactylClient
      * @param  Server  $server
      * @param  Product  $product
      * @return Response
-     *
+     * 
      * @deprecated Use updateServerBuild instead.
      */
     public function updateServer(Server $server, Product $product)
@@ -450,7 +434,7 @@ class PterodactylClient
      *
      * @param  Server  $server
      * @return Response
-     *
+     * 
      * @throws Exception
      */
     public function updateServerBuild(string $pterodactylId, int $pterodactylAllocation, Product $product)
@@ -503,7 +487,7 @@ class PterodactylClient
      * @param  Server  $server
      * @param  array  $data
      * @return Response
-     *
+     * 
      * @throws HttpException
      * @throws Exception
      */
