@@ -155,6 +155,8 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product): RedirectResponse
     {
+        $this->checkPermission(self::EDIT_PERMISSION);
+
         $request->validate([
             'name' => 'required|max:30',
             'price' => 'required|numeric|max:1000000|min:0',

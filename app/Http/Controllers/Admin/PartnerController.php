@@ -45,6 +45,8 @@ class PartnerController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'user_id' => 'required|integer|min:0',
             'partner_discount' => 'required|integer|max:100|min:0',
@@ -86,6 +88,8 @@ class PartnerController extends Controller
      */
     public function update(Request $request, PartnerDiscount $partner)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         //dd($request);
         $request->validate([
             'user_id' => 'required|integer|min:0',

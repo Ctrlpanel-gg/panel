@@ -63,6 +63,8 @@ class ShopProductController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',
@@ -105,6 +107,8 @@ class ShopProductController extends Controller
      */
     public function update(Request $request, ShopProduct $shopProduct)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',

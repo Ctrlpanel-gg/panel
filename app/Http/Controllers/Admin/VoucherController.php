@@ -58,6 +58,8 @@ class VoucherController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
@@ -106,6 +108,8 @@ class VoucherController extends Controller
      */
     public function update(Request $request, Voucher $voucher)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",

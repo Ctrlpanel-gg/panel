@@ -51,6 +51,8 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $coupon_code = $request->input('code');
         $random_codes_amount = $request->input('range_codes');
         $rules = $this->requestRules($request);
@@ -129,6 +131,8 @@ class CouponController extends Controller
      */
     public function update(Request $request, Coupon $coupon)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $coupon_code = $request->input('code');
         $random_codes_amount = $request->input('range_codes');
         $rules = $this->requestRules($request);
