@@ -29,6 +29,14 @@ class ServerController extends Controller
     const CHANGEOWNER_PERMISSION = "admin.servers.write.owner";
     const CHANGE_IDENTIFIER_PERMISSION = "admin.servers.write.identifier";
     const DELETE_PERMISSION = "admin.servers.delete";
+    private const ANY_PERMISSION = [
+        self::READ_PERMISSION,
+        self::WRITE_PERMISSION,
+        self::SUSPEND_PERMISSION,
+        self::CHANGEOWNER_PERMISSION,
+        self::CHANGE_IDENTIFIER_PERMISSION,
+        self::DELETE_PERMISSION,
+    ];
     private $pterodactyl;
 
     public function __construct(PterodactylSettings $ptero_settings)
@@ -43,8 +51,7 @@ class ServerController extends Controller
      */
     public function index(LocaleSettings $locale_settings)
     {
-        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
-        $this->checkAnyPermission($allConstants);
+        $this->checkAnyPermission(self::ANY_PERMISSION);
 
         return view('admin.servers.index', [
             'locale_datatables' => $locale_settings->datatables
@@ -59,9 +66,11 @@ class ServerController extends Controller
      */
     public function edit(Server $server)
     {
-        $allConstants = (new \ReflectionClass(__CLASS__))->getConstants();
-        $permissions = array_filter($allConstants, fn($key) => str_starts_with($key, 'admin.servers.write'));
-        $this->checkAnyPermission($permissions);
+        $this->checkAnyPermission([
+            self::WRITE_PERMISSION,
+            self::CHANGEOWNER_PERMISSION,
+            self::CHANGE_IDENTIFIER_PERMISSION,
+        ]);
 
         // get all users from the database
         $users = User::all();
@@ -80,6 +89,12 @@ class ServerController extends Controller
      */
     public function update(Request $request, Server $server, DiscordSettings $discord_settings)
     {
+        $this->checkAnyPermission([
+            self::WRITE_PERMISSION,
+            self::CHANGEOWNER_PERMISSION,
+            self::CHANGE_IDENTIFIER_PERMISSION,
+        ]);
+
         $request->validate([
             'identifier' => 'required|string',
             'user_id' => 'required|integer',
@@ -175,6 +190,7 @@ class ServerController extends Controller
      */
     public function cancel(Server $server)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         try {
             $server->update([
                 'canceled' => now(),
@@ -219,6 +235,7 @@ class ServerController extends Controller
 
     public function syncServers()
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
         $CPServers = Server::get();
 
         $CPIDArray = [];
@@ -264,7 +281,7 @@ class ServerController extends Controller
      */
     public function dataTable(Request $request)
     {
-        $this->checkAnyPermission((new \ReflectionClass(__CLASS__))->getConstants());
+        $this->checkAnyPermission(self::ANY_PERMISSION);
 
         $query = Server::with(['user', 'product']);
 
@@ -282,10 +299,14 @@ class ServerController extends Controller
 
         return datatables($query)
             ->addColumn('user', function (Server $server) {
-                return '<a href="' . route('admin.users.show', $server->user->id) . '">' . $server->user->name . '</a>';
+                if ($server->user) {
+                    return '<a href="' . route('admin.users.show', $server->user->id) . '">' . e($server->user->name) . '</a>';
+                }
+
+                return __('Unknown user');
             })
             ->addColumn('resources', function (Server $server) {
-                return $server->product->name;
+                return $server->product ? e($server->product->name) : '';
             })
             ->addColumn('actions', function (Server $server) {
                 $suspendColor = $server->isSuspended() ? 'btn-success' : 'btn-warning';
@@ -328,7 +349,10 @@ class ServerController extends Controller
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
             ->editColumn('name', function (Server $server, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
+                $url = e($ptero_settings->panel_url);
+                $pteroId = e($server->pterodactyl_id);
+
+                return '<a class="text-info" target="_blank" href="' . $url . '/admin/servers/view/' . $pteroId . '">' . e(strip_tags($server->name)) . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();
