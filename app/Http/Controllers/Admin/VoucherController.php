@@ -197,6 +197,8 @@ class VoucherController extends Controller
 
     public function usersDataTable(Voucher $voucher)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $users = $voucher->users();
 
         return datatables($users)
@@ -215,6 +217,8 @@ class VoucherController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Voucher::selectRaw('
             vouchers.*,
             CASE

@@ -455,6 +455,8 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $query = User::with('discordUser')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')

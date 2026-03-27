@@ -264,6 +264,8 @@ class ServerController extends Controller
      */
     public function dataTable(Request $request)
     {
+        $this->checkAnyPermission((new \ReflectionClass(__CLASS__))->getConstants());
+
         $query = Server::with(['user', 'product']);
 
 

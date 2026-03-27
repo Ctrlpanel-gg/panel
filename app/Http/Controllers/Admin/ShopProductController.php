@@ -151,6 +151,8 @@ class ShopProductController extends Controller
 
     public function dataTable(Request $request)
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = ShopProduct::query();
 
 
