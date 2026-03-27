@@ -69,7 +69,7 @@ class AdminReplyNotification extends Notification implements ShouldQueue
     {
         $ticketId = e($this->ticket->ticket_id);
         $userName = e($this->user->name);
-        $sanitizedMessage = strip_tags($this->newmessage);
+        $sanitizedMessage = e($this->newmessage);
 
         return [
             'title' => '[Ticket ID: '.$ticketId.'] '.e($this->ticket->title),

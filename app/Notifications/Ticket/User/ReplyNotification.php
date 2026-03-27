@@ -68,7 +68,7 @@ class ReplyNotification extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         $ticketId = e($this->ticket->ticket_id);
-        $sanitizedMessage = strip_tags($this->newmessage);
+        $sanitizedMessage = e($this->newmessage);
 
         return [
             'title' => '[Ticket ID: '.$ticketId.'] '.e($this->ticket->title),

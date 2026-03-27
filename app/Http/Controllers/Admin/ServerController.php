@@ -326,7 +326,7 @@ class ServerController extends Controller
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
             ->editColumn('name', function (Server $server, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
+                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . e($server->name) . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();
