@@ -338,56 +338,77 @@ class UserController extends Controller
 
         $data = $request->validated();
         $this->ensureApiRoleIsAssignable((int) $data['role_id']);
-
-        DB::beginTransaction();
+        $remotePterodactylId = null;
 
         try {
-            $role_id = $data['role_id'];
-            unset($data['role_id']);
+            $user = DB::transaction(function () use ($data, $userSettings, &$remotePterodactylId) {
+                $roleId = $data['role_id'];
+                $createData = $data;
+                unset($createData['role_id']);
 
-            $user = User::create([
-                ...$data,
-                'credits' => isset($data['credits']) ? $this->currencyHelper->prepareForDatabase($data['credits']) : $userSettings->initial_credits,
-                'server_limit' => $data['server_limit'] ?? $userSettings->initial_server_limit,
-                'referral_code' => $this->createReferralCode(),
-            ]);
-
-            $user->syncRoles([$role_id]);
-
-            $this->incrementReferralUserCredits($user, $data);
-
-            $response = $this->pterodactyl()->application->post('/application/users', [
-                'external_id' => "0",
-                'username' => $data['name'],
-                'email' => $data['email'],
-                'first_name' => $data['name'],
-                'last_name' => $data['name'],
-                'password' => $data['password'],
-                'root_admin' => false,
-                'language' => 'en',
-            ]);
-
-            if ($response->failed()) {
-                logger()->warning('Failed to create user in Pterodactyl.', [
-                    'email_sha256' => $this->hashEmail($data['email']),
-                    'status' => $response->status(),
+                $user = User::create([
+                    ...$createData,
+                    'credits' => isset($createData['credits']) ? $this->currencyHelper->prepareForDatabase($createData['credits']) : $userSettings->initial_credits,
+                    'server_limit' => $createData['server_limit'] ?? $userSettings->initial_server_limit,
+                    'referral_code' => $this->createReferralCode(),
                 ]);
 
-                throw $this->pterodactylValidationException(__('Failed to create the user on Pterodactyl.'));
+                $user->syncRoles([$roleId]);
+
+                $response = $this->pterodactyl()->application->post('/application/users', [
+                    'external_id' => (string) $user->id,
+                    'username' => $createData['name'],
+                    'email' => $createData['email'],
+                    'first_name' => $createData['name'],
+                    'last_name' => $createData['name'],
+                    'password' => $createData['password'],
+                    'root_admin' => false,
+                    'language' => 'en',
+                ]);
+
+                if ($response->failed()) {
+                    logger()->warning('Failed to create user in Pterodactyl.', [
+                        'email_sha256' => $this->hashEmail($createData['email']),
+                        'status' => $response->status(),
+                    ]);
+
+                    throw $this->pterodactylValidationException(__('Failed to create the user on Pterodactyl.'));
+                }
+
+                $remotePterodactylId = data_get($response->json(), 'attributes.id');
+
+                if (! is_int($remotePterodactylId) && ! ctype_digit((string) $remotePterodactylId)) {
+                    throw $this->pterodactylValidationException(__('Failed to create the user on Pterodactyl.'));
+                }
+
+                $user->update([
+                    'pterodactyl_id' => (int) $remotePterodactylId,
+                ]);
+
+                $this->incrementReferralUserCredits($user, $createData);
+
+                DB::afterCommit(static function () use ($user): void {
+                    $user->sendEmailVerificationNotification();
+                });
+
+                activity()->performedOn($user)->log(sprintf('The user %s (ID: %d) was created via API', $user->name, $user->id));
+
+                return $user;
+            });
+
+            return UserResource::make($user->fresh());
+        } catch (Exception $e) {
+            if ($remotePterodactylId) {
+                try {
+                    $this->pterodactyl()->application->delete('/application/users/' . $remotePterodactylId);
+                } catch (Exception $cleanupException) {
+                    logger()->warning('Failed to clean up remote Pterodactyl user after API create failure.', [
+                        'pterodactyl_id' => $remotePterodactylId,
+                        'error' => $cleanupException->getMessage(),
+                    ]);
+                }
             }
 
-            $user->update([
-                'pterodactyl_id' => $response->json()['attributes']['id'],
-            ]);
-
-            $user->sendEmailVerificationNotification();
-            activity()->performedOn($user)->log(sprintf('The user %s (ID: %d) was created via API', $user->name, $user->id));
-
-            DB::commit();
-
-            return UserResource::make($user);
-        } catch (Exception $e) {
-            DB::rollBack();
             if ($e instanceof ValidationException) {
                 throw $e;
             }
@@ -438,24 +459,45 @@ class UserController extends Controller
      */
     private function incrementReferralUserCredits(User $user, mixed $data)
     {
-        if (!isset($data['referral_code'])) return;
+        if (!isset($data['referral_code'])) {
+            return;
+        }
 
-        $ref_code = $data['referral_code'];
-        $ref_user = User::query()->where('referral_code', $ref_code)->first();
+        $refCode = (string) $data['referral_code'];
 
-        if ($ref_user) {
-            if ($this->referralSettings->mode == 'sign-up' || $this->referralSettings->mode == 'both') {
-                $ref_user->increment('credits', $this->referralSettings->reward);
-                $ref_user->notify(new ReferralNotification($user));
+        DB::transaction(function () use ($user, $refCode): void {
+            $refUser = User::query()
+                ->where('referral_code', $refCode)
+                ->lockForUpdate()
+                ->first();
+
+            if ($refUser === null || $refUser->id === $user->id) {
+                return;
+            }
+
+            $alreadyLinked = DB::table('user_referrals')
+                ->where('registered_user_id', $user->id)
+                ->exists();
+
+            if ($alreadyLinked) {
+                return;
             }
 
             DB::table('user_referrals')->insert([
-                'referral_id' => $ref_user->id,
+                'referral_id' => $refUser->id,
                 'registered_user_id' => $user->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
-        }
+
+            if ($this->referralSettings->mode === 'sign-up' || $this->referralSettings->mode === 'both') {
+                $refUser->increment('credits', $this->referralSettings->reward);
+
+                DB::afterCommit(static function () use ($refUser, $user): void {
+                    $refUser->notify(new ReferralNotification($user));
+                });
+            }
+        });
     }
 
     private function pterodactyl(): PterodactylClient

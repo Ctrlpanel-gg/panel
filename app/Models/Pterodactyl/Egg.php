@@ -50,25 +50,36 @@ class Egg extends Model
             foreach ($eggs as $egg) {
                 $array = [];
                 $environment = [];
+                $eggAttributes = data_get($egg, 'attributes');
 
-                $array['id'] = $egg['attributes']['id'];
-                $array['nest_id'] = $egg['attributes']['nest'];
-                $array['name'] = $egg['attributes']['name'];
-                $array['description'] = $egg['attributes']['description'];
-                $array['docker_image'] = $egg['attributes']['docker_image'];
-                $array['startup'] = $egg['attributes']['startup'];
+                if (! is_array($eggAttributes)) {
+                    continue;
+                }
+
+                $array['id'] = $eggAttributes['id'];
+                $array['nest_id'] = $eggAttributes['nest'];
+                $array['name'] = $eggAttributes['name'];
+                $array['description'] = $eggAttributes['description'];
+                $array['docker_image'] = $eggAttributes['docker_image'];
+                $array['startup'] = $eggAttributes['startup'];
                 $array['updated_at'] = now();
 
                 //get environment variables
-                foreach ($egg['attributes']['relationships']['variables']['data'] as $variable) {
+                foreach ((array) data_get($eggAttributes, 'relationships.variables.data', []) as $variable) {
+                    $variableAttributes = data_get($variable, 'attributes');
+
+                    if (! is_array($variableAttributes)) {
+                        continue;
+                    }
+
                     $environment[] = [
-                        'name' => $variable['attributes']['name'],
-                        'description' => $variable['attributes']['description'],
-                        'default_value' => $variable['attributes']['default_value'],
-                        'env_variable' => $variable['attributes']['env_variable'],
-                        'user_viewable' => $variable['attributes']['user_viewable'],
-                        'user_editable' => $variable['attributes']['user_editable'],
-                        'rules' => $variable['attributes']['rules'],
+                        'name' => $variableAttributes['name'],
+                        'description' => $variableAttributes['description'],
+                        'default_value' => $variableAttributes['default_value'],
+                        'env_variable' => $variableAttributes['env_variable'],
+                        'user_viewable' => $variableAttributes['user_viewable'],
+                        'user_editable' => $variableAttributes['user_editable'],
+                        'rules' => $variableAttributes['rules'],
                     ];
                 }
 

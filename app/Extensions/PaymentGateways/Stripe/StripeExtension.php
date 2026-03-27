@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\URL;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Stripe;
 use Stripe\StripeClient;
@@ -83,7 +84,7 @@ class StripeExtension extends PaymentExtension
             ],
 
             'mode' => 'payment',
-            'success_url' => route('payment.StripeSuccess', ['payment' => $payment->id]) . '&session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => URL::temporarySignedRoute('payment.StripeSuccess', now()->addDay(), ['payment' => $payment->id]) . '&session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.Cancel'),
             'payment_intent_data' => [
                 'metadata' => [
@@ -100,8 +101,10 @@ class StripeExtension extends PaymentExtension
      */
     public static function StripeSuccess(Request $request): RedirectResponse
     {
-        $user = Auth::user();
-        $user = User::findOrFail($user->id);
+        if (! $request->hasValidSignatureWhileIgnoring(['session_id'])) {
+            abort(403);
+        }
+
         $payment = Payment::findOrFail($request->input('payment'));
         if ($payment->payment_method !== 'Stripe') {
             abort(403);
@@ -110,14 +113,18 @@ class StripeExtension extends PaymentExtension
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
         $paymentOwner = User::findOrFail($payment->user_id);
 
-        if ($payment->user_id !== $user->id) {
-            abort(403);
+        $sessionId = (string) $request->input('session_id', '');
+        if ($sessionId === '') {
+            return Redirect::route(self::getCallbackRedirectRoute())->with(
+                'error',
+                __('We could not confirm your Stripe payment because the callback was incomplete.')
+            );
         }
 
         $stripeClient = self::getStripeClient();
         try {
             //get stripe data
-            $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
+            $paymentSession = $stripeClient->checkout->sessions->retrieve($sessionId);
             $paymentIntent = $stripeClient->paymentIntents->retrieve($paymentSession->payment_intent);
 
             self::assertStripePaymentMatches($payment, $paymentIntent);
@@ -137,7 +144,7 @@ class StripeExtension extends PaymentExtension
                     event(new PaymentEvent($paymentOwner, $payment, $shopProduct));
                 }
 
-                return Redirect::route('home')->with('success', 'Payment successful');
+                return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Payment successful');
             }
 
             if ($paymentIntent->status == 'processing') {
@@ -152,29 +159,34 @@ class StripeExtension extends PaymentExtension
                     $payment = $payment->fresh();
                     event(new PaymentEvent($paymentOwner, $payment, $shopProduct));
 
-                    return Redirect::route('home')->with('success', 'Your payment is being processed');
+                    return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Your payment is being processed');
                 }
 
-                return Redirect::route('home')->with('success', 'Payment successful');
+                return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Payment successful');
             }
 
             $freshPayment = $payment->fresh();
             if ($freshPayment->status === PaymentStatus::PAID) {
-                return Redirect::route('home')->with('success', 'Payment successful');
+                return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Payment successful');
             }
 
             if ($paymentIntent->status != 'processing') {
                 $stripeClient->paymentIntents->cancel($paymentIntent->id);
 
                 //redirect back to home
-                return Redirect::route('home')->with('info', __('Your payment has been canceled!'));
+                return Redirect::route(self::getCallbackRedirectRoute())->with('info', __('Your payment has been canceled!'));
             }
         } catch (Exception $e) {
-            if (config('app.env') == 'local') {
-                dd($e->getMessage());
-            } else {
-                abort(422);
-            }
+            Log::error('Stripe success callback failed.', [
+                'payment_id' => $payment->id,
+                'session_id' => $sessionId,
+                'message' => $e->getMessage(),
+            ]);
+
+            return Redirect::route(self::getCallbackRedirectRoute())->with(
+                'error',
+                __('We could not confirm your Stripe payment. If you were charged, please contact support.')
+            );
         }
     }
 
@@ -270,7 +282,7 @@ class StripeExtension extends PaymentExtension
     {
         $settings = new StripeSettings();
 
-        return config('app.env') == 'local'
+        return self::getStripeMode() === 'test'
             ? $settings->test_secret_key
             : $settings->secret_key;
     }
@@ -281,9 +293,21 @@ class StripeExtension extends PaymentExtension
     public static function getStripeEndpointSecret()
     {
         $settings = new StripeSettings();
-        return env('APP_ENV') == 'local'
+        return self::getStripeMode() === 'test'
             ? $settings->test_endpoint_secret
             : $settings->endpoint_secret;
+    }
+
+    private static function getStripeMode(): string
+    {
+        $settings = new StripeSettings();
+
+        return $settings->mode === 'test' ? 'test' : 'live';
+    }
+
+    private static function getCallbackRedirectRoute(): string
+    {
+        return Auth::check() ? 'home' : 'login';
     }
     /**
      * @param  $amount

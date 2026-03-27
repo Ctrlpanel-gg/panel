@@ -3,7 +3,7 @@
     when You use the Service and tells You about Your privacy rights and how the law protects You.</p>
 <p>We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and
     use of information in accordance with this Privacy Policy. This Privacy Policy has been created with the help of the
-    <a href="https://www.freeprivacypolicy.com/free-privacy-policy-generator/" target="_blank">Free Privacy Policy
+    <a href="https://www.freeprivacypolicy.com/free-privacy-policy-generator/" target="_blank" rel="noopener noreferrer">Free Privacy Policy
         Generator</a>.</p>
 <h1>Interpretation and Definitions</h1>
 <h2>Interpretation</h2>
@@ -100,7 +100,7 @@
     computer or mobile device when You go offline, while Session Cookies are deleted as soon as You close Your web
     browser. Learn more about cookies on the <a
         href="https://www.freeprivacypolicy.com/blog/sample-privacy-policy-template/#Use_Of_Cookies_And_Tracking"
-        target="_blank">Free Privacy Policy website</a> article.</p>
+        target="_blank" rel="noopener noreferrer">Free Privacy Policy website</a> article.</p>
 <p>We use both Session and Persistent Cookies for the purposes set out below:</p>
 <ul>
     <li>

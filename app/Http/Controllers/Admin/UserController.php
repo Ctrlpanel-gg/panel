@@ -435,7 +435,7 @@ class UserController extends Controller
     {
         $this->checkPermission(self::DELETE_PERMISSION);
 
-        if ($user->hasRole(1) && User::role(1)->count() === 1) {
+        if ($user->hasRole('Admin') && User::role('Admin')->count() === 1) {
             return redirect()->back()->with('error', __('You can not delete the last admin!'));
         }
 
@@ -712,7 +712,7 @@ class UserController extends Controller
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');
             })
             ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . e($ptero_settings->panel_url) . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
+                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="' . e($ptero_settings->panel_url) . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])

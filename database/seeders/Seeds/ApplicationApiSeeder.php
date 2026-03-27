@@ -14,8 +14,8 @@ class ApplicationApiSeeder extends Seeder
      */
     public function run()
     {
-        ApplicationApi::create([
-            'memo' => 'admin',
-        ]);
+        [, $plainTextToken] = ApplicationApi::issue(null, 'admin', ['*']);
+
+        $this->command?->info("Created example application API token: {$plainTextToken}");
     }
 }

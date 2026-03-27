@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Constants\Roles;
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use App\Traits\Referral;
@@ -16,11 +18,11 @@ use App\Settings\WebsiteSettings;
 use App\Actions\ProcessReferralAction;
 use Coderflex\LaravelTurnstile\Rules\TurnstileCheck;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
 {
@@ -126,47 +128,88 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $response = $this->pterodactylClient->application->post('/application/users', [
-            'external_id' => null,
-            'username' => $data['name'],
-            'email' => $data['email'],
-            'first_name' => $data['name'],
-            'last_name' => $data['name'],
-            'password' => $data['password'],
-            'root_admin' => false,
-            'language' => 'en',
-        ]);
-        
-        if ($response->failed()) {
-            Log::error('Pterodactyl Registration Error: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error'));
+        $remotePterodactylId = null;
+
+        try {
+            return DB::transaction(function () use ($data, &$remotePterodactylId): User {
+                $user = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'credits' => $this->userSettings->initial_credits,
+                    'server_limit' => $this->userSettings->initial_server_limit,
+                    'password' => Hash::make($data['password']),
+                    'referral_code' => $this->createReferralCode(),
+                ]);
+
+                $response = $this->pterodactylClient->application->post('/application/users', [
+                    'external_id' => (string) $user->id,
+                    'username' => $data['name'],
+                    'email' => $data['email'],
+                    'first_name' => $data['name'],
+                    'last_name' => $data['name'],
+                    'password' => $data['password'],
+                    'root_admin' => false,
+                    'language' => 'en',
+                ]);
+
+                if ($response->failed()) {
+                    Log::error('Pterodactyl Registration Error: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error'));
+
+                    throw ValidationException::withMessages([
+                        'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
+                    ]);
+                }
+
+                $remotePterodactylId = data_get($response->json(), 'attributes.id');
+
+                if (! is_int($remotePterodactylId) && ! ctype_digit((string) $remotePterodactylId)) {
+                    Log::error('Pterodactyl Registration Error: Missing user ID in response');
+
+                    throw ValidationException::withMessages([
+                        'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
+                    ]);
+                }
+
+                $user->update([
+                    'pterodactyl_id' => (int) $remotePterodactylId,
+                ]);
+
+                $clientRole = Role::query()
+                    ->where('name', 'Client')
+                    ->orWhere('id', Roles::CLIENT_ROLE_ID)
+                    ->firstOrFail();
+
+                $user->syncRoles($clientRole);
+
+                if (! empty($data['referral_code'])) {
+                    $this->processReferralAction->execute($user, $data['referral_code'], true);
+                }
+
+                return $user;
+            });
+        } catch (\Throwable $exception) {
+            if ($remotePterodactylId) {
+                try {
+                    $this->pterodactylClient->application->delete('/application/users/' . $remotePterodactylId);
+                } catch (\Throwable $cleanupException) {
+                    Log::warning('Failed to roll back remote Pterodactyl user after registration error.', [
+                        'pterodactyl_id' => $remotePterodactylId,
+                        'error' => $cleanupException->getMessage(),
+                    ]);
+                }
+            }
+
+            if ($exception instanceof ValidationException) {
+                throw $exception;
+            }
+
+            Log::error('Registration failed unexpectedly', [
+                'error' => $exception->getMessage(),
+            ]);
+
             throw ValidationException::withMessages([
                 'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
             ]);
         }
-
-        if (!isset($response->json()['attributes']['id'])) {
-            Log::error('Pterodactyl Registration Error: Missing user ID in response');
-            throw ValidationException::withMessages([
-                'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
-            ]);
-        }
-
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'credits' => $this->userSettings->initial_credits,
-            'server_limit' => $this->userSettings->initial_server_limit,
-            'password' => Hash::make($data['password']),
-            'referral_code' => $this->createReferralCode(),
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-        ]);
-
-        $user->syncRoles(Role::findById(4));
-
-        if (!empty($data['referral_code'])) {
-            $this->processReferralAction->execute($user, $data['referral_code'], true);
-        }
-
-        return $user;
     }
 }

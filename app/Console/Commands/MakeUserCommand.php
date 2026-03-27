@@ -66,7 +66,7 @@ class MakeUserCommand extends Command
         if ($validator->fails()) {
             $this->error($validator->errors()->first());
 
-            return 0;
+            return Command::FAILURE;
         }
 
         //TODO: Do something with response (check for status code and give hints based upon that)
@@ -83,14 +83,14 @@ class MakeUserCommand extends Command
                 $this->error("detail: {$response['errors'][0]['detail']}");
             }
 
-            return 0;
+            return Command::FAILURE;
         }
 
         foreach (['id', 'email', 'first_name'] as $requiredKey) {
             if (! array_key_exists($requiredKey, $response) || blank($response[$requiredKey])) {
                 $this->error("Invalid response from Pterodactyl: missing {$requiredKey}.");
 
-                return 0;
+                return Command::FAILURE;
             }
         }
 
@@ -100,7 +100,7 @@ class MakeUserCommand extends Command
 
         if ($exists) {
             $this->error('A user with this email or Pterodactyl ID already exists.');
-            return 0;
+            return Command::FAILURE;
         }
 
         $user = User::create([
@@ -129,11 +129,11 @@ class MakeUserCommand extends Command
         if (! $adminRole) {
             $this->error('Admin role not found. Please seed roles and permissions first.');
 
-            return 0;
+            return Command::FAILURE;
         }
 
         $user->syncRoles($adminRole);
 
-        return 1;
+        return Command::SUCCESS;
     }
 }

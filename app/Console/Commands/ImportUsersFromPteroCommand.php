@@ -3,10 +3,13 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use JsonException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class ImportUsersFromPteroCommand extends Command
 {
@@ -27,7 +30,7 @@ class ImportUsersFromPteroCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Import users from a Pterodactyl export payload';
 
     /**
      * Create a new command instance.
@@ -42,7 +45,7 @@ class ImportUsersFromPteroCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return bool
+     * @return int
      */
     public function handle()
     {
@@ -51,20 +54,22 @@ class ImportUsersFromPteroCommand extends Command
         if (! Storage::disk('local')->exists('users.json')) {
             $this->error('[ERROR] '.storage_path('app').'/'.$this->importFileName.' is missing');
 
-            return false;
+            return Command::FAILURE;
         }
 
-        //check if json file is valid
-        $json = json_decode(Storage::disk('local')->get('users.json'));
-        if (! array_key_exists(2, $json)) {
-            $this->error('[ERROR] Invalid json file');
+        try {
+            $json = json_decode(Storage::disk('local')->get('users.json'), false, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            $this->error('[ERROR] Invalid json file: ' . $exception->getMessage());
 
-            return false;
+            return Command::FAILURE;
         }
-        if (! $json[2]->data) {
+
+        $users = $this->extractUsersFromPayload($json);
+        if ($users === []) {
             $this->error('[ERROR] Invalid json file / No users found!');
 
-            return false;
+            return Command::FAILURE;
         }
 
         //ask questions :)
@@ -76,28 +81,28 @@ class ImportUsersFromPteroCommand extends Command
         if ($confirm !== 'y') {
             $this->error('[ERROR] Stopped import script!');
 
-            return false;
+            return Command::INVALID;
         }
 
-        $validationErrors = $this->validateImportPayload($json, $initial_credits, $initial_server_limit);
+        $validationErrors = $this->validateImportPayload($users, $initial_credits, $initial_server_limit);
         if ($validationErrors !== []) {
             foreach ($validationErrors as $error) {
                 $this->error('[ERROR] ' . $error);
             }
 
-            return false;
+            return Command::FAILURE;
         }
 
         if (User::query()->exists()) {
             $this->error('[ERROR] Import aborted. The database already contains users, and this command no longer deletes existing accounts automatically.');
 
-            return false;
+            return Command::FAILURE;
         }
 
         //import users
-        $this->importUsingJsonFile($json, $initial_credits, $initial_server_limit);
+        $this->importUsingJsonFile($users, $initial_credits, $initial_server_limit);
 
-        return true;
+        return Command::SUCCESS;
     }
 
     /**
@@ -106,23 +111,26 @@ class ImportUsersFromPteroCommand extends Command
      * @param $initial_server_limit
      * @return void
      */
-    private function importUsingJsonFile($json, $initial_credits, $initial_server_limit)
+    private function importUsingJsonFile(array $users, $initial_credits, $initial_server_limit)
     {
-        DB::transaction(function () use ($json, $initial_credits, $initial_server_limit) {
-            $this->withProgressBar($json[2]->data, function ($user) use ($initial_server_limit, $initial_credits) {
-                $role = $user->root_admin == '0' ? 'member' : 'admin';
-
-                User::create([
+        DB::transaction(function () use ($users, $initial_credits, $initial_server_limit) {
+            $this->withProgressBar($users, function ($user) use ($initial_server_limit, $initial_credits) {
+                $importedUser = User::create([
                     'pterodactyl_id' => $user->id,
                     'name' => $user->name_first,
                     'email' => $user->email,
                     'password' => $user->password,
-                    'role' => $role,
                     'credits' => $initial_credits,
                     'server_limit' => $initial_server_limit,
                     'created_at' => $user->created_at,
                     'updated_at' => $user->updated_at,
                 ]);
+
+                $roleName = $user->root_admin == '0' ? 'User' : 'Admin';
+                $role = Role::query()->where('name', $roleName)->first();
+                if ($role) {
+                    $importedUser->syncRoles($role);
+                }
             });
         });
 
@@ -131,13 +139,13 @@ class ImportUsersFromPteroCommand extends Command
         $this->newLine();
     }
 
-    private function validateImportPayload($json, $initial_credits, $initial_server_limit): array
+    private function validateImportPayload(array $users, $initial_credits, $initial_server_limit): array
     {
         $errors = [];
         $seenEmails = [];
         $seenPterodactylIds = [];
 
-        foreach ($json[2]->data as $index => $user) {
+        foreach ($users as $index => $user) {
             $validator = Validator::make((array) $user, [
                 'id' => 'required|integer',
                 'email' => 'required|email',
@@ -160,6 +168,10 @@ class ImportUsersFromPteroCommand extends Command
                 $errors[] = "Row {$index}: duplicate pterodactyl id {$user->id}";
             }
 
+            if (password_get_info($user->password)['algo'] === null) {
+                $errors[] = "Row {$index}: password is not a supported password hash.";
+            }
+
             $seenEmails[] = $user->email;
             $seenPterodactylIds[] = $user->id;
         }
@@ -169,5 +181,22 @@ class ImportUsersFromPteroCommand extends Command
         }
 
         return $errors;
+    }
+
+    private function extractUsersFromPayload(mixed $payload): array
+    {
+        if (is_array($payload) && isset($payload[2]->data) && is_array($payload[2]->data)) {
+            return $payload[2]->data;
+        }
+
+        if (is_object($payload) && isset($payload->data) && is_array($payload->data)) {
+            return $payload->data;
+        }
+
+        if (is_object($payload) && isset($payload->users) && is_array($payload->users)) {
+            return $payload->users;
+        }
+
+        return [];
     }
 }

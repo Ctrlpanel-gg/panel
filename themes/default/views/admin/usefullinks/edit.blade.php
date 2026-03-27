@@ -44,7 +44,7 @@
                                            class="form-control @error('icon') is-invalid @enderror"
                                            required="required">
                                     <div class="text-muted">
-                                        {{__('You can find available free icons')}} <a target="_blank"
+                                        {{__('You can find available free icons')}} <a target="_blank" rel="noopener noreferrer"
                                                                                        href="https://fontawesome.com/v5.15/icons?d=gallery&p=2">here</a>
                                     </div>
                                     @error('icon')

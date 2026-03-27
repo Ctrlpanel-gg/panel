@@ -30,9 +30,11 @@ class ApiAuthToken
             return response()->json(['message' => 'Expired or revoked Authorization token'], 401);
         }
 
-        $token->updateLastUsed();
         $request->attributes->set('apiToken', $token);
 
-        return $next($request);
+        $response = $next($request);
+        $token->updateLastUsed();
+
+        return $response;
     }
 }

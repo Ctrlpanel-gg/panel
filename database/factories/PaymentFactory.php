@@ -17,14 +17,17 @@ class PaymentFactory extends Factory
     {
         return [
             'payment_id' => Str::random(30),
-            'payer_id' => Str::random(30),
             'user_id' => User::factory(),
+            'payment_method' => 'Stripe',
             'type' => 'Credits',
-            'status' => 'Completed',
+            'status' => \App\Enums\PaymentStatus::PAID->value,
             'amount' => $this->faker->numberBetween(10, 10000),
-            'price' => $this->faker->numerify('##.##'),
+            'price' => $this->faker->numberBetween(100, 10000),
+            'tax_value' => 0,
+            'tax_percent' => 0,
+            'total_price' => $this->faker->numberBetween(100, 10000),
             'currency_code' => ['EUR', 'USD'][rand(0, 1)],
-            'payer' => '{}',
+            'shop_item_product_id' => null,
         ];
     }
 }

@@ -12,7 +12,6 @@
         "ext-curl": "*",
         "ext-intl": "*",
         "ext-mysqli": "*",
-        "biscolab/laravel-recaptcha": "^6.1",
         "coderflex/laravel-turnstile": "^2.1",
         "doctrine/dbal": "^4.0.4",
         "guzzlehttp/guzzle": "^7.5",
@@ -24,8 +23,7 @@
         "laravel/ui": "^4.5.2",
         "laraveldaily/laravel-invoices": "^4.0.0",
         "league/flysystem-aws-s3-v3": "^3.28.0",
-        "paypal/paypal-checkout-sdk": "^1.0.2",
-        "predis/predis": "*",
+        "predis/predis": "^2.3",
         "qirolab/laravel-themer": "^2.3.3",
         "socialiteproviders/discord": "^4.1.2",
         "spatie/laravel-activitylog": "^4.9",
@@ -56,19 +54,15 @@
             "php": "8.2"
         }
     },
-    "extra": {
-        "laravel": {
-            "dont-discover": [
-                "biscolab/laravel-recaptcha"
-            ]
-        }
-    },
     "autoload": {
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
+        "files": [
+            "app/Support/helpers.php"
+        ],
         "exclude-from-classmap": [
             "app/Extensions/PaymentGateways/**/migrations"
         ]

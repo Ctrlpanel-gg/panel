@@ -109,13 +109,13 @@ class ServerController extends Controller
                         // remove the role from the old owner
                         $oldOwner = User::findOrFail($server->user_id);
                         $discordUser = $oldOwner->discordUser;
-                        if ($discordUser && $oldOwner->servers->count() <= 1) {
+                        if ($discordUser && ! $oldOwner->activeServers()->where('servers.id', '!=', $server->id)->exists()) {
                             $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                         }
 
                         // add the role to the new owner
                         $discordUser = $user->discordUser;
-                        if ($discordUser && $user->servers->count() >= 1) {
+                        if ($discordUser && is_null($server->canceled) && is_null($server->suspended)) {
                             $discordUser->addOrRemoveRole('add', $discord_settings->role_id_for_active_clients);
                         }
                     }
@@ -156,7 +156,7 @@ class ServerController extends Controller
                 if($discord_settings->role_for_active_clients) {
                     $user = User::findOrFail($server->user_id);
                     $discordUser = $user->discordUser;
-                    if($discordUser && $user->servers->count() <= 1) {
+                    if($discordUser && ! $user->activeServers()->where('servers.id', '!=', $server->id)->exists()) {
                         $discordUser->addOrRemoveRole('remove', $discord_settings->role_id_for_active_clients);
                     }
                 }
@@ -358,7 +358,7 @@ class ServerController extends Controller
                 return $server->suspended ? $server->suspended->diffForHumans() : '';
             })
             ->editColumn('name', function (Server $server, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
+                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="' . $ptero_settings->panel_url . '/admin/servers/view/' . $server->pterodactyl_id . '">' . strip_tags($server->name) . '</a>';
             })
             ->rawColumns(['user', 'actions', 'status', 'name'])
             ->make();

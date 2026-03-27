@@ -3,6 +3,8 @@
 namespace App\Listeners;
 
 use App\Settings\UserSettings;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class Verified
 {
@@ -28,10 +30,16 @@ class Verified
      */
     public function handle($event)
     {
-        if (!$event->user->email_verified_reward) {
-            $event->user->increment('server_limit', $this->server_limit_increment_after_verify_email);
-            $event->user->increment('credits', $this->credits_reward_after_verify_email);
-            $event->user->update(['email_verified_reward' => true]);
-        }
+        DB::transaction(function () use ($event): void {
+            $user = User::query()->whereKey($event->user->id)->lockForUpdate()->first();
+
+            if (! $user || $user->email_verified_reward) {
+                return;
+            }
+
+            $user->increment('server_limit', $this->server_limit_increment_after_verify_email);
+            $user->increment('credits', $this->credits_reward_after_verify_email);
+            $user->update(['email_verified_reward' => true]);
+        });
     }
 }

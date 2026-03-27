@@ -300,7 +300,7 @@
                                                                         @if ($product->doesNotFit) disabled @endif>
                                                                         {{ $product->name }} [ {{ $credits_display_name }}
                                                                         {{ $product->display_price }} @if ($product->doesNotFit)
-                                                                            ] {{ __('Server can't fit on this node') }}
+                                                                            ] {{ __("Server can't fit on this node") }}
                                                                         @else
                                                                             / {{ __('Required') }}:
                                                                             {{ $product->display_minimum_credits }}

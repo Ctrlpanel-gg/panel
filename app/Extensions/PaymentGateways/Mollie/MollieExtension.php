@@ -15,9 +15,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Summary of PayPalExtension
@@ -50,13 +51,13 @@ class MollieExtension extends PaymentExtension
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $settings->api_key,
-            ])->post($url, [
+            ])->timeout(30)->connectTimeout(10)->post($url, [
                 'amount' => [
                     'currency' => $shopProduct->currency_code,
                     'value' => $totalPrice,
                 ],
-                'description' => "Order #{$payment->id} - " . $shopProduct->name,
-                'redirectUrl' => route('payment.MollieSuccess', ['payment_id' => $payment->id]),
+                'description' => "Order #{$payment->id} - " . $shopProduct->display,
+                'redirectUrl' => URL::temporarySignedRoute('payment.MollieSuccess', now()->addDay(), ['payment' => $payment->id]),
                 'cancelUrl' => route('payment.Cancel'),
                 'webhookUrl' => route('payment.MollieWebhook'),
                 'metadata' => [
@@ -72,6 +73,10 @@ class MollieExtension extends PaymentExtension
                 throw new Exception('Payment failed');
             }
 
+            $payment->forceFill([
+                'payment_id' => (string) $response->json('id', $payment->payment_id),
+            ])->save();
+
             return $response->json()['_links']['checkout']['href'];
         } catch (Exception $ex) {
             Log::error('Mollie Payment: ' . $ex->getMessage());
@@ -81,46 +86,53 @@ class MollieExtension extends PaymentExtension
 
     static function success(Request $request): RedirectResponse
     {
-        $payment = Payment::findOrFail($request->input('payment_id'));
+        if (! $request->hasValidSignature()) {
+            abort(403);
+        }
+
+        $payment = Payment::findOrFail($request->input('payment'));
         if ($payment->payment_method !== 'Mollie') {
             abort(403);
         }
 
-        $user = Auth::user();
-
-        if ($payment->user_id !== $user->id) {
-            abort(403);
-        }
-
         if ($payment->status === PaymentStatus::PAID) {
-            return Redirect::route('home')->with('success', 'Your payment has already been processed!');
+            return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Your payment has already been processed!');
         }
 
-        $payment->status = PaymentStatus::PROCESSING;
-        $payment->save();
+        $paymentOwner = User::findOrFail($payment->user_id);
+        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
-        return Redirect::route('home')->with('success', 'Your payment is being processed');
+        try {
+            if (! $payment->payment_id) {
+                return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Your payment is being processed');
+            }
+
+            $remotePayment = self::fetchMolliePayment((string) $payment->payment_id);
+            $state = self::syncMolliePaymentState($payment, $remotePayment, $paymentOwner, $shopProduct);
+
+            return match ($state) {
+                'paid' => Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Payment successful'),
+                'canceled' => Redirect::route(self::getCallbackRedirectRoute())->with('info', __('Your payment has been canceled!')),
+                default => Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Your payment is being processed'),
+            };
+        } catch (Exception $ex) {
+            Log::error('Mollie success callback failed.', [
+                'payment_id' => $payment->id,
+                'message' => $ex->getMessage(),
+            ]);
+
+            return Redirect::route(self::getCallbackRedirectRoute())->with(
+                'error',
+                __('We could not confirm your Mollie payment. If you were charged, please contact support.')
+            );
+        }
     }
 
     static function webhook(Request $request): JsonResponse
     {
-        $url = 'https://api.mollie.com/v2/payments/' . $request->id;
-        $settings = new MollieSettings();
-
         try {
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $settings->api_key,
-            ])->get($url);
-            if ($response->status() != 200) {
-                Log::error('Mollie payment webhook lookup failed.', [
-                    'status' => $response->status(),
-                    'error' => $response->json('title') ?: $response->json('detail') ?: 'Unknown Mollie error',
-                ]);
-                return response()->json(['success' => false]);
-            }
-
-            $payment = Payment::findOrFail($response->json()['metadata']['payment_id']);
+            $remotePayment = self::fetchMolliePayment((string) $request->id);
+            $payment = Payment::findOrFail($remotePayment['metadata']['payment_id']);
             if ($payment->payment_method !== 'Mollie') {
                 abort(403);
             }
@@ -128,24 +140,7 @@ class MollieExtension extends PaymentExtension
             $user = User::findOrFail($payment->user_id);
             $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
-            self::assertMolliePaymentMatches($payment, $response->json());
-
-            if ($response->json()['status'] == 'paid') {
-                $updated = Payment::whereKey($payment->id)
-                    ->where('status', '!=', PaymentStatus::PAID->value)
-                    ->update([
-                        'status' => PaymentStatus::PAID->value,
-                    ]);
-
-                if ($updated === 0) {
-                    return response()->json(['success' => true]);
-                }
-
-                $payment = $payment->fresh();
-                $user->notify(new ConfirmPaymentNotification($payment));
-                event(new PaymentEvent($user, $payment, $shopProduct));
-                event(new UserUpdateCreditsEvent($user));
-            }
+            self::syncMolliePaymentState($payment, $remotePayment, $user, $shopProduct);
         } catch (Exception $ex) {
             Log::error('Mollie Payment Webhook: ' . $ex->getMessage());
             return response()->json(['success' => false]);
@@ -175,5 +170,78 @@ class MollieExtension extends PaymentExtension
 
             throw new Exception('Mollie payment amount verification failed.');
         }
+    }
+
+    private static function fetchMolliePayment(string $remotePaymentId): array
+    {
+        $settings = new MollieSettings();
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . $settings->api_key,
+        ])->timeout(30)->connectTimeout(10)->get('https://api.mollie.com/v2/payments/' . $remotePaymentId);
+
+        if ($response->status() != 200) {
+            Log::error('Mollie payment lookup failed.', [
+                'status' => $response->status(),
+                'error' => $response->json('title') ?: $response->json('detail') ?: 'Unknown Mollie error',
+            ]);
+            throw new Exception('Mollie payment lookup failed.');
+        }
+
+        return $response->json();
+    }
+
+    private static function syncMolliePaymentState(Payment $payment, array $remotePayment, User $user, ShopProduct $shopProduct): string
+    {
+        self::assertMolliePaymentMatches($payment, $remotePayment);
+
+        $status = (string) ($remotePayment['status'] ?? '');
+
+        if ($status === 'paid') {
+            $updated = Payment::whereKey($payment->id)
+                ->where('status', '!=', PaymentStatus::PAID->value)
+                ->update([
+                    'payment_id' => (string) ($remotePayment['id'] ?? $payment->payment_id),
+                    'status' => PaymentStatus::PAID->value,
+                ]);
+
+            if ($updated > 0) {
+                $payment = $payment->fresh();
+                $user->notify(new ConfirmPaymentNotification($payment));
+                event(new PaymentEvent($user, $payment, $shopProduct));
+                event(new UserUpdateCreditsEvent($user));
+            }
+
+            return 'paid';
+        }
+
+        if (in_array($status, ['pending', 'authorized', 'processing'], true)) {
+            Payment::whereKey($payment->id)
+                ->where('status', '!=', PaymentStatus::PAID->value)
+                ->update([
+                    'payment_id' => (string) ($remotePayment['id'] ?? $payment->payment_id),
+                    'status' => PaymentStatus::PROCESSING->value,
+                ]);
+
+            return 'processing';
+        }
+
+        if (in_array($status, ['failed', 'expired', 'canceled'], true)) {
+            Payment::whereKey($payment->id)
+                ->where('status', '!=', PaymentStatus::PAID->value)
+                ->update([
+                    'payment_id' => (string) ($remotePayment['id'] ?? $payment->payment_id),
+                    'status' => PaymentStatus::CANCELED->value,
+                ]);
+
+            return 'canceled';
+        }
+
+        return 'processing';
+    }
+
+    private static function getCallbackRedirectRoute(): string
+    {
+        return Auth::check() ? 'home' : 'login';
     }
 }

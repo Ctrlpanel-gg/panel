@@ -9,6 +9,7 @@ use App\Settings\LocaleSettings;
 use App\Traits\Coupon as CouponTrait;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class CouponController extends Controller
@@ -72,18 +73,20 @@ class CouponController extends Controller
         if (array_key_exists('range_codes', $rules)) {
             $data = $validated;
             $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
-            $coupons = Coupon::generateRandomCoupon($random_codes_amount);
+            DB::transaction(function () use ($data, $random_codes_amount) {
+                $coupons = Coupon::generateRandomCoupon($random_codes_amount);
 
-            foreach ($coupons as $coupon) {
-                Coupon::create([
-                    'code' => $coupon,
-                    'type' => $data['type'],
-                    'value' => $data['value'],
-                    'max_uses' => $data['max_uses'],
-                    'max_uses_per_user' => $data['max_uses_per_user'],
-                    'expires_at' => $data['expires_at'] ?? null,
-                ]);
-            }
+                foreach ($coupons as $coupon) {
+                    Coupon::create([
+                        'code' => $coupon,
+                        'type' => $data['type'],
+                        'value' => $data['value'],
+                        'max_uses' => $data['max_uses'],
+                        'max_uses_per_user' => $data['max_uses_per_user'],
+                        'expires_at' => $data['expires_at'] ?? null,
+                    ]);
+                }
+            });
         } else {
             $data = $validated;
             $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
@@ -214,7 +217,7 @@ class CouponController extends Controller
 
             $rules['code'] = ['required', 'string', 'min:4', $codeRule];
         } elseif ($random_codes_amount) {
-            $rules['range_codes'] = 'required|integer|digits_between:1,100';
+            $rules['range_codes'] = 'required|integer|min:1|max:100';
         }
 
         return $rules;

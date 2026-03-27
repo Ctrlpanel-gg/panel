@@ -15,7 +15,9 @@ class NotificationService
      */
     public function sendToUsers(Collection $users, array $via, ?array $database = null, ?MailMessage $mail = null): void
     {
-        Notification::send($users, new DynamicNotification($via, $database, $mail));
+        $users->chunk(100)->each(function (Collection $chunk) use ($via, $database, $mail): void {
+            Notification::send($chunk, new DynamicNotification($via, $database, $mail));
+        });
     }
 
     /**

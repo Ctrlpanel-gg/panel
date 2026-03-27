@@ -37,7 +37,8 @@ class NotificationController extends Controller
     {
         $this->ensureCanAccessUser($request, $user);
 
-        $notifications = $user->notifications()->paginate($request->query('per_page', 50));
+        $perPage = max(1, min((int) $request->query('per_page', 50), 100));
+        $notifications = $user->notifications()->paginate($perPage);
 
         return NotificationResource::collection($notifications);
     }

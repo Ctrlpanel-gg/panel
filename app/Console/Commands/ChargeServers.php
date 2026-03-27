@@ -97,11 +97,11 @@ class ChargeServers extends Command
 
 
                     try {
-                        $charged = DB::transaction(function () use ($server) {
+                        $chargeResult = DB::transaction(function () use ($server) {
                             $lockedServer = Server::query()->lockForUpdate()->with(['product', 'user'])->find($server->id);
 
                             if (! $lockedServer || $lockedServer->suspended !== null) {
-                                return false;
+                                return 'skip';
                             }
 
                             $lockedProduct = $lockedServer->product;
@@ -118,21 +118,25 @@ class ChargeServers extends Command
                             };
 
                             if (! $nextBillingDate->isPast()) {
-                                return false;
+                                return 'skip';
                             }
 
-                            if ($lockedServer->canceled || ($lockedUser->credits < $lockedProduct->price && $lockedProduct->price != 0)) {
-                                return false;
+                            if ($lockedServer->canceled) {
+                                return 'canceled';
+                            }
+
+                            if ($lockedUser->credits < $lockedProduct->price && $lockedProduct->price != 0) {
+                                return 'insufficient_credits';
                             }
 
                             $this->line("<fg=blue>{$lockedUser->name}</> Current credits: <fg=green>{$lockedUser->credits}</> Credits to be removed: <fg=red>{$lockedProduct->price}</>");
                             $lockedUser->decrement('credits', $lockedProduct->price);
                             $lockedServer->update(['last_billed' => $nextBillingDate]);
 
-                            return true;
+                            return 'charged';
                         });
 
-                        if (! $charged) {
+                        if ($chargeResult === 'insufficient_credits') {
                             $this->suspendFunc($server, $user);
                         }
                     } catch (Exception $exception) {
@@ -142,6 +146,8 @@ class ChargeServers extends Command
 
                 return $this->notifyUsers();
             });
+
+        return Command::SUCCESS;
     }
 
     public function suspendFunc($server, $user)

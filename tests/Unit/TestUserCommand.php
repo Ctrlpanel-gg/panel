@@ -41,11 +41,11 @@ class TestUserCommand extends TestCase
                     'first_name' => 'Test',
                     'email' => 'test@test.test',
                 ],
-                'expectedExitCode' => 1,
+                'expectedExitCode' => 0,
             ],
             'Bad Response' => [
                 'apiResponse' => [],
-                'expectedExitCode' => 0,
+                'expectedExitCode' => 1,
             ],
         ];
     }

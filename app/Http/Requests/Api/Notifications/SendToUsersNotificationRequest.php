@@ -25,8 +25,8 @@ class SendToUsersNotificationRequest extends FormRequest
             'via' => 'required|in:mail,database,both',
             'users' => 'required|array',
             'users.*' => 'integer|exists:users,id',
-            'title' => 'required|string|min:1',
-            'content' => 'required|string|min:1',
+            'title' => 'required|string|min:1|max:255',
+            'content' => 'required|string|min:1|max:5000',
         ];
     }
 }

@@ -223,7 +223,7 @@ class VoucherController extends Controller
 
         return datatables($users)
             ->editColumn('name', function (User $user) {
-                return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.e($user->name).'</a>';
+                return '<a class="text-info" target="_blank" rel="noopener noreferrer" href="'.route('admin.users.show', $user->id).'">'.e($user->name).'</a>';
             })
             ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
                 return '<i class="mr-2 fas fa-coins"></i> '. $currencyHelper->formatForDisplay($user->credits);

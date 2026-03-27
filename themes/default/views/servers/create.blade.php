@@ -634,6 +634,7 @@
                                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                     },
                                     body: JSON.stringify({
+                                        egg_id: this.selectedEgg,
                                         variables: filledVariables
                                     })
                                 })

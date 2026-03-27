@@ -7,6 +7,7 @@ use App\Models\DiscordUser;
 use App\Models\User;
 use App\Settings\DiscordSettings;
 use App\Settings\UserSettings;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -15,24 +16,56 @@ use Exception;
 
 class SocialiteController extends Controller
 {
+    private function discordDriver(?string $redirectUrl = null)
+    {
+        return Socialite::driver('discord')->redirectUrl($redirectUrl ?? route('auth.callback'));
+    }
+
     public function redirect(DiscordSettings $discord_settings)
     {
         $scopes = !empty($discord_settings->bot_token) && !empty($discord_settings->guild_id) ? ['guilds.join'] : [];
 
-        return ( Socialite::driver('discord')
+        return ($this->discordDriver()
             ->scopes($scopes)
             ->redirect());
     }
 
-    public function callback(DiscordSettings $discord_settings, UserSettings $user_settings)
+    public function callback(Request $request, DiscordSettings $discord_settings, UserSettings $user_settings)
     {
+        $redirectRoute = Auth::guest() ? 'login' : 'profile.index';
+
+        if ($request->filled('error')) {
+            return redirect()->route($redirectRoute)->with('error', __('Discord authorization was denied.'));
+        }
+
+        if (str_contains((string) $request->query('scope', ''), 'openid')) {
+            return redirect()->route($redirectRoute)->with(
+                'error',
+                __('Unexpected OAuth callback. Check that your Discord redirect URI points to the Discord callback route.')
+            );
+        }
+
         if (Auth::guest()) {
             return redirect()->route('login')->with('error', __('Please sign in before linking your Discord account.'));
         }
 
         /** @var User $user */
         $user = Auth::user();
-        $discord = Socialite::driver('discord')->user();
+        try {
+            $discord = $this->discordDriver($request->url())->user();
+        } catch (\Throwable $e) {
+            logger()->warning('Discord callback failed', [
+                'message' => $e->getMessage(),
+                'scope' => $request->query('scope'),
+                'has_code' => $request->filled('code'),
+            ]);
+
+            return redirect()->route('profile.index')->with(
+                'error',
+                __('Failed to validate the Discord callback. Check the configured Discord redirect URI and try again.')
+            );
+        }
+
         $botToken = $discord_settings->bot_token;
         $guildId = $discord_settings->guild_id;
         $roleId = $discord_settings->role_id;
@@ -55,7 +88,7 @@ class SocialiteController extends Controller
                         'Authorization' => 'Bot '. $botToken,
                         'Content-Type' => 'application/json',
                     ]
-                )->put(
+                )->timeout(30)->connectTimeout(10)->put(
                     "https://discord.com/api/guilds/{$guildId}/members/{$discord->id}",
                     ['access_token' => $discord->token]
                 );

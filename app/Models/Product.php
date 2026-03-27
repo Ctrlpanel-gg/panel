@@ -98,7 +98,7 @@ class Product extends Model
     protected function minimumCredits(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => $value ? Currency::prepareForDatabase($value) : null
+            set: fn ($value) => $value === null || $value === '' ? null : Currency::prepareForDatabase($value)
         );
     }
 

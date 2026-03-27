@@ -54,7 +54,7 @@ class CurrencyHelper
 
     public function prepareForDatabase($amount)
     {
-        return (int)($amount * 1000);
+        return (int) round($amount * 1000);
     }
 
     public function formatToCurrency(int $amount, $currency_code, $locale = null)

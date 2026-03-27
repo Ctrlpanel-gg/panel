@@ -26,7 +26,7 @@ class AssociateDiscordRoles implements ShouldQueue
     public function handle(ServerCreatedEvent $event): void
     {
         try {
-            if ($this->discordSettings->role_for_active_clients && $event->user->discordUser && $event->user->servers->count() > 0) {
+            if ($this->discordSettings->role_for_active_clients && $event->user->discordUser && $event->user->activeServers()->exists()) {
                 $event->user->discordUser->addOrRemoveRole('add', $this->discordSettings->role_id_for_active_clients);
             }
         } catch (Exception $e) {

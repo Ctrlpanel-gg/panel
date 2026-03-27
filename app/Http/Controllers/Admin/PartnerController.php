@@ -55,10 +55,6 @@ class PartnerController extends Controller
             'referral_system_commission' => 'nullable|integer|min:-1|max:100',
         ]);
 
-        if(PartnerDiscount::where("user_id",$validated['user_id'])->exists()){
-            return redirect()->route('admin.partners.index')->with('error', __('Partner already exists'));
-        }
-
         PartnerDiscount::create($validated);
 
         return redirect()->route('admin.partners.index')->with('success', __('partner has been created!'));

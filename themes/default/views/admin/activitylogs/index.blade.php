@@ -29,7 +29,7 @@
                     @else
                         <div class="callout callout-danger">
                             <h4>{{ __('No recent activity from cronjobs')}}</h4>
-                            <p>{{ __('Are cronjobs running?')}} <a class="text-primary" target="_blank" href="https://CtrlPanel.gg/docs/Installation/getting-started#crontab-configuration">{{ __('Check docs')}}</a></p>
+                            <p>{{ __('Are cronjobs running?')}} <a class="text-primary" target="_blank" rel="noopener noreferrer" href="https://CtrlPanel.gg/docs/Installation/getting-started#crontab-configuration">{{ __('Check docs')}}</a></p>
                         </div>
                     @endif
                 </div>

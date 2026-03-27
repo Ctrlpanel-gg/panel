@@ -6,11 +6,10 @@ use App\Settings\GeneralSettings;
 use App\Settings\MailSettings;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use App\Settings\DiscordSettings;
 use Qirolab\Theme\Theme;
-use Exception;
+use Throwable;
 
 class SettingsServiceProvider extends ServiceProvider
 {
@@ -31,8 +30,9 @@ class SettingsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (config('app.key') == null) return;
-        if (!Schema::hasColumn('settings', 'payload')) return;
+        if (config('app.key') == null) {
+            return;
+        }
 
         try {
             $discordSettings = $this->app->make(DiscordSettings::class);
@@ -44,7 +44,6 @@ class SettingsServiceProvider extends ServiceProvider
             // Inject the settings into the config
             Config::set('services.discord.client_id', $discordSettings->client_id ?: "");
             Config::set('services.discord.client_secret', $discordSettings->client_secret ?: "");
-            Config::set('services.discord.redirect', config('app.url', 'http://localhost') . '/auth/callback');
             // optional
             Config::set('services.discord.allow_gif_avatars',  true);
             Config::set('services.discord.avatar_default_extension', 'jpg');
@@ -61,8 +60,13 @@ class SettingsServiceProvider extends ServiceProvider
             Config::set('turnstile.turnstile_site_key', $generalSettings->recaptcha_site_key ?: "");
             Config::set('turnstile.turnstile_secret_key', $generalSettings->recaptcha_secret_key ?: "");
 
-        } catch (Exception $e) {
-            Log::error("Couldn't find settings. Probably the installation is not complete. " . $e);
+        } catch (Throwable $e) {
+            if ($this->shouldSilentlySkipSettingsBootstrap($e)) {
+                return;
+            }
+
+            report($e);
+            return;
         }
 
         try {
@@ -70,6 +74,7 @@ class SettingsServiceProvider extends ServiceProvider
 
             if (!file_exists(base_path('themes') . "/" . $generalSettings->theme)) {
                 $generalSettings->theme = "default";
+                $generalSettings->save();
             }
 
             if ($generalSettings->theme && $generalSettings->theme !== config('theme.active')) {
@@ -81,8 +86,24 @@ class SettingsServiceProvider extends ServiceProvider
             $settings = $this->app->make(MailSettings::class);
             $settings->setConfig();
 
-        } catch (Exception $e) {
-            Log::error("Couldnt load Settings. Probably the installation is not completet. " . $e);
+        } catch (Throwable $e) {
+            if ($this->shouldSilentlySkipSettingsBootstrap($e)) {
+                Theme::set("default", "default");
+                return;
+            }
+
+            report($e);
+            Theme::set("default", "default");
         }
+    }
+
+    private function shouldSilentlySkipSettingsBootstrap(Throwable $e): bool
+    {
+        $message = strtolower($e->getMessage());
+
+        return str_contains($message, 'no such table')
+            || str_contains($message, 'table')
+            || str_contains($message, 'settings')
+            || str_contains($message, 'app key');
     }
 }

@@ -278,6 +278,7 @@ class ServerController extends Controller
 
         return Validator::make([
             'name' => $request->input('name'),
+            'description' => $request->input('description'),
             'location_id' => $request->input('location'),
             'egg_id' => $request->input('egg'),
             'product_id' => $request->input('product'),
@@ -285,6 +286,7 @@ class ServerController extends Controller
             'billing_priority' => $request->input('billing_priority'),
         ], [
             'name' => 'required|string|max:191',
+            'description' => 'nullable|string|max:255',
             'location_id' => 'required|integer|exists:locations,id',
             'egg_id' => ['required', 'integer', 'exists:eggs,id', new EggBelongsToProduct, new ValidateEggVariables],
             'product_id' => 'required|exists:products,id',
@@ -297,6 +299,7 @@ class ServerController extends Controller
     {
         return $this->serverCreationService->handle($user, $product, [
             'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
             'product_id' => $product->id,
             'egg_id' => (int) $validated['egg_id'],
             'location_id' => (int) $validated['location_id'],
@@ -312,7 +315,7 @@ class ServerController extends Controller
         try {
             if ($this->discordSettings->role_for_active_clients &&
                 $user->discordUser &&
-                $user->servers->count() >= 1
+                $user->activeServers()->exists()
             ) {
                 $user->discordUser->addOrRemoveRole(
                     'add',
@@ -357,7 +360,7 @@ class ServerController extends Controller
     {
         if ($this->discordSettings->role_for_active_clients) {
             $user = User::findOrFail($server->user_id);
-            if ($user->discordUser && $user->servers->count() <= 1) {
+            if ($user->discordUser && ! $user->activeServers()->whereKeyNot($server->id)->exists()) {
                 $user->discordUser->addOrRemoveRole(
                     'remove',
                     $this->discordSettings->role_id_for_active_clients
@@ -514,21 +517,32 @@ class ServerController extends Controller
         $this->checkPermission(self::CREATE_PERMISSION);
 
         $data = $request->validate([
+            'egg_id' => 'required|integer|exists:eggs,id',
             'variables' => 'required|array',
-            'variables.*.rules' => 'required|string',
             'variables.*.env_variable' => 'required|string',
             'variables.*.filled_value' => 'nullable',
             'variables.*.name' => 'required|string',
         ]);
 
         $variables = $data['variables'];
+        $egg = Egg::query()->findOrFail($data['egg_id']);
+        $eggEnvironment = collect($egg->environment ?? [])
+            ->filter(fn ($variable) => is_array($variable) && ! empty($variable['env_variable']))
+            ->keyBy('env_variable');
 
         $errors = [];
 
         foreach ($variables as $variable) {
-            $rules = $variable['rules'];
             $envVariable = $variable['env_variable'];
             $filledValue = $variable['filled_value'];
+            $eggVariable = $eggEnvironment->get($envVariable);
+
+            if (! is_array($eggVariable) || empty($eggVariable['rules'])) {
+                $errors[$envVariable] = [__('The selected deployment variable is invalid.')];
+                continue;
+            }
+
+            $rules = $eggVariable['rules'];
 
             $validator = Validator::make(
                 [$envVariable => $filledValue],
@@ -569,6 +583,9 @@ class ServerController extends Controller
             'No free allocation available on the selected node.',
             'Insufficient resources on the node to upgrade the server.',
             'Insufficient credits to upgrade the server.',
+            'Selected egg is not available for this product.',
+            'Selected product is not available on the current node.',
+            'Selected product is not compatible with the current egg.',
         ];
 
         if (in_array($message, $safeMessages, true) || str_starts_with($message, 'User do not have the required amount of ')) {

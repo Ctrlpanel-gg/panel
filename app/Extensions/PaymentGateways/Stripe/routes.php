@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Extensions\PaymentGateways\Stripe\StripeExtension;
 
-Route::middleware(['web', 'auth'])->group(function () {
+Route::middleware(['web'])->group(function () {
     Route::get(
         'payment/StripeSuccess',
         function () {

@@ -25,7 +25,7 @@ class UpdateVoucherRequest extends FormRequest
     {
         return [
             'memo' => 'sometimes|nullable|string|max:191',
-            'uses' => 'required|numeric|max:2147483647|min:1',
+            'uses' => 'required|integer|max:2147483647|min:1',
             'code' => ['required', 'string', 'alpha_dash', 'min:4', 'max:36',
                 Rule::unique('vouchers')->ignore($this->route('voucher')?->id),
             ],

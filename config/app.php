@@ -212,7 +212,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
-        Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
         App\Providers\SettingsServiceProvider::class,
         App\Providers\ExtensionServiceProvider::class,
         App\Providers\CurrencyServiceProvider::class,

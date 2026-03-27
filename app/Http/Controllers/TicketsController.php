@@ -242,8 +242,6 @@ class TicketsController extends Controller
                                 ' . method_field('POST') . '
                             <button data-content="' . __($statusButtonText) . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm text-white ' . $statusButtonColor . '  mr-1"><i class="fas ' . $statusButtonIcon . '"></i></button>
                             </form>
-
-                            </form>
                 ';
             })
             ->rawColumns(['category', 'title', 'status', 'updated_at', "actions"])

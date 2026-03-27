@@ -7,6 +7,7 @@ use Spatie\LaravelSettings\Settings;
 class PayPalSettings extends Settings
 {
     public bool $enabled = false;
+    public string $mode = 'live';
     public ?string $client_id;
     public ?string $client_secret;
     public ?string $sandbox_client_id;
@@ -34,6 +35,15 @@ class PayPalSettings extends Settings
                 'label' => 'Client ID',
                 'description' => 'The Client ID of your PayPal App',
             ],
+            'mode' => [
+                'type' => 'select',
+                'label' => 'Mode',
+                'description' => 'Choose whether PayPal should use the live or sandbox API.',
+                'options' => [
+                    'live' => 'Live',
+                    'sandbox' => 'Sandbox',
+                ],
+            ],
             'client_secret' => [
                 'type' => 'string',
                 'label' => 'Client Secret',
@@ -47,12 +57,12 @@ class PayPalSettings extends Settings
             'sandbox_client_id' => [
                 'type' => 'string',
                 'label' => 'Sandbox Client ID',
-                'description' => 'The Sandbox Client ID  used when app_env = local',
+                'description' => 'The Sandbox Client ID used when PayPal mode is set to Sandbox',
             ],
             'sandbox_client_secret' => [
                 'type' => 'string',
                 'label' => 'Sandbox Client Secret',
-                'description' => 'The Sandbox Client Secret  used when app_env = local',
+                'description' => 'The Sandbox Client Secret used when PayPal mode is set to Sandbox',
             ],
         ];
     }

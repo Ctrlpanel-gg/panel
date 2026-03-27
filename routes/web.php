@@ -52,6 +52,16 @@ Auth::routes(['verify' => true]);
 Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
+    Route::get('/auth/discord/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect');
+    Route::get('/auth/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect.legacy');
+});
+
+Route::middleware(['checkSuspended'])->group(function () {
+    Route::get('/auth/discord/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
+    Route::get('/auth/callback', [SocialiteController::class, 'callback'])->name('auth.callback.legacy');
+});
+
+Route::middleware(['auth', 'checkSuspended'])->group(function () {
     //resend verification email
     Route::post('/email/verification-notification', function (Request $request) {
         if (! $request->user()->sendEmailVerificationNotification()) {
@@ -100,10 +110,6 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     Route::post('coupons/redeem', [CouponController::class, 'redeem'])->name('coupon.redeem');
 
     Route::post('users/logbackin', [UserController::class, 'logBackIn'])->name('users.logbackin');
-
-    //discord
-    Route::get('/auth/redirect', [SocialiteController::class, 'redirect'])->name('auth.redirect');
-    Route::get('/auth/callback', [SocialiteController::class, 'callback'])->name('auth.callback');
 
     //voucher redeem
     Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->middleware('throttle:5,1')->name('voucher.redeem');

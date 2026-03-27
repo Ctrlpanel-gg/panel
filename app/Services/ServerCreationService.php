@@ -6,6 +6,7 @@ use App\Classes\PterodactylClient;
 use App\Models\Server;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Node;
 use App\Settings\GeneralSettings;
 use App\Settings\PterodactylSettings;
@@ -39,15 +40,19 @@ class ServerCreationService
      */
     public function handle(User $user, Product $product, mixed $data): Server
     {
-        $egg = $product->eggs->firstWhere('id', $data['egg_id']);
-
         try {
-            return DB::transaction(function () use ($user, $product, $data, $egg) {
+            return DB::transaction(function () use ($user, $product, $data) {
                 $lockedUser = User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
                 $validatedData = $this->validateAndPrepare($lockedUser, $product, $data);
+                $egg = $product->loadMissing('eggs')->eggs->firstWhere('id', $data['egg_id']);
+
+                if (! $egg instanceof Egg) {
+                    throw new \Exception('Selected egg is not available for this product.', 422);
+                }
 
                 $server = Server::create([
                     'name' => $data['name'],
+                    'description' => $data['description'] ?? null,
                     'user_id' => $lockedUser->id,
                     'product_id' => $product->id,
                     'node_id' => $validatedData['node_id'],
@@ -64,12 +69,15 @@ class ServerCreationService
                         'error' => $response->json()
                     ]);
 
-                    $server->delete();
-
                     throw new \Exception('Failed to create server on Pterodactyl.');
                 }
 
-                $serverAttributes = $response->json()['attributes'];
+                $serverAttributes = data_get($response->json(), 'attributes');
+
+                if (! is_array($serverAttributes) || ! isset($serverAttributes['id'], $serverAttributes['identifier'])) {
+                    throw new \Exception('Invalid response received from Pterodactyl.', 500);
+                }
+
                 $server->update([
                     'pterodactyl_id' => $serverAttributes['id'],
                     'identifier' => $serverAttributes['identifier']

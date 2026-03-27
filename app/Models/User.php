@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Notifications\Auth\QueuedVerifyEmail;
-use App\Notifications\WelcomeMessage;
 use App\Classes\PterodactylClient;
 use App\Facades\Currency;
 use App\Settings\PterodactylSettings;
@@ -105,41 +104,40 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         parent::boot();
 
-        static::created(function (User $user) {
-            $user->notify(new WelcomeMessage($user));
-        });
-
         static::deleting(function (User $user) {
+            DB::transaction(function () use ($user) {
+                foreach ($user->servers()->cursor() as $server) {
+                    $server->delete();
+                }
 
+                $user->payments()->delete();
+                $user->tickets()->delete();
+                $user->ticketBlackList()->delete();
+                $user->vouchers()->detach();
+                $user->discordUser()->delete();
 
-            // delete every server the user owns without using chunks
-            $user->servers()->each(function ($server) {
-                $server->delete();
+                $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();
+                foreach ($referralRecords as $ref) {
+                    DB::table('user_referrals')
+                        ->where('referral_id', $ref->referral_id)
+                        ->where('registered_user_id', $ref->registered_user_id)
+                        ->update([
+                            'deleted_at' => now(),
+                            'deleted_username' => $user->name,
+                            'deleted_user_id' => $user->id,
+                        ]);
+                }
+
+                if ($user->pterodactyl_id) {
+                    $response = $user->pterodactyl()->application->delete("/application/users/{$user->pterodactyl_id}");
+                    $status = (string) data_get($response->json(), 'errors.0.status', '');
+                    if ($response->failed() && $status !== '404') {
+                        throw new \RuntimeException(
+                            (string) data_get($response->json(), 'errors.0.detail', $response->body())
+                        );
+                    }
+                }
             });
-
-            $user->payments()->delete();
-
-            $user->tickets()->delete();
-
-            $user->ticketBlackList()->delete();
-
-            $user->vouchers()->detach();
-
-            $user->discordUser()->delete();
-
-            $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();
-            foreach ($referralRecords as $ref) {
-                DB::table('user_referrals')
-                    ->where('referral_id', $ref->referral_id)
-                    ->where('registered_user_id', $ref->registered_user_id)
-                    ->update([
-                        'deleted_at' => now(),
-                        'deleted_username' => $user->name,
-                        'deleted_user_id' => $user->id,
-                    ]);
-            }
-
-            $user->pterodactyl()->application->delete("/application/users/{$user->pterodactyl_id}");
         });
     }
 
@@ -177,6 +175,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function servers()
     {
         return $this->hasMany(Server::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function activeServers()
+    {
+        return $this->servers()
+            ->whereNull('canceled')
+            ->whereNull('suspended');
     }
 
     /**
@@ -277,14 +285,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function unSuspend()
     {
-        foreach ($this->getServersWithProduct() as $server) {
-            if ($this->credits >= $server->product->getHourlyPrice()) {
+        $availableCredits = $this->credits;
+
+        foreach ($this->getSuspendedServersWithProduct() as $server) {
+            $hourlyPrice = $server->product->getHourlyPrice();
+            if ($availableCredits >= $hourlyPrice) {
                 $server->unSuspend();
+                $availableCredits -= $hourlyPrice;
             }
         }
 
         $this->update([
-            'suspended' => false,
+            'suspended' => $this->servers()->whereNotNull('suspended')->exists(),
         ]);
 
         return $this;
@@ -318,6 +330,15 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->servers()
             ->whereNull('suspended')
+            ->whereNull('canceled')
+            ->with('product')
+            ->get();
+    }
+
+    public function getSuspendedServersWithProduct()
+    {
+        return $this->servers()
+            ->whereNotNull('suspended')
             ->whereNull('canceled')
             ->with('product')
             ->get();

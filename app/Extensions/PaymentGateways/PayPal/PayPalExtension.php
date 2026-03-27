@@ -12,14 +12,10 @@ use App\Models\User;
 use App\Notifications\ConfirmPaymentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
-use PayPalCheckoutSdk\Core\PayPalHttpClient;
-use PayPalCheckoutSdk\Core\ProductionEnvironment;
-use PayPalCheckoutSdk\Core\SandboxEnvironment;
-use PayPalCheckoutSdk\Orders\OrdersCaptureRequest;
-use PayPalCheckoutSdk\Orders\OrdersCreateRequest;
-use PayPalHttp\HttpException;
+use Illuminate\Support\Facades\URL;
 
 
 /**
@@ -37,14 +33,8 @@ class PayPalExtension extends PaymentExtension
 
     public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
-        // Converts from cents to decimal places.
-        $totalPrice = round($totalPrice / 1000,2);
-
-
-
-        $request = new OrdersCreateRequest();
-        $request->prefer('return=representation');
-        $request->body = [
+        $totalPrice = number_format($totalPrice / 1000, 2, '.', '');
+        $payload = [
             "intent" => "CAPTURE",
             "purchase_units" => [
                 [
@@ -71,33 +61,40 @@ class PayPalExtension extends PaymentExtension
                     ]
                 ]
             ],
-            "application_context" => [
-                "cancel_url" => route('payment.Cancel'),
-                "return_url" => route('payment.PayPalSuccess', ['payment' => $payment->id]),
-                'brand_name' =>  config('app.name', 'CtrlPanel.GG'),
-                'shipping_preference'  => 'NO_SHIPPING'
-            ]
+            'payment_source' => [
+                'paypal' => [
+                    'experience_context' => [
+                        'cancel_url' => route('payment.Cancel'),
+                        'return_url' => URL::temporarySignedRoute('payment.PayPalSuccess', now()->addDay(), ['payment' => $payment->id]),
+                        'brand_name' => config('app.name', 'CtrlPanel.GG'),
+                        'shipping_preference' => 'NO_SHIPPING',
+                    ],
+                ],
+            ],
         ];
 
-
-
         try {
-            // Call API with your client and get a response for your call
-            $response = self::getPayPalClient()->execute($request);
-
-            // check for any errors in the response
-            if ($response->statusCode != 201) {
-                throw new \Exception($response->statusCode);
+            $response = self::paypalRequest('post', '/v2/checkout/orders', $payload, [
+                'Prefer' => 'return=representation',
+            ]);
+            if ($response->status() !== 201) {
+                throw new \Exception('Unexpected PayPal status: ' . $response->status());
             }
 
-            // make sure the link is not empty
-            if (empty($response->result->links[1]->href)) {
+            $body = $response->json();
+            $approveUrl = collect($body['links'] ?? [])->first(
+                fn (array $link): bool => in_array($link['rel'] ?? null, ['approve', 'payer-action'], true)
+            )['href'] ?? null;
+
+            if (! is_string($approveUrl) || $approveUrl === '') {
                 throw new \Exception('No redirect link found');
             }
 
-            return $response->result->links[1]->href;
-        } catch (HttpException $ex) {
-            Log::error('PayPal Payment: ' . $ex->getMessage());
+            return $approveUrl;
+        } catch (\Throwable $ex) {
+            Log::error('PayPal Payment: ' . $ex->getMessage(), [
+                'payment_id' => $payment->id,
+            ]);
 
             throw new \Exception('PayPal Payment: ' . $ex->getMessage());
         }
@@ -106,44 +103,56 @@ class PayPalExtension extends PaymentExtension
 
     public static function PaypalSuccess(Request $laravelRequest): \Illuminate\Http\RedirectResponse
     {
-        $user = Auth::user();
-        $user = User::findOrFail($user->id);
+        if (! $laravelRequest->hasValidSignatureWhileIgnoring(['token', 'PayerID'])) {
+            abort(403);
+        }
 
         $payment = Payment::findOrFail($laravelRequest->payment);
         if ($payment->payment_method !== 'PayPal') {
             abort(403);
         }
 
+        if ($payment->status === PaymentStatus::PAID) {
+            return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Payment successful');
+        }
+
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
         $paymentOwner = User::findOrFail($payment->user_id);
 
-        if ($payment->user_id !== $user->id) {
-            abort(403);
-        }
-
-        $request = new OrdersCaptureRequest($laravelRequest->input('token'));
-        $request->prefer('return=representation');
-
         try {
-            // Call API with your client and get a response for your call
-            $response = self::getPayPalClient()->execute($request);
-            if ($response->statusCode == 201 || $response->statusCode == 200) {
-                $customId = $response->result->purchase_units[0]->custom_id ?? null;
+            $orderId = (string) $laravelRequest->input('token', '');
+            if ($orderId === '') {
+                return Redirect::route(self::getCallbackRedirectRoute())->with(
+                    'error',
+                    __('We could not confirm your PayPal payment because the callback was incomplete.')
+                );
+            }
+
+            $response = self::paypalRequest(
+                'post',
+                '/v2/checkout/orders/' . $orderId . '/capture',
+                [],
+                ['Prefer' => 'return=representation']
+            );
+
+            if ($response->status() == 201 || $response->status() == 200) {
+                $result = $response->json();
+                $customId = data_get($result, 'purchase_units.0.custom_id');
                 if ($customId !== $payment->id) {
                     abort(403);
                 }
 
-                self::assertCapturedAmountMatches($payment, $response->result);
+                self::assertCapturedAmountMatches($payment, $result);
 
                 $updated = Payment::whereKey($payment->id)
                     ->where('status', '!=', PaymentStatus::PAID->value)
                     ->update([
                         'status' => PaymentStatus::PAID->value,
-                        'payment_id' => $response->result->id,
+                        'payment_id' => data_get($result, 'id'),
                     ]);
 
                 if ($updated === 0) {
-                    return Redirect::route('home')->with('success', 'Payment successful');
+                    return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Payment successful');
                 }
 
                 $payment = $payment->fresh();
@@ -152,49 +161,40 @@ class PayPalExtension extends PaymentExtension
                 event(new PaymentEvent($paymentOwner, $payment, $shopProduct));
 
                 // redirect to the payment success page with success message
-                return Redirect::route('home')->with('success', 'Payment successful');
-            } elseif (config('app.env') == 'local') {
-                // If call returns body in response, you can get the deserialized version from the result attribute of the response
-                $payment->delete();
-                dd($response);
-            } else {
-                $updateData = [
-                    'status' => PaymentStatus::CANCELED,
-                ];
-
-                if (! empty($response->result->id ?? null)) {
-                    $updateData['payment_id'] = $response->result->id;
-                }
-
-                $payment->update($updateData);
-                abort(500);
+                return Redirect::route(self::getCallbackRedirectRoute())->with('success', 'Payment successful');
             }
-        } catch (HttpException $ex) {
-            if (config('app.env') == 'local') {
-                echo $ex->statusCode;
-                $payment->delete();
-                dd($ex->getMessage());
-            } else {
-                $payment->update([
-                    'status' => PaymentStatus::CANCELED,
-                ]);
-                abort(422);
-            }
+
+            Log::warning('PayPal capture returned an unexpected status.', [
+                'payment_id' => $payment->id,
+                'status' => $response->status(),
+                'body' => $response->json() ?: $response->body(),
+            ]);
+        } catch (\Throwable $ex) {
+            Log::error('PayPal capture failed', [
+                'payment_id' => $payment->id,
+                'message' => $ex->getMessage(),
+            ]);
         }
+
+        return Redirect::route(self::getCallbackRedirectRoute())->with(
+            'error',
+            __('We could not confirm your PayPal payment. If you were charged, please contact support.')
+        );
     }
 
-    private static function assertCapturedAmountMatches(Payment $payment, object $result): void
+    private static function assertCapturedAmountMatches(Payment $payment, array|object $result): void
     {
-        $purchaseUnit = $result->purchase_units[0] ?? null;
-        $capturedAmount = $purchaseUnit->payments->captures[0]->amount ?? $purchaseUnit->amount ?? null;
+        $purchaseUnit = data_get($result, 'purchase_units.0');
+        $capturedAmount = data_get($purchaseUnit, 'payments.captures.0.amount')
+            ?? data_get($purchaseUnit, 'amount');
 
         if ($capturedAmount === null) {
             throw new \Exception('PayPal capture amount missing.');
         }
 
         $expectedAmount = number_format($payment->total_price / 1000, 2, '.', '');
-        $actualAmount = number_format((float) ($capturedAmount->value ?? 0), 2, '.', '');
-        $actualCurrency = strtoupper((string) ($capturedAmount->currency_code ?? ''));
+        $actualAmount = number_format((float) data_get($capturedAmount, 'value', 0), 2, '.', '');
+        $actualCurrency = strtoupper((string) data_get($capturedAmount, 'currency_code', ''));
 
         if ($actualCurrency !== strtoupper($payment->currency_code) || $actualAmount !== $expectedAmount) {
             Log::critical('PayPal payment amount mismatch detected', [
@@ -209,21 +209,63 @@ class PayPalExtension extends PaymentExtension
         }
     }
 
-    static function getPayPalClient(): PayPalHttpClient
+    private static function paypalRequest(string $method, string $path, array $payload = [], array $headers = [])
     {
+        $request = Http::acceptJson()
+            ->withToken(self::getPayPalAccessToken())
+            ->withHeaders(array_merge([
+                'Content-Type' => 'application/json',
+            ], $headers))
+            ->timeout(30);
 
-        $environment = config('app.env') == 'local'
-            ? new SandboxEnvironment(self::getPaypalClientId(), self::getPaypalClientSecret())
-            : new ProductionEnvironment(self::getPaypalClientId(), self::getPaypalClientSecret());
-        return new PayPalHttpClient($environment);
+        return match (strtolower($method)) {
+            'get' => $request->get(self::getPayPalApiBaseUrl() . $path, $payload),
+            'post' => $request->post(self::getPayPalApiBaseUrl() . $path, $payload),
+            default => throw new \InvalidArgumentException('Unsupported PayPal HTTP method.'),
+        };
     }
+
+    private static function getPayPalAccessToken(): string
+    {
+        $response = Http::asForm()
+            ->acceptJson()
+            ->withBasicAuth(self::getPaypalClientId(), self::getPaypalClientSecret())
+            ->timeout(30)
+            ->post(self::getPayPalApiBaseUrl() . '/v1/oauth2/token', [
+                'grant_type' => 'client_credentials',
+            ]);
+
+        if (! $response->successful()) {
+            Log::error('PayPal auth failed', [
+                'status' => $response->status(),
+                'body' => $response->json() ?: $response->body(),
+            ]);
+
+            throw new \Exception('Failed to authenticate with PayPal.');
+        }
+
+        $token = $response->json('access_token');
+        if (! is_string($token) || $token === '') {
+            throw new \Exception('PayPal access token missing.');
+        }
+
+        return $token;
+    }
+
+    private static function getPayPalApiBaseUrl(): string
+    {
+        return self::getPayPalMode() === 'sandbox'
+            ? 'https://api-m.sandbox.paypal.com'
+            : 'https://api-m.paypal.com';
+    }
+
     /**
      * @return string
      */
     static function getPaypalClientId(): string
     {
         $settings = new PayPalSettings();
-        return config('app.env') == 'local' ?  $settings->sandbox_client_id : $settings->client_id;
+        return self::getPayPalMode() === 'sandbox' ?  $settings->sandbox_client_id : $settings->client_id;
     }
     /**
      * @return string
@@ -231,6 +273,18 @@ class PayPalExtension extends PaymentExtension
     static function getPaypalClientSecret(): string
     {
         $settings = new PayPalSettings();
-        return config('app.env') == 'local' ? $settings->sandbox_client_secret : $settings->client_secret;
+        return self::getPayPalMode() === 'sandbox' ? $settings->sandbox_client_secret : $settings->client_secret;
+    }
+
+    private static function getPayPalMode(): string
+    {
+        $settings = new PayPalSettings();
+
+        return $settings->mode === 'sandbox' ? 'sandbox' : 'live';
+    }
+
+    private static function getCallbackRedirectRoute(): string
+    {
+        return Auth::check() ? 'home' : 'login';
     }
 }

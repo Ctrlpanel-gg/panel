@@ -28,6 +28,31 @@ class HtmlSanitizer
             $clean
         ) ?? $clean;
 
+        $clean = preg_replace_callback(
+            '/<a\b[^>]*>/iu',
+            static function (array $matches): string {
+                $tag = $matches[0];
+                $attributes = [];
+
+                if (preg_match('/\shref\s*=\s*(["\']?)([^"\'>\s]+)\1/iu', $tag, $hrefMatches) === 1) {
+                    $attributes[] = sprintf('href="%s"', e(trim($hrefMatches[2])));
+                }
+
+                $targetValue = null;
+                if (preg_match('/\starget\s*=\s*(["\']?)([^"\'>\s]+)\1/iu', $tag, $targetMatches) === 1) {
+                    $targetValue = strtolower(trim($targetMatches[2]));
+                }
+
+                if ($targetValue === '_blank') {
+                    $attributes[] = 'target="_blank"';
+                    $attributes[] = 'rel="noopener noreferrer"';
+                }
+
+                return '<a' . (empty($attributes) ? '' : ' ' . implode(' ', $attributes)) . '>';
+            },
+            $clean
+        ) ?? $clean;
+
         return trim($clean);
     }
 

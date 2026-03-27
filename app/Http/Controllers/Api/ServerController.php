@@ -23,6 +23,7 @@ use App\Settings\PterodactylSettings;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Exception;
@@ -145,24 +146,44 @@ class ServerController extends Controller
             abort(403, 'This API token is restricted to its owner.');
         }
 
-        $server->fill($data);
-
         try {
-            if ($server->isDirty(['name', 'description', 'user_id'])) {
-                $pteroData = [
-                    'name' => $data['name'] ?? $server->name,
-                    'description' => array_key_exists('description', $data) ? $data['description'] : $server->description,
-                    'user' => $data['user_id'] ?? $server->user_id,
-                ];
+            $server = DB::transaction(function () use ($server, $data) {
+                $lockedServer = Server::query()->whereKey($server->id)->lockForUpdate()->firstOrFail();
+                $lockedServer->fill($data);
 
-                $response = $this->pterodactylClient()->updateServerDetails($server, $pteroData);
+                if ($lockedServer->isDirty(['name', 'description', 'user_id'])) {
+                    $ownerChanged = $lockedServer->isDirty('user_id');
+                    $remoteUserId = $lockedServer->user_id;
 
-                if (!$response->successful()) {
-                    $response->throw();
+                    if ($ownerChanged) {
+                        $owner = User::findOrFail($lockedServer->user_id);
+
+                        if (! $owner->pterodactyl_id) {
+                            throw new Exception('Selected user is not synced with Pterodactyl.', 422);
+                        }
+
+                        $remoteUserId = $owner->pterodactyl_id;
+                    }
+
+                    $pteroData = [
+                        'name' => $lockedServer->name,
+                        'description' => $lockedServer->description,
+                        'user' => $remoteUserId,
+                    ];
+
+                    $lockedServer->save();
+
+                    $response = $this->pterodactylClient()->updateServerDetails($lockedServer, $pteroData);
+
+                    if (! $response->successful()) {
+                        $response->throw();
+                    }
+                } elseif ($lockedServer->isDirty()) {
+                    $lockedServer->save();
                 }
-            }
 
-            $server->save();
+                return $lockedServer;
+            });
 
             return ServerResource::make($server->refresh());
         } catch (Exception $e) {
@@ -355,6 +376,10 @@ class ServerController extends Controller
             'No free allocation available on the selected node.',
             'Insufficient resources on the node to upgrade the server.',
             'Insufficient credits to upgrade the server.',
+            'Selected egg is not available for this product.',
+            'Selected product is not available on the current node.',
+            'Selected product is not compatible with the current egg.',
+            'Selected user is not synced with Pterodactyl.',
         ];
 
         if (in_array($message, $safeMessages, true) || str_starts_with($message, 'User do not have the required amount of ')) {

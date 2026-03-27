@@ -140,8 +140,16 @@ class Coupon extends Model
     {
         $coupons = [];
 
-        for ($i = 0; $i < $amount; $i++) {
+        while (count($coupons) < $amount) {
             $random_coupon = strtoupper(bin2hex(random_bytes(3)));
+
+            if (in_array($random_coupon, $coupons, true)) {
+                continue;
+            }
+
+            if (self::query()->where('code', $random_coupon)->exists()) {
+                continue;
+            }
 
             $coupons[] = $random_coupon;
         }

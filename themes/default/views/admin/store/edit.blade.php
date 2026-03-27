@@ -74,7 +74,7 @@
                                     @enderror
                                     <div class="text-muted">
                                         {{ __('Checkout the paypal docs to select the appropriate code') }} <a
-                                            target="_blank"
+                                            target="_blank" rel="noopener noreferrer"
                                             href="https://developer.paypal.com/docs/api/reference/currency-codes/">{{ __('Link') }}</a>
                                     </div>
                                 </div>

@@ -78,7 +78,7 @@ class SettingsController extends Controller
                     $optionsData[$key]['value'] = '';
                 }
 
-                if($optionInputData[$key]['type'] === 'number') {
+                if (($optionInputData[$key]['type'] ?? null) === 'number') {
                     $optionsData[$key]['step'] = $optionInputData[$key]['step'] ?? '1';
 
                     if ($optionInputData[$key]['mustBeConverted'] ?? false) {

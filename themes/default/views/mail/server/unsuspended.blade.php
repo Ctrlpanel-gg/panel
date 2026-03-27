@@ -3,7 +3,7 @@
 
 <x-mail::panel>
   @foreach ($servers as $server)
-    <a href="{{ $pterodactylSettings->panel_url }}/server/{{ $server->identifier }}" target="_blank">{{ $server->name }}</a><br>
+    <a href="{{ $pterodactylSettings->panel_url }}/server/{{ $server->identifier }}" target="_blank" rel="noopener noreferrer">{{ $server->name }}</a><br>
   @endforeach
 </x-mail::panel>
 

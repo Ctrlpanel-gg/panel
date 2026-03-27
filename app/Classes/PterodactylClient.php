@@ -53,7 +53,7 @@ class PterodactylClient
             'Authorization' => 'Bearer ' . $ptero_settings->user_token,
             'Content-type' => 'application/json',
             'Accept' => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl($ptero_settings->getUrl() . 'api' . '/');
+        ])->timeout(30)->connectTimeout(10)->baseUrl($ptero_settings->getUrl() . 'api' . '/');
     }
 
     public function clientAdmin(PterodactylSettings $ptero_settings)
@@ -62,7 +62,7 @@ class PterodactylClient
             'Authorization' => 'Bearer ' . $ptero_settings->admin_token,
             'Content-type' => 'application/json',
             'Accept' => 'Application/vnd.pterodactyl.v1+json',
-        ])->baseUrl($ptero_settings->getUrl() . 'api' . '/');
+        ])->timeout(30)->connectTimeout(10)->baseUrl($ptero_settings->getUrl() . 'api' . '/');
     }
 
     /**
@@ -147,7 +147,7 @@ class PterodactylClient
             throw self::getException('Failed to get eggs from pterodactyl - ', $response->status());
         }
 
-        return $response->json()['data'];
+        return $this->extractRequiredArray($response, 'data', 'Failed to parse eggs response from Pterodactyl.');
     }
 
     /**
@@ -166,7 +166,7 @@ class PterodactylClient
             throw self::getException('Failed to get nodes from pterodactyl - ', $response->status());
         }
 
-        return $response->json()['data'];
+        return $this->extractRequiredArray($response, 'data', 'Failed to parse nodes response from Pterodactyl.');
     }
 
     /**
@@ -186,7 +186,7 @@ class PterodactylClient
             throw self::getException('Failed to get node id ' . $id . ' - ' . $response->status());
         }
 
-        return $response->json()['attributes'];
+        return $this->extractRequiredArray($response, 'attributes', 'Failed to parse node response from Pterodactyl.');
     }
 
     public function getServers()
@@ -200,7 +200,7 @@ class PterodactylClient
             throw self::getException('Failed to get list of servers - ', $response->status());
         }
 
-        return $response->json()['data'];
+        return $this->extractRequiredArray($response, 'data', 'Failed to parse servers response from Pterodactyl.');
     }
 
     /**
@@ -219,7 +219,7 @@ class PterodactylClient
             throw self::getException('Failed to get nests from pterodactyl', $response->status());
         }
 
-        return $response->json()['data'];
+        return $this->extractRequiredArray($response, 'data', 'Failed to parse nests response from Pterodactyl.');
     }
 
     /**
@@ -238,7 +238,7 @@ class PterodactylClient
             throw self::getException('Failed to get locations from pterodactyl - ', $response->status());
         }
 
-        return $response->json()['data'];
+        return $this->extractRequiredArray($response, 'data', 'Failed to parse locations response from Pterodactyl.');
     }
 
     /**
@@ -249,7 +249,15 @@ class PterodactylClient
      */
     public function getFreeAllocationId(Node $node)
     {
-        return self::getFreeAllocations($node)[0]['attributes']['id'] ?? null;
+        foreach ($this->getFreeAllocations($node) as $allocation) {
+            $allocationId = data_get($allocation, 'attributes.id');
+
+            if (is_int($allocationId) || ctype_digit((string) $allocationId)) {
+                return (int) $allocationId;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -263,12 +271,14 @@ class PterodactylClient
         $response = self::getAllocations($node);
         $freeAllocations = [];
 
-        if (isset($response['data'])) {
-            if (!empty($response['data'])) {
-                foreach ($response['data'] as $allocation) {
-                    if (!$allocation['attributes']['assigned']) {
-                        array_push($freeAllocations, $allocation);
-                    }
+        if (isset($response['data']) && is_array($response['data'])) {
+            foreach ($response['data'] as $allocation) {
+                if (! is_array($allocation)) {
+                    continue;
+                }
+
+                if (! (bool) data_get($allocation, 'attributes.assigned', true)) {
+                    $freeAllocations[] = $allocation;
                 }
             }
         }
@@ -293,7 +303,13 @@ class PterodactylClient
             throw self::getException('Failed to get allocations from pterodactyl - ', $response->status());
         }
 
-        return $response->json();
+        $payload = $response->json();
+
+        if (! is_array($payload)) {
+            throw new Exception('Failed to parse allocations response from Pterodactyl.');
+        }
+
+        return $payload;
     }
 
     /**
@@ -382,7 +398,7 @@ class PterodactylClient
             throw self::getException('Failed to get user from pterodactyl - ', $response->status());
         }
 
-        return $response->json()['attributes'];
+        return $this->extractRequiredArray($response, 'attributes', 'Failed to parse user response from Pterodactyl.');
     }
 
     /**
@@ -424,16 +440,20 @@ class PterodactylClient
         //print response body
 
         if ($response->failed()) {
-            if ($deleteOn404) {  //Delete the server if it does not exist (server deleted on pterodactyl)
-                Server::where('pterodactyl_id', $pterodactylId)->first()->delete();
+            if ($deleteOn404 && $response->status() === 404) {  //Delete the server if it does not exist (server deleted on pterodactyl)
+                $server = Server::query()->where('pterodactyl_id', $pterodactylId)->first();
 
-                return;
+                if ($server) {
+                    $server->deleteQuietly();
+                }
+
+                return null;
             } else {
                 throw self::getException('Failed to get server attributes from pterodactyl - ', $response->status());
             }
         }
 
-        return $response->json()['attributes'];
+        return $this->extractRequiredArray($response, 'attributes', 'Failed to parse server response from Pterodactyl.');
     }
 
     /**
@@ -483,7 +503,7 @@ class PterodactylClient
                 'io' => $product->io,
                 'cpu' => $product->cpu,
                 'threads' => null,
-                'oom_disabled' => $product->oom_killer,
+                'oom_disabled' => !$product->oom_killer,
                 'feature_limits' => [
                     'databases' => $product->databases,
                     'backups' => $product->backups,
@@ -492,7 +512,7 @@ class PterodactylClient
             ]);
 
             if ($response->failed()) {
-                throw self::getException('Server not found on Pterodactyl', 404);
+                throw self::getException('Failed to update server build on Pterodactyl.', $response->status());
             }
 
             return $response;
@@ -572,7 +592,12 @@ class PterodactylClient
         } catch (Exception $e) {
             throw self::getException($e->getMessage());
         }
-        $node = $response['attributes'];
+
+        if ($response->failed()) {
+            throw self::getException('Failed to get node resources from pterodactyl - ', $response->status());
+        }
+
+        $node = $this->extractRequiredArray($response, 'attributes', 'Failed to parse node resources from Pterodactyl.');
         $freeMemory = ($node['memory'] * ($node['memory_overallocate'] + 100) / 100) - $node['allocated_resources']['memory'];
         $freeDisk = ($node['disk'] * ($node['disk_overallocate'] + 100) / 100) - $node['allocated_resources']['disk'];
         if ($freeMemory < $requireMemory) {
@@ -588,17 +613,53 @@ class PterodactylClient
     private function getEnvironmentVariables(Egg $egg, $variables)
     {
         $environment = [];
-        // Support for front-end and api variables format.
-        $variables = collect(is_string($variables) ? json_decode($variables, true) : $variables);
+        $allowedVariables = [];
 
-        foreach ($egg->environment as $envVariable) {
-            if (!empty($envVariable['default_value'])) {
+        if (is_string($variables)) {
+            $decodedVariables = json_decode($variables, true);
+            $variables = is_array($decodedVariables) ? $decodedVariables : [];
+        }
+
+        $variables = is_array($variables) ? $variables : [];
+
+        foreach ((array) $egg->environment as $envVariable) {
+            if (! is_array($envVariable) || empty($envVariable['env_variable'])) {
+                continue;
+            }
+
+            $allowedVariables[] = $envVariable['env_variable'];
+
+            if (array_key_exists('default_value', $envVariable) && $envVariable['default_value'] !== null && $envVariable['default_value'] !== '') {
                 $environment[$envVariable['env_variable']] = $envVariable['default_value'];
             }
         }
 
-        $environment = array_merge($environment, $variables->toArray());
+        foreach ($variables as $key => $value) {
+            if (in_array($key, $allowedVariables, true)) {
+                $environment[$key] = $value;
+            }
+        }
 
         return $environment;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function extractRequiredArray(Response $response, string $path, string $message): array
+    {
+        $payload = $response->json();
+
+        if (! is_array($payload)) {
+            throw new Exception($message);
+        }
+
+        $value = data_get($payload, $path);
+
+        if (! is_array($value)) {
+            throw new Exception($message);
+        }
+
+        return $value;
     }
 }
