@@ -350,6 +350,7 @@ class UserController extends Controller
      */
     public function logBackIn(Request $request)
     {
+        $this->checkPermission(self::LOGIN_PERMISSION);
 
         Auth::loginUsingId($request->session()->get('previousUser'), true);
         $request->session()->remove('previousUser');
