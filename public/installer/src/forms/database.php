@@ -36,7 +36,7 @@ if (isset($_POST['checkDB'])) {
 
     try {
         if (!str_contains(getenv('APP_KEY'), 'base64')) {
-            $logs = run_console('php artisan key:generate --force');
+            $logs = run_console(['php', 'artisan', 'key:generate', '--force']);
             wh_log($logs, 'debug');
 
             wh_log('Created APP_KEY successful', 'debug');
@@ -58,10 +58,10 @@ if (isset($_POST['feedDB'])) {
     $logs = '';
 
     try {
-        $logs .= run_console('php artisan storage:link');
-        $logs .= run_console('php artisan migrate --seed --force');
-        $logs .= run_console('php artisan db:seed --class=ExampleItemsSeeder --force');
-        $logs .= run_console('php artisan db:seed --class=GeneralPermissionsSeeder --force');
+        $logs .= run_console(['php', 'artisan', 'storage:link']);
+        $logs .= run_console(['php', 'artisan', 'migrate', '--seed', '--force']);
+        $logs .= run_console(['php', 'artisan', 'db:seed', '--class=ExampleItemsSeeder', '--force']);
+        $logs .= run_console(['php', 'artisan', 'db:seed', '--class=GeneralPermissionsSeeder', '--force']);
 
         wh_log($logs, 'debug');
 
