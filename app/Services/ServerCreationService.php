@@ -154,9 +154,48 @@ class ServerCreationService
             ->get();
 
         $availableNodes = $nodes->reject(function ($node) use ($product) {
-            return !$this->pterodactylClient->checkNodeResources($node, $product->memory, $product->disk);
+            // Check if node has enough memory and disk resources
+            if (!$this->pterodactylClient->checkNodeResources($node, $product->memory, $product->disk)) {
+                return true;
+            }
+
+            // Check if node has free allocations (IP/port)
+            $freeAllocations = $this->pterodactylClient->getFreeAllocations($node);
+            return empty($freeAllocations);
         });
 
         return $availableNodes->isEmpty() ? null : $availableNodes->first();
+    }
+
+    /**
+     * Find a node in the given location for the product that has required resources
+     * and also a free allocation on Pterodactyl. Returns ['node' => Node, 'allocation_id' => int]
+     * or null when none available.
+     */
+    private function findAvailableNodeWithAllocation(string $locationId, Product $product): ?array
+    {
+        $nodes = Node::where('location_id', $locationId)
+            ->whereHas('products', fn($q) => $q->where('product_id', $product->id))
+            ->get();
+
+        $availableNodes = $nodes->reject(function ($node) use ($product) {
+            return !$this->pterodactylClient->checkNodeResources($node, $product->memory, $product->disk);
+        });
+
+        // Try each available node and return the first one with a free allocation.
+        foreach ($availableNodes as $node) {
+            try {
+                $allocationId = $this->pterodactylClient->getFreeAllocationId($node);
+            } catch (\Exception $e) {
+                logger('Failed to get allocation for node ' . $node->id, ['exception' => $e]);
+                $allocationId = null;
+            }
+
+            if ($allocationId) {
+                return ['node' => $node, 'allocation_id' => $allocationId];
+            }
+        }
+
+        return null;
     }
 }
