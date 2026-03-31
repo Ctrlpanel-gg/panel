@@ -177,7 +177,7 @@ class ServerController extends Controller
         $nodeAllocation = $this->findAvailableNodeWithAllocation($location, $product);
 
         if (!$nodeAllocation) {
-            return __("The chosen location doesn't have the required memory, disk, or free allocations to allocate this product.");
+            return __("The selected location does not have the required memory, disk, or is overloaded.");
         }
 
         $user = Auth::user();
