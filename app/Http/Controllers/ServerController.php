@@ -14,6 +14,7 @@ use App\Settings\DiscordSettings;
 use Carbon\Carbon;
 use App\Settings\UserSettings;
 use App\Settings\ServerSettings;
+use App\Services\ServerCreationService;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
 use App\Enums\BillingPriority;
@@ -51,13 +52,15 @@ class ServerController extends Controller
     private ServerSettings $serverSettings;
     private UserSettings $userSettings;
     private DiscordSettings $discordSettings;
+    private ServerCreationService $serverCreationService;
 
     public function __construct(
         PterodactylSettings $pteroSettings,
         GeneralSettings $generalSettings,
         ServerSettings $serverSettings,
         UserSettings $userSettings,
-        DiscordSettings $discordSettings
+        DiscordSettings $discordSettings,
+        ServerCreationService $serverCreationService
     ) {
         $this->pteroSettings = $pteroSettings;
         $this->pterodactyl = new PterodactylClient($pteroSettings);
@@ -65,6 +68,7 @@ class ServerController extends Controller
         $this->serverSettings = $serverSettings;
         $this->userSettings = $userSettings;
         $this->discordSettings = $discordSettings;
+        $this->serverCreationService = $serverCreationService;
     }
 
     public function index(): \Illuminate\View\View
@@ -120,7 +124,10 @@ class ServerController extends Controller
         Cache::put($lockKey, true, 5);
 
         $validationResult = $this->validateServerCreation($request);
-        if ($validationResult) return $validationResult;
+        if ($validationResult) {
+            Cache::forget($lockKey);
+            return $validationResult;
+        }
 
         $request->validate([
             'name' => 'required|max:191',
@@ -131,17 +138,33 @@ class ServerController extends Controller
             'billing_priority' => ['nullable', new Enum(BillingPriority::class)],
         ]);
 
-        $server = $this->createServer($request);
+        try {
+            $user = $request->user();
+            $product = Product::findOrFail($request->input('product'));
 
-        if (!$server) {
+            $server = $this->serverCreationService->handle($user, $product, [
+                'name' => $request->input('name'),
+                'egg_id' => $request->input('egg'),
+                'location_id' => $request->input('location'),
+                'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
+                'egg_variables' => $request->input('egg_variables'),
+            ]);
+
+            Cache::forget($lockKey);
+
+            if (!$server) {
+                return redirect()->route('servers.index')
+                    ->with('error', __('Server creation failed'));
+            }
+
             return redirect()->route('servers.index')
-                ->with('error', __('Server creation failed'));
+                ->with('success', __('Server created'));
+        } catch (Exception $e) {
+            Cache::forget($lockKey);
+
+            return redirect()->route('servers.index')
+                ->with('error', $e->getMessage());
         }
-
-        $this->handlePostCreation($request->user(), $server);
-
-        return redirect()->route('servers.index')
-            ->with('success', __('Server created'));
     }
 
     private function validateServerCreation(Request $request): ?RedirectResponse
@@ -268,61 +291,22 @@ class ServerController extends Controller
         }
     }
 
+    /**
+     * @deprecated Once everyone is migrated to ServerCreationService.
+     */
     private function createServer(Request $request): ?Server
     {
-        $product = Product::findOrFail($request->input('product'));
-        $egg = $product->eggs()->findOrFail($request->input('egg'));
-        $nodeAllocation = $this->findAvailableNodeWithAllocation($request->input('location'), $product);
-
-        if (!$nodeAllocation) return null;
-
-        $server = $request->user()->servers()->create([
-            'name' => $request->input('name'),
-            'product_id' => $product->id,
-            'last_billed' => Carbon::now(),
-            'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
-        ]);
-
-        $response = $this->pterodactyl->createServer($server, $egg, $nodeAllocation['allocation_id'], $request->input('egg_variables'));
-        if ($response->failed()) {
-            Log::error('Failed to create server on Pterodactyl', [
-                'server_id' => $server->id,
-                'status' => $response->status(),
-                'error' => $response->json()
-            ]);
-            $server->delete();
-            return null;
-        }
-
-        $serverAttributes = $response->json()['attributes'];
-        $server->update([
-            'pterodactyl_id' => $serverAttributes['id'],
-            'identifier' => $serverAttributes['identifier']
-        ]);
-
-        return $server;
+        // Legacy path; use ServerCreationService::handle() instead.
+        throw new \BadMethodCallException('createServer() is deprecated. Use ServerCreationService::handle().');
     }
 
+    /**
+     * @deprecated Once everyone is migrated to ServerCreationService.
+     */
     private function handlePostCreation(User $user, Server $server): void
     {
-        logger('Product Price: ' . $server->product->price);
-
-        $user->decrement('credits', $server->product->price);
-        Cache::forget('user_credits_left:' . $user->id);
-
-        try {
-            if ($this->discordSettings->role_for_active_clients &&
-                $user->discordUser &&
-                $user->servers->count() >= 1
-            ) {
-                $user->discordUser->addOrRemoveRole(
-                    'add',
-                    $this->discordSettings->role_id_for_active_clients
-                );
-            }
-        } catch (Exception $e) {
-            Log::debug('Discord role update failed: ' . $e->getMessage());
-        }
+        // Legacy path; use PostServerCreationJob for idempotent async processing.
+        throw new \BadMethodCallException('handlePostCreation() is deprecated. Use PostServerCreationJob instead.');
     }
 
     public function destroy(Server $server): RedirectResponse

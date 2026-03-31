@@ -573,111 +573,105 @@
                 },
 
                 dispatchModal(variables) {
-                    Swal.fire({
-                            title: '{{ __('Required Variables') }}',
-                            html: `
-                      ${variables.map(variable => `
-                            <div class="text-left form-group">
-                              <div class="d-flex justify-content-between">
-                                <label for="${variable.env_variable}">${variable.name}</label>
-                                ${variable.description
-                                  ? `
-                                <span>
-                                  <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
-                                </span>
-                              `
-                                  : ''
-                                }
-                              </div>
-                              ${
-                                variable.rules.includes("in:")
-                                  ? (() => {
-                                    const inValues = variable.rules
-                                      .match(/in:([^|]+)/)[1]
-                                      .split(',');
-                                    return `
-                                  <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
-                                      ${inValues.map(value => `
-                                              <option value="${value}">${value}</option>
-                                          `).join('')}
-                                  </select>
+                    const html = variables.map(variable => {
+                        const control = variable.rules.includes('in:') ?
+                            (() => {
+                                const inValues = variable.rules.match(/in:([^|]+)/)[1].split(',');
+                                return `
+                                    <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
+                                        ${inValues.map(value => `<option value="${value}">${value}</option>`).join('')}
+                                    </select>
                                 `;
-                                  })()
-                                  : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
-                        } <
-                        div id = "${variable.env_variable}-error"
-                        class = "mt-1" > < /div> <
-                        /div>
-                        `).join('')
-                      }
-                    `,
+                            })() :
+                            `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`;
+
+                        return `
+                            <div class="text-left form-group">
+                                <div class="d-flex justify-content-between">
+                                    <label for="${variable.env_variable}">${variable.name}</label>
+                                    ${variable.description ? `
+                                            <span>
+                                                <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
+                                            </span>
+                                        ` : ''}
+                                </div>
+                                ${control}
+                                <div id="${variable.env_variable}-error" class="mt-1"></div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    Swal.fire({
+                        title: '{{ __('Required Variables') }}',
+                        html: html,
                         confirmButtonText: '{{ __('Submit') }}',
                         showCancelButton: true,
                         cancelButtonText: '{{ __('Cancel') }}',
                         showLoaderOnConfirm: true,
                         preConfirm: async () => {
-                                const filledVariables = variables.map(variable => {
-                                    const value = document.getElementById(variable.env_variable).value;
-                                    return {
-                                        ...variable,
-                                        filled_value: value
-                                    };
+                            const filledVariables = variables.map(variable => {
+                                const value = document.getElementById(variable.env_variable).value;
+                                return {
+                                    ...variable,
+                                    filled_value: value
+                                };
+                            });
+
+                            const response = await fetch(
+                            '{{ route('servers.validateDeploymentVariables') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    variables: filledVariables
+                                })
+                            })
+
+                            if (!response.ok) {
+                                const errorData = await response.json();
+
+                                variables.forEach(variable => {
+                                    const errorContainer = document.getElementById(
+                                        `${variable.env_variable}-error`);
+                                    if (errorContainer) {
+                                        errorContainer.innerHTML = '';
+                                    }
                                 });
 
-                                const response = await fetch('{{ route('servers.validateDeploymentVariables') }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
-                                    body: JSON.stringify({
-                                        variables: filledVariables
-                                    })
-                                })
-
-                                if (!response.ok) {
-                                    const errorData = await response.json();
-
-                                    variables.forEach(variable => {
-                                        const errorContainer = document.getElementById(
-                                            `${variable.env_variable}-error`);
+                                if (errorData.errors) {
+                                    Object.entries(errorData.errors).forEach(([key, messages]) => {
+                                        const errorContainer = document.getElementById(`${key}-error`);
                                         if (errorContainer) {
-                                            errorContainer.innerHTML = '';
-                                        }
-                                    });
-
-                                    if (errorData.errors) {
-                                        Object.entries(errorData.errors).forEach(([key, messages]) => {
-                                            const errorContainer = document.getElementById(`${key}-error`);
-                                            if (errorContainer) {
-                                                errorContainer.innerHTML = messages.map(message => `
+                                            errorContainer.innerHTML = messages.map(message => `
                                         <small class="text-danger">${message}</small>
                                     `).join('');
-                                            }
-                                        });
-                                    }
-
-                                    return false;
+                                        }
+                                    });
                                 }
 
-                                return response.json();
-                            },
-                            didOpen: () => {
-                                $('[data-toggle="tooltip"]').tooltip();
-                            },
-                    }).then((result) => {
-                    if (result.isConfirmed && result.value.success) {
-                        let variables = result.value.variables.reduce((acc, variable) => {
-                            acc[variable.env_variable] = variable.filled_value;
-                            return acc;
-                        }, {});
+                                return false;
+                            }
 
-                        document.getElementById('egg_variables').value = JSON.stringify(variables);
-                        document.getElementById('serverForm').submit();
-                    }
-                });
+                            return response.json();
+                        },
+                        didOpen: () => {
+                            $('[data-toggle="tooltip"]').tooltip();
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value.success) {
+                            let variables = result.value.variables.reduce((acc, variable) => {
+                                acc[variable.env_variable] = variable.filled_value;
+                                return acc;
+                            }, {});
+
+                            document.getElementById('egg_variables').value = JSON.stringify(variables);
+                            document.getElementById('serverForm').submit();
+                        }
+                    });
+                }
             }
-        }
         }
     </script>
 @endsection
