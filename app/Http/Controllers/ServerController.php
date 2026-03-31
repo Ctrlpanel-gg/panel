@@ -174,10 +174,10 @@ class ServerController extends Controller
     private function validateProductRequirements(Product $product, Request $request): string|bool
     {
         $location = $request->input('location');
-        $availableNode = $this->findAvailableNode($location, $product);
+        $nodeAllocation = $this->findAvailableNodeWithAllocation($location, $product);
 
-        if (!$availableNode) {
-            return __("The chosen location doesn't have the required memory or disk left to allocate this product.");
+        if (!$nodeAllocation) {
+            return __("The selected location does not have the required memory, disk, or is overloaded.");
         }
 
         $user = Auth::user();
@@ -272,9 +272,9 @@ class ServerController extends Controller
     {
         $product = Product::findOrFail($request->input('product'));
         $egg = $product->eggs()->findOrFail($request->input('egg'));
-        $node = $this->findAvailableNode($request->input('location'), $product);
+        $nodeAllocation = $this->findAvailableNodeWithAllocation($request->input('location'), $product);
 
-        if (!$node) return null;
+        if (!$nodeAllocation) return null;
 
         $server = $request->user()->servers()->create([
             'name' => $request->input('name'),
@@ -283,17 +283,7 @@ class ServerController extends Controller
             'billing_priority' => $request->input('billing_priority', $product->default_billing_priority),
         ]);
 
-        $allocationId = $this->pterodactyl->getFreeAllocationId($node);
-        if (!$allocationId) {
-            Log::error('No AllocationID found.', [
-                'server_id' => $server->id,
-                'node_id' => $node->id,
-            ]);
-            $server->delete();
-            return null;
-        }
-
-        $response = $this->pterodactyl->createServer($server, $egg, $allocationId, $request->input('egg_variables'));
+        $response = $this->pterodactyl->createServer($server, $egg, $nodeAllocation['allocation_id'], $request->input('egg_variables'));
         if ($response->failed()) {
             Log::error('Failed to create server on Pterodactyl', [
                 'server_id' => $server->id,
@@ -593,10 +583,51 @@ class ServerController extends Controller
             ->get();
 
         $availableNodes = $nodes->reject(function ($node) use ($product) {
-            return !$this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
+            // Check if node has enough memory and disk resources
+            if (!$this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk)) {
+                return true;
+            }
+
+            // Check if node has free allocations (IP/port)
+            $freeAllocations = $this->pterodactyl->getFreeAllocations($node);
+            return empty($freeAllocations);
         });
 
         return $availableNodes->isEmpty() ? null : $availableNodes->first();
+    }
+
+    /**
+     * Find a node in the given location for the product that has required resources
+     * and also a free allocation on Pterodactyl. Returns ['node' => Node, 'allocation_id' => int]
+     * or null when none available.
+     */
+    private function findAvailableNodeWithAllocation(string $locationId, Product $product): ?array
+    {
+        $nodes = Node::where('location_id', $locationId)
+            ->whereHas('products', fn($q) => $q->where('product_id', $product->id))
+            ->get();
+
+        $availableNodes = $nodes->reject(function ($node) use ($product) {
+            return !$this->pterodactyl->checkNodeResources($node, $product->memory, $product->disk);
+        });
+
+        foreach ($availableNodes as $node) {
+            try {
+                $allocationId = $this->pterodactyl->getFreeAllocationId($node);
+            } catch (\Exception $e) {
+                Log::warning('Failed to get allocation for node while searching for free allocation', [
+                    'node_id' => $node->id,
+                    'exception' => $e->getMessage(),
+                ]);
+                $allocationId = null;
+            }
+
+            if ($allocationId) {
+                return ['node' => $node, 'allocation_id' => $allocationId];
+            }
+        }
+
+        return null;
     }
 
     public function validateDeploymentVariables(Request $request)

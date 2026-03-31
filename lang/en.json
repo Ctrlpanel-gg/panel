@@ -71,7 +71,7 @@
     "Change Status": "Change Status",
     "Profile updated": "Profile updated",
     "Server limit reached!": "Server limit reached!",
-    "The chosen location doesn't have the required memory or disk left to allocate this product.": "The chosen location doesn't have the required memory or disk left to allocate this product.",
+    "The selected location does not have the required memory, disk, or is overloaded.": "The selected location does not have the required memory, disk, or is overloaded.",
     "You are required to verify your email address before you can create a server.": "You are required to verify your email address before you can create a server.",
     "You are required to link your discord account before you can create a server.": "You are required to link your discord account before you can create a server.",
     "Server created": "Server created",
