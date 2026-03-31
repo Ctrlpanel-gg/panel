@@ -2,13 +2,13 @@
 if (isset($_POST['checkPtero'])) {
     wh_log('Checking Pterodactyl Settings', 'debug');
 
-    $url = $_POST['url'];
-    $key = $_POST['key'];
-    $clientkey = $_POST['clientkey'];
+    $url = trim((string) ($_POST['url'] ?? ''));
+    $key = trim((string) ($_POST['key'] ?? ''));
+    $clientkey = trim((string) ($_POST['clientkey'] ?? ''));
 
     $parsedUrl = parse_url($url);
 
-    if (!isset($parsedUrl['scheme'])) {
+    if (!isset($parsedUrl['scheme']) || !in_array(strtolower((string) $parsedUrl['scheme']), ['http', 'https'], true)) {
         send_error_message("Please set an URL Scheme like 'https://'!");
         exit();
     }
@@ -31,7 +31,7 @@ if (isset($_POST['checkPtero'])) {
         'Authorization: Bearer ' . $clientkey,
     ]);
     $callresponse = curl_exec($call);
-    $callresult = json_decode($callresponse, true);
+    $callresult = json_decode((string) $callresponse, true);
     curl_close($call);
 
     $pteroURL = $url . '/api/application/users';
@@ -45,35 +45,46 @@ if (isset($_POST['checkPtero'])) {
         'Authorization: Bearer ' . $key,
     ]);
     $response = curl_exec($ch);
-    $result = json_decode($response, true);
+    $result = json_decode((string) $response, true);
     curl_close($ch);
 
     if (!is_array($result)) {
-        wh_log('No array in response found'. $result, 'error');
-        send_error_message("An unknown Error occured, please try again!");
+        $responseType = gettype($result);
+        if (is_string($response)) {
+            $truncatedResponse = substr($response, 0, 500);
+        } else {
+            $encodedResponse = json_encode($result);
+            $truncatedResponse = substr((string) $encodedResponse, 0, 500);
+        }
+        wh_log(
+            'No array in response found. Type: ' . $responseType . '. Raw response (truncated): ' . $truncatedResponse,
+            'error'
+        );
+        send_error_message("An unknown Error occurred, please try again!");
+        exit();
     }
 
-    if (array_key_exists('errors', $result) && $result['errors'][0]['detail'] === 'This action is unauthorized.') {
-        wh_log('API CALL ERROR: ' . $result['errors'][0]['code'], 'error');
+    if (array_key_exists('errors', $result) && ($result['errors'][0]['detail'] ?? '') === 'This action is unauthorized.') {
+        wh_log('API CALL ERROR: ' . ($result['errors'][0]['code'] ?? 'unknown'), 'error');
         send_error_message("Couldn\'t connect to Pterodactyl. Make sure your Application API key has all read and write permissions!");
         exit();
     }
 
-    if (array_key_exists('errors', $callresult) && $callresult['errors'][0]['detail'] === 'Unauthenticated.') {
-        wh_log('API CALL ERROR: ' . $callresult['errors'][0]['code'], 'error');
+    if (is_array($callresult) && array_key_exists('errors', $callresult) && ($callresult['errors'][0]['detail'] ?? '') === 'Unauthenticated.') {
+        wh_log('API CALL ERROR: ' . ($callresult['errors'][0]['code'] ?? 'unknown'), 'error');
         send_error_message("Your ClientAPI Key is wrong or the account is not an admin!");
         exit();
     }
 
     try {
-        run_console("php artisan settings:set 'PterodactylSettings' 'panel_url' '$url'", null,null,null,false);
-        run_console("php artisan settings:set 'PterodactylSettings' 'admin_token' '$key'", null,null,null,false);
-        run_console("php artisan settings:set 'PterodactylSettings' 'user_token' '$clientkey'", null,null,null,false);
+        run_console(['php', 'artisan', 'settings:set', 'PterodactylSettings', 'panel_url', $url], null, null, null, false);
+        run_console(['php', 'artisan', 'settings:set', 'PterodactylSettings', 'admin_token', $key], null, null, null, false);
+        run_console(['php', 'artisan', 'settings:set', 'PterodactylSettings', 'user_token', $clientkey], null, null, null, false);
         wh_log('Database updated with pterodactyl Settings.', 'debug');
         next_step();
     } catch (Throwable $th) {
-        wh_log("Setting Pterodactyl information failed. ".$th->getMessage(), 'error');
-        send_error_message($th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
+        wh_log("Setting Pterodactyl information failed. " . $th->getMessage(), 'error');
+        send_error_message("Could not update pterodactyl settings. Please check installer.log.");
         exit();
     }
 }
