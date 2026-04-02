@@ -65,8 +65,9 @@ class AppServiceProvider extends ServiceProvider
 
         CallHomeHelper::callHomeOnce();
 
-        // get the Github Branch the panel is running on
+        // get the Git branch and commit the panel is running on
         $headFileMissing = false;
+
         try {
             $headFilePath = base_path() . '/.git/HEAD';
             if (!file_exists($headFilePath)) {
@@ -74,18 +75,27 @@ class AppServiceProvider extends ServiceProvider
                 throw new Exception('.git/HEAD file not found');
             }
 
-            $stringfromfile = file($headFilePath);
+            $firstLine = trim(file($headFilePath)[0]);
+            // branch ref in HEAD is format "ref: refs/heads/branchname"
+            if (str_starts_with($firstLine, 'ref:')) {
+                $branchname = basename(trim(str_replace('ref:', '', $firstLine)));
+            } else {
+                // detached HEAD; fallback to unknown
+                $branchname = 'detached';
+            }
 
-            $firstLine = $stringfromfile[0]; //get the string from the array
-
-            $explodedstring = explode('/', $firstLine, 3); //seperate out by the "/" in the string
-
-            $branchname = $explodedstring[2]; //get the one that is always the branch name
+            // attempt to obtain commit hash from git command if available
+            $possibleCommit = trim(@shell_exec('git -C ' . escapeshellarg(base_path()) . ' rev-parse --short HEAD 2>/dev/null'));
+            if ($possibleCommit !== '') {
+                $commitHash = $possibleCommit;
+            }
         } catch (Exception $e) {
             $branchname = 'unknown';
+            $commitHash = 'unknown';
             Log::notice($e);
         }
-        config(['BRANCHNAME' => $branchname]);
+
+        config(['BRANCHNAME' => $branchname, 'COMMIT_HASH' => $commitHash]);
         view()->share('headFileMissing', $headFileMissing);
 
         // Do not run this code if no APP_KEY is set
