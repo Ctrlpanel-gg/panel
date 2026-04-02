@@ -9,16 +9,16 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('servers', function (Blueprint $table) {
-            if (!Schema::hasColumn('servers', 'status')) {
+        if (!Schema::hasColumn('servers', 'status')) {
+            Schema::table('servers', function (Blueprint $table) {
                 $table->string('status')->default('active')->after('identifier')->index();
+            });
 
-                DB::table('servers')
-                    ->whereNull('status')
-                    ->orWhere('status', '')
-                    ->update(['status' => 'active']);
-            }
-        });
+            DB::table('servers')
+                ->whereNull('status')
+                ->orWhere('status', '')
+                ->update(['status' => 'active']);
+        }
     }
 
     public function down()
