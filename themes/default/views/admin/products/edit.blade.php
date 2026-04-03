@@ -407,26 +407,30 @@
                 closeOnSelect: false
             });
 
-            $(document).on('click', '.select2-results__group', function(e) {
+            $(document).on('click', '.select2-results__group', function() {
                 var groupName = $(this).text();
-                var $select = $('#eggs');
 
-                var options = $select.find('option');
+                // get the currently open select2 container
+                var $dropdown = $(this).closest('.select2-dropdown');
 
-                var groupOptions = options.filter(function() {
+                // find the select that owns this dropdown
+                var $select = $('.select2-hidden-accessible').filter(function() {
+                    return $(this).data('select2')?.dropdown?.$dropdown?.[0] === $dropdown[0];
+                });
+
+                if (!$select.length) return;
+
+                var groupOptions = $select.find('option').filter(function() {
                     return $(this).closest('optgroup').attr('label') === groupName;
                 });
 
-                var allSelected = true;
-                groupOptions.each(function() {
-                    if (!$(this).prop('selected')) {
-                        allSelected = false;
-                        return false;
-                    }
-                });
+                var allSelected = groupOptions.toArray().every(opt => $(opt).prop('selected'));
 
                 groupOptions.prop('selected', !allSelected);
+
                 $select.trigger('change');
+
+                // refresh UI
                 $select.select2('close');
                 $select.select2('open');
             });
