@@ -114,6 +114,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
     Route::post('ticket/new', [TicketsController::class, 'store'])->name('ticket.new.store');
     Route::get('ticket/show/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.show');
+    
+    Route::get('ticket/comments/{ticket_id}', [TicketsController::class, 'show'])->name('ticket.comments');
+    
     Route::post('ticket/reply', [TicketsController::class, 'reply'])->name('ticket.reply');
 
     Route::post('ticket/status/{ticket_id}', [TicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
@@ -204,6 +207,9 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         Route::get('ticket', [AdminTicketsController::class, 'index'])->name('ticket.index');
         Route::get('ticket/datatable', [AdminTicketsController::class, 'datatable'])->name('ticket.datatable');
         Route::get('ticket/show/{ticket_id}', [AdminTicketsController::class, 'show'])->name('ticket.show');
+        
+        Route::get('ticket/comments/{ticket_id}', [AdminTicketsController::class, 'show'])->name('ticket.comments');
+        
         Route::post('ticket/reply', [AdminTicketsController::class, 'reply'])->name('ticket.reply');
         Route::post('ticket/status/{ticket_id}', [AdminTicketsController::class, 'changeStatus'])->name('ticket.changeStatus');
         Route::post('ticket/delete/{ticket_id}', [AdminTicketsController::class, 'delete'])->name('ticket.delete');

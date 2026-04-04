@@ -121,24 +121,26 @@
                                 </div>
                                 <div class="card-body" style="white-space:pre-wrap">{{ $ticket->message }}</div>
                             </div>
-                            @foreach ($ticketcomments as $ticketcomment)
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="d-flex justify-content-between">
-                                        <h5 class="card-title"><img
-                                            src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=25"
-                                            class="user-image" alt="User Image">
-                                        <a href="/admin/users/{{$ticketcomment->user->id}}">{{ $ticketcomment->user->name }}</a>
-                                            @foreach ($ticketcomment->user->roles as $role)
-                                                <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
-                                            @endforeach
-                                    </h5>
-                                        <span class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>
+                            <div id="ticket-comments">
+                                @foreach ($ticketcomments as $ticketcomment)
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="card-title"><img
+                                                src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=25"
+                                                class="user-image" alt="User Image">
+                                            <a href="/admin/users/{{$ticketcomment->user->id}}">{{ $ticketcomment->user->name }}</a>
+                                                @foreach ($ticketcomment->user->roles as $role)
+                                                    <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                                @endforeach
+                                        </h5>
+                                            <span class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>
+                                        </div>
                                     </div>
+                                    <div class="card-body" style="white-space:pre-wrap">{{ $ticketcomment->ticketcomment }}</div>
                                 </div>
-                                <div class="card-body" style="white-space:pre-wrap">{{ $ticketcomment->ticketcomment }}</div>
+                                @endforeach
                             </div>
-                            @endforeach
                             <div class="comment-form">
                                 <form action="{{ route('admin.ticket.reply')}}" method="POST" class="form">
                                     {!! csrf_field() !!}
@@ -163,5 +165,50 @@
         </div>
     </section>
     <!-- END CONTENT -->
-@endsection
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function escapeHtml(value) {
+                if (value === null || value === undefined) {
+                    return '';
+                }
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
 
+            setInterval(function() {
+                fetch("{{ route('admin.ticket.comments', $ticket->ticket_id) }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = '';
+                        data.forEach(comment => {
+                            let rolesHtml = '';
+                            comment.user.roles.forEach(role => {
+                                rolesHtml += `<span style='background-color: ${escapeHtml(role.color)}' class='badge'>${escapeHtml(role.name)}</span> `;
+                            });
+
+                            html += `
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title"><img
+                                                src="${escapeHtml(comment.user.avatar)}"
+                                                class="user-image" alt="User Image">
+                                            <a href="/admin/users/${escapeHtml(comment.user.id)}">${escapeHtml(comment.user.name)}</a>
+                                            ${rolesHtml}
+                                        </h5>
+                                        <span class="badge badge-primary">${escapeHtml(comment.created_at)}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body" style="white-space:pre-wrap">${escapeHtml(comment.ticketcomment)}</div>
+                            </div>`;
+                        });
+                        document.getElementById('ticket-comments').innerHTML = html;
+                    });
+            }, 15000);
+        });
+    </script>
+@endsection

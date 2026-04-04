@@ -122,26 +122,28 @@
                                 </div>
                                 <div class="card-body" style="white-space:pre-wrap">{{ $ticket->message }}</div>
                             </div>
-                            @foreach ($ticketcomments as $ticketcomment)
-                                <div class="card">
-                                    <div class="card-header">
-                                        <div class="d-flex justify-content-between">
-                                            <h5 class="card-title"><img
-                                                    src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=25"
-                                                    class="user-image" alt="User Image">
-                                                <a href="/admin/users/{{$ticketcomment->user->id}}">{{ $ticketcomment->user->name }}</a>
-                                                @foreach ($ticketcomment->user->roles as $role)
-                                                    <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
-                                                @endforeach
-                                            </h5>
-                                            <span
-                                                class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>
+                            <div id="ticket-comments">
+                                @foreach ($ticketcomments as $ticketcomment)
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <div class="d-flex justify-content-between">
+                                                <h5 class="card-title"><img
+                                                        src="https://www.gravatar.com/avatar/{{ md5(strtolower($ticketcomment->user->email)) }}?s=25"
+                                                        class="user-image" alt="User Image">
+                                                    <a href="/admin/users/{{$ticketcomment->user->id}}">{{ $ticketcomment->user->name }}</a>
+                                                    @foreach ($ticketcomment->user->roles as $role)
+                                                        <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                                    @endforeach
+                                                </h5>
+                                                <span
+                                                    class="badge badge-primary">{{ $ticketcomment->created_at->diffForHumans() }}</span>
+                                            </div>
                                         </div>
+                                        <div class="card-body"
+                                             style="white-space:pre-wrap">{{ $ticketcomment->ticketcomment }}</div>
                                     </div>
-                                    <div class="card-body"
-                                         style="white-space:pre-wrap">{{ $ticketcomment->ticketcomment }}</div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
                             <div class="comment-form">
                                 <form action="{{ route('ticket.reply')}}" method="POST" class="form reply-form">
                                     {!! csrf_field() !!}
@@ -169,11 +171,95 @@
     <!-- END CONTENT -->
     <script type="text/javascript">
         $(".reply-form").submit(function (e) {
-
             $(".reply-once").attr("disabled", true);
             return true;
         })
 
+        document.addEventListener("DOMContentLoaded", function () {
+            setInterval(function () {
+                fetch("{{ route('ticket.comments', $ticket->ticket_id) }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        const container = document.getElementById('ticket-comments');
+                        if (!container) {
+                            return;
+                        }
+
+                        // Clear existing comments
+                        while (container.firstChild) {
+                            container.removeChild(container.firstChild);
+                        }
+
+                        data.forEach(comment => {
+                            if (!comment || !comment.user) {
+                                return;
+                            }
+
+                            const card = document.createElement('div');
+                            card.className = 'card';
+
+                            const cardHeader = document.createElement('div');
+                            cardHeader.className = 'card-header';
+
+                            const headerFlex = document.createElement('div');
+                            headerFlex.className = 'd-flex justify-content-between';
+
+                            const title = document.createElement('h5');
+                            title.className = 'card-title';
+
+                            const img = document.createElement('img');
+                            img.className = 'user-image';
+                            img.alt = 'User Image';
+                            if (comment.user.avatar) {
+                                img.src = comment.user.avatar;
+                            }
+                            title.appendChild(img);
+
+                            const nameLink = document.createElement('a');
+                            nameLink.href = '/admin/users/' + String(comment.user.id || '');
+                            nameLink.textContent = comment.user.name || '';
+                            title.appendChild(document.createTextNode(' '));
+                            title.appendChild(nameLink);
+
+                            if (Array.isArray(comment.user.roles)) {
+                                comment.user.roles.forEach(role => {
+                                    if (!role) {
+                                        return;
+                                    }
+                                    const span = document.createElement('span');
+                                    span.className = 'badge';
+                                    // Allow only simple hex colors; fall back to a safe default
+                                    const color = typeof role.color === 'string' && /^#[0-9a-fA-F]{3,6}$/.test(role.color)
+                                        ? role.color
+                                        : '#777777';
+                                    span.style.backgroundColor = color;
+                                    span.textContent = role.name || '';
+                                    title.appendChild(document.createTextNode(' '));
+                                    title.appendChild(span);
+                                });
+                            }
+
+                            const createdSpan = document.createElement('span');
+                            createdSpan.className = 'badge badge-primary';
+                            createdSpan.textContent = comment.created_at || '';
+
+                            headerFlex.appendChild(title);
+                            headerFlex.appendChild(createdSpan);
+
+                            cardHeader.appendChild(headerFlex);
+
+                            const cardBody = document.createElement('div');
+                            cardBody.className = 'card-body';
+                            cardBody.style.whiteSpace = 'pre-wrap';
+                            cardBody.textContent = comment.ticketcomment || '';
+
+                            card.appendChild(cardHeader);
+                            card.appendChild(cardBody);
+
+                            container.appendChild(card);
+                        });
+                    });
+            }, 15000);
+        });
     </script>
 @endsection
-

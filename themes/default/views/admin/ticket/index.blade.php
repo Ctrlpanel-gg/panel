@@ -65,8 +65,8 @@
     </section>
     <!-- END CONTENT -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            $('#datatable').DataTable({
+        document.addEventListener("DOMContentLoaded", function () {
+            let table = $('#datatable').DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
                 },
@@ -113,10 +113,8 @@
             document.body.addEventListener('submit', function(e) {
                 var form = e.target;
                 if (!form || !form.matches) return;
-
                 if (form.matches('form.ticket-delete-form')) {
                     e.preventDefault();
-
                     Swal.fire({
                         title: '{{ __('Are you sure?') }}',
                         text: '{{ __('This action will permanently delete the ticket.') }}',
@@ -132,6 +130,10 @@
                     });
                 }
             });
+
+            setInterval(function () {
+                table.ajax.reload(null, false);
+            }, 15000);
         });
     </script>
 @endsection
