@@ -297,13 +297,24 @@
                                                                 @if ($product->id != $server->product->id && $product->disabled == false)
                                                                     <option value="{{ $product->id }}"
                                                                         @if ($product->doesNotFit) disabled @endif>
-                                                                        {{ $product->name }} [ {{ $credits_display_name }}
-                                                                        {{ $product->display_price }} @if ($product->doesNotFit)
+                                                                        {{ $product->name }} [ {{ $product->display_price }} {{ $credits_display_name }}
+                                                                        @php
+                                                                            $billingPeriodMap = [
+                                                                                'hourly' => __('per Hour'),
+                                                                                'daily' => __('per Day'),
+                                                                                'weekly' => __('per Week'),
+                                                                                'monthly' => __('per Month'),
+                                                                                'quarterly' => __('per 3 Months'),
+                                                                                'half-annually' => __('per 6 Months'),
+                                                                                'annually' => __('per Year'),
+                                                                            ];
+                                                                        @endphp
+                                                                        {{ $billingPeriodMap[$product->billing_period] ?? $product->billing_period }}
+                                                                        @if ($product->doesNotFit)
                                                                             ] {{ __("Server can't fit on this node") }}
                                                                         @else
                                                                             / {{ __('Required') }}:
-                                                                            {{ $product->display_minimum_credits }}
-                                                                            {{ $credits_display_name }} ]
+                                                                            {{ $product->display_minimum_credits }} {{ $credits_display_name }} ]
                                                                         @endif
                                                                     </option>
                                                                 @endif
