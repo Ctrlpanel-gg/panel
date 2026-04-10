@@ -4,7 +4,7 @@ use DevCoder\DotEnv;
 
 (new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
 
-// Include installer functions to get $host variable and helper functions
+// Include installer functions to get helper functions
 require_once dirname(__FILE__, 2) . '/functions/installer.php';
 
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
