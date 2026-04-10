@@ -72,7 +72,7 @@ class ReferralSettings extends Settings
             'percentage' => [
                 'label' => 'Percentage',
                 'type' => 'number',
-                'description' => 'If a referred user buys credits, the referral-user will get x% of the Credits the referred user bought.',
+                'description' => 'Percentage of credits earned from purchases by referred users.',
             ],
         ];
     }
