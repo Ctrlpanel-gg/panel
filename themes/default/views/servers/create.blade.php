@@ -246,14 +246,12 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-database"></i>
-                                                        {{ __('MySQL') }}
-                                                        {{ __('Databases') }}</span>
+                                                        {{ __('MySQL Databases') }}</span>
                                                     <span class="d-inline-block" x-text="product.databases"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-network-wired"></i>
-                                                        {{ __('Allocations') }}
-                                                        ({{ __('ports') }})</span>
+                                                        {{ __('Additional allocations (ports)') }}</span>
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
