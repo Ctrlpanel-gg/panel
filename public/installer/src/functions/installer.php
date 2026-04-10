@@ -4,15 +4,28 @@ $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https"
 
 function get_host(): string
 {
-    $serverName = $_SERVER['SERVER_NAME'] ?? '';
+    $serverName = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
     $serverPort = $_SERVER['SERVER_PORT'] ?? '';
+    $serverName = trim($serverName);
+    $serverName = preg_replace('/[\s\x00-\x1f\x7f]+/', '', $serverName);
 
-    // Only include port if it's not the default port for the protocol
-    if ($serverPort && $serverPort !== '80' && $serverPort !== '443') {
-        return $serverName . ':' . $serverPort;
+    if (preg_match('/^([a-zA-Z0-9.-]+)(?::([0-9]+))?$/', $serverName, $matches)) {
+        $hostname = $matches[1];
+        $port = $matches[2] ?? $serverPort;
+
+        if ($port && $port !== '80' && $port !== '443') {
+            return $hostname . ':' . $port;
+        }
+
+        return $hostname;
     }
 
-    return $serverName;
+    // Fallback safe host
+    if (filter_var($serverName, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        return $serverName;
+    }
+
+    return 'localhost';
 }
 
 $host = get_host();
@@ -22,7 +35,8 @@ function send_error_message(string $message): void
     global $protocol, $host;
 
     $_SESSION['error-message'] = $message;
-    header("Location: {$protocol}://{$host}/installer/index.php");
+    $escapedMessage = rawurlencode($message);
+    header("Location: {$protocol}://{$host}/installer/index.php?message={$escapedMessage}");
     exit();
 }
 
