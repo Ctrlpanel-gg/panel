@@ -220,14 +220,14 @@
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-microchip"></i>
                                                         {{ __('CPU') }}</span>
-                                                    <span class=" d-inline-block"
-                                                        x-text="product.cpu + ' {{ __('vCores') }}'"></span>
+                                                    <span class="d-inline-block"
+                                                        x-text="product.cpu === 0 ? '{{ __('Unlimited') }}' : product.cpu + ' {{ __('vCores') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-memory"></i>
                                                         {{ __('Memory') }}</span>
-                                                    <span class=" d-inline-block"
-                                                        x-text="product.memory + ' {{ __('MB') }}'"></span>
+                                                    <span class="d-inline-block"
+                                                        x-text="product.memory === 0 ? '{{ __('Unlimited') }}' : product.memory + ' {{ __('MB') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <div>
@@ -237,7 +237,7 @@
                                                         </span>
                                                     </div>
                                                     <span class="d-inline-block"
-                                                        x-text="product.disk + ' {{ __('MB') }}'"></span>
+                                                        x-text="product.disk === 0 ? '{{ __('Unlimited') }}' : product.disk + ' {{ __('MB') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-save"></i>
@@ -246,14 +246,12 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-database"></i>
-                                                        {{ __('MySQL') }}
-                                                        {{ __('Databases') }}</span>
+                                                        {{ __('MySQL Databases') }}</span>
                                                     <span class="d-inline-block" x-text="product.databases"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-network-wired"></i>
-                                                        {{ __('Allocations') }}
-                                                        ({{ __('ports') }})</span>
+                                                        {{ __('Additional allocations (ports)') }}</span>
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">

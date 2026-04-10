@@ -44,7 +44,7 @@
                                         class="custom-select w-100">
                                         @foreach (explode(',', $localeSettings->available) as $key)
                                             <option value="{{ $key }}"
-                                                @if (session('locale') == $key) selected @endif>{{ ucfirst($key) }}
+                                                @if (session('locale') == $key) selected @endif>{{ __($key) }}
                                             </option>
                                         @endforeach
                                     </select>
