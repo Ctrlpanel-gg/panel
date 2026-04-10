@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Classes\PterodactylClient;
 use App\Models\User;
-use App\Settings\GeneralSettings;
 use App\Settings\PterodactylSettings;
 use App\Settings\UserSettings;
 use App\Traits\Referral;

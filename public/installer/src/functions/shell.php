@@ -88,5 +88,3 @@ function mask_sensitive_command_args(array $command): array
 
     return $masked;
 }
-
-?>

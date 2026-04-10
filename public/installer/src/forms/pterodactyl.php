@@ -88,4 +88,3 @@ if (isset($_POST['checkPtero'])) {
         exit();
     }
 }
-?>
