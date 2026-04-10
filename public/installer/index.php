@@ -64,6 +64,13 @@ if (!isset($_SESSION['current_installation_step'])) {
     $_SESSION['current_installation_step'] = 1;
 }
 
+// Handle reset parameter to return to first step
+if (isset($_GET['reset'])) {
+    $_SESSION['current_installation_step'] = 1;
+    header('Location: /installer/index.php');
+    exit;
+}
+
 if (isset($_GET['step'])) {
     $stepValue = $_GET['step'];
     $currentStep = $_SESSION['current_installation_step'];
