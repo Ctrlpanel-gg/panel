@@ -23,7 +23,7 @@
                 <b><i class="fas fa-shield-alt"></i> {{ __('Version Outdated:') }}</b></br>
                 {{ __('You are running on') }} v{{ config('app.version') }}-{{ config('BRANCHNAME') }}.
                 {{ __('The latest Version is') }} v{{ Storage::get('latestVersion') }}</br>
-                <a href="https://CtrlPanel.gg/docs/Installation/updating">{{ __('Consider updating now') }}</a>
+                <a href="https://ctrlpanel.gg/docs/category/updating">{{ __('Consider updating now') }}</a>
             </div>
         @endif
         @if (!empty($headFileMissing))
