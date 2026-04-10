@@ -41,7 +41,7 @@
 
             <div class="mb-3 row">
                 <div class="col-md-3">
-                    <a href="https://CtrlPanel.gg/docs/intro" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://ctrlpanel.gg/docs" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-link"></i> {{ __('Documentation') }}</a>
                 </div>
                 <div class="col-md-3">
@@ -49,7 +49,7 @@
                             class="mr-2 fab fa-github"></i> {{ __('Github') }}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://CtrlPanel.gg/docs/Contributing/donating" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://ctrlpanel.gg/docs/contributing/donating" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-money-bill"></i> {{ __('Support CtrlPanel') }}</a>
                 </div>
             </div>
