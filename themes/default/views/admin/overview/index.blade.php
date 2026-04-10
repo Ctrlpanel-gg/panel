@@ -221,14 +221,16 @@
                         $commit = config('COMMIT_HASH', __('unknown'));
                     @endphp
 
-                    <div class="card shadow-none border-primary"
-                        style="background-color: #343a40; color: #ffffff; border-radius: 8px; border-top: 3px solid #007bff;">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-4">
-                                <h4 class="mb-0 font-weight-bold">{{ __('CtrlPanel.gg') }}</h4>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <div class="card-title ">
+                                    <span><i class="mr-2 fas fa-server"></i>{{__('CtrlPanel.gg')}}</span>
+                                </div>
                             </div>
-
-                            <div class="row text-center mb-4">
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row text-center">
                                 <div class="col-4">
                                     <div class="text-uppercase text-muted small font-weight-bold mb-2">{{ __('Version') }}
                                     </div>
