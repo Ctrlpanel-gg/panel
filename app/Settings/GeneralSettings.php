@@ -15,10 +15,10 @@ class GeneralSettings extends Settings
     public ?string $recaptcha_site_key = null;
     public ?string $recaptcha_secret_key = null;
     public ?string $phpmyadmin_url = null;
+    public string $theme = 'default';
     public bool $alert_enabled = false;
     public string $alert_type = 'info';
     public ?string $alert_message = null;
-    public string $theme = 'default';
 
     //public int $initial_user_role; wait for Roles & Permissions PR.
 
@@ -46,10 +46,10 @@ class GeneralSettings extends Settings
             'recaptcha_site_key' => 'nullable|string',
             'recaptcha_secret_key' => 'nullable|string',
             'phpmyadmin_url' => 'nullable|string',
+            'theme' => ['required', 'in:' . implode(',', $themes)],
             'alert_enabled' => 'nullable|string',
             'alert_type' => 'required|in:primary,secondary,success,danger,warning,info',
             'alert_message' => 'nullable|string',
-            'theme' => ['required', 'in:' . implode(',', $themes)],
         ];
         return $validations;
     }

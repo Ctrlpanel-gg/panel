@@ -13,9 +13,9 @@ class InvoiceSettings extends Settings
     public ?string $company_phone = null;
     public ?string $company_vat = null;
     public ?string $company_website = null;
+    public ?string $prefix = 'INV-';
     public ?string $additional_notes = null;
 
-    public ?string $prefix = 'INV-';
 
     public static function group(): string
     {
@@ -29,15 +29,15 @@ class InvoiceSettings extends Settings
     public static function getValidations()
     {
         return [
+            'enabled' => 'nullable|string',
             'company_address' => 'nullable|string',
             'company_mail' => 'nullable|string',
             'company_name' => 'nullable|string',
             'company_phone' => 'nullable|string',
             'company_vat' => 'nullable|string',
             'company_website' => 'nullable|string',
-            'additional_notes' => 'nullable|string',
-            'enabled' => 'nullable|string',
             'prefix' => 'nullable|string',
+            'additional_notes' => 'nullable|string',
         ];
     }
 
@@ -51,6 +51,11 @@ class InvoiceSettings extends Settings
         return [
             'category_icon' => 'fas fa-file-invoice-dollar',
             'position' => 9,
+            'enabled' => [
+                'label' => 'Enabled',
+                'type' => 'boolean',
+                'description' => 'Enable or disable invoices.',
+            ],
             'company_address' => [
                 'label' => 'Company Address',
                 'type' => 'string',
@@ -80,11 +85,6 @@ class InvoiceSettings extends Settings
                 'label' => 'Company Website',
                 'type' => 'string',
                 'description' => 'The website of your company.',
-            ],
-            'enabled' => [
-                'label' => 'Enabled',
-                'type' => 'boolean',
-                'description' => 'Enable or disable invoices.',
             ],
             'prefix' => [
                 'label' => 'Prefix',

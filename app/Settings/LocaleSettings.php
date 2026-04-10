@@ -7,10 +7,10 @@ use Spatie\LaravelSettings\Settings;
 class LocaleSettings extends Settings
 {
     public ?string $available = null;
-    public bool $clients_can_change = false;
-    public ?string $datatables = null;
     public string $default = 'en';
+    public bool $clients_can_change = false;
     public bool $dynamic = false;
+    public ?string $datatables = null;
 
     public static function group(): string
     {
@@ -25,10 +25,10 @@ class LocaleSettings extends Settings
     {
         return [
             'available' => 'array|required',
-            'clients_can_change' => 'nullable|string',
-            'datatables' => 'nullable|string',
             'default' => 'required|in:' . implode(',', config('app.available_locales')),
+            'clients_can_change' => 'nullable|string',
             'dynamic' => 'nullable|string',
+            'datatables' => 'nullable|string',
         ];
     }
 
@@ -48,16 +48,6 @@ class LocaleSettings extends Settings
                 'description' => 'The locales that are available for the user to choose from.',
                 'options' => config('app.available_locales'),
             ],
-            'clients_can_change' => [
-                'label' => 'Clients Can Change',
-                'type' => 'boolean',
-                'description' => 'Whether clients can change their locale.',
-            ],
-            'datatables' => [
-                'label' => 'Datatables Locale',
-                'type' => 'string',
-                'description' => 'The datatables lang-code. <br><strong>Example:</strong> en-gb, fr_fr, de_de<br>More Information: <a href="https://datatables.net/plug-ins/i18n/">https://datatables.net/plug-ins/i18n/</a>',
-            ],
             'default' => [
                 'label' => 'Default Locale',
                 'type' => 'select',
@@ -65,10 +55,20 @@ class LocaleSettings extends Settings
                 'options' => config('app.available_locales'),
                 'identifier' => 'display'
             ],
+            'clients_can_change' => [
+                'label' => 'Clients Can Change',
+                'type' => 'boolean',
+                'description' => 'Whether clients can change their locale.',
+            ],
             'dynamic' => [
                 'label' => 'Dynamic Locale',
                 'type' => 'boolean',
                 'description' => 'Whether to choose the language automatically based on the Geolocation of the client.',
+            ],
+            'datatables' => [
+                'label' => 'Datatables Locale',
+                'type' => 'string',
+                'description' => 'The datatables lang-code. <br><strong>Example:</strong> en-gb, fr_fr, de_de<br>More Information: <a href="https://datatables.net/plug-ins/i18n/">https://datatables.net/plug-ins/i18n/</a>',
             ],
         ];
     }
