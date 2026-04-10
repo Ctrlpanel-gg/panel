@@ -74,5 +74,3 @@ if (isset($_POST['feedDB'])) {
         send_error_message("Feeding the Database failed");
     }
 }
-
-?>

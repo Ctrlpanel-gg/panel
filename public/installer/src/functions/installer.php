@@ -13,6 +13,3 @@ function next_step(): void
     header('Location: /installer/index.php');
     exit();
 }
-
-?>
-

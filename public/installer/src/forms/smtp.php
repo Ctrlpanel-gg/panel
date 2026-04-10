@@ -76,5 +76,3 @@ if (isset($_POST['checkSMTP'])) {
     wh_log('Database updated', 'debug');
     next_step();
 }
-
-?>

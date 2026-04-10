@@ -30,5 +30,3 @@ if (isset($_POST['redisSetup'])) {
         send_error_message("Please check your credentials!<br>" . $th->getMessage());
     }
 }
-
-?>

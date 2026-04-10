@@ -110,5 +110,3 @@ include './views/layout-bottom.php';
 
 // setting / reseting the error message
 $_SESSION['error-message'] = null;
-
-?>
