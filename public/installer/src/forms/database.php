@@ -48,9 +48,7 @@ if (isset($_POST['checkDB'])) {
         }
     } catch (Throwable $th) {
         wh_log('Creating APP_KEY failed', 'error');
-        $escapedMessage = rawurlencode($th->getMessage());
-        header("LOCATION: {$protocol}://{$host}/installer/index.php?step=3&message={$escapedMessage}%20%3Cbr%3EPlease%20check%20the%20installer.log%20file%20in%20" . rawurlencode(dirname(__DIR__,4) . '/storage/logs') . "!");
-        exit();
+        send_error_message($th->getMessage() . ' <br>Please check the installer.log file in ' . dirname(__DIR__,4) . '/storage/logs' . '!');
     }
 
     wh_log('Database connection successful', 'debug');
