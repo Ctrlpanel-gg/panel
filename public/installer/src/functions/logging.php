@@ -44,5 +44,3 @@ function wh_log(string $message, string $level = 'info', array $context = []): v
     // Prevent memory leaks by resetting the logger
     $log->reset();
 }
-
-?>

@@ -23,7 +23,7 @@
                 <b><i class="fas fa-shield-alt"></i> {{ __('Version Outdated:') }}</b></br>
                 {{ __('You are running on') }} v{{ config('app.version') }}-{{ config('BRANCHNAME') }}.
                 {{ __('The latest Version is') }} v{{ Storage::get('latestVersion') }}</br>
-                <a href="https://CtrlPanel.gg/docs/Installation/updating">{{ __('Consider updating now') }}</a>
+                <a href="https://ctrlpanel.gg/docs/category/updating">{{ __('Consider updating now') }}</a>
             </div>
         @endif
         @if (!empty($headFileMissing))
@@ -41,7 +41,7 @@
 
             <div class="mb-3 row">
                 <div class="col-md-3">
-                    <a href="https://CtrlPanel.gg/docs/intro" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://ctrlpanel.gg/docs" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-link"></i> {{ __('Documentation') }}</a>
                 </div>
                 <div class="col-md-3">
@@ -49,7 +49,7 @@
                             class="mr-2 fab fa-github"></i> {{ __('Github') }}</a>
                 </div>
                 <div class="col-md-3">
-                    <a href="https://CtrlPanel.gg/docs/Contributing/donating" class="px-3 btn btn-dark btn-block"><i
+                    <a href="https://ctrlpanel.gg/docs/contributing/donating" class="px-3 btn btn-dark btn-block"><i
                             class="mr-2 fas fa-money-bill"></i> {{ __('Support CtrlPanel') }}</a>
                 </div>
             </div>
@@ -221,14 +221,16 @@
                         $commit = config('COMMIT_HASH', __('unknown'));
                     @endphp
 
-                    <div class="card shadow-none border-primary"
-                        style="background-color: #343a40; color: #ffffff; border-radius: 8px; border-top: 3px solid #007bff;">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-4">
-                                <h4 class="mb-0 font-weight-bold">{{ __('CtrlPanel.gg') }}</h4>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between">
+                                <div class="card-title ">
+                                    <span><i class="mr-2 fas fa-server"></i>{{__('CtrlPanel.gg')}}</span>
+                                </div>
                             </div>
-
-                            <div class="row text-center mb-4">
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row text-center">
                                 <div class="col-4">
                                     <div class="text-uppercase text-muted small font-weight-bold mb-2">{{ __('Version') }}
                                     </div>

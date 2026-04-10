@@ -25,5 +25,3 @@ if (isset($_POST['checkGeneral'])) {
     wh_log('App settings set', 'debug');
     next_step();
 }
-
-?>

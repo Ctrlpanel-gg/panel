@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
@@ -210,6 +211,23 @@ class User extends Authenticatable implements MustVerifyEmail
     public function coupons()
     {
         return $this->belongsToMany(Coupon::class, 'user_coupons');
+    }
+
+    // tap into activity log to convert db value to display value
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        $properties = $activity->properties;
+
+        if (($eventName === 'deleted' || $eventName === 'created') && $properties->has('attributes')) {
+            $attributes = $properties->get('attributes');
+
+            if (isset($attributes['credits']) && is_numeric($attributes['credits'])) {
+                $attributes['credits'] = Currency::formatForDisplay($attributes['credits']);
+                $properties = $properties->toArray();
+                $properties['attributes'] = $attributes;
+                $activity->properties = $properties;
+            }
+        }
     }
 
     /**

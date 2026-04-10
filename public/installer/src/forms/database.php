@@ -4,6 +4,9 @@ use DevCoder\DotEnv;
 
 (new DotEnv(dirname(__FILE__, 5) . '/.env'))->load();
 
+// Include installer functions to get helper functions
+require_once dirname(__FILE__, 2) . '/functions/installer.php';
+
 mysqli_report(MYSQLI_REPORT_STRICT | MYSQLI_REPORT_ALL);
 
 if (isset($_POST['checkDB'])) {
@@ -45,8 +48,7 @@ if (isset($_POST['checkDB'])) {
         }
     } catch (Throwable $th) {
         wh_log('Creating APP_KEY failed', 'error');
-        header("LOCATION: index.php?step=3&message=" . $th->getMessage() . " <br>Please check the installer.log file in " . dirname(__DIR__,4) . '/storage/logs' . "!");
-        exit();
+        send_error_message($th->getMessage() . ' <br>Please check the installer.log file in ' . dirname(__DIR__,4) . '/storage/logs' . '!');
     }
 
     wh_log('Database connection successful', 'debug');
@@ -72,5 +74,3 @@ if (isset($_POST['feedDB'])) {
         send_error_message("Feeding the Database failed");
     }
 }
-
-?>
