@@ -388,24 +388,27 @@ class ServerController extends Controller
         }
     }
 
-    public function uncancel(Server $server): RedirectResponse
+    public function uncancel(Server $server): \Illuminate\Http\Response|RedirectResponse
     {
         if ($server->user_id !== Auth::id()) {
             return back()->with('error', __('This is not your Server!'));
         }
-
+    
         try {
             $server->update(['canceled' => null]);
-
-            if (request()->ajax()) {
-                return response()->json(['success' => __('Server cancellation has been revoked')]);
-            }
             
+            if (request()->expectsJson()) {
+                return response()->noContent(); 
+            }
+    
             return redirect()->route('servers.index')
                 ->with('success', __('Server cancellation has been revoked'));
         } catch (Exception $e) {
+            if (request()->expectsJson()) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
             return redirect()->route('servers.index')
-                ->with('error', __('Server cancellation revoke failed: ') . $e->getMessage());
+                ->with('error', __('Server cancellation revoke failed'));
         }
     }
 
