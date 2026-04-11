@@ -177,7 +177,7 @@
                                             <i data-toggle="popover" data-trigger="hover"
                                                data-content="{{ __('Your') ." " . $credits_display_name . " ". __('are reduced') ." ". $server->product->billing_period . ". " . __("This however calculates to ") . Currency::formatForDisplay($server->product->getMonthlyPrice()) . " ". $credits_display_name . " ". __('per Month')}}"
                                                class="fas fa-info-circle"></i>
-                                            </div>
+                                        </div>
                                         <span>
                                             {{ $server->product->display_price }}
                                         </span>
@@ -194,16 +194,32 @@
                                 <i class="mx-2 fas fa-tools"></i>
                             </a>
                             <a href="{{ route('servers.show', ['server' => $server->id])}}"
-                            	class="mr-3 text-center btn btn-info"
-                            	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
+                                class="mr-3 text-center btn btn-info"
+                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
                                 <i class="mx-2 fas fa-cog"></i>
                             </a>
-                            <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
-                                class="text-center btn btn-warning"
-                                {{ $server->suspended || $server->canceled ? "disabled" : "" }}
-                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
-                                <i class="mx-2 fas fa-ban"></i>
-                            </button>
+                            
+                            @if ($server->canceled && !$server->suspended)
+                                <button onclick="handleServerUncancel('{{ $server->id }}');" target="__blank"
+                                    class="text-center btn btn-success"
+                                    data-toggle="tooltip" data-placement="bottom" title="{{ __('Restore Server') }}">
+                                    <i class="mx-2 fas fa-check"></i>
+                                </button>
+                            @elseif ($server->canceled && $server->suspended)
+                                <span data-toggle="tooltip" data-placement="bottom" title="{{ __('Server is suspended and cannot be fully restored.') }}">
+                                    <button class="text-center btn btn-success" disabled>
+                                        <i class="mx-2 fas fa-check"></i>
+                                    </button>
+                                </span>
+                            @else
+                                <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
+                                    class="text-center btn btn-warning"
+                                    {{ $server->suspended ? "disabled" : "" }}
+                                    data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
+                                    <i class="mx-2 fas fa-ban"></i>
+                                </button>
+                            @endif
+
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
                                 class="float-right mr-2 text-center btn btn-danger"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
@@ -218,7 +234,7 @@
         </div>
     </section>
     <!-- END CONTENT -->
-
+     
     <script>
         const handleServerCancel = (serverId) => {
             // Handle server cancel with sweetalert
@@ -240,6 +256,42 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
                     }).then(() => {
+                        window.location.reload();
+                    }).catch((error) => {
+                        Swal.fire({
+                            title: "{{ __('Error') }}",
+                            text: "{{ __('Something went wrong, please try again later.') }}",
+                            icon: 'error',
+                            confirmButtonColor: '#d9534f',
+                        })
+                    })
+                    return
+                }
+            })
+        }
+
+        const handleServerUncancel = (serverId) => {
+            // Handle server uncancel with sweetalert
+            Swal.fire({
+                title: "{{ __('Restore Server?') }}",
+                text: "{{ __('This will restore your server and cancel the cancellation. Your server will no longer be suspended at the end of the billing period.') }}",
+                icon: 'info',
+                confirmButtonColor: '#28a745',
+                showCancelButton: true,
+                confirmButtonText: "{{ __('Yes, restore it!') }}",
+                cancelButtonText: "{{ __('No, abort!') }}",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    fetch("{{ route('servers.uncancel', '') }}" + '/' + serverId, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    }).then((response) => {
+                        if (!response.ok) {
+                            throw new Error('Failed to restore server');
+                        }
                         window.location.reload();
                     }).catch((error) => {
                         Swal.fire({
