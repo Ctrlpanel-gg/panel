@@ -67,6 +67,8 @@ class AppServiceProvider extends ServiceProvider
 
         // get the Git branch and commit the panel is running on
         $headFileMissing = false;
+        $branchname = 'unknown';
+        $commitHash = 'unknown';
 
         try {
             $headFilePath = base_path() . '/.git/HEAD';
@@ -75,7 +77,12 @@ class AppServiceProvider extends ServiceProvider
                 throw new Exception('.git/HEAD file not found');
             }
 
-            $firstLine = trim(file($headFilePath)[0]);
+            $fileContent = file($headFilePath);
+            if (!$fileContent || empty($fileContent[0])) {
+                throw new Exception('.git/HEAD file is empty or unreadable');
+            }
+
+            $firstLine = trim($fileContent[0]);
             // branch ref in HEAD is format "ref: refs/heads/branchname"
             if (str_starts_with($firstLine, 'ref:')) {
                 $branchname = basename(trim(str_replace('ref:', '', $firstLine)));
@@ -90,8 +97,6 @@ class AppServiceProvider extends ServiceProvider
                 $commitHash = $possibleCommit;
             }
         } catch (Exception $e) {
-            $branchname = 'unknown';
-            $commitHash = 'unknown';
             Log::notice($e);
         }
 
