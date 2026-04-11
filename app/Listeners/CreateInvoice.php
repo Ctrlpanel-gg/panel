@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
+use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
-use App\Helpers\CurrencyHelper;
 use App\Settings\InvoiceSettings;
 use App\Traits\Invoiceable;
 
@@ -33,6 +33,10 @@ class CreateInvoice
      */
     public function handle(PaymentEvent $event)
     {
+        if ($event->payment->status !== PaymentStatus::PAID) {
+            return;
+        }
+
         if ($this->invoice_enabled) {
             // create invoice using the trait
             $this->createInvoice($event->payment, $event->shopProduct, $this->invoice_settings);

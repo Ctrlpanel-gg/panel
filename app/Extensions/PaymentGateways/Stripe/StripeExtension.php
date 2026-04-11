@@ -4,24 +4,23 @@ namespace App\Extensions\PaymentGateways\Stripe;
 
 use App\Classes\PaymentExtension;
 use App\Enums\PaymentStatus;
-use App\Events\PaymentEvent;
-use App\Events\UserUpdateCreditsEvent;
 use App\Models\Payment;
 use App\Models\ShopProduct;
-use App\Models\User;
-use App\Traits\Coupon as CouponTrait;
-use App\Notifications\ConfirmPaymentNotification;
+use App\Traits\HandlesGatewayPayments;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Throwable;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
 class StripeExtension extends PaymentExtension
 {
-    use CouponTrait;
+    use HandlesGatewayPayments;
 
     // https://docs.stripe.com/currencies#zero-decimal
     protected const ZERO_DECIMAL_CURRENCIES = [
@@ -45,13 +44,23 @@ class StripeExtension extends PaymentExtension
 
     public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
+        $displayTotal = self::currencyHelper()->convertForDisplay($totalPrice);
+
         // check if the total price is valid for stripe
-        if (!self::checkPriceAmount(floatval($totalPrice), strtoupper($shopProduct->currency_code), 'stripe')) {
+        if (!self::checkPriceAmount((float) $displayTotal, strtoupper($shopProduct->currency_code), 'stripe')) {
+            Log::warning('Stripe getRedirectUrl rejected due to invalid price amount', [
+                'payment_id' => $payment->id,
+                'currency_code' => $shopProduct->currency_code,
+                'display_total' => $displayTotal,
+            ]);
             throw new Exception('Invalid price amount');
         }
 
         $stripeClient = self::getStripeClient();
         $request = $stripeClient->checkout->sessions->create([
+            'metadata' => [
+                'payment_id' => $payment->id,
+            ],
             'line_items' => [
                 [
                     'price_data' => [
@@ -60,7 +69,7 @@ class StripeExtension extends PaymentExtension
                             'name' => $shopProduct->display,
                             'description' => $shopProduct->description,
                         ],
-                        'unit_amount_decimal' => self::convertAmount($totalPrice, $shopProduct->currency_code),
+                        'unit_amount' => self::convertAmount($totalPrice, $shopProduct->currency_code),
                     ],
                     'quantity' => 1,
                 ],
@@ -95,138 +104,237 @@ class StripeExtension extends PaymentExtension
     /**
      * @param  Request  $request
      */
-    public static function StripeSuccess(Request $request)
+    public static function StripeSuccess(Request $request): RedirectResponse
     {
-        $user = Auth::user();
-        $user = User::findOrFail($user->id);
         $payment = Payment::findOrFail($request->input('payment'));
-        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+        $sessionId = $request->input('session_id');
+        self::ensureAuthenticatedPaymentOwner($payment);
 
-        Redirect::route('home')->with('success', 'Please wait for success')->send();
+
+        if ($payment->status === PaymentStatus::PAID) {
+            return Redirect::route('home')->with('success', 'Your payment has already been processed!');
+        }
+
+        if (empty($sessionId)) {
+            Log::warning('StripeSuccess missing session id', [
+                'payment_id' => $payment->id,
+            ]);
+            return Redirect::route('home')->with('error', 'Missing Stripe session details.');
+        }
 
         $stripeClient = self::getStripeClient();
         try {
-            //get stripe data
-            $paymentSession = $stripeClient->checkout->sessions->retrieve($request->input('session_id'));
-            $paymentIntent = $stripeClient->paymentIntents->retrieve($paymentSession->payment_intent);
+            $paymentSession = $stripeClient->checkout->sessions->retrieve($sessionId);
 
-            //get DB entry of this payment ID if existing
-            $paymentDbEntry = Payment::where('payment_id', $paymentSession->payment_intent)->count();
+            $sessionMetadataPaymentId = (string) ($paymentSession->metadata->payment_id ?? '');
+            $paymentIntentId = isset($paymentSession->payment_intent)
+                ? (string) $paymentSession->payment_intent
+                : null;
 
-            // check if payment is 100% completed and payment does not exist in db already
-            if ($paymentSession->status == 'complete' && $paymentIntent->status == 'succeeded' && $paymentDbEntry == 0) {
+            $intentMetadataPaymentId = '';
+            if (!empty($paymentIntentId)) {
+                $paymentIntent = $stripeClient->paymentIntents->retrieve($paymentIntentId);
+                $intentMetadataPaymentId = (string) ($paymentIntent->metadata->payment_id ?? '');
+            }
 
-                //update payment
-                $payment->update([
-                    'payment_id' => $paymentSession->payment_intent,
-                    'status' => PaymentStatus::PAID,
+            $resolvedPaymentId = $sessionMetadataPaymentId !== ''
+                ? $sessionMetadataPaymentId
+                : $intentMetadataPaymentId;
+
+            if ($resolvedPaymentId !== $payment->id) {
+                Log::error('StripeSuccess payment id mismatch', [
+                    'payment_id' => $payment->id,
+                    'resolved_payment_id' => $resolvedPaymentId,
+                    'session_id' => $sessionId,
                 ]);
-
-                //payment notification
-                $user->notify(new ConfirmPaymentNotification($payment));
-                event(new UserUpdateCreditsEvent($user));
-                event(new PaymentEvent($user, $payment, $shopProduct));
-
-                //redirect back to home
-                Redirect::route('home')->with('success', 'Payment successful')->send();
-            } else {
-                if ($paymentIntent->status == 'processing') {
-
-                    //update payment
-                    $payment->update([
-                        'payment_id' => $paymentSession->payment_intent,
-                        'status' => PaymentStatus::PROCESSING,
-                    ]);
-
-                    event(new PaymentEvent($user, $payment, $shopProduct));
-
-                    Redirect::route('home')->with('success', 'Your payment is being processed')->send();
-                }
-
-                if ($paymentDbEntry == 0 && $paymentIntent->status != 'processing') {
-                    $stripeClient->paymentIntents->cancel($paymentIntent->id);
-
-                    //redirect back to home
-                    Redirect::route('home')->with('info', __('Your payment has been canceled!'))->send();
-                } else {
-                    abort(402);
-                }
+                throw new Exception('Stripe checkout session does not match payment.');
             }
-        } catch (Exception $e) {
-            if (config('app.env') == 'local') {
-                dd($e->getMessage());
-            } else {
-                abort(422);
+
+            if ($paymentSession->status === 'complete') {
+                self::setPaymentProcessing($payment->id, $paymentIntentId);
+
+                return Redirect::route('home')->with('success', 'Payment received. We are confirming it now.');
             }
+
+            if ($paymentSession->status === 'expired') {
+                Log::warning('StripeSuccess session expired, canceling payment', [
+                    'payment_id' => $payment->id,
+                    'payment_intent_id' => $paymentIntentId,
+                ]);
+                self::setPaymentCanceled($payment->id, $paymentIntentId);
+
+                return Redirect::route('home')->with('info', __('Your payment has been canceled!'));
+            }
+
+            self::setPaymentProcessing($payment->id, $paymentIntentId);
+
+            return Redirect::route('home')->with('success', 'Payment received. We are confirming it now.');
+        } catch (Throwable $e) {
+            Log::error('Stripe success handler failed', [
+                'payment_id' => $payment->id,
+                'session_id' => $sessionId,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+                'code' => $e->getCode(),
+            ]);
+
+            return Redirect::route('home')->with('error', 'Oops, something went wrong while confirming your payment.');
         }
     }
 
     /**
      * @param  Request  $request
      */
-    public static function handleStripePaymentSuccessHook($paymentIntent)
+    protected static function handleStripePaymentSucceeded(object $paymentIntent): void
     {
-        try {
-            $payment = Payment::where('id', $paymentIntent->metadata->payment_id)->with('user')->first();
-            $user = User::where('id', $payment->user_id)->first();
-            $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-
-            if ($paymentIntent->status == 'succeeded' && $payment->status == 'processing') {
-
-                //update payment db entry status
-                $payment->update([
-                    'payment_id' => $payment->payment_id ?? $paymentIntent->id,
-                    'status' => PaymentStatus::PAID,
-                ]);
-
-                //payment notification
-                $user->notify(new ConfirmPaymentNotification($payment));
-                event(new UserUpdateCreditsEvent($user));
-                event(new PaymentEvent($user, $payment, $shopProduct));
-            }
-
-            // return 200
-            return response()->json(['success' => true], 200);
-        } catch (Exception $ex) {
-            abort(422);
+        $paymentId = $paymentIntent->metadata->payment_id ?? null;
+        if (empty($paymentId)) {
+            Log::warning('Stripe webhook payment intent missing payment_id metadata', [
+                'payment_intent_id' => $paymentIntent->id ?? null,
+            ]);
+            return;
         }
+
+        $payment = Payment::find($paymentId);
+        if (!$payment || $payment->payment_method !== 'Stripe') {
+            Log::warning('Stripe webhook payment lookup failed.', [
+                'payment_id' => $paymentId,
+                'payment_intent_id' => $paymentIntent->id ?? null,
+            ]);
+            return;
+        }
+
+        if (!self::isValidStripePaymentPayload($payment, $paymentIntent)) {
+            Log::warning('Stripe webhook payload validation failed; canceling payment', [
+                'payment_id' => $payment->id,
+                'payment_intent_id' => $paymentIntent->id ?? null,
+                'payment_currency' => $payment->currency_code,
+                'webhook_currency' => $paymentIntent->currency ?? null,
+                'amount_received' => $paymentIntent->amount_received ?? null,
+                'expected_total' => $payment->total_price,
+            ]);
+            self::setPaymentCanceled($payment->id, $paymentIntent->id ?? null);
+            return;
+        }
+
+        self::completePayment($payment->id, $paymentIntent->id ?? null);
+
+    }
+
+    protected static function isValidStripePaymentPayload(Payment $payment, object $paymentIntent): bool
+    {
+        $currency = strtoupper((string) ($paymentIntent->currency ?? ''));
+        $expectedCurrency = strtoupper($payment->currency_code);
+        $amountInSmallestUnit = (int) ($paymentIntent->amount_received ?? $paymentIntent->amount ?? 0);
+        $amountInDatabaseUnits = self::convertGatewayAmountToDatabaseUnits($amountInSmallestUnit, $currency);
+
+        $isValid = $currency !== ''
+            && $currency === $expectedCurrency
+            && $amountInDatabaseUnits === (int) $payment->total_price;
+
+        return $isValid;
+    }
+
+    protected static function convertGatewayAmountToDatabaseUnits(int $gatewayAmount, string $currency): int
+    {
+        $currency = strtoupper($currency);
+
+        if (in_array($currency, self::ZERO_DECIMAL_CURRENCIES, true)) {
+            $result = self::currencyHelper()->prepareForDatabase((float) $gatewayAmount);
+            return $result;
+        }
+
+        if (in_array($currency, self::THREE_DECIMAL_CURRENCIES, true)) {
+            $result = self::currencyHelper()->prepareForDatabase($gatewayAmount / 1000);
+            return $result;
+        }
+
+        $result = self::currencyHelper()->prepareForDatabase($gatewayAmount / 100);
+        return $result;
     }
 
     /**
      * @param  Request  $request
      */
-    public static function StripeWebhooks(Request $request)
+    public static function StripeWebhooks(Request $request): JsonResponse
     {
         Stripe::setApiKey(self::getStripeSecret());
 
+        $endpointSecrets = self::getStripeEndpointSecrets();
+        if (empty($endpointSecrets)) {
+            Log::error('Stripe webhook secret is not configured.');
+            return response()->json(['success' => false], 500);
+        }
+
+        $payload = $request->getContent();
+        $sig_header = (string) $request->header('Stripe-Signature', '');
+        if ($sig_header === '') {
+            Log::warning('Stripe webhook signature header is missing.');
+            return response()->json(['success' => false], 400);
+        }
+
+        $event = null;
+        $signatureErrors = [];
+
         try {
-            $payload = @file_get_contents('php://input');
-            $sig_header = $request->header('Stripe-Signature');
-            $event = null;
-            $event = \Stripe\Webhook::constructEvent(
-                $payload,
-                $sig_header,
-                self::getStripeEndpointSecret()
-            );
+            foreach ($endpointSecrets as $secretName => $endpointSecret) {
+                try {
+                    $event = \Stripe\Webhook::constructEvent(
+                        $payload,
+                        $sig_header,
+                        $endpointSecret
+                    );
+
+                    break;
+                } catch (SignatureVerificationException $e) {
+                    $signatureErrors[$secretName] = $e->getMessage();
+                }
+            }
         } catch (\UnexpectedValueException $e) {
-            // Invalid payload
+            Log::warning('Stripe webhook payload could not be parsed', [
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+            return response()->json(['success' => false], 400);
+        }
 
-            abort(400);
-        } catch (SignatureVerificationException $e) {
-            // Invalid signature
-
-            abort(400);
+        if ($event === null) {
+            Log::warning('Stripe webhook signature verification failed', [
+                'errors' => $signatureErrors,
+                'secrets_checked' => array_keys($endpointSecrets),
+            ]);
+            return response()->json(['success' => false], 400);
         }
 
         // Handle the event
         switch ($event->type) {
+            case 'payment_intent.processing':
+                $paymentIntent = $event->data->object;
+                $paymentId = $paymentIntent->metadata->payment_id ?? null;
+                if (!empty($paymentId) && Payment::whereKey($paymentId)->where('payment_method', 'Stripe')->exists()) {
+                    self::setPaymentProcessing($paymentId, $paymentIntent->id ?? null);
+                }
+                break;
             case 'payment_intent.succeeded':
                 $paymentIntent = $event->data->object; // contains a \Stripe\PaymentIntent
-                self::handleStripePaymentSuccessHook($paymentIntent);
+                self::handleStripePaymentSucceeded($paymentIntent);
+                break;
+            case 'payment_intent.payment_failed':
+                $paymentIntent = $event->data->object;
+                $paymentId = $paymentIntent->metadata->payment_id ?? null;
+                if (!empty($paymentId) && Payment::whereKey($paymentId)->where('payment_method', 'Stripe')->exists()) {
+                    Log::warning('Stripe webhook setting payment canceled', [
+                        'payment_id' => $paymentId,
+                        'payment_intent_id' => $paymentIntent->id ?? null,
+                    ]);
+                    self::setPaymentCanceled($paymentId, $paymentIntent->id ?? null);
+                }
                 break;
             default:
-                echo 'Received unknown event type ' . $event->type;
+                break;
         }
+
+        return response()->json(['success' => true], 200);
     }
 
     /**
@@ -250,14 +358,56 @@ class StripeExtension extends PaymentExtension
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public static function getStripeEndpointSecret()
     {
+        $endpointSecrets = self::getStripeEndpointSecrets();
+        $firstSecret = reset($endpointSecrets);
+
+        return $firstSecret === false ? null : $firstSecret;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function getStripeEndpointSecrets(): array
+    {
         $settings = new StripeSettings();
-        return env('APP_ENV') == 'local'
-            ? $settings->test_endpoint_secret
-            : $settings->endpoint_secret;
+        $isLocal = config('app.env') == 'local';
+
+        // Prefer explicit webhook signing secret fields, then legacy endpoint secret fields.
+        $orderedSecrets = $isLocal
+            ? [
+                'test_webhook_signing_secret' => $settings->test_webhook_signing_secret,
+                'test_endpoint_secret' => $settings->test_endpoint_secret,
+                'webhook_signing_secret' => $settings->webhook_signing_secret,
+                'endpoint_secret' => $settings->endpoint_secret,
+            ]
+            : [
+                'webhook_signing_secret' => $settings->webhook_signing_secret,
+                'endpoint_secret' => $settings->endpoint_secret,
+                'test_webhook_signing_secret' => $settings->test_webhook_signing_secret,
+                'test_endpoint_secret' => $settings->test_endpoint_secret,
+            ];
+
+        $secrets = [];
+        $seenValues = [];
+        foreach ($orderedSecrets as $name => $secret) {
+            if (!is_string($secret)) {
+                continue;
+            }
+
+            $normalized = trim($secret);
+            if ($normalized === '' || isset($seenValues[$normalized])) {
+                continue;
+            }
+
+            $seenValues[$normalized] = true;
+            $secrets[$name] = $normalized;
+        }
+
+        return $secrets;
     }
     /**
      * @param  $amount
@@ -370,19 +520,26 @@ class StripeExtension extends PaymentExtension
                 "stripe" => 10
             ]
         ];
+
+        if (!isset($minimums[$currencyCode], $minimums[$currencyCode][$payment_method])) {
+            return false;
+        }
+
         return $amount >= $minimums[$currencyCode][$payment_method];
     }
 
     protected static function convertAmount(float $amount, string $currency): int
     {
-        if (in_array($currency, self::ZERO_DECIMAL_CURRENCIES, true)) {
-            return $amount / 1000;
+        $displayAmount = self::currencyHelper()->convertForDisplay($amount);
+
+        if (in_array(strtoupper($currency), self::ZERO_DECIMAL_CURRENCIES, true)) {
+            return (int) round($displayAmount);
         }
 
-        if (in_array($currency, self::THREE_DECIMAL_CURRENCIES, true)) {
-            return $amount;
+        if (in_array(strtoupper($currency), self::THREE_DECIMAL_CURRENCIES, true)) {
+            return (int) round($displayAmount * 1000);
         }
 
-        return $amount / 10;
+        return (int) round($displayAmount * 100);
     }
 }
