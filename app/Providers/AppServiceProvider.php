@@ -86,7 +86,7 @@ class AppServiceProvider extends ServiceProvider
 
             if (str_starts_with($firstLine, 'ref:')) {
                 $ref = trim(str_replace('ref:', '', $firstLine)); // "refs/heads/main"
-                $branchname = basename($ref);
+                $branchname = str_replace('refs/heads/', '', $ref);
 
                 // try loose ref file first
                 $refFile = base_path() . '/.git/' . $ref;
