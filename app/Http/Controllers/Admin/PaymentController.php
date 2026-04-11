@@ -171,7 +171,7 @@ class PaymentController extends Controller
                 $extensionName = basename($extension);
                 $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
 
-                if ($extensionSettings && $extensionSettings->enabled) {
+                if ($extensionSettings && ($extensionSettings->enabled ?? false)) {
                     $enabledPaymentGateways[] = $extensionName;
                 }
             }
