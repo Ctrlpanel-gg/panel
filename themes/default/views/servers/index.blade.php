@@ -273,7 +273,7 @@
         const handleServerUncancel = (serverId) => {
             Swal.fire({
                 title: "{{ __('Restore Server?') }}",
-                text: "{{ __('This will restore your server and cancel the cancellation.') }}",
+                text: "{{ __('This will restore your server and cancel the cancellation. Your server will no longer be suspended at the end of the billing period.') }}",
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonColor: '#28a745',
