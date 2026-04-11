@@ -396,6 +396,11 @@ class ServerController extends Controller
 
         try {
             $server->update(['canceled' => null]);
+
+            if (request()->ajax()) {
+                return response()->json(['success' => __('Server cancellation has been revoked')]);
+            }
+            
             return redirect()->route('servers.index')
                 ->with('success', __('Server cancellation has been revoked'));
         } catch (Exception $e) {
