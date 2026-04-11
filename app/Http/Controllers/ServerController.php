@@ -403,8 +403,10 @@ class ServerController extends Controller
             return redirect()->route('servers.index')
                 ->with('success', __('Server cancellation has been revoked'));
         } catch (Exception $e) {
+            report($e);
+
             if (request()->expectsJson()) {
-                return response()->json(['error' => $e->getMessage()], 500);
+                return response()->json(['error' => __('Server cancellation revoke failed')], 500);
             }
             return redirect()->route('servers.index')
                 ->with('error', __('Server cancellation revoke failed'));
