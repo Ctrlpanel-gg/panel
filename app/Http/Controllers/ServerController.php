@@ -1,4 +1,3 @@
-app/Http/Controllers/ServerController.php
 <?php
 
 namespace App\Http\Controllers;
