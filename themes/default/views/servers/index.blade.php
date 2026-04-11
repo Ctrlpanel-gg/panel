@@ -271,13 +271,12 @@
         }
 
         const handleServerUncancel = (serverId) => {
-            // Handle server uncancel with sweetalert
             Swal.fire({
                 title: "{{ __('Restore Server?') }}",
                 text: "{{ __('This will restore your server and cancel the cancellation. Your server will no longer be suspended at the end of the billing period.') }}",
                 icon: 'info',
-                confirmButtonColor: '#28a745',
                 showCancelButton: true,
+                confirmButtonColor: '#28a745',
                 confirmButtonText: "{{ __('Yes, restore it!') }}",
                 cancelButtonText: "{{ __('No, abort!') }}",
                 reverseButtons: true
@@ -286,24 +285,26 @@
                     fetch("{{ route('servers.uncancel', '') }}" + '/' + serverId, {
                         method: 'PATCH',
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         }
                     }).then((response) => {
-                        if (!response.ok) {
-                            throw new Error('Failed to restore server');
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            throw new Error('Server error');
                         }
-                        window.location.reload();
                     }).catch((error) => {
                         Swal.fire({
                             title: "{{ __('Error') }}",
                             text: "{{ __('Something went wrong, please try again later.') }}",
                             icon: 'error',
                             confirmButtonColor: '#d9534f',
-                        })
-                    })
-                    return
+                        });
+                    });
                 }
-            })
+            });
         }
 
         const handleServerDelete = (serverId) => {
