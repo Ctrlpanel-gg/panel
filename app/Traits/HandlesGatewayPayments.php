@@ -12,6 +12,7 @@ use App\Notifications\ConfirmPaymentNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 trait HandlesGatewayPayments
 {
@@ -104,9 +105,65 @@ trait HandlesGatewayPayments
         $user = User::findOrFail($payment->user_id);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
-        $user->notify(new ConfirmPaymentNotification($payment));
-        event(new PaymentEvent($user, $payment, $shopProduct));
-        event(new UserUpdateCreditsEvent($user));
+        $paymentEventDispatched = true;
+        $userUpdateCreditsEventDispatched = true;
+
+        try {
+            $user->notify(new ConfirmPaymentNotification($payment));
+        } catch (Throwable $e) {
+            Log::error('Payment completion notification failed.', [
+                'payment_id' => $payment->id,
+                'user_id' => $user->id,
+                'gateway_payment_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+
+            report($e);
+        }
+
+        try {
+            event(new PaymentEvent($user, $payment, $shopProduct));
+        } catch (Throwable $e) {
+            $paymentEventDispatched = false;
+
+            Log::error('Payment completion PaymentEvent dispatch failed.', [
+                'payment_id' => $payment->id,
+                'user_id' => $user->id,
+                'gateway_payment_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+
+            report($e);
+        }
+
+        try {
+            event(new UserUpdateCreditsEvent($user));
+        } catch (Throwable $e) {
+            $userUpdateCreditsEventDispatched = false;
+
+            Log::error('Payment completion UserUpdateCreditsEvent dispatch failed.', [
+                'payment_id' => $payment->id,
+                'user_id' => $user->id,
+                'gateway_payment_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+
+            report($e);
+        }
+
+        if (!$paymentEventDispatched || !$userUpdateCreditsEventDispatched) {
+            Log::critical('Payment marked as paid with incomplete post-payment dispatch.', [
+                'payment_id' => $payment->id,
+                'user_id' => $user->id,
+                'gateway_payment_id' => $payment->payment_id,
+                'payment_event_dispatched' => $paymentEventDispatched,
+                'user_update_credits_event_dispatched' => $userUpdateCreditsEventDispatched,
+                'action_required' => 'Check queue health and reconcile payment side effects if needed.',
+            ]);
+        }
 
         return true;
     }

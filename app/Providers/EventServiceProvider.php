@@ -35,8 +35,8 @@ class EventServiceProvider extends ServiceProvider
             UnsuspendServers::class,
         ],
         PaymentEvent::class => [
-            CreateInvoice::class,
             UserPayment::class,
+            CreateInvoice::class,
         ],
         CouponUsedEvent::class => [
             CouponUsed::class
