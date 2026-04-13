@@ -49,7 +49,7 @@ class CouponController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, CurrencyHelper $currencyHelper)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
@@ -72,12 +72,17 @@ class CouponController extends Controller
             $data = [];
             $coupons = Coupon::generateRandomCoupon($random_codes_amount);
 
+            $value = $request->input('value');
+            if ($request->input('type') === 'amount') {
+                $value = $currencyHelper->prepareForDatabase($value);
+            }
+
             // Scroll through all the randomly generated coupons.
             foreach ($coupons as $coupon) {
                 $data[] = [
                     'code' => $coupon,
                     'type' => $request->input('type'),
-                    'value' => $request->input('value'),
+                    'value' => $value,
                     'max_uses' => $request->input('max_uses'),
                        'max_uses_per_user' => $this->normalizeMaxUsesPerUser($request),
                     'expires_at' => $request->input('expires_at'),
