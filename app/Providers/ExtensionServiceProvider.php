@@ -19,18 +19,28 @@ class ExtensionServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $extensionNamespaces = glob(app_path('Extensions/*'), GLOB_ONLYDIR);
-        $extensions = [];
-
-        foreach ($extensionNamespaces as $extensionNamespace) {
-            $extensions = array_merge($extensions, glob($extensionNamespace . '/*', GLOB_ONLYDIR));
+        $extensionsBasePath = realpath(app_path('Extensions'));
+        if ($extensionsBasePath === false) {
+            return;
         }
 
-        foreach ($extensions as $extension) {
-            $routesFile = $extension . '/routes.php';
+        $extensionNamespaces = glob($extensionsBasePath . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
 
-            if (file_exists($routesFile)) {
-                $this->loadRoutesFrom($routesFile);
+        foreach ($extensionNamespaces as $extensionNamespace) {
+            $extensions = glob($extensionNamespace . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
+            foreach ($extensions as $extension) {
+                $routesFile = $extension . DIRECTORY_SEPARATOR . 'routes.php';
+                if (!is_file($routesFile)) {
+                    continue;
+                }
+
+                $resolvedRoutesFile = realpath($routesFile);
+                $normalizedBasePath = rtrim($extensionsBasePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+                if ($resolvedRoutesFile === false || !str_starts_with($resolvedRoutesFile, $normalizedBasePath)) {
+                    continue;
+                }
+
+                $this->loadRoutesFrom($resolvedRoutesFile);
             }
         }
     }

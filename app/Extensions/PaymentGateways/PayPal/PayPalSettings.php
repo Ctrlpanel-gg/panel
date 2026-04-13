@@ -11,6 +11,8 @@ class PayPalSettings extends Settings
     public ?string $client_secret;
     public ?string $sandbox_client_id;
     public ?string $sandbox_client_secret;
+    public ?string $webhook_id;
+    public ?string $sandbox_webhook_id;
 
     public static function group(): string
     {
@@ -53,6 +55,16 @@ class PayPalSettings extends Settings
                 'type' => 'string',
                 'label' => 'Sandbox Client Secret',
                 'description' => 'The Sandbox Client Secret  used when app_env = local',
+            ],
+            'webhook_id' => [
+                'type' => 'string',
+                'label' => 'Webhook ID',
+                'description' => 'PayPal webhook ID used to verify production webhook signatures.',
+            ],
+            'sandbox_webhook_id' => [
+                'type' => 'string',
+                'label' => 'Sandbox Webhook ID',
+                'description' => 'PayPal webhook ID used to verify webhook signatures when app_env = local.',
             ],
         ];
     }
