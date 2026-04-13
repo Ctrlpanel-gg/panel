@@ -6,10 +6,10 @@ use Spatie\LaravelSettings\Settings;
 
 class ReferralSettings extends Settings
 {
-    public bool $always_give_commission = false;
     public bool $enabled = false;
-    public ?int $reward = null;
+    public bool $always_give_commission = false;
     public string $mode = 'commission';
+    public ?int $reward = null;
     public ?int $percentage = null;
 
     public static function group(): string
@@ -24,10 +24,10 @@ class ReferralSettings extends Settings
     public static function getValidations()
     {
         return [
-            'always_give_commission' => 'nullable|string',
             'enabled' => 'nullable|string',
-            'reward' => 'nullable|numeric',
+            'always_give_commission' => 'nullable|string',
             'mode' => 'required|in:commission,sign-up,both',
+            'reward' => 'nullable|numeric',
             'percentage' => 'nullable|numeric',
         ];
     }
@@ -42,37 +42,37 @@ class ReferralSettings extends Settings
         return [
             'category_icon' => 'fas fa-user-friends',
             'position' => 8,
-            'always_give_commission' => [
-                'label' => 'Always Give Commission',
-                'type' => 'boolean',
-                'description' => 'Always give commission to the referrer or only on the first Purchase.',
-            ],
             'enabled' => [
                 'label' => 'Enabled',
                 'type' => 'boolean',
                 'description' => 'Enable referral system.',
             ],
-            'reward' => [
-                'label' => 'Reward',
-                'type' => 'number',
-                'step' => '0.001',
-                'description' => 'Reward in credits for the referrer.',
-                'mustBeConverted' => true,
+            'always_give_commission' => [
+                'label' => 'Always Give Commission',
+                'type' => 'boolean',
+                'description' => 'Always give commission to the referrer or only on the first Purchase.',
             ],
             'mode' => [
                 'label' => 'Mode',
                 'type' => 'select',
                 'description' => 'Referral mode.',
                 'options' => [
-                    'commission' => 'Commission',
                     'sign-up' => 'Sign-Up',
+                    'commission' => 'Commission',
                     'both' => 'Both',
                 ],
             ],
-            'percentage' => [
-                'label' => 'Percentage',
+            'reward' => [
+                'label' => 'Sign-Up Reward',
                 'type' => 'number',
-                'description' => 'If a referred user buys credits, the referral-user will get x% of the Credits the referred user bought.',
+                'step' => '0.001',
+                'description' => 'Reward in credits for the referrer.',
+                'mustBeConverted' => true,
+            ],
+            'percentage' => [
+                'label' => 'Commission Percentage',
+                'type' => 'number',
+                'description' => 'Percentage of credits earned from purchases by referred users.',
             ],
         ];
     }
