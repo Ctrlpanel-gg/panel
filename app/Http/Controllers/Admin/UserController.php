@@ -11,7 +11,9 @@ use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
 use App\Helpers\CurrencyHelper;
 use App\Settings\GeneralSettings;
+use App\Actions\ProcessReferralAction;
 use Exception;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -21,6 +23,7 @@ use Illuminate\Http\Response;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
@@ -325,6 +328,9 @@ class UserController extends Controller
         $this->checkPermission(self::WRITE_PERMISSION);
 
         $user->verifyEmail();
+
+        // Fire the Verified event to trigger listeners (rewards, referrals, etc)
+        Event::dispatch(new Verified($user));
 
         return redirect()->back()->with('success', __('Email has been verified!'));
     }

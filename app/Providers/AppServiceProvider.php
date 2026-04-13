@@ -83,21 +83,35 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $firstLine = trim($fileContent[0]);
-            // branch ref in HEAD is format "ref: refs/heads/branchname"
-            if (str_starts_with($firstLine, 'ref:')) {
-                $branchname = basename(trim(str_replace('ref:', '', $firstLine)));
-            } else {
-                // detached HEAD; fallback to unknown
-                $branchname = 'detached';
-            }
 
-            // attempt to obtain commit hash from git command if available
-            $possibleCommit = trim(@shell_exec('git -C ' . escapeshellarg(base_path()) . ' rev-parse --short HEAD 2>/dev/null'));
-            if ($possibleCommit !== '') {
-                $commitHash = $possibleCommit;
+            if (str_starts_with($firstLine, 'ref:')) {
+                $ref = trim(str_replace('ref:', '', $firstLine)); // "refs/heads/main"
+                $branchname = str_replace('refs/heads/', '', $ref);
+
+                // try loose ref file first
+                $refFile = base_path() . '/.git/' . $ref;
+                if (file_exists($refFile)) {
+                    $commitHash = substr(trim(file_get_contents($refFile)), 0, 7);
+                } else {
+                    // fallback to packed-refs
+                    $packedRefsFile = base_path() . '/.git/packed-refs';
+                    if (file_exists($packedRefsFile)) {
+                        foreach (file($packedRefsFile) as $line) {
+                            $line = trim($line);
+                            if (str_ends_with($line, $ref)) {
+                                $commitHash = substr(explode(' ', $line)[0], 0, 7);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // detached HEAD - hash is directly in HEAD
+                $branchname = 'detached';
+                $commitHash = substr($firstLine, 0, 7);
             }
         } catch (Exception $e) {
-            Log::notice($e);
+            Log::debug('Could not get git branch/commit: ' . $e->getMessage());
         }
 
         config(['BRANCHNAME' => $branchname, 'COMMIT_HASH' => $commitHash]);
