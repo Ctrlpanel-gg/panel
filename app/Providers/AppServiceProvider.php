@@ -111,7 +111,7 @@ class AppServiceProvider extends ServiceProvider
                 $commitHash = substr($firstLine, 0, 7);
             }
         } catch (Exception $e) {
-            Log::notice($e);
+            Log::debug('Could not get git branch/commit: ' . $e->getMessage());
         }
 
         config(['BRANCHNAME' => $branchname, 'COMMIT_HASH' => $commitHash]);
