@@ -407,13 +407,13 @@
                 closeOnSelect: false
             });
 
-            $(document).on('click', '.select2-results__group', function() {
+            // Enhanced optgroup selection with hover preview
+            $(document).on('click', '.select2-results__group', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
                 var groupName = $(this).text();
-
-                // get the currently open select2 container
                 var $dropdown = $(this).closest('.select2-dropdown');
-
-                // find the select that owns this dropdown
                 var $select = $('.select2-hidden-accessible').filter(function() {
                     return $(this).data('select2')?.dropdown?.$dropdown?.[0] === $dropdown[0];
                 });
@@ -425,15 +425,82 @@
                 });
 
                 var allSelected = groupOptions.toArray().every(opt => $(opt).prop('selected'));
-
                 groupOptions.prop('selected', !allSelected);
-
                 $select.trigger('change');
 
-                // refresh UI
+                // Close and reopen to refresh UI
                 $select.select2('close');
-                $select.select2('open');
+                setTimeout(() => $select.select2('open'), 50);
             });
+
+            // Hover preview - show which options belong to this group
+            $(document).on('mouseenter', '.select2-results__group', function() {
+                var groupName = $(this).text().replace(' (click to toggle all)', '').trim();
+                var $dropdown = $(this).closest('.select2-dropdown');
+
+                // Find all options in this group within the dropdown
+                var $groupOptions = $(this).siblings('.select2-results__option')
+                    .filter(function() {
+                        var $opt = $(this);
+                        var $parent = $opt.closest('ul');
+                        var $optgroup = $parent.siblings('.select2-results__group')
+                            .filter(function() {
+                                return $(this).text().replace(' (click to toggle all)', '')
+                                .trim() === groupName;
+                            });
+
+                        // Check if this option comes after our group header
+                        if (!$optgroup.length) return false;
+
+                        var optgroupIndex = $optgroup.parent().children('.select2-results__group')
+                            .index($optgroup[0]);
+                        var optionIndex = $parent.children('.select2-results__option').index($opt);
+
+                        return $opt.text().trim().length > 0;
+                    });
+
+                // Highlight the group header
+                $(this).css({
+                    'background-color': '#007bff',
+                    'color': '#ffffff'
+                });
+
+                // Add tooltip to indicate click action
+                $(this).attr('title', '{{ __('Click here to select all the eggs in this nest') }}');
+
+                // Preview what will be selected (greyed out to show they're related)
+                $groupOptions.css({
+                    'background-color': '#e9ecef',
+                    'color': '#495057'
+                });
+            });
+
+            $(document).on('mouseleave', '.select2-results__group', function() {
+                $(this).css({
+                    'background-color': '',
+                    'color': ''
+                });
+
+                // Remove preview highlighting from options
+                $(this).closest('ul').find('.select2-results__option').css({
+                    'background-color': '',
+                    'color': ''
+                });
+            });
+
+            // Add visual indicator that group headers are clickable
+            $(document).on('select2-open', '.select2-hidden-accessible', function() {
+                var $dropdown = $(this).data('select2').dropdown.$dropdown;
+                $dropdown.find('.select2-results__group').each(function() {
+                    var $group = $(this);
+                    if (!$group.find('.group-hint').length) {
+                        $group.append(
+                            ' <span class="group-hint" style="font-size:0.75em;opacity:0.8">(click to toggle all)</span>'
+                        );
+                    }
+                });
+            });
+
 
             document.getElementById('select-all-eggs').addEventListener('click', function(e) {
                 e.preventDefault();
