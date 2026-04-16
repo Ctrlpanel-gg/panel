@@ -73,21 +73,36 @@
                                                     @if ($isCouponsEnabled)
                                                         <span class="h4">{{ __('Coupon') }}</span>
 
-                                                        <div class="mt-2 d-flex">
-                                                            <input type="text" id="coupon_code" name="coupon_code"
-                                                                value="{{ old('coupon_code') }}" :value="coupon_code"
-                                                                class="form-control @error('coupon_code') is_invalid @enderror"
-                                                                placeholder="{{ __('Enter your coupon here...') }}"
-                                                                x-on:change.debounce="setCouponCode($event)"
-                                                                x-model="coupon_code" />
-                                                            <button type="button" id="send_coupon_code"
-                                                                @click="checkCoupon()" class="ml-3 btn btn-success"
-                                                                :disabled="!coupon_code.length"
-                                                                :class="!coupon_code.length ? 'disabled' : ''"
-                                                                :value="coupon_code">
-                                                                {{ __('Submit') }}
-                                                            </button>
-
+                                                        <div class="mt-2 d-flex align-items-stretch">
+                                                            <div class="input-group flex-grow-1" style="min-width: 0;">
+                                                                <input type="text" id="coupon_code" name="coupon_code"
+                                                                    value="{{ old('coupon_code') }}" :value="coupon_code"
+                                                                    class="form-control @error('coupon_code') is_invalid @enderror"
+                                                                    placeholder="{{ __('Enter your coupon here...') }}"
+                                                                    x-on:change.debounce="setCouponCode($event)"
+                                                                    x-model="coupon_code" />
+                                                                <div class="input-group-append">
+                                                                    <button type="button" id="send_coupon_code"
+                                                                        @click="checkCoupon()" class="btn btn-success"
+                                                                        :disabled="!coupon_code.length"
+                                                                        :class="!coupon_code.length ? 'disabled' : ''"
+                                                                        :value="coupon_code">
+                                                                        {{ __('Submit') }}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div x-cloak x-show="hasAppliedCoupon"
+                                                                class="ml-2 flex-shrink-0">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-secondary d-flex align-items-center justify-content-center px-3 h-100"
+                                                                    @click="clearCoupon()"
+                                                                    data-toggle="popover"
+                                                                    data-trigger="hover"
+                                                                    data-placement="top"
+                                                                    data-content="{{ __('Remove coupon') }}">
+                                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                         @error('coupon_code')
                                                             <div class="text-danger">
@@ -208,10 +223,9 @@
                                     type="submit"
                                     :disabled="!canSubmitPayment"
                                     :class="!canSubmitPayment ? 'disabled' : ''"
-                                    class="float-right btn btn-success w-100"
-                                >
+                                    class="float-right btn btn-success w-100">
                                     <i class="mr-2 far fa-credit-card"></i>
-                                    <span x-show="isFreeAfterCoupon">{{ __('Get for free') }}</span>
+                                    <span x-cloak x-show="isFreeAfterCoupon">{{ __('Get for free') }}</span>
                                     <span x-show="!isFreeAfterCoupon">{{ __('Submit Payment') }}</span>
                                 </button>
                             </div>
@@ -234,7 +248,9 @@
                 productIsFreeFromServer: @json($productIsFree),
                 payment_method: null,
                 coupon_code: '',
+                appliedCouponCode: '',
                 submitted: false,
+                baseTotalPrice: {{ $total }},
                 totalPrice: {{ $total }},
                 couponType: null,
                 couponDiscountedValue: 0,
@@ -250,8 +266,21 @@
                     return this.payment_method != null && String(this.payment_method).length > 0;
                 },
 
+                get hasAppliedCoupon() {
+                    return String(this.appliedCouponCode || '').trim().length > 0;
+                },
+
                 setCouponCode(event) {
                     this.coupon_code = event.target.value
+                },
+
+                clearCoupon() {
+                    this.totalPrice = this.baseTotalPrice
+                    this.couponType = null
+                    this.couponDiscountedValue = 0
+                    this.appliedCouponCode = ''
+                    this.coupon_code = ''
+                    $('#coupon_discount_details').hide()
                 },
 
                 async checkCoupon() {
@@ -277,32 +306,34 @@
                             })
                         }))
 
-                    if (response.isValid && response.couponCode) {
-                        Swal.fire({
-                            icon: 'success',
-                            text: "{{ __('The coupon was successfully added to your purchase.') }}"
-
-                        })
-
-                        this.calcPriceWithCouponDiscount(response.couponValue, response
-                            .couponType)
-
-                        $('#send_coupon_code').prop('disabled', true)
-                        $('#coupon_discount_details').prop('disabled', false).show()
-
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
-                        })
+                    if (!response || !response.isValid || !response.couponCode) {
+                        if (response !== undefined) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
+                            })
+                        }
+                        return
                     }
+
+                    Swal.fire({
+                        icon: 'success',
+                        text: "{{ __('The coupon was successfully added to your purchase.') }}"
+
+                    })
+
+                    this.appliedCouponCode = String(response.couponCode || '').trim()
+                    this.calcPriceWithCouponDiscount(response.couponValue, response
+                        .couponType)
+
+                    $('#coupon_discount_details').prop('disabled', false).show()
                 },
 
 
 
                 calcPriceWithCouponDiscount(couponValue, couponType) {
-                    let newTotalPrice = this.totalPrice
+                    let newTotalPrice = this.baseTotalPrice
 
                     if (couponType === 'percentage') {
                         newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
