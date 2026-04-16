@@ -51,13 +51,13 @@
                                                                         <span class="mr-3">{{ $gateway->name }}</span>
                                                                     </label>
                                                                     <button class="rounded btn btn-primary" type="button"
-                                                                        name="payment_method" id="{{ $gateway->name }}"
+                                                                        id="{{ $gateway->name }}"
                                                                         value="{{ $gateway->name }}"
                                                                         :class="payment_method === '{{ $gateway->name }}' ?
                                                                             'active' : ''"
+                                                                        :disabled="isFreeAfterCoupon"
                                                                         @click="payment_method = '{{ $gateway->name }}'; submitted = true;"
                                                                         x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">Select</button>
-                                                                    </button>
 
                                                                 </div>
                                                             </div>
@@ -133,10 +133,6 @@
                                                 <span class="text-muted d-inline-block">{{ $product->type == 'Credits' ? Currency::formatForDisplay($product->quantity) : $product->quantity }}</span>
                                             </li>
                                         </ul>
-
-                                    </li>
-
-
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between lh-condensed">
                                         <div>
@@ -196,7 +192,7 @@
                                                     x-text="formatToCurrency($currency.format(totalPrice))">
                                                 </span>
                                             </div>
-                                            <template x-if="payment_method">
+                                            <template x-if="payment_method && !isFreeAfterCoupon">
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Pay with') }}</span>
                                                     <span class="text-muted d-inline-block"
@@ -209,18 +205,15 @@
 
                                 <button
                                     id="submit_form_button"
-                                    :disabled="(!payment_method) && {{ !$productIsFree }}"
-                                    :class="(!payment_method) && {{ !$productIsFree }} ? 'disabled' : ''"
+                                    type="submit"
+                                    :disabled="!canSubmitPayment"
+                                    :class="!canSubmitPayment ? 'disabled' : ''"
                                     class="float-right btn btn-success w-100"
                                 >
                                     <i class="mr-2 far fa-credit-card"></i>
-                                    @if ($productIsFree)
-                                        {{ __('Get for free') }}
-                                    @else
-                                        {{ __('Submit Payment') }}
-                                    @endif
+                                    <span x-show="isFreeAfterCoupon">{{ __('Get for free') }}</span>
+                                    <span x-show="!isFreeAfterCoupon">{{ __('Submit Payment') }}</span>
                                 </button>
-                                <script></script>
                             </div>
                         </div>
                     </div>
@@ -238,6 +231,7 @@
             return {
                 // Get the product id from the url
                 productId: window.location.pathname.split('/').pop(),
+                productIsFreeFromServer: @json($productIsFree),
                 payment_method: null,
                 coupon_code: '',
                 submitted: false,
@@ -245,9 +239,18 @@
                 couponType: null,
                 couponDiscountedValue: 0,
 
+                get isFreeAfterCoupon() {
+                    return this.productIsFreeFromServer || Number(this.totalPrice) <= 0;
+                },
+
+                get canSubmitPayment() {
+                    if (this.isFreeAfterCoupon) {
+                        return true;
+                    }
+                    return this.payment_method != null && String(this.payment_method).length > 0;
+                },
 
                 setCouponCode(event) {
-                    console.log(this.payment_method)
                     this.coupon_code = event.target.value
                 },
 
@@ -284,8 +287,6 @@
                         this.calcPriceWithCouponDiscount(response.couponValue, response
                             .couponType)
 
-                        const shouldEnable = this.payment_method && this.totalPrice > 0;
-                        $('#submit_form_button').prop('disabled', !shouldEnable).toggleClass('disabled', !shouldEnable)
                         $('#send_coupon_code').prop('disabled', true)
                         $('#coupon_discount_details').prop('disabled', false).show()
 
@@ -309,9 +310,14 @@
                         newTotalPrice = newTotalPrice - couponValue
                     }
 
+                    newTotalPrice = Math.max(0, newTotalPrice)
+
                     this.couponType = couponType
                     this.couponDiscountedValue = couponValue
                     this.totalPrice = newTotalPrice
+                    if (Number(this.totalPrice) <= 0) {
+                        this.payment_method = null
+                    }
                 },
 
                 formatToCurrency(amount) {
