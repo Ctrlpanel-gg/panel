@@ -157,7 +157,7 @@
                                                 <span class="text-muted d-inline-block">
                                                     {{ Currency::formatToCurrency($product->price, $product->currency_code) }}</span>
                                             </li>
-                                            @if($taxpercent > 0 && $taxvalue > 0)
+                                            @if ($taxpercent > 0 && $taxvalue > 0)
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Tax') }}
                                                         @if ($taxpercent > 0)
@@ -173,7 +173,9 @@
                                                 <span class="text-muted d-inline-block">
                                                     {{ __('Coupon Discount') }}
                                                 </span>
-                                                <span x-text="'- ' + (couponType == 'amount' ? formatToCurrency($currency.format(couponDiscountedValue)) : couponDiscountedValue + '%')" class="text-muted d-inline-block">
+                                                <span
+                                                    x-text="'- ' + (couponType == 'amount' ? formatToCurrency($currency.format(couponDiscountedValue)) : couponDiscountedValue + '%')"
+                                                    class="text-muted d-inline-block">
 
                                                 </span>
                                             </div>
@@ -282,8 +284,8 @@
                         this.calcPriceWithCouponDiscount(response.couponValue, response
                             .couponType)
 
-                        $('#submit_form_button').prop('disabled', false).removeClass(
-                            'disabled')
+                        const shouldEnable = this.payment_method && this.totalPrice > 0;
+                        $('#submit_form_button').prop('disabled', !shouldEnable).toggleClass('disabled', !shouldEnable)
                         $('#send_coupon_code').prop('disabled', true)
                         $('#coupon_discount_details').prop('disabled', false).show()
 
