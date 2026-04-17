@@ -285,19 +285,19 @@
 
                 async checkCoupon() {
                     const response = await (fetch(
-                            "{{ route('admin.coupon.redeem') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                        'content')
-                                },
-                                body: JSON.stringify({
-                                    couponCode: this.coupon_code,
-                                    productId: this.productId
-                                })
-                            }
-                        )
+                        "{{ route('admin.coupon.redeem') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                'content')
+                        },
+                        body: JSON.stringify({
+                            couponCode: this.coupon_code,
+                            productId: this.productId
+                        })
+                    }
+                    )
                         .then(response => response.json()).catch((error) => {
                             Swal.fire({
                                 icon: 'error',
@@ -311,7 +311,7 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
-                                text: "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
+                                text: response?.error ?? "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
                             })
                         }
                         return
@@ -320,7 +320,6 @@
                     Swal.fire({
                         icon: 'success',
                         text: "{{ __('The coupon was successfully added to your purchase.') }}"
-
                     })
 
                     this.appliedCouponCode = String(response.couponCode || '').trim()
@@ -329,8 +328,6 @@
 
                     $('#coupon_discount_details').prop('disabled', false).show()
                 },
-
-
 
                 calcPriceWithCouponDiscount(couponValue, couponType) {
                     let newTotalPrice = this.baseTotalPrice
