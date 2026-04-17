@@ -48,6 +48,8 @@
         #userDropdown.dropdown-toggle::after {
             display: none !important;
         }
+
+        [x-cloak] { display: none !important; }
     </style>
     @vite('themes/default/sass/app.scss')
 </head>
