@@ -47,10 +47,10 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->getTotalPrice()) {
+            if ($coupon->min_product_price > 0 && $shopProduct->getTotalPrice() < $coupon->min_product_price) {
                 $response = response()->json([
                     'isValid' => false,
-                    'error' => __('The coupon you are trying to use would give you 100% off, so it cannot be used for this product, sorry.')
+                    'error' => __('The product price is too low to use this coupon.')
                 ], 422);
 
                 return $response;
@@ -86,7 +86,7 @@ trait Coupon
             return false;
         }
 
-        if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->getTotalPrice()) {
+        if ($coupon->min_product_price > 0 && $shopProduct->getTotalPrice() < $coupon->min_product_price) {
             return false;
         }
 
