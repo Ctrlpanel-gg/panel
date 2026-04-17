@@ -128,6 +128,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->vouchers()->detach();
 
+            $user->coupons()->detach();
+
             $user->discordUser()->delete();
 
             $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();

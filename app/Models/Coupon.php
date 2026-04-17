@@ -49,6 +49,15 @@ class Coupon extends Model
         'expires_at' => 'timestamp'
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function (Coupon $coupon) {
+            $coupon->users()->detach();
+        });
+    }
+
     /**
      * Set the value to be in cents.
      *

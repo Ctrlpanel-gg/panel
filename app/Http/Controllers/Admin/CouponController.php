@@ -168,7 +168,10 @@ class CouponController extends Controller
     public function destroy(Coupon $coupon)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
-        $coupon->delete();
+
+        \DB::transaction(function () use ($coupon) {
+            $coupon->delete();
+        });
 
         return redirect()->back()->with('success', __('coupon has been removed!'));
     }
