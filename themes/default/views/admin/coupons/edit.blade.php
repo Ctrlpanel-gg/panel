@@ -134,6 +134,23 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label for="min_product_price">
+                                        {{ __('Min product price to use') }}
+                                        <i data-toggle="popover" data-trigger="hover"
+                                            data-content="{{ __('Minimum product price required to apply this coupon. Set to 0 for no limit.') }}"
+                                            class="fas fa-info-circle">
+                                        </i>
+                                    </label>
+                                    <input name="min_product_price" id="min_product_price" type="number" step="any"
+                                        min="0" class="form-control @error('min_product_price') is-invalid @enderror"
+                                        value="{{ old('min_product_price') ?? Currency::formatForForm($coupon->min_product_price) }}">
+                                    @error('min_product_price')
+                                        <div class="text-danger">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
                                     <label for="max_uses">
                                         {{ __('Max uses') }}
                                         <i data-toggle="popover" data-trigger="hover"

@@ -45,6 +45,7 @@
                         <th>{{__('Status')}}</th>
                         <th>{{__('Code')}}</th>
                         <th>{{__('Value')}}</th>
+                        <th>{{__('Min Product Price')}}</th>
                         <th>{{__('Used / Max Uses')}}</th>
                         <th>{{__('Expires')}}</th>
                         <th>{{__('Created At')}}</th>
@@ -82,6 +83,7 @@
         {data: 'status'},
         {data: 'code'},
         {data: 'value'},
+        {data: 'min_product_price'},
         {data: 'uses', sortable: false},
         {data: 'expires_at'},
         {data: 'created_at'},

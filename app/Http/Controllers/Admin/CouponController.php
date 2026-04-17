@@ -76,6 +76,7 @@ class CouponController extends Controller
             if ($request->input('type') === 'amount') {
                 $value = $currencyHelper->prepareForDatabase($value);
             }
+            $min_product_price = $currencyHelper->prepareForDatabase($request->input('min_product_price'));
 
             // Scroll through all the randomly generated coupons.
             foreach ($coupons as $coupon) {
@@ -83,6 +84,7 @@ class CouponController extends Controller
                     'code' => $coupon,
                     'type' => $request->input('type'),
                     'value' => $value,
+                    'min_product_price' => $min_product_price,
                     'max_uses' => $request->input('max_uses'),
                        'max_uses_per_user' => $this->normalizeMaxUsesPerUser($request),
                     'expires_at' => $request->input('expires_at'),
@@ -208,9 +210,9 @@ class CouponController extends Controller
                    }
                }
                ],
-            "value" => "required|numeric|between:0,100",
-            "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())
-        ];
+               "value" => "required|numeric|between:0,100",
+               "min_product_price" => "required|numeric|min:0",
+               "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())        ];
 
         if ($coupon_code) {
             $rules['code'] = "required|string|min:4";
@@ -283,6 +285,9 @@ class CouponController extends Controller
                 }
 
                 return $currencyHelper->formatForDisplay($coupon->value);
+            })
+            ->editColumn('min_product_price', function (Coupon $coupon, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatForDisplay($coupon->min_product_price);
             })
             ->editColumn('expires_at', function (Coupon $coupon) {
                 if (!$coupon->expires_at) {

@@ -32,6 +32,7 @@ class Coupon extends Model
         'code',
         'type',
         'value',
+        'min_product_price',
         'uses',
         'max_uses',
         'max_uses_per_user',
@@ -43,6 +44,7 @@ class Coupon extends Model
      */
     protected $casts = [
         'value' => 'float',
+        'min_product_price' => 'float',
         'uses' => 'integer',
         'max_uses' => 'integer',
         'max_uses_per_user' => 'integer',
@@ -67,6 +69,18 @@ class Coupon extends Model
     {
         return Attribute::make(
             set: fn ($value) => $this->type == 'amount' ? Currency::prepareForDatabase($value) : $value
+        );
+    }
+
+    /**
+     * Set the min product price to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function minProductPrice(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Currency::prepareForDatabase($value)
         );
     }
 
