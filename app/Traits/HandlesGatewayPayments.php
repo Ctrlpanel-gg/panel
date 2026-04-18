@@ -105,6 +105,18 @@ trait HandlesGatewayPayments
         $user = User::findOrFail($payment->user_id);
         $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
+        if ($payment->coupon_code) {
+            try {
+                event(new \App\Events\CouponUsedEvent($payment->coupon_code, $user));
+            } catch (Throwable $e) {
+                Log::error('Payment completion CouponUsedEvent dispatch failed.', [
+                    'payment_id' => $payment->id,
+                    'coupon_code' => $payment->coupon_code,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
         $paymentEventDispatched = true;
         $userUpdateCreditsEventDispatched = true;
 

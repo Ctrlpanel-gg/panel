@@ -12,6 +12,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Enums\PaymentStatus;
+use App\Models\Payment;
 
 class Coupon extends Model
 {
@@ -101,17 +103,22 @@ class Coupon extends Model
      */
     public function getStatus()
     {
-        if ($this->max_uses !== -1 && $this->uses >= $this->max_uses) {
-            return 'USES_LIMIT_REACHED';
+        if ($this->max_uses !== -1) {
+            if ($this->uses >= $this->max_uses) {
+                return 'USES_LIMIT_REACHED';
+            }
+            if (($this->uses + $this->pendingUses()) >= $this->max_uses) {
+                return 'PENDING_LIMIT_REACHED';
+            }
         }
 
         if (!is_null($this->expires_at)) {
             if ($this->expires_at <= Carbon::now(config('app.timezone'))->timestamp) {
-                return __('EXPIRED');
+                return 'EXPIRED';
             }
         }
 
-        return __('VALID');
+        return 'VALID';
     }
 
     /**
@@ -125,13 +132,30 @@ class Coupon extends Model
     {
         $coupon_settings = new CouponSettings;
         $coupon_uses = $user->coupons()->where('id', $this->id)->count();
+
+        // Also count pending uses by this user
+        $pending_uses = Payment::where('user_id', $user->id)
+            ->where('coupon_code', $this->code)
+            ->whereIn('status', [PaymentStatus::OPEN, PaymentStatus::PROCESSING])
+            ->count();
+
         $maxUsesPerUser = $this->max_uses_per_user ?? $coupon_settings->max_uses_per_user;
 
         if ($maxUsesPerUser === -1) {
             return false;
         }
 
-        return $coupon_uses >= $maxUsesPerUser;
+        return ($coupon_uses + $pending_uses) >= $maxUsesPerUser;
+    }
+
+    /**
+     * @return int
+     */
+    public function pendingUses(): int
+    {
+        return Payment::where('coupon_code', $this->code)
+            ->whereIn('status', [PaymentStatus::OPEN, PaymentStatus::PROCESSING])
+            ->count();
     }
 
     /**

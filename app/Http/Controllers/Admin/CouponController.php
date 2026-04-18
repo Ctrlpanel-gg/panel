@@ -171,6 +171,10 @@ class CouponController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
+        if ($coupon->pendingUses() > 0) {
+            return redirect()->back()->with('error', __('This coupon cannot be deleted because there are pending payments using it.'));
+        }
+
         \DB::transaction(function () use ($coupon) {
             $coupon->delete();
         });
@@ -247,14 +251,7 @@ class CouponController extends Controller
     {
         $this->checkAnyPermission([self::WRITE_PERMISSION,self::READ_PERMISSION]);
 
-        $query = Coupon::selectRaw('
-            coupons.*,
-            CASE
-                   WHEN coupons.max_uses != -1 AND coupons.uses >= coupons.max_uses THEN "USES_LIMIT_REACHED"
-                WHEN coupons.expires_at IS NOT NULL AND coupons.expires_at < NOW() THEN "EXPIRED"
-                ELSE "VALID"
-            END as derived_status
-        ');
+        $query = Coupon::query();
 
         return datatables($query)
             ->addColumn('actions', function(Coupon $coupon) {
@@ -269,15 +266,25 @@ class CouponController extends Controller
                 ';
             })
             ->addColumn('status', function (Coupon $coupon) {
-                $color = ($coupon->derived_status == 'VALID') ? 'success' : 'danger';
-                $status = str_replace('_', ' ', $coupon->derived_status);
+                $derivedStatus = $coupon->getStatus();
+                $color = 'success';
+                
+                if ($derivedStatus === 'USES_LIMIT_REACHED' || $derivedStatus === 'EXPIRED') {
+                    $color = 'danger';
+                } elseif ($derivedStatus === 'PENDING_LIMIT_REACHED') {
+                    $color = 'warning';
+                }
 
-                return '<span class="badge badge-'.$color.'">'.$status.'</span>';
+                $status = str_replace('_', ' ', $derivedStatus);
+
+                return '<span class="badge badge-'.$color.'">'.__($status).'</span>';
             })
             ->editColumn('uses', function (Coupon $coupon) {
                  $maxUses = $coupon->max_uses == -1 ? '∞' : $coupon->max_uses;
+                 $pending = $coupon->pendingUses();
+                 $pendingText = $pending > 0 ? " (+{$pending})" : "";
 
-                 return "{$coupon->uses} / {$maxUses}";
+                 return "{$coupon->uses}{$pendingText} / {$maxUses}";
             })
             ->editColumn('value', function (Coupon $coupon, CurrencyHelper $currencyHelper) {
                 if ($coupon->type === 'percentage') {
@@ -302,7 +309,6 @@ class CouponController extends Controller
             ->editColumn('code', function (Coupon $coupon) {
                 return "<code>{$coupon->code}</code>";
             })
-            ->orderColumn('status', 'derived_status $1')
             ->rawColumns(['actions', 'code', 'status'])
             ->make();
     }
