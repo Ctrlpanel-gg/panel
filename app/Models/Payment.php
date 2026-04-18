@@ -32,6 +32,7 @@ class Payment extends Model
         'tax_percent',
         'currency_code',
         'shop_item_product_id',
+        'coupon_code',
     ];
 
     /**

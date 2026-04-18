@@ -103,7 +103,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function handleFreeProduct(ShopProduct $shopProduct)
+    public function handleFreeProduct(ShopProduct $shopProduct, ?string $couponCode = null)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -116,13 +116,18 @@ class PaymentController extends Controller
             'type' => $shopProduct->type,
             'status' => PaymentStatus::PAID,
             'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * PartnerDiscount::getDiscount() / 100),
-            'tax_value' => $shopProduct->getTaxValue(),
-            'tax_percent' => $shopProduct->getTaxPercent(),
-            'total_price' => $shopProduct->getTotalPrice(),
+            'price' => 0,
+            'tax_value' => 0,
+            'tax_percent' => 0,
+            'total_price' => 0,
             'currency_code' => $shopProduct->currency_code,
             'shop_item_product_id' => $shopProduct->id,
+            'coupon_code' => $couponCode,
         ]);
+
+        if ($couponCode) {
+            event(new CouponUsedEvent($couponCode, $user));
+        }
 
         event(new UserUpdateCreditsEvent($user));
         event(new PaymentEvent($user, $payment, $shopProduct));
@@ -156,13 +161,13 @@ class PaymentController extends Controller
             if ($couponCode) {
                 if ($this->isCouponValid($couponCode, $user, $shopProduct->id)) {
                     $subtotal = $this->applyCoupon($couponCode, $subtotal);
-
-                    event(new CouponUsedEvent($couponCode, $user));
+                } else {
+                    $couponCode = null;
                 }
             }
 
             if ($subtotal <= 0) {
-                return $this->handleFreeProduct($shopProduct);
+                return $this->handleFreeProduct($shopProduct, $couponCode);
             }
 
             $enabledPaymentGateways = [];
@@ -194,6 +199,7 @@ class PaymentController extends Controller
                 'total_price' => $subtotal,
                 'currency_code' => $shopProduct->currency_code,
                 'shop_item_product_id' => $shopProduct->id,
+                'coupon_code' => $couponCode,
             ]);
 
             $paymentGatewayExtension = ExtensionHelper::getExtensionClass($paymentGateway);

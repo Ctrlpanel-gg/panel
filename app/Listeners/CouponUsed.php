@@ -33,6 +33,10 @@ class CouponUsed
         // Automatically increments the coupon usage.
         $this->incrementUses($event);
 
+        if ($event->user) {
+            $event->coupon->users()->syncWithoutDetaching([$event->user->id]);
+        }
+
         if ($this->delete_coupon_on_expires) {
             if (!is_null($event->coupon->expires_at)) {
                 if ($event->coupon->expires_at <= Carbon::now()->timestamp) {
@@ -45,10 +49,6 @@ class CouponUsed
             if ($event->coupon->max_uses !== -1 && $event->coupon->uses >= $event->coupon->max_uses) {
                 $event->coupon->delete();
             }
-        }
-
-        if ($event->user) {
-            $event->coupon->users()->syncWithoutDetaching([$event->user->id]);
         }
     }
 

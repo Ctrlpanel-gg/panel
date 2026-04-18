@@ -20,7 +20,8 @@ trait Coupon
         ], 404);
 
         if (!is_null($coupon)) {
-            if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
+            $status = $coupon->getStatus();
+            if ($status == 'USES_LIMIT_REACHED' || $status == 'PENDING_LIMIT_REACHED') {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('This coupon has reached the maximum amount of uses.')
@@ -29,7 +30,7 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->getStatus() == 'EXPIRED') {
+            if ($status == 'EXPIRED') {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('This coupon has expired.')
@@ -73,12 +74,13 @@ trait Coupon
 
         $coupon = CouponModel::where('code', $couponCode)->firstOrFail();
         $shopProduct = ShopProduct::findOrFail($productId);
+        $status = $coupon->getStatus();
 
-        if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
+        if ($status == 'USES_LIMIT_REACHED' || $status == 'PENDING_LIMIT_REACHED') {
             return false;
         }
 
-        if ($coupon->getStatus() == 'EXPIRED') {
+        if ($status == 'EXPIRED') {
             return false;
         }
 
@@ -102,10 +104,7 @@ trait Coupon
         }
 
         if ($coupon->type === 'amount') {
-            // There is no discount if the value of the coupon is greater than or equal to the value of the product.
-            if ($coupon->value >= $price) {
-                return $price;
-            }
+            return max(0, $price - $coupon->value);
         }
 
         return $price - $coupon->value;
