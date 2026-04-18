@@ -102,10 +102,7 @@ trait Coupon
         }
 
         if ($coupon->type === 'amount') {
-            // There is no discount if the value of the coupon is greater than or equal to the value of the product.
-            if ($coupon->value >= $price) {
-                return $price;
-            }
+            return max(0, $price - $coupon->value);
         }
 
         return $price - $coupon->value;
