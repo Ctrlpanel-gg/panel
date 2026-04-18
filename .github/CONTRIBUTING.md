@@ -8,11 +8,11 @@ Check the open issues to see if there's something you can contribute to. If you 
 
 ## 🤝 Code of Conduct & Contributor License
 
-Please adhere to our [Code of Conduct](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/CODE_OF_CONDUCT.md) and our [Contributor License](https://github.com/Ctrlpanel-gg/panel/blob/main/CONTRIBUTOR_LICENSE_AGREEMENT.md) in all your interactions with the project.
+Please adhere to our [Code of Conduct](https://github.com/Ctrlpanel-gg/panel/blob/development/.github/CODE_OF_CONDUCT.md) and our [Contributor License](https://github.com/Ctrlpanel-gg/panel/blob/development/CONTRIBUTOR_LICENSE_AGREEMENT) in all your interactions with the project.
 
 ## 🌍 Localization
 
-Please read our [Localization Guide](https://github.com/Ctrlpanel-gg/panel/blob/main/lang/README.md) on how to manage and add localization to the project.
+Please read our [Localization Guide](https://github.com/Ctrlpanel-gg/panel/blob/development/lang/README.md) on how to manage and add localization to the project.
 
 ## 🚀 Pull Request Process
 
