@@ -192,15 +192,11 @@ class SettingsController extends Controller
             $inputValue = $request->input($key);
 
             // User/referral currency values are stored in thousandths.
-            $currencyKeys = [
-                'reward',
-                'credits_reward_after_verify_discord',
-                'credits_reward_after_verify_email',
-                'initial_credits',
-            ];
-
-            if (in_array($key, $currencyKeys, true) && !is_null($inputValue) && $inputValue !== '') {
-                $inputValue = Currency::prepareForDatabase($inputValue);
+            if (method_exists($resolvedSettingsClass, 'getOptionInputData')) {
+                $optionInputData = $resolvedSettingsClass::getOptionInputData();
+                if (isset($optionInputData[$key]['mustBeConverted']) && $optionInputData[$key]['mustBeConverted'] && !is_null($inputValue) && $inputValue !== '') {
+                    $inputValue = Currency::prepareForDatabase($inputValue);
+                }
             }
 
             $nullable = $rpType ? $rpType->allowsNull() : true;
