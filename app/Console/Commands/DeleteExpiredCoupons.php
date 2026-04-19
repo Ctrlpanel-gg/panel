@@ -22,7 +22,7 @@ class DeleteExpiredCoupons extends Command
      *
      * @var string
      */
-    protected $description = 'Delete expired coupons from DB.';
+    protected $description = 'Delete expired and exhausted coupons from DB.';
 
     /**
      * Execute the console command.
@@ -31,20 +31,21 @@ class DeleteExpiredCoupons extends Command
      */
     public function handle(CouponSettings $couponSettings)
     {
+        // Delete expired coupons
         if ($couponSettings->delete_coupon_on_expires) {
-            $expired_coupons = Coupon::where('expires_at', '<=', Carbon::now(config('app.timezone')))->get();
-
-            foreach ($expired_coupons as $expired_coupon) {
-                $expired_coupon->delete();
-            }
+            Coupon::where('expires_at', '<=', Carbon::now(config('app.timezone')))
+                ->get()
+                ->each->delete();
         }
+
+        // Delete exhausted coupons (reached max uses)
         if ($couponSettings->delete_coupon_on_uses_reached) {
-            $exhausted_coupons = Coupon::where('max_uses', '!=', -1)->whereColumn('uses', '>=', 'max_uses')->get();
-
-            foreach ($exhausted_coupons as $exhausted_coupon) {
-                $exhausted_coupon->delete();
-            }
+            Coupon::where('max_uses', '>', 0)
+                ->whereColumn('uses', '>=', 'max_uses')
+                ->get()
+                ->each->delete();
         }
 
+        return Command::SUCCESS;
     }
 }
