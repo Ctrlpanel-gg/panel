@@ -148,6 +148,12 @@ class Voucher extends Model
             $user->increment('credits', $this->credits);
             $this->users()->attach($user);
             $this->logRedeem($user);
+
+            // Check if we should delete the voucher immediately
+            $voucherSettings = resolve(\App\Settings\VoucherSettings::class);
+            if ($voucherSettings->delete_voucher_on_uses_reached && $this->used >= $this->uses) {
+                $this->delete();
+            }
         } catch (Exception $exception) {
             throw $exception;
         }
