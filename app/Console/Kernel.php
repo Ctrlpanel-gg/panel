@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('servers:notify-suspension')->daily();
         $schedule->command('cp:versioncheck:get')->daily();
         $schedule->command('payments:open:clear')->daily();
-        $schedule->command('coupons:delete')->daily();
+        $schedule->command('coupons:delete')->hourly();
 
         //log cronjob activity
         $schedule->call(function () {
