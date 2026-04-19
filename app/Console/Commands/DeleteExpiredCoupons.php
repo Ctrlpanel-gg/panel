@@ -38,5 +38,13 @@ class DeleteExpiredCoupons extends Command
                 $expired_coupon->delete();
             }
         }
+        if ($couponSettings->delete_coupon_on_uses_reached) {
+            $exhausted_coupons = Coupon::where('max_uses', '!=', -1)->whereColumn('uses', '>=', 'max_uses')->get();
+
+            foreach ($exhausted_coupons as $exhausted_coupon) {
+                $exhausted_coupon->delete();
+            }
+        }
+
     }
 }
