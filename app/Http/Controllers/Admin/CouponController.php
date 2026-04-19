@@ -216,7 +216,7 @@ class CouponController extends Controller
             ],
             "value" => $request->input('type') === 'percentage' ? 'required|numeric|between:1,100' : 'required|numeric|min:0.01|max:9007199254740991',
             "min_product_price" => "required|numeric|min:0|max:9007199254740991",
-            "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())
+            "expires_at" => "nullable|date|after:now"
         ];
 
         if ($coupon_code) {
