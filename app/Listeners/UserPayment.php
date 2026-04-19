@@ -84,7 +84,7 @@ class UserPayment implements ShouldQueue
         if (($this->referral_mode === "commission" || $this->referral_mode === "both") && $shopProduct->type == "Credits" && $this->referral_always_give_commission) {
             if ($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()) {
                 $ref_user = User::findOrFail($ref_user->referral_id);
-                $increment = number_format($shopProduct->quantity * (PartnerDiscount::getCommission($ref_user->id, $this->referral_percentage)) / 100, 0, "", "");
+                $increment = (int) ($shopProduct->quantity * (PartnerDiscount::getCommission($ref_user->id, $this->referral_percentage)) / 100);
                 $ref_user->increment('credits', $increment);
 
                 //LOGS REFERRALS IN THE ACTIVITY LOG
@@ -102,7 +102,7 @@ class UserPayment implements ShouldQueue
             if (($this->referral_mode === "commission" || $this->referral_mode === "both") && $shopProduct->type == "Credits" && !$this->referral_always_give_commission) {
                 if ($ref_user = DB::table("user_referrals")->where('registered_user_id', '=', $user->id)->first()) {
                     $ref_user = User::findOrFail($ref_user->referral_id);
-                    $increment = number_format($shopProduct->quantity * (PartnerDiscount::getCommission($ref_user->id, $this->referral_percentage)) / 100, 0, "", "");
+                    $increment = (int) ($shopProduct->quantity * (PartnerDiscount::getCommission($ref_user->id, $this->referral_percentage)) / 100);
                     $ref_user->increment('credits', $increment);
 
                     //LOGS REFERRALS IN THE ACTIVITY LOG
