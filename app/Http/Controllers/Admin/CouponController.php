@@ -140,18 +140,7 @@ class CouponController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $coupon_code = $request->input('code');
-        $random_codes_amount = $request->input('range_codes');
         $rules = $this->requestRules($request);
-
-        // If for some reason you pass both fields at once.
-        if ($coupon_code && $random_codes_amount) {
-            return redirect()->back()->with('error', __('Only one of the two code inputs must be provided.'))->withInput($request->all());
-        }
-
-        if (!$coupon_code && !$random_codes_amount) {
-            return redirect()->back()->with('error', __('At least one of the two code inputs must be provided.'))->withInput($request->all());
-        }
 
         $request->validate($rules);
         $data = $request->except('_token');
@@ -184,9 +173,8 @@ class CouponController extends Controller
 
     private function requestRules(Request $request)
     {
-        $coupon_code = $request->input('code');
-        $random_codes_amount = $request->input('range_codes');
-        $rules = [
+        return [
+            "code" => "required|string|min:4",
             "type" => "required|string|in:percentage,amount",
             // Set to -1 for unlimited uses globally, or a positive integer within DB range.
             "max_uses" => [
@@ -218,14 +206,6 @@ class CouponController extends Controller
             "min_product_price" => "required|numeric|min:0|max:9007199254740991",
             "expires_at" => "nullable|date|after:now"
         ];
-
-        if ($coupon_code) {
-            $rules['code'] = "required|string|min:4";
-        } elseif ($random_codes_amount) {
-            $rules['range_codes'] = 'required|integer|digits_between:1,100';
-        }
-
-        return $rules;
     }
 
     /**
