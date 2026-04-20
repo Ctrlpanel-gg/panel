@@ -14,10 +14,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Enums\PaymentStatus;
 use App\Models\Payment;
+use Spatie\Activitylog\Models\Activity;
 
 class Coupon extends Model
 {
     use HasFactory, LogsActivity, CausesActivity;
+
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        // If the coupon is being updated or deleted (e.g. max uses reached during payment)
+        // by a user who doesn't have the permission to manually edit coupons,
+        // we remove the causer so it's treated as a system action.
+        if ($eventName === 'updated' || $eventName === 'deleted') {
+            $causer = $activity->causer;
+            if ($causer instanceof \App\Models\User && !$causer->can('admin.coupons.write')) {
+                $activity->causer_id = null;
+                $activity->causer_type = null;
+            }
+        }
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

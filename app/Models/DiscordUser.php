@@ -86,11 +86,20 @@ class DiscordUser extends Model
             }
 
 
-            activity()
+            $activity = activity()
                 ->performedOn($this->user)
-                ->causedBy($this->user)
-                ->log('was added to role ' . $this->role_id_on_purchase . " on Discord");
+                ->log('was added to role ' . $role_id . " on Discord");
 
+            $causer = auth()->user();
+            if ($causer instanceof \App\Models\User && $causer->can('admin.users.write')) {
+                $activity->causer_id = $causer->id;
+                $activity->causer_type = get_class($causer);
+                $activity->save();
+            } else {
+                $activity->causer_id = null;
+                $activity->causer_type = null;
+                $activity->save();
+            }
 
             return true;
         } catch (\Exception $e) {

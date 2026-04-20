@@ -35,6 +35,17 @@ class Voucher extends Model
         }
 
         $activity->properties = $properties;
+
+        // If the voucher is being updated or deleted (e.g. auto-deleted after use)
+        // by a user who doesn't have the permission to manually edit vouchers,
+        // we remove the causer so it's treated as a system action.
+        if ($eventName === 'updated' || $eventName === 'deleted') {
+            $causer = $activity->causer;
+            if ($causer instanceof \App\Models\User && !$causer->can('admin.voucher.write')) {
+                $activity->causer_id = null;
+                $activity->causer_type = null;
+            }
+        }
     }
 
     public function getActivitylogOptions(): LogOptions
