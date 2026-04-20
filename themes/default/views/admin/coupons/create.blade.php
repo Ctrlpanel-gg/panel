@@ -120,7 +120,6 @@
                                         </label>
                                         <div class="d-flex">
                                             <input name="value" id="value" type="number" step="any"
-                                                min="1" max="100"
                                                 class="form-control @error('value') is-invalid @enderror"
                                                 value="{{ old('value') }}">
                                             <span id="input_percentage" class="input-group-text">%</span>
@@ -265,10 +264,14 @@
             $('#type').change(function() {
                 if ($(this).val() == 'percentage') {
                     $('#input_percentage').prop('disabled', false).show()
+                    $('#value').attr('min', 1).attr('max', 100);
                 } else {
                     $('#input_percentage').prop('disabled', true).hide()
+                    $('#value').attr('min', 0.01).attr('max', 9007199254740991);
                 }
-            })
+            }).trigger('change');
+
+            $('#min_product_price').attr('max', 9007199254740991);
         })
     </script>
 @endsection

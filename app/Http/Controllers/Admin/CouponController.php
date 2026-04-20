@@ -24,7 +24,7 @@ class CouponController extends Controller
      */
     public function index(LocaleSettings $localeSettings)
     {
-        $this->checkAnyPermission([self::WRITE_PERMISSION,self::READ_PERMISSION]);
+        $this->checkAnyPermission([self::WRITE_PERMISSION, self::READ_PERMISSION]);
 
         return view('admin.coupons.index', [
             'locale_datatables' => $localeSettings->datatables
@@ -57,8 +57,8 @@ class CouponController extends Controller
         $random_codes_amount = $request->input('range_codes');
         $rules = $this->requestRules($request);
 
-         // If for some reason you pass both fields at once.
-         if ($coupon_code && $random_codes_amount) {
+        // If for some reason you pass both fields at once.
+        if ($coupon_code && $random_codes_amount) {
             return redirect()->back()->with('error', __('Only one of the two code inputs must be provided.'))->withInput($request->all());
         }
 
@@ -86,7 +86,7 @@ class CouponController extends Controller
                     'value' => $value,
                     'min_product_price' => $min_product_price,
                     'max_uses' => $request->input('max_uses'),
-                       'max_uses_per_user' => $this->normalizeMaxUsesPerUser($request),
+                    'max_uses_per_user' => $this->normalizeMaxUsesPerUser($request),
                     'expires_at' => $request->input('expires_at'),
                     'created_at' => Carbon::now(), // Does not fill in by itself when using the 'insert' method.
                     'updated_at' => Carbon::now()
@@ -94,9 +94,9 @@ class CouponController extends Controller
             }
             Coupon::insert($data);
         } else {
-                $data = $request->except('_token');
-                $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
-                Coupon::create($data);
+            $data = $request->except('_token');
+            $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
+            Coupon::create($data);
         }
 
         return redirect()->route('admin.coupons.index')->with('success', __("The coupon's was registered successfully."));
@@ -140,23 +140,12 @@ class CouponController extends Controller
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        $coupon_code = $request->input('code');
-        $random_codes_amount = $request->input('range_codes');
         $rules = $this->requestRules($request);
 
-        // If for some reason you pass both fields at once.
-        if ($coupon_code && $random_codes_amount) {
-            return redirect()->back()->with('error', __('Only one of the two code inputs must be provided.'))->withInput($request->all());
-        }
-
-        if (!$coupon_code && !$random_codes_amount) {
-            return redirect()->back()->with('error', __('At least one of the two code inputs must be provided.'))->withInput($request->all());
-        }
-
         $request->validate($rules);
-            $data = $request->except('_token');
-            $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
-            $coupon->update($data);
+        $data = $request->except('_token');
+        $data['max_uses_per_user'] = $this->normalizeMaxUsesPerUser($request);
+        $coupon->update($data);
 
         return redirect()->route('admin.coupons.index')->with('success', __('coupon has been updated!'));
     }
@@ -184,47 +173,39 @@ class CouponController extends Controller
 
     private function requestRules(Request $request)
     {
-        $coupon_code = $request->input('code');
-        $random_codes_amount = $request->input('range_codes');
-        $rules = [
+        return [
+            "code" => "required|string|min:4",
             "type" => "required|string|in:percentage,amount",
-               // Set to -1 for unlimited uses globally, or a positive integer within DB range.
-               "max_uses" => [
-               'required',
-               'integer',
-               function ($attribute, $value, $fail) {
-                   if ((int)$value === -1) {
-                   return;
-                   }
-                   if ((int)$value <= 0 || (int)$value > 2147483647) {
-                   $fail(__('Max uses must be -1 for unlimited or a positive integer up to :max.', ['max' => 2147483647]));
-                   }
-               }
-               ],
-               // Set to -1 for unlimited per user. Empty falls back to coupon settings.
-               "max_uses_per_user" => [
-               'nullable',
-               'integer',
-               function ($attribute, $value, $fail) {
-                   if ((int)$value === -1 || is_null($value)) {
-                   return;
-                   }
-                   if ((int)$value <= 0 || (int)$value > 2147483647) {
-                   $fail(__('Max uses per user must be -1 for unlimited, or a positive integer up to :max.', ['max' => 2147483647]));
-                   }
-               }
-               ],
-               "value" => "required|numeric|between:0,100",
-               "min_product_price" => "required|numeric|min:0",
-               "expires_at" => "nullable|date|after:" . Carbon::now()->format(Coupon::formatDate())        ];
-
-        if ($coupon_code) {
-            $rules['code'] = "required|string|min:4";
-        } elseif ($random_codes_amount) {
-            $rules['range_codes'] = 'required|integer|digits_between:1,100';
-        }
-
-        return $rules;
+            // Set to -1 for unlimited uses globally, or a positive integer within DB range.
+            "max_uses" => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if ((int) $value === -1) {
+                        return;
+                    }
+                    if ((int) $value <= 0 || (int) $value > 2147483647) {
+                        $fail(__('Max uses must be -1 for unlimited or a positive integer up to :max.', ['max' => 2147483647]));
+                    }
+                }
+            ],
+            // Set to -1 for unlimited per user. Empty falls back to coupon settings.
+            "max_uses_per_user" => [
+                'nullable',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    if ((int) $value === -1 || is_null($value)) {
+                        return;
+                    }
+                    if ((int) $value <= 0 || (int) $value > 2147483647) {
+                        $fail(__('Max uses per user must be -1 for unlimited, or a positive integer up to :max.', ['max' => 2147483647]));
+                    }
+                }
+            ],
+            "value" => $request->input('type') === 'percentage' ? 'required|numeric|between:1,100' : 'required|numeric|min:0.01|max:9007199254740991',
+            "min_product_price" => "required|numeric|min:0|max:9007199254740991",
+            "expires_at" => "nullable|date|after:now"
+        ];
     }
 
     /**
@@ -249,26 +230,26 @@ class CouponController extends Controller
 
     public function dataTable()
     {
-        $this->checkAnyPermission([self::WRITE_PERMISSION,self::READ_PERMISSION]);
+        $this->checkAnyPermission([self::WRITE_PERMISSION, self::READ_PERMISSION]);
 
         $query = Coupon::query();
 
         return datatables($query)
-            ->addColumn('actions', function(Coupon $coupon) {
+            ->addColumn('actions', function (Coupon $coupon) {
                 return '
-                    <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.coupons.edit', $coupon->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
+                    <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.coupons.edit', $coupon->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
 
-                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.coupons.destroy', $coupon->id).'">
-                        '.csrf_field().'
-                        '.method_field('DELETE').'
-                        <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.coupons.destroy', $coupon->id) . '">
+                        ' . csrf_field() . '
+                        ' . method_field('DELETE') . '
+                        <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                     </form>
                 ';
             })
             ->addColumn('status', function (Coupon $coupon) {
                 $derivedStatus = $coupon->getStatus();
                 $color = 'success';
-                
+
                 if ($derivedStatus === 'USES_LIMIT_REACHED' || $derivedStatus === 'EXPIRED') {
                     $color = 'danger';
                 } elseif ($derivedStatus === 'PENDING_LIMIT_REACHED') {
@@ -277,14 +258,14 @@ class CouponController extends Controller
 
                 $status = str_replace('_', ' ', $derivedStatus);
 
-                return '<span class="badge badge-'.$color.'">'.__($status).'</span>';
+                return '<span class="badge badge-' . $color . '">' . __($status) . '</span>';
             })
             ->editColumn('uses', function (Coupon $coupon) {
-                 $maxUses = $coupon->max_uses == -1 ? '∞' : $coupon->max_uses;
-                 $pending = $coupon->pendingUses();
-                 $pendingText = $pending > 0 ? " (+{$pending})" : "";
+                $maxUses = $coupon->max_uses == -1 ? '∞' : $coupon->max_uses;
+                $pending = $coupon->pendingUses();
+                $pendingText = $pending > 0 ? " (+{$pending})" : "";
 
-                 return "{$coupon->uses}{$pendingText} / {$maxUses}";
+                return "{$coupon->uses}{$pendingText} / {$maxUses}";
             })
             ->editColumn('value', function (Coupon $coupon, CurrencyHelper $currencyHelper) {
                 if ($coupon->type === 'percentage') {
@@ -303,7 +284,7 @@ class CouponController extends Controller
 
                 return Carbon::createFromTimestamp($coupon->expires_at);
             })
-            ->editColumn('created_at', function(Coupon $coupon) {
+            ->editColumn('created_at', function (Coupon $coupon) {
                 return Carbon::createFromTimeString($coupon->created_at);
             })
             ->editColumn('code', function (Coupon $coupon) {

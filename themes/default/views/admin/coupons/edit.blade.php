@@ -40,35 +40,6 @@
                                 @csrf
                                 @method('PATCH')
 
-                                <div class="flex-row-reverse d-flex">
-                                    <div class="custom-control custom-switch">
-                                        <input type="checkbox" id="random_codes" name="random_codes"
-                                            class="custom-control-input">
-                                        <label for="random_codes" class="custom-control-label">
-                                            {{ __('Random Codes') }}
-                                            <i data-toggle="popover" data-trigger="hover"
-                                                data-content="{{ __('Replace the creation of a single code with several at once with a custom field.') }}"
-                                                class="fas fa-info-circle">
-                                            </i>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div id="range_codes_element" style="display: none;" class="form-group">
-                                    <label for="range_codes">
-                                        {{ __('Range Codes') }}
-                                        <i data-toggle="popover" data-trigger="hover"
-                                            data-content="{{ __('Generate a number of random codes.') }}"
-                                            class="fas fa-info-circle">
-                                        </i>
-                                    </label>
-                                    <input type="number" id="range_codes" name="range_codes" step="any" min="1"
-                                        max="100" class="form-control @error('range_codes') is-invalid @enderror">
-                                    @error('range_codes')
-                                        <div class="text-danger">
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
                                 <div id="coupon_code_element" class="form-group">
                                     <label for="code">
                                         {{ __('Coupon Code') }}
@@ -121,7 +92,6 @@
                                         </label>
                                         <div class="d-flex">
                                             <input name="value" id="value" type="number" step="any"
-                                                min="1" max="100"
                                                 class="form-control @error('value') is-invalid @enderror"
                                                 value="{{ $coupon->type == 'amount' ? Currency::formatForForm($coupon->value) : $coupon->value }}">
                                             <span id="input_percentage" class="input-group-text">%</span>
@@ -245,32 +215,18 @@
                     close: 'far fa-times-circle'
                 }
             });
-            $('#random_codes').change(function() {
-                if ($(this).is(':checked')) {
-                    $('#coupon_code_element').prop('disabled', true).hide()
-                    $('#range_codes_element').prop('disabled', false).show()
-
-                    if ($('#code').val()) {
-                        $('#code').prop('value', null)
-                    }
-
-                } else {
-                    $('#coupon_code_element').prop('disabled', false).show()
-                    $('#range_codes_element').prop('disabled', true).hide()
-
-                    if ($('#range_codes').val()) {
-                        $('#range_codes').prop('value', null)
-                    }
-                }
-            })
 
             $('#type').change(function() {
                 if ($(this).val() == 'percentage') {
                     $('#input_percentage').prop('disabled', false).show()
+                    $('#value').attr('min', 1).attr('max', 100);
                 } else {
                     $('#input_percentage').prop('disabled', true).hide()
+                    $('#value').attr('min', 0.01).attr('max', 9007199254740991);
                 }
-            })
+            }).trigger('change');
+
+            $('#min_product_price').attr('max', 9007199254740991);
         })
     </script>
 @endsection
