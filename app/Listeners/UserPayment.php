@@ -91,7 +91,7 @@ class UserPayment implements ShouldQueue
                 activity()
                     ->performedOn($user)
                     ->causedBy($ref_user)
-                    ->log('gained ' . $increment . ' ' . $this->credits_display_name . ' for commission-referral of ' . $user->name . ' (ID:' . $user->id . ')');
+                    ->log('gained ' . Currency::formatForDisplay($increment) . ' ' . $this->credits_display_name . ' for commission-referral of ' . $user->name . ' (ID:' . $user->id . ')');
             }
         }
         //update role give Referral-reward
@@ -109,7 +109,7 @@ class UserPayment implements ShouldQueue
                     activity()
                         ->performedOn($user)
                         ->causedBy($ref_user)
-                        ->log('gained ' . $increment . ' ' . $this->credits_display_name . ' for commission-referral of ' . $user->name . ' (ID:' . $user->id . ')');
+                        ->log('gained ' . Currency::formatForDisplay($increment) . ' ' . $this->credits_display_name . ' for commission-referral of ' . $user->name . ' (ID:' . $user->id . ')');
                 }
             }
         }
