@@ -2,87 +2,87 @@
     <img src="https://ctrlpanel.gg/img/controlpanel.png" width="128" alt="" />
 </div>
 
-# CtrlPanel-gg
+# CtrlPanel.gg
 
 CtrlPanel offers an easy-to-use and free billing solution for all starting and experienced hosting providers that seamlessly integrates with the Pterodactyl panel. It facilitates account creation, server ordering, and management, while offering addons, multiple payment methods, and customizable themes for a comprehensive solution.
 
-> ⚠️ **Important Notice:** CtrlPanel is **only compatible with Pterodactyl**. It does not support Pelican or any other hosting panels.
+> **Important:** CtrlPanel is **only compatible with Pterodactyl**. It does not support Pelican or any other hosting panels.
 
 ![GitHub tag](https://img.shields.io/github/tag/Ctrlpanel-gg/panel)
 ![Overall Installations](https://img.shields.io/badge/Overall%20Installations-8000%2B-green)
-![v1.2 Installations](https://img.shields.io/badge/dynamic/json?url=https://utils.ctrlpanel.gg/callhome.php?getinstalls&query=$.message&label=1.1%20Installations&color=cyan)
 ![GitHub stars](https://img.shields.io/github/stars/Ctrlpanel-gg/panel)
-<!-- [![Crowdin](https://badges.crowdin.net/controlpanelgg/localized.svg)](https://crowdin.com/project/controlpanelgg) -->
 ![License](https://img.shields.io/github/license/Ctrlpanel-gg/panel)
 ![Discord](https://img.shields.io/discord/787829714483019826)
 
 ![CtrlPanel](https://user-images.githubusercontent.com/67899387/214684708-739c1d21-06e8-4dec-a4f1-81533a46cc7e.png)
 
-## ⭐ Features
+## Features
 
-- Store (credit system with dynamic billing and invoices)
-- Many Popular Payment Methods
-- Referral
-- Partner
+- Store with Credit-based system
+- Popular payment gateways: PayPal, Stripe, Mollie, MercadoPago and more via thirdparty extensions
+- Dynamic server billing (From hourly to yearly billing cycles)
+- Referral and partner system
 - Vouchers
-- Ticket
-- Account Management
-- Admin Dashboard and Tools
-- Addon Support
-- Multiple Languages Supported
-- and More!
+- Ticket system
+- Discord integration for verification and role assignment
+- Role system with granular permissions
+- Invoice generation with email delivery
+- One account per IP registration limit
+- HTTP API
 
-## ⛰️ Live Demo
+And that's not all! Install CtrlPanel and you will be able to test all the available features that is being improved from version to version.
 
-Try it!
+## Live Demo
 
-Demo Server: [demo.CtrlPanel.gg](https://demo.CtrlPanel.gg)
+Demo server: [demo.CtrlPanel.gg](https://demo.CtrlPanel.gg)
 
-*It is a temporary live demo; all data will be deleted.*
+*Temporary demo - all data is periodically wiped.*
 
-## 🔧 How to Install
+## Installation
 
-### 🐳 Docker
+Full installation documentation is available at [ctrlpanel.gg/docs](https://ctrlpanel.gg/docs/).
+
+### Docker
+
+> **Beta:** Docker support is experimental and not officially documented. Functionality is not guaranteed. Improvements are planned for a future release.
 
 ```bash
 docker run -d -p 8080:80 -p 8443:443 --name ctrlpanel ghcr.io/ctrlpanel-gg/panel:latest
 ```
 
-CtrlPanel is now running on [0.0.0.0:8080](http://0.0.0.0:8080). Don't forget to configure the database and Pterodactyl.
+After starting, configure the database and Pterodactyl connection manually. See [.github/docker/README.md](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/docker/README.md) for what's currently available.
 
-more info: [Docker](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/docker/README.md)
+### Linux
 
-### 💪🏻 Non-Docker
+Supported on major distributions - Debian, Ubuntu, CentOS, Fedora, Arch, and others. Follow the [documentation](https://ctrlpanel.gg/docs/) for a full setup guide.
 
-Requirements:
+## Updating
 
-- Platform
-  - Major Linux distros such as Debian, Ubuntu, CentOS, Fedora, and ArchLinux etc.
+See the [update instructions](https://ctrlpanel.gg/docs/category/updating) before upgrading.
 
-Follow the [documentation](https://ctrlpanel.gg/docs/) to know how to install.
+## Marketplace
 
-### MarketPlace
+Looking for addons and extensions? Visit the [CtrlPanel Marketplace](https://market.ctrlpanel.gg/).
 
-If you need more functionality, check out [Marketplace](https://market.ctrlpanel.gg/).
+## Roadmap
 
-## 🆙 How to Update
+Planned features and upcoming work: [CtrlPanel Roadmap](https://github.com/orgs/Ctrlpanel-gg/projects/1)
 
-Please read: [Update Instructions](https://ctrlpanel.gg/docs/category/updating)
+## Community and Support
 
-## 🆕 What's Next?
+For questions and help, join the [CtrlPanel Discord](https://discord.gg/ctrlpanel-gg-787829714483019826).
 
-Roadmap: [CtrlPanel Roadmap](https://github.com/orgs/Ctrlpanel-gg/projects/1)
+If you find CtrlPanel useful, consider [supporting the project](https://ctrlpanel.gg/docs/contributing/donating).
 
-## 🗣️ Discussion / Ask for Help
+## Contributing
 
-For any general or technical questions, join CtrlPanel [Discord](https://discord.gg/ctrlpanel-gg-787829714483019826) for finding answers to your question. If you cannot find the information you need, feel free to ask.
+Contributions are welcome. Please read the following before getting started:
 
-## 🤝 Contributing
+- [CONTRIBUTING.md](https://github.com/Ctrlpanel-gg/panel/blob/development/.github/CONTRIBUTING.md) - contribution guidelines and pull request process
+- [CODE_OF_CONDUCT.md](https://github.com/Ctrlpanel-gg/panel/blob/development/.github/CODE_OF_CONDUCT.md) - community standards
+- [CONTRIBUTOR_LICENSE_AGREEMENT](https://github.com/Ctrlpanel-gg/panel/blob/development/CONTRIBUTOR_LICENSE_AGREEMENT) - required for all contributors
+- [LICENSE](https://github.com/Ctrlpanel-gg/panel/blob/main/LICENSE) - project license
 
-Please read [CONTRIBUTING.md](https://github.com/Ctrlpanel-gg/panel/blob/development/.github/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+## Security
 
-Thanks to all contributors and supporters!
-
-## ♥️ Donations
-
-If you like what we do, please consider [supporting](https://ctrlpanel.gg/docs/contributing/donating) us.
+To report a vulnerability, please follow the process described in [SECURITY.md](https://github.com/Ctrlpanel-gg/panel/blob/development/.github/SECURITY.md). Do not open public issues for security-related matters.
