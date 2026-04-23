@@ -2,7 +2,7 @@
     <img src="https://ctrlpanel.gg/img/controlpanel.png" width="128" alt="" />
 </div>
 
-# CtrlPanel-gg
+# CtrlPanel.gg
 
 CtrlPanel offers an easy-to-use and free billing solution for all starting and experienced hosting providers that seamlessly integrates with the Pterodactyl panel. It facilitates account creation, server ordering, and management, while offering addons, multiple payment methods, and customizable themes for a comprehensive solution.
 
