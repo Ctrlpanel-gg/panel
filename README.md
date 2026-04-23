@@ -10,7 +10,6 @@ CtrlPanel offers an easy-to-use and free billing solution for all starting and e
 
 ![GitHub tag](https://img.shields.io/github/tag/Ctrlpanel-gg/panel)
 ![Overall Installations](https://img.shields.io/badge/Overall%20Installations-8000%2B-green)
-![v1.2 Installations](https://img.shields.io/badge/dynamic/json?url=https://utils.ctrlpanel.gg/callhome.php?getinstalls&query=$.message&label=1.1%20Installations&color=cyan)
 ![GitHub stars](https://img.shields.io/github/stars/Ctrlpanel-gg/panel)
 ![License](https://img.shields.io/github/license/Ctrlpanel-gg/panel)
 ![Discord](https://img.shields.io/discord/787829714483019826)
