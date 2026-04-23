@@ -30,6 +30,8 @@ CtrlPanel offers an easy-to-use and free billing solution for all starting and e
 - One account per IP registration limit
 - HTTP API
 
+And that's not all! Install CtrlPanel and you will be able to test all the available features that is being improved from version to version.
+
 ## Live Demo
 
 Demo server: [demo.CtrlPanel.gg](https://demo.CtrlPanel.gg)
