@@ -8,9 +8,9 @@ class MailSettings extends Settings
 {
     public ?string $mail_host = null;
     public ?int $mail_port = null;
+    public ?string $mail_encryption = null;
     public ?string $mail_username = null;
     public ?string $mail_password = null;
-    public ?string $mail_encryption = null;
     public ?string $mail_from_address = null;
     public ?string $mail_from_name = null;
     public ?string $mail_mailer = null;
@@ -51,9 +51,9 @@ class MailSettings extends Settings
         return [
             'mail_host' => 'nullable|string',
             'mail_port' => 'nullable|int',
+            'mail_encryption' => 'nullable|string',
             'mail_username' => 'nullable|string',
             'mail_password' => 'nullable|string',
-            'mail_encryption' => 'nullable|string',
             'mail_from_address' => 'nullable|string',
             'mail_from_name' => 'nullable|string',
             'mail_mailer' => 'nullable|string',
@@ -80,16 +80,6 @@ class MailSettings extends Settings
                 'type' => 'number',
                 'description' => 'The port of your mail server.',
             ],
-            'mail_username' => [
-                'label' => 'Mail Username',
-                'type' => 'string',
-                'description' => 'The username of your mail server.',
-            ],
-            'mail_password' => [
-                'label' => 'Mail Password',
-                'type' => 'password',
-                'description' => 'The password of your mail server.',
-            ],
             'mail_encryption' => [
                 'label' => 'Mail Encryption',
                 'type' => 'select',
@@ -99,6 +89,16 @@ class MailSettings extends Settings
                     'ssl' => 'SSL'
                 ],
                 'description' => 'The encryption of your mail server.',
+            ],
+            'mail_username' => [
+                'label' => 'Mail Username',
+                'type' => 'string',
+                'description' => 'The username of your mail server.',
+            ],
+            'mail_password' => [
+                'label' => 'Mail Password',
+                'type' => 'password',
+                'description' => 'The password of your mail server.',
             ],
             'mail_from_address' => [
                 'label' => 'Mail From Address',

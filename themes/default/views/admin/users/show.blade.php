@@ -75,7 +75,8 @@
                                 </div>
                                 <div class="col-lg-8">
                                     @foreach ($user->roles as $role)
-                                        <span style='background-color: {{$role->color}}' class='badge'>{{$role->name}}</span>
+                                        <span style='background-color: {{ $role->color }}'
+                                            class='badge'>{{ $role->name }}</span>
                                     @endforeach
                                 </div>
                             </div>
@@ -194,7 +195,8 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="mr-2 fas fa-coins"></i>{{ $user->CreditUsage() }}
+                                        <i
+                                            class="mr-2 fas fa-coins"></i>{{ Currency::formatForDisplay($user->creditUsage()) }}
                                     </span>
                                 </div>
                             </div>
@@ -206,7 +208,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->referredBy() != Null ? $user->referredBy()->name : "None" }}
+                                        {{ $user->referredBy() != null ? $user->referredBy()->name : 'None' }}
                                     </span>
                                 </div>
                             </div>
@@ -268,22 +270,29 @@
 
 
                     @foreach ($referrals as $referral)
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <label>User ID: {{ $referral->id }}</label>
-                                </div>
-                                <div class="col-lg-4">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="mr-2 fas fa-user-check"></i><a
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-md-4 col-sm-12 mb-1 mb-md-0">
+                                @if ($referral->deleted ?? false)
+                                    <label class="mb-0">Deleted User ID: {{ $referral->id ?? 'N/A' }}</label>
+                                @else
+                                    <label class="mb-0">User ID: {{ $referral->id }}</label>
+                                @endif
+                            </div>
+                            <div class="col-md-4 col-sm-12 mb-1 mb-md-0">
+                                <span class="d-inline-block text-truncate" style="max-width:250px;">
+                                    <i class="mr-2 fas fa-user-check"></i>
+                                    @if ($referral->deleted ?? false)
+                                        <span class="text-danger">{{ $referral->name }}</span>
+                                    @else
+                                        <a
                                             href="{{ route('admin.users.show', $referral->id) }}">{{ $referral->name }}</a>
-                                    </span>
-                                </div>
-                                <div class="col-lg-4">
-                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        <i class="mr-2 fas fa-clock"></i>{{ $referral->created_at->diffForHumans() }}
-                                    </span>
-                                </div>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="col-md-4 col-sm-12">
+                                <span class="d-inline-block text-truncate" style="max-width:250px;">
+                                    <i class="mr-2 fas fa-clock"></i>{{ $referral->created_at->diffForHumans() }}
+                                </span>
                             </div>
                         </div>
                     @endforeach

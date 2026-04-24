@@ -2,12 +2,15 @@
 
 namespace App\Listeners;
 
+use App\Enums\PaymentStatus;
 use App\Events\PaymentEvent;
-use App\Helpers\CurrencyHelper;
 use App\Settings\InvoiceSettings;
 use App\Traits\Invoiceable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
-class CreateInvoice
+class CreateInvoice implements ShouldQueue
 {
     use Invoiceable;
 
@@ -33,9 +36,24 @@ class CreateInvoice
      */
     public function handle(PaymentEvent $event)
     {
+        if ($event->payment->status !== PaymentStatus::PAID) {
+            return;
+        }
+
         if ($this->invoice_enabled) {
-            // create invoice using the trait
-            $this->createInvoice($event->payment, $event->shopProduct, $this->invoice_settings);
+            try {
+                // create invoice using the trait
+                $this->createInvoice($event->payment, $event->shopProduct, $this->invoice_settings);
+            } catch (Throwable $e) {
+                Log::error('Invoice creation failed after payment completion.', [
+                    'payment_id' => $event->payment->id,
+                    'user_id' => $event->user->id,
+                    'error' => $e->getMessage(),
+                    'exception' => get_class($e),
+                ]);
+
+                report($e);
+            }
         }
     }
 }

@@ -50,6 +50,8 @@ class UsefulLinkController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'icon' => 'required|string',
             'title' => 'required|string|max:60',
@@ -106,6 +108,8 @@ class UsefulLinkController extends Controller
      */
     public function update(Request $request, UsefulLink $usefullink)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'icon' => 'required|string',
             'title' => 'required|string|max:60',
@@ -140,6 +144,8 @@ class UsefulLinkController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = UsefulLink::query();
 
         return datatables($query)

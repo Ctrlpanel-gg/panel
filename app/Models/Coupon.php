@@ -12,10 +12,27 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Enums\PaymentStatus;
+use App\Models\Payment;
+use Spatie\Activitylog\Models\Activity;
 
 class Coupon extends Model
 {
     use HasFactory, LogsActivity, CausesActivity;
+
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        // If the coupon is being updated or deleted (e.g. max uses reached during payment)
+        // by a user who doesn't have the permission to manually edit coupons,
+        // we remove the causer so it's treated as a system action.
+        if ($eventName === 'updated' || $eventName === 'deleted') {
+            $causer = $activity->causer;
+            if ($causer instanceof \App\Models\User && !$causer->can('admin.coupons.write')) {
+                $activity->causer_id = null;
+                $activity->causer_type = null;
+            }
+        }
+    }
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -32,8 +49,10 @@ class Coupon extends Model
         'code',
         'type',
         'value',
+        'min_product_price',
         'uses',
         'max_uses',
+        'max_uses_per_user',
         'expires_at'
     ];
 
@@ -42,10 +61,21 @@ class Coupon extends Model
      */
     protected $casts = [
         'value' => 'float',
+        'min_product_price' => 'float',
         'uses' => 'integer',
         'max_uses' => 'integer',
+        'max_uses_per_user' => 'integer',
         'expires_at' => 'timestamp'
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function (Coupon $coupon) {
+            $coupon->users()->detach();
+        });
+    }
 
     /**
      * Set the value to be in cents.
@@ -56,6 +86,18 @@ class Coupon extends Model
     {
         return Attribute::make(
             set: fn ($value) => $this->type == 'amount' ? Currency::prepareForDatabase($value) : $value
+        );
+    }
+
+    /**
+     * Set the min product price to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function minProductPrice(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Currency::prepareForDatabase($value)
         );
     }
 
@@ -76,17 +118,22 @@ class Coupon extends Model
      */
     public function getStatus()
     {
-        if ($this->uses >= $this->max_uses) {
-            return 'USES_LIMIT_REACHED';
+        if ($this->max_uses !== -1) {
+            if ($this->uses >= $this->max_uses) {
+                return 'USES_LIMIT_REACHED';
+            }
+            if (($this->uses + $this->pendingUses()) >= $this->max_uses) {
+                return 'PENDING_LIMIT_REACHED';
+            }
         }
 
         if (!is_null($this->expires_at)) {
             if ($this->expires_at <= Carbon::now(config('app.timezone'))->timestamp) {
-                return __('EXPIRED');
+                return 'EXPIRED';
             }
         }
 
-        return __('VALID');
+        return 'VALID';
     }
 
     /**
@@ -101,7 +148,29 @@ class Coupon extends Model
         $coupon_settings = new CouponSettings;
         $coupon_uses = $user->coupons()->where('id', $this->id)->count();
 
-        return $coupon_uses >= $coupon_settings->max_uses_per_user;
+        // Also count pending uses by this user
+        $pending_uses = Payment::where('user_id', $user->id)
+            ->where('coupon_code', $this->code)
+            ->whereIn('status', [PaymentStatus::OPEN, PaymentStatus::PROCESSING])
+            ->count();
+
+        $maxUsesPerUser = $this->max_uses_per_user ?? $coupon_settings->max_uses_per_user;
+
+        if ($maxUsesPerUser === -1) {
+            return false;
+        }
+
+        return ($coupon_uses + $pending_uses) >= $maxUsesPerUser;
+    }
+
+    /**
+     * @return int
+     */
+    public function pendingUses(): int
+    {
+        return Payment::where('coupon_code', $this->code)
+            ->whereIn('status', [PaymentStatus::OPEN, PaymentStatus::PROCESSING])
+            ->count();
     }
 
     /**

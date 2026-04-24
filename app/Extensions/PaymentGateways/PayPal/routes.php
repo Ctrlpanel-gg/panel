@@ -7,7 +7,11 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get(
         'payment/PayPalSuccess',
         function () {
-            PayPalExtension::PaypalSuccess(request());
+            return PayPalExtension::PaypalSuccess(request());
         }
     )->name('payment.PayPalSuccess');
 });
+
+Route::post('payment/PayPalWebhook', function () {
+    return PayPalExtension::webhook(request());
+})->name('payment.PayPalWebhook');

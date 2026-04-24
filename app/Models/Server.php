@@ -52,16 +52,24 @@ class Server extends Model
     /**
      * @var string[]
      */
+    public const STATUS_PROVISIONING = 'provisioning';
+    public const STATUS_ACTIVE = 'active';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_PENDING_RECONCILIATION = 'pending_reconciliation';
+
     protected $fillable = [
         "name",
         "description",
         "suspended",
+        "suspension_warning_sent_at",
         "identifier",
         "billing_priority",
         "product_id",
         "pterodactyl_id",
+        "user_id",
         "last_billed",
-        "canceled"
+        "canceled",
+        "status"
     ];
 
     /**
@@ -69,6 +77,8 @@ class Server extends Model
      */
     protected $casts = [
         'suspended' => 'datetime',
+        'last_billed' => 'datetime',
+        'canceled' => 'datetime',
         'billing_priority' => BillingPriority::class
     ];
 
@@ -144,6 +154,7 @@ class Server extends Model
             $this->update([
                 'suspended' => null,
                 'last_billed' => Carbon::now()->toDateTimeString(),
+                'suspension_warning_sent_at' => null,
             ]);
         }
 

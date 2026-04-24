@@ -9,8 +9,10 @@ class PayPalSettings extends Settings
     public bool $enabled = false;
     public ?string $client_id;
     public ?string $client_secret;
+    public ?string $webhook_id;
     public ?string $sandbox_client_id;
     public ?string $sandbox_client_secret;
+    public ?string $sandbox_webhook_id;
 
     public static function group(): string
     {
@@ -29,6 +31,11 @@ class PayPalSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-dollar-sign',
+            'enabled' => [
+                'type' => 'boolean',
+                'label' => 'Enabled',
+                'description' => 'Enable this payment gateway',
+            ],
             'client_id' => [
                 'type' => 'string',
                 'label' => 'Client ID',
@@ -39,10 +46,10 @@ class PayPalSettings extends Settings
                 'label' => 'Client Secret',
                 'description' => 'The Client Secret of your PayPal App',
             ],
-            'enabled' => [
-                'type' => 'boolean',
-                'label' => 'Enabled',
-                'description' => 'Enable this payment gateway',
+            'webhook_id' => [
+                'type' => 'string',
+                'label' => 'Webhook ID',
+                'description' => 'PayPal webhook ID used to verify production webhook signatures.',
             ],
             'sandbox_client_id' => [
                 'type' => 'string',
@@ -53,6 +60,11 @@ class PayPalSettings extends Settings
                 'type' => 'string',
                 'label' => 'Sandbox Client Secret',
                 'description' => 'The Sandbox Client Secret  used when app_env = local',
+            ],
+            'sandbox_webhook_id' => [
+                'type' => 'string',
+                'label' => 'Sandbox Webhook ID',
+                'description' => 'PayPal webhook ID used to verify webhook signatures when app_env = local.',
             ],
         ];
     }

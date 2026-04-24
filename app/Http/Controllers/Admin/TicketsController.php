@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Moderation\Exception;
 use App\Models\Server;
 use App\Models\Ticket;
 use App\Models\TicketBlacklist;
@@ -13,6 +12,7 @@ use App\Models\User;
 use App\Notifications\Ticket\User\ReplyNotification;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -121,6 +121,8 @@ class TicketsController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Ticket::leftJoin('ticket_categories', 'tickets.ticketcategory_id', '=', 'ticket_categories.id')
             ->select(['tickets.*', 'ticket_categories.name as category_name']);
 
@@ -146,7 +148,7 @@ class TicketsController extends Controller
                                 '.method_field('POST').'
                             <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="text-white btn btn-sm '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
                             </form>
-                            <form class="d-inline"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
+                            <form class="d-inline ticket-delete-form"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
@@ -257,6 +259,8 @@ class TicketsController extends Controller
 
     public function dataTableBlacklist()
     {
+        $this->checkAnyPermission([self::BLACKLIST_READ_PERMISSION, self::BLACKLIST_WRITE_PERMISSION]);
+
         $query = TicketBlacklist::with(['user']);
         $query->select('ticket_blacklists.*');
 

@@ -101,6 +101,8 @@ class TicketCategoryController extends Controller
 
     public function datatable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = TicketCategory::withCount("tickets");
 
         return datatables($query)

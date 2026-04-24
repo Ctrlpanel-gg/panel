@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use App\Settings\CouponSettings;
 use App\Models\Coupon as CouponModel;
 use App\Models\ShopProduct;
 use App\Models\User;
@@ -15,14 +14,14 @@ trait Coupon
     {
         $coupon = CouponModel::where('code', $couponCode)->first();
         $shopProduct = ShopProduct::findOrFail($productId);
-        $coupon_settings = new CouponSettings;
         $response = response()->json([
             'isValid' => false,
             'error' => __('This coupon does not exist.')
         ], 404);
 
         if (!is_null($coupon)) {
-            if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
+            $status = $coupon->getStatus();
+            if ($status == 'USES_LIMIT_REACHED' || $status == 'PENDING_LIMIT_REACHED') {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('This coupon has reached the maximum amount of uses.')
@@ -31,7 +30,7 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->getStatus() == 'EXPIRED') {
+            if ($status == 'EXPIRED') {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('This coupon has expired.')
@@ -40,7 +39,7 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->isMaxUsesReached($requestUser, $coupon_settings)) {
+            if ($coupon->isMaxUsesReached($requestUser)) {
                 $response = response()->json([
                     'isValid' => false,
                     'error' => __('You have reached the maximum uses of this coupon.')
@@ -49,10 +48,10 @@ trait Coupon
                 return $response;
             }
 
-            if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->getTotalPrice()) {
+            if ($coupon->min_product_price > 0 && $shopProduct->getTotalPrice() < $coupon->min_product_price) {
                 $response = response()->json([
                     'isValid' => false,
-                    'error' => __('The coupon you are trying to use would give you 100% off, so it cannot be used for this product, sorry.')
+                    'error' => __('The product price is too low to use this coupon.')
                 ], 422);
 
                 return $response;
@@ -75,12 +74,13 @@ trait Coupon
 
         $coupon = CouponModel::where('code', $couponCode)->firstOrFail();
         $shopProduct = ShopProduct::findOrFail($productId);
+        $status = $coupon->getStatus();
 
-        if ($coupon->getStatus() == 'USES_LIMIT_REACHED') {
+        if ($status == 'USES_LIMIT_REACHED' || $status == 'PENDING_LIMIT_REACHED') {
             return false;
         }
 
-        if ($coupon->getStatus() == 'EXPIRED') {
+        if ($status == 'EXPIRED') {
             return false;
         }
 
@@ -88,7 +88,7 @@ trait Coupon
             return false;
         }
 
-        if ($coupon->type === 'amount' && $coupon->value >= $shopProduct->getTotalPrice()) {
+        if ($coupon->min_product_price > 0 && $shopProduct->getTotalPrice() < $coupon->min_product_price) {
             return false;
         }
 
@@ -104,10 +104,7 @@ trait Coupon
         }
 
         if ($coupon->type === 'amount') {
-            // There is no discount if the value of the coupon is greater than or equal to the value of the product.
-            if ($coupon->value >= $price) {
-                return $price;
-            }
+            return max(0, $price - $coupon->value);
         }
 
         return $price - $coupon->value;

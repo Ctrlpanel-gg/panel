@@ -14,10 +14,45 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Qirolab\Theme\Theme;
+use Spatie\LaravelSettings\Settings;
 
 class SettingsController extends Controller
 {
     const ICON_PERMISSION = "admin.icons.edit";
+
+    /**
+     * Build the list of available settings classes from app and extensions.
+     */
+    private function getAvailableSettingsClasses(): array
+    {
+        $settingsClasses = [];
+
+        $appSettings = scandir(app_path('Settings'));
+        $appSettings = array_diff($appSettings, ['.', '..']);
+
+        foreach ($appSettings as $appSetting) {
+            $settingsClasses[] = 'App\\Settings\\' . str_replace('.php', '', $appSetting);
+        }
+
+        return array_values(array_filter(
+            array_merge($settingsClasses, ExtensionHelper::getAllExtensionSettingsClasses()),
+            static fn (string $className): bool => class_exists($className) && is_subclass_of($className, Settings::class)
+        ));
+    }
+
+    /**
+     * Build a category => class map used to validate update requests.
+     */
+    private function getSettingsCategoryClassMap(): array
+    {
+        $categoryMap = [];
+
+        foreach ($this->getAvailableSettingsClasses() as $className) {
+            $categoryMap[strtolower(str_replace('Settings', '', class_basename($className)))] = $className;
+        }
+
+        return $categoryMap;
+    }
 
     /**
      * Display a listing of the resource.
@@ -26,23 +61,10 @@ class SettingsController extends Controller
      */
     public function index()
     {
-        // get all other settings in app/Settings directory
-        // group items by file name like $categories
         $settings = collect();
-        $settings_classes = [];
+        $settingsFiles = $this->getAvailableSettingsClasses();
 
-        // get all app settings
-        $app_settings = scandir(app_path('Settings'));
-        $app_settings = array_diff($app_settings, ['.', '..']);
-        // append App\Settings to class name
-        foreach ($app_settings as $app_setting) {
-            $settings_classes[] = 'App\\Settings\\' . str_replace('.php', '', $app_setting);
-        }
-        // get all extension settings
-        $settings_files = array_merge($settings_classes, ExtensionHelper::getAllExtensionSettingsClasses());
-
-
-        foreach ($settings_files as $file) {
+        foreach ($settingsFiles as $file) {
 
             $className = $file;
             // instantiate the class and call toArray method to get all options
@@ -124,14 +146,23 @@ class SettingsController extends Controller
      */
     public function update(Request $request)
     {
-        $category = request()->get('category');
+        $category = strtolower((string) $request->input('category'));
+        $settingsClassMap = $this->getSettingsCategoryClassMap();
 
-        $this->checkPermission("settings." . strtolower($category) . ".write");
+        if (!isset($settingsClassMap[$category])) {
+            abort(400, 'Invalid settings category.');
+        }
 
-        $settings_class = (string) request()->get('settings_class');
+        $resolvedSettingsClass = $settingsClassMap[$category];
+        $requestedSettingsClass = (string) $request->input('settings_class');
+        if ($requestedSettingsClass !== $resolvedSettingsClass) {
+            abort(400, 'Invalid settings class.');
+        }
 
-        if (method_exists($settings_class, 'getValidations')) {
-            $validations = $settings_class::getValidations();
+        $this->checkPermission("settings." . $category . ".write");
+
+        if (method_exists($resolvedSettingsClass, 'getValidations')) {
+            $validations = $resolvedSettingsClass::getValidations();
         } else {
             $validations = [];
         }
@@ -142,14 +173,14 @@ class SettingsController extends Controller
             return Redirect::to('admin/settings' . '#' . $category)->withErrors($validator)->withInput();
         }
 
-        $settingsClass = new $settings_class();
+        $settingsClass = new $resolvedSettingsClass();
 
         foreach ($settingsClass->toArray() as $key => $value) {
             // Get the type of the settingsclass property
             $rp = new \ReflectionProperty($settingsClass, $key);
             $rpType = $rp->getType();
 
-            if ($rpType == 'bool') {
+            if ($rpType && $rpType->getName() === 'bool') {
                 $settingsClass->$key = $request->has($key);
                 continue;
             }
@@ -158,9 +189,22 @@ class SettingsController extends Controller
                 continue;
             }
 
-            $nullable = $rpType->allowsNull();
-            if ($nullable) $settingsClass->$key = $request->input($key) ?? null;
-            else $settingsClass->$key = $request->input($key);
+            $inputValue = $request->input($key);
+
+            // User/referral currency values are stored in thousandths.
+            if (method_exists($resolvedSettingsClass, 'getOptionInputData')) {
+                $optionInputData = $resolvedSettingsClass::getOptionInputData();
+                if (isset($optionInputData[$key]['mustBeConverted']) && $optionInputData[$key]['mustBeConverted'] && !is_null($inputValue) && $inputValue !== '') {
+                    $inputValue = Currency::prepareForDatabase($inputValue);
+                }
+            }
+
+            $nullable = $rpType ? $rpType->allowsNull() : true;
+            if ($nullable) {
+                $settingsClass->$key = $inputValue ?? null;
+            } else {
+                $settingsClass->$key = $inputValue;
+            }
         }
         $settingsClass->save();
 

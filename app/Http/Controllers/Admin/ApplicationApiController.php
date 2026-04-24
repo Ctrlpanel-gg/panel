@@ -52,6 +52,8 @@ class ApplicationApiController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:60',
         ]);
@@ -97,6 +99,8 @@ class ApplicationApiController extends Controller
      */
     public function update(Request $request, ApplicationApi $applicationApi)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:60',
         ]);
@@ -129,6 +133,8 @@ class ApplicationApiController extends Controller
      */
     public function dataTable(Request $request)
     {
+        $this->checkAnyPermission([self::READ_PERMISSION,self::WRITE_PERMISSION]);
+
         $query = ApplicationApi::query();
 
         return datatables($query)

@@ -11,7 +11,9 @@ use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
 use App\Helpers\CurrencyHelper;
 use App\Settings\GeneralSettings;
+use App\Actions\ProcessReferralAction;
 use Exception;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -21,6 +23,7 @@ use Illuminate\Http\Response;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\HtmlString;
@@ -85,18 +88,54 @@ class UserController extends Controller
     {
         $this->checkPermission(self::READ_PERMISSION);
 
-        //QUERY ALL REFERRALS A USER HAS
-        //i am not proud of this at all.
-        $allReferals = [];
-        $referrals = DB::table('user_referrals')->where('referral_id', '=', $user->id)->get();
-        foreach ($referrals as $referral) {
-            array_push($allReferals, $allReferals['id'] = User::query()->findOrFail($referral->registered_user_id));
+        $referralRecords = DB::table('user_referrals')->where('referral_id', '=', $user->id)->get();
+        $allReferrals = [];
+
+        foreach ($referralRecords as $referral) {
+            $deleted = $referral->deleted_at !== null;
+
+            if ($deleted) {
+                $deletedId = $referral->deleted_user_id;
+                $name = $referral->deleted_username ? $referral->deleted_username . ' (deleted)' : 'Deleted User';
+
+                $allReferrals[] = (object) [
+                    'id' => $deletedId,
+                    'name' => $name,
+                    'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                    'deleted' => true,
+                ];
+            } else {
+                $userObj = User::query()->find($referral->registered_user_id);
+                if ($userObj) {
+                    $allReferrals[] = (object) [
+                        'id' => $userObj->id,
+                        'name' => $userObj->name,
+                        'created_at' => $userObj->created_at,
+                        'deleted' => false,
+                    ];
+                } else {
+                    if ($referral->deleted_user_id) {
+                        $allReferrals[] = (object) [
+                            'id' => $referral->deleted_user_id,
+                            'name' => ($referral->deleted_username ? $referral->deleted_username . ' (deleted)' : 'Deleted User'),
+                            'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                            'deleted' => true,
+                        ];
+                    } else {
+                        $allReferrals[] = (object) [
+                            'id' => 'N/A',
+                            'name' => 'Unknown (deleted)',
+                            'created_at' => \Carbon\Carbon::parse($referral->created_at),
+                            'deleted' => true,
+                        ];
+                    }
+                }
+            }
         }
-        array_pop($allReferals);
 
         return view('admin.users.show')->with([
             'user' => $user,
-            'referrals' => $allReferals,
+            'referrals' => $allReferrals,
             'locale_datatables' => $locale_settings->datatables,
             'credits_display_name' => $general_settings->credits_display_name
         ]);
@@ -109,11 +148,15 @@ class UserController extends Controller
      */
     public function json(Request $request)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $users = QueryBuilder::for(User::query())
             ->allowedFilters(['id', 'name', 'pterodactyl_id', 'email'])
             ->paginate(25);
 
         if ($request->query('user_id')) {
+            $request->validate(['user_id' => 'required|integer|exists:users,id']);
+
             $user = User::query()->findOrFail($request->input('user_id'));
             $user->avatarUrl = $user->getAvatar();
 
@@ -158,6 +201,18 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $this->checkAnyPermission([
+            self::WRITE_PERMISSION,
+            self::CHANGE_EMAIL_PERMISSION,
+            self::CHANGE_CREDITS_PERMISSION,
+            self::CHANGE_USERNAME_PERMISSION,
+            self::CHANGE_PASSWORD_PERMISSION,
+            self::CHANGE_ROLE_PERMISSION,
+            self::CHANGE_REFERRAL_PERMISSION,
+            self::CHANGE_PTERO_PERMISSION,
+            self::CHANGE_SERVERLIMIT_PERMISSION,
+        ]);
+
         $data = $request->validate([
             'name' => 'required|string|min:4|max:30',
             'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
@@ -270,7 +325,12 @@ class UserController extends Controller
      */
     public function verifyEmail(User $user)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $user->verifyEmail();
+
+        // Fire the Verified event to trigger listeners (rewards, referrals, etc)
+        Event::dispatch(new Verified($user));
 
         return redirect()->back()->with('success', __('Email has been verified!'));
     }
@@ -296,6 +356,10 @@ class UserController extends Controller
      */
     public function logBackIn(Request $request)
     {
+        // Check permissions only if not impersonating a user
+        if (!$request->session()->has('previousUser')) {
+            $this->checkPermission(self::LOGIN_PERMISSION);
+        }
 
         Auth::loginUsingId($request->session()->get('previousUser'), true);
         $request->session()->remove('previousUser');
@@ -380,15 +444,17 @@ class UserController extends Controller
         }
 
 
-
-
-        try {
-            Notification::send($users, new DynamicNotification($data['via'], $database, $mail));
-        } catch (Exception $e) {
-            return redirect()->route('admin.users.notifications.index')->with('error', __('The attempt to send the email failed with the error: ' . $e->getMessage()));
+        $successCount = 0;
+        foreach ($users as $user) {
+            try {
+                $user->notify(new DynamicNotification($data['via'], $database, $mail));
+                $successCount++;
+            } catch (\Throwable $e) {
+                Log::error('Mass notification error for user ' . $user->id . ': ' . $e->getMessage());
+            }
         }
 
-        return redirect()->route('admin.users.notifications.index')->with('success', __('Notification sent!'));
+        return redirect()->route('admin.users.notifications.index')->with('success', __('Notification sent to :count users!', ['count' => $successCount]));
     }
 
     /**
@@ -417,6 +483,8 @@ class UserController extends Controller
      */
     public function dataTable(Request $request)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $query = User::with('discordUser')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
@@ -444,12 +512,12 @@ class UserController extends Controller
 
                 return '
                 <a data-content="' . __('Login as User') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.loginas', $user->id) . '" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-sign-in-alt"></i></a>
-                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-secondary"><i class="fas fa-envelope"></i></a>
-                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-eye"></i></a>
+                <a data-content="' . __('Verify') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.users.verifyEmail', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-envelope"></i></a>
+                <a data-content="' . __('Show') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.show', $user->id) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-eye"></i></a>
                 <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top"  href="' . route('admin.users.edit', $user->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
                 <form class="d-inline" method="post" action="' . route('admin.users.togglesuspend', $user->id) . '">
                              ' . csrf_field() . '
-                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="far ' . $suspendIcon . '"></i></button>
+                            <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="fas ' . $suspendIcon . '"></i></button>
                           </form>
                 <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
                              ' . csrf_field() . '
@@ -471,7 +539,7 @@ class UserController extends Controller
                 return $user->last_seen ? $user->last_seen->diffForHumans() : __('Never');
             })
             ->editColumn('name', function (User $user, PterodactylSettings $ptero_settings) {
-                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . strip_tags($user->name) . '</a>';
+                return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
             ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])

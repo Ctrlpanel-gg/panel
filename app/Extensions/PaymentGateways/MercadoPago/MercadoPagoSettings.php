@@ -9,6 +9,7 @@ class MercadoPagoSettings extends Settings
 
     public bool $enabled = false;
     public ?string $access_token;
+    public ?string $webhook_secret;
 
     public static function group(): string
     {
@@ -18,7 +19,8 @@ class MercadoPagoSettings extends Settings
     public static function encrypted(): array
     {
         return [
-            'access_token'
+            'access_token',
+            'webhook_secret',
         ];
     }
 
@@ -30,6 +32,11 @@ class MercadoPagoSettings extends Settings
                 'type' => 'string',
                 'label' => 'Access Token Key',
                 'description' => 'The Access Token of your Mercado Pago App',
+            ],
+            'webhook_secret' => [
+                'type' => 'string',
+                'label' => 'Webhook Secret',
+                'description' => 'Secret token appended to webhook URLs to validate incoming requests.',
             ],
             'enabled' => [
                 'type' => 'boolean',

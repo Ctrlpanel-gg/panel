@@ -58,11 +58,13 @@ class VoucherController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
             'uses' => 'required|numeric|max:2147483647|min:1',
-            'credits' => 'required|numeric|between:0,99999999',
+            'credits' => 'required|numeric|min:0.01|max:9223372036854775',
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
@@ -106,11 +108,13 @@ class VoucherController extends Controller
      */
     public function update(Request $request, Voucher $voucher)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
             'uses' => 'required|numeric|max:2147483647|min:1',
-            'credits' => 'required|numeric|between:0,99999999',
+            'credits' => 'required|numeric|min:0.01|max:9223372036854775',
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
@@ -150,7 +154,7 @@ class VoucherController extends Controller
      *
      * @throws ValidationException
      */
-    public function redeem(Request $request, GeneralSettings $general_settings)
+    public function redeem(Request $request, GeneralSettings $general_settings, CurrencyHelper $currencyHelper)
     {
         //general validations
         $request->validate([
@@ -191,12 +195,14 @@ class VoucherController extends Controller
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => "{$voucher->credits} ". $general_settings->credits_display_name .' '.__('have been added to your balance!'),
+            'success' => $currencyHelper->formatForDisplay($voucher->credits) . ' ' . $general_settings->credits_display_name . ' ' . __('have been added to your balance!'),
         ]);
     }
 
     public function usersDataTable(Voucher $voucher)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $users = $voucher->users();
 
         return datatables($users)
@@ -215,6 +221,8 @@ class VoucherController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Voucher::selectRaw('
             vouchers.*,
             CASE

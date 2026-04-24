@@ -45,10 +45,12 @@ class ServerCreationError extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        $userName = e($this->server->User->name);
+
         return [
             'title' => __('Server Creation Error'),
             'content' => "
-                <p>Hello <strong>{$this->server->User->name}</strong>, An unexpected error has occurred...</p>
+                <p>Hello <strong>{$userName}</strong>, An unexpected error has occurred...</p>
                 <p>There was a problem creating your server on our pterodactyl panel. There are likely no allocations or rooms left on the selected node. Please contact one of our support members through our discord server to get this resolved asap!</p>
                 <p>We thank you for your patience and our deepest apologies for this inconvenience.</p>
                 <p>".config('app.name', 'Laravel').'</p>

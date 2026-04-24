@@ -14,8 +14,8 @@
     <div class="form-group">
         <div class="flex flex-col mb-3">
             <label for="pteroID">Pterodactyl User ID </label>
-            <input id="pteroID" name="pteroID" type="text" required value="1"
-                class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
+            <input id="pteroID" name="pteroID" type="number" min="1" step="1" inputmode="numeric" required value="1"
+                   class="px-2 py-1 bg-[#1D2125] border-2 focus:border-sky-500 box-border rounded-md border-transparent outline-none">
             <span class="text-neutral-400">Found in the users-list on your pterodactyl dashboard</span>
         </div>
     </div>

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\CausesActivity;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
@@ -91,7 +92,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $casts = [
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
-        'server_limit' => 'float',
+        'server_limit' => 'integer',
         'email_verified_reward' => 'boolean'
     ];
 
@@ -127,7 +128,21 @@ class User extends Authenticatable implements MustVerifyEmail
 
             $user->vouchers()->detach();
 
+            $user->coupons()->detach();
+
             $user->discordUser()->delete();
+
+            $referralRecords = DB::table('user_referrals')->where('registered_user_id', $user->id)->get();
+            foreach ($referralRecords as $ref) {
+                DB::table('user_referrals')
+                    ->where('referral_id', $ref->referral_id)
+                    ->where('registered_user_id', $ref->registered_user_id)
+                    ->update([
+                        'deleted_at' => now(),
+                        'deleted_username' => $user->name,
+                        'deleted_user_id' => $user->id,
+                    ]);
+            }
 
             $user->pterodactyl->application->delete("/application/users/{$user->pterodactyl_id}");
         });
@@ -144,6 +159,12 @@ class User extends Authenticatable implements MustVerifyEmail
             // We only convert when the user already exists, to avoid 2 conversions.
             set: fn ($value) => $this->exists ? Currency::prepareForDatabase($value) : $value,
         );
+    }
+
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable')
+            ->orderBy('created_at', 'desc');
     }
 
     /**
@@ -192,6 +213,23 @@ class User extends Authenticatable implements MustVerifyEmail
     public function coupons()
     {
         return $this->belongsToMany(Coupon::class, 'user_coupons');
+    }
+
+    // tap into activity log to convert db value to display value
+    public function tapActivity(Activity $activity, string $eventName): void
+    {
+        $properties = $activity->properties;
+
+        if (($eventName === 'deleted' || $eventName === 'created') && $properties->has('attributes')) {
+            $attributes = $properties->get('attributes');
+
+            if (isset($attributes['credits']) && is_numeric($attributes['credits'])) {
+                $attributes['credits'] = Currency::formatForDisplay($attributes['credits']);
+                $properties = $properties->toArray();
+                $properties['attributes'] = $attributes;
+                $activity->properties = $properties;
+            }
+        }
     }
 
     /**
@@ -324,11 +362,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $referee = DB::table('user_referrals')->where("registered_user_id", $this->id)->first();
 
-        if ($referee) {
-            $referee = User::where("id", $referee->referral_id)->firstOrFail();
-            return $referee;
+        if ($referee && $referee->referral_id) {
+            return User::find($referee->referral_id);
         }
-        return Null;
+
+        return null;
     }
 
     public function getActivitylogOptions(): LogOptions

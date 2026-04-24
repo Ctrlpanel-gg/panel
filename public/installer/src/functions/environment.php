@@ -129,5 +129,3 @@ function checkWriteable(): bool
 {
     return is_writable('../../.env');
 }
-
-?>

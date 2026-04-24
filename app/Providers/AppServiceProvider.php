@@ -65,20 +65,57 @@ class AppServiceProvider extends ServiceProvider
 
         CallHomeHelper::callHomeOnce();
 
-        //get the Github Branch the panel is running on
+        // get the Git branch and commit the panel is running on
+        $headFileMissing = false;
+        $branchname = 'unknown';
+        $commitHash = 'unknown';
+
         try {
-            $stringfromfile = file(base_path() . '/.git/HEAD');
+            $headFilePath = base_path() . '/.git/HEAD';
+            if (!file_exists($headFilePath)) {
+                $headFileMissing = true;
+                throw new Exception('.git/HEAD file not found');
+            }
 
-            $firstLine = $stringfromfile[0]; //get the string from the array
+            $fileContent = file($headFilePath);
+            if (!$fileContent || empty($fileContent[0])) {
+                throw new Exception('.git/HEAD file is empty or unreadable');
+            }
 
-            $explodedstring = explode('/', $firstLine, 3); //seperate out by the "/" in the string
+            $firstLine = trim($fileContent[0]);
 
-            $branchname = $explodedstring[2]; //get the one that is always the branch name
+            if (str_starts_with($firstLine, 'ref:')) {
+                $ref = trim(str_replace('ref:', '', $firstLine)); // "refs/heads/main"
+                $branchname = str_replace('refs/heads/', '', $ref);
+
+                // try loose ref file first
+                $refFile = base_path() . '/.git/' . $ref;
+                if (file_exists($refFile)) {
+                    $commitHash = substr(trim(file_get_contents($refFile)), 0, 7);
+                } else {
+                    // fallback to packed-refs
+                    $packedRefsFile = base_path() . '/.git/packed-refs';
+                    if (file_exists($packedRefsFile)) {
+                        foreach (file($packedRefsFile) as $line) {
+                            $line = trim($line);
+                            if (str_ends_with($line, $ref)) {
+                                $commitHash = substr(explode(' ', $line)[0], 0, 7);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // detached HEAD - hash is directly in HEAD
+                $branchname = 'detached';
+                $commitHash = substr($firstLine, 0, 7);
+            }
         } catch (Exception $e) {
-            $branchname = 'unknown';
-            Log::notice($e);
+            Log::debug('Could not get git branch/commit: ' . $e->getMessage());
         }
-        config(['BRANCHNAME' => $branchname]);
+
+        config(['BRANCHNAME' => $branchname, 'COMMIT_HASH' => $commitHash]);
+        view()->share('headFileMissing', $headFileMissing);
 
         // Do not run this code if no APP_KEY is set
         if (config('app.key') == null) return;

@@ -71,11 +71,13 @@ class PaymentController extends Controller
                 $extensionName = basename($extension);
 
                 $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
-                if ($extensionSettings->enabled == false) continue;
+                if (!$extensionSettings || !($extensionSettings->enabled ?? false)) {
+                    continue;
+                }
 
 
                 $payment = new \stdClass();
-                $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name');
+                $payment->name = ExtensionHelper::getExtensionConfig($extensionName, 'name') ?? $extensionName;
                 $payment->image = asset('images/Extensions/PaymentGateways/' . strtolower($extensionName) . '_logo.png');
                 $paymentGateways[] = $payment;
             }
@@ -101,7 +103,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function handleFreeProduct(ShopProduct $shopProduct)
+    public function handleFreeProduct(ShopProduct $shopProduct, ?string $couponCode = null)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -114,13 +116,18 @@ class PaymentController extends Controller
             'type' => $shopProduct->type,
             'status' => PaymentStatus::PAID,
             'amount' => $shopProduct->quantity,
-            'price' => $shopProduct->price - ($shopProduct->price * PartnerDiscount::getDiscount() / 100),
-            'tax_value' => $shopProduct->getTaxValue(),
-            'tax_percent' => $shopProduct->getTaxPercent(),
-            'total_price' => $shopProduct->getTotalPrice(),
+            'price' => 0,
+            'tax_value' => 0,
+            'tax_percent' => 0,
+            'total_price' => 0,
             'currency_code' => $shopProduct->currency_code,
             'shop_item_product_id' => $shopProduct->id,
+            'coupon_code' => $couponCode,
         ]);
+
+        if ($couponCode) {
+            event(new CouponUsedEvent($couponCode, $user));
+        }
 
         event(new UserUpdateCreditsEvent($user));
         event(new PaymentEvent($user, $payment, $shopProduct));
@@ -133,14 +140,20 @@ class PaymentController extends Controller
 
     public function pay(Request $request)
     {
+        $request->validate([
+            'product_id' => ['required', 'exists:shop_products,id'],
+            'payment_method' => ['nullable', 'string', 'max:191'],
+            'coupon_code' => ['nullable', 'string', 'max:191'],
+        ]);
+
         try {
             $user = Auth::user();
             $user = User::findOrFail($user->id);
-            $productId = $request->product_id;
+            $productId = $request->input('product_id');
             $shopProduct = ShopProduct::findOrFail($productId);
 
-            $paymentGateway = $request->payment_method;
-            $couponCode = $request->coupon_code;
+            $paymentGateway = $request->input('payment_method');
+            $couponCode = $request->input('coupon_code');
 
             $subtotal = $shopProduct->getTotalPrice();
 
@@ -148,13 +161,28 @@ class PaymentController extends Controller
             if ($couponCode) {
                 if ($this->isCouponValid($couponCode, $user, $shopProduct->id)) {
                     $subtotal = $this->applyCoupon($couponCode, $subtotal);
-
-                    event(new CouponUsedEvent($couponCode));
+                } else {
+                    $couponCode = null;
                 }
             }
 
             if ($subtotal <= 0) {
-                return $this->handleFreeProduct($shopProduct);
+                return $this->handleFreeProduct($shopProduct, $couponCode);
+            }
+
+            $enabledPaymentGateways = [];
+            $extensions = ExtensionHelper::getAllExtensionsByNamespace('PaymentGateways');
+            foreach ($extensions as $extension) {
+                $extensionName = basename($extension);
+                $extensionSettings = ExtensionHelper::getExtensionSettings($extensionName);
+
+                if ($extensionSettings && ($extensionSettings->enabled ?? false)) {
+                    $enabledPaymentGateways[] = $extensionName;
+                }
+            }
+
+            if (!in_array($paymentGateway, $enabledPaymentGateways, true)) {
+                return redirect()->route('checkout', $shopProduct)->with('error', __('The selected payment gateway is unavailable.'));
             }
 
             // create a new payment
@@ -171,13 +199,23 @@ class PaymentController extends Controller
                 'total_price' => $subtotal,
                 'currency_code' => $shopProduct->currency_code,
                 'shop_item_product_id' => $shopProduct->id,
+                'coupon_code' => $couponCode,
             ]);
 
             $paymentGatewayExtension = ExtensionHelper::getExtensionClass($paymentGateway);
+            if (!$paymentGatewayExtension || !class_exists($paymentGatewayExtension)) {
+                throw new Exception('Invalid payment gateway class for: ' . $paymentGateway);
+            }
+
             $redirectUrl = $paymentGatewayExtension::getRedirectUrl($payment, $shopProduct, $subtotal);
 
         } catch (Exception $e) {
-            Log::error($e->getMessage());
+            Log::error('Payment checkout failed', [
+                'user_id' => Auth::id(),
+                'product_id' => $request->input('product_id'),
+                'payment_method' => $request->input('payment_method'),
+                'error' => $e->getMessage(),
+            ]);
             return redirect()->route('store.index')->with('error', __('Oops, something went wrong! Please try again later.'));
         }
 
@@ -199,6 +237,8 @@ class PaymentController extends Controller
      */
     public function dataTable()
     {
+        $this->checkPermission(self::VIEW_PERMISSION);
+
         $query = Payment::with('user');
 
         return datatables($query)

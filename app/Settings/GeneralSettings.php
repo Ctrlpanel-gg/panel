@@ -2,6 +2,7 @@
 
 namespace App\Settings;
 
+use App\Helpers\CurrencyHelper;
 use Spatie\LaravelSettings\Settings;
 
 class GeneralSettings extends Settings
@@ -9,14 +10,15 @@ class GeneralSettings extends Settings
     public bool $store_enabled = false;
     public ?float $sales_tax = null;
     public string $credits_display_name = 'Credits';
+    public ?string $currency_format_override = null;
     public ?string $recaptcha_version = null;
     public ?string $recaptcha_site_key = null;
     public ?string $recaptcha_secret_key = null;
     public ?string $phpmyadmin_url = null;
+    public string $theme = 'default';
     public bool $alert_enabled = false;
     public string $alert_type = 'info';
     public ?string $alert_message = null;
-    public string $theme = 'default';
 
     //public int $initial_user_role; wait for Roles & Permissions PR.
 
@@ -39,16 +41,31 @@ class GeneralSettings extends Settings
             'store_enabled' => 'nullable|string',
             'sales_tax' => 'nullable|numeric',
             'credits_display_name' => 'required|string',
+            'currency_format_override' => 'nullable|string|in:' . implode(',', array_merge([''], config('app.available_locales'))),
             'recaptcha_version' => 'nullable|string|in:v2,v3,turnstile',
             'recaptcha_site_key' => 'nullable|string',
             'recaptcha_secret_key' => 'nullable|string',
             'phpmyadmin_url' => 'nullable|string',
+            'theme' => ['required', 'in:' . implode(',', $themes)],
             'alert_enabled' => 'nullable|string',
             'alert_type' => 'required|in:primary,secondary,success,danger,warning,info',
             'alert_message' => 'nullable|string',
-            'theme' => ['required', 'in:' . implode(',', $themes)],
         ];
         return $validations;
+    }
+
+    public static function getCurrencyFormatOptions()
+    {
+        $options = [];
+        $locales = config('app.available_locales');
+        $helper = app(CurrencyHelper::class);
+
+        foreach ($locales as $locale) {
+            $sample = $helper->formatForDisplay(1234560, 2, $locale, true);
+            $options[$locale] = "$locale: $sample";
+        }
+
+        return $options;
     }
 
     public static function getThemes()
@@ -91,6 +108,13 @@ class GeneralSettings extends Settings
                 'type' => 'string',
                 'label' => 'Credits Display Name',
                 'description' => 'The name of the currency used.'
+            ],
+            'currency_format_override' => [
+                'type' => 'select',
+                'label' => 'Currency Format Override',
+                'description' => 'Force all currency displays to use this locale\'s formatting, overriding the current locale.',
+                'options' => array_merge(['' => 'Auto (Use Current Locale)'], self::getCurrencyFormatOptions()),
+                'identifier' => 'value',
             ],
             'recaptcha_version' => [
                 'type' => 'select',
