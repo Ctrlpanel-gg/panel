@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @group Product Management
+ */
+
 class ProductController extends Controller
 {
     const ALLOWED_INCLUDES = ['servers.user', 'eggs.nest', 'nodes.location'];
@@ -18,6 +22,34 @@ class ProductController extends Controller
 
     /**
      * Show a list of products.
+     * 
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "name": "Basic Server",
+     *      "description": "Perfect for small communities",
+     *      "price": "5.00",
+     *      "memory": 2048,
+     *      "cpu": 100,
+     *      "swap": 0,
+     *      "disk": 10240,
+     *      "io": 500,
+     *      "databases": 1,
+     *      "backups": 1,
+     *      "serverlimit": 1,
+     *      "allocations": 1,
+     *      "oom_killer": true,
+     *      "default_billing_priority": 0,
+     *      "disabled": false,
+     *      "minimum_credits": "5.00",
+     *      "billing_period": "monthly",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
      * 
      * @param Request $request
      * @return ProductResource
@@ -34,6 +66,31 @@ class ProductController extends Controller
 
     /**
      * Store a new product in the system.
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "Basic Server",
+     *      "description": "Perfect for small communities",
+     *      "price": "5.00",
+     *      "memory": 2048,
+     *      "cpu": 100,
+     *      "swap": 0,
+     *      "disk": 10240,
+     *      "io": 500,
+     *      "databases": 1,
+     *      "backups": 1,
+     *      "serverlimit": 1,
+     *      "allocations": 1,
+     *      "oom_killer": true,
+     *      "default_billing_priority": 0,
+     *      "disabled": false,
+     *      "minimum_credits": "5.00",
+     *      "billing_period": "monthly",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
      * 
      * @param CreateProductRequest $request
      * @return ProductResource
@@ -60,6 +117,33 @@ class ProductController extends Controller
     /**
      * Show the specified product.
      * 
+     * @urlParam product integer required The ID of the product. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "Basic Server",
+     *      "description": "Perfect for small communities",
+     *      "price": "5.00",
+     *      "memory": 2048,
+     *      "cpu": 100,
+     *      "swap": 0,
+     *      "disk": 10240,
+     *      "io": 500,
+     *      "databases": 1,
+     *      "backups": 1,
+     *      "serverlimit": 1,
+     *      "allocations": 1,
+     *      "oom_killer": true,
+     *      "default_billing_priority": 0,
+     *      "disabled": false,
+     *      "minimum_credits": "5.00",
+     *      "billing_period": "monthly",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
+     * 
      * @queryParam include string Comma-separated list of related resources to include. Example: servers.user,eggs.nest,nodes.location
      * 
      * @param Request $request
@@ -80,6 +164,33 @@ class ProductController extends Controller
 
     /**
      * Update the specified product in the system.
+     * 
+     * @urlParam product integer required The ID of the product. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "Basic Server",
+     *      "description": "Perfect for small communities",
+     *      "price": "5.00",
+     *      "memory": 2048,
+     *      "cpu": 100,
+     *      "swap": 0,
+     *      "disk": 10240,
+     *      "io": 500,
+     *      "databases": 1,
+     *      "backups": 1,
+     *      "serverlimit": 1,
+     *      "allocations": 1,
+     *      "oom_killer": true,
+     *      "default_billing_priority": 0,
+     *      "disabled": false,
+     *      "minimum_credits": "5.00",
+     *      "billing_period": "monthly",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
      * 
      * @param UpdateProductRequest $request
      * @param Product $product
@@ -108,6 +219,10 @@ class ProductController extends Controller
 
     /**
      * Remove the specified product from the system.
+     * 
+     * @urlParam product integer required The ID of the product. Example: 1
+     * 
+     * @response 204 {}
      * 
      * @param Request $request
      * @param Product $product

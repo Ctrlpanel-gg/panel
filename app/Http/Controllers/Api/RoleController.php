@@ -13,6 +13,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @group Role Management
+ */
+
 class RoleController extends Controller
 {
     const ALLOWED_INCLUDES = ['permissions', 'users'];
@@ -21,6 +25,20 @@ class RoleController extends Controller
     /**
      * Show a list of roles.
      *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "name": "Administrator",
+     *      "color": "#FF0000",
+     *      "power": 100,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
+     * 
      * @param Request $request
      * @return RoleResource
      */
@@ -37,6 +55,17 @@ class RoleController extends Controller
     /**
      * Store a new role in the system.
      *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "Administrator",
+     *      "color": "#FF0000",
+     *      "power": 100,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @return RoleResource
      */
@@ -57,6 +86,19 @@ class RoleController extends Controller
 
     /**
      * Show the specified role.
+     * 
+     * @urlParam role integer required The ID of the role. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "Administrator",
+     *      "color": "#FF0000",
+     *      "power": 100,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
      * 
      * @queryParam include string Comma-separated list of related resources to include. Example: permissions,users
      *
@@ -79,6 +121,19 @@ class RoleController extends Controller
     /**
      * Update the specified role in the system.
      *
+     * @urlParam role integer required The ID of the role. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "Administrator",
+     *      "color": "#FF0000",
+     *      "power": 100,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @param  Role  $role
      * @return RoleResource
@@ -103,6 +158,10 @@ class RoleController extends Controller
     /**
      * Remove the specified role from the system.
      *
+     * @urlParam role integer required The ID of the role. Example: 1
+     * 
+     * @response 204 {}
+     * 
      * @param  Request  $request
      * @param  Role  $role
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse

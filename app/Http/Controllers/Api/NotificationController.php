@@ -17,6 +17,10 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 
+/**
+ * @group Notifications
+ */
+
 class NotificationController extends Controller
 {
     public function __construct(protected NotificationService $notificationService)
@@ -25,6 +29,25 @@ class NotificationController extends Controller
     /**
      * Show a list of notifications for a user.
      *
+     * @urlParam user integer required The ID of the user. Example: 1
+     * 
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "type": "App\\Notifications\\ServerCreated",
+     *      "details": {
+     *        "title": "Server Created",
+     *        "content": "Your server has been created successfully."
+     *      },
+     *      "read_at": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
+     * 
      * @param  Request  $request
      * @param  User  $user
      * @return NotificationResource
@@ -41,6 +64,23 @@ class NotificationController extends Controller
     /**
      * Show a specific notification of a user.
      *
+     * @urlParam user integer required The ID of the user. Example: 1
+     * @urlParam notification integer required The ID of the notification. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "type": "App\\Notifications\\ServerCreated",
+     *      "details": {
+     *        "title": "Server Created",
+     *        "content": "Your server has been created successfully."
+     *      },
+     *      "read_at": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @param  User  $user
      * @param  ModelNotification  $notification
@@ -56,6 +96,14 @@ class NotificationController extends Controller
     /**
      * Send a notification to specific users.
      *
+     * @response {
+     *  "message": "Notification sent successfully.",
+     *  "meta": {
+     *    "user_count": 5,
+     *    "channels": ["mail", "database"]
+     *  }
+     * }
+     * 
      * @param  SendToUsersNotificationRequest  $request
      * @return JsonResponse
      *
@@ -105,6 +153,14 @@ class NotificationController extends Controller
     /**
      * Send a notification to all users.
      *
+     * @response {
+     *  "message": "Notification sent successfully.",
+     *  "meta": {
+     *    "user_count": 100,
+     *    "channels": ["mail", "database"]
+     *  }
+     * }
+     * 
      * @param  SendToAllUsersNotificationRequest  $request
      * @return JsonResponse
      */
@@ -152,6 +208,15 @@ class NotificationController extends Controller
     /**
      * Delete all notifications from an user.
      *
+     * @urlParam user integer required The ID of the user. Example: 1
+     * 
+     * @response {
+     *  "message": "All notifications deleted successfully",
+     *  "meta": {
+     *    "deleted_count": 10
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @param  User  $user
      * @return JsonResponse
@@ -173,6 +238,11 @@ class NotificationController extends Controller
     /**
      * Delete a specific notification from an user.
      *
+     * @urlParam user integer required The ID of the user. Example: 1
+     * @urlParam notification integer required The ID of the notification. Example: 1
+     * 
+     * @response 204 {}
+     * 
      * @param Request $request
      * @param  User  $user
      * @param  ModelNotification  $notification

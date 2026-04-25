@@ -11,6 +11,10 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+/**
+ * @group Voucher Management
+ */
+
 class VoucherController extends Controller
 {
     const ALLOWED_INCLUDES = ['users'];
@@ -19,6 +23,22 @@ class VoucherController extends Controller
     /**
      * Show a list of vouchers.
      *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "code": "SUMMER2023",
+     *      "memo": "Summer promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2023-12-31 23:59:59",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
+     * 
      * @param Request $request
      * @return VoucherResource
      */
@@ -35,6 +55,19 @@ class VoucherController extends Controller
     /**
      * Store a new voucher in the system.
      *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "code": "SUMMER2023",
+     *      "memo": "Summer promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2023-12-31 23:59:59",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @return VoucherResource
      */
@@ -50,6 +83,21 @@ class VoucherController extends Controller
     /**
      * Show the specified voucher.
      *
+     * @urlParam voucher integer required The ID of the voucher. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "code": "SUMMER2023",
+     *      "memo": "Summer promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2023-12-31 23:59:59",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
+     * 
      * @queryParam include string Comma-separated list of related resources to include. Example: users
      * 
      * @param Request $request
@@ -71,6 +119,21 @@ class VoucherController extends Controller
     /**
      * Update the specified voucher in the system.
      *
+     * @urlParam voucher integer required The ID of the voucher. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "code": "SUMMER2023",
+     *      "memo": "Summer promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2023-12-31 23:59:59",
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00"
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @param  Voucher  $voucher
      * @return VoucherResource
@@ -89,6 +152,10 @@ class VoucherController extends Controller
     /**
      * Remove the specified voucher from the system.
      *
+     * @urlParam voucher integer required The ID of the voucher. Example: 1
+     * 
+     * @response 204 {}
+     * 
      * @param  Request  $request
      * @param  Voucher  $voucher
      * @return \Illuminate\Http\Response
