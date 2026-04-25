@@ -25,6 +25,10 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Exception;
 
+/**
+ * @group Server Management
+ */
+
 class ServerController extends Controller
 {
     protected PterodactylSettings $pterodactylSettings;
@@ -36,7 +40,7 @@ class ServerController extends Controller
     )
     {
         $this->pterodactylSettings = app(PterodactylSettings::class);
-        $this->pterodactylClient = app(PterodactylClient::class, [$this->pterodactylSettings]);
+        $this->pterodactylClient = app(PterodactylClient, [$this->pterodactylSettings]);
     }
 
     public const ALLOWED_INCLUDES = ['product', 'user'];
@@ -45,6 +49,28 @@ class ServerController extends Controller
     /**
      * Show a list of servers.
      *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00",
+     *      "last_billed": "2023-01-01 00:00:00",
+     *      "status": "running"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
+     * 
      * @param  Request  $request
      * @return ServerResource
      */
@@ -63,7 +89,28 @@ class ServerController extends Controller
 
     /**
      * Show the specified server.
+     * 
+     * @urlParam server integer required The ID of the server. Example: 1
      *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00",
+     *      "last_billed": "2023-01-01 00:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @param  string  $serverId
      * @return ServerResource
@@ -83,6 +130,25 @@ class ServerController extends Controller
     /**
      * Store a new server in the system.
      *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00",
+     *      "last_billed": "2023-01-01 00:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     * 
      * @param  Request  $request
      * @return ServerResource
      *
@@ -109,6 +175,27 @@ class ServerController extends Controller
     /**
      * Update the specified server in the system.
      *
+     * @urlParam server integer required The ID of the server. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00",
+     *      "last_billed": "2023-01-01 00:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     * 
      * @param UpdateServerRequest $request
      * @param Server $server
      * @return ServerResource
@@ -149,6 +236,27 @@ class ServerController extends Controller
     /**
      * Update the server build.
      *
+     * @urlParam server integer required The ID of the server. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00",
+     *      "last_billed": "2023-01-01 00:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     * 
      * @param  UpdateServerBuildRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
@@ -174,6 +282,10 @@ class ServerController extends Controller
     /**
      * Remove the specified server from the system.
      *
+     * @urlParam server integer required The ID of the server. Example: 1
+     * 
+     * @response 204 {}
+     * 
      * @param  DeleteServerRequest  $request
      * @param  Server  $server
      * @return \Illuminate\Http\Response
@@ -206,6 +318,27 @@ class ServerController extends Controller
     /**
      * Suspend server.
      *
+     * @urlParam server integer required The ID of the server. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": true,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00",
+     *      "last_billed": "2023-01-01 00:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     * 
      * @param  SuspendServerRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
@@ -236,6 +369,27 @@ class ServerController extends Controller
     /**
      * Unsuspend server.
      *
+     * @urlParam server integer required The ID of the server. Example: 1
+     * 
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2023-01-01 00:00:00",
+     *      "updated_at": "2023-01-01 00:00:00",
+     *      "last_billed": "2023-01-01 00:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     * 
      * @param  UnsuspendServerRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
