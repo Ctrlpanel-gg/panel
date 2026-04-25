@@ -65,12 +65,9 @@ return [
         // Source Markdown will still be in resources/docs.
         'output_path' => 'public/docs',
     ],
-'laravel' => [
-    // Whether to automatically create a docs route for you to view your generated docs. You can still set up routing manually.
-    'add_routes' => false,
-
-    // URL path to use for the docs endpoint (if `add_routes` is true).
-    'docs_url' => '/docs',
+    'laravel' => [
+        // Whether to automatically create a docs route for you to view your generated docs. You can still set up routing manually.
+        'add_routes' => false,
 
         // By default, `/docs` opens the HTML page, `/docs.postman` opens the Postman collection, and `/docs.openapi` the OpenAPI spec.
         'docs_url' => '/docs',
@@ -127,7 +124,7 @@ return [
         'placeholder' => '{YOUR_AUTH_KEY}',
 
         // Any extra authentication-related info for your users. Markdown and HTML are supported.
-        'extra_info' => 'You can retrieve your token by visiting your dashboard and clicking <b>Generate API token</b>.',
+        'extra_info' => '',
     ],
 
     // Example requests for each endpoint will be shown in each of these languages.
