@@ -163,7 +163,7 @@ return [
         'overrides' => [
             'servers' => [
                 [
-                    'url' => '{protocol}://{domain}/api',
+                    'url' => '{protocol}://{domain}',
                     'description' => 'Your Panel Installation',
                     'variables' => [
                         'protocol' => [
