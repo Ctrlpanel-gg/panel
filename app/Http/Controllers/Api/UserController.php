@@ -32,7 +32,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 /**
  * @group User Management
  */
-
 class UserController extends Controller
 {
     use Referral;
@@ -94,7 +93,6 @@ class UserController extends Controller
     /**
      * Show the specified user.
      * 
-     * @urlParam user integer required The ID of the user. Example: 1
      * 
      * @response {
      *  "data": {
@@ -120,16 +118,16 @@ class UserController extends Controller
      * @queryParam include string Comma-separated list of related resources to include. Example: servers,notifications
      *
      * @param  Request  $request
-     * @param  int  $userId
+     * @param  int  $user_id
      * @return UserResource
      * 
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, int $userId)
+    public function show(Request $request, $user)
     {
         $user = QueryBuilder::for(User::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $userId)
+            ->where('id', $user_id)
             ->firstOrFail();
 
         return UserResource::make($user);
@@ -138,7 +136,6 @@ class UserController extends Controller
     /**
      * Update the specified user in the system.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
      * 
      * @response {
      *  "data": {
@@ -162,7 +159,7 @@ class UserController extends Controller
      * }
      * 
      * @param  UpdateUserRequest  $request
-     * @param  User  $user
+     * @param  User  $user_id
      * @return UserResource
      * 
      * @throws ValidationException
@@ -218,7 +215,6 @@ class UserController extends Controller
     /**
      * Increments the credits/server_limit of the user.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
      * 
      * @response {
      *  "data": {
@@ -242,7 +238,7 @@ class UserController extends Controller
      * }
      * 
      * @param  IncrementRequest  $request
-     * @param  User  $user
+     * @param  User  $user_id
      * @return UserResource
      *
      * @throws ValidationException
@@ -268,7 +264,6 @@ class UserController extends Controller
     /**
      * Decrements the credits/server_limit of the user.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
      * 
      * @response {
      *  "data": {
@@ -292,7 +287,7 @@ class UserController extends Controller
      * }
      * 
      * @param  DecrementRequest  $request
-     * @param  User  $user
+     * @param  User  $user_id
      * @return UserResource
      *
      * @throws ModelNotFoundException
@@ -316,7 +311,7 @@ class UserController extends Controller
     /**
      * Suspend the user and their servers.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
+     * @bodyParam reason string Violation of terms of service. Example: Violation of terms of service
      * 
      * @response {
      *  "data": {
@@ -340,7 +335,7 @@ class UserController extends Controller
      * }
      * 
      * @param  Request  $request
-     * @param  User  $user
+     * @param  User  $user_id
      * @return UserResource|\Illuminate\Http\JsonResponse
      * 
      * @throws ModelNotFoundException
@@ -361,7 +356,7 @@ class UserController extends Controller
             $logMessage .= " | Reason: " . $data['reason'];
         }
 
-        activity()->performedOn($user)->log($logMessage);
+        activity()->performedOn($user_id)->log($logMessage);
         
         $user->suspend();
 
@@ -371,7 +366,7 @@ class UserController extends Controller
     /**
      * Unsuspend the user and their servers if they has suficient credits.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
+     * @bodyParam reason string Re-activation after review. Example: Re-activation after review
      * 
      * @response {
      *  "data": {
@@ -395,7 +390,7 @@ class UserController extends Controller
      * }
      * 
      * @param  Request  $request
-     * @param  User  $user
+     * @param  User  $user_id
      * @return UserResource|\Illuminate\Http\JsonResponse
      * 
      * @throws ModelNotFoundException
@@ -416,7 +411,7 @@ class UserController extends Controller
             $logMessage .= " | Reason: " . $data['reason'];
         }
 
-        activity()->performedOn($user)->log($logMessage);
+        activity()->performedOn($user_id)->log($logMessage);
 
         $user->unSuspend();
 
@@ -517,12 +512,12 @@ class UserController extends Controller
     /**
      * Remove the specified user from the system.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
+     * @bodyParam reason string User requested deletion. Example: User requested deletion
      * 
      * @response 204 {}
      * 
      * @param  Request  $request
-     * @param  User  $user
+     * @param  User  $user_id
      * @return \Illuminate\Http\Response
      * 
      * @throws ModelNotFoundException
@@ -537,7 +532,7 @@ class UserController extends Controller
             $logMessage .= " | Reason: " . $data['reason'];
         }
 
-        activity()->performedOn($user)->log($logMessage);
+        activity()->performedOn($user_id)->log($logMessage);
 
         $user->delete();
 

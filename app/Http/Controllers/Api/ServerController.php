@@ -90,7 +90,6 @@ class ServerController extends Controller
     /**
      * Show the specified server.
      * 
-     * @urlParam server integer required The ID of the server. Example: 1
      *
      * @response {
      *  "data": {
@@ -175,7 +174,6 @@ class ServerController extends Controller
     /**
      * Update the specified server in the system.
      *
-     * @urlParam server integer required The ID of the server. Example: 1
      * 
      * @response {
      *  "data": {
@@ -236,7 +234,6 @@ class ServerController extends Controller
     /**
      * Update the server build.
      *
-     * @urlParam server integer required The ID of the server. Example: 1
      * 
      * @response {
      *  "data": {
@@ -282,7 +279,7 @@ class ServerController extends Controller
     /**
      * Remove the specified server from the system.
      *
-     * @urlParam server integer required The ID of the server. Example: 1
+     * @bodyParam reason string User requested deletion. Example: User requested deletion
      * 
      * @response 204 {}
      * 
@@ -318,7 +315,7 @@ class ServerController extends Controller
     /**
      * Suspend server.
      *
-     * @urlParam server integer required The ID of the server. Example: 1
+     * @bodyParam reason string Violation of terms of use. Example: Violation of terms of use
      * 
      * @response {
      *  "data": {
@@ -369,7 +366,7 @@ class ServerController extends Controller
     /**
      * Unsuspend server.
      *
-     * @urlParam server integer required The ID of the server. Example: 1
+     * @bodyParam reason string Re-activation after review. Example: Re-activation after review
      * 
      * @response {
      *  "data": {
