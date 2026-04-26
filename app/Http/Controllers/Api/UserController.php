@@ -51,7 +51,7 @@ class UserController extends Controller
     const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
 
     /**
-     * Show a list of users.
+     * List all users
      *
      * @response {
      *  "data": [
@@ -91,7 +91,7 @@ class UserController extends Controller
     }
 
     /**
-     * Show the specified user.
+     * Get user details
      *
      * @urlParam id integer required The ID of the user. Example: 1
      *
@@ -133,7 +133,7 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified user in the system.
+     * Update user
      *
      * @urlParam id integer required The ID of the user. Example: 1
      * @bodyParam name string required The name. Example: john_doe
@@ -219,7 +219,7 @@ class UserController extends Controller
     }
 
     /**
-     * Increments the credits/server_limit of the user.
+     * Increment user balance or server limit
      *
      * @response {
      *  "data": {
@@ -267,7 +267,7 @@ class UserController extends Controller
     }
 
     /**
-     * Decrements the credits/server_limit of the user.
+     * Decrement user balance or server limit
      *
      * @response {
      *  "data": {
@@ -313,7 +313,7 @@ class UserController extends Controller
     }
 
     /**
-     * Suspend the user and their servers.
+     * Suspend user
      *
      * @bodyParam reason string Violation of terms of service. Example: Violation of terms of service
      *
@@ -368,7 +368,7 @@ class UserController extends Controller
     }
 
     /**
-     * Unsuspend the user and their servers if they has suficient credits.
+     * Unsuspend user
      *
      * @bodyParam reason string Re-activation after review. Example: Re-activation after review
      *
@@ -423,14 +423,14 @@ class UserController extends Controller
     }
 
     /**
-     * Create a new user in the system.
+     * Create user
      *
-     * @bodyParam name string required The name. Example: john_doe
-     * @bodyParam email string required The email. Example: john@example.com
-     * @bodyParam password string required The password. Example: secret123
-     * @bodyParam role_id integer required The role ID. Example: 1
-     * @bodyParam credits number The initial credits for the user. Example: 100.00
-     * @bodyParam server_limit integer The initial server limit for the user. Example: 5
+     * @bodyParam name string required Min 4, max 30 chars. Example: john_doe
+     * @bodyParam email string required Valid email address. Example: john@example.com
+     * @bodyParam password string required Min 8 chars. Example: secret123
+     * @bodyParam role_id integer required Valid role ID. Example: 1
+     * @bodyParam credits number Initial credits. Max: 9223372036854775. Example: 100.00
+     * @bodyParam server_limit integer Initial server limit. Use 0 for unlimited. Example: 5
      * @bodyParam referral_code string The referral code used by the user. Example: ABCDEF12
      *
      * @response {
@@ -518,7 +518,7 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user from the system.
+     * Delete user
      *
      * @bodyParam reason string User requested deletion. Example: User requested deletion
      *

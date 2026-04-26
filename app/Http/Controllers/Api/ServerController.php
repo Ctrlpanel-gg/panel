@@ -47,7 +47,7 @@ class ServerController extends Controller
     public const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
 
     /**
-     * Show a list of servers.
+     * List all servers
      *
      * @response {
      *  "data": [
@@ -88,7 +88,7 @@ class ServerController extends Controller
     }
 
     /**
-     * Show the specified server.
+     * Get server details
      *
      * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
      *
@@ -128,7 +128,7 @@ class ServerController extends Controller
     }
 
     /**
-     * Store a new server in the system.
+     * Create server
      *
      * @bodyParam name string required The name of the server. Example: My Awesome Server
      * @bodyParam description string The description of the server. Example: High performance gaming server
@@ -183,7 +183,7 @@ class ServerController extends Controller
     }
 
     /**
-     * Update the specified server in the system.
+     * Update server
      *
      * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
      * @bodyParam name string The name of the server. Example: My Awesome Server
@@ -253,7 +253,7 @@ class ServerController extends Controller
     }
 
     /**
-     * Update the server build.
+     * Update server resources
      *
      * @response {
      *  "data": {
@@ -297,7 +297,7 @@ class ServerController extends Controller
     }
 
     /**
-     * Remove the specified server from the system.
+     * Delete server
      *
      * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
      * @bodyParam reason string User requested deletion. Example: User requested deletion
@@ -334,7 +334,7 @@ class ServerController extends Controller
     }
 
     /**
-     * Suspend server.
+     * Suspend server
      *
      * @bodyParam reason string Violation of terms of use. Example: Violation of terms of use
      *
@@ -385,7 +385,7 @@ class ServerController extends Controller
     }
 
     /**
-     * Unsuspend server.
+     * Unsuspend server
      *
      * @bodyParam reason string Re-activation after review. Example: Re-activation after review
      *

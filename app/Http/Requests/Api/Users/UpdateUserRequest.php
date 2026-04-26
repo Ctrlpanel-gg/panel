@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Users;
 
 use App\Constants\MysqlLimits;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest

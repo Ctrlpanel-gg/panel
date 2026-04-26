@@ -21,7 +21,7 @@ class ProductController extends Controller
     const ALLOWED_FILTERS = ['name', 'description', 'price'];
 
     /**
-     * Show a list of products.
+     * List all products
      *
      * @response {
      *  "data": [
@@ -65,22 +65,22 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a new product in the system.
+     * Create product
      *
-     * @bodyParam name string required The name of the product. Example: Medium Minecraft
-     * @bodyParam description string The description of the product. Example: Perfect for your SMP with friends
-     * @bodyParam price number required The price of the product. Example: 10.00
-     * @bodyParam minimum_credits number The minimum credits required to purchase. Example: 10.00
-     * @bodyParam memory integer required The memory in MB. Example: 4096
-     * @bodyParam cpu integer required The CPU limit in %. Example: 200
-     * @bodyParam swap integer required The swap limit in MB. Example: 0
-     * @bodyParam disk integer required The disk limit in MB. Example: 20480
-     * @bodyParam io integer required The IO limit. Example: 500
-     * @bodyParam serverlimit integer required The server limit. Example: 1
-     * @bodyParam databases integer required The database limit. Example: 3
-     * @bodyParam backups integer required The backup limit. Example: 2
-     * @bodyParam allocations integer required The allocation limit. Example: 1
-     * @bodyParam billing_period string required The billing period. Example: monthly
+     * @bodyParam name string required Max 30 chars. Example: Medium Minecraft
+     * @bodyParam description string required Max 191 chars. Example: Perfect for your SMP with friends
+     * @bodyParam price number required Min 0. Example: 10.00
+     * @bodyParam minimum_credits number Min 0, must be GTE price. Example: 10.00
+     * @bodyParam memory integer required Memory in MB. Use 0 for unlimited. Example: 4096
+     * @bodyParam cpu integer required CPU limit in %. Use 0 for unlimited. Example: 200
+     * @bodyParam swap integer required Swap in MB. Use 0 to disable, -1 for unlimited. Example: 0
+     * @bodyParam disk integer required Disk in MB. Use 0 for unlimited. Example: 20480
+     * @bodyParam io integer required IO limit. Example: 500
+     * @bodyParam serverlimit integer required Max servers. Use 0 for unlimited. Example: 1
+     * @bodyParam databases integer required Max databases. Example: 3
+     * @bodyParam backups integer required Max backups. Example: 2
+     * @bodyParam allocations integer required Max allocations. Example: 1
+     * @bodyParam billing_period string required hourly, daily, weekly, monthly, quarterly, half-annually, annually. Example: monthly
      * @bodyParam nodes integer[] List of node IDs associated with the product. Example: [1, 2]
      * @bodyParam eggs integer[] List of egg IDs associated with the product. Example: [1, 3]
      * @bodyParam disabled boolean Whether the product is disabled. Example: false
@@ -135,7 +135,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the specified product.
+     * Get product details
      *
      * @response {
      *  "data": {
@@ -174,7 +174,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified product in the system.
+     * Update product
      *
      * @bodyParam name string The name of the product. Example: Medium Minecraft
      * @bodyParam description string The description of the product. Example: Perfect for your SMP with friends
@@ -247,7 +247,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Remove the specified product from the system.
+     * Delete product
      *
      * @response 204 {}
      *

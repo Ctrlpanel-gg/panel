@@ -21,7 +21,7 @@ class VoucherController extends Controller
     const ALLOWED_FILTERS = ['code', 'memo', 'credits', 'uses'];
 
     /**
-     * Show a list of vouchers.
+     * List all vouchers
      *
      * @response {
      *  "data": [
@@ -53,13 +53,13 @@ class VoucherController extends Controller
     }
 
     /**
-     * Store a new voucher in the system.
+     * Create voucher
      *
-     * @bodyParam memo string A description for the voucher. Example: Summer 2026 Promotion
-     * @bodyParam code string required The unique code for the voucher. Example: SUMMER2026
-     * @bodyParam uses integer required The number of times the voucher can be used. Example: 100
-     * @bodyParam credits number required The amount of credits the voucher gives. Example: 50.00
-     * @bodyParam expires_at string The expiration date of the voucher (d-m-Y H:i:s or d-m-Y). Example: 31-12-2026 23:59:59
+     * @bodyParam memo string Description for the voucher. Example: Summer 2026 Promotion
+     * @bodyParam code string required 4-36 chars, alpha-dash format. Example: SUMMER2026
+     * @bodyParam uses integer required Max uses. Example: 100
+     * @bodyParam credits number required Credits amount. Min: 0.01, Max: 9223372036854775. Example: 50.00
+     * @bodyParam expires_at string Expiration date (d-m-Y H:i:s or d-m-Y). Example: 31-12-2026 23:59:59
      *
      * @response {
      *  "data": {
@@ -87,7 +87,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Show the specified voucher.
+     * Get voucher details
      *
      * @urlParam id integer required The ID of the voucher. Example: 1
      *
@@ -121,7 +121,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Update the specified voucher in the system.
+     * Update voucher
      *
      * @urlParam id integer required The ID of the voucher. Example: 1
      * @bodyParam memo string A description for the voucher. Example: Summer 2026 Promotion
@@ -159,7 +159,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Remove the specified voucher from the system.
+     * Delete voucher
      *
      * @response 204 {}
      *

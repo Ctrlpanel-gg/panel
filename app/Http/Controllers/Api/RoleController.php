@@ -23,7 +23,7 @@ class RoleController extends Controller
     const ALLOWED_FILTERS = ['name'];
 
     /**
-     * Show a list of roles.
+     * List all roles
      *
      * @response {
      *  "data": [
@@ -53,7 +53,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Store a new role in the system.
+     * Create role
      *
      * @response {
      *  "data": {
@@ -94,7 +94,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Show the specified role.
+     * Get role details
      *
      * @urlParam id integer required The ID of the role. Example: 2
      *
@@ -135,7 +135,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Update the specified role in the system.
+     * Update role
      *
      * @response {
      *  "data": {
@@ -179,7 +179,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Remove the specified role from the system.
+     * Delete role
      *
      * @urlParam id integer required The ID of the role. Example: 2
      *
