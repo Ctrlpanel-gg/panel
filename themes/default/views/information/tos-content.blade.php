@@ -4,7 +4,7 @@
 
 <p></p>
 
-<p><strong>Last updatedJanuary 02, 2023</strong></p>
+<p><strong>>Last updated January 02, 2023</strong></p>
 
 <p></p>
 

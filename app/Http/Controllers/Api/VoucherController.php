@@ -27,13 +27,13 @@ class VoucherController extends Controller
      *  "data": [
      *    {
      *      "id": 1,
-     *      "code": "SUMMER2023",
+     *      "code": "SUMMER2026",
      *      "memo": "Summer promotion",
      *      "credits": "50.00",
      *      "uses": 100,
-     *      "expires_at": "2023-12-31 23:59:59",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *    }
      *  ],
      *  "meta": { "total": 1 }
@@ -58,13 +58,13 @@ class VoucherController extends Controller
      * @response {
      *  "data": {
      *      "id": 1,
-     *      "code": "SUMMER2023",
+     *      "code": "SUMMER2026",
      *      "memo": "Summer promotion",
      *      "credits": "50.00",
      *      "uses": 100,
-     *      "expires_at": "2023-12-31 23:59:59",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 
@@ -88,13 +88,13 @@ class VoucherController extends Controller
      * @response {
      *  "data": {
      *      "id": 1,
-     *      "code": "SUMMER2023",
+     *      "code": "SUMMER2026",
      *      "memo": "Summer promotion",
      *      "credits": "50.00",
      *      "uses": 100,
-     *      "expires_at": "2023-12-31 23:59:59",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 
@@ -124,13 +124,13 @@ class VoucherController extends Controller
      * @response {
      *  "data": {
      *      "id": 1,
-     *      "code": "SUMMER2023",
+     *      "code": "SUMMER2026",
      *      "memo": "Summer promotion",
      *      "credits": "50.00",
      *      "uses": 100,
-     *      "expires_at": "2023-12-31 23:59:59",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 

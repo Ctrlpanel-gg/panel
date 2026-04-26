@@ -44,8 +44,8 @@ class ProductController extends Controller
      *      "disabled": false,
      *      "minimum_credits": "5.00",
      *      "billing_period": "monthly",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *    }
      *  ],
      *  "meta": { "total": 1 }
@@ -87,8 +87,8 @@ class ProductController extends Controller
      *      "disabled": false,
      *      "minimum_credits": "5.00",
      *      "billing_period": "monthly",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 
@@ -139,8 +139,8 @@ class ProductController extends Controller
      *      "disabled": false,
      *      "minimum_credits": "5.00",
      *      "billing_period": "monthly",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 
@@ -187,8 +187,8 @@ class ProductController extends Controller
      *      "disabled": false,
      *      "minimum_credits": "5.00",
      *      "billing_period": "monthly",
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 

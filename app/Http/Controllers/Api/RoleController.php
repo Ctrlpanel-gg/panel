@@ -32,8 +32,8 @@ class RoleController extends Controller
      *      "name": "Administrator",
      *      "color": "#FF0000",
      *      "power": 100,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *    }
      *  ],
      *  "meta": { "total": 1 }
@@ -61,8 +61,8 @@ class RoleController extends Controller
      *      "name": "Administrator",
      *      "color": "#FF0000",
      *      "power": 100,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 
@@ -95,8 +95,8 @@ class RoleController extends Controller
      *      "name": "Administrator",
      *      "color": "#FF0000",
      *      "power": 100,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 
@@ -129,8 +129,8 @@ class RoleController extends Controller
      *      "name": "Administrator",
      *      "color": "#FF0000",
      *      "power": 100,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00"
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
      * 

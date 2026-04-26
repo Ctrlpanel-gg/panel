@@ -62,9 +62,9 @@ class ServerController extends Controller
      *      "user_id": 1,
      *      "product_id": 1,
      *      "canceled": null,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00",
-     *      "last_billed": "2023-01-01 00:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
      *      "status": "running"
      *    }
      *  ],
@@ -103,9 +103,9 @@ class ServerController extends Controller
      *      "user_id": 1,
      *      "product_id": 1,
      *      "canceled": null,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00",
-     *      "last_billed": "2023-01-01 00:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
      *      "status": "running"
      *  }
      * }
@@ -141,9 +141,9 @@ class ServerController extends Controller
      *      "user_id": 1,
      *      "product_id": 1,
      *      "canceled": null,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00",
-     *      "last_billed": "2023-01-01 00:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
      *      "status": "running"
      *  }
      * }
@@ -187,9 +187,9 @@ class ServerController extends Controller
      *      "user_id": 1,
      *      "product_id": 1,
      *      "canceled": null,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00",
-     *      "last_billed": "2023-01-01 00:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
      *      "status": "running"
      *  }
      * }
@@ -247,9 +247,9 @@ class ServerController extends Controller
      *      "user_id": 1,
      *      "product_id": 1,
      *      "canceled": null,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00",
-     *      "last_billed": "2023-01-01 00:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
      *      "status": "running"
      *  }
      * }
@@ -329,9 +329,9 @@ class ServerController extends Controller
      *      "user_id": 1,
      *      "product_id": 1,
      *      "canceled": null,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00",
-     *      "last_billed": "2023-01-01 00:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
      *      "status": "running"
      *  }
      * }
@@ -380,9 +380,9 @@ class ServerController extends Controller
      *      "user_id": 1,
      *      "product_id": 1,
      *      "canceled": null,
-     *      "created_at": "2023-01-01 00:00:00",
-     *      "updated_at": "2023-01-01 00:00:00",
-     *      "last_billed": "2023-01-01 00:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
      *      "status": "running"
      *  }
      * }
