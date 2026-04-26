@@ -80,13 +80,13 @@ class ProductController extends Controller
 
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:1000000|min:0',
+            'price' => 'required|numeric|max:9223372036854775|min:0',
             'memory' => 'required|numeric|max:1000000|min:0',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => ['required', $this->getSwapValidator()],
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'nullable|numeric|max:1000000|gte:price',
+            'minimum_credits' => 'nullable|numeric|max:9223372036854775|gte:price',
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'databases' => 'required|numeric|max:1000000|min:0',
@@ -159,14 +159,14 @@ class ProductController extends Controller
 
         $request->validate([
             'name' => 'required|max:30',
-            'price' => 'required|numeric|max:1000000|min:0',
+            'price' => 'required|numeric|max:9223372036854775|min:0',
             'memory' => 'required|numeric|max:1000000|min:0',
             'cpu' => 'required|numeric|max:1000000|min:0',
             'swap' => ['required', $this->getSwapValidator()],
             'description' => 'required|string|max:191',
             'disk' => 'required|numeric|max:1000000|min:0',
             'io' => 'required|numeric|max:1000000|min:0',
-            'minimum_credits' => 'nullable|numeric|max:1000000|gte:price',
+            'minimum_credits' => 'nullable|numeric|max:9223372036854775|gte:price',
             'databases' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',
             'backups' => 'required|numeric|max:1000000|min:0',
