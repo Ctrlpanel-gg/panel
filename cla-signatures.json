@@ -1,3 +1,12 @@
 {
-   "signedContributors": []
+  "signedContributors": [
+    {
+      "name": "MrWeez",
+      "id": 64205495,
+      "comment_id": 4322984937,
+      "created_at": "2026-04-26T20:56:42Z",
+      "repoId": 374072543,
+      "pullRequestNo": 1337
+    }
+  ]
 }
