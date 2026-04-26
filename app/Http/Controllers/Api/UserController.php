@@ -140,6 +140,8 @@ class UserController extends Controller
      * @bodyParam email string required The email. Example: john@example.com
      * @bodyParam password string The password. Example: secret123
      * @bodyParam role_id integer The role ID. Example: 1
+     * @bodyParam referral_code string Referral code of the user. Example: ABCDEF12
+     * @bodyParam pterodactyl_id integer Linked Pterodactyl ID of the user. Example: 13
      * @bodyParam credits number The credits for the user. Example: 100.00
      * @bodyParam server_limit integer The server limit for the user. Example: 5
      *
@@ -431,7 +433,7 @@ class UserController extends Controller
      * @bodyParam role_id integer required Valid role ID. Example: 1
      * @bodyParam credits number Initial credits. Max: 9223372036854775. Example: 100.00
      * @bodyParam server_limit integer Initial server limit. Use 0 for unlimited. Example: 5
-     * @bodyParam referral_code string The referral code used by the user. Example: ABCDEF12
+     * @bodyParam referral_code string Referral code of the user. Example: ABCDEF12
      *
      * @response {
      *  "data": {

@@ -255,6 +255,9 @@ class ServerController extends Controller
     /**
      * Update server resources
      *
+     * @bodyParam user_id integer The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string The ID of the product. Example: F6QnQ-91Afeo0chihMss
+     *
      * @response {
      *  "data": {
      *      "id": "X8BK1rMUV4qF3lo-ROWIl",

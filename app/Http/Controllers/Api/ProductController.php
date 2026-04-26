@@ -137,6 +137,8 @@ class ProductController extends Controller
     /**
      * Get product details
      *
+     * @urlParam id string required The ID of the product. Example: F6QnQ-91Afeo0chihMss
+     *
      * @response {
      *  "data": {
      *      "id": "vY8xK9pZ",
@@ -181,6 +183,7 @@ class ProductController extends Controller
     /**
      * Update product
      *
+     * @urlParam id string required The ID of the product. Example: F6QnQ-91Afeo0chihMss
      * @bodyParam name string The name of the product. Example: Medium Minecraft
      * @bodyParam description string The description of the product. Example: Perfect for your SMP with friends
      * @bodyParam price number The price of the product. Example: 10.00
@@ -253,6 +256,8 @@ class ProductController extends Controller
 
     /**
      * Delete product
+     *
+     * @urlParam id string required The ID of the product. Example: F6QnQ-91Afeo0chihMss
      *
      * @response 204 {}
      *
