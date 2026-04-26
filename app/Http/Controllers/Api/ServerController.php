@@ -40,7 +40,7 @@ class ServerController extends Controller
     )
     {
         $this->pterodactylSettings = app(PterodactylSettings::class);
-        $this->pterodactylClient = app(PterodactylClient, [$this->pterodactylSettings]);
+        $this->pterodactylClient = app(PterodactylClient::class, [$this->pterodactylSettings]);
     }
 
     public const ALLOWED_INCLUDES = ['product', 'user'];
@@ -52,7 +52,7 @@ class ServerController extends Controller
      * @response {
      *  "data": [
      *    {
-     *      "id": 1,
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": false,
@@ -70,7 +70,7 @@ class ServerController extends Controller
      *  ],
      *  "meta": { "total": 1 }
      * }
-     * 
+     *
      * @param  Request  $request
      * @return ServerResource
      */
@@ -89,11 +89,12 @@ class ServerController extends Controller
 
     /**
      * Show the specified server.
-     * 
+     *
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
      *
      * @response {
      *  "data": {
-     *      "id": 1,
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": false,
@@ -109,7 +110,7 @@ class ServerController extends Controller
      *      "status": "running"
      *  }
      * }
-     * 
+     *
      * @param  Request  $request
      * @param  string  $serverId
      * @return ServerResource
@@ -129,9 +130,19 @@ class ServerController extends Controller
     /**
      * Store a new server in the system.
      *
+     * @bodyParam name string required The name of the server. Example: My Awesome Server
+     * @bodyParam description string The description of the server. Example: High performance gaming server
+     * @bodyParam user_id integer required The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string required The ID of the product. Example: 1
+     * @bodyParam egg_id integer required The ID of the egg. Example: 1
+     * @bodyParam location_id integer required The ID of the location. Example: 1
+     * @bodyParam egg_variables object The egg variables for the server.
+     * @bodyParam egg_variables.STARTUP string Example: ./myserver
+     * @bodyParam billing_priority integer The billing priority. Example: 0
+     *
      * @response {
      *  "data": {
-     *      "id": 1,
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": false,
@@ -147,8 +158,8 @@ class ServerController extends Controller
      *      "status": "running"
      *  }
      * }
-     * 
-     * @param  Request  $request
+     *
+     * @param  CreateServerRequest  $request
      * @return ServerResource
      *
      * @throws ValidationException
@@ -174,10 +185,20 @@ class ServerController extends Controller
     /**
      * Update the specified server in the system.
      *
-     * 
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
+     * @bodyParam name string The name of the server. Example: My Awesome Server
+     * @bodyParam description string The description of the server. Example: High performance gaming server
+     * @bodyParam user_id integer The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string The ID of the product. Example: 1
+     * @bodyParam egg_id integer The ID of the egg. Example: 1
+     * @bodyParam location_id integer The ID of the location. Example: 1
+     * @bodyParam egg_variables object The egg variables for the server.
+     * @bodyParam egg_variables.STARTUP string Example: ./myserver
+     * @bodyParam billing_priority integer The billing priority. Example: 0
+     *
      * @response {
      *  "data": {
-     *      "id": 1,
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": false,
@@ -193,7 +214,7 @@ class ServerController extends Controller
      *      "status": "running"
      *  }
      * }
-     * 
+     *
      * @param UpdateServerRequest $request
      * @param Server $server
      * @return ServerResource
@@ -234,10 +255,9 @@ class ServerController extends Controller
     /**
      * Update the server build.
      *
-     * 
      * @response {
      *  "data": {
-     *      "id": 1,
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": false,
@@ -253,7 +273,7 @@ class ServerController extends Controller
      *      "status": "running"
      *  }
      * }
-     * 
+     *
      * @param  UpdateServerBuildRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
@@ -279,10 +299,11 @@ class ServerController extends Controller
     /**
      * Remove the specified server from the system.
      *
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
      * @bodyParam reason string User requested deletion. Example: User requested deletion
-     * 
+     *
      * @response 204 {}
-     * 
+     *
      * @param  DeleteServerRequest  $request
      * @param  Server  $server
      * @return \Illuminate\Http\Response
@@ -316,10 +337,10 @@ class ServerController extends Controller
      * Suspend server.
      *
      * @bodyParam reason string Violation of terms of use. Example: Violation of terms of use
-     * 
+     *
      * @response {
      *  "data": {
-     *      "id": 1,
+     *      "id":"X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": true,
@@ -335,7 +356,7 @@ class ServerController extends Controller
      *      "status": "running"
      *  }
      * }
-     * 
+     *
      * @param  SuspendServerRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse
@@ -367,10 +388,10 @@ class ServerController extends Controller
      * Unsuspend server.
      *
      * @bodyParam reason string Re-activation after review. Example: Re-activation after review
-     * 
+     *
      * @response {
      *  "data": {
-     *      "id": 1,
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": false,
@@ -386,7 +407,7 @@ class ServerController extends Controller
      *      "status": "running"
      *  }
      * }
-     * 
+     *
      * @param  UnsuspendServerRequest  $request
      * @param  Server  $server
      * @return ServerResource|JsonResponse

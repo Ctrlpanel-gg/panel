@@ -76,7 +76,7 @@ class UserController extends Controller
      *  ],
      *  "meta": { "total": 1 }
      * }
-     * 
+     *
      * @param  Request  $request
      * @return UserResource
      */
@@ -92,8 +92,9 @@ class UserController extends Controller
 
     /**
      * Show the specified user.
-     * 
-     * 
+     *
+     * @urlParam id integer required The ID of the user. Example: 1
+     *
      * @response {
      *  "data": {
      *      "id": 1,
@@ -114,13 +115,13 @@ class UserController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @queryParam include string Comma-separated list of related resources to include. Example: servers,notifications
      *
      * @param  Request  $request
      * @param  int  $user_id
      * @return UserResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function show(Request $request, $user)
@@ -136,7 +137,12 @@ class UserController extends Controller
     /**
      * Update the specified user in the system.
      *
-     * 
+     * @urlParam id integer required The ID of the user. Example: 1
+     * @bodyParam name string The name. Example: john_doe
+     * @bodyParam email string The email. Example: john@example.com
+     * @bodyParam password string The password. Example: secret123
+     * @bodyParam role_id integer The role ID. Example: 1
+     *
      * @response {
      *  "data": {
      *      "id": 1,
@@ -157,11 +163,11 @@ class UserController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @param  UpdateUserRequest  $request
      * @param  User  $user_id
      * @return UserResource
-     * 
+     *
      * @throws ValidationException
      * @throws ModelNotFoundException
      */
@@ -215,7 +221,6 @@ class UserController extends Controller
     /**
      * Increments the credits/server_limit of the user.
      *
-     * 
      * @response {
      *  "data": {
      *      "id": 1,
@@ -236,7 +241,7 @@ class UserController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @param  IncrementRequest  $request
      * @param  User  $user_id
      * @return UserResource
@@ -264,7 +269,6 @@ class UserController extends Controller
     /**
      * Decrements the credits/server_limit of the user.
      *
-     * 
      * @response {
      *  "data": {
      *      "id": 1,
@@ -285,7 +289,7 @@ class UserController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @param  DecrementRequest  $request
      * @param  User  $user_id
      * @return UserResource
@@ -312,7 +316,7 @@ class UserController extends Controller
      * Suspend the user and their servers.
      *
      * @bodyParam reason string Violation of terms of service. Example: Violation of terms of service
-     * 
+     *
      * @response {
      *  "data": {
      *      "id": 1,
@@ -333,11 +337,11 @@ class UserController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @param  Request  $request
      * @param  User  $user_id
      * @return UserResource|\Illuminate\Http\JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function suspend(SuspendUserRequest $request, User $user)
@@ -357,7 +361,7 @@ class UserController extends Controller
         }
 
         activity()->performedOn($user_id)->log($logMessage);
-        
+
         $user->suspend();
 
         return UserResource::make($user);
@@ -367,7 +371,7 @@ class UserController extends Controller
      * Unsuspend the user and their servers if they has suficient credits.
      *
      * @bodyParam reason string Re-activation after review. Example: Re-activation after review
-     * 
+     *
      * @response {
      *  "data": {
      *      "id": 1,
@@ -388,11 +392,11 @@ class UserController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @param  Request  $request
      * @param  User  $user_id
      * @return UserResource|\Illuminate\Http\JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function unsuspend(UnsuspendUserRequest $request, User $user)
@@ -420,7 +424,12 @@ class UserController extends Controller
 
     /**
      * Create a new user in the system.
-     * 
+     *
+     * @bodyParam name string required The name. Example: john_doe
+     * @bodyParam email string required The email. Example: john@example.com
+     * @bodyParam password string required The password. Example: secret123
+     * @bodyParam role_id integer required The role ID. Example: 1
+     *
      * @response {
      *  "data": {
      *      "id": 1,
@@ -441,14 +450,10 @@ class UserController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
-     * @bodyParam name string required The name. Example: john_doe
-     * @bodyParam email string required The email. Example: john@example.com
-     * @bodyParam password string required The password. Example: secret123
-     * @bodyParam role_id integer required The role ID. Example: 1
+     *
      * @param CreateUserRequest  $request
      * @return UserResource
-     * 
+     *
      * @throws ValidationException
      */
     public function store(CreateUserRequest $request, UserSettings $userSettings)
@@ -513,13 +518,13 @@ class UserController extends Controller
      * Remove the specified user from the system.
      *
      * @bodyParam reason string User requested deletion. Example: User requested deletion
-     * 
+     *
      * @response 204 {}
-     * 
+     *
      * @param  Request  $request
      * @param  User  $user_id
      * @return \Illuminate\Http\Response
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function destroy(DeleteUserRequest $request, User $user)

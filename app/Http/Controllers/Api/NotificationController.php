@@ -29,8 +29,6 @@ class NotificationController extends Controller
     /**
      * Show a list of notifications for a user.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
-     * 
      * @response {
      *  "data": [
      *    {
@@ -64,8 +62,7 @@ class NotificationController extends Controller
     /**
      * Show a specific notification of a user.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
-     * @urlParam notification integer required The ID of the notification. Example: 1
+     * @urlParam user_id integer required The ID of the user. Example: 1
      * 
      * @response {
      *  "data": {
@@ -208,8 +205,6 @@ class NotificationController extends Controller
     /**
      * Delete all notifications from an user.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
-     * 
      * @response {
      *  "message": "All notifications deleted successfully",
      *  "meta": {
@@ -238,8 +233,7 @@ class NotificationController extends Controller
     /**
      * Delete a specific notification from an user.
      *
-     * @urlParam user integer required The ID of the user. Example: 1
-     * @urlParam notification integer required The ID of the notification. Example: 1
+     * @urlParam user_id integer required The ID of the user. Example: 1
      * 
      * @response 204 {}
      * 

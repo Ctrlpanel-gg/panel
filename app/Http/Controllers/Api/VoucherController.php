@@ -38,7 +38,7 @@ class VoucherController extends Controller
      *  ],
      *  "meta": { "total": 1 }
      * }
-     * 
+     *
      * @param Request $request
      * @return VoucherResource
      */
@@ -55,6 +55,12 @@ class VoucherController extends Controller
     /**
      * Store a new voucher in the system.
      *
+     * @bodyParam memo string A description for the voucher. Example: Summer 2026 Promotion
+     * @bodyParam code string required The unique code for the voucher. Example: SUMMER2026
+     * @bodyParam uses integer required The number of times the voucher can be used. Example: 100
+     * @bodyParam credits number required The amount of credits the voucher gives. Example: 50.00
+     * @bodyParam expires_at string The expiration date of the voucher (d-m-Y H:i:s or d-m-Y). Example: 31-12-2026 23:59:59
+     *
      * @response {
      *  "data": {
      *      "id": 1,
@@ -67,14 +73,14 @@ class VoucherController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
-     * @param  Request  $request
+     *
+     * @param  CreateVoucherRequest  $request
      * @return VoucherResource
      */
     public function store(CreateVoucherRequest $request)
     {
         $data = $request->validated();
-        
+
         $voucher = Voucher::create($data);
 
         return VoucherResource::make($voucher);
@@ -83,8 +89,8 @@ class VoucherController extends Controller
     /**
      * Show the specified voucher.
      *
-     * @urlParam voucher integer required The ID of the voucher. Example: 1
-     * 
+     * @urlParam id integer required The ID of the voucher. Example: 1
+     *
      * @response {
      *  "data": {
      *      "id": 1,
@@ -97,13 +103,13 @@ class VoucherController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @queryParam include string Comma-separated list of related resources to include. Example: users
-     * 
+     *
      * @param Request $request
      * @param  int  $voucher
      * @return VoucherResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function show(Request $request, int $voucher)
@@ -119,13 +125,18 @@ class VoucherController extends Controller
     /**
      * Update the specified voucher in the system.
      *
-     * @urlParam voucher integer required The ID of the voucher. Example: 1
-     * 
+     * @urlParam id integer required The ID of the voucher. Example: 1
+     * @bodyParam memo string A description for the voucher. Example: Summer 2026 Promotion
+     * @bodyParam code string The unique code for the voucher. Example: SUMMER2026
+     * @bodyParam uses integer The number of times the voucher can be used. Example: 100
+     * @bodyParam credits number The amount of credits the voucher gives. Example: 50.00
+     * @bodyParam expires_at string The expiration date of the voucher (d-m-Y H:i:s or d-m-Y). Example: 31-12-2026 23:59:59
+     *
      * @response {
      *  "data": {
      *      "id": 1,
      *      "code": "SUMMER2026",
-     *      "memo": "Summer promotion",
+     *      "memo": "Summer 2026 promotion",
      *      "credits": "50.00",
      *      "uses": 100,
      *      "expires_at": "2026-12-31 23:59:59",
@@ -133,11 +144,11 @@ class VoucherController extends Controller
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @param  Request  $request
      * @param  Voucher  $voucher
      * @return VoucherResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function update(UpdateVoucherRequest $request, Voucher $voucher)
@@ -152,14 +163,12 @@ class VoucherController extends Controller
     /**
      * Remove the specified voucher from the system.
      *
-     * @urlParam voucher integer required The ID of the voucher. Example: 1
-     * 
      * @response 204 {}
-     * 
+     *
      * @param  Request  $request
      * @param  Voucher  $voucher
      * @return \Illuminate\Http\Response
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function destroy(Request $request, Voucher $voucher)

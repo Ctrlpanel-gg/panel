@@ -38,7 +38,7 @@ class RoleController extends Controller
      *  ],
      *  "meta": { "total": 1 }
      * }
-     * 
+     *
      * @param Request $request
      * @return RoleResource
      */
@@ -57,16 +57,16 @@ class RoleController extends Controller
      *
      * @response {
      *  "data": {
-     *      "id": 1,
-     *      "name": "Administrator",
-     *      "color": "#FF0000",
-     *      "power": 100,
+     *      "id": 2,
+     *      "name": "Moderator",
+     *      "color": "#00FF00",
+     *      "power": 50,
      *      "created_at": "2026-04-26 12:00:00",
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
-     * @param  Request  $request
+     *
+     * @param  CreateRoleRequest  $request
      * @return RoleResource
      */
     public function store(CreateRoleRequest $request)
@@ -86,33 +86,33 @@ class RoleController extends Controller
 
     /**
      * Show the specified role.
-     * 
-     * @urlParam role integer required The ID of the role. Example: 1
-     * 
+     *
+     * @urlParam id integer required The ID of the role. Example: 2
+     *
      * @response {
      *  "data": {
-     *      "id": 1,
-     *      "name": "Administrator",
-     *      "color": "#FF0000",
-     *      "power": 100,
+     *      "id": 2,
+     *      "name": "Moderator",
+     *      "color": "#00FF00",
+     *      "power": 50,
      *      "created_at": "2026-04-26 12:00:00",
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
+     *
      * @queryParam include string Comma-separated list of related resources to include. Example: permissions,users
      *
      * @param  Request  $request
-     * @param  int  $roleId
+     * @param  int  $role
      * @return RoleResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, int $roleId)
+    public function show(Request $request, int $role)
     {
         $role = QueryBuilder::for(Role::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $roleId)
+            ->where('id', $role)
             ->firstOrFail();
 
         return RoleResource::make($role);
@@ -121,23 +121,21 @@ class RoleController extends Controller
     /**
      * Update the specified role in the system.
      *
-     * @urlParam role integer required The ID of the role. Example: 1
-     * 
      * @response {
      *  "data": {
-     *      "id": 1,
-     *      "name": "Administrator",
-     *      "color": "#FF0000",
-     *      "power": 100,
+     *      "id": 2,
+     *      "name": "Moderator",
+     *      "color": "#00FF00",
+     *      "power": 50,
      *      "created_at": "2026-04-26 12:00:00",
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
      * }
-     * 
-     * @param  Request  $request
+     *
+     * @param  UpdateRoleRequest  $request
      * @param  Role  $role
      * @return RoleResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function update(UpdateRoleRequest $request, Role $role)
@@ -158,14 +156,14 @@ class RoleController extends Controller
     /**
      * Remove the specified role from the system.
      *
-     * @urlParam role integer required The ID of the role. Example: 1
-     * 
+     * @urlParam id integer required The ID of the role. Example: 2
+     *
      * @response 204 {}
-     * 
+     *
      * @param  Request  $request
      * @param  Role  $role
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function destroy(Request $request, Role $role)
@@ -176,10 +174,10 @@ class RoleController extends Controller
 
         $users = User::role($role)->get();
 
-        foreach($users as $user){
+        foreach ($users as $user) {
             $user->syncRoles([Roles::USER_ROLE_ID]);
         }
-        
+
         $role->delete();
 
         return response()->noContent();
