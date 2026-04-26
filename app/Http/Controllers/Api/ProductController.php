@@ -163,13 +163,18 @@ class ProductController extends Controller
      * }
      *
      * @param Request $request
-     * @param Product $product
+     * @param string $productId
      * @return ProductResource
      *
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, Product $product)
+    public function show(Request $request, string $productId)
     {
+        $product = QueryBuilder::for(Product::class)
+            ->allowedIncludes(self::ALLOWED_INCLUDES)
+            ->where('id', $productId)
+            ->firstOrFail();
+
         return ProductResource::make($product);
     }
 

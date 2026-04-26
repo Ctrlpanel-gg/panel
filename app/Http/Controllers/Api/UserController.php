@@ -117,16 +117,16 @@ class UserController extends Controller
      * }
      *
      * @param  Request  $request
-     * @param  int  $user_id
+     * @param  int  $userId
      * @return UserResource
      *
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, $user)
+    public function show(Request $request, int $userId)
     {
         $user = QueryBuilder::for(User::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $user_id)
+            ->where('id', $userId)
             ->firstOrFail();
 
         return UserResource::make($user);
@@ -165,7 +165,7 @@ class UserController extends Controller
      * }
      *
      * @param  UpdateUserRequest  $request
-     * @param  User  $user_id
+     * @param  User  $user
      * @return UserResource
      *
      * @throws ValidationException
@@ -243,7 +243,7 @@ class UserController extends Controller
      * }
      *
      * @param  IncrementRequest  $request
-     * @param  User  $user_id
+     * @param  User  $user
      * @return UserResource
      *
      * @throws ValidationException
@@ -291,7 +291,7 @@ class UserController extends Controller
      * }
      *
      * @param  DecrementRequest  $request
-     * @param  User  $user_id
+     * @param  User  $user
      * @return UserResource
      *
      * @throws ModelNotFoundException
@@ -339,7 +339,7 @@ class UserController extends Controller
      * }
      *
      * @param  Request  $request
-     * @param  User  $user_id
+     * @param  User  $user
      * @return UserResource|\Illuminate\Http\JsonResponse
      *
      * @throws ModelNotFoundException
@@ -360,7 +360,7 @@ class UserController extends Controller
             $logMessage .= " | Reason: " . $data['reason'];
         }
 
-        activity()->performedOn($user_id)->log($logMessage);
+        activity()->performedOn($user)->log($logMessage);
 
         $user->suspend();
 
@@ -394,7 +394,7 @@ class UserController extends Controller
      * }
      *
      * @param  Request  $request
-     * @param  User  $user_id
+     * @param  User  $user
      * @return UserResource|\Illuminate\Http\JsonResponse
      *
      * @throws ModelNotFoundException
@@ -415,7 +415,7 @@ class UserController extends Controller
             $logMessage .= " | Reason: " . $data['reason'];
         }
 
-        activity()->performedOn($user_id)->log($logMessage);
+        activity()->performedOn($user)->log($logMessage);
 
         $user->unSuspend();
 
@@ -525,7 +525,7 @@ class UserController extends Controller
      * @response 204 {}
      *
      * @param  Request  $request
-     * @param  User  $user_id
+     * @param  User  $user
      * @return \Illuminate\Http\Response
      *
      * @throws ModelNotFoundException
@@ -540,7 +540,7 @@ class UserController extends Controller
             $logMessage .= " | Reason: " . $data['reason'];
         }
 
-        activity()->performedOn($user_id)->log($logMessage);
+        activity()->performedOn($user)->log($logMessage);
 
         $user->delete();
 

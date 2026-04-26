@@ -32,7 +32,7 @@ class NotificationController extends Controller
      * @response {
      *  "data": [
      *    {
-     *      "id": 1,
+     *      "id": "2491fec3-c7d7-47cd-9d82-cc76e851c124",
      *      "type": "App\\Notifications\\ServerCreated",
      *      "details": {
      *        "title": "Server Created",
@@ -66,7 +66,7 @@ class NotificationController extends Controller
      *
      * @response {
      *  "data": {
-     *      "id": 1,
+     *      "id": "2491fec3-c7d7-47cd-9d82-cc76e851c124",
      *      "type": "App\\Notifications\\ServerCreated",
      *      "details": {
      *        "title": "Server Created",

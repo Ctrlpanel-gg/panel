@@ -119,16 +119,16 @@ class RoleController extends Controller
      * }
      *
      * @param  Request  $request
-     * @param  int  $role
+     * @param  int  $roleId
      * @return RoleResource
      *
      * @throws ModelNotFoundException
      */
-    public function show(Request $request, int $role)
+    public function show(Request $request, int $roleId)
     {
         $role = QueryBuilder::for(Role::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('id', $role)
+            ->where('id', $roleId)
             ->firstOrFail();
 
         return RoleResource::make($role);
