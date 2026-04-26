@@ -100,8 +100,6 @@ class RoleController extends Controller
      *  }
      * }
      *
-     * @queryParam include string Comma-separated list of related resources to include. Example: permissions,users
-     *
      * @param  Request  $request
      * @param  int  $role
      * @return RoleResource

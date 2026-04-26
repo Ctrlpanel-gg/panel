@@ -156,8 +156,6 @@ class ProductController extends Controller
      *  }
      * }
      *
-     * @queryParam include string Comma-separated list of related resources to include. Example: servers.user,eggs.nest,nodes.location
-     *
      * @param Request $request
      * @param Product $product
      * @return ProductResource
