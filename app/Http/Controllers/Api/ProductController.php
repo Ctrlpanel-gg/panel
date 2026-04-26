@@ -70,6 +70,7 @@ class ProductController extends Controller
      * @bodyParam name string required The name of the product. Example: Medium Minecraft
      * @bodyParam description string The description of the product. Example: Perfect for your SMP with friends
      * @bodyParam price number required The price of the product. Example: 10.00
+     * @bodyParam minimum_credits number The minimum credits required to purchase. Example: 10.00
      * @bodyParam memory integer required The memory in MB. Example: 4096
      * @bodyParam cpu integer required The CPU limit in %. Example: 200
      * @bodyParam swap integer required The swap limit in MB. Example: 0
@@ -80,6 +81,11 @@ class ProductController extends Controller
      * @bodyParam backups integer required The backup limit. Example: 2
      * @bodyParam allocations integer required The allocation limit. Example: 1
      * @bodyParam billing_period string required The billing period. Example: monthly
+     * @bodyParam nodes integer[] List of node IDs associated with the product. Example: [1, 2]
+     * @bodyParam eggs integer[] List of egg IDs associated with the product. Example: [1, 3]
+     * @bodyParam disabled boolean Whether the product is disabled. Example: false
+     * @bodyParam oom_killer boolean Whether the OOM killer is enabled. Example: true
+     * @bodyParam default_billing_priority integer The default billing priority. Example: 0
      *
      * @response {
      *  "data": {
@@ -173,6 +179,7 @@ class ProductController extends Controller
      * @bodyParam name string The name of the product. Example: Medium Minecraft
      * @bodyParam description string The description of the product. Example: Perfect for your SMP with friends
      * @bodyParam price number The price of the product. Example: 10.00
+     * @bodyParam minimum_credits number The minimum credits required to purchase. Example: 10.00
      * @bodyParam memory integer The memory in MB. Example: 4096
      * @bodyParam cpu integer The CPU limit in %. Example: 200
      * @bodyParam swap integer The swap limit in MB. Example: 0
@@ -183,12 +190,17 @@ class ProductController extends Controller
      * @bodyParam backups integer The backup limit. Example: 2
      * @bodyParam allocations integer The allocation limit. Example: 1
      * @bodyParam billing_period string The billing period. Example: monthly
+     * @bodyParam nodes integer[] List of node IDs associated with the product. Example: [1, 2]
+     * @bodyParam eggs integer[] List of egg IDs associated with the product. Example: [1, 3]
+     * @bodyParam disabled boolean Whether the product is disabled. Example: false
+     * @bodyParam oom_killer boolean Whether the OOM killer is enabled. Example: true
+     * @bodyParam default_billing_priority integer The default billing priority. Example: 0
      *
      * @response {
      *  "data": {
      *      "id": "vY8xK9pZ",
-     *      "name": "Premium Ryzen Plan",
-     *      "description": "High-performance Ryzen 9 7950X based hosting",
+     *      "name": "Medium Minecraft",
+     *      "description": "Perfect for your SMP with friends",
      *      "price": "10.00",
      *      "memory": 4096,
      *      "cpu": 200,

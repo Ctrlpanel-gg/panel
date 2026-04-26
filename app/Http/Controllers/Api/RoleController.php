@@ -61,6 +61,15 @@ class RoleController extends Controller
      *      "name": "Moderator",
      *      "color": "#00FF00",
      *      "power": 50,
+     *      "permissions": [
+     *        {
+     *          "id": 1,
+     *          "name": "admin.roles.read",
+     *          "guard_name": "web",
+     *          "created_at": "2026-04-26 12:00:00",
+     *          "updated_at": "2026-04-26 12:00:00"
+     *        }
+     *      ],
      *      "created_at": "2026-04-26 12:00:00",
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
@@ -95,6 +104,15 @@ class RoleController extends Controller
      *      "name": "Moderator",
      *      "color": "#00FF00",
      *      "power": 50,
+     *      "permissions": [
+     *        {
+     *          "id": 1,
+     *          "name": "admin.roles.read",
+     *          "guard_name": "web",
+     *          "created_at": "2026-04-26 12:00:00",
+     *          "updated_at": "2026-04-26 12:00:00"
+     *        }
+     *      ],
      *      "created_at": "2026-04-26 12:00:00",
      *      "updated_at": "2026-04-26 12:00:00"
      *  }
@@ -125,6 +143,15 @@ class RoleController extends Controller
      *      "name": "Moderator",
      *      "color": "#00FF00",
      *      "power": 50,
+     *      "permissions": [
+     *        {
+     *          "id": 1,
+     *          "name": "admin.roles.read",
+     *          "guard_name": "web",
+     *          "created_at": "2026-04-26 12:00:00",
+     *          "updated_at": "2026-04-26 12:00:00"
+     *        }
+     *      ],
      *      "created_at": "2026-04-26 12:00:00",
      *      "updated_at": "2026-04-26 12:00:00"
      *  }

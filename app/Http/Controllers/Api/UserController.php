@@ -136,10 +136,12 @@ class UserController extends Controller
      * Update the specified user in the system.
      *
      * @urlParam id integer required The ID of the user. Example: 1
-     * @bodyParam name string The name. Example: john_doe
-     * @bodyParam email string The email. Example: john@example.com
+     * @bodyParam name string required The name. Example: john_doe
+     * @bodyParam email string required The email. Example: john@example.com
      * @bodyParam password string The password. Example: secret123
      * @bodyParam role_id integer The role ID. Example: 1
+     * @bodyParam credits number The credits for the user. Example: 100.00
+     * @bodyParam server_limit integer The server limit for the user. Example: 5
      *
      * @response {
      *  "data": {
@@ -427,6 +429,9 @@ class UserController extends Controller
      * @bodyParam email string required The email. Example: john@example.com
      * @bodyParam password string required The password. Example: secret123
      * @bodyParam role_id integer required The role ID. Example: 1
+     * @bodyParam credits number The initial credits for the user. Example: 100.00
+     * @bodyParam server_limit integer The initial server limit for the user. Example: 5
+     * @bodyParam referral_code string The referral code used by the user. Example: ABCDEF12
      *
      * @response {
      *  "data": {

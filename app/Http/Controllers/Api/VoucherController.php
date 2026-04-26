@@ -126,8 +126,8 @@ class VoucherController extends Controller
      * @urlParam id integer required The ID of the voucher. Example: 1
      * @bodyParam memo string A description for the voucher. Example: Summer 2026 Promotion
      * @bodyParam code string The unique code for the voucher. Example: SUMMER2026
-     * @bodyParam uses integer The number of times the voucher can be used. Example: 100
-     * @bodyParam credits number The amount of credits the voucher gives. Example: 50.00
+     * @bodyParam uses integer required The number of times the voucher can be used. Example: 100
+     * @bodyParam credits number required The amount of credits the voucher gives. Example: 50.00
      * @bodyParam expires_at string The expiration date of the voucher (d-m-Y H:i:s or d-m-Y). Example: 31-12-2026 23:59:59
      *
      * @response {

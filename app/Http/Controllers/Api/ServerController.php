@@ -340,7 +340,7 @@ class ServerController extends Controller
      *
      * @response {
      *  "data": {
-     *      "id":"X8BK1rMUV4qF3lo-ROWIl",
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
      *      "name": "My Server",
      *      "description": "My server description",
      *      "suspended": true,
