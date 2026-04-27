@@ -203,7 +203,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Clear all user notifications
+     * Delete all user notifications
      *
      * @response {
      *  "message": "All notifications deleted successfully",
