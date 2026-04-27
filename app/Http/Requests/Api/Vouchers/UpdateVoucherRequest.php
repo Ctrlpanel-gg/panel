@@ -30,7 +30,7 @@ class UpdateVoucherRequest extends FormRequest
                 Rule::unique('vouchers')->ignore($this->route('voucher')?->id),
             ],
             'credits' => ['required', 'numeric', 
-                'min:' . MysqlLimits::CREDITS_MIN,
+                'min:0.01',
                 'max:' . MysqlLimits::CREDITS_MAX,
             ],
             'expires_at' => 'sometimes|nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
