@@ -45,7 +45,7 @@ class UserController extends Controller
     }
 
     const ALLOWED_INCLUDES = ['servers.product', 'notifications', 'payments', 'vouchers.users', 'roles.permissions', 'discordUser'];
-    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
+    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended', 'discordUser.id'];
 
     /**
      * Show a list of users.
@@ -56,6 +56,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $users = QueryBuilder::for(User::class)
+            ->with('discordUser')
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
             ->paginate($request->input('per_page') ?? 50);
@@ -77,6 +78,7 @@ class UserController extends Controller
     public function show(Request $request, int $userId)
     {
         $user = QueryBuilder::for(User::class)
+            ->with('discordUser')
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->where('id', $userId)
             ->firstOrFail();

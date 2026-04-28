@@ -151,7 +151,8 @@ class UserController extends Controller
         $this->checkPermission(self::READ_PERMISSION);
 
         $users = QueryBuilder::for(User::query())
-            ->allowedFilters(['id', 'name', 'pterodactyl_id', 'email'])
+            ->with('discordUser')
+            ->allowedFilters(['id', 'name', 'pterodactyl_id', 'email', 'discordUser.id'])
             ->paginate(25);
 
         if ($request->query('user_id')) {
