@@ -55,14 +55,7 @@ class TicketsController extends Controller
         ];
 
         if ($generalSettings->recaptcha_version) {
-            switch ($generalSettings->recaptcha_version) {
-                case "v2":
-                    $validateData['g-recaptcha-response'] = ['required', 'recaptcha'];
-                    break;
-                case "v3":
-                    $validateData['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.5'];
-                    break;
-            }
+            $validateData['captcha'] = ['required', 'captcha'];
         }
 
         $validator = Validator::make($request->all(), $validateData);

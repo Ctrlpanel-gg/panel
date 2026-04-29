@@ -212,7 +212,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         Yajra\DataTables\DataTablesServiceProvider::class,
         KKomelin\TranslatableStringExporter\Providers\ExporterServiceProvider::class,
-        Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
         App\Providers\SettingsServiceProvider::class,
         App\Providers\ExtensionServiceProvider::class,
         App\Providers\CurrencyServiceProvider::class,
@@ -232,6 +231,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'Currency' => App\Facades\Currency::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
+        'Captcha' => App\Facades\Captcha::class,
     ])->toArray(),
 
 ];
