@@ -41,6 +41,7 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
+    @captchaScripts
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- tinymce -->
     <script src="{{ asset('plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>

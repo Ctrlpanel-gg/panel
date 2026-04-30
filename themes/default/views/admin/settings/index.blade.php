@@ -311,9 +311,9 @@
 
                                                                                                                                                                                 <div class="w-100">
                                                                                                                                                                         <div class="mb-3 input-group">
-                                                                                                                                                                            {!! htmlScriptTagJsApi() !!}
-                                                                                                                                                                        {!! htmlFormSnippet() !!}
-                                                                                                                                                                        @error('g-recaptcha-response')
+                                                                                                                                                                            @captchaScripts
+                                                                                                                                                                            <x-captcha />
+                                                                                                                                                                        @error('captcha')
             <span class="text-danger" role="alert">
                                                                                                                                                                                                                                                                 <small><strong>{{ $message }}</strong></small>
                                                                                                                                                                                                                                                                     </span>
