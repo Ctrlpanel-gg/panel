@@ -44,19 +44,16 @@
                         @if (!empty($discord_client_id) && !empty($discord_client_secret))
                             <div class="p-2 m-2 alert alert-warning">
                                 <h5>
-                                    <i
-                                        class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
+                                    <i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
                                 {{ __('You have not yet verified your discord account') }}
-                                <a class="text-primary"
-                                    href="{{ route('auth.redirect') }}">{{ __('Login with discord') }}</a> <br>
+                                <a class="text-primary" href="{{ route('auth.redirect') }}">{{ __('Login with discord') }}</a> <br>
                                 {{ __('Please contact support If you face any issues.') }}
                             </div>
                         @else
                             <div class="p-2 m-2 alert alert-danger">
                                 <h5>
-                                    <i
-                                        class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
+                                    <i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
                                 {{ __('Due to system settings you are required to verify your discord account!') }} <br>
                                 {{ __('It looks like this hasnt been set-up correctly! Please contact support.') }}
@@ -108,7 +105,7 @@
                                                         <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
                                                             {{ route('register') }}?ref={{ $user->referral_code }}</span>
                                                     </span>
-                                                @else
+                                        @else
                                                     <span class="badge badge-warning"><i class="mr-2 fa fa-user-check"></i>
                                                         {{ __('You can not see your Referral Code') }}</span>
                                                 @endcan
@@ -200,8 +197,8 @@
                                             <div class="mb-3 col-12">
                                                 <hr>
                                                 @if (is_null(Auth::user()->discordUser))
-                                                    <b>{{ __('Link your discord account!') }}</b>
                                                     <div class="verify-discord">
+                                                        <b>{{ __('Link your discord account!') }}</b>
                                                         <div class="mb-3">
                                                             @if ($credits_reward_after_verify_discord)
                                                                 <p>
@@ -209,37 +206,32 @@
                                                                 </p>
                                                             @endif
                                                         </div>
+                                                        <a class="btn btn-light" href="{{ route('auth.redirect') }}">
+                                                            <i class="mr-2 fab fa-discord"></i>{{ __('Login with Discord') }}
+                                                        </a>
                                                     </div>
-
-                                                    <a class="btn btn-light" href="{{ route('auth.redirect') }}">
-                                                        <i class="mr-2 fab fa-discord"></i>{{ __('Login with Discord') }}
-                                                    </a>
                                                 @else
                                                     <div class="verified-discord">
-                                                        <div class="my-3 callout callout-info">
-                                                            <p>{{ __('You are verified!') }}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="pl-2 row">
-                                                        <div class="small-box bg-dark">
-                                                            <div class="d-flex justify-content-between">
-                                                                <div class="p-3">
-                                                                    <h3>{{ $user->discordUser->username }}
-                                                                        <sup>{{ $user->discordUser->locale }}</sup>
-                                                                    </h3>
-                                                                    <p>{{ $user->discordUser->id }}
-                                                                    </p>
+                                                        <div class="pl-2 row">
+                                                            <div class="small-box bg-dark d-inline-block">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <div class="p-3">
+                                                                        <h3>{{ $user->discordUser->username }}</h3>
+                                                                        <p class="mb-0">{{ $user->discordUser->email }}</p>
+                                                                        <p class="mb-0 text-muted text-sm">
+                                                                            {{ $user->discordUser->id }}</p>
+                                                                    </div>
+                                                                    <div class="p-3"><img width="100px" height="100px"
+                                                                            class="rounded-circle"
+                                                                            src="{{ $user->discordUser->getAvatar() }}"
+                                                                            alt="avatar"></div>
                                                                 </div>
-                                                                <div class="p-3"><img width="100px" height="100px"
-                                                                        class="rounded-circle"
-                                                                        src="{{ $user->discordUser->getAvatar() }}"
-                                                                        alt="avatar"></div>
-                                                            </div>
-                                                            <div class="small-box-footer">
-                                                                <a href="{{ route('auth.redirect') }}">
-                                                                    <i
-                                                                        class="mr-1 fab fa-discord"></i>{{ __('Re-Sync Discord') }}
-                                                                </a>
+                                                                <div class="small-box-footer">
+                                                                    <a href="{{ route('auth.redirect') }}">
+                                                                        <i
+                                                                            class="mr-1 fab fa-discord"></i>{{ __('Re-Sync Discord') }}
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -249,8 +241,7 @@
                                     @endif
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary"
-                                                type="submit">{{ __('Save Changes') }}</button>
+                                            <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -312,7 +303,8 @@
                                         <div class="mb-3 col-12 col-sm-5 offset-sm-1">
                                             <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div>
                                             @if (!$user->two_factor_enabled)
-                                                <p>{{ __('Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.') }}
+                                                <p>
+                                                    {{ __('Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.') }}
                                                 </p>
                                                 <button type="button" class="btn btn-success" data-toggle="modal"
                                                     data-target="#enable2faModal">
@@ -340,8 +332,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary"
-                                                type="submit">{{ __('Save Changes') }}</button>
+                                            <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -378,8 +369,7 @@
                             <label>{{ __('Current Password') }}</label>
                             <input type="password" id="2fa-enable-password" class="form-control">
                         </div>
-                        <button type="button" class="btn btn-primary"
-                            onclick="generate2FA()">{{ __('Next') }}</button>
+                        <button type="button" class="btn btn-primary" onclick="generate2FA()">{{ __('Next') }}</button>
                     </div>
                     <div id="enable2fa-step-2" style="display: none;">
                         <p>{{ __('Scan the QR code with your authenticator app (e.g. Google Authenticator, Authy).') }}</p>
@@ -439,7 +429,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('profile.2fa.recovery-codes') }}" method="POST" onsubmit="$('#download2faModal').modal('hide')">
+                    <form action="{{ route('profile.2fa.recovery-codes') }}" method="POST"
+                        onsubmit="$('#download2faModal').modal('hide')">
                         @csrf
                         <p>{{ __('Please enter your password to download your recovery codes.') }}</p>
                         <div class="form-group">
@@ -559,9 +550,9 @@
                     type: "POST",
                     url: "{{ route('profile.selfDestroyUser') }}",
                     data: `{
-                        "confirmed": "yes",
-                      }`,
-                    success: function(result) {
+                                  "confirmed": "yes",
+                                }`,
+                    success: function (result) {
                         console.log(result);
                     },
                     dataType: "json"
