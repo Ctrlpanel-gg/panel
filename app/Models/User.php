@@ -72,6 +72,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'suspended',
         'referral_code',
         'email_verified_reward',
+        'two_factor_secret',
+        'two_factor_enabled',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
     ];
 
     /**
@@ -82,6 +86,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -93,7 +99,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'last_seen' => 'datetime',
         'server_limit' => 'integer',
-        'email_verified_reward' => 'boolean'
+        'email_verified_reward' => 'boolean',
+        'two_factor_enabled' => 'boolean',
+        'two_factor_confirmed_at' => 'datetime',
     ];
 
     public function __construct()
