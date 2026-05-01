@@ -281,7 +281,7 @@ class PaymentController extends Controller
                 }
 
                 if ($payment->status !== PaymentStatus::PAID && $payment->status !== PaymentStatus::CANCELED) {
-                    $actions .= '<form method="POST" action="' . route('admin.payments.statusUpdate', $payment->id) . '" style="display:inline-block;">' . csrf_field() . '<button type="submit" class="mr-1 btn btn-sm btn-success" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Force Confirm') . '"><i class="fas fa-check"></i></button></form>';
+                    $actions .= '<button type="button" class="mr-1 btn btn-sm btn-success" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Force Confirm') . '" onclick="confirmStatusUpdate(\'' . route('admin.payments.statusUpdate', $payment->id) . '\')"><i class="fas fa-check"></i></button>';
 
                     $extensionClass = ExtensionHelper::getExtensionClass($payment->payment_method);
                     if ($extensionClass && class_exists($extensionClass) && $extensionClass::supportsRecheck()) {
