@@ -15,7 +15,6 @@ use App\Settings\PterodactylSettings;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class TicketsController extends Controller
 {
