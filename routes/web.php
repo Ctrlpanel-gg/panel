@@ -57,7 +57,7 @@ Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
     // 2FA verification routes
     Route::get('/login/2fa', [TwoFactorController::class, 'showVerificationForm'])->name('2fa.index');
-    Route::post('/login/2fa', [TwoFactorController::class, 'verify'])->name('2fa.verify');
+    Route::post('/login/2fa', [TwoFactorController::class, 'verify'])->middleware('throttle:5,1')->name('2fa.verify');
 });
 
 Route::middleware(['auth', 'checkSuspended', '2fa'])->group(function () {

@@ -13,9 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
