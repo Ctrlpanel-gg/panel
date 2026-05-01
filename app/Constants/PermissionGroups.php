@@ -124,7 +124,8 @@ class PermissionGroups
     ];
 
     const PAYMENTS_PERMISSIONS = [
-        'admin.payments.read'
+        'admin.payments.read',
+        'admin.payments.write'
     ];
 
     const LOGS_PERMISSIONS = [

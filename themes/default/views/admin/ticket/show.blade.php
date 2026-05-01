@@ -93,6 +93,10 @@
                                                     class="fas fa-times"></i>{{__("Close")}}</button>
                                         </form>
                                     @endif
+                                    {{-- Edit Ticket Button --}}
+                                    <button type="button" class="btn btn-sm text-white btn-primary mr-1" data-toggle="modal" data-target="#editTicketModal">
+                                        <i class="fas fa-pencil-alt"></i> {{__("Edit Ticket")}}
+                                    </button>
                             </div>
                         </div>
                     </div>
@@ -163,5 +167,46 @@
         </div>
     </section>
     <!-- END CONTENT -->
+
+    <!-- Edit Ticket Modal -->
+    <div class="modal fade" id="editTicketModal" tabindex="-1" role="dialog" aria-labelledby="editTicketModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTicketModalLabel">{{__("Edit Ticket")}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('admin.ticket.update', ['ticket_id' => $ticket->ticket_id ])}}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="priority_modal">{{__("Priority")}}</label>
+                            <select name="priority" id="priority_modal" class="form-control">
+                                @foreach($priorityValues as $priority)
+                                    <option value="{{ $priority }}" @if($ticket->priority === $priority) selected @endif>{{ __($priority) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticketcategory_id_modal">{{__("Category")}}</label>
+                            <select name="ticketcategory_id" id="ticketcategory_id_modal" class="form-control">
+                                @foreach($ticketCategories as $category)
+                                    <option value="{{ $category->id }}" @if($ticket->ticketcategory_id === $category->id) selected @endif>{{ $category->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{__("Close")}}</button>
+                        <button type="submit" class="btn btn-primary">{{__("Save changes")}}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
+
 

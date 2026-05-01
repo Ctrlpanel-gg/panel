@@ -47,8 +47,10 @@ class TicketsController extends Controller
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
         $pterodactyl_url = $ptero_settings->panel_url;
+        $ticketCategories = TicketCategory::all();
+        $priorityValues = Ticket::PRIORITY_VALUES;
 
-        return view('admin.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
+        return view('admin.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url', 'ticketCategories', 'priorityValues'));
     }
 
     public function changeStatus($ticket_id)
@@ -119,6 +121,29 @@ class TicketsController extends Controller
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 
+    public function update(Request $request, $ticket_id)
+    {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $request->validate([
+            'priority' => ['required', 'in:' . implode(',', Ticket::PRIORITY_VALUES)],
+            'ticketcategory_id' => ['required', 'exists:ticket_categories,id'],
+        ]);
+
+        try {
+            $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (Exception $e) {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
+
+        $ticket->update([
+            'priority' => $request->input('priority'),
+            'ticketcategory_id' => $request->input('ticketcategory_id'),
+        ]);
+
+        return redirect()->back()->with('success', __('Ticket updated successfully'));
+    }
+
     public function dataTable()
     {
         $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
@@ -182,6 +207,12 @@ class TicketsController extends Controller
                         'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
             })
             ->orderColumn('category', 'category_name $1')
+            ->orderColumn('priority', "CASE
+                            WHEN tickets.priority = 'High' THEN 3
+                            WHEN tickets.priority = 'Medium' THEN 2
+                            WHEN tickets.priority = 'Low' THEN 1
+                            ELSE 0
+                        END $1")
             ->rawColumns(['title', 'user_id', 'status', 'priority', 'updated_at', 'actions'])
             ->make(true);
     }

@@ -75,6 +75,7 @@ return [
 
 
     'View Payments Backend' => 'admin.payments.read',
+    'Manage Payments Backend' => 'admin.payments.write',
 
     'View Partners Backend' => 'admin.partners.read',
     'Manage Partners Backend' => 'admin.partners.write',
