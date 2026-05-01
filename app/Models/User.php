@@ -102,6 +102,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_reward' => 'boolean',
         'two_factor_enabled' => 'boolean',
         'two_factor_confirmed_at' => 'datetime',
+        'two_factor_secret' => 'encrypted',
+        'two_factor_recovery_codes' => 'encrypted:json',
     ];
 
     public function __construct()

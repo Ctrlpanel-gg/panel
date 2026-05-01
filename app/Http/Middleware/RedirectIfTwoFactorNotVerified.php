@@ -18,7 +18,7 @@ class RedirectIfTwoFactorNotVerified
     {
         $user = Auth::user();
 
-        if ($user && $user->two_factor_enabled && !session('google2fa.auth_passed')) {
+        if ($user && $user->two_factor_enabled && !session(config('google2fa.session_var') . '.auth_passed')) {
             // Allow access to logout
             if ($request->is('logout')) {
                 return $next($request);

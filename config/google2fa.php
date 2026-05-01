@@ -32,7 +32,7 @@ return [
     /*
      * 2FA verified session var.
      */
-    'session_var' => 'google2fa',
+    'session_var' => 'two_factor',
 
     /*
      * One Time Password request input name.

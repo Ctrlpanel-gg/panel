@@ -88,10 +88,10 @@ Route::middleware(['auth', 'checkSuspended', '2fa'])->group(function () {
     }
 
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
-    Route::post('profile/2fa/generate', [ProfileController::class, 'twoFactorGenerate'])->name('profile.2fa.generate');
-    Route::post('profile/2fa/enable', [ProfileController::class, 'twoFactorEnable'])->name('profile.2fa.enable');
-    Route::post('profile/2fa/disable', [ProfileController::class, 'twoFactorDisable'])->name('profile.2fa.disable');
-    Route::post('profile/2fa/recovery-codes', [ProfileController::class, 'twoFactorDownloadRecoveryCodes'])->name('profile.2fa.recovery-codes');
+    Route::post('profile/2fa/generate', [TwoFactorController::class, 'generate'])->name('profile.2fa.generate');
+    Route::post('profile/2fa/enable', [TwoFactorController::class, 'enable'])->name('profile.2fa.enable');
+    Route::post('profile/2fa/disable', [TwoFactorController::class, 'disable'])->name('profile.2fa.disable');
+    Route::post('profile/2fa/recovery-codes', [TwoFactorController::class, 'downloadRecoveryCodes'])->name('profile.2fa.recovery-codes');
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
     Route::get('preferences', [PreferencesController::class, 'index'])->name('preferences.index');
