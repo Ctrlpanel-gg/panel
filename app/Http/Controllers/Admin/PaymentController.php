@@ -40,14 +40,15 @@ class PaymentController extends Controller
     /**
      * @return Application|Factory|View
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
         $this->checkPermission(self::VIEW_PERMISSION);
 
 
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15),
-            'locale_datatables' => $locale_settings->datatables
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name,
         ]);
     }
 
@@ -104,7 +105,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function handleFreeProduct(ShopProduct $shopProduct, ?string $couponCode = null)
+    public function handleFreeProduct(ShopProduct $shopProduct, GeneralSettings $general_settings, ?string $couponCode = null)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -136,7 +137,7 @@ class PaymentController extends Controller
         //not sending an invoice
 
         //redirect back to home
-        return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
+        return redirect()->route('home')->with('success', __('Your :credits balance has been increased!', ['credits' => $general_settings->credits_display_name]));
     }
 
     public function pay(Request $request)
@@ -168,7 +169,7 @@ class PaymentController extends Controller
             }
 
             if ($subtotal <= 0) {
-                return $this->handleFreeProduct($shopProduct, $couponCode);
+                return $this->handleFreeProduct($shopProduct, $general_settings, $couponCode);
             }
 
             $enabledPaymentGateways = [];
@@ -250,6 +251,9 @@ class PaymentController extends Controller
             ->editColumn('amount', function (Payment $payment, CurrencyHelper $currencyHelper) {
                 return $payment->type == 'Credits' ? $currencyHelper->formatForDisplay($payment->amount) : $payment->amount;
             })
+            ->editColumn('type', function (Payment $payment, GeneralSettings $general_settings) {
+                return $payment->type == 'Credits' ? $general_settings->credits_display_name : $payment->type;
+            })
             ->editColumn('price', function (Payment $payment, CurrencyHelper $currencyHelper) {
                 return $currencyHelper->formatToCurrency($payment->price, $payment->currency_code);
             })
@@ -319,7 +323,7 @@ class PaymentController extends Controller
         event(new PaymentEvent($user, $payment, $shopProduct));
         event(new UserUpdateCreditsEvent($user));
 
-        return redirect()->route('admin.payments.index')->with('success', __('Payment force confirmed successfully.'));
+        return redirect()->route('admin.payments.index')->with('success', __('Payment status updated successfully.'));
     }
 
     public function recheck(Payment $payment)
