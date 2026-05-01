@@ -163,6 +163,8 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
         //payments
         Route::get('payments/datatable', [PaymentController::class, 'datatable'])->name('payments.datatable');
         Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+        Route::post('payments/status/update/{payment}', [PaymentController::class, 'statusUpdate'])->name('payments.statusUpdate');
+        Route::post('payments/recheck/{payment}', [PaymentController::class, 'recheck'])->name('payments.recheck');
 
         //settings
         Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
