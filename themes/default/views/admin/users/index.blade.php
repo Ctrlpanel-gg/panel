@@ -50,6 +50,7 @@
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Referrals')}}</th>
                             <th>{{__('Verified')}}</th>
+                            <th>{{__('2FA')}}</th>
                             <th>{{__('Last seen')}}</th>
                             <th></th>
                         </tr>
@@ -82,7 +83,7 @@
                 stateSave: true,
                 ajax: "{{ route('admin.users.datatable') }}{{ $filter ?? '' }}",
                 order: [
-                    [11, "desc"]
+                    [12, "desc"]
                 ],
                 columns: [
                     {
@@ -127,6 +128,10 @@
                     },
                     {
                         data: 'verified',
+                        sortable: false
+                    },
+                    {
+                        data: '2fa',
                         sortable: false
                     },
                     {
