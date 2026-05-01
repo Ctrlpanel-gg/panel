@@ -380,15 +380,15 @@ class StripeExtension extends PaymentExtension
         $orderedSecrets = $isLocal
             ? [
                 'test_webhook_signing_secret' => $settings->test_webhook_signing_secret,
-                'test_endpoint_secret' => $settings->test_endpoint_secret,
+                'test_publishable_key' => $settings->test_publishable_key,
                 'webhook_signing_secret' => $settings->webhook_signing_secret,
-                'endpoint_secret' => $settings->endpoint_secret,
+                'publishable_key' => $settings->publishable_key,
             ]
             : [
                 'webhook_signing_secret' => $settings->webhook_signing_secret,
-                'endpoint_secret' => $settings->endpoint_secret,
+                'publishable_key' => $settings->publishable_key,
                 'test_webhook_signing_secret' => $settings->test_webhook_signing_secret,
-                'test_endpoint_secret' => $settings->test_endpoint_secret,
+                'test_publishable_key' => $settings->test_publishable_key,
             ];
 
         $secrets = [];
