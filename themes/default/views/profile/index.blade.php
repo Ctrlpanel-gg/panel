@@ -98,16 +98,20 @@
                                         </div>
 
                                         @if ($referral_enabled)
-                                            @can('user.referral')
-                                                <div class="mt-1">
-                                                    <span class="badge badge-success"><i class="mr-2 fa fa-user-check"></i>
+                                            <div class="mt-1">
+                                                @can('user.referral')
+                                                    <span class="badge badge-success">
+                                                        <i class="mr-2 fa fa-user-check"></i>
                                                         {{ __('Referral URL') }} :
                                                         <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
-                                                            {{ route('register') }}?ref={{ $user->referral_code }}</span>
+                                                            {{ route('register') }}?ref={{ $user->referral_code }}
+                                                        </span>
                                                     </span>
-                                        @else
-                                                    <span class="badge badge-warning"><i class="mr-2 fa fa-user-check"></i>
-                                                        {{ __('You can not see your Referral Code') }}</span>
+                                                @else
+                                                    <span class="badge badge-warning">
+                                                        <i class="mr-2 fa fa-user-check"></i>
+                                                        {{ __('You can not see your Referral Code') }}
+                                                    </span>
                                                 @endcan
                                             </div>
                                         @endif
@@ -317,16 +321,14 @@
                                                     <p>{{ __('Your account is protected with two-factor authentication.') }}
                                                     </p>
                                                 </div>
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-danger" data-toggle="modal"
-                                                        data-target="#disable2faModal">
-                                                        {{ __('Disable 2FA') }}
-                                                    </button>
-                                                    <button type="button" class="btn btn-info" data-toggle="modal"
-                                                        data-target="#download2faModal">
-                                                        <i class="fas fa-download mr-1"></i>{{ __('Recovery Codes') }}
-                                                    </button>
-                                                </div>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal"
+                                                    data-target="#disable2faModal">
+                                                    {{ __('Disable 2FA') }}
+                                                </button>
+                                                <button type="button" class="btn btn-info" data-toggle="modal"
+                                                    data-target="#download2faModal">
+                                                    <i class="fas fa-download mr-1"></i>{{ __('Recovery Codes') }}
+                                                </button>
                                             @endif
                                         </div>
                                     </div>
@@ -543,27 +545,28 @@
                 inputLabel: '{{ __('Are you sure you want to permanently delete your account and all of your servers?') }} \n Type "{{ __('Delete my account') }}" in the Box below',
                 inputPlaceholder: "{{ __('Delete my account') }}",
                 showCancelButton: true
-            })
+            });
+
             if (enterConfirm === "{{ __('Delete my account') }}") {
-                Swal.fire("{{ __('Account has been destroyed') }}", '', 'error')
                 $.ajax({
                     type: "POST",
                     url: "{{ route('profile.selfDestroyUser') }}",
-                    data: `{
-                                  "confirmed": "yes",
-                                }`,
-                    success: function (result) {
-                        console.log(result);
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "confirmed": "yes"
                     },
-                    dataType: "json"
+                    success: function (result) {
+                        Swal.fire("{{ __('Account has been destroyed') }}", '', 'success').then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function (result) {
+                        Swal.fire("{{ __('Error') }}", "{{ __('Something went wrong.') }}", 'error');
+                    }
                 });
-                location.reload();
-
             } else {
-                Swal.fire("{{ __('Account was NOT deleted.') }}", '', 'info')
-
+                Swal.fire("{{ __('Account was NOT deleted.') }}", '', 'info');
             }
-
         }
 
         function onClickCopy() {
