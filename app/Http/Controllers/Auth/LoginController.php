@@ -95,6 +95,10 @@ class LoginController extends Controller
             $user->last_seen = now();
             $user->save();
 
+            if ($user->two_factor_enabled) {
+                return redirect()->route('2fa.index');
+            }
+
             return $this->sendLoginResponse($request);
         }
 

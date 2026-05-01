@@ -13,7 +13,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
+use PragmaRX\Google2FALaravel\Facade as Google2FA;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -37,6 +40,144 @@ class ProfileController extends Controller
             'discord_client_id' => $discord_settings->client_id,
             'discord_client_secret' => $discord_settings->client_secret,
             'referral_enabled' => $referral_settings->enabled
+        ]);
+    }
+
+    public function twoFactorGenerate(Request $request)
+    {
+        $request->validate([
+            'password' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => __('Invalid password')], 422);
+        }
+
+        $google2fa = new \PragmaRX\Google2FAQRCode\Google2FA();
+
+        if (!$user->two_factor_secret) {
+            $secret = $google2fa->generateSecretKey();
+        } else {
+            $secret = $user->two_factor_secret;
+        }
+
+        $qrCodeSvg = $google2fa->getQRCodeInline(
+            config('app.name'),
+            $user->email,
+            $secret
+        );
+
+        return response()->json([
+            'secret' => $secret,
+            'qr_code' => $qrCodeSvg,
+        ]);
+    }
+
+    public function twoFactorEnable(Request $request)
+    {
+        $request->validate([
+            'code' => 'required',
+            'secret' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        $google2fa = new \PragmaRX\Google2FAQRCode\Google2FA();
+        $valid = $google2fa->verifyKey($request->secret, $request->code);
+
+        if (!$valid) {
+            return response()->json(['message' => __('Invalid 2FA code')], 422);
+        }
+
+        $recoveryCodes = [];
+        for ($i = 0; $i < 8; $i++) {
+            $recoveryCodes[] = Str::random(10);
+        }
+
+        $user->forceFill([
+            'two_factor_secret' => $request->secret,
+            'two_factor_enabled' => true,
+            'two_factor_confirmed_at' => now(),
+            'two_factor_recovery_codes' => encrypt(json_encode($recoveryCodes)),
+        ])->save();
+
+        // Mark as verified in session so user isn't immediately locked out
+        session([config('google2fa.session_var') => [
+            'auth_passed' => true,
+            'auth_time' => now()->timestamp,
+        ]]);
+
+        return response()->json([
+            'message' => __('2FA enabled successfully'),
+            'recovery_codes' => $recoveryCodes,
+        ]);
+    }
+
+    public function twoFactorDisable(Request $request)
+    {
+        $request->validate([
+            'password' => 'required',
+            'code' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => __('Invalid password')], 422);
+        }
+
+        $google2fa = new \PragmaRX\Google2FAQRCode\Google2FA();
+        $valid = $google2fa->verifyKey($user->two_factor_secret, $request->code);
+
+        if (!$valid) {
+            // Check if it's a recovery code
+            if ($user->two_factor_recovery_codes) {
+                $codes = json_decode(decrypt($user->two_factor_recovery_codes), true);
+                if (in_array($request->code, $codes)) {
+                    $valid = true;
+                }
+            }
+        }
+
+        if (!$valid) {
+            return response()->json(['message' => __('Invalid 2FA code')], 422);
+        }
+
+        $user->forceFill([
+            'two_factor_enabled' => false,
+            'two_factor_confirmed_at' => null,
+            'two_factor_recovery_codes' => null,
+            'two_factor_secret' => null,
+        ])->save();
+
+        return response()->json(['message' => __('2FA disabled successfully')]);
+    }
+
+    public function twoFactorDownloadRecoveryCodes(Request $request)
+    {
+        $request->validate([
+            'password' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return redirect()->back()->with('error', __('Invalid password'));
+        }
+
+        if (!$user->two_factor_enabled || !$user->two_factor_recovery_codes) {
+            return redirect()->back()->with('error', __('2FA is not enabled or recovery codes not found.'));
+        }
+
+        $codes = json_decode(decrypt($user->two_factor_recovery_codes), true);
+        $content = implode("\n", $codes);
+        $filename = str_replace(' ', '-', strtolower(config('app.name'))) . '-2fa-recovery-codes.txt';
+
+        return Response::make($content, 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => 'attachment; filename=' . $filename,
         ]);
     }
 
