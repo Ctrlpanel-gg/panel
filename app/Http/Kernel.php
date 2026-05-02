@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiAuthToken;
+use App\Http\Middleware\ApiPermissionCheck;
 use App\Http\Middleware\CheckSuspended;
 use App\Http\Middleware\InstallerLock;
 use App\Http\Middleware\LastSeen;
@@ -47,7 +48,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:api',
+            'throttle:60,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -62,7 +63,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,
+        'auth.session' => \Illuminate\Auth\Middleware\AuthenticateSession::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
@@ -71,6 +72,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'api.token' => ApiAuthToken::class,
+        'api.permission' => ApiPermissionCheck::class,
         'checkSuspended' => CheckSuspended::class,
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
