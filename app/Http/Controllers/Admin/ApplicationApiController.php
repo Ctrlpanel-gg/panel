@@ -80,7 +80,7 @@ class ApplicationApiController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        return redirect()->route('admin.api.index')
+        return redirect()->route('admin.api.create')
             ->with('success', __('api key created!'))
             ->with('new_token', $token->token);
     }
@@ -171,7 +171,7 @@ class ApplicationApiController extends Controller
         $applicationApi->token = (new \Hidehalo\Nanoid\Client())->generateId(48);
         $applicationApi->save();
 
-        return redirect()->route('admin.api.index')
+        return redirect()->route('admin.api.edit', $applicationApi->token)
             ->with('success', __('api key regenerated!'))
             ->with('new_token', $applicationApi->token);
     }
