@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api\Servers;
 
 use App\Enums\BillingPriority;
@@ -26,7 +28,7 @@ class UpdateServerRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string|max:255',
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id' => 'sometimes|integer|exists:users,id',
             'billing_priority' => ['nullable', Rule::enum(BillingPriority::class)],
         ];
     }
