@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Classes\PterodactylClient;
 use App\Events\ServerDeletedEvent;
+use App\Exceptions\ApiErrorCode;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Server;
@@ -13,8 +16,8 @@ use App\Http\Requests\Api\Servers\CreateServerRequest;
 use App\Http\Requests\Api\Servers\DeleteServerRequest;
 use App\Http\Requests\Api\Servers\SuspendServerRequest;
 use App\Http\Requests\Api\Servers\UnsuspendServerRequest;
-use App\Http\Requests\Api\Servers\UpdateServerBuildRequest;
 use App\Http\Requests\Api\Servers\UpdateServerRequest;
+use App\Services\ApiResponseService;
 use App\Services\ServerCreationService;
 use App\Services\ServerUpgradeService;
 use App\Settings\PterodactylSettings;
@@ -23,6 +26,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use Exception;
 
 class ServerController extends Controller
@@ -41,6 +45,7 @@ class ServerController extends Controller
 
     public const ALLOWED_INCLUDES = ['product', 'user'];
     public const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
+    public const ALLOWED_SORTS = ['id', 'name', 'created_at', 'updated_at', 'suspended'];
 
     /**
      * Show a list of servers.
@@ -50,15 +55,28 @@ class ServerController extends Controller
      */
     public function index(Request $request)
     {
+        $perPage = min((int) $request->input('per_page', 50), 100);
+
         $servers = QueryBuilder::for(Server::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters([
                 AllowedFilter::exact('suspended')->nullable(),
                 ...self::ALLOWED_FILTERS
             ])
-            ->paginate($request->input('per_page') ?? 50);
+            ->allowedSorts(self::ALLOWED_SORTS)
+            ->paginate($perPage);
 
-        return ServerResource::collection($servers);
+        return ApiResponseService::success(
+            ServerResource::collection($servers)->toArray($request),
+            [
+                'current_page' => $servers->currentPage(),
+                'total' => $servers->total(),
+                'last_page' => $servers->lastPage(),
+                'per_page' => $servers->perPage(),
+                'from' => $servers->firstItem(),
+                'to' => $servers->lastItem(),
+            ]
+        );
     }
 
     /**
@@ -77,7 +95,7 @@ class ServerController extends Controller
             ->where('id', $serverId)
             ->firstOrFail();
 
-        return ServerResource::make($server);
+        return ApiResponseService::success(ServerResource::make($server)->toArray($request));
     }
 
     /**
@@ -98,11 +116,13 @@ class ServerController extends Controller
         try {
             $server = $this->serverCreationService->handle($user, $product, $data);
 
-            return ServerResource::make($server->fresh());
+            return ApiResponseService::created(ServerResource::make($server->fresh())->toArray($request));
         } catch (Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], 401);
+            return ApiResponseService::error(
+                ApiErrorCode::PTERODACTYL_ERROR,
+                $e->getMessage(),
+                422
+            );
         }
     }
 
@@ -135,14 +155,18 @@ class ServerController extends Controller
 
             $server->save();
 
-            return ServerResource::make($server->refresh());
+            return ApiResponseService::success(ServerResource::make($server->refresh())->toArray($request));
         } catch (Exception $e) {
             logger()->error('Failed to update server in Pterodactyl.', [
                 'error' => $e->getMessage(),
                 'server_id' => $server->id
             ]);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            return ApiResponseService::error(
+                ApiErrorCode::PTERODACTYL_ERROR,
+                $e->getMessage(),
+                422
+            );
         }
     }
 
@@ -165,9 +189,13 @@ class ServerController extends Controller
         try {
             $server = $this->serverUpgradeService->handle($user, $product, $server);
 
-            return ServerResource::make($server->fresh());
+            return ApiResponseService::success(ServerResource::make($server->fresh())->toArray($request));
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+            return ApiResponseService::error(
+                ApiErrorCode::PTERODACTYL_ERROR,
+                $e->getMessage(),
+                $e->getCode() ?: 422
+            );
         }
     }
 
@@ -197,10 +225,14 @@ class ServerController extends Controller
 
             $server->delete();
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            return ApiResponseService::error(
+                ApiErrorCode::INTERNAL_ERROR,
+                $e->getMessage(),
+                500
+            );
         }
 
-        return response()->noContent();
+        return ApiResponseService::noContent();
     }
 
     /**
@@ -227,10 +259,14 @@ class ServerController extends Controller
 
             $server->suspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            return ApiResponseService::error(
+                ApiErrorCode::INTERNAL_ERROR,
+                $exception->getMessage(),
+                500
+            );
         }
 
-        return ServerResource::make($server);
+        return ApiResponseService::success(ServerResource::make($server->fresh())->toArray($request));
     }
 
     /**
@@ -257,9 +293,13 @@ class ServerController extends Controller
 
             $server->unSuspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            return ApiResponseService::error(
+                ApiErrorCode::INTERNAL_ERROR,
+                $exception->getMessage(),
+                500
+            );
         }
 
-        return ServerResource::make($server);
+        return ApiResponseService::success(ServerResource::make($server->fresh())->toArray($request));
     }
 }
