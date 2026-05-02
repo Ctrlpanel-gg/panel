@@ -311,7 +311,7 @@
                                                     {{ __('Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.') }}
                                                 </p>
                                                 <button type="button" class="btn btn-success" data-toggle="modal"
-                                                    data-target="#enable2faModal">
+                                                    data-target="#enabletwofaModal" onclick="generate2FA()">
                                                     {{ __('Enable 2FA') }}
                                                 </button>
                                             @else
@@ -322,11 +322,11 @@
                                                     </p>
                                                 </div>
                                                 <button type="button" class="btn btn-danger" data-toggle="modal"
-                                                    data-target="#disable2faModal">
+                                                    data-target="#disabletwofaModal">
                                                     {{ __('Disable 2FA') }}
                                                 </button>
                                                 <button type="button" class="btn btn-info" data-toggle="modal"
-                                                    data-target="#download2faModal">
+                                                    data-target="#downloadtwofaModal">
                                                     <i class="fas fa-download mr-1"></i>{{ __('Recovery Codes') }}
                                                 </button>
                                             @endif
@@ -354,36 +354,36 @@
     <!-- END CONTENT -->
 
     <!-- Enable 2FA Modal -->
-    <div class="modal fade" id="enable2faModal" tabindex="-1" role="dialog" aria-labelledby="enable2faModalLabel"
+    <div class="modal fade" id="enabletwofaModal" tabindex="-1" role="dialog" aria-labelledby="enabletwofaModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="enable2faModalLabel">{{ __('Enable Two-Factor Authentication') }}</h5>
+                    <h5 class="modal-title" id="enabletwofaModalLabel">{{ __('Enable Two-Factor Authentication') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div id="enabletwofa-step-1">
-                        <p>{{ __('Please enter your current password to continue.') }}</p>
-                        <div class="form-group">
-                            <label>{{ __('Current Password') }}</label>
-                            <input type="password" id="twofa-enable-password" class="form-control">
-                        </div>
-                        <button type="button" class="btn btn-primary" onclick="generate2FA()">{{ __('Next') }}</button>
-                    </div>
-                    <div id="enabletwofa-step-2" style="display: none;">
+                    <div id="twofa-setup-content">
                         <p>{{ __('Scan the QR code with your authenticator app (e.g. Google Authenticator, Authy).') }}</p>
                         <div id="twofa-qr-code" class="mb-3 text-center"></div>
                         <div class="mb-3 text-center">
                             <strong>{{ __('Secret Key') }}:</strong> <code id="twofa-secret-key"></code>
                         </div>
+
+                        <hr>
+
+                        <div class="form-group">
+                            <label>{{ __('Current Password') }}</label>
+                            <input type="password" id="twofa-enable-password" class="form-control" placeholder="••••••">
+                        </div>
+
                         <div class="form-group">
                             <label>{{ __('Authentication Code') }}</label>
                             <input type="text" id="twofa-enable-code" class="form-control" placeholder="123456">
                         </div>
-                        <button type="button" class="btn btn-success"
+                        <button type="button" class="btn btn-success btn-block"
                             onclick="enable2FA()">{{ __('Confirm Activation') }}</button>
                     </div>
                 </div>
@@ -392,12 +392,12 @@
     </div>
 
     <!-- Disable 2FA Modal -->
-    <div class="modal fade" id="disable2faModal" tabindex="-1" role="dialog" aria-labelledby="disable2faModalLabel"
+    <div class="modal fade" id="disabletwofaModal" tabindex="-1" role="dialog" aria-labelledby="disabletwofaModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="disable2faModalLabel">{{ __('Disable Two-Factor Authentication') }}</h5>
+                    <h5 class="modal-title" id="disabletwofaModalLabel">{{ __('Disable Two-Factor Authentication') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -412,7 +412,7 @@
                         <label>{{ __('Authentication Code') }}</label>
                         <input type="text" id="twofa-disable-code" class="form-control" placeholder="123456">
                     </div>
-                    <button type="button" class="btn btn-danger"
+                    <button type="button" class="btn btn-danger btn-block"
                         onclick="disable2FA()">{{ __('Confirm Deactivation') }}</button>
                 </div>
             </div>
@@ -420,26 +420,26 @@
     </div>
 
     <!-- Download Recovery Codes Modal -->
-    <div class="modal fade" id="download2faModal" tabindex="-1" role="dialog" aria-labelledby="download2faModalLabel"
+    <div class="modal fade" id="downloadtwofaModal" tabindex="-1" role="dialog" aria-labelledby="downloadtwofaModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="download2faModalLabel">{{ __('Download Recovery Codes') }}</h5>
+                    <h5 class="modal-title" id="downloadtwofaModalLabel">{{ __('Download Recovery Codes') }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form action="{{ route('profile.2fa.recovery-codes') }}" method="POST"
-                        onsubmit="$('#download2faModal').modal('hide')">
+                        onsubmit="$('#downloadtwofaModal').modal('hide')">
                         @csrf
                         <p>{{ __('Please enter your password to download your recovery codes.') }}</p>
                         <div class="form-group">
                             <label>{{ __('Current Password') }}</label>
                             <input type="password" name="password" class="form-control" required>
                         </div>
-                        <button type="submit" class="btn btn-info">{{ __('Download') }}</button>
+                        <button type="submit" class="btn btn-info btn-block">{{ __('Download') }}</button>
                     </form>
                 </div>
             </div>
@@ -447,40 +447,30 @@
     </div>
 
     <script>
-        let generatedSecret = '';
-
         async function generate2FA() {
-            const password = $('#twofa-enable-password').val();
-            if (!password) {
-                Swal.fire("{{ __('Error') }}", "{{ __('Please enter your password.') }}", 'error');
-                return;
-            }
-
             try {
                 const response = await $.ajax({
                     type: "POST",
                     url: "{{ route('profile.2fa.generate') }}",
                     data: {
-                        _token: "{{ csrf_token() }}",
-                        password: password
+                        _token: "{{ csrf_token() }}"
                     }
                 });
 
-                generatedSecret = response.secret;
                 $('#twofa-qr-code').html(response.qr_code);
                 $('#twofa-secret-key').text(response.secret);
-                $('#enabletwofa-step-1').hide();
-                $('#enabletwofa-step-2').show();
             } catch (error) {
+                $('#enabletwofaModal').modal('hide');
                 Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
             }
         }
 
         async function enable2FA() {
             const code = $('#twofa-enable-code').val();
+            const password = $('#twofa-enable-password').val();
 
-            if (!code) {
-                Swal.fire("{{ __('Error') }}", "{{ __('Please enter the authentication code.') }}", 'error');
+            if (!code || !password) {
+                Swal.fire("{{ __('Error') }}", "{{ __('Please enter both your password and the authentication code.') }}", 'error');
                 return;
             }
 
@@ -491,7 +481,7 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         code: code,
-                        secret: generatedSecret
+                        password: password
                     }
                 });
 
@@ -500,9 +490,12 @@
                     text: "{{ __('2FA has been successfully enabled! Please download your recovery codes.') }}",
                     icon: 'success'
                 }).then(() => {
+                    $('#twofa-enable-password').val('');
+                    $('#twofa-enable-code').val('');
                     location.reload();
                 });
             } catch (error) {
+                $('#twofa-enable-code').val('');
                 Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
             }
         }
@@ -510,6 +503,11 @@
         async function disable2FA() {
             const password = $('#twofa-disable-password').val();
             const code = $('#twofa-disable-code').val();
+
+            if (!code || !password) {
+                Swal.fire("{{ __('Error') }}", "{{ __('Please enter both your password and the authentication code.') }}", 'error');
+                return;
+            }
 
             try {
                 const response = await $.ajax({
@@ -527,12 +525,21 @@
                     text: "{{ __('2FA has been successfully disabled.') }}",
                     icon: 'success'
                 }).then(() => {
+                    $('#twofa-disable-password').val('');
+                    $('#twofa-disable-code').val('');
                     location.reload();
                 });
             } catch (error) {
+                $('#twofa-disable-code').val('');
                 Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
             }
         }
+
+        // Clear passwords when modals are closed
+        $(document).on('hidden.bs.modal', '.modal', function () {
+            $(this).find('input[type="password"]').val('');
+            $(this).find('input[id*="code"]').val('');
+        });
 
         document.getElementById("confirmDeleteButton").onclick = async () => {
             const {
@@ -558,7 +565,7 @@
                         });
                     },
                     error: function (result) {
-                        Swal.fire("{{ __('Error') }}", "{{ __('Something went wrong.') }}", 'error');
+                        Swal.fire("{{ __('Error') }}", (result.responseJSON && result.responseJSON.message) ? result.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
                     }
                 });
             } else {

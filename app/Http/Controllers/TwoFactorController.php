@@ -76,29 +76,19 @@ class TwoFactorController extends Controller
     /**
      * Generate a new 2FA secret and QR code.
      */
-    public function generate(Request $request)
+    public function generate()
     {
-        $request->validate([
-            'password' => 'required',
-        ]);
-
         $user = Auth::user();
 
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => __('Invalid password')], 422);
-        }
-
         // If 2FA is already enabled, we shouldn't show the secret again.
-        // If not enabled, we reuse the existing unconfirmed secret or generate a new one.
-        $secret = ($user->two_factor_enabled)
-            ? null
-            : ($user->two_factor_secret ?: $this->twoFactor->generateSecretKey());
-
-        if (!$secret) {
+        if ($user->two_factor_enabled) {
             return response()->json(['message' => __('2FA is already enabled.')], 422);
         }
 
-        // Save the secret temporarily if it's new
+        // Reuse existing unconfirmed secret or generate a new one.
+        $secret = $user->two_factor_secret ?: $this->twoFactor->generateSecretKey();
+
+        // Save the secret temporarily
         if ($secret !== $user->two_factor_secret) {
             $user->forceFill(['two_factor_secret' => $secret])->save();
         }
@@ -121,13 +111,24 @@ class TwoFactorController extends Controller
     public function enable(Request $request)
     {
         $request->validate([
+            'password' => 'required',
             'code' => 'required',
-            'secret' => 'required',
         ]);
 
         $user = Auth::user();
 
-        $valid = $this->twoFactor->verifyKey($request->secret, $request->code);
+        // 1. Verify Password
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => __('Invalid password')], 422);
+        }
+
+        // 2. Verify Secret exists
+        if (!$user->two_factor_secret) {
+            return response()->json(['message' => __('2FA secret not found. Please refresh the page.')], 422);
+        }
+
+        // 3. Verify TOTP Code
+        $valid = $this->twoFactor->verifyKey($user->two_factor_secret, $request->code);
 
         if (!$valid) {
             return response()->json(['message' => __('Invalid 2FA code')], 422);
@@ -136,7 +137,6 @@ class TwoFactorController extends Controller
         $recoveryCodes = collect(range(1, 8))->map(fn () => Str::random(10))->toArray();
 
         $user->forceFill([
-            'two_factor_secret' => $request->secret,
             'two_factor_enabled' => true,
             'two_factor_confirmed_at' => now(),
             'two_factor_recovery_codes' => $recoveryCodes,
