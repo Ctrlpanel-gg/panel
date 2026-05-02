@@ -7,7 +7,7 @@
     <div class="card card-outline card-primary">
       <div class="text-center card-header">
         <a href="{{ route('welcome') }}" class="mb-2 h1"><b
-            class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
+            class="mr-1">{{ config('app.name', 'CtrlPanel.gg') }}</b></a>
       </div>
       <div class="pt-0 card-body">
         <p class="login-box-msg">{{ __('Two-Factor Authentication') }}</p>
