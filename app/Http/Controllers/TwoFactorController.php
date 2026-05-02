@@ -227,6 +227,7 @@ class TwoFactorController extends Controller
     {
         session([config('google2fa.session_var') => [
             'auth_passed' => true,
+            'auth_user_id' => Auth::id(),
             'auth_time' => now()->timestamp,
         ]]);
 
