@@ -88,7 +88,7 @@ Route::middleware(['auth', 'checkSuspended', '2fa'])->group(function () {
     }
 
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
-    Route::post('profile/2fa/generate', [TwoFactorController::class, 'generate'])->name('profile.2fa.generate');
+    Route::post('profile/2fa/generate', [TwoFactorController::class, 'generate'])->middleware('throttle:5,1')->name('profile.2fa.generate');
     Route::post('profile/2fa/enable', [TwoFactorController::class, 'enable'])->name('profile.2fa.enable');
     Route::post('profile/2fa/disable', [TwoFactorController::class, 'disable'])->name('profile.2fa.disable');
     Route::post('profile/2fa/recovery-codes', [TwoFactorController::class, 'downloadRecoveryCodes'])->name('profile.2fa.recovery-codes');
