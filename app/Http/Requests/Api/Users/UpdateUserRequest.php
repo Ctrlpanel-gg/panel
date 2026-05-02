@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Api\Users;
 
 use App\Constants\MysqlLimits;
@@ -23,8 +25,8 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:4|max:30',
-            'email' => 'required|string|email',
+            'name' => 'sometimes|string|min:4|max:30',
+            'email' => 'sometimes|string|email|max:255',
             'password' => 'sometimes|string|min:8|max:191',
             'credits' => ['sometimes', 'numeric',
                 'min:' . MysqlLimits::CREDITS_MIN,

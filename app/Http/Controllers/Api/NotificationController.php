@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiErrorCode;
 use App\Http\Resources\NotificationResource;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Models\Notification as ModelNotification;
 use App\Http\Requests\Api\Notifications\SendToAllUsersNotificationRequest;
 use App\Http\Requests\Api\Notifications\SendToUsersNotificationRequest;
+use App\Services\ApiResponseService;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,6 +19,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Exception;
 
 class NotificationController extends Controller
@@ -33,9 +38,20 @@ class NotificationController extends Controller
      */
     public function index(Request $request, User $user)
     {
-        $notifications = $user->notifications()->paginate($request->query('per_page', 50));
+        $perPage = min((int) $request->query('per_page', 50), 100);
+        $notifications = $user->notifications()->paginate($perPage);
 
-        return NotificationResource::collection($notifications);
+        return ApiResponseService::success(
+            NotificationResource::collection($notifications)->toArray($request),
+            [
+                'current_page' => $notifications->currentPage(),
+                'total' => $notifications->total(),
+                'last_page' => $notifications->lastPage(),
+                'per_page' => $notifications->perPage(),
+                'from' => $notifications->firstItem(),
+                'to' => $notifications->lastItem(),
+            ]
+        );
     }
 
     /**
@@ -50,7 +66,7 @@ class NotificationController extends Controller
      */
     public function view(Request $request, User $user, ModelNotification $notification)
     {
-        return NotificationResource::make($notification);
+        return ApiResponseService::success(NotificationResource::make($notification)->toArray($request));
     }
 
     /**
@@ -65,40 +81,41 @@ class NotificationController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             $via = match($data['via']) {
                 'mail' => ['mail'],
                 'database' => ['database'],
                 'both' => ['mail', 'database'],
             };
-            
+
             $database = in_array('database', $via) ? [
                 'title' => $data['title'],
                 'content' => $data['content'],
             ] : null;
-            
-            $mail = in_array('mail', $via) ? 
+
+            $mail = in_array('mail', $via) ?
                 (new MailMessage)
                     ->subject($data['title'])
                     ->line(new HtmlString($data['content']))
                 : null;
-            
+
             $users = $this->getTargetUsers($data);
-            
+
             $this->notificationService->sendToUsers($users, $via, $database, $mail);
 
-            return response()->json([
-                'message' => 'Notification sent successfully.',
-                'meta' => [
+            return ApiResponseService::success(
+                ['message' => 'Notification sent successfully.'],
+                [
                     'user_count' => $users->count(),
                     'channels' => $via
                 ]
-            ]);
+            );
         } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Failed to send notification.',
-                'message' => $e->getMessage()
-            ], 500);
+            return ApiResponseService::error(
+                ApiErrorCode::INTERNAL_ERROR,
+                'Failed to send notification: ' . $e->getMessage(),
+                500
+            );
         }
     }
 
@@ -112,40 +129,41 @@ class NotificationController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             $via = match($data['via']) {
                 'mail' => ['mail'],
                 'database' => ['database'],
                 'both' => ['mail', 'database'],
             };
-            
+
             $database = in_array('database', $via) ? [
                 'title' => $data['title'],
                 'content' => $data['content'],
             ] : null;
-            
-            $mail = in_array('mail', $via) ? 
+
+            $mail = in_array('mail', $via) ?
                 (new MailMessage)
                     ->subject($data['title'])
                     ->line(new HtmlString($data['content']))
                 : null;
-            
+
             $users = User::all();
-            
+
             $this->notificationService->sendToUsers($users, $via, $database, $mail);
 
-            return response()->json([
-                'message' => 'Notification sent successfully.',
-                'meta' => [
+            return ApiResponseService::success(
+                ['message' => 'Notification sent successfully.'],
+                [
                     'user_count' => $users->count(),
                     'channels' => $via
                 ]
-            ]);
+            );
         } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Failed to send notification.',
-                'message' => $e->getMessage()
-            ], 500);
+            return ApiResponseService::error(
+                ApiErrorCode::INTERNAL_ERROR,
+                'Failed to send notification: ' . $e->getMessage(),
+                500
+            );
         }
     }
 
@@ -162,12 +180,10 @@ class NotificationController extends Controller
     {
         $count = $user->notifications()->delete();
 
-        return response()->json([
-            'message' => 'All notifications deleted successfully',
-            'meta' => [
-                'deleted_count' => $count
-            ]
-        ], 200);
+        return ApiResponseService::success(
+            ['message' => 'All notifications deleted successfully'],
+            ['deleted_count' => $count]
+        );
     }
 
     /**
@@ -184,7 +200,7 @@ class NotificationController extends Controller
     {
         $notification->delete();
 
-        return response()->noContent();
+        return ApiResponseService::noContent();
     }
 
     /**

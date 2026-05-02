@@ -196,6 +196,7 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
 
         //api-keys
         Route::get('api/datatable', [ApplicationApiController::class, 'datatable'])->name('api.datatable');
+        Route::patch('api/{applicationApi}/regenerate', [ApplicationApiController::class, 'regenerateToken'])->name('api.regenerate');
         Route::resource('api', ApplicationApiController::class)->parameters([
             'api' => 'applicationApi',
         ]);

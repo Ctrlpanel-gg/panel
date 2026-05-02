@@ -1,22 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Constants\Roles;
+use App\Exceptions\ApiErrorCode;
 use App\Http\Resources\RoleResource;
 use App\Models\User;
 use App\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Roles\CreateRoleRequest;
 use App\Http\Requests\Api\Roles\UpdateRoleRequest;
+use App\Services\ApiResponseService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedSort;
 
 class RoleController extends Controller
 {
     const ALLOWED_INCLUDES = ['permissions', 'users'];
     const ALLOWED_FILTERS = ['name'];
+    const ALLOWED_SORTS = ['id', 'name', 'power', 'created_at', 'updated_at'];
 
     /**
      * Show a list of roles.
@@ -26,12 +32,25 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        $perPage = min((int) $request->input('per_page', 50), 100);
+
         $roles = QueryBuilder::for(Role::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
-            ->paginate($request->input('per_page') ?? 50);
+            ->allowedSorts(self::ALLOWED_SORTS)
+            ->paginate($perPage);
 
-        return RoleResource::collection($roles);
+        return ApiResponseService::success(
+            RoleResource::collection($roles)->toArray($request),
+            [
+                'current_page' => $roles->currentPage(),
+                'total' => $roles->total(),
+                'last_page' => $roles->lastPage(),
+                'per_page' => $roles->perPage(),
+                'from' => $roles->firstItem(),
+                'to' => $roles->lastItem(),
+            ]
+        );
     }
 
     /**
@@ -52,7 +71,7 @@ class RoleController extends Controller
 
         $role->load('permissions');
 
-        return RoleResource::make($role);
+        return ApiResponseService::created(RoleResource::make($role)->toArray($request));
     }
 
     /**
@@ -73,7 +92,7 @@ class RoleController extends Controller
             ->where('id', $roleId)
             ->firstOrFail();
 
-        return RoleResource::make($role);
+        return ApiResponseService::success(RoleResource::make($role)->toArray($request));
     }
 
     /**
@@ -97,7 +116,7 @@ class RoleController extends Controller
 
         $role->load('permissions')->update($data);
 
-        return RoleResource::make($role);
+        return ApiResponseService::success(RoleResource::make($role->fresh())->toArray($request));
     }
 
     /**
@@ -112,7 +131,11 @@ class RoleController extends Controller
     public function destroy(Request $request, Role $role)
     {
         if (!$role->isDeletable()) {
-            return response()->json(['error' => 'This role cannot be deleted.'], 403);
+            return ApiResponseService::error(
+                ApiErrorCode::INSUFFICIENT_PERMISSIONS,
+                'This role cannot be deleted.',
+                403
+            );
         }
 
         $users = User::role($role)->get();
@@ -123,6 +146,6 @@ class RoleController extends Controller
         
         $role->delete();
 
-        return response()->noContent();
+        return ApiResponseService::noContent();
     }
 }

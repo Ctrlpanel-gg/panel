@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Classes\PterodactylClient;
 use App\Events\UserUpdateCreditsEvent;
+use App\Exceptions\ApiErrorCode;
 use App\Helpers\CurrencyHelper;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
+use App\Services\ApiResponseService;
 use App\Settings\PterodactylSettings;
 use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
@@ -28,6 +32,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedSort;
 
 class UserController extends Controller
 {
@@ -46,6 +51,7 @@ class UserController extends Controller
 
     const ALLOWED_INCLUDES = ['servers.product', 'notifications', 'payments', 'vouchers.users', 'roles.permissions', 'discordUser'];
     const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
+    const ALLOWED_SORTS = ['id', 'name', 'email', 'credits', 'server_limit', 'created_at', 'updated_at'];
 
     /**
      * Show a list of users.
@@ -55,12 +61,25 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $perPage = min((int) $request->input('per_page', 50), 100);
+
         $users = QueryBuilder::for(User::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
             ->allowedFilters(self::ALLOWED_FILTERS)
-            ->paginate($request->input('per_page') ?? 50);
+            ->allowedSorts(self::ALLOWED_SORTS)
+            ->paginate($perPage);
 
-        return UserResource::collection($users);
+        return ApiResponseService::success(
+            UserResource::collection($users)->toArray($request),
+            [
+                'current_page' => $users->currentPage(),
+                'total' => $users->total(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem(),
+            ]
+        );
     }
 
     /**
@@ -81,7 +100,7 @@ class UserController extends Controller
             ->where('id', $userId)
             ->firstOrFail();
 
-        return UserResource::make($user);
+        return ApiResponseService::success(UserResource::make($user)->toArray($request));
     }
 
     /**
@@ -100,20 +119,21 @@ class UserController extends Controller
 
         try {
             $payload = array_filter([
-                'username' => $data['name'],
-                'first_name' => $data['name'],
-                'last_name' => $data['name'],
-                'email' => $data['email'],
-                'password' => isset($data['password']) ? $data['password'] : null,
+                'username' => $data['name'] ?? $user->name,
+                'first_name' => $data['name'] ?? $user->name,
+                'last_name' => $data['name'] ?? $user->name,
+                'email' => $data['email'] ?? $user->email,
+                'password' => $data['password'] ?? null,
             ]);
 
             $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, $payload);
 
             if ($response->failed()) {
-                throw ValidationException::withMessages([
-                    'pterodactyl_error_message' => $response->toException()->getMessage(),
-                    'pterodactyl_error_status' => $response->toException()->getCode(),
-                ]);
+                return ApiResponseService::error(
+                    ApiErrorCode::PTERODACTYL_ERROR,
+                    $response->toException()->getMessage(),
+                    422
+                );
             }
 
             if (isset($data['role_id'])) {
@@ -130,14 +150,15 @@ class UserController extends Controller
 
             event(new UserUpdateCreditsEvent($user));
 
-            return UserResource::make($user);
+            return ApiResponseService::success(UserResource::make($user->fresh())->toArray($request));
         } catch (Exception $e) {
             report($e);
 
-            throw ValidationException::withMessages([
-                'pterodactyl_error_message' => $e->getMessage(),
-                'pterodactyl_error_status' => $e->getCode(),
-            ]);
+            return ApiResponseService::error(
+                ApiErrorCode::PTERODACTYL_ERROR,
+                $e->getMessage(),
+                422
+            );
         }
     }
 
@@ -165,7 +186,7 @@ class UserController extends Controller
             $user->increment('server_limit', $data['server_limit']);
         }
 
-        return UserResource::make($user->fresh());
+        return ApiResponseService::success(UserResource::make($user->fresh())->toArray($request));
     }
 
     /**
@@ -190,7 +211,7 @@ class UserController extends Controller
             $user->decrement('server_limit', $data['server_limit']);
         }
 
-        return UserResource::make($user->fresh());
+        return ApiResponseService::success(UserResource::make($user->fresh())->toArray($request));
     }
 
     /**
@@ -207,9 +228,11 @@ class UserController extends Controller
         $data = $request->validated();
 
         if ($user->isSuspended()) {
-            return response()->json([
-                'error' => 'The user is already suspended',
-            ], 400);
+            return ApiResponseService::error(
+                ApiErrorCode::RESOURCE_ALREADY_SUSPENDED,
+                'The user is already suspended',
+                400
+            );
         }
 
         $logMessage = sprintf("The user %s (ID: %d) was suspended via API", $user->name, $user->id);
@@ -219,10 +242,10 @@ class UserController extends Controller
         }
 
         activity()->performedOn($user)->log($logMessage);
-        
+
         $user->suspend();
 
-        return UserResource::make($user);
+        return ApiResponseService::success(UserResource::make($user->fresh())->toArray($request));
     }
 
     /**
@@ -239,9 +262,11 @@ class UserController extends Controller
         $data = $request->validated();
 
         if (!$user->isSuspended()) {
-            return response()->json([
-                'error' => 'The user is not suspended',
-            ], 400);
+            return ApiResponseService::error(
+                ApiErrorCode::RESOURCE_NOT_SUSPENDED,
+                'The user is not suspended',
+                400
+            );
         }
 
         $logMessage = sprintf("The user %s (ID: %d) was unsuspended via API", $user->name, $user->id);
@@ -254,7 +279,7 @@ class UserController extends Controller
 
         $user->unSuspend();
 
-        return UserResource::make($user);
+        return ApiResponseService::success(UserResource::make($user->fresh())->toArray($request));
     }
 
     /**
@@ -298,10 +323,11 @@ class UserController extends Controller
             ]);
 
             if ($response->failed()) {
-                throw ValidationException::withMessages([
-                    'pterodactyl_error_message' => $response->toException()->getMessage(),
-                    'pterodactyl_error_status' => $response->toException()->getCode(),
-                ]);
+                return ApiResponseService::error(
+                    ApiErrorCode::PTERODACTYL_ERROR,
+                    $response->toException()->getMessage(),
+                    422
+                );
             }
 
             $user->update([
@@ -312,14 +338,15 @@ class UserController extends Controller
 
             DB::commit();
 
-            return UserResource::make($user);
+            return ApiResponseService::created(UserResource::make($user->fresh())->toArray($request));
         } catch (Exception $e) {
             DB::rollBack();
 
-            throw ValidationException::withMessages([
-                'pterodactyl_error_message' => $e->getMessage(),
-                'pterodactyl_error_status' => $e->getCode(),
-            ]);
+            return ApiResponseService::error(
+                ApiErrorCode::PTERODACTYL_ERROR,
+                $e->getMessage(),
+                422
+            );
         };
     }
 
@@ -334,19 +361,17 @@ class UserController extends Controller
      */
     public function destroy(DeleteUserRequest $request, User $user)
     {
-        $data = $request->validated();
-
         $logMessage = sprintf("The user %s (ID: %d) was deleted via API", $user->name, $user->id);
 
-        if (!empty($data['reason'])) {
-            $logMessage .= " | Reason: " . $data['reason'];
+        if (!empty($request->input('reason'))) {
+            $logMessage .= " | Reason: " . $request->input('reason');
         }
 
         activity()->performedOn($user)->log($logMessage);
 
         $user->delete();
 
-        return response()->noContent();
+        return ApiResponseService::noContent();
     }
 
     /**

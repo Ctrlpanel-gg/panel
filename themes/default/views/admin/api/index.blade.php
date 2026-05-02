@@ -40,6 +40,7 @@
                         <tr>
                             <th>{{__('Token')}}</th>
                             <th>{{__('Memo')}}</th>
+                            <th>{{__('Status')}}</th>
                             <th>{{__('Last used')}}</th>
                             <th></th>
                         </tr>
@@ -71,10 +72,11 @@
                 serverSide: true,
                 stateSave: true,
                 ajax: "{{route('admin.api.datatable')}}",
-                order: [[ 2, "desc" ]],
+                order: [[ 3, "desc" ]],
                 columns: [
                     {data: 'token'},
                     {data: 'memo'},
+                    {data: 'is_active', sortable: false},
                     {data: 'last_used'},
                     {data: 'actions' , sortable : false},
                 ],
@@ -84,7 +86,6 @@
             });
         });
     </script>
-
 
 
 @endsection

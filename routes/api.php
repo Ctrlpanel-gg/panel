@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('api.token')->group(function () {
+Route::middleware(['api.token'])->group(function () {
     Route::apiResource('users', UserController::class);
 
     Route::controller(UserController::class)->name('users.')->prefix('users')->group(function () {
