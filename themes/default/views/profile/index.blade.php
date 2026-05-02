@@ -103,7 +103,7 @@
                                                     <span class="badge badge-success">
                                                         <i class="mr-2 fa fa-user-check"></i>
                                                         {{ __('Referral URL') }} :
-                                                        <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
+                                                        <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;" data-url="{{ route('register') }}?ref={{ $user->referral_code }}">
                                                             {{ route('register') }}?ref={{ $user->referral_code }}
                                                         </span>
                                                     </span>
@@ -574,7 +574,7 @@
         }
 
         function onClickCopy() {
-            let textToCopy = document.getElementById('RefLink').innerText;
+            let textToCopy = document.getElementById('RefLink').getAttribute('data-url');
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     Swal.fire({
