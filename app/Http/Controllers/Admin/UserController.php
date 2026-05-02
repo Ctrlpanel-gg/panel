@@ -505,6 +505,11 @@ class UserController extends Controller
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
             })
+            ->addColumn('2fa', function (User $user) {
+                return $user->two_factor_enabled
+                    ? '<span class="badge badge-success">' . __('Enabled') . '</span>'
+                    : '<span class="badge badge-danger">' . __('Disabled') . '</span>';
+            })
             ->addColumn('actions', function (User $user) {
                 $suspendColor = $user->isSuspended() ? 'btn-success' : 'btn-warning';
                 $suspendIcon = $user->isSuspended() ? 'fa-play-circle' : 'fa-pause-circle';
@@ -542,7 +547,7 @@ class UserController extends Controller
                 return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
-            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
+            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions', '2fa'])
             ->make();
     }
 }

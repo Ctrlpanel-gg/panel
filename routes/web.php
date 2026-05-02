@@ -28,6 +28,7 @@ use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\TicketsController;
+use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +55,12 @@ Auth::routes(['verify' => true]);
 Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 
 Route::middleware(['auth', 'checkSuspended'])->group(function () {
+    // 2FA verification routes
+    Route::get('/login/2fa', [TwoFactorController::class, 'showVerificationForm'])->name('2fa.index');
+    Route::post('/login/2fa', [TwoFactorController::class, 'verify'])->middleware('throttle:5,1')->name('2fa.verify');
+});
+
+Route::middleware(['auth', 'checkSuspended', '2fa'])->group(function () {
     //resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
@@ -81,6 +88,10 @@ Route::middleware(['auth', 'checkSuspended'])->group(function () {
     }
 
     Route::post('profile/selfdestruct', [ProfileController::class, 'selfDestroyUser'])->name('profile.selfDestroyUser');
+    Route::post('profile/2fa/generate', [TwoFactorController::class, 'generate'])->middleware('throttle:5,1')->name('profile.2fa.generate');
+    Route::post('profile/2fa/enable', [TwoFactorController::class, 'enable'])->name('profile.2fa.enable');
+    Route::post('profile/2fa/disable', [TwoFactorController::class, 'disable'])->name('profile.2fa.disable');
+    Route::post('profile/2fa/recovery-codes', [TwoFactorController::class, 'downloadRecoveryCodes'])->name('profile.2fa.recovery-codes');
     Route::resource('profile', ProfileController::class);
     Route::resource('store', StoreController::class);
     Route::get('preferences', [PreferencesController::class, 'index'])->name('preferences.index');

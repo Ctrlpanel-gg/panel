@@ -48,7 +48,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
 
 <script>
-    @if (Session::has('error'))
+    @if (Session::has('error') && !Request::routeIs('2fa.index'))
         Swal.fire({
             icon: 'error',
             title: 'Oops...',

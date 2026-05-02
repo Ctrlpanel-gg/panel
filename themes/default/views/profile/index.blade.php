@@ -44,19 +44,16 @@
                         @if (!empty($discord_client_id) && !empty($discord_client_secret))
                             <div class="p-2 m-2 alert alert-warning">
                                 <h5>
-                                    <i
-                                        class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
+                                    <i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
                                 {{ __('You have not yet verified your discord account') }}
-                                <a class="text-primary"
-                                    href="{{ route('auth.redirect') }}">{{ __('Login with discord') }}</a> <br>
+                                <a class="text-primary" href="{{ route('auth.redirect') }}">{{ __('Login with discord') }}</a> <br>
                                 {{ __('Please contact support If you face any issues.') }}
                             </div>
                         @else
                             <div class="p-2 m-2 alert alert-danger">
                                 <h5>
-                                    <i
-                                        class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
+                                    <i class="icon fas fa-exclamation-circle"></i>{{ __('Required Discord verification!') }}
                                 </h5>
                                 {{ __('Due to system settings you are required to verify your discord account!') }} <br>
                                 {{ __('It looks like this hasnt been set-up correctly! Please contact support.') }}
@@ -101,16 +98,20 @@
                                         </div>
 
                                         @if ($referral_enabled)
-                                            @can('user.referral')
-                                                <div class="mt-1">
-                                                    <span class="badge badge-success"><i class="mr-2 fa fa-user-check"></i>
+                                            <div class="mt-1">
+                                                @can('user.referral')
+                                                    <span class="badge badge-success">
+                                                        <i class="mr-2 fa fa-user-check"></i>
                                                         {{ __('Referral URL') }} :
-                                                        <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;">
-                                                            {{ route('register') }}?ref={{ $user->referral_code }}</span>
+                                                        <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;" data-url="{{ route('register') }}?ref={{ $user->referral_code }}">
+                                                            {{ route('register') }}?ref={{ $user->referral_code }}
+                                                        </span>
                                                     </span>
                                                 @else
-                                                    <span class="badge badge-warning"><i class="mr-2 fa fa-user-check"></i>
-                                                        {{ __('You can not see your Referral Code') }}</span>
+                                                    <span class="badge badge-warning">
+                                                        <i class="mr-2 fa fa-user-check"></i>
+                                                        {{ __('You can not see your Referral Code') }}
+                                                    </span>
                                                 @endcan
                                             </div>
                                         @endif
@@ -133,13 +134,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <ul class="nav nav-tabs">
-                                <li class="nav-item"><a href="javasript:void(0)"
-                                        class="active nav-link">{{ __('Settings') }}</a>
+                            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="account-tab" data-toggle="tab" href="#account" role="tab"
+                                        aria-controls="account" aria-selected="true">{{ __('Account Settings') }}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="security-tab" data-toggle="tab" href="#security" role="tab"
+                                        aria-controls="security" aria-selected="false">{{ __('Security') }}</a>
                                 </li>
                             </ul>
-                            <div class="pt-3 tab-content">
-                                <div class="tab-pane active">
+                            <div class="pt-3 tab-content" id="profileTabsContent">
+                                <!-- Account Settings Tab -->
+                                <div class="tab-pane fade show active" id="account" role="tabpanel"
+                                    aria-labelledby="account-tab">
                                     <div class="row">
                                         <div class="col">
                                             <div class="row">
@@ -188,6 +196,62 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @if (!empty($discord_client_id) && !empty($discord_client_secret))
+                                        <div class="row">
+                                            <div class="mb-3 col-12">
+                                                <hr>
+                                                @if (is_null(Auth::user()->discordUser))
+                                                    <div class="verify-discord">
+                                                        <b>{{ __('Link your discord account!') }}</b>
+                                                        <div class="mb-3">
+                                                            @if ($credits_reward_after_verify_discord)
+                                                                <p>
+                                                                    {{ __('By verifying your discord account, you receive an extra :amount credits and increased Server amounts', ['amount' => Currency::formatForDisplay($credits_reward_after_verify_discord)]) }}
+                                                                </p>
+                                                            @endif
+                                                        </div>
+                                                        <a class="btn btn-light" href="{{ route('auth.redirect') }}">
+                                                            <i class="mr-2 fab fa-discord"></i>{{ __('Login with Discord') }}
+                                                        </a>
+                                                    </div>
+                                                @else
+                                                    <div class="verified-discord">
+                                                        <div class="pl-2 row">
+                                                            <div class="small-box bg-dark d-inline-block">
+                                                                <div class="d-flex justify-content-between">
+                                                                    <div class="p-3">
+                                                                        <h3>{{ $user->discordUser->username }}</h3>
+                                                                        <p class="mb-0">{{ $user->discordUser->email }}</p>
+                                                                        <p class="mb-0 text-muted text-sm">
+                                                                            {{ $user->discordUser->id }}</p>
+                                                                    </div>
+                                                                    <div class="p-3"><img width="100px" height="100px"
+                                                                            class="rounded-circle"
+                                                                            src="{{ $user->discordUser->getAvatar() }}"
+                                                                            alt="avatar"></div>
+                                                                </div>
+                                                                <div class="small-box-footer">
+                                                                    <a href="{{ route('auth.redirect') }}">
+                                                                        <i
+                                                                            class="mr-1 fab fa-discord"></i>{{ __('Re-Sync Discord') }}
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <div class="row">
+                                        <div class="col d-flex justify-content-end">
+                                            <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Security Tab -->
+                                <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                                     <div class="row">
                                         <div class="mb-3 col-12 col-sm-6">
                                             <div class="mb-3"><b>{{ __('Change Password') }}</b></div>
@@ -240,64 +304,39 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        @if (!empty($discord_client_id) && !empty($discord_client_secret))
-                                            <div class="mb-3 col-12 col-sm-5 offset-sm-1">
-                                                @if (is_null(Auth::user()->discordUser))
-                                                    <b>{{ __('Link your discord account!') }}</b>
-                                                    <div class="verify-discord">
-                                                        <div class="mb-3">
-                                                            @if ($credits_reward_after_verify_discord)
-                                                                <p>
-                                                                    {{ __('By verifying your discord account, you receive an extra :amount credits and increased Server amounts', ['amount' => Currency::formatForDisplay($credits_reward_after_verify_discord)]) }}
-                                                                </p>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                    <a class="btn btn-light" href="{{ route('auth.redirect') }}">
-                                                        <i class="mr-2 fab fa-discord"></i>{{ __('Login with Discord') }}
-                                                    </a>
-                                                @else
-                                                    <div class="verified-discord">
-                                                        <div class="my-3 callout callout-info">
-                                                            <p>{{ __('You are verified!') }}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="pl-2 row">
-                                                        <div class="small-box bg-dark">
-                                                            <div class="d-flex justify-content-between">
-                                                                <div class="p-3">
-                                                                    <h3>{{ $user->discordUser->username }}
-                                                                        <sup>{{ $user->discordUser->locale }}</sup>
-                                                                    </h3>
-                                                                    <p>{{ $user->discordUser->id }}
-                                                                    </p>
-                                                                </div>
-                                                                <div class="p-3"><img width="100px" height="100px"
-                                                                        class="rounded-circle"
-                                                                        src="{{ $user->discordUser->getAvatar() }}"
-                                                                        alt="avatar"></div>
-                                                            </div>
-                                                            <div class="small-box-footer">
-                                                                <a href="{{ route('auth.redirect') }}">
-                                                                    <i
-                                                                        class="mr-1 fab fa-discord"></i>{{ __('Re-Sync Discord') }}
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                            </div>
-                                        @endif
+                                        <div class="mb-3 col-12 col-sm-5 offset-sm-1">
+                                            <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div>
+                                            @if (!$user->two_factor_enabled)
+                                                <p>
+                                                    {{ __('Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.') }}
+                                                </p>
+                                                <button type="button" class="btn btn-success" data-toggle="modal"
+                                                    data-target="#enabletwofaModal" onclick="generate2FA()">
+                                                    {{ __('Enable 2FA') }}
+                                                </button>
+                                            @else
+                                                <div class="mb-3 callout callout-success">
+                                                    <h5><i class="fas fa-check-circle mr-2"></i>{{ __('2FA is enabled') }}
+                                                    </h5>
+                                                    <p>{{ __('Your account is protected with two-factor authentication.') }}
+                                                    </p>
+                                                </div>
+                                                <button type="button" class="btn btn-danger" data-toggle="modal"
+                                                    data-target="#disabletwofaModal">
+                                                    {{ __('Disable 2FA') }}
+                                                </button>
+                                                <button type="button" class="btn btn-info" data-toggle="modal"
+                                                    data-target="#downloadtwofaModal">
+                                                    <i class="fas fa-download mr-1"></i>{{ __('Recovery Codes') }}
+                                                </button>
+                                            @endif
+                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary"
-                                                type="submit">{{ __('Save Changes') }}</button>
+                                            <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -313,7 +352,270 @@
         </div>
     </section>
     <!-- END CONTENT -->
+
+    <!-- Enable 2FA Modal -->
+    <div class="modal fade" id="enabletwofaModal" tabindex="-1" role="dialog" aria-labelledby="enabletwofaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="enabletwofaModalLabel">{{ __('Enable Two-Factor Authentication') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="twofa-setup-content">
+                        <p>{{ __('Scan the QR code with your authenticator app (e.g. Google Authenticator, Authy).') }}</p>
+                        <div id="twofa-qr-code" class="mb-3 text-center"></div>
+                        <div class="mb-3 text-center">
+                            <strong>{{ __('Secret Key') }}:</strong> <code id="twofa-secret-key"></code>
+                        </div>
+
+                        <hr>
+
+                        <div class="form-group">
+                            <label>{{ __('Current Password') }}</label>
+                            <input type="password" id="twofa-enable-password" class="form-control" placeholder="••••••">
+                        </div>
+
+                        <div class="form-group">
+                            <label>{{ __('Authentication Code') }}</label>
+                            <input type="text" id="twofa-enable-code" class="form-control" placeholder="123456">
+                        </div>
+                        <button type="button" class="btn btn-success btn-block"
+                            onclick="enable2FA()">{{ __('Confirm Activation') }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disable 2FA Modal -->
+    <div class="modal fade" id="disabletwofaModal" tabindex="-1" role="dialog" aria-labelledby="disabletwofaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="disabletwofaModalLabel">{{ __('Disable Two-Factor Authentication') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('Please enter your password and the code from your authenticator app to disable 2FA.') }}</p>
+                    <div class="form-group">
+                        <label>{{ __('Current Password') }}</label>
+                        <input type="password" id="twofa-disable-password" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>{{ __('Authentication Code') }}</label>
+                        <input type="text" id="twofa-disable-code" class="form-control" placeholder="123456">
+                    </div>
+                    <button type="button" class="btn btn-danger btn-block"
+                        onclick="disable2FA()">{{ __('Confirm Deactivation') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Recovery Codes Modal -->
+    <div class="modal fade" id="downloadtwofaModal" tabindex="-1" role="dialog" aria-labelledby="downloadtwofaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="downloadtwofaModalLabel">{{ __('Download Recovery Codes') }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('profile.2fa.recovery-codes') }}" method="POST"
+                        onsubmit="$('#downloadtwofaModal').modal('hide')">
+                        @csrf
+                        <p>{{ __('Please enter your password to download your recovery codes.') }}</p>
+                        <div class="form-group">
+                            <label>{{ __('Current Password') }}</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-info btn-block">{{ __('Download') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA Success Modal -->
+    <div class="modal fade" id="twofaSuccessModal" tabindex="-1" role="dialog" aria-labelledby="twofaSuccessModalLabel"
+        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="twofaSuccessModalLabel">{{ __('2FA Enabled Successfully') }}</h5>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('Please save these recovery codes in a safe place. You will need them if you lose access to your authenticator app.') }}</p>
+                    <div id="twofa-recovery-codes-grid" class="row mt-3 mb-3 text-center" style="font-family: monospace;">
+                        <!-- Codes will be injected here -->
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <button id="copy-codes-btn" class="btn btn-outline-info btn-block">
+                                <i class="fas fa-copy mr-1"></i> {{ __('Copy All') }}
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="download-codes-btn" class="btn btn-outline-primary btn-block">
+                                <i class="fas fa-download mr-1"></i> {{ __('Download .txt') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success btn-block" onclick="window.location.hash = '#security'; location.reload();">{{ __('I have saved my codes') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        $(document).ready(function() {
+            // Check if there is a hash in the URL and show the corresponding tab
+            let hash = window.location.hash;
+            if (hash) {
+                $('.nav-tabs a[href="' + hash + '"]').tab('show');
+            }
+
+            // Update the URL hash when a tab is clicked
+            $('.nav-tabs a').on('shown.bs.tab', function(e) {
+                history.replaceState(null, null, e.target.hash);
+            });
+        });
+
+        async function generate2FA() {
+            try {
+                const response = await $.ajax({
+                    type: "POST",
+                    url: "{{ route('profile.2fa.generate') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    }
+                });
+
+                $('#twofa-qr-code').html(response.qr_code);
+                $('#twofa-secret-key').text(response.secret);
+            } catch (error) {
+                $('#enabletwofaModal').modal('hide');
+                Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
+            }
+        }
+
+        async function enable2FA() {
+            const code = $('#twofa-enable-code').val();
+            const password = $('#twofa-enable-password').val();
+
+            if (!code || !password) {
+                Swal.fire("{{ __('Error') }}", "{{ __('Please enter both your password and the authentication code.') }}", 'error');
+                return;
+            }
+
+            try {
+                const response = await $.ajax({
+                    type: "POST",
+                    url: "{{ route('profile.2fa.enable') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        code: code,
+                        password: password
+                    }
+                });
+
+                // Clear fields and hide setup modal
+                $('#twofa-enable-password').val('');
+                $('#twofa-enable-code').val('');
+                $('#enabletwofaModal').modal('hide');
+
+                // Populate and show success modal
+                const codesHtml = response.recovery_codes.map(code => '<div class="col-6 mb-1"><code>' + code + '</code></div>').join('');
+                $('#twofa-recovery-codes-grid').html(codesHtml);
+
+                const codesText = response.recovery_codes.join('\n');
+
+                // Copy Handler
+                $('#copy-codes-btn').off('click').on('click', function() {
+                    navigator.clipboard.writeText(codesText).then(() => {
+                        const original = $(this).html();
+                        $(this).html('<i class="fas fa-check mr-1"></i> {{ __("Copied!") }}').addClass('btn-success').removeClass('btn-outline-info');
+                        setTimeout(() => $(this).html(original).addClass('btn-outline-info').removeClass('btn-success'), 2000);
+                    });
+                });
+
+                // Download Handler
+                $('#download-codes-btn').off('click').on('click', function() {
+                    const blob = new Blob([codesText], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const filename = '{{ \Illuminate\Support\Str::slug(config("app.name", "CtrlPanel.gg")) }}' + '-2fa-recovery-codes.txt';
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                });
+
+                $('#twofaSuccessModal').modal('show');
+
+            } catch (error) {
+                $('#twofa-enable-code').val('');
+                Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
+            }
+        }
+
+        async function disable2FA() {
+            const password = $('#twofa-disable-password').val();
+            const code = $('#twofa-disable-code').val();
+
+            if (!code || !password) {
+                Swal.fire("{{ __('Error') }}", "{{ __('Please enter both your password and the authentication code.') }}", 'error');
+                return;
+            }
+
+            try {
+                const response = await $.ajax({
+                    type: "POST",
+                    url: "{{ route('profile.2fa.disable') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        password: password,
+                        code: code
+                    }
+                });
+
+                Swal.fire({
+                    title: "{{ __('2FA Disabled') }}",
+                    text: "{{ __('2FA has been successfully disabled.') }}",
+                    icon: 'success'
+                }).then(() => {
+                    $('#twofa-disable-password').val('');
+                    $('#twofa-disable-code').val('');
+                    window.location.hash = '#security';
+                    location.reload();
+                });
+            } catch (error) {
+                $('#twofa-disable-code').val('');
+                Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
+            }
+        }
+
+        // Clear passwords when modals are closed
+        $(document).on('hidden.bs.modal', '.modal', function () {
+            $(this).find('input[type="password"]').val('');
+            $(this).find('input[id*="code"]').val('');
+        });
+
         document.getElementById("confirmDeleteButton").onclick = async () => {
             const {
                 value: enterConfirm
@@ -322,31 +624,32 @@
                 inputLabel: '{{ __('Are you sure you want to permanently delete your account and all of your servers?') }} \n Type "{{ __('Delete my account') }}" in the Box below',
                 inputPlaceholder: "{{ __('Delete my account') }}",
                 showCancelButton: true
-            })
+            });
+
             if (enterConfirm === "{{ __('Delete my account') }}") {
-                Swal.fire("{{ __('Account has been destroyed') }}", '', 'error')
                 $.ajax({
                     type: "POST",
                     url: "{{ route('profile.selfDestroyUser') }}",
-                    data: `{
-                        "confirmed": "yes",
-                      }`,
-                    success: function(result) {
-                        console.log(result);
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "confirmed": "yes"
                     },
-                    dataType: "json"
+                    success: function (result) {
+                        Swal.fire("{{ __('Account has been destroyed') }}", '', 'success').then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function (result) {
+                        Swal.fire("{{ __('Error') }}", (result.responseJSON && result.responseJSON.message) ? result.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
+                    }
                 });
-                location.reload();
-
             } else {
-                Swal.fire("{{ __('Account was NOT deleted.') }}", '', 'info')
-
+                Swal.fire("{{ __('Account was NOT deleted.') }}", '', 'info');
             }
-
         }
 
         function onClickCopy() {
-            let textToCopy = document.getElementById('RefLink').innerText;
+            let textToCopy = document.getElementById('RefLink').getAttribute('data-url');
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     Swal.fire({

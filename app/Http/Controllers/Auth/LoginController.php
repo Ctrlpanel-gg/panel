@@ -105,4 +105,18 @@ class LoginController extends Controller
 
         return $this->sendFailedLoginResponse($request);
     }
+
+    /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->two_factor_enabled) {
+            return redirect()->route('2fa.index');
+        }
+    }
 }
