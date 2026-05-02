@@ -179,11 +179,24 @@
                         <div class="col-lg-6">
                             <div class="row">
                                 <div class="col-lg-4">
+                                    <label>{{ __('2FA') }}</label>
+                                </div>
+                                <div class="col-lg-8">
+                                    <span style="max-width: 250px;" class="d-inline-block text-truncate">
+                                        {{ $user->two_factor_enabled ? 'True' : 'False' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-4">
                                     <label>{{ __('IP') }}</label>
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ $user->ip }}
+                                        {{ is_null($user->ip) ? __('N/A') : $user->ip }}
                                     </span>
                                 </div>
                             </div>
@@ -224,9 +237,6 @@
                                     </span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-lg-6">
                         </div>
 
                         <div class="col-lg-6">
