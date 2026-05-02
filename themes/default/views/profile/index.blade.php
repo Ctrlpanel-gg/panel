@@ -446,6 +446,40 @@
         </div>
     </div>
 
+    <!-- 2FA Success Modal -->
+    <div class="modal fade" id="twofaSuccessModal" tabindex="-1" role="dialog" aria-labelledby="twofaSuccessModalLabel"
+        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="twofaSuccessModalLabel">{{ __('2FA Enabled Successfully') }}</h5>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('Please save these recovery codes in a safe place. You will need them if you lose access to your authenticator app.') }}</p>
+                    <div id="twofa-recovery-codes-grid" class="row mt-3 mb-3 text-center" style="font-family: monospace;">
+                        <!-- Codes will be injected here -->
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <button id="copy-codes-btn" class="btn btn-outline-info btn-block">
+                                <i class="fas fa-copy mr-1"></i> {{ __('Copy All') }}
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="download-codes-btn" class="btn btn-outline-primary btn-block">
+                                <i class="fas fa-download mr-1"></i> {{ __('Download .txt') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success btn-block" onclick="window.location.hash = '#security'; location.reload();">{{ __('I have saved my codes') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function() {
             // Check if there is a hash in the URL and show the corresponding tab
@@ -498,16 +532,42 @@
                     }
                 });
 
-                Swal.fire({
-                    title: "{{ __('2FA Enabled') }}",
-                    text: "{{ __('2FA has been successfully enabled! Do not forget to download your recovery codes.') }}",
-                    icon: 'success'
-                }).then(() => {
-                    $('#twofa-enable-password').val('');
-                    $('#twofa-enable-code').val('');
-                    window.location.hash = '#security';
-                    location.reload();
+                // Clear fields and hide setup modal
+                $('#twofa-enable-password').val('');
+                $('#twofa-enable-code').val('');
+                $('#enabletwofaModal').modal('hide');
+
+                // Populate and show success modal
+                const codesHtml = response.recovery_codes.map(code => '<div class="col-6 mb-1"><code>' + code + '</code></div>').join('');
+                $('#twofa-recovery-codes-grid').html(codesHtml);
+
+                const codesText = response.recovery_codes.join('\n');
+
+                // Copy Handler
+                $('#copy-codes-btn').off('click').on('click', function() {
+                    navigator.clipboard.writeText(codesText).then(() => {
+                        const original = $(this).html();
+                        $(this).html('<i class="fas fa-check mr-1"></i> {{ __("Copied!") }}').addClass('btn-success').removeClass('btn-outline-info');
+                        setTimeout(() => $(this).html(original).addClass('btn-outline-info').removeClass('btn-success'), 2000);
+                    });
                 });
+
+                // Download Handler
+                $('#download-codes-btn').off('click').on('click', function() {
+                    const blob = new Blob([codesText], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const filename = '{{ \Illuminate\Support\Str::slug(config("app.name", "CtrlPanel.gg")) }}' + '-2fa-recovery-codes.txt';
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                });
+
+                $('#twofaSuccessModal').modal('show');
+
             } catch (error) {
                 $('#twofa-enable-code').val('');
                 Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
