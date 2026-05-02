@@ -14,7 +14,7 @@
                         <li class="breadcrumb-item"><a href="{{route('admin.api.index')}}">{{__('Application API')}}</a>
                         </li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                        href="{{route('admin.api.edit') , $applicationApi->token)}}">{{__('Edit')}}</a>
+                                                        href="{{route('admin.api.edit', $applicationApi->token)}}">{{__('Edit')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -31,7 +31,7 @@
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{route('admin.api.update') , $applicationApi->token)}}" method="POST">
+                            <form action="{{ route('admin.api.update', $applicationApi->token) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
 
@@ -69,7 +69,7 @@
                                 <div class="form-group">
                                     <label>{{__('Permissions (Optional - leave empty for full access)')}}</label>
                                     <div class="row">
-                                        @foreach(\Spatie\Permission\Models\Permission::all() as $permission)
+                                        @foreach($permissions as $permission)
                                             <div class="col-md-6">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="permissions[]"
@@ -100,7 +100,7 @@
 
                             <hr>
 
-                            <form action="{{route('admin.api.regenerate') , $applicationApi->token)}}" method="POST"
+                            <form action="{{ route('admin.api.regenerate', $applicationApi->token) }}" method="POST"
                                   onsubmit="return confirm('{{__("Are you sure you want to regenerate this token? The old token will stop working immediately.")}}')">
                                 @csrf
                                 @method('PATCH')

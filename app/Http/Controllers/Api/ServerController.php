@@ -16,6 +16,7 @@ use App\Http\Requests\Api\Servers\CreateServerRequest;
 use App\Http\Requests\Api\Servers\DeleteServerRequest;
 use App\Http\Requests\Api\Servers\SuspendServerRequest;
 use App\Http\Requests\Api\Servers\UnsuspendServerRequest;
+use App\Http\Requests\Api\Servers\UpdateServerBuildRequest;
 use App\Http\Requests\Api\Servers\UpdateServerRequest;
 use App\Services\ApiResponseService;
 use App\Services\ServerCreationService;

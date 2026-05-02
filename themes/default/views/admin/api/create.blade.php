@@ -59,7 +59,7 @@
                                 <div class="form-group">
                                     <label>{{__('Permissions (Optional - leave empty for full access)')}}</label>
                                     <div class="row">
-                                        @foreach(\Spatie\Permission\Models\Permission::all() as $permission)
+                                        @foreach(($permissions ?? collect()) as $permission)
                                             <div class="col-md-6">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="permissions[]"

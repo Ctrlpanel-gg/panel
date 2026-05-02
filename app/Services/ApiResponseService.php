@@ -57,7 +57,10 @@ class ApiResponseService
 
     private static function extractPaginationMeta(JsonResource $resource): ?array
     {
-        $resource->with = array_merge($resource->with ?? [], ['meta' => null]);
+        $underlyingResource = $resource->resource ?? null;
+        if ($underlyingResource instanceof LengthAwarePaginator) {
+            return self::buildPaginationMeta($underlyingResource);
+        }
         return null;
     }
 

@@ -129,6 +129,11 @@ class ApplicationApiController extends Controller
             'permissions.*' => ['string', Rule::in($this->getAvailablePermissions())],
         ]);
 
+        $permissions = $request->input('permissions');
+        if ($permissions !== null && ! auth()->user()->hasAllPermissions($permissions)) {
+            abort(403);
+        }
+
         $applicationApi->update($request->only(['memo', 'is_active', 'expires_at', 'permissions']));
 
         return redirect()->route('admin.api.index')->with('success', __('api key updated!'));
