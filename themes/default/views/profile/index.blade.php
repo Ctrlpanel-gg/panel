@@ -365,23 +365,23 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div id="enable2fa-step-1">
+                    <div id="enabletwofa-step-1">
                         <p>{{ __('Please enter your current password to continue.') }}</p>
                         <div class="form-group">
                             <label>{{ __('Current Password') }}</label>
-                            <input type="password" id="2fa-enable-password" class="form-control">
+                            <input type="password" id="twofa-enable-password" class="form-control">
                         </div>
                         <button type="button" class="btn btn-primary" onclick="generate2FA()">{{ __('Next') }}</button>
                     </div>
-                    <div id="enable2fa-step-2" style="display: none;">
+                    <div id="enabletwofa-step-2" style="display: none;">
                         <p>{{ __('Scan the QR code with your authenticator app (e.g. Google Authenticator, Authy).') }}</p>
-                        <div id="2fa-qr-code" class="mb-3 text-center"></div>
+                        <div id="twofa-qr-code" class="mb-3 text-center"></div>
                         <div class="mb-3 text-center">
-                            <strong>{{ __('Secret Key') }}:</strong> <code id="2fa-secret-key"></code>
+                            <strong>{{ __('Secret Key') }}:</strong> <code id="twofa-secret-key"></code>
                         </div>
                         <div class="form-group">
                             <label>{{ __('Authentication Code') }}</label>
-                            <input type="text" id="2fa-enable-code" class="form-control" placeholder="123456">
+                            <input type="text" id="twofa-enable-code" class="form-control" placeholder="123456">
                         </div>
                         <button type="button" class="btn btn-success"
                             onclick="enable2FA()">{{ __('Confirm Activation') }}</button>
@@ -406,11 +406,11 @@
                     <p>{{ __('Please enter your password and the code from your authenticator app to disable 2FA.') }}</p>
                     <div class="form-group">
                         <label>{{ __('Current Password') }}</label>
-                        <input type="password" id="2fa-disable-password" class="form-control">
+                        <input type="password" id="twofa-disable-password" class="form-control">
                     </div>
                     <div class="form-group">
                         <label>{{ __('Authentication Code') }}</label>
-                        <input type="text" id="2fa-disable-code" class="form-control" placeholder="123456">
+                        <input type="text" id="twofa-disable-code" class="form-control" placeholder="123456">
                     </div>
                     <button type="button" class="btn btn-danger"
                         onclick="disable2FA()">{{ __('Confirm Deactivation') }}</button>
@@ -450,7 +450,7 @@
         let generatedSecret = '';
 
         async function generate2FA() {
-            const password = $('#2fa-enable-password').val();
+            const password = $('#twofa-enable-password').val();
             if (!password) {
                 Swal.fire("{{ __('Error') }}", "{{ __('Please enter your password.') }}", 'error');
                 return;
@@ -467,10 +467,10 @@
                 });
 
                 generatedSecret = response.secret;
-                $('#2fa-qr-code').html(response.qr_code);
-                $('#2fa-secret-key').text(response.secret);
-                $('#enable2fa-step-1').hide();
-                $('#enable2fa-step-2').show();
+                $('#twofa-qr-code').html(response.qr_code);
+                $('#twofa-secret-key').text(response.secret);
+                $('#enabletwofa-step-1').hide();
+                $('#enabletwofa-step-2').show();
             } catch (error) {
                 Swal.fire("{{ __('Error') }}", error.responseJSON.message || "{{ __('Something went wrong') }}",
                     'error');
@@ -478,7 +478,7 @@
         }
 
         async function enable2FA() {
-            const code = $('#2fa-enable-code').val();
+            const code = $('#twofa-enable-code').val();
 
             if (!code) {
                 Swal.fire("{{ __('Error') }}", "{{ __('Please enter the authentication code.') }}", 'error');
@@ -510,8 +510,8 @@
         }
 
         async function disable2FA() {
-            const password = $('#2fa-disable-password').val();
-            const code = $('#2fa-disable-code').val();
+            const password = $('#twofa-disable-password').val();
+            const code = $('#twofa-disable-code').val();
 
             try {
                 const response = await $.ajax({
