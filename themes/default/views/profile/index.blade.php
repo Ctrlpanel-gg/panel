@@ -447,6 +447,19 @@
     </div>
 
     <script>
+        $(document).ready(function() {
+            // Check if there is a hash in the URL and show the corresponding tab
+            let hash = window.location.hash;
+            if (hash) {
+                $('.nav-tabs a[href="' + hash + '"]').tab('show');
+            }
+
+            // Update the URL hash when a tab is clicked
+            $('.nav-tabs a').on('shown.bs.tab', function(e) {
+                history.replaceState(null, null, e.target.hash);
+            });
+        });
+
         async function generate2FA() {
             try {
                 const response = await $.ajax({
@@ -487,11 +500,12 @@
 
                 Swal.fire({
                     title: "{{ __('2FA Enabled') }}",
-                    text: "{{ __('2FA has been successfully enabled! Please download your recovery codes.') }}",
+                    text: "{{ __('2FA has been successfully enabled! Do not forget to download your recovery codes.') }}",
                     icon: 'success'
                 }).then(() => {
                     $('#twofa-enable-password').val('');
                     $('#twofa-enable-code').val('');
+                    window.location.hash = '#security';
                     location.reload();
                 });
             } catch (error) {
@@ -527,6 +541,7 @@
                 }).then(() => {
                     $('#twofa-disable-password').val('');
                     $('#twofa-disable-code').val('');
+                    window.location.hash = '#security';
                     location.reload();
                 });
             } catch (error) {
