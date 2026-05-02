@@ -472,8 +472,7 @@
                 $('#enabletwofa-step-1').hide();
                 $('#enabletwofa-step-2').show();
             } catch (error) {
-                Swal.fire("{{ __('Error') }}", error.responseJSON.message || "{{ __('Something went wrong') }}",
-                    'error');
+                Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
             }
         }
 
@@ -504,8 +503,7 @@
                     location.reload();
                 });
             } catch (error) {
-                Swal.fire("{{ __('Error') }}", error.responseJSON.message || "{{ __('Something went wrong') }}",
-                    'error');
+                Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
             }
         }
 
@@ -532,8 +530,7 @@
                     location.reload();
                 });
             } catch (error) {
-                Swal.fire("{{ __('Error') }}", error.responseJSON.message || "{{ __('Something went wrong') }}",
-                    'error');
+                Swal.fire("{{ __('Error') }}", (error.responseJSON && error.responseJSON.message) ? error.responseJSON.message : "{{ __('Something went wrong') }}", 'error');
             }
         }
 
