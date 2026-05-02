@@ -85,13 +85,11 @@ class TwoFactorController extends Controller
             return response()->json(['message' => __('2FA is already enabled.')], 422);
         }
 
-        // Reuse existing unconfirmed secret or generate a new one.
-        $secret = $user->two_factor_secret ?: $this->twoFactor->generateSecretKey();
+        // Always generate a fresh secret for a new setup attempt
+        $secret = $this->twoFactor->generateSecretKey();
 
         // Save the secret temporarily
-        if ($secret !== $user->two_factor_secret) {
-            $user->forceFill(['two_factor_secret' => $secret])->save();
-        }
+        $user->forceFill(['two_factor_secret' => $secret])->save();
 
         $qrCodeSvg = $this->twoFactor->getQRCodeInline(
             config('app.name', 'CtrlPanel.gg'),
