@@ -103,7 +103,8 @@
                                                     <span class="badge badge-success">
                                                         <i class="mr-2 fa fa-user-check"></i>
                                                         {{ __('Referral URL') }} :
-                                                        <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;" data-url="{{ route('register') }}?ref={{ $user->referral_code }}">
+                                                        <span onclick="onClickCopy()" id="RefLink" style="cursor: pointer;"
+                                                            data-url="{{ route('register') }}?ref={{ $user->referral_code }}">
                                                             {{ route('register') }}?ref={{ $user->referral_code }}
                                                         </span>
                                                     </span>
@@ -149,100 +150,108 @@
                                 <div class="tab-pane fade show active" id="account" role="tabpanel"
                                     aria-labelledby="account-tab">
                                     <div class="row">
-                                        <div class="col">
-                                            <div class="row">
-                                                <div class="col">
-                                                    @if ($errors->has('pterodactyl_error_message'))
-                                                        @foreach ($errors->get('pterodactyl_error_message') as $err)
-                                                            <span class="text-danger" role="alert">
-                                                                <small><strong>{{ $err }}</strong></small>
-                                                            </span>
-                                                        @endforeach
-                                                    @endif
-                                                    @if ($errors->has('pterodactyl_error_status'))
-                                                        @foreach ($errors->get('pterodactyl_error_status') as $err)
-                                                            <span class="text-danger" role="alert">
-                                                                <small><strong>{{ $err }}</strong></small>
-                                                            </span>
-                                                        @endforeach
-                                                    @endif
-                                                    <div class="form-group"><label>{{ __('Name') }}</label> <input
-                                                            class="form-control @error('name') is-invalid @enderror"
-                                                            type="text" name="name" placeholder="{{ $user->name }}"
-                                                            value="{{ $user->name }}">
 
-                                                        @error('name')
-                                                            <div class="invalid-feedback">
-                                                                {{ $message }}
-                                                            </div>
-                                                        @enderror
+                                    </div>
+                                    <div class="row">
+                                        <div class="mb-3 col-12 col-sm-6">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        @if ($errors->has('pterodactyl_error_message'))
+                                                            @foreach ($errors->get('pterodactyl_error_message') as $err)
+                                                                <span class="text-danger" role="alert">
+                                                                    <small><strong>{{ $err }}</strong></small>
+                                                                </span>
+                                                            @endforeach
+                                                        @endif
+                                                        @if ($errors->has('pterodactyl_error_status'))
+                                                            @foreach ($errors->get('pterodactyl_error_status') as $err)
+                                                                <span class="text-danger" role="alert">
+                                                                    <small><strong>{{ $err }}</strong></small>
+                                                                </span>
+                                                            @endforeach
+                                                        @endif
+                                                        <div class="form-group"><label>{{ __('Name') }}</label> <input
+                                                                class="form-control @error('name') is-invalid @enderror"
+                                                                type="text" name="name" placeholder="{{ $user->name }}"
+                                                                value="{{ $user->name }}">
+
+                                                            @error('name')
+                                                                <div class="invalid-feedback">
+                                                                    {{ $message }}
+                                                                </div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group"><label>{{ __('Email') }}</label> <input
+                                                                class="form-control @error('email') is-invalid @enderror"
+                                                                type="text" placeholder="{{ $user->email }}" name="email"
+                                                                value="{{ $user->email }}">
+
+                                                            @error('email')
+                                                                <div class="invalid-feedback">
+                                                                    {{ $message }}
+                                                                </div>
+                                                            @enderror
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="form-group"><label>{{ __('Email') }}</label> <input
-                                                            class="form-control @error('email') is-invalid @enderror"
-                                                            type="text" placeholder="{{ $user->email }}" name="email"
-                                                            value="{{ $user->email }}">
-
-                                                        @error('email')
-                                                            <div class="invalid-feedback">
-                                                                {{ $message }}
+                                        </div>
+                                        <div class="mb-3 col-12 col-sm-5 offset-sm-1">
+                                            @if (!empty($discord_client_id) && !empty($discord_client_secret))
+                                                <div class="row">
+                                                    <div class="mb-3 col-12">
+                                                        @if (is_null(Auth::user()->discordUser))
+                                                            <div class="verify-discord">
+                                                                <b>{{ __('Link your discord account!') }}</b>
+                                                                <div class="mb-3">
+                                                                    @if ($credits_reward_after_verify_discord)
+                                                                        <p>
+                                                                            {{ __('By verifying your discord account, you receive an extra :amount credits and increased Server amounts', ['amount' => Currency::formatForDisplay($credits_reward_after_verify_discord)]) }}
+                                                                        </p>
+                                                                    @endif
+                                                                </div>
+                                                                <a class="btn btn-light" href="{{ route('auth.redirect') }}">
+                                                                    <i
+                                                                        class="mr-2 fab fa-discord"></i>{{ __('Login with Discord') }}
+                                                                </a>
                                                             </div>
-                                                        @enderror
+                                                        @else
+                                                            <div class="verified-discord">
+                                                                <div class="pl-2 row">
+                                                                    <div class="small-box bg-dark d-inline-block">
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <div class="p-3">
+                                                                                <h3>{{ $user->discordUser->username }}</h3>
+                                                                                <p class="mb-0">{{ $user->discordUser->email }}</p>
+                                                                                <p class="mb-0 text-muted text-sm">
+                                                                                    {{ $user->discordUser->id }}
+                                                                                </p>
+                                                                            </div>
+                                                                            <div class="p-3"><img width="100px" height="100px"
+                                                                                    class="rounded-circle"
+                                                                                    src="{{ $user->discordUser->getAvatar() }}"
+                                                                                    alt="avatar"></div>
+                                                                        </div>
+                                                                        <div class="small-box-footer">
+                                                                            <a href="{{ route('auth.redirect') }}">
+                                                                                <i
+                                                                                    class="mr-1 fab fa-discord"></i>{{ __('Re-Sync Discord') }}
+                                                                            </a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
-                                            </div>
+                                            @endif
                                         </div>
                                     </div>
-                                    @if (!empty($discord_client_id) && !empty($discord_client_secret))
-                                        <div class="row">
-                                            <div class="mb-3 col-12">
-                                                <hr>
-                                                @if (is_null(Auth::user()->discordUser))
-                                                    <div class="verify-discord">
-                                                        <b>{{ __('Link your discord account!') }}</b>
-                                                        <div class="mb-3">
-                                                            @if ($credits_reward_after_verify_discord)
-                                                                <p>
-                                                                    {{ __('By verifying your discord account, you receive an extra :amount credits and increased Server amounts', ['amount' => Currency::formatForDisplay($credits_reward_after_verify_discord)]) }}
-                                                                </p>
-                                                            @endif
-                                                        </div>
-                                                        <a class="btn btn-light" href="{{ route('auth.redirect') }}">
-                                                            <i class="mr-2 fab fa-discord"></i>{{ __('Login with Discord') }}
-                                                        </a>
-                                                    </div>
-                                                @else
-                                                    <div class="verified-discord">
-                                                        <div class="pl-2 row">
-                                                            <div class="small-box bg-dark d-inline-block">
-                                                                <div class="d-flex justify-content-between">
-                                                                    <div class="p-3">
-                                                                        <h3>{{ $user->discordUser->username }}</h3>
-                                                                        <p class="mb-0">{{ $user->discordUser->email }}</p>
-                                                                        <p class="mb-0 text-muted text-sm">
-                                                                            {{ $user->discordUser->id }}</p>
-                                                                    </div>
-                                                                    <div class="p-3"><img width="100px" height="100px"
-                                                                            class="rounded-circle"
-                                                                            src="{{ $user->discordUser->getAvatar() }}"
-                                                                            alt="avatar"></div>
-                                                                </div>
-                                                                <div class="small-box-footer">
-                                                                    <a href="{{ route('auth.redirect') }}">
-                                                                        <i
-                                                                            class="mr-1 fab fa-discord"></i>{{ __('Re-Sync Discord') }}
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
                                             <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
@@ -254,7 +263,6 @@
                                 <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                                     <div class="row">
                                         <div class="mb-3 col-12 col-sm-6">
-                                            <div class="mb-3"><b>{{ __('Change Password') }}</b></div>
                                             <div class="row">
                                                 <div class="col">
                                                     <div class="form-group">
@@ -305,32 +313,8 @@
                                             </div>
                                         </div>
                                         <div class="mb-3 col-12 col-sm-5 offset-sm-1">
-                                            {{-- <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div>
-                                            @if (!$user->two_factor_enabled)
-                                                <p>
-                                                    {{ __('Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.') }}
-                                                </p>
-                                                <button type="button" class="btn btn-success" data-toggle="modal"
-                                                    data-target="#enabletwofaModal" onclick="generate2FA()">
-                                                    {{ __('Enable 2FA') }}
-                                                </button>
-                                            @else
-                                                <div class="mb-3 callout callout-success">
-                                                    <h5><i class="fas fa-check-circle mr-2"></i>{{ __('2FA is enabled') }}
-                                                    </h5>
-                                                    <p>{{ __('Your account is protected with two-factor authentication.') }}
-                                                    </p>
-                                                </div>
-                                                <button type="button" class="btn btn-danger" data-toggle="modal"
-                                                    data-target="#disabletwofaModal">
-                                                    {{ __('Disable 2FA') }}
-                                                </button>
-                                                <button type="button" class="btn btn-info" data-toggle="modal"
-                                                    data-target="#downloadtwofaModal">
-                                                    <i class="fas fa-download mr-1"></i>{{ __('Recovery Codes') }}
-                                                </button>
-                                            @endif
-                                        </div> --}}
+                                            {{-- <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div> --}}
+                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
@@ -353,7 +337,7 @@
     </section>
     <!-- END CONTENT -->
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Check if there is a hash in the URL and show the corresponding tab
             let hash = window.location.hash;
             if (hash) {
@@ -361,7 +345,7 @@
             }
 
             // Update the URL hash when a tab is clicked
-            $('.nav-tabs a').on('shown.bs.tab', function(e) {
+            $('.nav-tabs a').on('shown.bs.tab', function (e) {
                 history.replaceState(null, null, e.target.hash);
             });
         });
