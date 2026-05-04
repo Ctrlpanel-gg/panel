@@ -537,61 +537,63 @@
     })
 </script>
 <script>
-    @if (Session::has('error'))
-    Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        html: '{{ Session::get('error') }}',
-    })
-    @endif
-    @if (Session::has('success'))
-    Swal.fire({
-        icon: 'success',
-        title: '{{ Session::get('success') }}',
-        position: 'top-end',
-        showConfirmButton: false,
-        background: '#343a40',
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-            toast.addEventListener('click', () => Swal.close())
-        }
-    })
-    @endif
-    @if (Session::has('info'))
-    Swal.fire({
-        icon: 'info',
-        title: '{{ Session::get('info') }}',
-        position: 'top-end',
-        showConfirmButton: false,
-        background: '#343a40',
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
-    @endif
-    @if (Session::has('warning'))
-    Swal.fire({
-        icon: 'warning',
-        title: '{{ Session::get('warning') }}',
-        position: 'top-end',
-        showConfirmButton: false,
-        background: '#343a40',
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
+    @if (!isset($suppressSweetAlert2))
+        @if (Session::has('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            html: '{{ Session::get('error') }}',
+        })
+        @endif
+        @if (Session::has('success'))
+        Swal.fire({
+            icon: 'success',
+            title: '{{ Session::get('success') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                toast.addEventListener('click', () => Swal.close())
+            }
+        })
+        @endif
+        @if (Session::has('info'))
+        Swal.fire({
+            icon: 'info',
+            title: '{{ Session::get('info') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+        @endif
+        @if (Session::has('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: '{{ Session::get('warning') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+        @endif
     @endif
 </script>
 </body>
