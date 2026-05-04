@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Auth\TwoFactor\Totp\TotpController;
+use App\Http\Controllers\Auth\TwoFactor\Totp\TotpSettingsController;
+use App\Http\Controllers\Auth\TwoFactor\TwoFactorController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
-use App\Http\Controllers\Admin\LegalController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -28,7 +30,6 @@ use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\TicketsController;
-use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -53,13 +54,34 @@ Auth::routes(['verify' => true]);
 
 Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 
-Route::middleware(['auth', 'checkSuspended'])->group(function () {
+Route::middleware(['auth', 'checkSuspended', 'two_factor.required'])->group(function () {
     //resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
 
         return back()->with('success', 'Verification link sent!');
     })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
+
+    //2fa challenge
+    Route::middleware(['auth', 'two_factor.required'])
+        ->prefix('login/2fa')
+        ->name('login.2fa.')
+        ->group(function () {
+            Route::get('/', [TwoFactorController::class, 'showChallenge'])->name('challenge');
+            Route::get('/totp', [TotpController::class, 'showChallenge'])->name('totp');
+            Route::post('/totp', [TotpController::class, 'verify'])->name('totp.verify')->middleware('throttle:2fa.verify');
+        });
+
+    //2fa settings
+    Route::middleware(['auth', 'two_factor.verified'])
+        ->prefix('profile/security/2fa')
+        ->name('profile.2fa.')
+        ->group(function () {
+            Route::post('/totp/setup', [TotpSettingsController::class, 'setup'])->name('totp.setup')->middleware('throttle:2fa.setup');
+            Route::post('/totp/enable', [TotpSettingsController::class, 'enable'])->name('totp.enable')->middleware('throttle:2fa.enable');
+            Route::post('/totp/disable', [TotpSettingsController::class, 'disable'])->name('totp.disable')->middleware('throttle:2fa.verify');
+            Route::post('/totp/recovery-codes', [TotpSettingsController::class, 'showRecoveryCodes'])->name('totp.recovery-codes')->middleware('throttle:2fa.recovery-codes');
+        });
 
     //normal routes
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');

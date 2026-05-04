@@ -105,4 +105,56 @@ class LoginController extends Controller
 
         return $this->sendFailedLoginResponse($request);
     }
+
+    /**
+     * The user has been authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        $twoFactorService = app(\App\Services\TwoFactor\TwoFactorService::class);
+        $methods = $twoFactorService->enabledMethods($user);
+
+        if ($methods->isNotEmpty()) {
+            // Redirect to 2FA challenge if the user has enabled methods but is not yet verified
+            // (this is typically the case immediately after a successful password login).
+            if (!$twoFactorService->isVerified($request, $user)) {
+                return redirect()->route('login.2fa.challenge');
+            }
+        }
+
+        return redirect()->intended($this->redirectPath());
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request)
+    {
+        $user = Auth::user();
+        if ($user) {
+            $twoFactorService = app(\App\Services\TwoFactor\TwoFactorService::class);
+            $twoFactorService->clearVerified($request, $user);
+        }
+
+        $this->guard()->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        if ($response = $this->loggedOut($request)) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+            ? new \Illuminate\Http\JsonResponse([], 204)
+            : redirect('/');
+    }
 }
