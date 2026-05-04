@@ -22,7 +22,7 @@
     <!-- END CONTENT HEADER -->
 
     <!-- MAIN CONTENT -->
-    <section class="content">
+    <section class="content" x-data>
         <div class="container-fluid">
 
             <div class="row">
@@ -253,9 +253,6 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -313,14 +310,58 @@
                                             </div>
                                         </div>
                                         <div class="mb-3 col-12 col-sm-5 offset-sm-1">
-                                            {{-- <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div> --}}
+                                            <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div>
+
+                                            @php($totp = Auth::user()->twoFactorMethods()->where('method', 'totp')->where('is_enabled', true)->first())
+                                            <div class="mb-3 card">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <i class="mr-2 fas fa-mobile-alt fa-2x text-muted"></i>
+                                                            <div class="d-inline-block align-middle">
+                                                                <div class="font-weight-bold">{{ __('Authenticator App') }}</div>
+                                                                <div class="text-muted small">{{ __('Use an app to get codes') }}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            @if($totp)
+                                                                <span class="badge badge-success">{{ __('Enabled') }}</span>
+                                                            @else
+                                                                <span class="badge badge-secondary">{{ __('Disabled') }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    <hr>
+
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span>{{ __('Enable') }}</span>
+                                                        <div class="custom-control custom-switch">
+                                                            <input type="checkbox" class="custom-control-input" id="totpToggle"
+                                                                {{ $totp ? 'checked' : '' }}
+                                                                @click.prevent="window.dispatchEvent(new CustomEvent('totp-toggle-click', { detail: { enabled: {{ $totp ? 'true' : 'false' }} } }))">
+                                                            <label class="custom-control-label" for="totpToggle"></label>
+                                                        </div>
+                                                    </div>
+
+                                                    @if($totp)
+                                                        <div class="mt-3">
+                                                            <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#totpViewRecoveryModal">
+                                                                <i class="mr-2 fas fa-key"></i>{{ __('View Recovery Codes') }}
+                                                            </button>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
-                                        </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="mt-3 row">
+                                <div class="col d-flex justify-content-end">
+                                    <button class="btn btn-primary" type="submit">{{ __('Save Changes') }}</button>
                                 </div>
                             </div>
                         </div>
@@ -334,9 +375,20 @@
         <!-- END CUSTOM CONTENT -->
 
         </div>
+        @include('modals.totp-setup-modal')
+        @include('modals.totp-view-recovery-modal')
+        @include('modals.totp-disable-modal')
     </section>
     <!-- END CONTENT -->
     <script>
+        window.addEventListener('totp-toggle-click', (e) => {
+            if (e.detail.enabled) {
+                $('#totpDisableModal').modal('show');
+            } else {
+                $('#totpSetupModal').modal('show');
+            }
+        });
+
         $(document).ready(function () {
             // Check if there is a hash in the URL and show the corresponding tab
             let hash = window.location.hash;
