@@ -1,9 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
-use App\Http\Controllers\Auth\TwoFactor\Totp\TotpController;
-use App\Http\Controllers\Auth\TwoFactor\Totp\TotpSettingsController;
 use App\Http\Controllers\Auth\TwoFactor\TwoFactorController;
+use App\Http\Controllers\Auth\TwoFactor\TwoFactorExtensionController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\OverViewController;
@@ -68,8 +67,8 @@ Route::middleware(['auth', 'checkSuspended', 'two_factor.required'])->group(func
         ->name('login.2fa.')
         ->group(function () {
             Route::get('/', [TwoFactorController::class, 'showChallenge'])->name('challenge');
-            Route::get('/totp', [TotpController::class, 'showChallenge'])->name('totp');
-            Route::post('/totp', [TotpController::class, 'verify'])->name('totp.verify')->middleware('throttle:2fa.verify');
+            Route::get('/{method}', [TwoFactorExtensionController::class, 'showChallenge'])->name('method');
+            Route::post('/{method}', [TwoFactorExtensionController::class, 'verify'])->name('verify')->middleware('throttle:2fa.verify');
         });
 
     //2fa settings
@@ -77,10 +76,10 @@ Route::middleware(['auth', 'checkSuspended', 'two_factor.required'])->group(func
         ->prefix('profile/security/2fa')
         ->name('profile.2fa.')
         ->group(function () {
-            Route::post('/totp/setup', [TotpSettingsController::class, 'setup'])->name('totp.setup')->middleware('throttle:2fa.setup');
-            Route::post('/totp/enable', [TotpSettingsController::class, 'enable'])->name('totp.enable')->middleware('throttle:2fa.enable');
-            Route::post('/totp/disable', [TotpSettingsController::class, 'disable'])->name('totp.disable')->middleware('throttle:2fa.verify');
-            Route::post('/totp/recovery-codes', [TotpSettingsController::class, 'showRecoveryCodes'])->name('totp.recovery-codes')->middleware('throttle:2fa.recovery-codes');
+            Route::post('/{method}/setup', [TwoFactorExtensionController::class, 'setup'])->name('setup')->middleware('throttle:2fa.setup');
+            Route::post('/{method}/enable', [TwoFactorExtensionController::class, 'enable'])->name('enable')->middleware('throttle:2fa.enable');
+            Route::post('/{method}/disable', [TwoFactorExtensionController::class, 'disable'])->name('disable')->middleware('throttle:2fa.verify');
+            Route::post('/{method}/{action}', [TwoFactorExtensionController::class, 'action'])->name('action')->middleware('throttle:2fa.recovery-codes');
         });
 
     //normal routes

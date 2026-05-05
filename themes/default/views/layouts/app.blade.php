@@ -14,7 +14,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'CtrlPanel.gg') }}</title>
     <link rel="icon"
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
@@ -44,8 +44,10 @@
     @vite('themes/default/sass/app.scss')
 </head>
 @yield('content')
+@stack('modals')
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
+@stack('scripts')
 
 <script>
     @if (!isset($suppressSweetAlert2))

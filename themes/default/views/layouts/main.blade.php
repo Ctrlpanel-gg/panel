@@ -16,7 +16,7 @@
     <meta
             content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}'
             property="og:image">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'CtrlPanel.gg') }}</title>
     <link rel="icon"
           href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
           type="image/x-icon">
@@ -169,7 +169,7 @@
         <a href="{{ route('home') }}" class="brand-link">
             <img width="64" height="64"
                  src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/ctrlpanel_logo.png') }}"
-                 alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
+                 alt="{{ config('app.name', 'CtrlPanel.gg') }} Logo" class="brand-image img-circle"
                  style="opacity: .8">
             <span class="brand-text font-weight-light">{{ config('app.name', 'CtrlPanel.gg') }}</span>
         </a>
@@ -455,6 +455,7 @@
         @yield('content')
 
         @include('modals.redeem_voucher_modal')
+        @stack('modals')
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer d-flex justify-content-between">
@@ -536,6 +537,7 @@
         });
     })
 </script>
+@stack('scripts')
 <script>
     @if (!isset($suppressSweetAlert2))
         @if (Session::has('error'))
