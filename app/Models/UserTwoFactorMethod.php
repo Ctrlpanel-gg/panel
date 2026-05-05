@@ -10,18 +10,10 @@ class UserTwoFactorMethod extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'method',
-        'is_enabled',
-        'totp_secret',
-        'totp_recovery_codes',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'is_enabled' => 'boolean',
-        'totp_secret' => 'encrypted',
-        'totp_recovery_codes' => 'encrypted:array',
     ];
 
     public function user(): BelongsTo

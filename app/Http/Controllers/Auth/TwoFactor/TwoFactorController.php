@@ -21,24 +21,20 @@ class TwoFactorController extends Controller
     public function showChallenge(Request $request)
     {
         $user = $request->user();
-        $methods = $this->twoFactorService->enabledMethods($user);
+        $enabledMethods = $this->twoFactorService->enabledMethods($user);
 
-        if ($methods->isEmpty()) {
+        if ($enabledMethods->isEmpty()) {
             return redirect()->intended(route('home'));
         }
 
-        if ($methods->count() === 1) {
-            $method = $methods->first()->method;
-            return redirect()->route("login.2fa.{$method}");
+        if ($enabledMethods->count() === 1) {
+            $method = $enabledMethods->first()->method;
+            return redirect()->route('login.2fa.method', ['method' => $method]);
         }
 
-        // If we ever add more methods (like WebAuthn), we'll need a picker view here.
-        // For now, we just fallback to the first available method (usually TOTP).
-        $totp = $methods->firstWhere('method', 'totp');
-        if ($totp) {
-            return redirect()->route('login.2fa.totp');
-        }
+        // Multiple methods enabled: show picker
+        $methods = $enabledMethods->map(fn ($m) => $this->twoFactorService->getExtension($m->method))->filter();
 
-        return redirect()->intended(route('home'));
+        return view('auth.two-factor.picker', compact('methods'));
     }
 }

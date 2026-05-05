@@ -2,6 +2,8 @@
 
 namespace App\Services\TwoFactor;
 
+use App\Classes\TwoFactorExtension;
+use App\Helpers\ExtensionHelper;
 use App\Models\TwoFactorVerifiedToken;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,6 +12,36 @@ use Illuminate\Support\Facades\Auth;
 
 class TwoFactorService
 {
+    protected ?Collection $extensions = null;
+
+    /**
+     * Get all registered 2FA extensions.
+     */
+    public function getExtensions(): Collection
+    {
+        if ($this->extensions === null) {
+            $this->extensions = collect();
+            $classes = ExtensionHelper::getAllExtensionClassesByNamespace('TwoFactor');
+
+            foreach ($classes as $class) {
+                if (is_subclass_of($class, TwoFactorExtension::class)) {
+                    $extension = app($class);
+                    $this->extensions->put($extension->getName(), $extension);
+                }
+            }
+        }
+
+        return $this->extensions;
+    }
+
+    /**
+     * Get a specific 2FA extension by its name.
+     */
+    public function getExtension(string $name): ?TwoFactorExtension
+    {
+        return $this->getExtensions()->get($name);
+    }
+
     /**
      * Get all enabled 2FA methods for the user.
      */
@@ -18,6 +50,25 @@ class TwoFactorService
         return $user->twoFactorMethods()
             ->where('is_enabled', true)
             ->get();
+    }
+
+    /**
+     * Check if a specific 2FA method is enabled for the user.
+     */
+    public function isMethodEnabled(User $user, string $method): bool
+    {
+        return $user->twoFactorMethods()
+            ->where('method', $method)
+            ->where('is_enabled', true)
+            ->exists();
+    }
+
+    /**
+     * Get all available 2FA methods for the user (including those not yet enabled).
+     */
+    public function getAvailableMethodsForUser(User $user): Collection
+    {
+        return $this->getExtensions()->filter(fn (TwoFactorExtension $ext) => $ext->isAvailable($user));
     }
 
     /**
@@ -37,7 +88,7 @@ class TwoFactorService
                 ],
                 [
                     'verified_at' => now(),
-                    'expires_at' => now()->addMinutes((int) config('session.lifetime')), // Matching session lifetime as a fallback or use Laravel's remember lifetime
+                    'expires_at' => now()->addMinutes((int) config('session.lifetime')),
                 ]
             );
         }
@@ -54,7 +105,6 @@ class TwoFactorService
         }
 
         // 2. DB token check - ONLY for remember-me re-authentication
-        // We only trust the DB token if the user was authenticated via the remember cookie
         if (Auth::viaRemember()) {
             $rememberToken = $user->getRememberToken();
             if ($rememberToken) {
@@ -65,7 +115,6 @@ class TwoFactorService
                     ->first();
 
                 if ($token) {
-                    // Restore session key if DB token is valid
                     $request->session()->put('two_factor_verified', true);
                     return true;
                 }
