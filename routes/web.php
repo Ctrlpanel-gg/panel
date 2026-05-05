@@ -79,7 +79,7 @@ Route::middleware(['auth', 'checkSuspended', 'two_factor.required'])->group(func
             Route::post('/{method}/setup', [TwoFactorExtensionController::class, 'setup'])->name('setup')->middleware('throttle:2fa.setup');
             Route::post('/{method}/enable', [TwoFactorExtensionController::class, 'enable'])->name('enable')->middleware('throttle:2fa.enable');
             Route::post('/{method}/disable', [TwoFactorExtensionController::class, 'disable'])->name('disable')->middleware('throttle:2fa.verify');
-            Route::post('/{method}/{action}', [TwoFactorExtensionController::class, 'action'])->name('action')->middleware('throttle:2fa.recovery-codes');
+            Route::post('/{method}/{action}', [TwoFactorExtensionController::class, 'action'])->name('action')->middleware('throttle:2fa.action');
         });
 
     //normal routes

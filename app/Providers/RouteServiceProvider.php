@@ -65,8 +65,8 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
         });
 
-        RateLimiter::for('2fa.recovery-codes', function (Request $request) {
-            return Limit::perMinute(30)->by($request->user()?->id ?: $request->ip());
+        RateLimiter::for('2fa.action', function (Request $request) {
+            return Limit::perMinutes(5, 3)->by($request->user()?->id ?: $request->ip());
         });
     }
 }
