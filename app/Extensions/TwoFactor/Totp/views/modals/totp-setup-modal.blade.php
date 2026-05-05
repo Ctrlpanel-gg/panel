@@ -13,7 +13,7 @@
                 <template x-if="step === 'setup'">
                     <div>
                         <div class="row align-items-center">
-                            <div class="mb-4 mb-md-0 text-center col-md-5 d-flex flex-column align-items-center justify-content-center">
+                            <div class="mb-4 mb-md-0 text-center col-12 col-lg-5 d-flex flex-column align-items-center justify-content-center">
                                 <div class="p-2 bg-white d-inline-block rounded shadow-sm">
                                     <div x-html="qrSvg"></div>
                                 </div>
@@ -21,7 +21,7 @@
                                     {{ __('Scan this QR code with your authenticator app (e.g. Google Authenticator, Authy, Bitwarden).') }}
                                 </div>
                             </div>
-                            <div class="col-md-7">
+                            <div class="col-12 col-lg-7">
                                 <h5>{{ __('Manual Entry') }}</h5>
                                 <p class="text-muted small">
                                     {{ __('If you cannot scan the QR code, enter this secret key into your app:') }}
@@ -32,8 +32,6 @@
                                         <i class="fas fa-copy"></i>
                                     </button>
                                 </div>
-
-                                <hr>
 
                                 <div class="form-group">
                                     <label>{{ __('Authentication Code') }}</label>

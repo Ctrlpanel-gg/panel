@@ -201,7 +201,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="mb-3 col-12 col-sm-5 offset-sm-1">
+                                        <div class="mb-3 col-12 col-sm-6">
                                             @if (!empty($discord_client_id) && !empty($discord_client_secret))
                                                 <div class="row">
                                                     <div class="mb-3 col-12">
@@ -252,64 +252,65 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <div class="row">
-                                    </div>
                                 </div>
 
                                 <!-- Security Tab -->
                                 <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
                                     <div class="row">
                                         <div class="mb-3 col-12 col-sm-6">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="form-group">
-                                                        <label>{{ __('Current Password') }}</label>
-                                                        <input
-                                                            class="form-control @error('current_password') is-invalid @enderror"
-                                                            name="current_password" type="password" placeholder="••••••">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label>{{ __('Current Password') }}</label>
+                                                            <input
+                                                                class="form-control @error('current_password') is-invalid @enderror"
+                                                                name="current_password" type="password"
+                                                                placeholder="••••••">
 
-                                                        @error('current_password')
-                                                            <div class="invalid-feedback">
-                                                                {{ $message }}
-                                                            </div>
-                                                        @enderror
+                                                            @error('current_password')
+                                                                <div class="invalid-feedback">
+                                                                    {{ $message }}
+                                                                </div>
+                                                            @enderror
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="form-group"><label>{{ __('New Password') }}</label>
-                                                        <input
-                                                            class="form-control @error('new_password') is-invalid @enderror"
-                                                            name="new_password" type="password" placeholder="••••••">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group"><label>{{ __('New Password') }}</label>
+                                                            <input
+                                                                class="form-control @error('new_password') is-invalid @enderror"
+                                                                name="new_password" type="password" placeholder="••••••">
 
-                                                        @error('new_password')
-                                                            <div class="invalid-feedback">
-                                                                {{ $message }}
-                                                            </div>
-                                                        @enderror
+                                                            @error('new_password')
+                                                                <div class="invalid-feedback">
+                                                                    {{ $message }}
+                                                                </div>
+                                                            @enderror
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="form-group">
-                                                        <label>{{ __('Confirm Password') }}</span></label>
-                                                        <input
-                                                            class="form-control @error('new_password_confirmation') is-invalid @enderror"
-                                                            name="new_password_confirmation" type="password"
-                                                            placeholder="••••••">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <div class="form-group">
+                                                            <label>{{ __('Confirm Password') }}</span></label>
+                                                            <input
+                                                                class="form-control @error('new_password_confirmation') is-invalid @enderror"
+                                                                name="new_password_confirmation" type="password"
+                                                                placeholder="••••••">
 
-                                                        @error('new_password_confirmation')
-                                                            <div class="invalid-feedback">
-                                                                {{ $message }}
-                                                            </div>
-                                                        @enderror
+                                                            @error('new_password_confirmation')
+                                                                <div class="invalid-feedback">
+                                                                    {{ $message }}
+                                                                </div>
+                                                            @enderror
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="mb-3 col-12 col-sm-5 offset-sm-1">
+                                        <div class="mb-3 col-12 col-sm-6">
                                             <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div>
 
                                             @inject('twoFactorService', 'App\Services\TwoFactor\TwoFactorService')
@@ -317,8 +318,6 @@
                                                 @include($method->getSettingsView(), ['method' => $method])
                                             @endforeach
                                         </div>
-                                    </div>
-                                    <div class="row">
                                     </div>
                                 </div>
                             </div>
