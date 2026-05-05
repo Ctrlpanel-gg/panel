@@ -131,7 +131,7 @@ function totpSetup() {
         },
 
         fetchSetupData() {
-            $.post("{{ route('profile.2fa.totp.setup') }}", {
+            $.post("{{ route('profile.2fa.setup', ['method' => 'totp']) }}", {
                 _token: "{{ csrf_token() }}"
             }).done(response => {
                 this.qrSvg = response.qr_svg;
@@ -150,7 +150,7 @@ function totpSetup() {
             this.loading = true;
             this.errors = {};
 
-            $.post("{{ route('profile.2fa.totp.enable') }}", {
+            $.post("{{ route('profile.2fa.enable', ['method' => 'totp']) }}", {
                 _token: "{{ csrf_token() }}",
                 code: this.code,
                 password: this.password

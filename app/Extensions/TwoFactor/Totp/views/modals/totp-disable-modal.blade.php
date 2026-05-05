@@ -65,7 +65,7 @@ function totpDisable() {
             this.loading = true;
             this.errors = {};
 
-            $.post("{{ route('profile.2fa.totp.disable') }}", {
+            $.post("{{ route('profile.2fa.disable', ['method' => 'totp']) }}", {
                 _token: "{{ csrf_token() }}",
                 password: this.password,
                 code: this.code

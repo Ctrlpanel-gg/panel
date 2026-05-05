@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\TwoFactor;
+namespace App\Extensions\TwoFactor\Totp;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -43,16 +43,15 @@ class RecoveryCodeService
             return false;
         }
 
-        $recoveryCodes = $method->totp_recovery_codes;
+        $recoveryCodes = decrypt($method->totp_recovery_codes);
         $isVerified = false;
 
         foreach ($recoveryCodes as $index => $storedCode) {
             // Using hash_equals for constant-time comparison of the plain codes
-            // (they are decrypted by the Eloquent cast)
             if (hash_equals($storedCode, $code)) {
                 // Burn the code
                 unset($recoveryCodes[$index]);
-                $method->totp_recovery_codes = array_values($recoveryCodes);
+                $method->totp_recovery_codes = encrypt(array_values($recoveryCodes));
                 $method->save();
                 $isVerified = true;
                 break;

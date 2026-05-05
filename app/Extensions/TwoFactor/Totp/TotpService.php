@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\TwoFactor;
+namespace App\Extensions\TwoFactor\Totp;
 
 use PragmaRX\Google2FALaravel\Facade as Google2FA;
 

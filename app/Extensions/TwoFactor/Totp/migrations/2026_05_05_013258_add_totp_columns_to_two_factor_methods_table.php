@@ -11,16 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_two_factor_methods', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('method', ['totp']);
-            $table->boolean('is_enabled')->default(false);
+        Schema::table('user_two_factor_methods', function (Blueprint $table) {
             $table->text('totp_secret')->nullable();
             $table->text('totp_recovery_codes')->nullable();
-            $table->timestamps();
-
-            $table->unique(['user_id', 'method']);
         });
     }
 
@@ -29,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_two_factor_methods');
+        Schema::table('user_two_factor_methods', function (Blueprint $table) {
+            $table->dropColumn(['totp_secret', 'totp_recovery_codes']);
+        });
     }
 };

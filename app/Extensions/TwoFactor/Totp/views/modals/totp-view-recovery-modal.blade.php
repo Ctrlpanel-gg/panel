@@ -99,7 +99,7 @@ function totpViewRecovery() {
             this.loading = true;
             this.errors = {};
 
-            $.post("{{ route('profile.2fa.totp.recovery-codes') }}", {
+            $.post("{{ route('profile.2fa.action', ['method' => 'totp', 'action' => 'showRecoveryCodes']) }}", {
                 _token: "{{ csrf_token() }}",
                 password: this.password,
                 code: this.code

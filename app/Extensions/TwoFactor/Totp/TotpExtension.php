@@ -1,31 +1,83 @@
 <?php
 
-namespace App\Http\Controllers\Auth\TwoFactor\Totp;
+namespace App\Extensions\TwoFactor\Totp;
 
-use App\Http\Controllers\Controller;
+use App\Classes\TwoFactorExtension;
+use App\Models\User;
 use App\Models\UserTwoFactorMethod;
-use App\Services\TwoFactor\RecoveryCodeService;
-use App\Services\TwoFactor\TotpService;
+use App\Services\TwoFactor\TwoFactorService;
+use App\Extensions\TwoFactor\Totp\TotpService;
+use App\Extensions\TwoFactor\Totp\RecoveryCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-class TotpSettingsController extends Controller
+class TotpExtension extends TwoFactorExtension
 {
     protected $totpService;
     protected $recoveryCodeService;
+    protected $twoFactorService;
 
-    public function __construct(
-        TotpService $totpService,
-        RecoveryCodeService $recoveryCodeService
-    ) {
-        $this->totpService = $totpService;
-        $this->recoveryCodeService = $recoveryCodeService;
+    public function __construct()
+    {
+        $this->totpService = app(TotpService::class);
+        $this->recoveryCodeService = app(RecoveryCodeService::class);
+        $this->twoFactorService = app(TwoFactorService::class);
     }
 
-    /**
-     * Start the TOTP setup process.
-     */
+    public function getName(): string
+    {
+        return 'totp';
+    }
+
+    public function getLabel(): string
+    {
+        return __('Authenticator App');
+    }
+
+    public function getIcon(): string
+    {
+        return 'fas fa-mobile-alt';
+    }
+
+    public function getDescription(): string
+    {
+        return __('Use an app to get codes');
+    }
+
+    public function getSettingsView(): string
+    {
+        return 'twofactor_totp::profile_card';
+    }
+
+    public function getChallengeView(): string
+    {
+        return 'twofactor_totp::auth.two-factor.totp-challenge';
+    }
+
+    public function verify(Request $request): bool
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $user = $request->user();
+        $code = preg_replace('/\s+/', '', $request->input('code'));
+
+        if (strlen($code) === 6 && ctype_digit($code)) {
+            // TOTP path
+            $method = $user->twoFactorMethods()->where('method', 'totp')->first();
+            if ($method && $method->totp_secret) {
+                return $this->totpService->verifyCode(decrypt($method->totp_secret), $code);
+            }
+        } elseif (strlen($code) === 8 && ctype_alnum($code)) {
+            // Recovery code path
+            return $this->recoveryCodeService->verify($user, $code);
+        }
+
+        return false;
+    }
+
     public function setup(Request $request)
     {
         $user = $request->user();
@@ -47,9 +99,6 @@ class TotpSettingsController extends Controller
         ]);
     }
 
-    /**
-     * Enable TOTP for the user.
-     */
     public function enable(Request $request)
     {
         $request->validate([
@@ -83,24 +132,21 @@ class TotpSettingsController extends Controller
             ['user_id' => $user->id, 'method' => 'totp'],
             [
                 'is_enabled' => true,
-                'totp_secret' => $pendingSecret,
-                'totp_recovery_codes' => $recoveryCodes,
+                'totp_secret' => encrypt($pendingSecret),
+                'totp_recovery_codes' => encrypt($recoveryCodes),
             ]
         );
 
         $request->session()->forget('totp_pending_secret');
 
         // Mark as verified for current session
-        app(\App\Services\TwoFactor\TwoFactorService::class)->markVerified($request, $user);
+        $this->twoFactorService->markVerified($request, $user);
 
         return response()->json([
             'recovery_codes' => $recoveryCodes,
         ]);
     }
 
-    /**
-     * Disable TOTP for the user.
-     */
     public function disable(Request $request)
     {
         $request->validate([
@@ -125,7 +171,7 @@ class TotpSettingsController extends Controller
         $isVerified = false;
 
         if (strlen($code) === 6 && ctype_digit($code)) {
-            $isVerified = $this->totpService->verifyCode($method->totp_secret, $code);
+            $isVerified = $this->totpService->verifyCode(decrypt($method->totp_secret), $code);
         } elseif (strlen($code) === 8 && ctype_alnum($code)) {
             $isVerified = $this->recoveryCodeService->verify($user, $code);
         }
@@ -141,9 +187,6 @@ class TotpSettingsController extends Controller
         return response()->json(['message' => __('Two-factor authentication has been disabled.')]);
     }
 
-    /**
-     * Show recovery codes.
-     */
     public function showRecoveryCodes(Request $request)
     {
         $request->validate([
@@ -168,7 +211,7 @@ class TotpSettingsController extends Controller
         $isVerified = false;
 
         if (strlen($code) === 6 && ctype_digit($code)) {
-            $isVerified = $this->totpService->verifyCode($method->totp_secret, $code);
+            $isVerified = $this->totpService->verifyCode(decrypt($method->totp_secret), $code);
         } elseif (strlen($code) === 8 && ctype_alnum($code)) {
             $isVerified = $this->recoveryCodeService->verify($user, $code);
         }
@@ -180,7 +223,14 @@ class TotpSettingsController extends Controller
         }
 
         return response()->json([
-            'recovery_codes' => $method->totp_recovery_codes,
+            'recovery_codes' => decrypt($method->totp_recovery_codes),
         ]);
+    }
+
+    public static function getConfig(): array
+    {
+        return [
+            'name' => 'TOTP',
+        ];
     }
 }

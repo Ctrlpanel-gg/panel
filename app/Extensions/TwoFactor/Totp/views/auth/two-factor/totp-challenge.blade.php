@@ -9,7 +9,7 @@
     <div class="card card-outline card-primary">
       <div class="text-center card-header">
         <a href="{{ route('welcome') }}" class="mb-2 h1"><b
-            class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
+            class="mr-1">{{ config('app.name', 'CtrlPanel.gg') }}</b></a>
         @if ($website_settings->enable_login_logo)
           <img
             src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}"
@@ -24,7 +24,7 @@
             {{ __('Please enter your 6-digit TOTP code from your authenticator app or an 8-character recovery code.') }}
         </p>
 
-        <form action="{{ route('login.2fa.totp.verify') }}" method="post">
+        <form action="{{ route('login.2fa.verify', ['method' => 'totp']) }}" method="post">
           @csrf
 
           <div class="form-group">
