@@ -58,7 +58,7 @@ class ReferralNotification extends Notification implements ShouldQueue
                 <p>You received '. Currency::formatForDisplay($this->reward) . ' ' . $this->credits_display_name . '</p>
                 <p>because ' . e($this->ref_user->name) . ' registered with your Referral-Code!</p>
                 <p>Thank you very much for supporting us!.</p>
-                <p>'.config('app.name', 'Laravel').'</p>
+                <p>'.config('app.name', 'CtrlPanel.gg').'</p>
             ',
         ];
     }
