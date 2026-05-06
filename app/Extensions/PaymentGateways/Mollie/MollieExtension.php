@@ -83,6 +83,55 @@ class MollieExtension extends PaymentExtension
         return Redirect::route('home')->with('success', 'Your payment is being processed');
     }
 
+    public static function supportsRecheck(): bool
+    {
+        return true;
+    }
+
+    // Recheck the payment status
+    public static function recheckPayment(Payment $payment): void
+    {
+        if (empty($payment->payment_id)) {
+            return;
+        }
+
+        $settings = new MollieSettings();
+        $url = 'https://api.mollie.com/v2/payments/' . $payment->payment_id;
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $settings->api_key,
+            ])->get($url);
+
+            if (!$response->successful()) {
+                return;
+            }
+
+            $status = $response->json('status');
+
+            if ($status === 'paid') {
+                if (self::matchesMollieAmountAndCurrency(
+                    $payment,
+                    (string) $response->json('amount.value', ''),
+                    (string) $response->json('amount.currency', '')
+                )) {
+                    self::completePayment($payment->id, $payment->payment_id);
+                }
+            } elseif (in_array($status, ['failed', 'expired', 'canceled'], true)) {
+                self::setPaymentCanceled($payment->id, $payment->payment_id);
+            } elseif (in_array($status, ['authorized', 'pending', 'open'], true)) {
+                self::setPaymentProcessing($payment->id, $payment->payment_id);
+            }
+        } catch (Exception $e) {
+            Log::error('Mollie recheck failed', [
+                'payment_id' => $payment->id,
+                'gateway_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     static function webhook(Request $request): JsonResponse
     {
         $settings = new MollieSettings();

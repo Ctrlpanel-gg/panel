@@ -29,4 +29,26 @@ class SendToUsersNotificationRequest extends FormRequest
             'content' => 'required|string|min:1',
         ];
     }
+
+    public function bodyParameters()
+    {
+        return [
+            'via' => [
+                'description' => 'The notification channel (mail, database, both).',
+                'example' => 'both',
+            ],
+            'users' => [
+                'description' => 'List of user IDs to notify.',
+                'example' => [1, 2],
+            ],
+            'title' => [
+                'description' => 'The title of the notification.',
+                'example' => 'System Update',
+            ],
+            'content' => [
+                'description' => 'The content of the notification.',
+                'example' => 'A new update is available.',
+            ],
+        ];
+    }
 }

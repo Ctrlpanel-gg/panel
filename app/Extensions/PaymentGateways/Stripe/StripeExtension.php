@@ -337,6 +337,51 @@ class StripeExtension extends PaymentExtension
         return response()->json(['success' => true], 200);
     }
 
+    public static function supportsRecheck(): bool
+    {
+        return true;
+    }
+
+    // Recheck the payment status
+    public static function recheckPayment(Payment $payment): void
+    {
+        if (empty($payment->payment_id)) {
+            return;
+        }
+
+        $stripeClient = self::getStripeClient();
+
+        try {
+            // It could be a checkout session ID or a payment intent ID
+            if (str_starts_with($payment->payment_id, 'cs_')) {
+                $session = $stripeClient->checkout->sessions->retrieve($payment->payment_id);
+                $paymentIntentId = $session->payment_intent;
+                if ($paymentIntentId) {
+                    $paymentIntent = $stripeClient->paymentIntents->retrieve($paymentIntentId);
+                } else {
+                    if ($session->status === 'complete' || $session->payment_status === 'paid') {
+                        self::completePayment($payment->id, null);
+                    }
+                    return;
+                }
+            } else {
+                $paymentIntent = $stripeClient->paymentIntents->retrieve($payment->payment_id);
+            }
+
+            if ($paymentIntent->status === 'succeeded') {
+                self::completePayment($payment->id, $paymentIntent->id);
+            } elseif (in_array($paymentIntent->status, ['canceled', 'requires_payment_method'], true)) {
+                self::setPaymentCanceled($payment->id, $paymentIntent->id);
+            }
+        } catch (Exception $e) {
+            Log::error('Stripe recheck failed', [
+                'payment_id' => $payment->id,
+                'gateway_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     /**
      * @return \Stripe\StripeClient
      */
@@ -380,15 +425,15 @@ class StripeExtension extends PaymentExtension
         $orderedSecrets = $isLocal
             ? [
                 'test_webhook_signing_secret' => $settings->test_webhook_signing_secret,
-                'test_endpoint_secret' => $settings->test_endpoint_secret,
+                'test_publishable_key' => $settings->test_publishable_key,
                 'webhook_signing_secret' => $settings->webhook_signing_secret,
-                'endpoint_secret' => $settings->endpoint_secret,
+                'publishable_key' => $settings->publishable_key,
             ]
             : [
                 'webhook_signing_secret' => $settings->webhook_signing_secret,
-                'endpoint_secret' => $settings->endpoint_secret,
+                'publishable_key' => $settings->publishable_key,
                 'test_webhook_signing_secret' => $settings->test_webhook_signing_secret,
-                'test_endpoint_secret' => $settings->test_endpoint_secret,
+                'test_publishable_key' => $settings->test_publishable_key,
             ];
 
         $secrets = [];
