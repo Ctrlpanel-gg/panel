@@ -150,9 +150,6 @@
                                 <div class="tab-pane fade show active" id="account" role="tabpanel"
                                     aria-labelledby="account-tab">
                                     <div class="row">
-
-                                    </div>
-                                    <div class="row">
                                         <div class="mb-3 col-12 col-sm-6">
                                             <div class="col">
                                                 <div class="row">

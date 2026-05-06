@@ -10,7 +10,7 @@
 
             <div class="modal-body">
                 <p class="text-muted">{{ __('To disable two-factor authentication, please enter your current password and a 2FA code.') }}</p>
-                
+
                 <div class="form-group">
                     <label>{{ __('Current Password') }}</label>
                     <input type="password" x-model="password" class="form-control" :class="{'is-invalid': errors.password}" placeholder="••••••">
@@ -21,7 +21,7 @@
 
                 <div class="form-group">
                     <label>{{ __('Authentication Code') }}</label>
-                    <input type="text" x-model="code" class="form-control" :class="{'is-invalid': errors.code}" placeholder="000000" inputmode="numeric">
+                    <input type="text" x-model="code" class="form-control" :class="{'is-invalid': errors.code}" placeholder="000000">
                     <template x-if="errors.code">
                         <span class="text-danger small" x-text="errors.code"></span>
                     </template>
