@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Console\Commands\User;
+namespace App\Console\Commands;
 
 use App\Models\User;
-use App\Models\UserTwoFactorMethod;
 use App\Services\TwoFactor\TwoFactorService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class DisableTwoFactorCommand extends Command
 {
@@ -116,12 +114,12 @@ class DisableTwoFactorCommand extends Command
 
         if ($this->confirm("Disable selected methods: " . implode(', ', $methodKeys) . "?", true)) {
             $user->twoFactorMethods()->whereIn('method', $methodKeys)->delete();
-            
+
             // If we disabled everything, clear verified state
             if ($user->twoFactorMethods()->where('is_enabled', true)->count() === 0) {
                 $this->twoFactorService->clearVerified(request(), $user);
             }
-            
+
             $this->success("Successfully disabled " . implode(', ', $methodKeys) . " for {$user->name}.");
         }
 
