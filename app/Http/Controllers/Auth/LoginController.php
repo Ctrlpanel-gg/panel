@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
+use App\Services\TwoFactor\TwoFactorService;
 use App\Settings\GeneralSettings;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -31,14 +32,17 @@ class LoginController extends Controller
      */
     protected $redirectTo = RouteServiceProvider::HOME;
 
+    protected $twoFactorService;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(TwoFactorService $twoFactorService)
     {
         $this->middleware('guest')->except('logout');
+        $this->twoFactorService = $twoFactorService;
     }
 
     /**
@@ -104,13 +108,12 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        $twoFactorService = app(\App\Services\TwoFactor\TwoFactorService::class);
-        $methods = $twoFactorService->enabledMethods($user);
+        $methods = $this->twoFactorService->enabledMethods($user);
 
         if ($methods->isNotEmpty()) {
             // Redirect to 2FA challenge if the user has enabled methods but is not yet verified
             // (this is typically the case immediately after a successful password login).
-            if (!$twoFactorService->isVerified($request, $user)) {
+            if (!$this->twoFactorService->isVerified($request, $user)) {
                 return redirect()->route('login.2fa.challenge');
             }
         }
@@ -128,8 +131,7 @@ class LoginController extends Controller
     {
         $user = Auth::user();
         if ($user) {
-            $twoFactorService = app(\App\Services\TwoFactor\TwoFactorService::class);
-            $twoFactorService->clearVerified($request, $user);
+            $this->twoFactorService->clearVerified($request, $user);
         }
 
         $this->guard()->logout();

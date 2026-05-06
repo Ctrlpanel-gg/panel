@@ -18,11 +18,11 @@ class TotpExtension extends TwoFactorExtension
     protected $recoveryCodeService;
     protected $twoFactorService;
 
-    public function __construct()
+    public function __construct(TotpService $totpService, RecoveryCodeService $recoveryCodeService, TwoFactorService $twoFactorService)
     {
-        $this->totpService = app(TotpService::class);
-        $this->recoveryCodeService = app(RecoveryCodeService::class);
-        $this->twoFactorService = app(TwoFactorService::class);
+        $this->totpService = $totpService;
+        $this->recoveryCodeService = $recoveryCodeService;
+        $this->twoFactorService = $twoFactorService;
     }
 
     public function getName(): string

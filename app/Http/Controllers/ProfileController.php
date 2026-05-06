@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Facades\Currency;
 use App\Models\User;
+use App\Services\TwoFactor\TwoFactorService;
 use App\Settings\UserSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
@@ -18,10 +19,12 @@ use Illuminate\Validation\ValidationException;
 class ProfileController extends Controller
 {
     private $pterodactyl;
+    protected $twoFactorService;
 
-    public function __construct(PterodactylSettings $ptero_settings)
+    public function __construct(PterodactylSettings $ptero_settings, TwoFactorService $twoFactorService)
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->twoFactorService = $twoFactorService;
     }
 
     /** Display a listing of the resource. */
@@ -30,7 +33,7 @@ class ProfileController extends Controller
         $user = Auth::user();
         $user->load('twoFactorMethods');
 
-        $availableMethods = app(\App\Services\TwoFactor\TwoFactorService::class)->getAvailableMethodsForUser($user);
+        $availableMethods = $this->twoFactorService->getAvailableMethodsForUser($user);
 
         return view('profile.index')->with([
             'user' => $user,
