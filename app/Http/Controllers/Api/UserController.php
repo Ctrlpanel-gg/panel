@@ -29,6 +29,9 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @group User Management
+ */
 class UserController extends Controller
 {
     use Referral;
@@ -45,10 +48,34 @@ class UserController extends Controller
     }
 
     const ALLOWED_INCLUDES = ['servers.product', 'notifications', 'payments', 'vouchers.users', 'roles.permissions', 'discordUser'];
-    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
+    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended', 'discordUser.id'];
 
     /**
-     * Show a list of users.
+     * List all users
+     *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
      *
      * @param  Request  $request
      * @return UserResource
@@ -64,14 +91,35 @@ class UserController extends Controller
     }
 
     /**
-     * Show the specified user.
-     * 
-     * @queryParam include string Comma-separated list of related resources to include. Example: servers.product,notifications,payments,vouchers.users,roles.permissions,discordUser
+     * Get user details
+     *
+     * @urlParam id integer required The ID of the user. Example: 1
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
      * @param  int  $userId
      * @return UserResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function show(Request $request, int $userId)
@@ -85,12 +133,43 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified user in the system.
+     * Update user
+     *
+     * @urlParam id integer required The ID of the user. Example: 1
+     * @bodyParam name string required The name. Example: john_doe
+     * @bodyParam email string required The email. Example: john@example.com
+     * @bodyParam password string The password. Example: secret123
+     * @bodyParam role_id integer The role ID. Example: 1
+     * @bodyParam referral_code string Referral code of the user. Example: ABCDEF12
+     * @bodyParam pterodactyl_id integer Linked Pterodactyl ID of the user. Example: 13
+     * @bodyParam credits number The credits for the user. Example: 100.00
+     * @bodyParam server_limit integer The server limit for the user. Example: 5
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  UpdateUserRequest  $request
      * @param  User  $user
      * @return UserResource
-     * 
+     *
      * @throws ValidationException
      * @throws ModelNotFoundException
      */
@@ -142,7 +221,28 @@ class UserController extends Controller
     }
 
     /**
-     * Increments the credits/server_limit of the user.
+     * Increment user balance or server limit
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "110.00",
+     *      "server_limit": 6,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  IncrementRequest  $request
      * @param  User  $user
@@ -169,7 +269,28 @@ class UserController extends Controller
     }
 
     /**
-     * Decrements the credits/server_limit of the user.
+     * Decrement user balance or server limit
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "90.00",
+     *      "server_limit": 4,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  DecrementRequest  $request
      * @param  User  $user
@@ -194,12 +315,35 @@ class UserController extends Controller
     }
 
     /**
-     * Suspend the user and their servers.
+     * Suspend user
+     *
+     * @bodyParam reason string Violation of terms of service. Example: Violation of terms of service
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": true,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
      * @param  User  $user
      * @return UserResource|\Illuminate\Http\JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function suspend(SuspendUserRequest $request, User $user)
@@ -219,19 +363,42 @@ class UserController extends Controller
         }
 
         activity()->performedOn($user)->log($logMessage);
-        
+
         $user->suspend();
 
         return UserResource::make($user);
     }
 
     /**
-     * Unsuspend the user and their servers if they has suficient credits.
+     * Unsuspend user
+     *
+     * @bodyParam reason string Re-activation after review. Example: Re-activation after review
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
      * @param  User  $user
      * @return UserResource|\Illuminate\Http\JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function unsuspend(UnsuspendUserRequest $request, User $user)
@@ -258,11 +425,40 @@ class UserController extends Controller
     }
 
     /**
-     * Create a new user in the system.
-     * 
+     * Create user
+     *
+     * @bodyParam name string required Min 4, max 30 chars. Example: john_doe
+     * @bodyParam email string required Valid email address. Example: john@example.com
+     * @bodyParam password string required Min 8 chars. Example: secret123
+     * @bodyParam role_id integer required Valid role ID. Example: 1
+     * @bodyParam credits number Initial credits. Max: 9223372036854775. Example: 100.00
+     * @bodyParam server_limit integer Initial server limit. Use 0 for unlimited. Example: 5
+     * @bodyParam referral_code string Referral code of the user. Example: ABCDEF12
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
+     *
      * @param CreateUserRequest  $request
      * @return UserResource
-     * 
+     *
      * @throws ValidationException
      */
     public function store(CreateUserRequest $request, UserSettings $userSettings)
@@ -324,12 +520,16 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user from the system.
+     * Delete user
+     *
+     * @bodyParam reason string User requested deletion. Example: User requested deletion
+     *
+     * @response 204 {}
      *
      * @param  Request  $request
      * @param  User  $user
      * @return \Illuminate\Http\Response
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function destroy(DeleteUserRequest $request, User $user)

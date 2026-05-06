@@ -45,7 +45,8 @@ class GeneralPermissionsSeeder extends Seeder
     }
 
     /**
-     * Create or update roles and assign permissions.
+     * Create roles and assign permissions.
+     * Only creates roles that don't exist, preserving manual edits to existing roles.
      */
     public function createOrUpdateRoles()
     {
@@ -78,17 +79,18 @@ class GeneralPermissionsSeeder extends Seeder
         ];
 
         foreach ($roles as $roleName => $roleData) {
-            // Create or update role by its unique ID.
-            $role = Role::updateOrCreate(
+            $role = Role::firstOrCreate(
                 ['id' => $roleData['id']],
                 ['name' => $roleName, 'power' => $roleData['power'], 'color' => $roleData['color']]
             );
 
-            // Sync permissions for the role.
-            if ($roleData['permissions'] === ['*']) {
-                $role->givePermissionTo(Permission::findByName('*'));
-            } else {
-                $role->syncPermissions($roleData['permissions']);
+            // Only sync permissions on initial creation, not on subsequent runs.
+            if ($role->wasRecentlyCreated) {
+                if ($roleData['permissions'] === ['*']) {
+                    $role->givePermissionTo(Permission::findByName('*'));
+                } else {
+                    $role->syncPermissions($roleData['permissions']);
+                }
             }
         }
     }

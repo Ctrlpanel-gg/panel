@@ -33,20 +33,22 @@ class PaymentController extends Controller
 {
     const BUY_PERMISSION = 'user.shop.buy';
     const VIEW_PERMISSION = "admin.payments.read";
+    const WRITE_PERMISSION = "admin.payments.write";
 
     use CouponTrait;
 
     /**
      * @return Application|Factory|View
      */
-    public function index(LocaleSettings $locale_settings)
+    public function index(LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
         $this->checkPermission(self::VIEW_PERMISSION);
 
 
         return view('admin.payments.index')->with([
             'payments' => Payment::paginate(15),
-            'locale_datatables' => $locale_settings->datatables
+            'locale_datatables' => $locale_settings->datatables,
+            'credits_display_name' => $general_settings->credits_display_name,
         ]);
     }
 
@@ -103,7 +105,7 @@ class PaymentController extends Controller
      * @param  ShopProduct  $shopProduct
      * @return RedirectResponse
      */
-    public function handleFreeProduct(ShopProduct $shopProduct, ?string $couponCode = null)
+    public function handleFreeProduct(ShopProduct $shopProduct, GeneralSettings $general_settings, ?string $couponCode = null)
     {
         /** @var User $user */
         $user = Auth::user();
@@ -135,7 +137,7 @@ class PaymentController extends Controller
         //not sending an invoice
 
         //redirect back to home
-        return redirect()->route('home')->with('success', __('Your credit balance has been increased!'));
+        return redirect()->route('home')->with('success', __('Your :credits balance has been increased!', ['credits' => $general_settings->credits_display_name]));
     }
 
     public function pay(Request $request)
@@ -167,7 +169,7 @@ class PaymentController extends Controller
             }
 
             if ($subtotal <= 0) {
-                return $this->handleFreeProduct($shopProduct, $couponCode);
+                return $this->handleFreeProduct($shopProduct, $general_settings, $couponCode);
             }
 
             $enabledPaymentGateways = [];
@@ -249,6 +251,9 @@ class PaymentController extends Controller
             ->editColumn('amount', function (Payment $payment, CurrencyHelper $currencyHelper) {
                 return $payment->type == 'Credits' ? $currencyHelper->formatForDisplay($payment->amount) : $payment->amount;
             })
+            ->editColumn('type', function (Payment $payment, GeneralSettings $general_settings) {
+                return $payment->type == 'Credits' ? $general_settings->credits_display_name : $payment->type;
+            })
             ->editColumn('price', function (Payment $payment, CurrencyHelper $currencyHelper) {
                 return $currencyHelper->formatToCurrency($payment->price, $payment->currency_code);
             })
@@ -270,13 +275,81 @@ class PaymentController extends Controller
             ->addColumn('actions', function (Payment $payment) {
                 $invoice = Invoice::where('payment_id', '=', $payment->payment_id)->first();
 
+                $actions = '';
                 if ($invoice && File::exists(storage_path('app/invoice/' . $invoice->invoice_user . '/' . $invoice->created_at->format('Y') . '/' . $invoice->invoice_name . '.pdf'))) {
-                    return '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-file-download"></i></a>';
-                } else {
-                    return '';
+                    $actions .= '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-file-download"></i></a>';
                 }
+
+                if ($payment->status !== PaymentStatus::PAID && $payment->status !== PaymentStatus::CANCELED) {
+                    $actions .= '<button type="button" class="mr-1 btn btn-sm btn-success" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Force Confirm') . '" onclick="confirmStatusUpdate(\'' . route('admin.payments.statusUpdate', $payment->id) . '\')"><i class="fas fa-check"></i></button>';
+
+                    $extensionClass = ExtensionHelper::getExtensionClass($payment->payment_method);
+                    if ($extensionClass && class_exists($extensionClass) && $extensionClass::supportsRecheck()) {
+                        $actions .= '<form method="POST" action="' . route('admin.payments.recheck', $payment->id) . '" style="display:inline-block;">' . csrf_field() . '<button type="submit" class="mr-1 btn btn-sm btn-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Recheck') . '"><i class="fas fa-sync"></i></button></form>';
+                    }
+                }
+
+                return $actions;
             })
             ->rawColumns(['actions', 'user'])
             ->make(true);
+    }
+
+    public function statusUpdate(Payment $payment)
+    {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        // TODO: In the future, we could add a status parameter to allow switching to any status (canceled, processing, etc.)
+        if ($payment->status === PaymentStatus::PAID) {
+            return redirect()->route('admin.payments.index')->with('error', __('Payment is already paid.'));
+        }
+
+        $payment->status = PaymentStatus::PAID;
+        $payment->save();
+
+        $user = User::findOrFail($payment->user_id);
+        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+
+        if ($payment->coupon_code) {
+            event(new CouponUsedEvent($payment->coupon_code, $user));
+        }
+
+        try {
+            $user->notify(new \App\Notifications\ConfirmPaymentNotification($payment));
+        } catch (Exception $e) {
+            Log::error('Force confirm notification failed: ' . $e->getMessage());
+        }
+
+        event(new PaymentEvent($user, $payment, $shopProduct));
+        event(new UserUpdateCreditsEvent($user));
+
+        return redirect()->route('admin.payments.index')->with('success', __('Payment status updated successfully.'));
+    }
+
+    public function recheck(Payment $payment)
+    {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $extensionClass = ExtensionHelper::getExtensionClass($payment->payment_method);
+        if (!$extensionClass || !class_exists($extensionClass)) {
+            return redirect()->route('admin.payments.index')->with('error', __('Payment extension not found.'));
+        }
+
+        if (!$extensionClass::supportsRecheck()) {
+            return redirect()->route('admin.payments.index')->with('error', __('This payment gateway does not support recheck.'));
+        }
+
+        try {
+            $extensionClass::recheckPayment($payment);
+        } catch (Exception $e) {
+            return redirect()->route('admin.payments.index')->with('error', __('Recheck failed: ') . $e->getMessage());
+        }
+
+        $payment->refresh();
+        if ($payment->status === PaymentStatus::PAID) {
+            return redirect()->route('admin.payments.index')->with('success', __('Payment confirmed after recheck.'));
+        }
+
+        return redirect()->route('admin.payments.index')->with('info', __('Payment status rechecked, but it is still: ') . $payment->status->value);
     }
 }
