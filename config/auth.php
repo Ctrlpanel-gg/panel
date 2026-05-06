@@ -114,6 +114,5 @@ return [
 
     'password_timeout' => 10800,
 
-    'two_factor_remember_days' => 30,
-
+    'two_factor_remember_days' => 60 * 24 * 400,
 ];
