@@ -67,8 +67,8 @@ Route::middleware(['auth', 'checkSuspended', 'two_factor.required'])->group(func
         ->name('login.2fa.')
         ->group(function () {
             Route::get('/', [TwoFactorController::class, 'showChallenge'])->name('challenge');
-            Route::get('/{method}', [TwoFactorExtensionController::class, 'showChallenge'])->name('method');
-            Route::post('/{method}', [TwoFactorExtensionController::class, 'verify'])->name('verify')->middleware('throttle:2fa.verify');
+            Route::get('/{method}', [TwoFactorExtensionController::class, 'showChallenge'])->name('method')->where('method', '[a-z_]+');
+            Route::post('/{method}', [TwoFactorExtensionController::class, 'verify'])->name('verify')->middleware('throttle:2fa.verify')->where('method', '[a-z_]+');
         });
 
     //2fa settings
@@ -76,10 +76,10 @@ Route::middleware(['auth', 'checkSuspended', 'two_factor.required'])->group(func
         ->prefix('profile/security/2fa')
         ->name('profile.2fa.')
         ->group(function () {
-            Route::post('/{method}/setup', [TwoFactorExtensionController::class, 'setup'])->name('setup')->middleware('throttle:2fa.setup');
-            Route::post('/{method}/enable', [TwoFactorExtensionController::class, 'enable'])->name('enable')->middleware('throttle:2fa.enable');
-            Route::post('/{method}/disable', [TwoFactorExtensionController::class, 'disable'])->name('disable')->middleware('throttle:2fa.verify');
-            Route::post('/{method}/{action}', [TwoFactorExtensionController::class, 'action'])->name('action')->middleware('throttle:2fa.action');
+            Route::post('/{method}/setup', [TwoFactorExtensionController::class, 'setup'])->name('setup')->middleware('throttle:2fa.setup')->where('method', '[a-z_]+');
+            Route::post('/{method}/enable', [TwoFactorExtensionController::class, 'enable'])->name('enable')->middleware('throttle:2fa.enable')->where('method', '[a-z_]+');
+            Route::post('/{method}/disable', [TwoFactorExtensionController::class, 'disable'])->name('disable')->middleware('throttle:2fa.verify')->where('method', '[a-z_]+');
+            Route::post('/{method}/{action}', [TwoFactorExtensionController::class, 'action'])->name('action')->middleware('throttle:2fa.action')->where(['method' => '[a-z_]+', 'action' => '[a-zA-Z_]+']);
         });
 
     //normal routes

@@ -10,7 +10,7 @@ class UserTwoFactorMethod extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'is_enabled' => 'boolean',
