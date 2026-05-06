@@ -250,7 +250,7 @@
                                 </div>
                                 <div class="col-lg-8">
                                     <span style="max-width: 250px;" class="d-inline-block text-truncate">
-                                        {{ is_null($enabled2faMethods) ? __('None') : $enabled2faMethods }}
+                                        {{ empty($enabled2faMethods) ? __('None') : $enabled2faMethods }}
                                     </span>
                                 </div>
                             </div>
