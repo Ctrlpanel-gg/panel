@@ -217,7 +217,7 @@ class UserController extends Controller
             'name' => 'required|string|min:4|max:30',
             'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
             'email' => 'required|string|email',
-            'credits' => 'required|numeric|min:0|max:99999999',
+            'credits' => 'required|numeric|min:0|max:9223372036854775',
             'server_limit' => 'required|numeric|min:0|max:1000000',
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);

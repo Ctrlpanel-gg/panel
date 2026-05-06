@@ -25,6 +25,10 @@ use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use Exception;
 
+/**
+ * @group Server Management
+ */
+
 class ServerController extends Controller
 {
     protected PterodactylSettings $pterodactylSettings;
@@ -43,7 +47,29 @@ class ServerController extends Controller
     public const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
 
     /**
-     * Show a list of servers.
+     * List all servers
+     *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
      *
      * @param  Request  $request
      * @return ServerResource
@@ -62,7 +88,28 @@ class ServerController extends Controller
     }
 
     /**
-     * Show the specified server.
+     * Get server details
+     *
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
      *
      * @param  Request  $request
      * @param  string  $serverId
@@ -81,9 +128,38 @@ class ServerController extends Controller
     }
 
     /**
-     * Store a new server in the system.
+     * Create server
      *
-     * @param  Request  $request
+     * @bodyParam name string required The name of the server. Example: My Awesome Server
+     * @bodyParam description string The description of the server. Example: High performance gaming server
+     * @bodyParam user_id integer required The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string required The ID of the product. Example: 1
+     * @bodyParam egg_id integer required The ID of the egg. Example: 1
+     * @bodyParam location_id integer required The ID of the location. Example: 1
+     * @bodyParam egg_variables object The egg variables for the server.
+     * @bodyParam egg_variables.STARTUP string Example: ./myserver
+     * @bodyParam billing_priority integer The billing priority. Example: 0
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     *
+     * @param  CreateServerRequest  $request
      * @return ServerResource
      *
      * @throws ValidationException
@@ -107,7 +183,37 @@ class ServerController extends Controller
     }
 
     /**
-     * Update the specified server in the system.
+     * Update server
+     *
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
+     * @bodyParam name string The name of the server. Example: My Awesome Server
+     * @bodyParam description string The description of the server. Example: High performance gaming server
+     * @bodyParam user_id integer The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string The ID of the product. Example: 1
+     * @bodyParam egg_id integer The ID of the egg. Example: 1
+     * @bodyParam location_id integer The ID of the location. Example: 1
+     * @bodyParam egg_variables object The egg variables for the server.
+     * @bodyParam egg_variables.STARTUP string Example: ./myserver
+     * @bodyParam billing_priority integer The billing priority. Example: 0
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
      *
      * @param UpdateServerRequest $request
      * @param Server $server
@@ -147,7 +253,29 @@ class ServerController extends Controller
     }
 
     /**
-     * Update the server build.
+     * Update server resources
+     *
+     * @bodyParam user_id integer The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string The ID of the product. Example: F6QnQ-91Afeo0chihMss
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
      *
      * @param  UpdateServerBuildRequest  $request
      * @param  Server  $server
@@ -172,7 +300,12 @@ class ServerController extends Controller
     }
 
     /**
-     * Remove the specified server from the system.
+     * Delete server
+     *
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
+     * @bodyParam reason string User requested deletion. Example: User requested deletion
+     *
+     * @response 204 {}
      *
      * @param  DeleteServerRequest  $request
      * @param  Server  $server
@@ -204,7 +337,28 @@ class ServerController extends Controller
     }
 
     /**
-     * Suspend server.
+     * Suspend server
+     *
+     * @bodyParam reason string Violation of terms of use. Example: Violation of terms of use
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": true,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
      *
      * @param  SuspendServerRequest  $request
      * @param  Server  $server
@@ -234,7 +388,28 @@ class ServerController extends Controller
     }
 
     /**
-     * Unsuspend server.
+     * Unsuspend server
+     *
+     * @bodyParam reason string Re-activation after review. Example: Re-activation after review
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
      *
      * @param  UnsuspendServerRequest  $request
      * @param  Server  $server
