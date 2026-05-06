@@ -124,7 +124,16 @@ function totpViewRecovery() {
         copyAllRecoveryCodes() {
             const text = this.recoveryCodes.join("\n");
             navigator.clipboard.writeText(text).then(() => {
-                toastr.success("{{ __('Recovery codes copied to clipboard') }}");
+                Swal.fire({
+                    icon: 'success',
+                    title: "{{ __('Recovery codes copied to clipboard') }}",
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    background: '#343a40',
+                    toast: true,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
             });
         },
 
