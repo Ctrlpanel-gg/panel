@@ -20,7 +20,7 @@
                     <div class="text-muted small">{{ $method->getDescription() }}</div>
                 </div>
             </div>
-            <!-- Desktop icon -->
+            <!-- Desktop badge -->
             <div class="d-none d-md-block">
                 @if($totp)
                     <span class="badge badge-success">{{ __('Enabled') }}</span>
