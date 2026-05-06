@@ -50,6 +50,7 @@
                             <th>{{__('Servers')}}</th>
                             <th>{{__('Referrals')}}</th>
                             <th>{{__('Verified')}}</th>
+                            <th>{{__('2FA')}}</th>
                             <th>{{__('Last seen')}}</th>
                             <th></th>
                         </tr>
@@ -127,6 +128,10 @@
                     },
                     {
                         data: 'verified',
+                        sortable: false
+                    },
+                    {
+                        data: 'two_factor',
                         sortable: false
                     },
                     {
