@@ -68,6 +68,11 @@ class DummyExtension extends TwoFactorExtension
         return response()->json(['message' => 'Dummy 2FA enabled!']);
     }
 
+    /**
+     * NOTE: This is a dummy method for development only.
+     * In a production-ready extension, this method SHOULD require
+     * password or 2FA code verification before disabling.
+     */
     public function disable(Request $request)
     {
         $request->user()->twoFactorMethods()->where('method', 'dummy')->delete();

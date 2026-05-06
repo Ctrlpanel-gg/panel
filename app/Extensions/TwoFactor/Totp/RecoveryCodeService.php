@@ -37,8 +37,14 @@ class RecoveryCodeService
         }
 
         $code = strtoupper(preg_replace('/\s+/', '', $code));
-        
-        $method = $user->twoFactorMethods()->where('method', 'totp')->first();
+
+        // Use pre-loaded collection if available to avoid N+1, otherwise query
+        $methods = $user->relationLoaded('twoFactorMethods')
+            ? $user->twoFactorMethods
+            : $user->twoFactorMethods();
+
+        $method = $methods->where('method', 'totp')->first();
+
         if (!$method || !$method->totp_recovery_codes) {
             return false;
         }
