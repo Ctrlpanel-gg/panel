@@ -40,14 +40,11 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block">{{ __('Verify') }}</button>
-                        </div>
+                      <div class="col-12">
+                        <button type="submit" class="btn btn-primary btn-block">{{ __('Verify') }}</button>
+                      </div>
                     </div>
-
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                </form>
-
+                    </form>
                 <p class="mt-3 mb-1 text-center">
                     <a href="{{ route('logout') }}"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

@@ -27,9 +27,11 @@ class ProfileController extends Controller
     /** Display a listing of the resource. */
     public function index(UserSettings $user_settings, DiscordSettings $discord_settings, ReferralSettings $referral_settings)
     {
+        $user = Auth::user();
+        $user->load('twoFactorMethods');
 
         return view('profile.index')->with([
-            'user' => Auth::user(),
+            'user' => $user,
             // raw numeric value for logical checks; formatting occurs in blades when needed
             'credits_reward_after_verify_discord' => $user_settings->credits_reward_after_verify_discord,
             'force_email_verification' => $user_settings->force_email_verification,

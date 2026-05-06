@@ -1,4 +1,4 @@
-@php($totp = Auth::user()->twoFactorMethods()->where('method', 'totp')->where('is_enabled', true)->first())
+@php($totp = Auth::user()->twoFactorMethods->where('method', 'totp')->where('is_enabled', true)->first())
 <div class="mb-3 card">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-md-center">
