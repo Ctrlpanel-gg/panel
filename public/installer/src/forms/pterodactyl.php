@@ -18,7 +18,12 @@ if (isset($_POST['checkPtero'])) {
         exit();
     }
 
-    $url = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+    $normalizedUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+    if (isset($parsedUrl['port'])) {
+        $normalizedUrl .= ':' . $parsedUrl['port'];
+    }
+
+    $url = rtrim($normalizedUrl, '/');
 
     $callpteroURL = $url . '/api/client/account';
     $call = curl_init();
