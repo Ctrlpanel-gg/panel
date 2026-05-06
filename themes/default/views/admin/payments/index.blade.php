@@ -66,6 +66,28 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            window.confirmStatusUpdate = function(url) {
+                Swal.fire({
+                    title: "{{ __('Are you sure?') }}",
+                    text: "{{ __('This will forcibly mark the payment as PAID and trigger all related actions.') }}",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: "{{ __('Yes, confirm it!') }}",
+                    cancelButtonText: "{{ __('Cancel') }}",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = url;
+                        form.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}">';
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            }
+
             $('#datatable').DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
