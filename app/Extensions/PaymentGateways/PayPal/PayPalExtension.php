@@ -172,6 +172,42 @@ class PayPalExtension extends PaymentExtension
         }
     }
 
+    public static function supportsRecheck(): bool
+    {
+        return true;
+    }
+
+    // Recheck the payment status
+    public static function recheckPayment(Payment $payment): void
+    {
+        if (empty($payment->payment_id)) {
+            return;
+        }
+
+        try {
+            $order = self::getPayPalOrder($payment->payment_id);
+
+            if (strtoupper((string) ($order->status ?? '')) === 'APPROVED') {
+                self::capturePayPalOrder($payment->payment_id);
+                $order = self::getPayPalOrder($payment->payment_id);
+            }
+
+            if (strtoupper((string) ($order->status ?? '')) === 'COMPLETED') {
+                if (self::isValidPayPalOrderAmount($payment, $order)) {
+                    self::completePayment($payment->id, $payment->payment_id);
+                }
+            } elseif (in_array(strtoupper((string) ($order->status ?? '')), ['VOIDED', 'EXPIRED'], true)) {
+                self::setPaymentCanceled($payment->id, $payment->payment_id);
+            }
+        } catch (Exception $e) {
+            Log::error('PayPal recheck failed', [
+                'payment_id' => $payment->id,
+                'gateway_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     public static function webhook(Request $request): JsonResponse
     {
         $event = $request->json()->all();

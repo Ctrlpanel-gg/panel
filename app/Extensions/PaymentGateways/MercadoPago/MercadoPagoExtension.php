@@ -112,6 +112,50 @@ class MercadoPagoExtension extends PaymentExtension
         return Redirect::route('home')->with('success', 'Your payment is being processed!');
     }
 
+    public static function supportsRecheck(): bool
+    {
+        return true;
+    }
+
+    // Recheck the payment status
+    public static function recheckPayment(Payment $payment): void
+    {
+        if (empty($payment->payment_id)) {
+            return;
+        }
+
+        $settings = new MercadoPagoSettings();
+        $url = 'https://api.mercadopago.com/v1/payments/' . $payment->payment_id;
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $settings->access_token,
+            ])->get($url);
+
+            if (!$response->successful()) {
+                return;
+            }
+
+            $mercado = $response->json();
+            $status = $mercado['status'] ?? null;
+
+            if ($status === 'approved') {
+                self::completePayment($payment->id, $payment->payment_id);
+            } elseif (in_array($status, ['canceled', 'rejected', 'refunded', 'charged_back'], true)) {
+                self::setPaymentCanceled($payment->id, $payment->payment_id);
+            } else {
+                self::setPaymentProcessing($payment->id, $payment->payment_id);
+            }
+        } catch (Exception $e) {
+            Log::error('MercadoPago recheck failed', [
+                'payment_id' => $payment->id,
+                'gateway_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     static function Webhook(Request $request): JsonResponse
     {
         $settings = new MercadoPagoSettings();

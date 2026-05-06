@@ -7,7 +7,7 @@ if (isset($_POST['checkGeneral'])) {
 
     $parsedUrl = parse_url($appurl);
 
-    if (!isset($parsedUrl['scheme'])) {
+    if (!isset($parsedUrl['scheme']) || !in_array(strtolower((string) $parsedUrl['scheme']), ['http', 'https'], true)) {
         send_error_message("Please set an URL Scheme like 'https://'!");
         exit();
     }
@@ -17,7 +17,12 @@ if (isset($_POST['checkGeneral'])) {
         exit();
     }
 
-    $appurl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+    $normalizedAppUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
+    if (isset($parsedUrl['port'])) {
+        $normalizedAppUrl .= ':' . $parsedUrl['port'];
+    }
+
+    $appurl = rtrim($normalizedAppUrl, '/');
 
     setenv('APP_NAME', $appname);
     setenv('APP_URL', $appurl);
