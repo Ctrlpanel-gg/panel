@@ -76,7 +76,9 @@ class TwoFactorService
      */
     public function markVerified(Request $request, User $user): void
     {
-        $request->session()->put('two_factor_verified', true);
+        if ($request->hasSession()) {
+            $request->session()->put('two_factor_verified', true);
+        }
 
         // If remember_web cookie is present, store verification token in DB
         $cookieName = Auth::guard('web')->getRecallerName();
@@ -100,7 +102,7 @@ class TwoFactorService
     public function isVerified(Request $request, User $user): bool
     {
         // 1. Session check - always authoritative for the current session
-        if ($request->session()->get('two_factor_verified') === true) {
+        if ($request->hasSession() && $request->session()->get('two_factor_verified') === true) {
             return true;
         }
 
@@ -115,7 +117,9 @@ class TwoFactorService
                     ->first();
 
                 if ($token) {
-                    $request->session()->put('two_factor_verified', true);
+                    if ($request->hasSession()) {
+                        $request->session()->put('two_factor_verified', true);
+                    }
                     return true;
                 }
             }
@@ -129,7 +133,9 @@ class TwoFactorService
      */
     public function clearVerified(Request $request, User $user): void
     {
-        $request->session()->forget('two_factor_verified');
+        if ($request->hasSession()) {
+            $request->session()->forget('two_factor_verified');
+        }
 
         $rememberToken = $user->getRememberToken();
         if ($rememberToken) {
