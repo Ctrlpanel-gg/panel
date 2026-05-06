@@ -24,8 +24,7 @@
                         <div class="mb-3 input-group">
                             <input type="text" name="code" id="code"
                                 class="form-control @error('code') is-invalid @enderror"
-                                placeholder="{{ __('Authentication Code') }}" autofocus autocomplete="one-time-code"
-                                inputmode="numeric">
+                                placeholder="{{ __('Authentication Code') }}" autofocus autocomplete="one-time-code">
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <span class="fas fa-lock"></span>
@@ -40,11 +39,11 @@
                     </div>
 
                     <div class="row">
-                      <div class="col-12">
-                        <button type="submit" class="btn btn-primary btn-block">{{ __('Verify') }}</button>
-                      </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-block">{{ __('Verify') }}</button>
+                        </div>
                     </div>
-                    </form>
+                </form>
                 <p class="mt-3 mb-1 text-center">
                     <a href="{{ route('logout') }}"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

@@ -313,8 +313,7 @@
                                         <div class="mb-3 col-12 col-sm-6">
                                             <div class="mb-3"><b>{{ __('Two-Factor Authentication') }}</b></div>
 
-                                            @inject('twoFactorService', 'App\Services\TwoFactor\TwoFactorService')
-                                            @foreach($twoFactorService->getAvailableMethodsForUser(Auth::user()) as $method)
+                                            @foreach($availableMethods as $method)
                                                 @include($method->getSettingsView(), ['method' => $method])
                                             @endforeach
                                         </div>

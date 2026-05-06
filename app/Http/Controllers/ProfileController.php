@@ -30,8 +30,11 @@ class ProfileController extends Controller
         $user = Auth::user();
         $user->load('twoFactorMethods');
 
+        $availableMethods = app(\App\Services\TwoFactor\TwoFactorService::class)->getAvailableMethodsForUser($user);
+
         return view('profile.index')->with([
             'user' => $user,
+            'availableMethods' => $availableMethods,
             // raw numeric value for logical checks; formatting occurs in blades when needed
             'credits_reward_after_verify_discord' => $user_settings->credits_reward_after_verify_discord,
             'force_email_verification' => $user_settings->force_email_verification,
