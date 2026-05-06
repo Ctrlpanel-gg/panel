@@ -37,7 +37,11 @@ class ExtensionServiceProvider extends ServiceProvider
                 // Load Routes
                 $routesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes.php';
                 if (is_file($routesFile)) {
-                    $this->loadRoutesFrom($routesFile);
+                    $resolvedPath = realpath($routesFile);
+                    $basePath = realpath($extensionsBasePath);
+                    if ($resolvedPath && $basePath && str_starts_with($resolvedPath, $basePath . DIRECTORY_SEPARATOR)) {
+                        $this->loadRoutesFrom($resolvedPath);
+                    }
                 }
 
                 // Load Views

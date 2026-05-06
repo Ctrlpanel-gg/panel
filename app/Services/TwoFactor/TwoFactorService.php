@@ -88,7 +88,7 @@ class TwoFactorService
                 ],
                 [
                     'verified_at' => now(),
-                    'expires_at' => now()->addMinutes((int) config('session.lifetime')),
+                    'expires_at' => now()->addDays((int) config('auth.two_factor_remember_days', 30)),
                 ]
             );
         }
