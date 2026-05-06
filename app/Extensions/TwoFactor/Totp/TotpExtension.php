@@ -227,6 +227,11 @@ class TotpExtension extends TwoFactorExtension
         ]);
     }
 
+    public function getAllowedActions(): array
+    {
+        return ['showRecoveryCodes'];
+    }
+
     public static function getConfig(): array
     {
         return [

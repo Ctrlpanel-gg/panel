@@ -66,6 +66,16 @@ abstract class TwoFactorExtension extends AbstractExtension
     abstract public function disable(Request $request);
 
     /**
+     * Get the list of allowed actions that can be called via the action route.
+     *
+     * @return array
+     */
+    public function getAllowedActions(): array
+    {
+        return [];
+    }
+
+    /**
      * Get method-specific routes configuration if any.
      */
     public static function getConfig(): array

@@ -104,6 +104,10 @@ class TwoFactorExtensionController extends Controller
             abort(404);
         }
 
+        if (!in_array($action, $extension->getAllowedActions(), true)) {
+            abort(403);
+        }
+
         return $extension->{$action}($request);
     }
 }

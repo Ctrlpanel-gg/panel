@@ -29,6 +29,11 @@ class DummyExtension extends TwoFactorExtension
         return __('A temporary method for testing modular 2FA.');
     }
 
+    public function isAvailable(User $user): bool
+    {
+        return app()->environment('local');
+    }
+
     public function getSettingsView(): string
     {
         return 'twofactor_dummy::profile_card';
