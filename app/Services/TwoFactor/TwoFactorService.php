@@ -79,16 +79,16 @@ class TwoFactorService
         $request->session()->put('two_factor_verified', true);
 
         // If remember_web cookie is present, store verification token in DB
-        $rememberToken = $user->getRememberToken();
-        if ($rememberToken) {
+        $cookieName = Auth::guard('web')->getRecallerName();
+        if ($request->hasCookie($cookieName)) {
             TwoFactorVerifiedToken::updateOrCreate(
                 [
                     'user_id' => $user->id,
-                    'token_hash' => hash('sha256', $rememberToken),
+                    'token_hash' => hash('sha256', $user->getRememberToken()),
                 ],
                 [
                     'verified_at' => now(),
-                    'expires_at' => now()->addMinutes((int) config('auth.remember_cookie_minutes', 576000)),
+                    'expires_at' => now()->addMinutes((int) config('auth.two_factor_token_lifetime', 576000)),
                 ]
             );
         }

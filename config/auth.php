@@ -114,5 +114,5 @@ return [
 
     'password_timeout' => 10800,
 
-    'two_factor_remember_days' => 60 * 24 * 400,
+    'two_factor_token_lifetime' => 576000, // minutes (400 days)
 ];
