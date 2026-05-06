@@ -55,9 +55,17 @@ return new class extends Migration
 
     private function dropForeignKeys(): void
     {
-        DB::statement("ALTER TABLE `servers` DROP FOREIGN KEY IF EXISTS `servers_product_id_foreign`");
-        DB::statement("ALTER TABLE `egg_product` DROP FOREIGN KEY IF EXISTS `egg_product_product_id_foreign`");
-        DB::statement("ALTER TABLE `node_product` DROP FOREIGN KEY IF EXISTS `node_product_product_id_foreign`");
+        Schema::table('servers', function (Blueprint $table) {
+            $table->dropForeign(['product_id']);
+        });
+
+        Schema::table('egg_product', function (Blueprint $table) {
+            $table->dropForeign(['product_id']);
+        });
+
+        Schema::table('node_product', function (Blueprint $table) {
+            $table->dropForeign(['product_id']);
+        });
     }
 
     private function addForeignKeys(): void
