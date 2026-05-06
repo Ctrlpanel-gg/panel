@@ -49,6 +49,9 @@ return [
 
     /*
      * User's table column for google2fa secret.
+     * Note: This column is NOT used by CtrlPanel.gg. We handle verification manually via
+     * Google2FA::verifyKey() using the 'totp_secret' column in the user_two_factor_methods table.
+     * The package's automatic middleware/auto-detection is not used.
      */
     'otp_secret_column' => 'google2fa_secret',
 
