@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use App\Facades\Captcha;
+use App\Rules\CaptchaRule;
+use App\View\Components\CaptchaWidget;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +38,27 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
         Schema::defaultStringLength(191);
+
+        // Captcha Integration
+        Validator::extend('captcha', function ($attribute, $value, $parameters, $validator) {
+            $rule = new CaptchaRule();
+            $error = null;
+            $rule->validate($attribute, $value, function ($message) use (&$error) {
+                $error = $message;
+            });
+
+            if ($error) {
+                $validator->setCustomMessages(['captcha' => $error]);
+                return false;
+            }
+            return true;
+        });
+
+        Blade::directive('captchaScripts', function () {
+            return '<?php echo \App\Facades\Captcha::renderScripts(); ?>';
+        });
+
+        Blade::component('captcha', CaptchaWidget::class);
 
         Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
             $event->extendSocialite('discord', \SocialiteProviders\Discord\Provider::class);

@@ -14,7 +14,6 @@ use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
 use App\Actions\ProcessReferralAction;
-use Coderflex\LaravelTurnstile\Rules\TurnstileCheck;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -84,17 +83,7 @@ class RegisterController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
         if ($this->generalSettings->recaptcha_version) {
-            switch ($this->generalSettings->recaptcha_version) {
-                case "v2":
-                    $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
-                    break;
-                case "v3":
-                    $validationRules['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.5'];
-                    break;
-                case "turnstile":
-                    $validationRules['cf-turnstile-response'] = ['required', new TurnstileCheck()];
-                    break;
-            }
+            $validationRules['captcha'] = ['required', 'captcha'];
         }
         if ($this->websiteSettings->show_tos) {
             $validationRules['terms'] = ['required'];

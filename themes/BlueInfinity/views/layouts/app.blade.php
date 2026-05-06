@@ -30,17 +30,7 @@
   <noscript>
     <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
   </noscript>
-  @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
-  @if ($recaptchaVersion)
-    @switch($recaptchaVersion)
-      @case("v2")
-        {!! htmlScriptTagJsApi() !!}
-        @break
-      @case("v3")
-        {!! RecaptchaV3::initJs() !!}
-        @break
-    @endswitch
-  @endif
+  @captchaScripts
   <link rel="stylesheet" href="{{ asset('themes/BlueInfinity/app.css') }}">
 </head>
 @yield('content')
