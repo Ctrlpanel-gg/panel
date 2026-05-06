@@ -27,7 +27,7 @@ class CreateVoucherRequest extends FormRequest
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
             'uses' => 'required|numeric|max:2147483647|min:1',
             'credits' => ['required', 'numeric', 
-                'min:' . MysqlLimits::CREDITS_MIN,
+                'min:0.01',
                 'max:' . MysqlLimits::CREDITS_MAX,
             ],
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
