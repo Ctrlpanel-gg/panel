@@ -234,7 +234,7 @@
             }).then((result) => {
                 if (result.value) {
                     // Delete server
-                    fetch("{{ route('servers.cancel', '') }}" + '/' + serverId, {
+                    fetch("{{ route('servers.cancel', ['server' => ':serverId']) }}".replace(':serverId', serverId), {
                         method: 'PATCH',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -267,7 +267,7 @@
             }).then((result) => {
                 if (result.value) {
                     // Delete server
-                    fetch("{{ route('servers.destroy', '') }}" + '/' + serverId, {
+                    fetch("{{ route('servers.destroy', ['server' => ':serverId']) }}".replace(':serverId', serverId), {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
