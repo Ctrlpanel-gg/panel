@@ -526,9 +526,9 @@
 
                     return environment.filter((variable) => {
                         const hasRequiredRule = variable.rules?.includes("required");
-                        const isDefaultNull = !variable.default_value;
+                        const isDefaultEmpty = variable.default_value === null || variable.default_value === "";
 
-                        return hasRequiredRule && isDefaultNull;
+                        return hasRequiredRule && isDefaultEmpty;
                     });
                 },
 
@@ -577,11 +577,11 @@
                                 const inValues = variable.rules.match(/in:([^|]+)/)[1].split(',');
                                 return `
                                     <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
-                                        ${inValues.map(value => `<option value="${value}">${value}</option>`).join('')}
+                                        ${inValues.map(value => `<option value="${value}" ${value == variable.default_value ? 'selected' : ''}>${value}</option>`).join('')}
                                     </select>
                                 `;
                             })() :
-                            `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`;
+                            `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control" value="${variable.default_value ?? ''}">`;
 
                         return `
                             <div class="text-left form-group">
