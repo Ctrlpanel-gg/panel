@@ -573,7 +573,7 @@ class PterodactylClient
         $variables = collect(is_string($variables) ? json_decode($variables, true) : $variables);
 
         foreach ($egg->environment as $envVariable) {
-            if (!empty($envVariable['default_value'])) {
+            if ($envVariable['default_value'] !== null && $envVariable['default_value'] !== '') {
                 $environment[$envVariable['env_variable']] = $envVariable['default_value'];
             }
         }
