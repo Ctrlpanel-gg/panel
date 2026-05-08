@@ -225,32 +225,15 @@ class StripeExtension extends PaymentExtension
     {
         $currency = strtoupper((string) ($paymentIntent->currency ?? ''));
         $expectedCurrency = strtoupper($payment->currency_code);
-        $amountInSmallestUnit = (int) ($paymentIntent->amount_received ?? $paymentIntent->amount ?? 0);
-        $amountInDatabaseUnits = self::convertGatewayAmountToDatabaseUnits($amountInSmallestUnit, $currency);
+        $amountReceived = (int) ($paymentIntent->amount_received ?? $paymentIntent->amount ?? 0);
+
+        $expectedAmount = self::convertAmount((float) $payment->total_price, $payment->currency_code);
 
         $isValid = $currency !== ''
             && $currency === $expectedCurrency
-            && $amountInDatabaseUnits === (int) $payment->total_price;
+            && $amountReceived === $expectedAmount;
 
         return $isValid;
-    }
-
-    protected static function convertGatewayAmountToDatabaseUnits(int $gatewayAmount, string $currency): int
-    {
-        $currency = strtoupper($currency);
-
-        if (in_array($currency, self::ZERO_DECIMAL_CURRENCIES, true)) {
-            $result = self::currencyHelper()->prepareForDatabase((float) $gatewayAmount);
-            return $result;
-        }
-
-        if (in_array($currency, self::THREE_DECIMAL_CURRENCIES, true)) {
-            $result = self::currencyHelper()->prepareForDatabase($gatewayAmount / 1000);
-            return $result;
-        }
-
-        $result = self::currencyHelper()->prepareForDatabase($gatewayAmount / 100);
-        return $result;
     }
 
     /**
