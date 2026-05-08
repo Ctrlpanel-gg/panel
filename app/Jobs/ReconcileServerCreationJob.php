@@ -78,18 +78,12 @@ class ReconcileServerCreationJob implements ShouldQueue
         }
 
         if ($response->status() === 404) {
-            // Atomic transition to FAILED to avoid double refunds in concurrent workers.
-            $updated = Server::where('id', $server->id)
-                ->where('status', '!=', Server::STATUS_FAILED)
-                ->update(['status' => Server::STATUS_FAILED]);
-
-            if ($updated === 1) {
-                $creditService->refund($server->user, $this->chargedPrice);
-                Log::info('ReconcileServerCreationJob: refunded credits on confirmed 404', [
-                    'server_id' => $server->id,
-                    'amount' => $this->chargedPrice,
-                ]);
-            }
+            $server->delete();
+            $creditService->refund($server->user, $this->chargedPrice);
+            Log::info('ReconcileServerCreationJob: deleted server and refunded credits on confirmed 404', [
+                'server_id' => $this->serverId,
+                'amount' => $this->chargedPrice,
+            ]);
 
             return;
         }
@@ -129,22 +123,13 @@ class ReconcileServerCreationJob implements ShouldQueue
             }
 
             if ($response->status() === 404) {
-                $updated = Server::where('id', $server->id)
-                    ->where('status', '!=', Server::STATUS_FAILED)
-                    ->update(['status' => Server::STATUS_FAILED]);
-
-                if ($updated === 1) {
-                    $creditService->refund($server->user, $this->chargedPrice);
-                    Log::critical('ReconcileServerCreationJob failed after retries with remote 404; refunded credits', [
-                        'server_id' => $this->serverId,
-                        'amount' => $this->chargedPrice,
-                        'error' => $exception->getMessage(),
-                    ]);
-                } else {
-                    Log::info('ReconcileServerCreationJob failed after retries with remote 404; no refund needed because status already failed', [
-                        'server_id' => $this->serverId,
-                    ]);
-                }
+                $server->delete();
+                $creditService->refund($server->user, $this->chargedPrice);
+                Log::critical('ReconcileServerCreationJob failed after retries with remote 404; deleted server and refunded credits', [
+                    'server_id' => $this->serverId,
+                    'amount' => $this->chargedPrice,
+                    'error' => $exception->getMessage(),
+                ]);
 
                 return;
             }
