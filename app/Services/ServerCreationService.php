@@ -239,10 +239,9 @@ class ServerCreationService
         ]);
 
         // If Pterodactyl returned a 400 Bad Request, it means the request was invalid (e.g. missing variables).
-        // In this case, we know the server wasn't created, so we can immediately delete it and refund.
+        // In this case, we know the server wasn't created, so we can immediately delete it.
         if ($response->status() === 400) {
             $server->delete();
-            $this->refundCredits($user, $chargedPrice);
 
             throw new \Exception(__('Server could not be created, please try again later or contact administration if the issue persists.'));
         }
@@ -268,7 +267,6 @@ class ServerCreationService
 
             if ($remoteResponse->status() === 404) {
                 $server->delete();
-                $this->refundCredits($user, $chargedPrice);
 
                 throw new \Exception(__('Server could not be created, please try again later or contact administration if the issue persists.'));
             }
