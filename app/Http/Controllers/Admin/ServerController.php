@@ -9,6 +9,8 @@ use App\Settings\DiscordSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Facades\Currency;
+use App\Services\CreditService;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -154,9 +156,11 @@ class ServerController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  Server  $server
+     * @param  Request  $request
+     * @param  DiscordSettings  $discord_settings
      * @return RedirectResponse|Response
      */
-    public function destroy(Server $server, DiscordSettings $discord_settings)
+    public function destroy(Server $server, Request $request, DiscordSettings $discord_settings)
     {
         $this->checkPermission(self::DELETE_PERMISSION);
         try {
@@ -171,6 +175,17 @@ class ServerController extends Controller
                 }
             } catch (Exception $e) {
                 log::debug('Failed to update discord roles' . $e->getMessage());
+            }
+
+            if ($request->has('refund')) {
+                $user = User::findOrFail($server->user_id);
+                $credits = (int) round($server->product->price);
+                app(CreditService::class)->refund($user, $credits);
+
+                activity()
+                    ->performedOn($server)
+                    ->causedBy(Auth::user())
+                    ->log("Server credits (" . Currency::formatForDisplay($credits) . ") refunded to user " . $user->name . " during deletion.");
             }
 
             // Attempt to remove the server from pterodactyl
@@ -236,42 +251,77 @@ class ServerController extends Controller
     public function syncServers()
     {
         $this->checkPermission(self::WRITE_PERMISSION);
-        $CPServers = Server::get();
+        $CPServers = Server::all();
 
         $CPIDArray = [];
         $renameCount = 0;
-        foreach ($CPServers as $CPServer) { //go thru all CP servers and make array with IDs as keys. All values are false.
+        $recoveredCount = 0;
+        $deleteCount = 0;
+
+        // 1. Handle servers with missing pterodactyl_id (Try to recover via external_id)
+        foreach ($CPServers->whereNull('pterodactyl_id') as $serverWithoutId) {
+            try {
+                $response = $this->pterodactyl->getServerByExternalId($serverWithoutId->id);
+                if ($response->successful()) {
+                    $attributes = $response->json()['attributes'] ?? null;
+                    if ($attributes && isset($attributes['id'])) {
+                        $serverWithoutId->update([
+                            'pterodactyl_id' => $attributes['id'],
+                            'identifier' => $attributes['identifier'] ?? $serverWithoutId->identifier,
+                            'status' => Server::STATUS_ACTIVE,
+                        ]);
+                        $recoveredCount++;
+                    }
+                }
+            } catch (Exception $e) {
+                Log::error("Failed to sync server without ID {$serverWithoutId->id}: " . $e->getMessage());
+            }
+        }
+
+        // Refresh list after recovery attempts
+        $CPServers = Server::all();
+
+        // 2. Map existing pterodactyl_id for presence check
+        foreach ($CPServers as $CPServer) {
             if ($CPServer->pterodactyl_id) {
                 $CPIDArray[$CPServer->pterodactyl_id] = false;
             }
         }
 
-        foreach ($this->pterodactyl->getServers() as $server) { //go thru all ptero servers, if server exists, change value to true in array.
-            if (isset($CPIDArray[$server['attributes']['id']])) {
-                $CPIDArray[$server['attributes']['id']] = true;
+        // 3. Sync names and mark found servers
+        foreach ($this->pterodactyl->getServers() as $server) {
+            $pteroId = $server['attributes']['id'];
+            if (isset($CPIDArray[$pteroId])) {
+                $CPIDArray[$pteroId] = true;
 
-                if (isset($server['attributes']['name'])) { //failsafe
-                    //Check if a server got renamed
-                    $savedServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first();
-                    if ($savedServer->name != $server['attributes']['name']) {
-                        $savedServer->name = $server['attributes']['name'];
-                        $savedServer->save();
+                if (isset($server['attributes']['name'])) {
+                    $savedServer = $CPServers->where('pterodactyl_id', $pteroId)->first();
+                    if ($savedServer && $savedServer->name != $server['attributes']['name']) {
+                        $savedServer->update(['name' => $server['attributes']['name']]);
                         $renameCount++;
                     }
                 }
             }
         }
-        $filteredArray = array_filter($CPIDArray, function ($v, $k) {
-            return $v == false;
-        }, ARRAY_FILTER_USE_BOTH); //Array of servers, that dont exist on ptero (value == false)
-        $deleteCount = 0;
-        foreach ($filteredArray as $key => $CPID) { //delete servers that dont exist on ptero anymore
-            if (!$this->pterodactyl->getServerAttributes($key, true)) {
+
+        // 4. Delete servers that don't exist on Pterodactyl anymore
+        $orphanedServers = array_filter($CPIDArray, fn($found) => !$found);
+        foreach ($orphanedServers as $key => $found) {
+            try {
+                // getServerAttributes with deleteOn404=true will delete the server if it's missing
+                $this->pterodactyl->getServerAttributes($key, true);
                 $deleteCount++;
+            } catch (Exception $e) {
+                Log::error("Failed to check orphaned server {$key}: " . $e->getMessage());
             }
         }
 
-        return redirect()->back()->with('success', __('Servers synced successfully' . (($renameCount) ? (',\n' . __('renamed') . ' ' . $renameCount . ' ' . __('servers')) : '') . ((count($filteredArray)) ? (',\n' . __('deleted') . ' ' . $deleteCount . '/' . count($filteredArray) . ' ' . __('old servers')) : ''))) . '.';
+        $message = __('Servers synced successfully.');
+        if ($renameCount > 0) $message .= ' ' . __('Renamed') . ': ' . $renameCount . '.';
+        if ($recoveredCount > 0) $message .= ' ' . __('Recovered') . ': ' . $recoveredCount . '.';
+        if ($deleteCount > 0) $message .= ' ' . __('Deleted') . ': ' . $deleteCount . '.';
+
+        return redirect()->back()->with('success', $message);
     }
 
     /**
@@ -329,11 +379,16 @@ class ServerController extends Controller
                         </button>
                        </form>
 
-                       <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
+                       <button data-content="' . __('Delete') . '"
+                               data-toggle="popover"
+                               data-trigger="hover"
+                               data-placement="top"
+                               class="btn btn-sm btn-danger mr-1 delete-server-btn"
+                               data-server-id="' . $server->id . '"
+                               data-server-status="' . $server->status . '"
+                               data-action="' . route('admin.servers.destroy', $server->id) . '">
+                           <i class="fas fa-trash"></i>
+                       </button>
 
                 ';
             })

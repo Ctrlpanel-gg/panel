@@ -157,6 +157,11 @@ class ServerController extends Controller
                     ->with('error', __('Server creation failed'));
             }
 
+            if ($server->status === Server::STATUS_PENDING_RECONCILIATION) {
+                return redirect()->route('servers.index')
+                    ->with('success', __('Server is being created, please wait.'));
+            }
+
             return redirect()->route('servers.index')
                 ->with('success', __('Server created'));
         } catch (Exception $e) {
@@ -248,8 +253,14 @@ class ServerController extends Controller
         $servers = Auth::user()->servers;
 
         foreach ($servers as $server) {
+            if (!$server->pterodactyl_id) {
+                continue;
+            }
+
             $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-            if (!$serverInfo) continue;
+            if (!$serverInfo) {
+                continue;
+            }
 
             $this->updateServerInfo($server, $serverInfo);
         }
@@ -315,6 +326,11 @@ class ServerController extends Controller
             return back()->with('error', __('This is not your Server!'));
         }
 
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
+        }
+
         try {
             $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
 
@@ -360,6 +376,11 @@ class ServerController extends Controller
             return back()->with('error', __('This is not your Server!'));
         }
 
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
+        }
+
         try {
             $server->update(['canceled' => now()]);
             return redirect()->route('servers.index')
@@ -370,10 +391,15 @@ class ServerController extends Controller
         }
     }
 
-    public function show(Server $server): \Illuminate\View\View
+    public function show(Server $server): \Illuminate\View\View|RedirectResponse
     {
         if ($server->user_id !== Auth::id()) {
             return back()->with('error', __('This is not your Server!'));
+        }
+
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
         }
 
         $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
@@ -434,6 +460,11 @@ class ServerController extends Controller
                 ->with('error', __('This is not your Server!'));
         }
 
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
+        }
+
         if (!$request->has('product_upgrade')) {
             return redirect()->route('servers.show', ['server' => $server->id])
                 ->with('error', __('No product selected for upgrade'));
@@ -481,6 +512,11 @@ class ServerController extends Controller
                 ->with('error', __('This is not your Server!'));
         }
 
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
+        }
+
         $server->update($data);
 
         return redirect()->route('servers.show', ['server' => $server->id])
@@ -491,6 +527,10 @@ class ServerController extends Controller
     {
         $user = Auth::user();
         if (!$server->product) {
+            return false;
+        }
+
+        if (!$server->pterodactyl_id) {
             return false;
         }
 

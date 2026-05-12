@@ -98,23 +98,23 @@ class ServerCreationService
 
             try {
                 $response = $this->pterodactylClient->createServer($server, $egg, $validatedData['allocation_id'], $validatedData['egg_variables']);
-
-                if ($response->successful()) {
-                    return $this->handleProvisionSuccess($server, $response, $credits);
-                }
-
-                return $this->handleProvisionFailure($server, $user, $product, $response, $credits);
             } catch (\Throwable $e) {
                 return $this->handleProvisionUncertain($server, $credits, $e);
             }
+
+            if ($response->successful()) {
+                return $this->handleProvisionSuccess($server, $response, $credits);
+            }
+
+            return $this->handleProvisionFailure($server, $response, $credits);
         } catch (\Throwable $e) {
             if ($creditsReserved) {
-                if ($server) {
+                if ($server && $server->exists) {
                     if ($server->status !== Server::STATUS_ACTIVE && $server->status !== Server::STATUS_FAILED) {
                         $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
                         dispatch(new ReconcileServerCreationJob($server->id, $credits));
                     }
-                } else {
+                } elseif (!$server || !$server->exists) {
                     $this->refundCredits($user, $credits);
                 }
             }
@@ -230,13 +230,21 @@ class ServerCreationService
         }
     }
 
-    private function handleProvisionFailure(Server $server, User $user, Product $product, $response, int $chargedPrice): Server
+    private function handleProvisionFailure(Server $server, $response, int $chargedPrice): Server
     {
-        logger()->warning('Provisioning failed on Pterodactyl, re-checking remote state', [
+        logger()->error('Server creation failed on Pterodactyl (Permanent Error)', [
             'server_id' => $server->id,
             'status' => $response->status(),
             'error' => $response->json(),
         ]);
+
+        // If Pterodactyl returned a 400 Bad Request, it means the request was invalid (e.g. missing variables).
+        // In this case, we know the server wasn't created, so we can immediately delete it.
+        if ($response->status() === 400) {
+            $server->delete();
+
+            throw new \Exception(__('Server could not be created, please try again later or contact administration if the issue persists.'));
+        }
 
         try {
             $remoteResponse = $this->pterodactylClient->getServerByExternalId($server->id);
@@ -258,16 +266,9 @@ class ServerCreationService
             }
 
             if ($remoteResponse->status() === 404) {
-                // Atomic status transition to avoid double refund when update fails.
-                $updated = Server::where('id', $server->id)
-                    ->where('status', '!=', Server::STATUS_FAILED)
-                    ->update(['status' => Server::STATUS_FAILED]);
+                $server->delete();
 
-                if ($updated === 1) {
-                    $this->refundCredits($user, $chargedPrice);
-                }
-
-                return $server;
+                throw new \Exception(__('Server could not be created, please try again later or contact administration if the issue persists.'));
             }
 
             $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
@@ -275,21 +276,19 @@ class ServerCreationService
 
             return $server;
         } catch (\Throwable $e) {
+            if ($e instanceof \Exception) {
+                throw $e;
+            }
             return $this->handleProvisionUncertain($server, $chargedPrice, $e);
         }
     }
 
     /**
-     * Handle a provisioning state where the outcome is uncertain.
-     *
-     * The passed exception is intentionally only used for logging and is not rethrown
-     * or further analyzed here. At this point we cannot reliably determine the remote
-     * Pterodactyl state, so we mark the server as pending reconciliation and delegate
-     * detailed error handling and state correction to ReconcileServerCreationJob.
+     * Handle a provisioning state where the outcome is uncertain (e.g. timeout, 500).
      */
     private function handleProvisionUncertain(Server $server, int $chargedPrice, \Throwable $exception): Server
     {
-        logger()->warning('Provisioning uncertain, scheduling reconciliation', [
+        logger()->warning('Provisioning uncertain (Timeout/Transient error), scheduling reconciliation', [
             'server_id' => $server->id,
             'exception' => $exception->getMessage(),
         ]);
@@ -318,37 +317,5 @@ class ServerCreationService
         });
 
         return $availableNodes->isEmpty() ? null : $availableNodes->first();
-    }
-
-    /**
-     * Find a node in the given location for the product that has required resources
-     * and also a free allocation on Pterodactyl. Returns ['node' => Node, 'allocation_id' => int]
-     * or null when none available.
-     */
-    private function findAvailableNodeWithAllocation(string $locationId, Product $product): ?array
-    {
-        $nodes = Node::where('location_id', $locationId)
-            ->whereHas('products', fn($q) => $q->where('product_id', $product->id))
-            ->get();
-
-        $availableNodes = $nodes->reject(function ($node) use ($product) {
-            return !$this->pterodactylClient->checkNodeResources($node, $product->memory, $product->disk);
-        });
-
-        // Try each available node and return the first one with a free allocation.
-        foreach ($availableNodes as $node) {
-            try {
-                $allocationId = $this->pterodactylClient->getFreeAllocationId($node);
-            } catch (\Exception $e) {
-                logger('Failed to get allocation for node ' . $node->id, ['exception' => $e]);
-                $allocationId = null;
-            }
-
-            if ($allocationId) {
-                return ['node' => $node, 'allocation_id' => $allocationId];
-            }
-        }
-
-        return null;
     }
 }
