@@ -49,6 +49,9 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+        RateLimiter::for('web', function (Request $request) {
+            return Limit::perMinute(40)->by($request->user()?->id ?: $request->ip());
+        });
         RateLimiter::for('2fa.verify', function (Request $request) {
             $method = $request->route('method');
             $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('verify')
