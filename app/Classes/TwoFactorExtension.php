@@ -76,6 +76,25 @@ abstract class TwoFactorExtension extends AbstractExtension
     }
 
     /**
+     * Get the rate limit for a specific action.
+     * 
+     * @param string $action (setup, enable, disable, verify, action)
+     * @return array ['attempts' => int, 'minutes' => int]
+     */
+    public function getRateLimit(string $action): array
+    {
+        $defaults = [
+            'setup'   => ['attempts' => 3, 'minutes' => 1],
+            'enable'  => ['attempts' => 3, 'minutes' => 1],
+            'disable' => ['attempts' => 3, 'minutes' => 1],
+            'verify'  => ['attempts' => 5, 'minutes' => 1],
+            'action'  => ['attempts' => 3, 'minutes' => 5], // Default 3 per 5 mins for sensitive actions
+        ];
+
+        return $this->getConfig()['rate_limits'][$action] ?? $defaults[$action];
+    }
+
+    /**
      * Get method-specific routes configuration if any.
      */
     public static function getConfig(): array
