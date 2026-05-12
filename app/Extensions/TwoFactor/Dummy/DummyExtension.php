@@ -36,26 +36,46 @@ class DummyExtension extends TwoFactorExtension
 
     public function getSettingsView(): string
     {
+        if (!app()->environment('local')) {
+            abort(403);
+        }
+
         return 'twofactor_dummy::profile_card';
     }
 
     public function getChallengeView(): string
     {
+        if (!app()->environment('local')) {
+            abort(403);
+        }
+
         return 'twofactor_dummy::auth.two-factor.dummy-challenge';
     }
 
     public function verify(Request $request): bool
     {
+        if (!app()->environment('local')) {
+            abort(403);
+        }
+
         return $request->input('code') === '123456';
     }
 
     public function setup(Request $request)
     {
+        if (!app()->environment('local')) {
+            abort(403);
+        }
+
         return response()->json(['message' => 'Dummy setup ready. Use code 123456 to enable.']);
     }
 
     public function enable(Request $request)
     {
+        if (!app()->environment('local')) {
+            abort(403);
+        }
+
         if ($request->input('code') !== '123456') {
              return response()->json(['errors' => ['code' => ['Use 123456']]], 422);
         }
@@ -75,6 +95,10 @@ class DummyExtension extends TwoFactorExtension
      */
     public function disable(Request $request)
     {
+        if (!app()->environment('local')) {
+            abort(403);
+        }
+
         $request->user()->twoFactorMethods()->where('method', 'dummy')->delete();
         return response()->json(['message' => 'Dummy 2FA disabled.']);
     }
