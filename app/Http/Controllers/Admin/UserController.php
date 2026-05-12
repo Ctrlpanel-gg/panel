@@ -53,12 +53,10 @@ class UserController extends Controller
 
 
     private $pterodactyl;
-    protected $twoFactorService;
 
-    public function __construct(PterodactylSettings $ptero_settings, \App\Services\TwoFactor\TwoFactorService $twoFactorService)
+    public function __construct(PterodactylSettings $ptero_settings)
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
-        $this->twoFactorService = $twoFactorService;
     }
 
     /**
