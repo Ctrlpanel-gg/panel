@@ -192,26 +192,25 @@
                         </div>
 
                         <div class="text-center card-footer">
-                            <a href="{{ $server->identifier ? $pterodactyl_url . '/server/' . $server->identifier : '#' }}"
-                                target="__blank"
+                            <a @if($server->identifier) href="{{ $pterodactyl_url . '/server/' . $server->identifier }}" target="_blank" @else tabindex="-1" aria-disabled="true" @endif
                                 class="float-left ml-2 text-center btn btn-info {{ !$server->identifier ? 'disabled' : '' }}"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Manage Server') }}">
                                 <i class="mx-2 fas fa-tools"></i>
                             </a>
-                            <a href="{{ $server->pterodactyl_id ? route('servers.show', ['server' => $server->id]) : '#' }}"
+                            <a @if($server->pterodactyl_id) href="{{ route('servers.show', ['server' => $server->id]) }}" @else tabindex="-1" aria-disabled="true" @endif
                             	class="mr-3 text-center btn btn-info {{ !$server->pterodactyl_id ? 'disabled' : '' }}"
                             	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
                                 <i class="mx-2 fas fa-cog"></i>
                             </a>
-                            <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
+                            <button onclick="handleServerCancel('{{ $server->id }}');"
                                 class="text-center btn btn-warning"
                                 {{ $server->suspended || $server->canceled || !$server->pterodactyl_id ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
                                 <i class="mx-2 fas fa-ban"></i>
                             </button>
-                            <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
+                            <button onclick="handleServerDelete('{{ $server->id }}');"
                                 class="float-right mr-2 text-center btn btn-danger"
-                                {{ !$server->pterodactyl_id && $server->status !== 'failed' ? "disabled" : "" }}
+                                {{ !$server->pterodactyl_id ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
                                 <i class="mx-2 fas fa-trash"></i>
                             </button>

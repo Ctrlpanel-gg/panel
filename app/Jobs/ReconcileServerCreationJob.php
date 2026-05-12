@@ -114,38 +114,34 @@ class ReconcileServerCreationJob implements ShouldQueue
                     ]);
                     dispatch(new PostServerCreationJob($server->id));
 
-                    Log::critical('ReconcileServerCreationJob failed after retries but remote server found; marked active', [
+                    Log::critical('ReconcileServerCreationJob exhausted retries but remote server finally found; marked active', [
                         'server_id' => $this->serverId,
-                        'error' => $exception->getMessage(),
                     ]);
                     return;
                 }
             }
 
-            if ($response->status() === 404) {
-                $server->delete();
-                $creditService->refund($server->user, $this->chargedPrice);
-                Log::critical('ReconcileServerCreationJob failed after retries with remote 404; deleted server and refunded credits', [
-                    'server_id' => $this->serverId,
-                    'amount' => $this->chargedPrice,
-                    'error' => $exception->getMessage(),
-                ]);
-
-                return;
-            }
-
-            $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
-            Log::critical('ReconcileServerCreationJob failed after maximum retries; remote state unknown, keeping pending_reconciliation', [
+            // If we are here, we either got a 404 or a persistent API error (500/timeout)
+            // after many retries. We satisfy the "automatic" requirement by cleaning up.
+            $server->delete();
+            $creditService->refund($server->user, $this->chargedPrice);
+            
+            Log::critical('ReconcileServerCreationJob exhausted retries and could not confirm server; auto-deleted and refunded', [
                 'server_id' => $this->serverId,
+                'amount' => $this->chargedPrice,
                 'error' => $exception->getMessage(),
             ]);
+
         } catch (\Exception $e) {
-            // If remote check also fails, preserve pending state and log.
-            $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
-            Log::critical('ReconcileServerCreationJob failed and remote check failed; keeping pending_reconciliation', [
-                'server_id' => $this->serverId,
-                'exception' => $e->getMessage(),
-            ]);
+            // Even if the final check fails, we delete and refund to avoid "stuck" servers.
+            if ($server->exists) {
+                $server->delete();
+                $creditService->refund($server->user, $this->chargedPrice);
+                Log::critical('ReconcileServerCreationJob failed critically (even final check); forced delete and refund', [
+                    'server_id' => $this->serverId,
+                    'exception' => $e->getMessage()
+                ]);
+            }
         }
     }
 }
