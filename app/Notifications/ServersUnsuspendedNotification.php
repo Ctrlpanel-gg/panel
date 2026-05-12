@@ -59,7 +59,7 @@ class ServersUnsuspendedNotification extends Notification implements ShouldQueue
             'content' => '
                 <h5>'.__('Your servers have been unsuspended').'</h5>
                 <p>'.__('We appreciate your continued trust in our services. If you have any questions or need assistance, feel free to reach out to our support team.').'</p>
-                <p>'.__('Regards').',<br />'.config('app.name', 'Laravel').'</p>
+                <p>'.__('Regards').',<br />'.config('app.name', 'CtrlPanel.gg').'</p>
             '
         ];
     }

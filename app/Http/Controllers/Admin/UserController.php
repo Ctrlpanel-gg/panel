@@ -88,6 +88,12 @@ class UserController extends Controller
     {
         $this->checkPermission(self::READ_PERMISSION);
 
+        $user->load('twoFactorMethods');
+        $enabled2faMethods = $user->twoFactorMethods
+            ->where('is_enabled', true)
+            ->pluck('method')
+            ->implode(' / ');
+
         $referralRecords = DB::table('user_referrals')->where('referral_id', '=', $user->id)->get();
         $allReferrals = [];
 
@@ -136,6 +142,7 @@ class UserController extends Controller
         return view('admin.users.show')->with([
             'user' => $user,
             'referrals' => $allReferrals,
+            'enabled2faMethods' => $enabled2faMethods,
             'locale_datatables' => $locale_settings->datatables,
             'credits_display_name' => $general_settings->credits_display_name
         ]);
@@ -485,7 +492,7 @@ class UserController extends Controller
     {
         $this->checkPermission(self::READ_PERMISSION);
 
-        $query = User::with('discordUser')
+        $query = User::with('discordUser', 'twoFactorMethods')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
@@ -501,6 +508,13 @@ class UserController extends Controller
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
+            })
+            ->addColumn('two_factor', function (User $user) {
+                $enabled = $user->twoFactorMethods->where('is_enabled', true)->isNotEmpty();
+                if ($enabled) {
+                    return '<span class="badge badge-success">' . __('Enabled') . '</span>';
+                }
+                return '<span class="badge badge-secondary">' . __('Disabled') . '</span>';
             })
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
@@ -542,7 +556,7 @@ class UserController extends Controller
                 return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
-            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
+            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'two_factor', 'actions'])
             ->make();
     }
 }

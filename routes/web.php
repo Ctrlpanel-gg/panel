@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Auth\TwoFactor\TwoFactorController;
+use App\Http\Controllers\Auth\TwoFactor\TwoFactorExtensionController;
 use App\Http\Controllers\Admin\ApplicationApiController;
 use App\Http\Controllers\Admin\InvoiceController;
-use App\Http\Controllers\Admin\LegalController;
 use App\Http\Controllers\Admin\OverViewController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\PaymentController;
@@ -28,7 +29,6 @@ use App\Http\Controllers\ServerController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\TicketsController;
-use App\Http\Controllers\TranslationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -53,13 +53,34 @@ Auth::routes(['verify' => true]);
 
 Route::get('/terms/{type}', [TermsController::class, 'index'])->name('terms');
 
-Route::middleware(['auth', 'checkSuspended'])->group(function () {
+Route::middleware(['auth', 'checkSuspended', 'two_factor.required'])->group(function () {
     //resend verification email
     Route::get('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
 
         return back()->with('success', 'Verification link sent!');
     })->middleware(['auth', 'throttle:3,1'])->name('verification.send');
+
+    //2fa challenge
+    Route::middleware(['auth', 'two_factor.required'])
+        ->prefix('login/2fa')
+        ->name('login.2fa.')
+        ->group(function () {
+            Route::get('/', [TwoFactorController::class, 'showChallenge'])->name('challenge');
+            Route::get('/{method}', [TwoFactorExtensionController::class, 'showChallenge'])->name('method')->where('method', '[a-z_]+');
+            Route::post('/{method}', [TwoFactorExtensionController::class, 'verify'])->name('verify')->middleware('throttle:2fa.verify')->where('method', '[a-z_]+');
+        });
+
+    //2fa settings
+    Route::middleware(['auth', 'two_factor.verified'])
+        ->prefix('profile/security/2fa')
+        ->name('profile.2fa.')
+        ->group(function () {
+            Route::post('/{method}/setup', [TwoFactorExtensionController::class, 'setup'])->name('setup')->middleware('throttle:2fa.setup')->where('method', '[a-z_]+');
+            Route::post('/{method}/enable', [TwoFactorExtensionController::class, 'enable'])->name('enable')->middleware('throttle:2fa.enable')->where('method', '[a-z_]+');
+            Route::post('/{method}/disable', [TwoFactorExtensionController::class, 'disable'])->name('disable')->middleware('throttle:2fa.disable')->where('method', '[a-z_]+');
+            Route::post('/{method}/{action}', [TwoFactorExtensionController::class, 'action'])->name('action')->middleware('throttle:2fa.action')->where(['method' => '[a-z_]+', 'action' => '[a-zA-Z_]+']);
+        });
 
     //normal routes
     Route::get('notifications/readAll', [NotificationController::class, 'readAll'])->name('notifications.readAll');

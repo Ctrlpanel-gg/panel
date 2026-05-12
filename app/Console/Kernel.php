@@ -33,6 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('payments:open:clear')->daily();
         $schedule->command('coupons:delete')->hourly();
         $schedule->command('vouchers:delete')->hourly();
+        $schedule->command('model:prune')->daily();
 
         //log cronjob activity
         $schedule->call(function () {

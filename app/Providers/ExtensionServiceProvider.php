@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class ExtensionServiceProvider extends ServiceProvider
 {
@@ -24,23 +25,37 @@ class ExtensionServiceProvider extends ServiceProvider
             return;
         }
 
-        $extensionNamespaces = glob($extensionsBasePath . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
+        $namespaceDirectories = glob($extensionsBasePath . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
 
-        foreach ($extensionNamespaces as $extensionNamespace) {
-            $extensions = glob($extensionNamespace . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
-            foreach ($extensions as $extension) {
-                $routesFile = $extension . DIRECTORY_SEPARATOR . 'routes.php';
-                if (!is_file($routesFile)) {
-                    continue;
+        foreach ($namespaceDirectories as $namespaceDirectory) {
+            $namespaceName = basename($namespaceDirectory);
+            $extensionDirectories = glob($namespaceDirectory . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR) ?: [];
+
+            foreach ($extensionDirectories as $extensionDirectory) {
+                $extensionName = basename($extensionDirectory);
+
+                // Load Routes
+                $routesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes.php';
+                if (is_file($routesFile)) {
+                    $resolvedPath = realpath($routesFile);
+                    $basePath = realpath($extensionsBasePath);
+                    if ($resolvedPath && $basePath && str_starts_with($resolvedPath, $basePath . DIRECTORY_SEPARATOR)) {
+                        $this->loadRoutesFrom($resolvedPath);
+                    }
                 }
 
-                $resolvedRoutesFile = realpath($routesFile);
-                $normalizedBasePath = rtrim($extensionsBasePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-                if ($resolvedRoutesFile === false || !str_starts_with($resolvedRoutesFile, $normalizedBasePath)) {
-                    continue;
+                // Load Views
+                $viewsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'views';
+                if (is_dir($viewsDirectory)) {
+                    $viewNamespace = Str::lower($namespaceName . '_' . $extensionName);
+                    $this->loadViewsFrom($viewsDirectory, $viewNamespace);
                 }
 
-                $this->loadRoutesFrom($resolvedRoutesFile);
+                // Load Migrations
+                $migrationsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'migrations';
+                if (is_dir($migrationsDirectory)) {
+                    $this->loadMigrationsFrom($migrationsDirectory);
+                }
             }
         }
     }

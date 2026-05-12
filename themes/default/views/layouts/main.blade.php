@@ -16,7 +16,7 @@
     <meta
             content='{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}'
             property="og:image">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'CtrlPanel.gg') }}</title>
     <link rel="icon"
           href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
           type="image/x-icon">
@@ -170,7 +170,7 @@
         <a href="{{ route('home') }}" class="brand-link">
             <img width="64" height="64"
                  src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('icon.png') ? asset('storage/icon.png') : asset('images/ctrlpanel_logo.png') }}"
-                 alt="{{ config('app.name', 'Laravel') }} Logo" class="brand-image img-circle"
+                 alt="{{ config('app.name', 'CtrlPanel.gg') }} Logo" class="brand-image img-circle"
                  style="opacity: .8">
             <span class="brand-text font-weight-light">{{ config('app.name', 'CtrlPanel.gg') }}</span>
         </a>
@@ -456,6 +456,7 @@
         @yield('content')
 
         @include('modals.redeem_voucher_modal')
+        @stack('modals')
     </div>
     <!-- /.content-wrapper -->
     <footer class="main-footer d-flex justify-content-between">
@@ -537,62 +538,65 @@
         });
     })
 </script>
+@stack('scripts')
 <script>
-    @if (Session::has('error'))
-    Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        html: '{{ Session::get('error') }}',
-    })
-    @endif
-    @if (Session::has('success'))
-    Swal.fire({
-        icon: 'success',
-        title: '{{ Session::get('success') }}',
-        position: 'top-end',
-        showConfirmButton: false,
-        background: '#343a40',
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-            toast.addEventListener('click', () => Swal.close())
-        }
-    })
-    @endif
-    @if (Session::has('info'))
-    Swal.fire({
-        icon: 'info',
-        title: '{{ Session::get('info') }}',
-        position: 'top-end',
-        showConfirmButton: false,
-        background: '#343a40',
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
-    @endif
-    @if (Session::has('warning'))
-    Swal.fire({
-        icon: 'warning',
-        title: '{{ Session::get('warning') }}',
-        position: 'top-end',
-        showConfirmButton: false,
-        background: '#343a40',
-        toast: true,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer)
-            toast.addEventListener('mouseleave', Swal.resumeTimer)
-        }
-    })
+    @if (!isset($suppressSweetAlert2))
+        @if (Session::has('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            html: '{{ Session::get('error') }}',
+        })
+        @endif
+        @if (Session::has('success'))
+        Swal.fire({
+            icon: 'success',
+            title: '{{ Session::get('success') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+                toast.addEventListener('click', () => Swal.close())
+            }
+        })
+        @endif
+        @if (Session::has('info'))
+        Swal.fire({
+            icon: 'info',
+            title: '{{ Session::get('info') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+        @endif
+        @if (Session::has('warning'))
+        Swal.fire({
+            icon: 'warning',
+            title: '{{ Session::get('warning') }}',
+            position: 'top-end',
+            showConfirmButton: false,
+            background: '#343a40',
+            toast: true,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+        @endif
     @endif
 </script>
 </body>
