@@ -9,6 +9,8 @@ use App\Settings\DiscordSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Facades\Currency;
+use App\Services\CreditService;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -154,9 +156,11 @@ class ServerController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  Server  $server
+     * @param  Request  $request
+     * @param  DiscordSettings  $discord_settings
      * @return RedirectResponse|Response
      */
-    public function destroy(Server $server, DiscordSettings $discord_settings)
+    public function destroy(Server $server, Request $request, DiscordSettings $discord_settings)
     {
         $this->checkPermission(self::DELETE_PERMISSION);
         try {
@@ -171,6 +175,17 @@ class ServerController extends Controller
                 }
             } catch (Exception $e) {
                 log::debug('Failed to update discord roles' . $e->getMessage());
+            }
+
+            if ($request->has('refund')) {
+                $user = User::findOrFail($server->user_id);
+                $credits = (int) round($server->product->price);
+                app(CreditService::class)->refund($user, $credits);
+
+                activity()
+                    ->performedOn($server)
+                    ->causedBy(Auth::user())
+                    ->log("Server credits (" . Currency::formatForDisplay($credits) . ") refunded to user " . $user->name . " during deletion.");
             }
 
             // Attempt to remove the server from pterodactyl
@@ -364,11 +379,16 @@ class ServerController extends Controller
                         </button>
                        </form>
 
-                       <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
+                       <button data-content="' . __('Delete') . '"
+                               data-toggle="popover"
+                               data-trigger="hover"
+                               data-placement="top"
+                               class="btn btn-sm btn-danger mr-1 delete-server-btn"
+                               data-server-id="' . $server->id . '"
+                               data-server-status="' . $server->status . '"
+                               data-action="' . route('admin.servers.destroy', $server->id) . '">
+                           <i class="fas fa-trash"></i>
+                       </button>
 
                 ';
             })
