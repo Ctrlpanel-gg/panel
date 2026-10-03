@@ -2,23 +2,28 @@
 
 namespace App\Services;
 
+use Carbon\CarbonImmutable;
+
 class DiscordAccountAgeService
 {
     private const EPOCH_MS = 1420070400000;
-    private const MS_PER_DAY = 86400000;
 
-    public function ageInDays(string $discordId): ?int
+    public function createdAt(string $discordId): ?CarbonImmutable
     {
         if (!ctype_digit($discordId)) {
             return null;
         }
-        $createdAtMs = ((int) $discordId >> 22) + self::EPOCH_MS;
-        return (int) floor((microtime(true) * 1000 - $createdAtMs) / self::MS_PER_DAY);
+
+        $ms = ((int) $discordId >> 22) + self::EPOCH_MS;
+
+        return CarbonImmutable::createFromTimestampMsUTC($ms);
     }
 
     public function meetsMinimumAge(string $discordId, int $minimumDays): bool
     {
-        $ageInDays = $this->ageInDays($discordId);
-        return $ageInDays === null || $ageInDays >= $minimumDays;
+        $createdAt = $this->createdAt($discordId);
+
+        return $createdAt !== null
+            && $createdAt->lte(now()->subDays($minimumDays));
     }
 }
