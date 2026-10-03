@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\DiscordUser;
 use App\Models\User;
+use App\Services\DiscordAccountAgeService;
 use App\Settings\DiscordSettings;
 use App\Settings\UserSettings;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +47,19 @@ class SocialiteController extends Controller
                     'error',
                     'Discord account already linked!'
                 );
+            }
+
+            if ($discord_settings->require_minimum_account_age) {
+                $accountAge = app(DiscordAccountAgeService::class);
+
+                if (!$accountAge->meetsMinimumAge($discord->id, $discord_settings->minimum_account_age_days)) {
+                    $minimumDays = $discord_settings->minimum_account_age_days;
+
+                    return redirect()->route('profile.index')->with(
+                        'error',
+                        'Your Discord account must be at least ' . $minimumDays . ' days old to be linked!'
+                    );
+                }
             }
 
             //create discord user in db
