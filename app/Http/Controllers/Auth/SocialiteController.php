@@ -53,9 +53,11 @@ class SocialiteController extends Controller
                 $accountAge = app(DiscordAccountAgeService::class);
 
                 if (!$accountAge->meetsMinimumAge($discord->id, $discord_settings->minimum_account_age_days)) {
+                    $minimumDays = $discord_settings->minimum_account_age_days;
+
                     return redirect()->route('profile.index')->with(
                         'error',
-                        'Your Discord account must be at least ' . $discord_settings->minimum_account_age_days . ' days old to be linked!'
+                        'Your Discord account must be at least ' . $minimumDays . ' days old to be linked!'
                     );
                 }
             }
