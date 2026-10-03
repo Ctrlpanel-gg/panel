@@ -211,6 +211,11 @@
                                                                             {{ __('By verifying your discord account, you receive an extra :amount credits and increased Server amounts', ['amount' => Currency::formatForDisplay($credits_reward_after_verify_discord)]) }}
                                                                         </p>
                                                                     @endif
+                                                                    @if ($require_minimum_account_age)
+                                                                        <p>
+                                                                            {{ __('Your Discord account must be at least :days old to be linked.', ['days' => $minimum_account_age_days . ' days']) }}
+                                                                        </p>
+                                                                    @endif
                                                                 </div>
                                                                 <a class="btn btn-light" href="{{ route('auth.redirect') }}">
                                                                     <i

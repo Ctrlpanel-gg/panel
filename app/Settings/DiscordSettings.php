@@ -15,6 +15,8 @@ class DiscordSettings extends Settings
     public ?string $role_id_on_purchase = null;
     public ?bool $role_for_active_clients = null;
     public ?string $role_id_for_active_clients = null;
+    public bool $require_minimum_account_age = false;
+    public int $minimum_account_age_days = 30;
 
     public static function group(): string
     {
@@ -37,6 +39,8 @@ class DiscordSettings extends Settings
             'role_id_on_purchase' => 'nullable|string',
             'role_for_active_clients' => 'nullable|string',
             'role_id_for_active_clients' => 'nullable|string',
+            'require_minimum_account_age' => 'nullable|string',
+            'minimum_account_age_days' => 'required|numeric',
         ];
     }
 
@@ -63,6 +67,10 @@ class DiscordSettings extends Settings
                 'roles' => [
                     'label' => 'Roles',
                     'description' => 'Which roles should be assigned to your users',
+                ],
+                'age' => [
+                    'label' => 'Account Age',
+                    'description' => 'Minimum age requirement of a Discord account to be linked',
                 ],
             ],
             'bot_token' => [
@@ -94,6 +102,18 @@ class DiscordSettings extends Settings
                 'type' => 'string',
                 'description' => 'ID of the Discord-Role to give users when linking their discord Account',
                 'section' => 'roles',
+            ],
+            'require_minimum_account_age' => [
+                'label' => 'Require Minimum Account Age',
+                'type' => 'boolean',
+                'description' => 'Reject Discord accounts younger than the minimum age below',
+                'section' => 'age',
+            ],
+            'minimum_account_age_days' => [
+                'label' => 'Minimum Account Age (days)',
+                'type' => 'number',
+                'description' => 'A Discord account must be at least this days old to be linked',
+                'section' => 'age',
             ],
             'role_for_active_clients' => [
                 'label' => 'Role for active Clients',

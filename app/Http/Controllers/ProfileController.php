@@ -44,6 +44,8 @@ class ProfileController extends Controller
             'force_discord_verification' => $user_settings->force_discord_verification,
             'discord_client_id' => $discord_settings->client_id,
             'discord_client_secret' => $discord_settings->client_secret,
+            'require_minimum_account_age' => $discord_settings->require_minimum_account_age,
+            'minimum_account_age_days' => $discord_settings->minimum_account_age_days,
             'referral_enabled' => $referral_settings->enabled
         ]);
     }
