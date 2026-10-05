@@ -640,17 +640,19 @@ class PterodactylClient
      * @param  Node  $node
      * @param  int  $requireMemory
      * @param  int  $requireDisk
-     * @return bool
-     *
-     * @throws PterodactylException On network failures. HTTP errors fail
-     *                              closed and return false.
+     * @return bool Returns false when resources are insufficient or cannot be determined.
      */
     public function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
     {
         try {
             $response = $this->application->get("application/nodes/{$node->id}");
         } catch (Exception $e) {
-            self::throwException($e->getMessage(), null, $e);
+            logger()->warning('Cannot reach node for resource check, skipping', [
+                'node_id' => $node->id,
+                'exception' => $e->getMessage(),
+            ]);
+
+            return false;
         }
 
         if ($response->failed()) {
