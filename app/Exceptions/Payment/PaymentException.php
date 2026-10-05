@@ -16,6 +16,9 @@ class PaymentException extends Exception
      */
     protected int $statusCode;
 
+    /** Optional safe message for clients. Falls back to message. */
+    protected ?string $publicMessage = null;
+
     /**
      * @param  string  $message
      * @param  int  $statusCode
@@ -38,17 +41,9 @@ class PaymentException extends Exception
         return $this->statusCode;
     }
 
-    /**
-     * Get a message that is safe to show to end users.
-     *
-     * Payment exceptions already carry business-oriented messages, but the
-     * method is kept for uniformity with the rest of the hierarchy so future
-     * "raw" subclasses can override it without changing the renderers.
-     *
-     * @return string
-     */
+    /** Safe message for clients. Falls back to message. */
     public function getPublicMessage(): string
     {
-        return $this->getMessage();
+        return $this->publicMessage ?? $this->getMessage();
     }
 }
