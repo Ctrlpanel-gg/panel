@@ -2,6 +2,12 @@
 
 namespace App\Classes;
 
+use App\Exceptions\Pterodactyl\PterodactylAuthenticationException;
+use App\Exceptions\Pterodactyl\PterodactylConnectionException;
+use App\Exceptions\Pterodactyl\PterodactylException;
+use App\Exceptions\Pterodactyl\PterodactylNotFoundException;
+use App\Exceptions\Pterodactyl\PterodactylPermissionException;
+use App\Exceptions\Pterodactyl\PterodactylServerException;
 use App\Models\Pterodactyl\Egg;
 use App\Models\Pterodactyl\Nest;
 use App\Models\Pterodactyl\Node;
@@ -13,13 +19,9 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use App\Settings\PterodactylSettings;
 use App\Settings\ServerSettings;
-use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class PterodactylClient
 {
-    //TODO: Extend error handling (maybe logger for more errors when debugging)
-
     private int $per_page_limit = 200;
 
     private int $allocation_limit = 200;
@@ -63,53 +65,78 @@ class PterodactylClient
     }
 
     /**
-     * @return HttpException
+     * Build and throw a typed Pterodactyl exception for a failed request.
+     *
+     * Maps the HTTP status returned by Pterodactyl to a specific exception
+     * subclass so callers and the exception handler can respond appropriately.
+     *
+     * @param  string  $message
+     * @param  int|null  $status
+     * @param  \Throwable|null  $previous
+     * @return never
+     *
+     * @throws PterodactylException
      */
-    private function getException(string $message = '', ?int $status = null): HttpException|Exception
+    private static function throwException(string $message = '', ?int $status = null, ?\Throwable $previous = null): never
     {
-        Log::Error('PterodactylClient: ' . $message);
         if ($status == 404) {
-            return new HttpException(404,'Resource does not exist on pterodactyl - ' . $message . ' Was a Server deleted from Pterodactyl but not from the Panel? Have an Admin Remove it from the Panel');
+            throw new PterodactylNotFoundException(
+                'Resource does not exist on Pterodactyl - ' . $message . ' Was a Server deleted from Pterodactyl but not from the Panel? Have an Admin Remove it from the Panel',
+                $previous
+            );
         }
 
         if ($status == 403) {
-            return new HttpException(403, 'No permission on pterodactyl, check pterodactyl token and permissions - ' . $message);
+            throw new PterodactylPermissionException(
+                'No permission on Pterodactyl, check Pterodactyl token and permissions - ' . $message,
+                $previous
+            );
         }
 
         if ($status == 401) {
-            return new HttpException(401,'No pterodactyl token set - ' . $message);
+            throw new PterodactylAuthenticationException(
+                'No Pterodactyl token set - ' . $message,
+                $previous
+            );
         }
 
-        if ($status == 500) {
-            return new HttpException(500,'Pterodactyl server error - ' . $message);
-        }
-
-        if ($status == 0) {
-            return new HttpException(500, 'Unable to connect to Pterodactyl node - Please check if the node is online and accessible' . $message);
+        if ($status === null) {
+            throw new PterodactylConnectionException(
+                'Unable to connect to Pterodactyl node - Please check if the node is online and accessible - ' . $message,
+                $previous
+            );
         }
 
         if ($status >= 500 && $status < 600) {
-            return new HttpException($status,'Pterodactyl node error (HTTP ' . $status . ') - ' . $message);
+            throw new PterodactylServerException(
+                'Pterodactyl node error (HTTP ' . $status . ') - ' . $message,
+                $status,
+                $previous
+            );
         }
 
-        return new Exception('Request Failed, is pterodactyl set-up correctly? - ' . $message);
+        throw new PterodactylException(
+            'Request Failed, is Pterodactyl set-up correctly? - ' . $message,
+            $status,
+            $previous
+        );
     }
 
     /**
      * @param  Nest  $nest
      * @return mixed
      *
-     * @throws Exception
+     * @throws PterodactylException
      */
     public function getEggs(Nest $nest)
     {
         try {
             $response = $this->application->get("application/nests/{$nest->id}/eggs?include=nest,variables&per_page=" . $this->per_page_limit);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get eggs from pterodactyl - ', $response->status());
+            self::throwException('Failed to get eggs from pterodactyl - ', $response->status());
         }
 
         return $response->json()['data'];
@@ -118,17 +145,17 @@ class PterodactylClient
     /**
      * @return mixed
      *
-     * @throws Exception
+     * @throws PterodactylException
      */
     public function getNodes()
     {
         try {
             $response = $this->application->get('application/nodes?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get nodes from pterodactyl - ', $response->status());
+            self::throwException('Failed to get nodes from pterodactyl - ', $response->status());
         }
 
         return $response->json()['data'];
@@ -137,7 +164,7 @@ class PterodactylClient
     /**
      * @return mixed
      *
-     * @throws Exception
+     * @throws PterodactylException
      * @description Returns the infos of a single node
      */
     public function getNode($id)
@@ -145,10 +172,10 @@ class PterodactylClient
         try {
             $response = $this->application->get('application/nodes/' . $id);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get node id ' . $id . ' - ' . $response->status());
+            self::throwException('Failed to get node id ' . $id . ' - ', $response->status());
         }
 
         return $response->json()['attributes'];
@@ -159,29 +186,29 @@ class PterodactylClient
         try {
             $response = $this->application->get('application/servers?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get list of servers - ', $response->status());
+            self::throwException('Failed to get list of servers - ', $response->status());
         }
 
         return $response->json()['data'];
     }
 
     /**
-     * @return null
+     * @return array
      *
-     * @throws Exception
+     * @throws PterodactylException
      */
     public function getNests()
     {
         try {
             $response = $this->application->get('application/nests?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get nests from pterodactyl', $response->status());
+            self::throwException('Failed to get nests from pterodactyl', $response->status());
         }
 
         return $response->json()['data'];
@@ -190,17 +217,17 @@ class PterodactylClient
     /**
      * @return mixed
      *
-     * @throws Exception
+     * @throws PterodactylException
      */
     public function getLocations()
     {
         try {
             $response = $this->application->get('application/locations?per_page=' . $this->per_page_limit);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get locations from pterodactyl - ', $response->status());
+            self::throwException('Failed to get locations from pterodactyl - ', $response->status());
         }
 
         return $response->json()['data'];
@@ -209,8 +236,6 @@ class PterodactylClient
     /**
      * @param  Node  $node
      * @return mixed
-     *
-     * @throws Exception
      */
     public function getFreeAllocationId(Node $node)
     {
@@ -219,13 +244,15 @@ class PterodactylClient
 
     /**
      * @param  Node  $node
-     * @return array|mixed|null
+     * @return array
      */
     public function getFreeAllocations(Node $node)
     {
         try {
             $response = $this->getAllocations($node);
-        } catch (\Exception $e) {
+        } catch (Exception) {
+            // Fail closed: allocation lookup failures mark this node as unavailable,
+            // allowing server creation to continue on other nodes.
             return [];
         }
 
@@ -266,8 +293,8 @@ class PterodactylClient
 
         try {
             $response = $this->getAllocations($node);
-        } catch (\Exception $e) {
-            return true;
+        } catch (Exception) {
+            return true; // Fail closed: if allocation usage cannot be determined, do not select this node.
         }
 
         if (!isset($response['data']) || empty($response['data'])) {
@@ -288,31 +315,36 @@ class PterodactylClient
      * @param  Node  $node
      * @return array|mixed
      *
-     * @throws Exception
+     * @throws PterodactylException
      */
     public function getAllocations(Node $node)
     {
         try {
             $response = $this->application->get("application/nodes/{$node->id}/allocations?per_page={$this->per_page_limit}");
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get allocations from pterodactyl - ', $response->status());
+            self::throwException('Failed to get allocations from pterodactyl - ', $response->status());
         }
 
         return $response->json();
     }
 
     /**
+     * Create a server on Pterodactyl.
+     *
      * @param  Server  $server
      * @param  Egg  $egg
      * @param  int  $allocationId
+     * @param  mixed  $eggVariables
      * @return Response
+     *
+     * @throws PterodactylException
      */
     public function createServer(Server $server, Egg $egg, int $allocationId, mixed $eggVariables = null)
     {
-       try {
+        try {
             $response = $this->application->post('application/servers', [
                 'name' => $server->name,
                 'external_id' => $server->id,
@@ -338,27 +370,38 @@ class PterodactylClient
                     'default' => $allocationId,
                 ],
             ]);
-
-            return $response;
         } catch (Exception $e) {
-            throw $e;
+            self::throwException(
+                'Failed to create server on Pterodactyl - ' . $e->getMessage(),
+                null,
+                $e
+            );
         }
+
+        return $response;
     }
 
     /**
-     * Get a server by external_id on Pterodactyl.
+     * Get a server from Pterodactyl by its external ID.
      *
-     * @param string $externalId
-     * @return \Illuminate\Http\Client\Response
-     * @throws Exception
+     * @param  string  $externalId
+     * @return Response
+     *
+     * @throws PterodactylException
      */
     public function getServerByExternalId(string $externalId)
     {
         try {
-            return $this->application->get("application/servers/external/{$externalId}");
+            $response = $this->application->get("application/servers/external/{$externalId}");
         } catch (Exception $e) {
-            throw self::getException('Failed to get server by external_id from pterodactyl - ' . $e->getMessage());
+            self::throwException(
+                'Failed to get server by external_id from Pterodactyl - ' . $e->getMessage(),
+                null,
+                $e
+            );
         }
+
+        return $response;
     }
 
     public function suspendServer(Server $server)
@@ -366,10 +409,10 @@ class PterodactylClient
         try {
             $response = $this->application->post("application/servers/$server->pterodactyl_id/suspend");
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to suspend server from pterodactyl - ', $response->status());
+            self::throwException('Failed to suspend server from pterodactyl - ', $response->status());
         }
 
         return $response;
@@ -380,10 +423,10 @@ class PterodactylClient
         try {
             $response = $this->application->post("application/servers/$server->pterodactyl_id/unsuspend");
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to unsuspend server from pterodactyl - ', $response->status());
+            self::throwException('Failed to unsuspend server from pterodactyl - ', $response->status());
         }
 
         return $response;
@@ -400,10 +443,10 @@ class PterodactylClient
         try {
             $response = $this->application->get("application/users/{$pterodactylId}");
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to get user from pterodactyl - ', $response->status());
+            self::throwException('Failed to get user from pterodactyl - ', $response->status());
         }
 
         return $response->json()['attributes'];
@@ -414,7 +457,7 @@ class PterodactylClient
      *
      * @param int $pterodactylId
      * @param array $data
-     * @throws HttpException
+     * @throws \App\Exceptions\Pterodactyl\PterodactylException
      * @return \Illuminate\Http\Client\Response
      */
     public function updateUser(int $pterodactylId, array $data)
@@ -422,10 +465,10 @@ class PterodactylClient
         try {
             $response = $this->application->patch("application/users/{$pterodactylId}", $data);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            throw self::getException('Failed to update user on pterodactyl - ', $response->status());
+            self::throwException('Failed to update user on pterodactyl - ', $response->status());
         }
 
         return $response;
@@ -442,7 +485,7 @@ class PterodactylClient
         try {
             $response = $this->application->get("application/servers/{$pterodactylId}?include=egg,node,nest,location");
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
 
         //print response body
@@ -453,7 +496,7 @@ class PterodactylClient
 
                 return;
             } else {
-                throw self::getException('Failed to get server attributes from pterodactyl - ', $response->status());
+                self::throwException('Failed to get server attributes from pterodactyl - ', $response->status());
             }
         }
 
@@ -491,10 +534,12 @@ class PterodactylClient
     /**
      * Update server build.
      *
-     * @param  Server  $server
+     * @param  string  $pterodactylId
+     * @param  int  $pterodactylAllocation
+     * @param  Product  $product
      * @return Response
      *
-     * @throws Exception
+     * @throws PterodactylException
      */
     public function updateServerBuild(string $pterodactylId, int $pterodactylAllocation, Product $product)
     {
@@ -507,22 +552,25 @@ class PterodactylClient
                 'io' => $product->io,
                 'cpu' => $product->cpu,
                 'threads' => null,
-                'oom_disabled' => $product->oom_killer,
+                'oom_disabled' => !$product->oom_killer,
                 'feature_limits' => [
                     'databases' => $product->databases,
                     'backups' => $product->backups,
                     'allocations' => $product->allocations,
                 ],
             ]);
-
-            if ($response->failed()) {
-                throw self::getException('Server not found on Pterodactyl', 404);
-            }
-
-            return $response;
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException($e->getMessage(), null, $e);
         }
+
+        if ($response->failed()) {
+            self::throwException(
+                'Failed to update server build on Pterodactyl',
+                $response->status()
+            );
+        }
+
+        return $response;
     }
 
     /**
@@ -547,16 +595,21 @@ class PterodactylClient
      * @param  array  $data
      * @return Response
      *
-     * @throws HttpException
-     * @throws Exception
+     * @throws PterodactylException
      */
     public function updateServerDetails(Server $server, array $data)
     {
         try {
-            return $this->application->patch("application/servers/{$server->pterodactyl_id}/details", $data);
+            $response = $this->application->patch("application/servers/{$server->pterodactyl_id}/details", $data);
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            self::throwException('Failed to update server details on Pterodactyl - ' . $e->getMessage(), null, $e);
         }
+
+        if ($response->failed()) {
+            self::throwException('Failed to update server details on Pterodactyl', $response->status());
+        }
+
+        return $response;
     }
 
     /**
@@ -587,15 +640,27 @@ class PterodactylClient
      * @param  Node  $node
      * @param  int  $requireMemory
      * @param  int  $requireDisk
-     * @return bool
+     * @return bool Returns false when resources are insufficient or cannot be determined.
      */
     public function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
     {
         try {
             $response = $this->application->get("application/nodes/{$node->id}");
         } catch (Exception $e) {
-            throw self::getException($e->getMessage());
+            logger()->warning('Cannot reach node for resource check, skipping', [
+                'node_id' => $node->id,
+                'exception' => $e->getMessage(),
+            ]);
+
+            return false;
         }
+
+        if ($response->failed()) {
+            // Fail closed: if a node's resource usage cannot be determined, do
+            // not consider it available so server creation can try other nodes.
+            return false;
+        }
+
         $node = $response['attributes'];
         $freeMemory = ($node['memory'] * ($node['memory_overallocate'] + 100) / 100) - $node['allocated_resources']['memory'];
         $freeDisk = ($node['disk'] * ($node['disk_overallocate'] + 100) / 100) - $node['allocated_resources']['disk'];

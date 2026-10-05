@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Classes\PterodactylClient;
 use App\Events\ServerDeletedEvent;
+use App\Exceptions\Pterodactyl\PterodactylException;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Server;
@@ -294,6 +295,8 @@ class ServerController extends Controller
             $server = $this->serverUpgradeService->handle($user, $product, $server);
 
             return ServerResource::make($server->fresh());
+        } catch (PterodactylException $e) {
+            return response()->json(['message' => $e->getPublicMessage()], $e->getCode() ?: 500);
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
         }

@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Classes\PterodactylClient;
+use App\Exceptions\Server\InsufficientCreditsException;
+use App\Exceptions\Server\NoAvailableNodeException;
+use App\Exceptions\Server\ServerCreationException;
+use App\Exceptions\Server\ServerLimitReachedException;
 use App\Models\Server;
 use App\Models\User;
 use App\Models\Product;
@@ -59,7 +63,7 @@ class ServerCreationService
         try {
             $lock->block(10);
         } catch (\Illuminate\Contracts\Cache\LockTimeoutException $exception) {
-            throw new \Exception('Another provisioning request is in progress for this user. Please try again in a few seconds.');
+            throw new ServerCreationException('Another provisioning request is in progress for this user. Please try again in a few seconds.', 429);
         }
 
         $server = null;
@@ -70,7 +74,7 @@ class ServerCreationService
 
             $egg = $product->eggs()->find($data['egg_id']);
             if (!$egg) {
-                throw new \Exception('Egg not attached to this product.');
+                throw new ServerCreationException('Egg not attached to this product.', 422);
             }
 
             $credits = (int) round($product->price);
@@ -93,7 +97,7 @@ class ServerCreationService
             });
 
             if (!$server) {
-                throw new \Exception('Server creation record failed to persist.');
+                throw new ServerCreationException('Server creation record failed to persist.');
             }
 
             try {
@@ -130,14 +134,14 @@ class ServerCreationService
         $currentUserServersCount = $user->servers()->count();
 
         if ($currentUserServersCount >= $user->server_limit) {
-            throw new \Exception('Server limit reached for this product.');
+            throw new ServerLimitReachedException('Server limit reached for this product.');
         }
 
         // Check if user has reached product specific server limit.
         $userProductServersCount = $user->servers()->where("product_id", $product->id)->count();
 
         if ($product->serverlimit > 0 && $userProductServersCount >= $product->serverlimit) {
-            throw new \Exception('Server limit reached for this user and product combination.');
+            throw new ServerLimitReachedException('Server limit reached for this user and product combination.');
         }
 
         // Check if user has enough credits to create the server.
@@ -147,7 +151,7 @@ class ServerCreationService
             : $product->minimum_credits;
 
         if ($user->credits < $minCredits) {
-            throw new \Exception(
+            throw new InsufficientCreditsException(
                 sprintf(
                     'User do not have the required amount of %s to use this product!',
                     $this->generalSettings->credits_display_name
@@ -157,28 +161,28 @@ class ServerCreationService
 
         // General checks for user.
         if (!$user->hasVerifiedEmail() && $this->userSettings->force_email_verification) {
-            throw new \Exception('User must verify their email before creating a server.');
+            throw new ServerCreationException('User must verify their email before creating a server.', 422);
         }
 
         if (!$user->discordUser && $this->userSettings->force_discord_verification) {
-            throw new \Exception('User must link their Discord account before creating a server.');
+            throw new ServerCreationException('User must link their Discord account before creating a server.', 422);
         }
 
         if ($user->cannot("admin.servers.bypass_creation_enabled") && !$this->serverSettings->creation_enabled) {
-            throw new \Exception('Server creation is currently disabled.');
+            throw new ServerCreationException('Server creation is currently disabled.', 422);
         }
 
         // Check if the product is available in the user's location.
         $availableNode = $this->findAvailableNode($data['location_id'], $product);
 
         if (!$availableNode) {
-            throw new \Exception('No available nodes for this product in the selected location.');
+            throw new NoAvailableNodeException();
         }
 
         $allocationId = $this->pterodactylClient->getFreeAllocationId($availableNode);
 
         if (!$allocationId) {
-            throw new \Exception('No free allocation available on the selected node.');
+            throw new NoAvailableNodeException('No free allocation available on the selected node.');
         }
 
         return [
@@ -204,7 +208,7 @@ class ServerCreationService
         $serverAttributes = $response->json()['attributes'] ?? null;
 
         if (!$serverAttributes || !isset($serverAttributes['id']) || !isset($serverAttributes['identifier'])) {
-            throw new \Exception('Invalid response from Pterodactyl on server creation.');
+            throw new ServerCreationException('Invalid response from Pterodactyl on server creation.');
         }
 
         try {

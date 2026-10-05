@@ -2,20 +2,19 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Auth\AuthenticationException;
+use App\Exceptions\Pterodactyl\PterodactylException;
+use App\Exceptions\Server\ServerException;
+use App\Exceptions\Payment\PaymentException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
 
-
     /**
      * A list of exception types with their corresponding custom log levels.
      *
-     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+     * @var array<class-string<Throwable>, \Psr\Log\LogLevel::*>
      */
     protected $levels = [
         //
@@ -24,7 +23,7 @@ class Handler extends ExceptionHandler
     /**
      * A list of the exception types that are not reported.
      *
-     * @var array<int, class-string<\Throwable>>
+     * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [
         //
@@ -51,6 +50,95 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        // Render Pterodactyl exceptions as JSON for API requests and with the
+        // matching error page for web requests.
+        $this->renderable(function (PterodactylException $e, $request) {
+            $status = $e->getStatusCode() ?? 500;
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getPublicMessage(),
+                ], $status);
+            }
+
+            if (view()->exists('errors.' . $status)) {
+                return response()->view(
+                    'errors.' . $status,
+                    [
+                        'exception' => $e,
+                        'errorCode' => $status,
+                        'title' => 'Error',
+                        'message' => $e->getPublicMessage(),
+                        'homeLink' => true,
+                    ],
+                    $status
+                );
+            }
+
+            return response()->view('errors.500', [
+                'exception' => $e,
+                'errorCode' => $status,
+                'title' => 'Error',
+                'message' => $e->getPublicMessage(),
+                'homeLink' => true,
+            ], $status);
+        });
+
+        // Render server exceptions with their status code.
+        $this->renderable(function (ServerException $e, $request) {
+            $status = $e->getStatusCode();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getPublicMessage(),
+                ], $status);
+            }
+
+            $view = view()->exists("errors.{$status}") ? "errors.{$status}" : 'errors.500';
+
+            return response()->view($view, [
+                'exception' => $e,
+                'errorCode' => $status,
+                'title' => 'Error',
+                'message' => $e->getPublicMessage(),
+                'homeLink' => true,
+            ], $status);
+        });
+
+        // Render payment exceptions as JSON for API requests and with the
+        // matching error page for web requests.
+        $this->renderable(function (PaymentException $e, $request) {
+            $status = $e->getStatusCode();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getPublicMessage(),
+                ], $status);
+            }
+
+            if (view()->exists('errors.' . $status)) {
+                return response()->view(
+                    'errors.' . $status,
+                    [
+                        'exception' => $e,
+                        'errorCode' => $status,
+                        'title' => 'Error',
+                        'message' => $e->getPublicMessage(),
+                        'homeLink' => true,
+                    ],
+                    $status
+                );
+            }
+
+            return response()->view('errors.500', [
+                'exception' => $e,
+                'errorCode' => $status,
+                'title' => 'Error',
+                'message' => $e->getPublicMessage(),
+                'homeLink' => true,
+            ], $status);
+        });
     }
 
 
@@ -62,8 +150,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        Log::error($exception->getMessage()); // Log the exception
-
         if ($this->isHttpException($exception)) {
             if (view()->exists('errors.' . $exception->getStatusCode())) {
                 return response()->view(

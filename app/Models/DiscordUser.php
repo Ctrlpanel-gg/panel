@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Exceptions\Discord\DiscordException;
 use App\Settings\DiscordSettings;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Http;
-use Exception;
 
 class DiscordUser extends Model
 {
@@ -79,9 +79,10 @@ class DiscordUser extends Model
             };
 
             if ($response->failed()) {
-                throw new Exception(
+                throw new DiscordException(
                     "Discord API error: {$response->status()} - " .
-                    ($response->json('message') ?? 'Unknown error')
+                    ($response->json('message') ?? 'Unknown error'),
+                    $response->status()
                 );
             }
 

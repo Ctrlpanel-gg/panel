@@ -3,6 +3,10 @@
 namespace App\Services;
 
 use App\Classes\PterodactylClient;
+use App\Exceptions\Server\InsufficientCreditsException;
+use App\Exceptions\Server\InsufficientResourcesException;
+use App\Exceptions\Pterodactyl\PterodactylException;
+use App\Exceptions\Server\ServerUpgradeException;
 use App\Models\Server;
 use App\Models\User;
 use App\Models\Product;
@@ -31,13 +35,15 @@ class ServerUpgradeService
      * @param Product $product
      * @param Server $server
      * @return Server
-     * 
-     * @throws \Exception
+     *
+     * @throws PterodactylException
+     * @throws ServerUpgradeException
      */
     public function handle(User $user, Product $product, Server $server): Server
     {
         try {
-            $this->validateAndPrepare($user, $product, $server);
+            // Validate without charging. Returns the computed price.
+            $finalPrice = $this->validateAndPrepare($user, $product, $server);
 
             $pterodactylServer = $this->pterodactylClient->getServerAttributes($server->pterodactyl_id);
 
@@ -49,77 +55,62 @@ class ServerUpgradeService
             $requiredDisk = $product->disk - $server->product->disk;
 
             if (!$this->pterodactylClient->checkNodeResources($node, $requiredMemory, $requiredDisk)) {
-                throw new \Exception('Insufficient resources on the node to upgrade the server.', 422);
+                throw new InsufficientResourcesException('Insufficient resources on the node to upgrade the server.');
             }
 
             $pterodactylServerAllocation = $pterodactylServer['allocation'];
 
-            $updateServerResponse = $this->pterodactylClient->updateServerBuild($server->pterodactyl_id, $pterodactylServerAllocation, $product);
-            
-            if ($updateServerResponse->failed()) {
-                logger()->error('Failed to update server on Pterodactyl', [
-                    'pterodactyl_id' => $server->pterodactyl_id,
-                    'status' => $updateServerResponse->status(),
-                    'error' => $updateServerResponse->json()
-                ]);
+            // Apply the new resource limits on Pterodactyl. Throws a
+            // PterodactylException on failure so the server is left untouched.
+            $this->pterodactylClient->updateServerBuild($server->pterodactyl_id, $pterodactylServerAllocation, $product);
 
-                $server->delete();
-
-                throw new \Exception(
-                    sprintf(
-                        'Failed to update server on Pterodactyl: %s',
-                        $updateServerResponse->json()['errors'][0]['detail'] ?? 'Unknown error'
-                    )
-                );
-            }
-
-            $powerActionResponse = $this->pterodactylClient->powerAction($server, 'restart');
-
-            if ($powerActionResponse->failed()) {
-                logger()->error('Failed to restart server on Pterodactyl', [
-                    'pterodactyl_id' => $server->pterodactyl_id,
-                    'status' => $powerActionResponse->status(),
-                    'error' => $powerActionResponse->json()
-                ]);
-
-                throw new \Exception(
-                    sprintf(
-                        'Failed to restart server on Pterodactyl: %s',
-                        $powerActionResponse->json()['errors'][0]['detail'] ?? 'Unknown error'
-                    )
-                );
-            }
-
+            // Update local DB immediately so Pterodactyl and panel are in sync
+            // even if the restart below fails (restart can be retried manually).
             $server->update([
                 'product_id' => $product->id,
                 'last_billed' => now(),
                 'canceled' => null
             ]);
 
+            // Charge credits only after Pterodactyl + local DB succeeded.
+            if ($finalPrice > 0) {
+                $user->decrement('credits', $finalPrice);
+            } elseif ($finalPrice < 0) {
+                $user->increment('credits', abs($finalPrice));
+            }
+
+            // Restart is best-effort, failure only logged.
+            $powerActionResponse = $this->pterodactylClient->powerAction($server, 'restart');
+            if ($powerActionResponse->failed()) {
+                logger()->warning('Server upgraded but restart failed - user can restart manually', [
+                    'pterodactyl_id' => $server->pterodactyl_id,
+                    'status' => $powerActionResponse->status(),
+                    'error' => $powerActionResponse->json()
+                ]);
+            }
+
             return $server;
+        } catch (PterodactylException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+            throw new ServerUpgradeException($e->getMessage(), $e->getCode() ?: 500, $e);
         }
     }
 
-    private function validateAndPrepare(User $user, Product $product, Server $server): void
+    /** Validate upgrade and return net price. Caller charges after success. */
+    private function validateAndPrepare(User $user, Product $product, Server $server): float
     {
-        // Check if user has enough credits to upgrade the server.
         $billingPeriodSeconds = $this->getSecondsFromBillingPeriod($product);
         $timeUsed = now()->diffInSeconds($server->last_billed, true);
         $refundAmount = $server->product->price - ($server->product->price * ($timeUsed / $billingPeriodSeconds));
 
-        if ($user->credits < ($product->price - $refundAmount)) {
-            throw new \Exception('Insufficient credits to upgrade the server.', 422);
+        $finalPrice = $product->price - $refundAmount;
+
+        if ($finalPrice > 0 && $user->credits < $finalPrice) {
+            throw new InsufficientCreditsException('Insufficient credits to upgrade the server.');
         }
 
-        // Refund the user for the unused time on the current product.
-        $finalPrice = $product->price - $refundAmount;
-        if ($finalPrice > 0) {
-            $user->decrement('credits', $finalPrice);
-        } elseif ($finalPrice < 0) {
-            $user->increment('credits', abs($finalPrice));
-        }
+        return $finalPrice;
     }
 
     private function getSecondsFromBillingPeriod(Product $product): int
