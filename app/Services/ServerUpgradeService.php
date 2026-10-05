@@ -79,10 +79,10 @@ class ServerUpgradeService
                 $user->increment('credits', abs($finalPrice));
             }
 
-            // Restart is best-effort — log failure but don't lose credits/state.
+            // Restart is best-effort, failure only logged.
             $powerActionResponse = $this->pterodactylClient->powerAction($server, 'restart');
             if ($powerActionResponse->failed()) {
-                logger()->warning('Server upgraded but restart failed — user can restart manually', [
+                logger()->warning('Server upgraded but restart failed - user can restart manually', [
                     'pterodactyl_id' => $server->pterodactyl_id,
                     'status' => $powerActionResponse->status(),
                     'error' => $powerActionResponse->json()
@@ -97,12 +97,7 @@ class ServerUpgradeService
         }
     }
 
-    /**
-     * Validate that the upgrade is possible and compute the price.
-     * Does NOT charge credits — the caller does that after success.
-     *
-     * @return float The net price (positive = charge, negative = refund).
-     */
+    /** Validate upgrade and return net price. Caller charges after success. */
     private function validateAndPrepare(User $user, Product $product, Server $server): float
     {
         $billingPeriodSeconds = $this->getSecondsFromBillingPeriod($product);

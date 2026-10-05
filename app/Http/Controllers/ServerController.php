@@ -600,7 +600,7 @@ class ServerController extends Controller
 
     private function processUpgrade(Server $server, Product $oldProduct, Product $newProduct, User $user): void
     {
-        // Delegate to the shared service — single source of truth for upgrades.
+        // Shared upgrade logic lives in the service.
         app(ServerUpgradeService::class)->handle($user, $newProduct, $server);
     }
 
