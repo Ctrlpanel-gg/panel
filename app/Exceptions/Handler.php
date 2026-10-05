@@ -76,18 +76,34 @@ class Handler extends ExceptionHandler
                 );
             }
 
-            return null;
+            return response()->view('errors.500', [
+                'exception' => $e,
+                'errorCode' => $status,
+                'title' => 'Error',
+                'message' => $e->getPublicMessage(),
+                'homeLink' => true,
+            ], $status);
         });
 
         // Render server exceptions with their status code.
         $this->renderable(function (ServerException $e, $request) {
+            $status = $e->getStatusCode();
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => $e->getPublicMessage(),
-                ], $e->getStatusCode());
+                ], $status);
             }
 
-            return null;
+            $view = view()->exists("errors.{$status}") ? "errors.{$status}" : 'errors.500';
+
+            return response()->view($view, [
+                'exception' => $e,
+                'errorCode' => $status,
+                'title' => 'Error',
+                'message' => $e->getPublicMessage(),
+                'homeLink' => true,
+            ], $status);
         });
 
         // Render payment exceptions as JSON for API requests and with the
@@ -115,7 +131,13 @@ class Handler extends ExceptionHandler
                 );
             }
 
-            return null;
+            return response()->view('errors.500', [
+                'exception' => $e,
+                'errorCode' => $status,
+                'title' => 'Error',
+                'message' => $e->getPublicMessage(),
+                'homeLink' => true,
+            ], $status);
         });
     }
 
