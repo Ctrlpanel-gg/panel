@@ -552,7 +552,7 @@ class PterodactylClient
                 'io' => $product->io,
                 'cpu' => $product->cpu,
                 'threads' => null,
-                'oom_disabled' => $product->oom_killer,
+                'oom_disabled' => !$product->oom_killer,
                 'feature_limits' => [
                     'databases' => $product->databases,
                     'backups' => $product->backups,
