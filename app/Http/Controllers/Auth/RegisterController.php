@@ -88,6 +88,8 @@ class RegisterController extends Controller
         try {
             $user = $this->create($request->all());
         } catch (PterodactylRegistrationException $e) {
+            report($e);
+
             throw ValidationException::withMessages([
                 'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
             ]);
@@ -175,15 +177,33 @@ class RegisterController extends Controller
             throw new PterodactylRegistrationException('Pterodactyl Registration Error: Missing user ID in response');
         }
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'credits' => $this->userSettings->initial_credits,
-            'server_limit' => $this->userSettings->initial_server_limit,
-            'password' => Hash::make($data['password']),
-            'referral_code' => $this->createReferralCode(),
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-        ]);
+        $pterodactylId = $response->json()['attributes']['id'];
+
+        try {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'credits' => $this->userSettings->initial_credits,
+                'server_limit' => $this->userSettings->initial_server_limit,
+                'password' => Hash::make($data['password']),
+                'referral_code' => $this->createReferralCode(),
+                'pterodactyl_id' => $pterodactylId,
+            ]);
+        } catch (\Throwable $e) {
+            try {
+                $this->pterodactylClient->application->delete("/application/users/{$pterodactylId}");
+            } catch (\Throwable $cleanupException) {
+                logger()->error('Failed to delete orphaned Pterodactyl user after DB failure', [
+                    'pterodactyl_id' => $pterodactylId,
+                    'cleanup_error' => $cleanupException->getMessage(),
+                ]);
+            }
+
+            throw new PterodactylRegistrationException(
+                'Failed to create local user after Pterodactyl account was created: ' . $e->getMessage(),
+                $e
+            );
+        }
 
         $user->syncRoles(Role::findById(4));
 
