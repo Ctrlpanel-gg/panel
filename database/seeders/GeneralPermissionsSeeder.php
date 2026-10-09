@@ -32,16 +32,34 @@ class GeneralPermissionsSeeder extends Seeder
      */
     public function createOrUpdatePermissions()
     {
-        // If you still want to create permissions based on a config, keep this method.
-        foreach (config('permissions_web') as $permission_name => $permission_value) {
+        $corePermissions = config('permissions_web');
+
+        // Create or update core permissions.
+        foreach ($corePermissions as $permission_name => $permission_value) {
             Permission::firstOrCreate(
                 ['name' => $permission_value],
                 ['readable_name' => $permission_name]
             );
         }
 
-        // Remove permissions that are no longer in the config file.
-        Permission::whereNotIn('name', array_values(config('permissions_web')))->delete();
+        // Create or update permissions registered by extensions so they can be
+        // assigned to roles just like any core permission.
+        $extensionPermissions = \App\Helpers\ExtensionHelper::getAllExtensionPermissions();
+        foreach ($extensionPermissions as $permission_name => $readable_name) {
+            Permission::firstOrCreate(
+                ['name' => $permission_name],
+                ['readable_name' => $readable_name]
+            );
+        }
+
+        // Remove permissions that are no longer part of the core config or an
+        // extension, keeping extension permissions intact across core updates.
+        $keepNames = array_values($corePermissions);
+        foreach (array_keys($extensionPermissions) as $permission_name) {
+            $keepNames[] = $permission_name;
+        }
+
+        Permission::whereNotIn('name', array_values(array_unique($keepNames)))->delete();
     }
 
     /**

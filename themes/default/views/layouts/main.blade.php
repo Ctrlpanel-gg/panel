@@ -225,6 +225,17 @@
                         @endcanany
                     @endif
 
+                    @php($extensionUserPages = \App\Helpers\ExtensionHelper::getVisibleSidebarPages('user'))
+                    @foreach ($extensionUserPages as $extensionPage)
+                        <li class="nav-item">
+                            <a href="{{ $extensionPage['href'] }}"
+                               class="nav-link @if ($extensionPage['active']) active @endif">
+                                <i class="nav-icon {{ $extensionPage['icon'] }}"></i>
+                                <p>{{ __($extensionPage['title']) }}</p>
+                            </a>
+                        </li>
+                    @endforeach
+
                     @canany(array_merge(
                         PermissionGroups::OVERVIEW_PERMISSIONS,
                         PermissionGroups::TICKET_ADMIN_PERMISSIONS,
@@ -383,6 +394,20 @@
                             </a>
                         </li>
                     @endcanany
+
+                    @php($extensionAdminPages = \App\Helpers\ExtensionHelper::getVisibleSidebarPages('admin'))
+                    @if (count($extensionAdminPages) > 0)
+                        <li class="nav-header">{{ __('Extensions') }}</li>
+                        @foreach ($extensionAdminPages as $extensionPage)
+                            <li class="nav-item">
+                                <a href="{{ $extensionPage['href'] }}"
+                                   class="nav-link @if ($extensionPage['active']) active @endif">
+                                    <i class="nav-icon {{ $extensionPage['icon'] }}"></i>
+                                    <p>{{ __($extensionPage['title']) }}</p>
+                                </a>
+                            </li>
+                        @endforeach
+                    @endif
 
                     @canany(PermissionGroups::USEFUL_LINKS_PERMISSIONS)
                         <li class="nav-header">{{ __('Other') }}</li>

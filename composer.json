@@ -70,7 +70,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "exclude-from-classmap": [
-            "app/Extensions/PaymentGateways/**/migrations"
+            "app/Extensions/PaymentGateways/**/database/migrations"
         ]
     },
     "autoload-dev": {

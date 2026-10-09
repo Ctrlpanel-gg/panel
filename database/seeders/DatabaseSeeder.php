@@ -18,5 +18,9 @@ class DatabaseSeeder extends Seeder
             TermsSeeder::class,
             GeneralPermissionsSeeder::class,
         ]);
+
+        if (class_exists(\App\Helpers\ExtensionHelper::class)) {
+            $this->call(\App\Helpers\ExtensionHelper::getAllExtensionSeeders());
+        }
     }
 }

@@ -225,26 +225,38 @@
                             @endcanany
                         @endif
 
-                        @canany(array_merge(
-                                PermissionGroups::OVERVIEW_PERMISSIONS,
-                                PermissionGroups::TICKET_ADMIN_PERMISSIONS,
-                                PermissionGroups::TICKET_BLACKLIST_PERMISSIONS,
-                                PermissionGroups::ROLES_PERMISSIONS,
-                                PermissionGroups::SETTINGS_PERMISSIONS,
-                                PermissionGroups::API_PERMISSIONS,
-                                PermissionGroups::USERS_PERMISSIONS,
-                                PermissionGroups::SERVERS_PERMISSIONS,
-                                PermissionGroups::PRODUCTS_PERMISSIONS,
-                                PermissionGroups::STORE_PERMISSIONS,
-                                PermissionGroups::VOUCHERS_PERMISSIONS,
-                                PermissionGroups::PARTNERS_PERMISSIONS,
-                                PermissionGroups::COUPONS_PERMISSIONS,
-                                PermissionGroups::USEFUL_LINKS_PERMISSIONS,
-                                PermissionGroups::PAYMENTS_PERMISSIONS,
-                                PermissionGroups::LOGS_PERMISSIONS
-                            ))
-                            <li class="nav-header">{{ __('Administration') }}</li>
-                        @endcanany
+          @php($extensionUserPages = \App\Helpers\ExtensionHelper::getVisibleSidebarPages('user'))
+          @foreach ($extensionUserPages as $extensionPage)
+            <li class="nav-item">
+              <a href="{{ $extensionPage['href'] }}"
+                 class="nav-link @if ($extensionPage['active']) active @endif">
+                <i class="nav-icon {{ $extensionPage['icon'] }}"></i>
+                <p>{{ __($extensionPage['title']) }}</p>
+              </a>
+            </li>
+          @endforeach
+
+          @canany(array_merge(
+              PermissionGroups::TICKET_PERMISSIONS,
+              PermissionGroups::OVERVIEW_PERMISSIONS,
+              PermissionGroups::TICKET_ADMIN_PERMISSIONS,
+              PermissionGroups::TICKET_BLACKLIST_PERMISSIONS,
+              PermissionGroups::ROLES_PERMISSIONS,
+              PermissionGroups::SETTINGS_PERMISSIONS,
+              PermissionGroups::API_PERMISSIONS,
+              PermissionGroups::USERS_PERMISSIONS,
+              PermissionGroups::SERVERS_PERMISSIONS,
+              PermissionGroups::PRODUCTS_PERMISSIONS,
+              PermissionGroups::STORE_PERMISSIONS,
+              PermissionGroups::VOUCHERS_PERMISSIONS,
+              PermissionGroups::PARTNERS_PERMISSIONS,
+              PermissionGroups::COUPONS_PERMISSIONS,
+              PermissionGroups::USEFUL_LINKS_PERMISSIONS,
+              PermissionGroups::PAYMENTS_PERMISSIONS,
+              PermissionGroups::LOGS_PERMISSIONS
+          ))
+            <li class="nav-header">{{ __('Administration') }}</li>
+          @endcanany
 
                         @canany(PermissionGroups::OVERVIEW_PERMISSIONS)
                             <li class="nav-item">
@@ -384,9 +396,27 @@
                             </li>
                         @endcanany
 
-                        @canany(PermissionGroups::USEFUL_LINKS_PERMISSIONS)
-                            <li class="nav-header">{{ __('Other') }}</li>
-                        @endcanany
+          @php($extensionAdminPages = \App\Helpers\ExtensionHelper::getVisibleSidebarPages('admin'))
+          @if (count($extensionAdminPages) > 0)
+            <li class="nav-header">{{ __('Extensions') }}</li>
+            @foreach ($extensionAdminPages as $extensionPage)
+              <li class="nav-item">
+                <a href="{{ $extensionPage['href'] }}"
+                   class="nav-link @if ($extensionPage['active']) active @endif">
+                  <i class="nav-icon {{ $extensionPage['icon'] }}"></i>
+                  <p>{{ __($extensionPage['title']) }}</p>
+                </a>
+              </li>
+            @endforeach
+          @endif
+
+          @canany(array_merge(
+              PermissionGroups::USEFUL_LINKS_PERMISSIONS,
+              PermissionGroups::PAYMENTS_PERMISSIONS,
+              PermissionGroups::LOGS_PERMISSIONS
+          ))
+            <li class="nav-header">{{ __('Other') }}</li>
+          @endcanany
 
                         @canany(PermissionGroups::USEFUL_LINKS_PERMISSIONS)
                             <li class="nav-item">

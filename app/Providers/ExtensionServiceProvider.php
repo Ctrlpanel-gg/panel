@@ -36,13 +36,23 @@ class ExtensionServiceProvider extends ServiceProvider
             foreach ($extensionDirectories as $extensionDirectory) {
                 $extensionName = basename($extensionDirectory);
 
-                // Load Routes
-                $routesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes.php';
-                if (is_file($routesFile)) {
-                    $resolvedPath = realpath($routesFile);
+                // Load Web Routes
+                $webRoutesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'web.php';
+                if (is_file($webRoutesFile)) {
+                    $resolvedPath = realpath($webRoutesFile);
                     $basePath = realpath($extensionsBasePath);
                     if ($resolvedPath && $basePath && str_starts_with($resolvedPath, $basePath . DIRECTORY_SEPARATOR)) {
                         $this->loadRoutesFrom($resolvedPath);
+                    }
+                }
+
+                // Load API Routes
+                $apiRoutesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'api.php';
+                if (is_file($apiRoutesFile)) {
+                    $resolvedPath = realpath($apiRoutesFile);
+                    $basePath = realpath($extensionsBasePath);
+                    if ($resolvedPath && $basePath && str_starts_with($resolvedPath, $basePath . DIRECTORY_SEPARATOR)) {
+                        $this->loadExtensionApiRoutes($resolvedPath);
                     }
                 }
 
@@ -61,18 +71,28 @@ class ExtensionServiceProvider extends ServiceProvider
                 }
 
                 // Load Migrations
-                $migrationsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'migrations';
+                $migrationsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations';
                 if (is_dir($migrationsDirectory)) {
                     $this->loadMigrationsFrom($migrationsDirectory);
                 }
 
                 // Load Artisan Commands
-                $commandsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'Commands';
+                $commandsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'Console' . DIRECTORY_SEPARATOR . 'Commands';
                 if (is_dir($commandsDirectory) && $this->app->runningInConsole()) {
-                    $this->loadCommandsFromDirectory($commandsDirectory, "App\\Extensions\\{$namespaceName}\\{$extensionName}\\Commands");
+                    $this->loadCommandsFromDirectory($commandsDirectory, "App\\Extensions\\{$namespaceName}\\{$extensionName}\\Console\\Commands");
                 }
             }
         }
+
+        // Register Database Seeders
+        if ($this->app->runningInConsole()) {
+            foreach (\App\Helpers\ExtensionHelper::getAllExtensionSeeders() as $seederClass) {
+                $this->app->singleton($seederClass);
+            }
+        }
+
+        // Register Extension Middleware
+        $this->registerExtensionMiddleware();
 
         // Boot Extension Schedules
         if ($this->app->runningInConsole()) {
@@ -80,6 +100,54 @@ class ExtensionServiceProvider extends ServiceProvider
                 $schedule = $this->app->make(Schedule::class);
                 $this->scheduleExtensions($schedule);
             });
+        }
+    }
+
+    /**
+     * Load an extension's API routes with the api middleware group and prefix,
+     * mirroring how the application's core API routes are registered.
+     */
+    protected function loadExtensionApiRoutes(string $path): void
+    {
+        $this->callAfterResolving('router', function ($router) use ($path) {
+            $router->group(['prefix' => 'api', 'middleware' => 'api', 'name' => 'api.'], function ($router) use ($path) {
+                require $path;
+            });
+        });
+    }
+
+    /**
+     * Register middleware declared by extensions, either globally, in a middleware
+     * group, or as a route middleware alias.
+     */
+    protected function registerExtensionMiddleware(): void
+    {
+        $router = $this->app->make(\Illuminate\Routing\Router::class);
+        $kernel = $this->app->make(\Illuminate\Foundation\Http\Kernel::class);
+
+        foreach (\App\Helpers\ExtensionHelper::getAllExtensionMiddleware() as $middleware) {
+            $class = $middleware['class'];
+            $position = $middleware['position'];
+
+            if ($middleware['global']) {
+                if ($position === 'prepend') {
+                    $kernel->prependMiddleware($class);
+                } else {
+                    $kernel->pushMiddleware($class);
+                }
+            }
+
+            foreach ($middleware['groups'] as $group) {
+                if ($position === 'prepend') {
+                    $router->prependMiddlewareToGroup($group, $class);
+                } else {
+                    $router->pushMiddlewareToGroup($group, $class);
+                }
+            }
+
+            if ($middleware['alias'] !== null) {
+                $router->aliasMiddleware($middleware['alias'], $class);
+            }
         }
     }
 
