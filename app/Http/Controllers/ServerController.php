@@ -19,6 +19,8 @@ use App\Services\ServerUpgradeService;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
 use App\Enums\BillingPriority;
+use App\Exceptions\Pterodactyl\PterodactylException;
+use App\Exceptions\Server\ServerException;
 use App\Exceptions\Server\ServerUpgradeException;
 use App\Settings\GeneralSettings;
 use Exception;
@@ -540,8 +542,17 @@ class ServerController extends Controller
                 'error' => $e->getMessage()
             ]);
 
+            // Only trusted typed exceptions may choose what the user sees.
+            // Anything unexpected gets a generic message; the details
+            // above stay in the server logs.
+            if ($e instanceof ServerException || $e instanceof PterodactylException) {
+                $displayMessage = $e->getPublicMessage();
+            } else {
+                $displayMessage = __('Something went wrong. Please try again later.');
+            }
+
             return redirect()->route('servers.show', ['server' => $server->id])
-                ->with('error', __('Upgrade failed: ') . $e->getMessage());
+                ->with('error', __('Upgrade failed: ') . $displayMessage);
         }
     }
 

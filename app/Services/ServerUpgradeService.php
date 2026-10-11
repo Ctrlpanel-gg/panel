@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Classes\PterodactylClient;
 use App\Exceptions\Server\InsufficientCreditsException;
 use App\Exceptions\Server\InsufficientResourcesException;
+use App\Exceptions\Server\ServerException;
 use App\Exceptions\Pterodactyl\PterodactylException;
 use App\Exceptions\Server\ServerUpgradeException;
 use App\Models\Server;
@@ -13,6 +14,8 @@ use App\Models\Product;
 use App\Models\Pterodactyl\Node;
 use App\Settings\PterodactylSettings;
 use Carbon\CarbonInterval;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ServerUpgradeService
 {
@@ -20,12 +23,30 @@ class ServerUpgradeService
     private PterodactylClient $pterodactylClient;
 
     /**
+     * Bound for each Pterodactyl HTTP call in the upgrade flow. Pins the
+     * HTTP client's default (30s total / 10s connect) explicitly so the
+     * lease sizing below does not silently depend on a framework default.
+     */
+    private const PTERODACTYL_TIMEOUT_SECONDS = 30;
+
+    /**
+     * Lock lease in seconds. Sized with a safety margin over the
+     * worst-case bounded operation (up to 5 remote calls x timeout plus
+     * the local transaction). This reduces the chance of the lease
+     * expiring mid-operation but cannot guarantee it: a hung local
+     * database or a paused process can still outlive any TTL.
+     */
+    private const LOCK_TTL_SECONDS = 300;
+
+    /**
      * Create a new class instance.
      */
-    public function __construct()
-    {
-        $this->pterodactylSettings = app(PterodactylSettings::class);
-        $this->pterodactylClient = app(PterodactylClient::class, [$this->pterodactylSettings]);
+    public function __construct(
+        ?PterodactylSettings $pterodactylSettings = null,
+        ?PterodactylClient $pterodactylClient = null
+    ) {
+        $this->pterodactylSettings = $pterodactylSettings ?? app(PterodactylSettings::class);
+        $this->pterodactylClient = $pterodactylClient ?? app(PterodactylClient::class, [$this->pterodactylSettings]);
     }
 
     /**
@@ -41,7 +62,39 @@ class ServerUpgradeService
      */
     public function handle(User $user, Product $product, Server $server): Server
     {
+        // Per-server lock so concurrent upgrades of the same server are
+        // serialised. Only effective across hosts when the cache backend
+        // is shared (e.g. Redis); the local file/array drivers lock
+        // per-node only. The TTL is a backstop for crashed holders with a
+        // safety margin over the bounded operation, not a guarantee.
+        $lockKey = 'server_upgrade_' . $server->id;
+        $lock = Cache::lock($lockKey, self::LOCK_TTL_SECONDS);
+
         try {
+            $lock->block(10);
+        } catch (\Illuminate\Contracts\Cache\LockTimeoutException $exception) {
+            throw new ServerUpgradeException('Another upgrade request is in progress for this server. Please try again in a few seconds.', 429);
+        }
+
+        try {
+            // Refresh server model to get authoritative product relationship under lock
+            $server->refresh();
+
+            // Bound every remote call in this flow so a hung Pterodactyl
+            // cannot outlive the lock lease. Scoped to this service's own
+            // client instance; other Pterodactyl flows are untouched.
+            $this->pterodactylClient->setRequestTimeout(self::PTERODACTYL_TIMEOUT_SECONDS);
+
+            // Idempotency: If server is already on the target product, return without charging again.
+            // Product IDs are compared as strings so retries carrying the
+            // same ID in a different scalar type are still recognised.
+            // This only suppresses duplicate charging; it does not assert
+            // that the remote Pterodactyl build is in sync (out-of-band
+            // divergence needs separate reconciliation, see below).
+            if ($this->isSameProduct($server, $product)) {
+                return $server;
+            }
+
             // Validate without charging. Returns the computed price.
             $finalPrice = $this->validateAndPrepare($user, $product, $server);
 
@@ -59,24 +112,48 @@ class ServerUpgradeService
             }
 
             $pterodactylServerAllocation = $pterodactylServer['allocation'];
+            $oldProduct = $server->product;
 
-            // Apply the new resource limits on Pterodactyl. Throws a
-            // PterodactylException on failure so the server is left untouched.
+            // Remote changes need compensation if the local transaction fails.
             $this->pterodactylClient->updateServerBuild($server->pterodactyl_id, $pterodactylServerAllocation, $product);
 
-            // Update local DB immediately so Pterodactyl and panel are in sync
-            // even if the restart below fails (restart can be retried manually).
-            $server->update([
-                'product_id' => $product->id,
-                'last_billed' => now(),
-                'canceled' => null
-            ]);
+            try {
+                DB::transaction(function () use ($server, $product, $user, $finalPrice) {
+                    $server->update([
+                        'product_id' => $product->id,
+                        'last_billed' => now(),
+                        'canceled' => null
+                    ]);
 
-            // Charge credits only after Pterodactyl + local DB succeeded.
-            if ($finalPrice > 0) {
-                $user->decrement('credits', $finalPrice);
-            } elseif ($finalPrice < 0) {
-                $user->increment('credits', abs($finalPrice));
+                    if ($finalPrice > 0) {
+                        $charged = User::whereKey($user->id)
+                            ->where('credits', '>=', $finalPrice)
+                            ->decrement('credits', $finalPrice);
+
+                        if ($charged !== 1) {
+                            throw new InsufficientCreditsException('Insufficient credits to upgrade the server.');
+                        }
+                    } elseif ($finalPrice < 0) {
+                        User::whereKey($user->id)->increment('credits', abs($finalPrice));
+                    }
+                });
+            } catch (\Throwable $e) {
+                try {
+                    $this->pterodactylClient->updateServerBuild(
+                        $server->pterodactyl_id,
+                        $pterodactylServerAllocation,
+                        $oldProduct
+                    );
+                } catch (\Throwable $rollbackException) {
+                    logger()->critical('Server upgrade compensation failed', [
+                        'server_id' => $server->id,
+                        'pterodactyl_id' => $server->pterodactyl_id,
+                        'error' => $rollbackException->getMessage(),
+                        'original_error' => $e->getMessage(),
+                    ]);
+                }
+
+                throw $e;
             }
 
             // Restart is best-effort, failure only logged.
@@ -92,15 +169,29 @@ class ServerUpgradeService
             return $server;
         } catch (PterodactylException $e) {
             throw $e;
+        } catch (ServerException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            throw new ServerUpgradeException($e->getMessage(), $e->getCode() ?: 500, $e);
+            throw new ServerUpgradeException(
+                $e->getMessage(),
+                $e->getCode() ?: 500,
+                $e
+            );
+        } finally {
+            optional($lock)->release();
         }
+    }
+
+    /** Whether the server already targets the given product (ID comparison is type-agnostic). */
+    private function isSameProduct(Server $server, Product $product): bool
+    {
+        return (string) $server->product_id === (string) $product->id;
     }
 
     /** Validate upgrade and return net price. Caller charges after success. */
     private function validateAndPrepare(User $user, Product $product, Server $server): float
     {
-        $billingPeriodSeconds = $this->getSecondsFromBillingPeriod($product);
+        $billingPeriodSeconds = $this->getSecondsFromBillingPeriod($server->product);
         $timeUsed = now()->diffInSeconds($server->last_billed, true);
         $refundAmount = $server->product->price - ($server->product->price * ($timeUsed / $billingPeriodSeconds));
 

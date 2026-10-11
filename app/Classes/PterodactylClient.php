@@ -30,6 +30,16 @@ class PterodactylClient
 
     public PendingRequest $application;
 
+    /**
+     * Per-request HTTP timeout override in seconds for remote calls.
+     *
+     * 0 (default) leaves the pending request untouched, i.e. the HTTP
+     * client's own default applies (currently 30s total, 10s connect).
+     * Only callers that opt in via setRequestTimeout() change anything,
+     * and only on their own client instance.
+     */
+    public int $requestTimeout = 0;
+
     public function __construct(PterodactylSettings $ptero_settings)
     {
         $server_settings = new ServerSettings();
@@ -62,6 +72,32 @@ class PterodactylClient
             'Content-type' => 'application/json',
             'Accept' => 'Application/vnd.pterodactyl.v1+json',
         ])->baseUrl($ptero_settings->getUrl() . 'api' . '/');
+    }
+
+    /**
+     * Opt in to a bounded HTTP timeout for subsequent remote calls made
+     * through this client instance. Other client instances are unaffected.
+     *
+     * @param  int  $seconds  0 disables the timeout (default).
+     */
+    public function setRequestTimeout(int $seconds): static
+    {
+        $this->requestTimeout = $seconds;
+
+        return $this;
+    }
+
+    /**
+     * Apply the configured timeout, if any, without mutating the shared
+     * pending request (PendingRequest::timeout() mutates in place).
+     */
+    protected function withTimeout(PendingRequest $request): PendingRequest
+    {
+        if ($this->requestTimeout <= 0) {
+            return $request;
+        }
+
+        return (clone $request)->timeout($this->requestTimeout);
     }
 
     /**
@@ -483,7 +519,7 @@ class PterodactylClient
     public function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
     {
         try {
-            $response = $this->application->get("application/servers/{$pterodactylId}?include=egg,node,nest,location");
+            $response = $this->withTimeout($this->application)->get("application/servers/{$pterodactylId}?include=egg,node,nest,location");
         } catch (Exception $e) {
             self::throwException($e->getMessage(), null, $e);
         }
@@ -544,7 +580,7 @@ class PterodactylClient
     public function updateServerBuild(string $pterodactylId, int $pterodactylAllocation, Product $product)
     {
         try {
-            $response = $this->application->patch("application/servers/{$pterodactylId}/build", [
+            $response = $this->withTimeout($this->application)->patch("application/servers/{$pterodactylId}/build", [
                 'allocation' => $pterodactylAllocation,
                 'memory' => $product->memory,
                 'swap' => $product->swap,
@@ -621,7 +657,7 @@ class PterodactylClient
      */
     public function powerAction(Server $server, $action)
     {
-        return $this->client->post("client/servers/{$server->identifier}/power", [
+        return $this->withTimeout($this->client)->post("client/servers/{$server->identifier}/power", [
             'signal' => $action,
         ]);
     }
@@ -645,7 +681,7 @@ class PterodactylClient
     public function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
     {
         try {
-            $response = $this->application->get("application/nodes/{$node->id}");
+            $response = $this->withTimeout($this->application)->get("application/nodes/{$node->id}");
         } catch (Exception $e) {
             logger()->warning('Cannot reach node for resource check, skipping', [
                 'node_id' => $node->id,
