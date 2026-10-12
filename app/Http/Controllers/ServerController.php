@@ -511,34 +511,37 @@ class ServerController extends Controller
         }
 
         $user = Auth::user();
-        $oldProduct = Product::find($server->product->id);
+        $oldProduct = $server->product ?? Product::find($server->product_id);
         $newProduct = Product::find($request->product_upgrade);
 
-        if (!$newProduct) {
+        if (!$oldProduct || !$newProduct) {
             return redirect()->route('servers.show', ['server' => $server->id])
                 ->with('error', __('Selected product not found'));
         }
 
-        // Check server limit for the new product
-        if ($oldProduct->id !== $newProduct->id && $this->productLimitReached($user, $newProduct)) {
-            return redirect()->route('servers.show', ['server' => $server->id])
-                ->with('error', __('You can not create any more Servers with this product!'));
-        }
-
-        if (!$this->validateUpgrade($server, $oldProduct, $newProduct)) {
-            return redirect()->route('servers.show', ['server' => $server->id])
-                ->with('error', __('Insufficient resources or credits for upgrade'));
-        }
-
         try {
+            // Check server limit for the new product
+            if ($oldProduct->id !== $newProduct->id && $this->productLimitReached($user, $newProduct)) {
+                return redirect()->route('servers.show', ['server' => $server->id])
+                    ->with('error', __('You can not create any more Servers with this product!'));
+            }
+
+            // Pre-check runs inside try: getServerAttributes() throws a
+            // typed PterodactylException on outage, which the catch below
+            // turns into a friendly redirect instead of an HTML 500.
+            if (!$this->validateUpgrade($server, $oldProduct, $newProduct)) {
+                return redirect()->route('servers.show', ['server' => $server->id])
+                    ->with('error', __('Insufficient resources or credits for upgrade'));
+            }
+
             $this->processUpgrade($server, $oldProduct, $newProduct, $user);
             return redirect()->route('servers.show', ['server' => $server->id])
                 ->with('success', __('Server Successfully Upgraded'));
         } catch (Exception $e) {
             Log::error('Server upgrade failed', [
                 'server_id' => $server->id,
-                'old_product' => $oldProduct->id,
-                'new_product' => $newProduct->id,
+                'old_product' => $oldProduct->id ?? null,
+                'new_product' => $newProduct->id ?? null,
                 'error' => $e->getMessage(),
                 'previous' => $e->getPrevious()?->getMessage(),
             ]);
