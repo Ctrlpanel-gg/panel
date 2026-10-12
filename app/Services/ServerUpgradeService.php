@@ -156,13 +156,22 @@ class ServerUpgradeService
                 throw $e;
             }
 
-            // Restart is best-effort, failure only logged.
-            $powerActionResponse = $this->pterodactylClient->powerAction($server, 'restart');
-            if ($powerActionResponse->failed()) {
+            // Restart is best-effort, failure only logged. Runs after the
+            // local commit, so a throw here must not report the upgrade
+            // as failed (retry is idempotent via isSameProduct anyway).
+            try {
+                $powerActionResponse = $this->pterodactylClient->powerAction($server, 'restart');
+                if ($powerActionResponse->failed()) {
+                    logger()->warning('Server upgraded but restart failed - user can restart manually', [
+                        'pterodactyl_id' => $server->pterodactyl_id,
+                        'status' => $powerActionResponse->status(),
+                        'error' => $powerActionResponse->json()
+                    ]);
+                }
+            } catch (\Throwable $e) {
                 logger()->warning('Server upgraded but restart failed - user can restart manually', [
                     'pterodactyl_id' => $server->pterodactyl_id,
-                    'status' => $powerActionResponse->status(),
-                    'error' => $powerActionResponse->json()
+                    'error' => $e->getMessage(),
                 ]);
             }
 
