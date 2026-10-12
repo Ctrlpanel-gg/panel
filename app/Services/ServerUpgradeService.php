@@ -172,9 +172,11 @@ class ServerUpgradeService
         } catch (ServerException $e) {
             throw $e;
         } catch (\Exception $e) {
+            $code = $e->getCode();
+            $statusCode = is_int($code) && $code >= 400 && $code < 600 ? $code : 500;
             throw new ServerUpgradeException(
-                $e->getMessage(),
-                $e->getCode() ?: 500,
+                'Server upgrade failed. Please try again later.',
+                $statusCode,
                 $e
             );
         } finally {

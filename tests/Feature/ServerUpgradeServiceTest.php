@@ -363,6 +363,45 @@ class ServerUpgradeServiceTest extends TestCase
         $this->assertSame(30, $client->requestTimeout);
     }
 
+    protected function makeGhostProduct(): Product
+    {
+        $ghost = new Product([
+            'name' => 'ghost-plan',
+            'description' => 'ghost',
+            'price' => 10,
+            'billing_period' => 'hourly',
+            'memory' => 1024,
+            'disk' => 10000,
+        ]);
+        $ghost->id = 'ghost-' . random_int(100000, 999999);
+
+        return $ghost;
+    }
+
+    public function test_database_failure_does_not_leak_sql(): void
+    {
+        $scenario = $this->makeUpgradeScenario();
+        extract($scenario);
+
+        $client = new FakePterodactylClient($node->id);
+        $service = $this->makeService($client);
+
+        try {
+            $service->handle($user, $this->makeGhostProduct(), $server);
+            $this->fail('Expected ServerUpgradeException from the FK violation.');
+        } catch (ServerUpgradeException $e) {
+            $this->assertInstanceOf(\Illuminate\Database\QueryException::class, $e->getPrevious());
+            $this->assertStringContainsString('SQL', $e->getPrevious()->getMessage());
+            $this->assertSame('Server upgrade failed. Please try again later.', $e->getMessage());
+            $this->assertStringNotContainsStringIgnoringCase('sql', $e->getMessage());
+            $this->assertSame(500, $e->getCode());
+            $this->assertSame(500, $e->getStatusCode());
+        }
+
+        $this->assertSame($oldProduct->id, $server->fresh()->product_id);
+        $this->assertSame(20000, (int) $user->fresh()->credits);
+    }
+
     public function test_api_returns_422_for_domain_exceptions(): void
     {
         $scenario = $this->makeUpgradeScenario();
@@ -413,6 +452,41 @@ class ServerUpgradeServiceTest extends TestCase
         // carries code 0); the PR only sanitizes the message body.
         $response->assertStatus(500);
         $response->assertExactJson(['message' => 'Service temporarily unavailable. Please try again later.']);
+    }
+
+    public function test_api_database_failure_returns_safe_message(): void
+    {
+        $scenario = $this->makeUpgradeScenario();
+        extract($scenario);
+
+        // Produce a genuine wrapper from a genuine FK violation first.
+        $client = new FakePterodactylClient($node->id);
+        $service = $this->makeService($client);
+
+        try {
+            $service->handle($user, $this->makeGhostProduct(), $server);
+            $this->fail('Expected ServerUpgradeException from the FK violation.');
+        } catch (ServerUpgradeException $wrapper) {
+            $this->assertInstanceOf(\Illuminate\Database\QueryException::class, $wrapper->getPrevious());
+        }
+
+        // Replay that exact failure through the HTTP layer.
+        $mock = \Mockery::mock(ServerUpgradeService::class);
+        $mock->shouldReceive('handle')->once()->andThrow($wrapper);
+        $this->app->instance(ServerUpgradeService::class, $mock);
+
+        $token = ApplicationApi::factory()->create();
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $token->token,
+        ])->patchJson("/api/servers/{$server->id}/build", [
+            'user_id' => $user->id,
+            'product_id' => $newProduct->id,
+        ]);
+
+        $response->assertStatus(500);
+        $response->assertExactJson(['message' => 'Server upgrade failed. Please try again later.']);
     }
 }
 

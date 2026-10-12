@@ -539,7 +539,8 @@ class ServerController extends Controller
                 'server_id' => $server->id,
                 'old_product' => $oldProduct->id,
                 'new_product' => $newProduct->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'previous' => $e->getPrevious()?->getMessage(),
             ]);
 
             // Only trusted typed exceptions may choose what the user sees.
