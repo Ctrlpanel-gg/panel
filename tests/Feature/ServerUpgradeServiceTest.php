@@ -209,6 +209,40 @@ class ServerUpgradeServiceTest extends TestCase
         $this->assertSame(0, (int) $user->fresh()->credits);
     }
 
+    public function test_heals_diverged_build(): void
+    {
+        // Local bills old, remote already runs new limits (previous attempt
+        // applied remotely then failed locally with a failed restore).
+        // Heal restores remote to old first, then the upgrade applies new.
+        $scenario = $this->makeUpgradeScenario();
+        extract($scenario);
+
+        $client = new FakePterodactylClient(
+            $node->id,
+            remoteLimits: [
+                'memory' => $newProduct->memory,
+                'swap' => $newProduct->swap,
+                'disk' => $newProduct->disk,
+                'io' => $newProduct->io,
+                'cpu' => $newProduct->cpu,
+                'oom_disabled' => !$newProduct->oom_killer,
+            ],
+            remoteFeatureLimits: [
+                'databases' => $newProduct->databases,
+                'allocations' => $newProduct->allocations,
+                'backups' => $newProduct->backups,
+            ]
+        );
+        $service = $this->makeService($client);
+
+        $result = $service->handle($user, $newProduct, $server);
+
+        $this->assertSame($newProduct->id, $result->product_id);
+        $this->assertSame([$oldProduct->id, $newProduct->id], $client->buildCalls);
+        $this->assertSame(20000 - 6400, (int) $user->fresh()->credits);
+        $this->assertSame($newProduct->id, $server->fresh()->product_id);
+    }
+
     public function test_failed_compensation_still_propagates_original_error(): void
     {
         $scenario = $this->makeUpgradeScenario();
@@ -517,18 +551,30 @@ class FakePterodactylClient extends PterodactylClient
         private int $nodeId = 1,
         private bool $failFirstBuild = false,
         private bool $failRestore = false,
-        private bool $nodeResourcesOk = true
+        private bool $nodeResourcesOk = true,
+        private ?array $remoteLimits = null,
+        private ?array $remoteFeatureLimits = null
     ) {
     }
 
     public function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
     {
-        return [
+        $attributes = [
             'allocation' => 7,
             'relationships' => [
                 'node' => ['attributes' => ['id' => $this->nodeId]],
             ],
         ];
+
+        if ($this->remoteLimits !== null) {
+            $attributes['limits'] = $this->remoteLimits;
+        }
+
+        if ($this->remoteFeatureLimits !== null) {
+            $attributes['feature_limits'] = $this->remoteFeatureLimits;
+        }
+
+        return $attributes;
     }
 
     public function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)

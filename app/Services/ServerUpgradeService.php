@@ -85,16 +85,6 @@ class ServerUpgradeService
             // client instance; other Pterodactyl flows are untouched.
             $this->pterodactylClient->setRequestTimeout(self::PTERODACTYL_TIMEOUT_SECONDS);
 
-            // Idempotency: If server is already on the target product, return without charging again.
-            // Product IDs are compared as strings so retries carrying the
-            // same ID in a different scalar type are still recognised.
-            // This only suppresses duplicate charging; it does not assert
-            // that the remote Pterodactyl build is in sync (out-of-band
-            // divergence needs separate reconciliation, see below).
-            if ($this->isSameProduct($server, $product)) {
-                return $server;
-            }
-
             // Guard: the current product row may have been deleted. Fail
             // early with a clear error so later property access and the
             // compensation path never receive null instead of a Product.
@@ -103,10 +93,43 @@ class ServerUpgradeService
                 throw new ServerUpgradeException('Server upgrade failed. Please try again later.', 500);
             }
 
+            // Fetch remote state once, reuse for heal check and node check.
+            $pterodactylServer = $this->pterodactylClient->getServerAttributes($server->pterodactyl_id);
+            $pterodactylServerAllocation = $pterodactylServer['allocation'];
+
+            // Self-heal: a previous attempt may have applied the new build
+            // remotely while the local transaction failed and the restore
+            // also failed (local old, remote new). Restore remote to the
+            // billed product before proceeding. Skipped when remote exposes
+            // no limits data. Heal failure only warns; the upgrade's own
+            // build update sets the correct state or fails itself.
+            if (!$this->isBuildInSync($pterodactylServer, $oldProduct)) {
+                try {
+                    $this->pterodactylClient->updateServerBuild(
+                        $server->pterodactyl_id,
+                        $pterodactylServerAllocation,
+                        $oldProduct
+                    );
+                } catch (\Throwable $healException) {
+                    logger()->warning('Server build diverged and heal failed, proceeding with upgrade', [
+                        'server_id' => $server->id,
+                        'pterodactyl_id' => $server->pterodactyl_id,
+                        'error' => $healException->getMessage(),
+                    ]);
+                }
+                $pterodactylServer = $this->pterodactylClient->getServerAttributes($server->pterodactyl_id);
+                $pterodactylServerAllocation = $pterodactylServer['allocation'];
+            }
+
+            // Idempotency: If server is already on the target product, return without charging again.
+            // Product IDs are compared as strings so retries carrying the
+            // same ID in a different scalar type are still recognised.
+            if ($this->isSameProduct($server, $product)) {
+                return $server;
+            }
+
             // Validate without charging. Returns the computed price.
             $finalPrice = $this->validateAndPrepare($user, $product, $server);
-
-            $pterodactylServer = $this->pterodactylClient->getServerAttributes($server->pterodactyl_id);
 
             $pterodactylServerNodeId = $pterodactylServer['relationships']['node']['attributes']['id'];
             $node = Node::findOrFail($pterodactylServerNodeId);
@@ -118,8 +141,6 @@ class ServerUpgradeService
             if (!$this->pterodactylClient->checkNodeResources($node, $requiredMemory, $requiredDisk)) {
                 throw new InsufficientResourcesException('Insufficient resources on the node to upgrade the server.');
             }
-
-            $pterodactylServerAllocation = $pterodactylServer['allocation'];
 
             // Remote changes need compensation if the local transaction fails.
             $this->pterodactylClient->updateServerBuild($server->pterodactyl_id, $pterodactylServerAllocation, $product);
@@ -204,6 +225,45 @@ class ServerUpgradeService
     private function isSameProduct(Server $server, Product $product): bool
     {
         return (string) $server->product_id === (string) $product->id;
+    }
+
+    /**
+     * Whether the remote build matches the given product.
+     *
+     * Only keys the remote actually exposes are compared; when it exposes
+     * no limits data at all it counts as matching so plain flows never
+     * trigger a heal.
+     */
+    private function isBuildInSync(array $remote, Product $product): bool
+    {
+        $limits = $remote['limits'] ?? [];
+        $featureLimits = $remote['feature_limits'] ?? [];
+
+        foreach (['memory' => $product->memory, 'swap' => $product->swap, 'disk' => $product->disk, 'io' => $product->io, 'cpu' => $product->cpu] as $key => $expected) {
+            if (array_key_exists($key, $limits)) {
+                if ((int) $limits[$key] !== (int) $expected) {
+                    return false;
+                }
+            }
+        }
+
+        if (array_key_exists('oom_disabled', $limits)) {
+            if ((bool) $limits['oom_disabled'] !== !$product->oom_killer) {
+                return false;
+            }
+        }
+
+        foreach (['databases' => $product->databases, 'allocations' => $product->allocations, 'backups' => $product->backups] as $key => $expected) {
+            if (array_key_exists($key, $featureLimits)) {
+                if ((int) $featureLimits[$key] !== (int) $expected) {
+                    return false;
+                }
+            }
+        }
+
+        // No comparable keys means the remote exposed no limits data:
+        // count as matching so plain flows never trigger a heal.
+        return true;
     }
 
     /** Validate upgrade and return net price. Caller charges after success. */
