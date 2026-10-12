@@ -191,13 +191,13 @@ class ServerUpgradeService
     }
 
     /** Validate upgrade and return net price. Caller charges after success. */
-    private function validateAndPrepare(User $user, Product $product, Server $server): float
+    private function validateAndPrepare(User $user, Product $product, Server $server): int
     {
         $billingPeriodSeconds = $this->getSecondsFromBillingPeriod($server->product);
         $timeUsed = now()->diffInSeconds($server->last_billed, true);
         $refundAmount = $server->product->price - ($server->product->price * ($timeUsed / $billingPeriodSeconds));
 
-        $finalPrice = $product->price - $refundAmount;
+        $finalPrice = (int) round($product->price - $refundAmount);
 
         if ($finalPrice > 0 && $user->credits < $finalPrice) {
             throw new InsufficientCreditsException('Insufficient credits to upgrade the server.');
