@@ -95,6 +95,14 @@ class ServerUpgradeService
                 return $server;
             }
 
+            // Guard: the current product row may have been deleted. Fail
+            // early with a clear error so later property access and the
+            // compensation path never receive null instead of a Product.
+            $oldProduct = $server->product;
+            if (!$oldProduct) {
+                throw new ServerUpgradeException('Server upgrade failed. Please try again later.', 500);
+            }
+
             // Validate without charging. Returns the computed price.
             $finalPrice = $this->validateAndPrepare($user, $product, $server);
 
@@ -104,15 +112,14 @@ class ServerUpgradeService
             $node = Node::findOrFail($pterodactylServerNodeId);
 
             // Check if the new product can be applied to the server.
-            $requiredMemory = $product->memory - $server->product->memory;
-            $requiredDisk = $product->disk - $server->product->disk;
+            $requiredMemory = $product->memory - $oldProduct->memory;
+            $requiredDisk = $product->disk - $oldProduct->disk;
 
             if (!$this->pterodactylClient->checkNodeResources($node, $requiredMemory, $requiredDisk)) {
                 throw new InsufficientResourcesException('Insufficient resources on the node to upgrade the server.');
             }
 
             $pterodactylServerAllocation = $pterodactylServer['allocation'];
-            $oldProduct = $server->product;
 
             // Remote changes need compensation if the local transaction fails.
             $this->pterodactylClient->updateServerBuild($server->pterodactyl_id, $pterodactylServerAllocation, $product);
