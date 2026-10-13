@@ -197,7 +197,7 @@
                                                 <input type="hidden" name="settings_class"
                                                     value="{{ $options['settings_class'] }}">
                                                 <input type="hidden" name="category" value="{{ $category }}">
-                                                @foreach ($options['sections'] as $section)
+                                                @foreach ($options['sections'] as $sectionKey => $section)
                                                     @if ($section['label'])
                                                         <div class="mt-3 mb-3 pb-2 border-bottom d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
                                                             <h6 class="mb-1 mb-md-0 font-weight-bold">{{ __($section['label']) }}</h6>
@@ -326,32 +326,48 @@
                                                         </div>
                                                     </div>
                                                     @endforeach
+
+								@if ($sectionKey === 'recaptcha' && !empty($section['options']))
+                                                        <div class="row">
+                                                            <div class="col-md-4 col-12 d-flex align-items-center">
+                                                                <label class="w-100 mb-0" for="recaptcha_preview">{{ __('Captcha Preview') }}</label>
+                                                            </div>
+
+                                                            <div class="col-md-8 col-12">
+                                                                @php
+                                                                    $captchaVersion = $section['options']['recaptcha_version']['value'] ?? null;
+                                                                    $captchaSiteKey = $section['options']['recaptcha_site_key']['value'] ?? null;
+                                                                    $captchaConfigured = $captchaVersion && $captchaSiteKey;
+                                                                @endphp
+
+                                                                @if ($captchaConfigured && $captchaVersion === 'v2')
+                                                                    <div class="mb-3 input-group">
+                                                                        @captchaScripts
+                                                                        <x-captcha />
+                                                                    </div>
+                                                                @elseif ($captchaConfigured)
+                                                                    <div class="alert alert-info mb-0 py-2 d-flex align-items-center">
+                                                                        <i class="fas fa-eye-slash mr-2"></i>
+                                                                        <span class="small">
+                                                                            @if ($captchaVersion === 'v3')
+                                                                                {{ __('reCAPTCHA V3 runs invisibly in the background so users are not shown a widget. A badge appears in the bottom-left corner of the page') }}
+                                                                            @elseif ($captchaVersion === 'turnstile')
+                                                                                {{ __('Turnstile widget visibility is configured in the Cloudflare dashboard so it may appear as an interactive checkbox or run invisibly, and the panel cannot detect which mode you selected') }}
+                                                                            @endif
+                                                                        </span>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="alert alert-secondary mb-0 py-2 d-flex align-items-center">
+                                                                        <i class="fas fa-info-circle mr-2"></i>
+                                                                        <span class="small">
+                                                                            {{ __('Captcha is not configured yet, select a version and provide a site key to see the preview') }}
+                                                                        </span>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 @endforeach
-
-                                                <!-- TODO: Display this only on the General tab
-
-                                                                                                                                                                    <div class="row">
-                                                                                                                                                                        <div class="col-4 d-flex align-items-center">
-                                                                                                                                                                            <label for="recaptcha_preview">{{ __('ReCAPTCHA Preview') }}</label>
-                                                                                                                                                                        </div>
-
-                                                                                                                                                                        <div class="col-8">
-
-                                                                                                                                                                                <div class="w-100">
-                                                                                                                                                                        <div class="mb-3 input-group">
-                                                                                                                                                                            @captchaScripts
-                                                                                                                                                                            <x-captcha />
-                                                                                                                                                                        @error('captcha')
-            <span class="text-danger" role="alert">
-                                                                                                                                                                                                                                                                <small><strong>{{ $message }}</strong></small>
-                                                                                                                                                                                                                                                                    </span>
-        @enderror
-                                                                                                                                                                        </div>
-                                                                                                                                                                                </div>
-                                                                                                                                                                        </div>
-                                                                                                                                                                    </div>
-                                                                                                                                                                       -->
-
 
                                                 <div class="row">
                                                     <div class="col-12 d-flex align-items-center justify-content-end">

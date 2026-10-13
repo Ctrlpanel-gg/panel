@@ -43,8 +43,8 @@ class UserController extends Controller
     const CHANGE_CREDITS_PERMISSION = "admin.users.write.credits";
     const CHANGE_USERNAME_PERMISSION = "admin.users.write.username";
     const CHANGE_PASSWORD_PERMISSION = "admin.users.write.password";
-    const CHANGE_ROLE_PERMISSION ="admin.users.write.role";
-    const CHANGE_REFERRAL_PERMISSION ="admin.users.write.referral";
+    const CHANGE_ROLE_PERMISSION = "admin.users.write.role";
+    const CHANGE_REFERRAL_PERMISSION = "admin.users.write.referral";
     const CHANGE_PTERO_PERMISSION = "admin.users.write.pterodactyl";
 
     const CHANGE_SERVERLIMIT_PERMISSION = "admin.users.write.serverlimit";
@@ -243,7 +243,7 @@ class UserController extends Controller
 
         //update roles
         if ($request->roles && $this->can(self::CHANGE_ROLE_PERMISSION)) {
-            $collectedRoles = collect($request->roles)->map(fn($val)=>(int)$val);
+            $collectedRoles = collect($request->roles)->map(fn($val) => (int) $val);
             $user->syncRoles($collectedRoles);
         }
 
@@ -414,17 +414,28 @@ class UserController extends Controller
     {
         $this->checkPermission(self::NOTIFY_PERMISSION);
 
-//TODO: reimplement the required validation on all,users and roles . didnt work -- required_without:users,roles
         $data = $request->validate([
             'via' => 'required|min:1|array',
             'via.*' => 'required|string|in:mail,database',
             'all' => 'boolean',
-            'users' => 'min:1|array',
-            'roles' => 'min:1|array',
-            'roles.*' => 'required_without:all,users|exists:roles,id',
+            'users' => 'array',
+            'users.*' => 'integer|exists:users,id',
+            'roles' => 'array',
+            'roles.*' => 'integer|exists:roles,id',
             'title' => 'required|string|min:1',
             'content' => 'required|string|min:1',
         ]);
+
+        // Ensure at least one target (all users, specific users, or roles) is selected.
+        $hasTarget = $data['all'] ?? false
+            || !empty($data['users'])
+            || !empty($data['roles']);
+
+        if (!$hasTarget) {
+            return redirect()->back()->withErrors([
+                'all' => __('Please select at least one target: all users, specific users, or roles.'),
+            ])->withInput();
+        }
 
         $mail = null;
         $database = null;
@@ -439,9 +450,9 @@ class UserController extends Controller
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
 
-        if(!$roles){
+        if (!$roles) {
             $users = $all ? User::where('suspended', false)->get() : User::whereIn('id', $data['users'])->get();
-        } else{
+        } else {
             // Initialize an empty collection to hold users from all roles
             $users = collect();
 

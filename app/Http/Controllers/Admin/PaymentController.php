@@ -22,6 +22,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use App\Helpers\ExtensionHelper;
 use App\Settings\CouponSettings;
 use App\Settings\GeneralSettings;
@@ -111,7 +112,7 @@ class PaymentController extends Controller
             'taxvalue' => $shopProduct->getTaxValue(),
             'taxpercent' => $shopProduct->getTaxPercent(),
             'total' => $shopProduct->getTotalPrice(),
-            'paymentGateways'   => $paymentGateways,
+            'paymentGateways' => $paymentGateways,
             'gatewayFeeConfigs' => $gatewayFeeConfigs,
             'productIsFree' => $price <= 0,
             'credits_display_name' => $general_settings->credits_display_name,
@@ -320,13 +321,34 @@ class PaymentController extends Controller
                     $actions .= '<a data-content="' . __('Download') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.invoices.downloadSingleInvoice', ['id' => $payment->payment_id]) . '" class="mr-1 text-white btn btn-sm btn-info"><i class="fas fa-file-download"></i></a>';
                 }
 
-                if ($payment->status !== PaymentStatus::PAID && $payment->status !== PaymentStatus::CANCELED) {
-                    $actions .= '<button type="button" class="mr-1 btn btn-sm btn-success" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Force Confirm') . '" onclick="confirmStatusUpdate(\'' . route('admin.payments.statusUpdate', $payment->id) . '\')"><i class="fas fa-check"></i></button>';
+                // paid and refunded are terminal: refunded gets no actions, paid
+                // only gets the one-way Refund action.
+                if ($payment->status === PaymentStatus::REFUNDED) {
+                    return $actions;
+                }
 
-                    $extensionClass = ExtensionHelper::getExtensionClass($payment->payment_method);
-                    if ($extensionClass && class_exists($extensionClass) && $extensionClass::supportsRecheck()) {
-                        $actions .= '<form method="POST" action="' . route('admin.payments.recheck', $payment->id) . '" style="display:inline-block;">' . csrf_field() . '<button type="submit" class="mr-1 btn btn-sm btn-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Recheck') . '"><i class="fas fa-sync"></i></button></form>';
-                    }
+                $statusUpdateUrl = route('admin.payments.statusUpdate', $payment->id);
+
+                if ($payment->status === PaymentStatus::PAID) {
+                    $actions .= '<button type="button" class="mr-1 btn btn-sm btn-danger" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Refund') . '" onclick="confirmAndSubmit(\'' . $statusUpdateUrl . '\', \'refunded\', \'' . __('The payment will be marked as REFUNDED. This is irreversible and no credits or slots will be returned.') . '\', \'#d33\')"><i class="fas fa-undo-alt"></i></button>';
+
+                    return $actions;
+                }
+
+                // Confirm: move the payment to paid and grant the related actions.
+                $actions .= '<button type="button" class="mr-1 btn btn-sm btn-success" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Confirm Payment') . '" onclick="confirmAndSubmit(\'' . $statusUpdateUrl . '\', \'paid\', \'' . __('The payment will be marked as PAID and the credits or product will be granted.') . '\', \'#28a745\')"><i class="fas fa-check"></i></button>';
+
+                $extensionClass = ExtensionHelper::getExtensionClass($payment->payment_method);
+                if ($extensionClass && class_exists($extensionClass) && $extensionClass::supportsRecheck()) {
+                    $actions .= '<form method="POST" action="' . route('admin.payments.recheck', $payment->id) . '" style="display:inline-block;">' . csrf_field() . '<button type="submit" class="mr-1 btn btn-sm btn-primary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Recheck') . '"><i class="fas fa-sync"></i></button></form>';
+                }
+
+                if ($payment->status === PaymentStatus::CANCELED) {
+                    // Reopen: move a canceled payment back to open.
+                    $actions .= '<button type="button" class="mr-1 btn btn-sm btn-secondary" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Reopen Payment') . '" onclick="confirmAndSubmit(\'' . $statusUpdateUrl . '\', \'open\', \'' . __('The payment will be reopened.') . '\', \'#6c757d\')"><i class="fas fa-undo"></i></button>';
+                } else {
+                    // Cancel: move an open/processing payment to canceled.
+                    $actions .= '<button type="button" class="mr-1 btn btn-sm btn-warning" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . __('Cancel Payment') . '" onclick="confirmAndSubmit(\'' . $statusUpdateUrl . '\', \'canceled\', \'' . __('The payment will be marked as CANCELED.') . '\')"><i class="fas fa-ban"></i></button>';
                 }
 
                 return $actions;
@@ -335,33 +357,67 @@ class PaymentController extends Controller
             ->make(true);
     }
 
-    public function statusUpdate(Payment $payment)
+    public function statusUpdate(Payment $payment, Request $request)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
 
-        // TODO: In the future, we could add a status parameter to allow switching to any status (canceled, processing, etc.)
-        if ($payment->status === PaymentStatus::PAID) {
-            return redirect()->route('admin.payments.index')->with('error', __('Payment is already paid.'));
+        // Determine the target status. Defaults to PAID for backward compatibility
+        // with a plain confirm request that does not include a status.
+        $request->validate([
+            'status' => ['nullable', Rule::enum(PaymentStatus::class)],
+        ]);
+
+        $status = $request->has('status')
+            ? PaymentStatus::from($request->input('status'))
+            : PaymentStatus::PAID;
+
+        if ($payment->status === $status) {
+            return redirect()->route('admin.payments.index')->with('error', __('Payment is already :status.', ['status' => $status->value]));
         }
 
-        $payment->status = PaymentStatus::PAID;
+        // Enforce the allowed transitions. paid and refunded are terminal.
+        // paid can only be moved to refunded, and refunded cannot be left at all.
+        $allowedTransitions = [
+            PaymentStatus::OPEN->value => [PaymentStatus::PROCESSING, PaymentStatus::PAID, PaymentStatus::CANCELED],
+            PaymentStatus::PROCESSING->value => [PaymentStatus::OPEN, PaymentStatus::PAID, PaymentStatus::CANCELED],
+            PaymentStatus::CANCELED->value => [PaymentStatus::OPEN, PaymentStatus::PROCESSING, PaymentStatus::PAID],
+            PaymentStatus::PAID->value => [PaymentStatus::REFUNDED],
+            PaymentStatus::REFUNDED->value => [],
+        ];
+
+        $allowed = $allowedTransitions[$payment->status->value] ?? [];
+        if (!in_array($status, $allowed, true)) {
+            return redirect()->route('admin.payments.index')->with('error', __('The payment status cannot be moved from :current to :target.', ['current' => $payment->status->value, 'target' => $status->value]));
+        }
+
+        $payment->status = $status;
         $payment->save();
 
         $user = User::findOrFail($payment->user_id);
-        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
 
-        if ($payment->coupon_code) {
-            event(new CouponUsedEvent($payment->coupon_code, $user));
+        // Only trigger payment-related actions when the payment transitions to PAID.
+        // The transition matrix guarantees the payment was not PAID before, so
+        // credits and related events cannot be granted twice for the same payment.
+        if ($status === PaymentStatus::PAID) {
+            $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
+
+            if ($payment->coupon_code) {
+                event(new CouponUsedEvent($payment->coupon_code, $user));
+            }
+
+            try {
+                $user->notify(new \App\Notifications\ConfirmPaymentNotification($payment));
+            } catch (Exception $e) {
+                Log::error('Force confirm notification failed: ' . $e->getMessage());
+            }
+
+            event(new PaymentEvent($user, $payment, $shopProduct));
+            event(new UserUpdateCreditsEvent($user));
         }
 
-        try {
-            $user->notify(new \App\Notifications\ConfirmPaymentNotification($payment));
-        } catch (Exception $e) {
-            Log::error('Force confirm notification failed: ' . $e->getMessage());
+        if ($status === PaymentStatus::REFUNDED) {
+            return redirect()->route('admin.payments.index')->with('success', __('Payment marked as refunded. No credits or slots were returned.'));
         }
-
-        event(new PaymentEvent($user, $payment, $shopProduct));
-        event(new UserUpdateCreditsEvent($user));
 
         return redirect()->route('admin.payments.index')->with('success', __('Payment status updated successfully.'));
     }
