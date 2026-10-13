@@ -155,16 +155,23 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $response = $this->pterodactylClient->application->post('/application/users', [
-            'external_id' => null,
-            'username' => $data['name'],
-            'email' => $data['email'],
-            'first_name' => $data['name'],
-            'last_name' => $data['name'],
-            'password' => $data['password'],
-            'root_admin' => false,
-            'language' => 'en',
-        ]);
+        try {
+            $response = $this->pterodactylClient->application->post('/application/users', [
+                'external_id' => null,
+                'username' => $data['name'],
+                'email' => $data['email'],
+                'first_name' => $data['name'],
+                'last_name' => $data['name'],
+                'password' => $data['password'],
+                'root_admin' => false,
+                'language' => 'en',
+            ]);
+        } catch (\Throwable $e) {
+            throw new PterodactylRegistrationException(
+                'Pterodactyl Registration Error: ' . $e->getMessage(),
+                $e
+            );
+        }
 
         if ($response->failed()) {
             throw new PterodactylRegistrationException(

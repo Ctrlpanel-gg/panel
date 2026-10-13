@@ -103,6 +103,27 @@ class TestPteroDownErrorPages extends TestCase
     }
 
     /**
+     * Registration during an outage returns a form error, not a 500.
+     */
+    public function test_register_ptero_down_form_error(): void
+    {
+        $this->pteroDown();
+
+        $response = $this->post('/register', [
+            'name' => 'outageuser1',
+            'email' => 'outage-' . random_int(100000, 999999) . '@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'terms' => '1',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('ptero_registration_error');
+        $this->assertStringNotContainsString('cURL', $response->getContent());
+        $this->assertStringNotContainsString('ptero-unreachable.invalid', $response->getContent());
+    }
+
+    /**
      * The error page itself must show the safe message, not getMessage().
      */
     public function test_error_page_hides_raw_details_from_privileged_users(): void
