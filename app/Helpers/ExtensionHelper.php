@@ -537,11 +537,20 @@ class ExtensionHelper
             }
         }
 
-        if ($href === null && is_string($page['url'] ?? null) && $page['url'] !== '') {
-            $url = $page['url'];
-            if (str_starts_with($url, '/') && !str_contains($url, '://')) {
+        if ($href === null && is_string($page['url'] ?? null) && trim($page['url']) !== '') {
+            $url = trim($page['url']);
+            $lowerUrl = strtolower($url);
+
+            if (str_starts_with($lowerUrl, 'http://') || str_starts_with($lowerUrl, 'https://')) {
+                $href = $url;
+            } elseif (!str_contains($url, '://')) {
+                $url = '/'.ltrim($url, '/');
                 $href = $url;
             } else {
+                Log::warning('Skipped sidebar page with unsupported URL scheme.', [
+                    'title' => $title,
+                    'url' => $url,
+                ]);
                 $url = null;
             }
         }
@@ -551,6 +560,8 @@ class ExtensionHelper
         }
 
         $request = request();
+        $lowerUrl = is_string($url) ? strtolower($url) : '';
+        $isExternal = str_starts_with($lowerUrl, 'http://') || str_starts_with($lowerUrl, 'https://');
 
         return [
             'title' => $title,
@@ -560,7 +571,7 @@ class ExtensionHelper
             'url' => $url,
             'active' => $routeName !== null
                 ? $request->routeIs($routeName)
-                : $request->is(trim((string) $url, '/')),
+                : (!$isExternal && $request->is(trim((string) $url, '/'))),
             'permissions' => $permissions,
             'area' => $area,
             'order' => (int) ($page['order'] ?? 0),
