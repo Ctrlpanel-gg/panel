@@ -430,6 +430,12 @@ class ExtensionHelper
             return null;
         }
 
+        if (!(new \ReflectionClass($class))->isInstantiable()) {
+            self::warnInvalidMiddleware($extensionClass, sprintf('Middleware class [%s] must be instantiable.', $class));
+
+            return null;
+        }
+
         $alias = $definition['alias'] ?? null;
         if ($alias !== null && (!is_string($alias) || preg_match(self::MIDDLEWARE_ALIAS_PATTERN, $alias) !== 1)) {
             self::warnInvalidMiddleware($extensionClass, sprintf('Invalid middleware alias [%s].', is_string($alias) ? $alias : gettype($alias)));
@@ -439,12 +445,17 @@ class ExtensionHelper
 
         $groups = [];
         foreach ((array) ($definition['groups'] ?? []) as $group) {
-            if (is_string($group) && preg_match(self::MIDDLEWARE_GROUP_PATTERN, $group) === 1) {
-                $groups[] = $group;
+            if (!is_string($group) || preg_match(self::MIDDLEWARE_GROUP_PATTERN, $group) !== 1) {
+                self::warnInvalidMiddleware($extensionClass, sprintf('Invalid middleware group [%s].', is_string($group) ? $group : gettype($group)));
                 continue;
             }
 
-            self::warnInvalidMiddleware($extensionClass, sprintf('Invalid middleware group [%s].', is_string($group) ? $group : gettype($group)));
+            if (!Route::hasMiddlewareGroup($group)) {
+                self::warnInvalidMiddleware($extensionClass, sprintf('Middleware group [%s] does not exist.', $group));
+                continue;
+            }
+
+            $groups[] = $group;
         }
 
         $position = (($definition['position'] ?? 'append') === 'prepend') ? 'prepend' : 'append';
