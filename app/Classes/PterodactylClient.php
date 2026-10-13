@@ -159,6 +159,24 @@ class PterodactylClient
     }
 
     /**
+     * Build and throw a typed exception for a failed HTTP response.
+     *
+     * The response body goes into the exception message, which reaches
+     * the logs via report(). Clients only ever see getPublicMessage(),
+     * so no internal detail leaks. Bodies are capped so a proxy error
+     * page cannot flood the logs.
+     */
+    private static function throwForResponse(string $message, Response $response): never
+    {
+        $body = substr($response->body(), 0, 2000);
+
+        self::throwException(
+            $body !== '' ? rtrim($message) . ' ' . $body : $message,
+            $response->status()
+        );
+    }
+
+    /**
      * @param  Nest  $nest
      * @return mixed
      *
@@ -172,7 +190,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get eggs from pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to get eggs from pterodactyl -', $response);
         }
 
         return $response->json()['data'];
@@ -191,7 +209,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get nodes from pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to get nodes from pterodactyl -', $response);
         }
 
         return $response->json()['data'];
@@ -211,7 +229,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get node id ' . $id . ' - ', $response->status());
+            self::throwForResponse('Failed to get node id ' . $id . ' -', $response);
         }
 
         return $response->json()['attributes'];
@@ -225,7 +243,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get list of servers - ', $response->status());
+            self::throwForResponse('Failed to get list of servers -', $response);
         }
 
         return $response->json()['data'];
@@ -244,7 +262,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get nests from pterodactyl', $response->status());
+            self::throwForResponse('Failed to get nests from pterodactyl', $response);
         }
 
         return $response->json()['data'];
@@ -263,7 +281,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get locations from pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to get locations from pterodactyl -', $response);
         }
 
         return $response->json()['data'];
@@ -361,7 +379,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get allocations from pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to get allocations from pterodactyl -', $response);
         }
 
         return $response->json();
@@ -448,7 +466,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to suspend server from pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to suspend server from pterodactyl -', $response);
         }
 
         return $response;
@@ -462,7 +480,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to unsuspend server from pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to unsuspend server from pterodactyl -', $response);
         }
 
         return $response;
@@ -482,7 +500,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to get user from pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to get user from pterodactyl -', $response);
         }
 
         return $response->json()['attributes'];
@@ -504,7 +522,7 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
         if ($response->failed()) {
-            self::throwException('Failed to update user on pterodactyl - ', $response->status());
+            self::throwForResponse('Failed to update user on pterodactyl -', $response);
         }
 
         return $response;
@@ -532,7 +550,7 @@ class PterodactylClient
 
                 return;
             } else {
-                self::throwException('Failed to get server attributes from pterodactyl - ', $response->status());
+                self::throwForResponse('Failed to get server attributes from pterodactyl -', $response);
             }
         }
 
@@ -600,10 +618,7 @@ class PterodactylClient
         }
 
         if ($response->failed()) {
-            self::throwException(
-                'Failed to update server build on Pterodactyl',
-                $response->status()
-            );
+            self::throwForResponse('Failed to update server build on Pterodactyl', $response);
         }
 
         return $response;
@@ -642,7 +657,7 @@ class PterodactylClient
         }
 
         if ($response->failed()) {
-            self::throwException('Failed to update server details on Pterodactyl', $response->status());
+            self::throwForResponse('Failed to update server details on Pterodactyl', $response);
         }
 
         return $response;
