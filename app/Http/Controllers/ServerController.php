@@ -40,15 +40,6 @@ class ServerController extends Controller
 {
     private const CREATE_PERMISSION = 'user.server.create';
     private const UPGRADE_PERMISSION = 'user.server.upgrade';
-    private const BILLING_PERIODS = [
-        'hourly' => 3600,
-        'daily' => 86400,
-        'weekly' => 604800,
-        'monthly' => 2592000,
-        'quarterly' => 7776000,
-        'half-annually' => 15552000,
-        'annually' => 31104000
-    ];
 
     private PterodactylClient $pterodactyl;
     private PterodactylSettings $pteroSettings;
@@ -621,11 +612,9 @@ class ServerController extends Controller
 
     private function calculateRefund(Server $server, Product $oldProduct): float
     {
-        $billingPeriod = $oldProduct->billing_period;
-        $billingPeriodSeconds = self::BILLING_PERIODS[$billingPeriod];
-        $timeUsed = now()->diffInSeconds($server->last_billed, true);
-
-        return $oldProduct->price - ($oldProduct->price * ($timeUsed / $billingPeriodSeconds));
+        // Single source of truth lives in the service; the pre-check and
+        // the actual charge must use the same math.
+        return app(ServerUpgradeService::class)->calculateRefund($server, $oldProduct);
     }
 
     private function findAvailableNode(string $locationId, Product $product): ?Node

@@ -13,7 +13,6 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Pterodactyl\Node;
 use App\Settings\PterodactylSettings;
-use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -269,9 +268,7 @@ class ServerUpgradeService
     /** Validate upgrade and return net price. Caller charges after success. */
     private function validateAndPrepare(User $user, Product $product, Server $server): int
     {
-        $billingPeriodSeconds = $this->getSecondsFromBillingPeriod($server->product);
-        $timeUsed = now()->diffInSeconds($server->last_billed, true);
-        $refundAmount = $server->product->price - ($server->product->price * ($timeUsed / $billingPeriodSeconds));
+        $refundAmount = $this->calculateRefund($server, $server->product);
 
         $finalPrice = (int) round($product->price - $refundAmount);
 
@@ -282,17 +279,33 @@ class ServerUpgradeService
         return $finalPrice;
     }
 
-    private function getSecondsFromBillingPeriod(Product $product): int
+    /**
+     * Pro-rated refund for the unused time on the given product.
+     *
+     * Single source of truth for the refund math: the web pre-check calls
+     * this too, so the estimate and the actual charge can never drift.
+     * A month is a fixed 30 days here, matching the previous web flow and
+     * the product price helpers.
+     */
+    public function calculateRefund(Server $server, Product $oldProduct): float
+    {
+        $billingPeriodSeconds = self::getSecondsFromBillingPeriod($oldProduct);
+        $timeUsed = now()->diffInSeconds($server->last_billed, true);
+
+        return $oldProduct->price - ($oldProduct->price * ($timeUsed / $billingPeriodSeconds));
+    }
+
+    public static function getSecondsFromBillingPeriod(Product $product): int
     {
         return match ($product->billing_period) {
-            'hourly' => CarbonInterval::hour()->totalSeconds,
-            'daily' => CarbonInterval::day()->totalSeconds,
-            'weekly' => CarbonInterval::week()->totalSeconds,
-            'monthly' => CarbonInterval::month()->totalSeconds,
-            'quarterly' => CarbonInterval::months(3)->totalSeconds,
-            'half-annually' => CarbonInterval::months(6)->totalSeconds,
-            'annually' => CarbonInterval::year()->totalSeconds,
-            default => CarbonInterval::hour()->totalSeconds,
+            'hourly' => 60 * 60,
+            'daily' => 24 * 60 * 60,
+            'weekly' => 7 * 24 * 60 * 60,
+            'monthly' => 30 * 24 * 60 * 60,
+            'quarterly' => 3 * 30 * 24 * 60 * 60,
+            'half-annually' => 6 * 30 * 24 * 60 * 60,
+            'annually' => 12 * 30 * 24 * 60 * 60,
+            default => 60 * 60,
         };
     }
 }

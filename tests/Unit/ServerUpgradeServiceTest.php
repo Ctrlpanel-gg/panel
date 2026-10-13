@@ -76,6 +76,37 @@ class ServerUpgradeServiceTest extends TestCase
     }
 
     /**
+     * The billing-period map is the single source of truth for both the
+     * web pre-check and the service charge. A month is a fixed 30 days,
+     * matching the previous web flow and the product price helpers.
+     * Unknown periods fall back to hourly instead of crashing.
+     */
+    public function test_billing_period_seconds_are_fixed_and_shared(): void
+    {
+        $expected = [
+            'hourly' => 60 * 60,
+            'daily' => 24 * 60 * 60,
+            'weekly' => 7 * 24 * 60 * 60,
+            'monthly' => 30 * 24 * 60 * 60,
+            'quarterly' => 3 * 30 * 24 * 60 * 60,
+            'half-annually' => 6 * 30 * 24 * 60 * 60,
+            'annually' => 12 * 30 * 24 * 60 * 60,
+        ];
+
+        foreach ($expected as $period => $seconds) {
+            $product = (new \ReflectionClass(Product::class))->newInstanceWithoutConstructor();
+            $product->billing_period = $period;
+
+            $this->assertSame($seconds, ServerUpgradeService::getSecondsFromBillingPeriod($product), $period);
+        }
+
+        $unknown = (new \ReflectionClass(Product::class))->newInstanceWithoutConstructor();
+        $unknown->billing_period = 'not-a-period';
+
+        $this->assertSame(60 * 60, ServerUpgradeService::getSecondsFromBillingPeriod($unknown));
+    }
+
+    /**
      * The same-product (idempotency) check must recognise equal IDs even
      * when they arrive in different scalar types (e.g. int 1 vs string "1"),
      * otherwise a retried request would fall through to a second charge.
