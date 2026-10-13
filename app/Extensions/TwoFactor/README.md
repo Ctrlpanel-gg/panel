@@ -15,8 +15,10 @@ app/Extensions/TwoFactor/YourMethod/
 │   ├── auth/two-factor/    # Recommended path for challenge views
 │   └── profile_card.blade.php
 ├── YourMethodExtension.php # The main extension class
-├── routes.php              # (Optional) Custom routes for this method
-└── YourMethodService.php   # (Optional) Helper services
+├── routes/                 # (Optional) Custom routes for this method
+│   ├── web.php             #   Web routes
+│   └── api.php             #   API routes (prefixed with /api)
+├── YourMethodService.php   # (Optional) Helper services
 ```
 
 ---
@@ -66,12 +68,12 @@ If your method needs custom columns (e.g., `phone_number`), create a migration i
 **Note:** Use `Schema::table('user_two_factor_methods', ...)` to extend the core table.
 
 ### Custom Routes
-If the standard `setup`, `enable`, `disable`, and `action` routes are not enough for your method, you can define your own routes in a `routes.php` file within your extension directory.
+If the standard `setup`, `enable`, `disable`, and `action` routes are not enough for your method, you can define your own routes in a `routes/web.php` file within your extension directory.
 
 The system will automatically load this file. It is recommended to use your extension's name as a prefix and apply the necessary middleware:
 
 ```php
-// app/Extensions/TwoFactor/YourMethod/routes.php
+// app/Extensions/TwoFactor/YourMethod/routes/web.php
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth', 'two_factor.verified'])->group(function () {
@@ -79,6 +81,8 @@ Route::middleware(['web', 'auth', 'two_factor.verified'])->group(function () {
         ->name('profile.2fa.your-method.special-action');
 });
 ```
+
+API routes can be placed in a `routes/api.php` file. They are automatically prefixed with `/api` and use the `api` middleware group, mirroring the application's core API routes.
 
 ---
 

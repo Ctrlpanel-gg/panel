@@ -36,43 +36,63 @@ class ExtensionServiceProvider extends ServiceProvider
             foreach ($extensionDirectories as $extensionDirectory) {
                 $extensionName = basename($extensionDirectory);
 
-                // Load Routes
-                $routesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes.php';
-                if (is_file($routesFile)) {
-                    $resolvedPath = realpath($routesFile);
+                // Web Routes
+                $webRoutesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'web.php';
+                if (is_file($webRoutesFile)) {
+                    $resolvedPath = realpath($webRoutesFile);
                     $basePath = realpath($extensionsBasePath);
                     if ($resolvedPath && $basePath && str_starts_with($resolvedPath, $basePath . DIRECTORY_SEPARATOR)) {
                         $this->loadRoutesFrom($resolvedPath);
                     }
                 }
 
-                // Load Views
+                // API Routes
+                $apiRoutesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'api.php';
+                if (is_file($apiRoutesFile)) {
+                    $resolvedPath = realpath($apiRoutesFile);
+                    $basePath = realpath($extensionsBasePath);
+                    if ($resolvedPath && $basePath && str_starts_with($resolvedPath, $basePath . DIRECTORY_SEPARATOR)) {
+                        $this->loadExtensionApiRoutes($resolvedPath);
+                    }
+                }
+
+                // Views
                 $viewsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'views';
                 if (is_dir($viewsDirectory)) {
                     $viewNamespace = Str::lower($namespaceName . '_' . $extensionName);
                     $this->loadViewsFrom($viewsDirectory, $viewNamespace);
                 }
 
-                // Load Translations
+                // Translations
                 $langDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'lang';
                 if (is_dir($langDirectory)) {
                     $this->loadJsonTranslationsFrom($langDirectory);
                     $this->loadTranslationsFrom($langDirectory, Str::lower($extensionName));
                 }
 
-                // Load Migrations
-                $migrationsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'migrations';
+                // Migrations
+                $migrationsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations';
                 if (is_dir($migrationsDirectory)) {
                     $this->loadMigrationsFrom($migrationsDirectory);
                 }
 
-                // Load Artisan Commands
-                $commandsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'Commands';
+                // Artisan Commands
+                $commandsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'Console' . DIRECTORY_SEPARATOR . 'Commands';
                 if (is_dir($commandsDirectory) && $this->app->runningInConsole()) {
-                    $this->loadCommandsFromDirectory($commandsDirectory, "App\\Extensions\\{$namespaceName}\\{$extensionName}\\Commands");
+                    $this->loadCommandsFromDirectory($commandsDirectory, "App\\Extensions\\{$namespaceName}\\{$extensionName}\\Console\\Commands");
                 }
             }
         }
+
+        // Database Seeders
+        if ($this->app->runningInConsole()) {
+            foreach (\App\Helpers\ExtensionHelper::getAllExtensionSeeders() as $seederClass) {
+                $this->app->singleton($seederClass);
+            }
+        }
+
+        // Extension Middleware
+        $this->registerExtensionMiddleware();
 
         // Boot Extension Schedules
         if ($this->app->runningInConsole()) {
@@ -84,7 +104,63 @@ class ExtensionServiceProvider extends ServiceProvider
     }
 
     /**
-     * Automatically discover and register Artisan commands from an extension's Commands directory.
+     * Extension API routes under the api group and prefix.
+     */
+    protected function loadExtensionApiRoutes(string $path): void
+    {
+        $this->callAfterResolving('router', function ($router) use ($path) {
+            $router->group(['prefix' => 'api', 'middleware' => 'api', 'as' => 'api.'], function ($router) use ($path) {
+                require $path;
+            });
+        });
+    }
+
+    /**
+     * Middleware declared by extensions.
+     */
+    protected function registerExtensionMiddleware(): void
+    {
+        $router = $this->app->make(\Illuminate\Routing\Router::class);
+        $kernel = $this->app->make(\Illuminate\Foundation\Http\Kernel::class);
+
+        foreach (\App\Helpers\ExtensionHelper::getAllExtensionMiddleware() as $middleware) {
+            $class = $middleware['class'];
+            $position = $middleware['position'];
+
+            if ($middleware['global']) {
+                if ($position === 'prepend') {
+                    $kernel->prependMiddleware($class);
+                } else {
+                    $kernel->pushMiddleware($class);
+                }
+            }
+
+            foreach ($middleware['groups'] as $group) {
+                if ($position === 'prepend') {
+                    $router->prependMiddlewareToGroup($group, $class);
+                } else {
+                    $router->pushMiddlewareToGroup($group, $class);
+                }
+            }
+
+            if ($middleware['alias'] !== null) {
+                $existingAliases = $router->getMiddleware();
+                if (array_key_exists($middleware['alias'], $existingAliases)) {
+                    \Illuminate\Support\Facades\Log::warning('Skipped extension middleware alias already taken.', [
+                        'alias' => $middleware['alias'],
+                        'class' => $class,
+                    ]);
+
+                    continue;
+                }
+
+                $router->aliasMiddleware($middleware['alias'], $class);
+            }
+        }
+    }
+
+    /**
+     * Extension Artisan commands.
      */
     protected function loadCommandsFromDirectory(string $directory, string $namespace): void
     {
