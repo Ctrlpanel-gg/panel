@@ -494,9 +494,15 @@ class ExtensionHelper
             return null;
         }
 
-        $area = in_array($page['area'] ?? 'user', ['user', 'admin'], true)
-            ? $page['area']
-            : 'user';
+        $area = $page['area'] ?? 'user';
+        if (!in_array($area, ['user', 'admin'], true)) {
+            Log::warning('Skipped sidebar page with invalid area.', [
+                'title' => $title,
+                'area' => is_string($area) ? $area : gettype($area),
+            ]);
+
+            return null;
+        }
 
         $icon = is_string($page['icon'] ?? null) && trim($page['icon']) !== ''
             ? $page['icon']
