@@ -36,7 +36,7 @@ class ExtensionServiceProvider extends ServiceProvider
             foreach ($extensionDirectories as $extensionDirectory) {
                 $extensionName = basename($extensionDirectory);
 
-                // Load Web Routes
+                // Web Routes
                 $webRoutesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'web.php';
                 if (is_file($webRoutesFile)) {
                     $resolvedPath = realpath($webRoutesFile);
@@ -46,7 +46,7 @@ class ExtensionServiceProvider extends ServiceProvider
                     }
                 }
 
-                // Load API Routes
+                // API Routes
                 $apiRoutesFile = $extensionDirectory . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . 'api.php';
                 if (is_file($apiRoutesFile)) {
                     $resolvedPath = realpath($apiRoutesFile);
@@ -56,27 +56,27 @@ class ExtensionServiceProvider extends ServiceProvider
                     }
                 }
 
-                // Load Views
+                // Views
                 $viewsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'views';
                 if (is_dir($viewsDirectory)) {
                     $viewNamespace = Str::lower($namespaceName . '_' . $extensionName);
                     $this->loadViewsFrom($viewsDirectory, $viewNamespace);
                 }
 
-                // Load Translations
+                // Translations
                 $langDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'lang';
                 if (is_dir($langDirectory)) {
                     $this->loadJsonTranslationsFrom($langDirectory);
                     $this->loadTranslationsFrom($langDirectory, Str::lower($extensionName));
                 }
 
-                // Load Migrations
+                // Migrations
                 $migrationsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR . 'migrations';
                 if (is_dir($migrationsDirectory)) {
                     $this->loadMigrationsFrom($migrationsDirectory);
                 }
 
-                // Load Artisan Commands
+                // Artisan Commands
                 $commandsDirectory = $extensionDirectory . DIRECTORY_SEPARATOR . 'Console' . DIRECTORY_SEPARATOR . 'Commands';
                 if (is_dir($commandsDirectory) && $this->app->runningInConsole()) {
                     $this->loadCommandsFromDirectory($commandsDirectory, "App\\Extensions\\{$namespaceName}\\{$extensionName}\\Console\\Commands");
@@ -84,14 +84,14 @@ class ExtensionServiceProvider extends ServiceProvider
             }
         }
 
-        // Register Database Seeders
+        // Database Seeders
         if ($this->app->runningInConsole()) {
             foreach (\App\Helpers\ExtensionHelper::getAllExtensionSeeders() as $seederClass) {
                 $this->app->singleton($seederClass);
             }
         }
 
-        // Register Extension Middleware
+        // Extension Middleware
         $this->registerExtensionMiddleware();
 
         // Boot Extension Schedules
@@ -104,8 +104,7 @@ class ExtensionServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load an extension's API routes with the api middleware group and prefix,
-     * mirroring how the application's core API routes are registered.
+     * Extension API routes under the api group and prefix.
      */
     protected function loadExtensionApiRoutes(string $path): void
     {
@@ -117,8 +116,7 @@ class ExtensionServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register middleware declared by extensions, either globally, in a middleware
-     * group, or as a route middleware alias.
+     * Middleware declared by extensions.
      */
     protected function registerExtensionMiddleware(): void
     {
@@ -162,7 +160,7 @@ class ExtensionServiceProvider extends ServiceProvider
     }
 
     /**
-     * Automatically discover and register Artisan commands from an extension's Commands directory.
+     * Extension Artisan commands.
      */
     protected function loadCommandsFromDirectory(string $directory, string $namespace): void
     {

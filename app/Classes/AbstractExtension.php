@@ -7,7 +7,7 @@ abstract class AbstractExtension
     abstract public static function getConfig(): array;
 
     /**
-     * Get the sidebar pages this extension wants to add.
+     * Sidebar pages added by the extension.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -17,7 +17,7 @@ abstract class AbstractExtension
     }
 
     /**
-     * Get the permissions this extension registers with the role system.
+     * Permissions registered with the role system.
      *
      * @return array<string, string>
      */
@@ -27,7 +27,7 @@ abstract class AbstractExtension
     }
 
     /**
-     * Get the middleware this extension wants to register with the application.
+     * Middleware registered with the application.
      *
      * @return array<int, array<string, mixed>>
      */

@@ -125,9 +125,7 @@ class PermissionGroups
     ];
 
     /**
-     * Core settings permissions plus any `settings.*` permission registered
-     * by loaded extensions (e.g. third-party payment gateways), so sidebar
-     * gates keep working for permissions this class cannot hardcode.
+     * Core settings permissions plus `settings.*` from loaded extensions.
      *
      * @return array<int, string>
      */

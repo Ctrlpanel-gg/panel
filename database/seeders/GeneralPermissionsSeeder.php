@@ -34,7 +34,7 @@ class GeneralPermissionsSeeder extends Seeder
     {
         $corePermissions = config('permissions_web');
 
-        // Create or update core permissions.
+        // Create core permissions.
         foreach ($corePermissions as $permission_name => $permission_value) {
             Permission::updateOrCreate(
                 ['name' => $permission_value],
@@ -42,8 +42,7 @@ class GeneralPermissionsSeeder extends Seeder
             );
         }
 
-        // Create or update permissions registered by extensions so they can be
-        // assigned to roles just like any core permission.
+        // Create extension permissions.
         $extensionPermissions = \App\Helpers\ExtensionHelper::getAllExtensionPermissions();
         foreach ($extensionPermissions as $permission_name => $readable_name) {
             Permission::updateOrCreate(
@@ -52,10 +51,9 @@ class GeneralPermissionsSeeder extends Seeder
             );
         }
 
-        // Never delete permissions here. A missing entry can mean a temporarily
-        // unloaded extension, and deleting would wipe role assignments that are
-        // only synced on role creation and never restored. Stale permissions
-        // are removed explicitly via `php artisan permissions:cleanup`.
+        // Never delete here: a missing entry may be a temporarily unloaded
+        // extension, and deletion would wipe role assignments for good.
+        // Stale permissions go through `permissions:cleanup`.
     }
 
     /**

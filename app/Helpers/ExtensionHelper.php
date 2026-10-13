@@ -167,8 +167,9 @@ class ExtensionHelper
     }
 
     /**
-     * Summary of getAllExtensionMigrations
-     * @return array of all migration paths look like: app/Extensions/ExtensionNamespace/ExtensionName/database/migrations/
+     * All extension migration paths.
+     *
+     * @return array<int, string>
      */
     public static function getAllExtensionMigrations(): array
     {
@@ -187,8 +188,9 @@ class ExtensionHelper
     }
 
     /**
-     * Summary of getAllExtensionSeeders
-     * @return array of all seeder classes look like: App\Extensions\Namespace\Extension\database\seeders\FooSeeder
+     * All extension seeder classes.
+     *
+     * @return array<int, string>
      */
     public static function getAllExtensionSeeders(): array
     {
@@ -217,8 +219,9 @@ class ExtensionHelper
     }
 
     /**
-     * Summary of getAllExtensionSettings
-     * @return array of all setting classes look like: App\Extensions\PaymentGateways\PayPal\PayPalSettings
+     * All extension settings classes.
+     *
+     * @return array<int, string>
      */
     public static function getAllExtensionSettingsClasses(): array
     {
@@ -251,7 +254,7 @@ class ExtensionHelper
     }
 
     /**
-     * Get all sidebar pages declared by extensions for the given area.
+     * Sidebar pages for the given area.
      *
      * @param string $area "user" or "admin".
      * @return array<int, array<string, mixed>>
@@ -303,8 +306,7 @@ class ExtensionHelper
     }
 
     /**
-     * Get the sidebar pages for the given area that the currently authenticated
-     * user is allowed to see based on the page permissions.
+     * Sidebar pages the current user may see.
      *
      * @param string $area "user" or "admin".
      * @return array<int, array<string, mixed>>
@@ -338,9 +340,9 @@ class ExtensionHelper
     }
 
     /**
-     * Get all permissions registered by extensions, keyed by permission name.
+     * Extension permissions, keyed by name.
      *
-     * @return array<string, string> permission name => readable name
+     * @return array<string, string>
      */
     public static function getAllExtensionPermissions(): array
     {
@@ -376,8 +378,7 @@ class ExtensionHelper
             }
         }
 
-        // Also register any permission referenced by a sidebar page so it can be
-        // assigned to roles even if the extension does not declare getPermissions().
+        // Sidebar-declared permissions become assignable even without getPermissions().
         foreach (array_merge(self::getSidebarPages('user'), self::getSidebarPages('admin')) as $page) {
             foreach ($page['permissions'] as $permissionName) {
                 if (!isset($permissions[$permissionName])) {
@@ -390,7 +391,7 @@ class ExtensionHelper
     }
 
     /**
-     * Get all middleware registered by extensions.
+     * Extension middleware definitions.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -429,7 +430,7 @@ class ExtensionHelper
     }
 
     /**
-     * Normalize and validate a raw middleware definition.
+     * Validate a raw middleware definition.
      *
      * @param mixed $definition
      * @return array<string, mixed>|null
@@ -497,7 +498,7 @@ class ExtensionHelper
     }
 
     /**
-     * Normalize and validate a raw sidebar page definition.
+     * Validate a raw sidebar page definition.
      *
      * @param mixed $page
      * @return array<string, mixed>|null
