@@ -52,14 +52,10 @@ class GeneralPermissionsSeeder extends Seeder
             );
         }
 
-        // Remove permissions that are no longer part of the core config or an
-        // extension, keeping extension permissions intact across core updates.
-        $keepNames = array_values($corePermissions);
-        foreach (array_keys($extensionPermissions) as $permission_name) {
-            $keepNames[] = $permission_name;
-        }
-
-        Permission::whereNotIn('name', array_values(array_unique($keepNames)))->delete();
+        // Never delete permissions here. A missing entry can mean a temporarily
+        // unloaded extension, and deleting would wipe role assignments that are
+        // only synced on role creation and never restored. Stale permissions
+        // are removed explicitly via `php artisan permissions:cleanup`.
     }
 
     /**
