@@ -54,14 +54,6 @@ class PermissionGroups
         'settings.user.write',
         'settings.website.read',
         'settings.website.write',
-        'settings.paypal.read',
-        'settings.paypal.write',
-        'settings.stripe.read',
-        'settings.stripe.write',
-        'settings.mollie.read',
-        'settings.mollie.write',
-        'settings.mercadopago.read',
-        'settings.mercadopago.write'
     ];
 
     const API_PERMISSIONS = [
@@ -131,4 +123,24 @@ class PermissionGroups
     const LOGS_PERMISSIONS = [
         'admin.logs.read'
     ];
+
+    /**
+     * Core settings permissions plus any `settings.*` permission registered
+     * by loaded extensions (e.g. third-party payment gateways), so sidebar
+     * gates keep working for permissions this class cannot hardcode.
+     *
+     * @return array<int, string>
+     */
+    public static function settingsPermissions(): array
+    {
+        $permissions = self::SETTINGS_PERMISSIONS;
+
+        foreach (array_keys(\App\Helpers\ExtensionHelper::getAllExtensionPermissions()) as $permission) {
+            if (str_starts_with($permission, 'settings.')) {
+                $permissions[] = $permission;
+            }
+        }
+
+        return array_values(array_unique($permissions));
+    }
 }

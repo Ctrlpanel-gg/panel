@@ -237,12 +237,11 @@
           @endforeach
 
           @canany(array_merge(
-              PermissionGroups::TICKET_PERMISSIONS,
               PermissionGroups::OVERVIEW_PERMISSIONS,
               PermissionGroups::TICKET_ADMIN_PERMISSIONS,
               PermissionGroups::TICKET_BLACKLIST_PERMISSIONS,
               PermissionGroups::ROLES_PERMISSIONS,
-              PermissionGroups::SETTINGS_PERMISSIONS,
+              PermissionGroups::settingsPermissions(),
               PermissionGroups::API_PERMISSIONS,
               PermissionGroups::USERS_PERMISSIONS,
               PermissionGroups::SERVERS_PERMISSIONS,
@@ -298,7 +297,7 @@
                             </li>
                         @endcanany
 
-                        @canany(PermissionGroups::SETTINGS_PERMISSIONS)
+                        @canany(PermissionGroups::settingsPermissions())
                             <li class="nav-item">
                                 <a href="{{ route('admin.settings.index') . '#icons' }}"
                                     class="nav-link @if (Request::routeIs('admin.settings.*')) active @endif">
