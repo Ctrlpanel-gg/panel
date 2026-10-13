@@ -36,7 +36,7 @@ class GeneralPermissionsSeeder extends Seeder
 
         // Create or update core permissions.
         foreach ($corePermissions as $permission_name => $permission_value) {
-            Permission::firstOrCreate(
+            Permission::updateOrCreate(
                 ['name' => $permission_value],
                 ['readable_name' => $permission_name]
             );
@@ -46,7 +46,7 @@ class GeneralPermissionsSeeder extends Seeder
         // assigned to roles just like any core permission.
         $extensionPermissions = \App\Helpers\ExtensionHelper::getAllExtensionPermissions();
         foreach ($extensionPermissions as $permission_name => $readable_name) {
-            Permission::firstOrCreate(
+            Permission::updateOrCreate(
                 ['name' => $permission_name],
                 ['readable_name' => $readable_name]
             );
