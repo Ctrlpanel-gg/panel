@@ -146,6 +146,16 @@ class ExtensionServiceProvider extends ServiceProvider
             }
 
             if ($middleware['alias'] !== null) {
+                $existingAliases = $router->getMiddleware();
+                if (array_key_exists($middleware['alias'], $existingAliases)) {
+                    \Illuminate\Support\Facades\Log::warning('Skipped extension middleware alias already taken.', [
+                        'alias' => $middleware['alias'],
+                        'class' => $class,
+                    ]);
+
+                    continue;
+                }
+
                 $router->aliasMiddleware($middleware['alias'], $class);
             }
         }
