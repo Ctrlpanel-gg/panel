@@ -213,7 +213,7 @@ class TestExceptionRendering extends TestCase
         $this->assertSame(404, $response->getStatusCode());
         $this->assertStringContainsString('application/json', $response->headers->get('Content-Type'));
         $this->assertSame(
-            ['message' => 'Invoice not found'],
+            ['message' => 'The requested invoice could not be found.'],
             $response->getData(true)
         );
     }
