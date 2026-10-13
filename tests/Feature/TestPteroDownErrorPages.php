@@ -124,6 +124,22 @@ class TestPteroDownErrorPages extends TestCase
     }
 
     /**
+     * Deletion during an outage redirects with a safe message, not raw cURL detail.
+     */
+    public function test_delete_with_ptero_down_redirects_without_raw_leak(): void
+    {
+        $this->pteroDown();
+        ['user' => $user, 'server' => $server] = $this->scenario();
+
+        $response = $this->actingAs($user)->delete("/servers/{$server->id}");
+
+        $response->assertRedirect(route('servers.index'));
+        $error = (string) session('error');
+        $this->assertStringNotContainsString('cURL', $error);
+        $this->assertStringNotContainsString('ptero-unreachable.invalid', $error);
+    }
+
+    /**
      * The error page itself must show the safe message, not getMessage().
      */
     public function test_error_page_hides_raw_details_from_privileged_users(): void

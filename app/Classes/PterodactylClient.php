@@ -289,8 +289,6 @@ class PterodactylClient
         try {
             $response = $this->getAllocations($node);
         } catch (Exception) {
-            // Fail closed: allocation lookup failures mark this node as unavailable,
-            // allowing server creation to continue on other nodes.
             return [];
         }
 
@@ -326,7 +324,7 @@ class PterodactylClient
         try {
             $response = $this->getAllocations($node);
         } catch (Exception) {
-            return true; // Fail closed: if allocation usage cannot be determined, do not select this node.
+            return true;
         }
 
         if (!isset($response['data']) || empty($response['data'])) {
@@ -674,13 +672,10 @@ class PterodactylClient
         try {
             $response = $this->withTimeout($this->application)->get("application/nodes/{$node->id}");
         } catch (Exception $e) {
-            // Unreachable panel fails every node check: throw, don't blame one node.
             self::throwException($e->getMessage(), null, $e);
         }
 
         if ($response->failed()) {
-            // Fail closed: if a node's resource usage cannot be determined, do
-            // not consider it available so server creation can try other nodes.
             return false;
         }
 

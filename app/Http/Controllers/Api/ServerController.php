@@ -180,7 +180,7 @@ class ServerController extends Controller
         } catch (Exception $e) {
             $message = ($e instanceof ServerException || $e instanceof PterodactylException)
                 ? $e->getPublicMessage()
-                : $e->getMessage();
+                : 'Something went wrong. Please try again later.';
 
             return response()->json([
                 'message' => $message
@@ -254,7 +254,11 @@ class ServerController extends Controller
                 'server_id' => $server->id
             ]);
 
-            return response()->json(['message' => $e->getMessage()], 500);
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
         }
     }
 
@@ -303,7 +307,11 @@ class ServerController extends Controller
         } catch (PterodactylException $e) {
             return response()->json(['message' => $e->getPublicMessage()], $e->getCode() ?: 500);
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode() ?: 500);
+            $message = $e instanceof ServerException
+                ? $e->getPublicMessage()
+                : 'Server upgrade failed. Please try again later.';
+
+            return response()->json(['message' => $message], $e->getCode() ?: 500);
         }
     }
 
@@ -338,7 +346,16 @@ class ServerController extends Controller
 
             $server->delete();
         } catch (Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            logger()->error('Failed to delete server via API.', [
+                'error' => $e->getMessage(),
+                'server_id' => $server->id,
+            ]);
+
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
         }
 
         return response()->noContent();
@@ -389,7 +406,16 @@ class ServerController extends Controller
 
             $server->suspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->error('Failed to suspend server via API.', [
+                'error' => $exception->getMessage(),
+                'server_id' => $server->id,
+            ]);
+
+            $message = ($exception instanceof ServerException || $exception instanceof PterodactylException)
+                ? $exception->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
         }
 
         return ServerResource::make($server);
@@ -440,7 +466,16 @@ class ServerController extends Controller
 
             $server->unSuspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->error('Failed to unsuspend server via API.', [
+                'error' => $exception->getMessage(),
+                'server_id' => $server->id,
+            ]);
+
+            $message = ($exception instanceof ServerException || $exception instanceof PterodactylException)
+                ? $exception->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
         }
 
         return ServerResource::make($server);

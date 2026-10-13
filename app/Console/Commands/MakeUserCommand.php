@@ -69,7 +69,6 @@ class MakeUserCommand extends Command
             return 0;
         }
 
-        // getUser() throws a typed exception carrying the HTTP status.
         try {
             $response = $this->pterodactyl->getUser($ptero_id);
         } catch (PterodactylException $e) {

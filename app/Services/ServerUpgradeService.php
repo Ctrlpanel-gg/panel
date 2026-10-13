@@ -56,8 +56,7 @@ class ServerUpgradeService
      */
     public function handle(User $user, Product $product, Server $server): Server
     {
-        // Serialise concurrent upgrades of this server. Needs a shared
-        // cache (Redis) to work across hosts.
+        // Needs shared cache (Redis) across hosts.
         $lockKey = 'server_upgrade_' . $server->id;
         $lock = Cache::lock($lockKey, self::LOCK_TTL_SECONDS);
 
@@ -68,25 +67,19 @@ class ServerUpgradeService
         }
 
         try {
-            // Refresh server model to get authoritative product relationship under lock
             $server->refresh();
 
-            // Bound remote calls to the lock lease. This client instance only.
             $this->pterodactylClient->setRequestTimeout(self::PTERODACTYL_TIMEOUT_SECONDS);
 
-            // The product row may be gone; fail before touching it or compensating.
             $oldProduct = $server->product;
             if (!$oldProduct) {
                 throw new ServerUpgradeException('Server upgrade failed. Please try again later.', 500);
             }
 
-            // Fetch remote state once, reuse for heal check and node check.
             $pterodactylServer = $this->pterodactylClient->getServerAttributes($server->pterodactyl_id);
             $pterodactylServerAllocation = $pterodactylServer['allocation'];
 
-            // Self-heal a half-applied upgrade (remote new, local old) back
-            // to the billed product. Skipped without limits data; failure
-            // only warns since the build update below sets the state anyway.
+            // Half-applied upgrade (remote new, local old): restore billed product first.
             if (!$this->isBuildInSync($pterodactylServer, $oldProduct)) {
                 try {
                     $this->pterodactylClient->updateServerBuild(
@@ -105,13 +98,11 @@ class ServerUpgradeService
                 $pterodactylServerAllocation = $pterodactylServer['allocation'];
             }
 
-            // Already on target: return without charging. IDs compare as
-            // strings so retries with a different scalar type still match.
+            // IDs compare as strings so retries with a different scalar type still match.
             if ($this->isSameProduct($server, $product)) {
                 return $server;
             }
 
-            // Validate without charging. Returns the computed price.
             $finalPrice = $this->validateAndPrepare($user, $product, $server);
 
             $pterodactylServerNodeId = $pterodactylServer['relationships']['node']['attributes']['id'];
@@ -125,7 +116,6 @@ class ServerUpgradeService
                 throw new InsufficientResourcesException('Insufficient resources on the node to upgrade the server.');
             }
 
-            // Remote changes need compensation if the local transaction fails.
             $this->pterodactylClient->updateServerBuild($server->pterodactyl_id, $pterodactylServerAllocation, $product);
 
             try {
@@ -167,8 +157,7 @@ class ServerUpgradeService
                 throw $e;
             }
 
-            // Restart is best-effort after commit; its failure must not
-            // fail the upgrade (retry stays idempotent).
+            // Best-effort: retry stays idempotent.
             try {
                 $powerActionResponse = $this->pterodactylClient->powerAction($server, 'restart');
                 if ($powerActionResponse->failed()) {
@@ -242,8 +231,7 @@ class ServerUpgradeService
             }
         }
 
-        // No comparable keys means the remote exposed no limits data:
-        // count as matching so plain flows never trigger a heal.
+        // No limits data: count as matching, skip heal.
         return true;
     }
 

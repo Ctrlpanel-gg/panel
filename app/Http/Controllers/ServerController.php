@@ -157,7 +157,6 @@ class ServerController extends Controller
         } catch (Exception $e) {
             Cache::forget($lockKey);
 
-            // Typed errors bring their own safe message.
             $message = ($e instanceof ServerException || $e instanceof PterodactylException)
                 ? $e->getPublicMessage()
                 : __('Something went wrong. Please try again later.');
@@ -341,7 +340,7 @@ class ServerController extends Controller
             ]);
 
             return redirect()->route('servers.index')
-                ->with('error', __('Server removal failed: ') . $e->getMessage());
+                ->with('error', __('Server removal failed: ') . (($e instanceof ServerException || $e instanceof PterodactylException) ? $e->getPublicMessage() : __('Something went wrong. Please try again later.')));
         }
     }
 
@@ -523,14 +522,11 @@ class ServerController extends Controller
         }
 
         try {
-            // Check server limit for the new product
             if ($oldProduct->id !== $newProduct->id && $this->productLimitReached($user, $newProduct)) {
                 return redirect()->route('servers.show', ['server' => $server->id])
                     ->with('error', __('You can not create any more Servers with this product!'));
             }
 
-            // Pre-check stays inside try: a Pterodactyl outage becomes a
-            // friendly redirect instead of an HTML 500.
             if (!$this->validateUpgrade($server, $oldProduct, $newProduct)) {
                 return redirect()->route('servers.show', ['server' => $server->id])
                     ->with('error', __('Insufficient resources or credits for upgrade'));
@@ -548,8 +544,6 @@ class ServerController extends Controller
                 'previous' => $e->getPrevious()?->getMessage(),
             ]);
 
-            // Only typed exceptions pick the user message. Anything else
-            // gets a generic one; detail stays in the logs.
             if ($e instanceof ServerException || $e instanceof PterodactylException) {
                 $displayMessage = $e->getPublicMessage();
             } else {
@@ -616,14 +610,11 @@ class ServerController extends Controller
 
     private function processUpgrade(Server $server, Product $oldProduct, Product $newProduct, User $user): void
     {
-        // Shared upgrade logic lives in the service.
         app(ServerUpgradeService::class)->handle($user, $newProduct, $server);
     }
 
     private function calculateRefund(Server $server, Product $oldProduct): float
     {
-        // Single source of truth lives in the service; the pre-check and
-        // the actual charge must use the same math.
         return app(ServerUpgradeService::class)->calculateRefund($server, $oldProduct);
     }
 
