@@ -28,6 +28,10 @@ class ExtensionHelper
 
     private static ?array $cachedExtensions = null;
 
+    private static array $sidebarPagesCache = [];
+
+    private static array $visibleSidebarPagesCache = [];
+
     /**
      * Get all extensions
      * @return array array of all extensions e.g. ["App\Extensions\PayPal", "App\Extensions\Stripe"]
@@ -258,6 +262,10 @@ class ExtensionHelper
             return [];
         }
 
+        if (isset(self::$sidebarPagesCache[$area])) {
+            return self::$sidebarPagesCache[$area];
+        }
+
         $pages = [];
 
         foreach (self::getAllExtensionClasses() as $extensionClass) {
@@ -289,6 +297,8 @@ class ExtensionHelper
 
         usort($pages, static fn (array $a, array $b): int => $a['order'] <=> $b['order']);
 
+        self::$sidebarPagesCache[$area] = $pages;
+
         return $pages;
     }
 
@@ -306,7 +316,12 @@ class ExtensionHelper
             return [];
         }
 
-        return array_values(array_filter(
+        $cacheKey = $area.':'.$user->getAuthIdentifier();
+        if (isset(self::$visibleSidebarPagesCache[$cacheKey])) {
+            return self::$visibleSidebarPagesCache[$cacheKey];
+        }
+
+        $visible = array_values(array_filter(
             self::getSidebarPages($area),
             static function (array $page) use ($user): bool {
                 if (count($page['permissions']) === 0) {
@@ -316,6 +331,10 @@ class ExtensionHelper
                 return $user->canAny($page['permissions']);
             }
         ));
+
+        self::$visibleSidebarPagesCache[$cacheKey] = $visible;
+
+        return $visible;
     }
 
     /**
