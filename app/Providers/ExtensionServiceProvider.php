@@ -110,7 +110,7 @@ class ExtensionServiceProvider extends ServiceProvider
     protected function loadExtensionApiRoutes(string $path): void
     {
         $this->callAfterResolving('router', function ($router) use ($path) {
-            $router->group(['prefix' => 'api', 'middleware' => 'api', 'name' => 'api.'], function ($router) use ($path) {
+            $router->group(['prefix' => 'api', 'middleware' => 'api', 'as' => 'api.'], function ($router) use ($path) {
                 require $path;
             });
         });
