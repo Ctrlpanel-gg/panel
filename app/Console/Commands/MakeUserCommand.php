@@ -69,8 +69,7 @@ class MakeUserCommand extends Command
             return 0;
         }
 
-        // Fetch the user from Pterodactyl. On failure, getUser() throws a
-        // typed PterodactylException carrying the HTTP status code.
+        // getUser() throws a typed exception carrying the HTTP status.
         try {
             $response = $this->pterodactyl->getUser($ptero_id);
         } catch (PterodactylException $e) {
@@ -117,11 +116,10 @@ class MakeUserCommand extends Command
     }
 
     /**
-     * Print a clean, human-readable error for a failed Pterodactyl request.
+     * Human-readable error for a failed Pterodactyl request.
      *
      * @param  int|null  $statusCode
      * @param  string  $detail
-     * @return void
      */
     private function printPterodactylError(?int $statusCode, string $detail): void
     {

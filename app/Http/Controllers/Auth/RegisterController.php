@@ -75,8 +75,7 @@ class RegisterController extends Controller
     /**
      * Handle a registration request for the application.
      *
-     * Surfaces a Pterodactyl account-creation failure as a validation error so
-     * the user sees a friendly message instead of a bare 500.
+     * Pterodactyl failures surface as validation errors, not a bare 500.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse

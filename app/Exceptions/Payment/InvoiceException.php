@@ -18,8 +18,7 @@ class InvoiceException extends PaymentException
     }
 
     /**
-     * Friendly wording for the admin error page. The technical message
-     * stays in the logs via report().
+     * Admin-facing wording. Technical detail stays in logs.
      */
     public function getPublicMessage(): string
     {

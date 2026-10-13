@@ -31,12 +31,7 @@ class PterodactylClient
     public PendingRequest $application;
 
     /**
-     * Per-request HTTP timeout override in seconds for remote calls.
-     *
-     * 0 (default) leaves the pending request untouched, i.e. the HTTP
-     * client's own default applies (currently 30s total, 10s connect).
-     * Only callers that opt in via setRequestTimeout() change anything,
-     * and only on their own client instance.
+     * Per-request HTTP timeout in seconds. 0 leaves the HTTP default untouched.
      */
     public int $requestTimeout = 0;
 
@@ -75,10 +70,9 @@ class PterodactylClient
     }
 
     /**
-     * Opt in to a bounded HTTP timeout for subsequent remote calls made
-     * through this client instance. Other client instances are unaffected.
+     * Bound the HTTP timeout for later calls on this instance only.
      *
-     * @param  int  $seconds  0 disables the timeout (default).
+     * @param  int  $seconds  0 disables it (default).
      */
     public function setRequestTimeout(int $seconds): static
     {
@@ -88,8 +82,7 @@ class PterodactylClient
     }
 
     /**
-     * Apply the configured timeout, if any, without mutating the shared
-     * pending request (PendingRequest::timeout() mutates in place).
+     * Apply the timeout on a clone; the shared request stays untouched.
      */
     protected function withTimeout(PendingRequest $request): PendingRequest
     {
@@ -101,17 +94,12 @@ class PterodactylClient
     }
 
     /**
-     * Build and throw a typed Pterodactyl exception for a failed request.
-     *
-     * Maps the HTTP status returned by Pterodactyl to a specific exception
-     * subclass so callers and the exception handler can respond appropriately.
+     * Map the HTTP status to a typed exception and throw it.
      *
      * @param  string  $message
      * @param  int|null  $status
      * @param  \Throwable|null  $previous
      * @return never
-     *
-     * @throws PterodactylException
      */
     private static function throwException(string $message = '', ?int $status = null, ?\Throwable $previous = null): never
     {
@@ -159,12 +147,8 @@ class PterodactylClient
     }
 
     /**
-     * Build and throw a typed exception for a failed HTTP response.
-     *
-     * The response body goes into the exception message, which reaches
-     * the logs via report(). Clients only ever see getPublicMessage(),
-     * so no internal detail leaks. Bodies are capped so a proxy error
-     * page cannot flood the logs.
+     * Throw for a failed response. Body goes to logs only (capped);
+     * clients see getPublicMessage().
      */
     private static function throwForResponse(string $message, Response $response): never
     {
@@ -326,13 +310,7 @@ class PterodactylClient
     }
 
     /**
-     * Check whether a node has reached its allocation limit.
-     *
-     * The allocation limit is a per-node setting: it caps the number of
-     * allocations that may be in use on a single node. When the amount of
-     * assigned allocations on the node meets or exceeds the limit, no new
-     * servers can be deployed to that node (but other nodes in the same
-     * location remain eligible).
+     * True when the node is at its allocation limit (0 means no limit).
      *
      * @param  Node  $node
      * @return bool
@@ -542,8 +520,6 @@ class PterodactylClient
             self::throwException($e->getMessage(), null, $e);
         }
 
-        //print response body
-
         if ($response->failed()) {
             if ($deleteOn404) {  //Delete the server if it does not exist (server deleted on pterodactyl)
                 Server::where('pterodactyl_id', $pterodactylId)->first()->delete();
@@ -686,12 +662,12 @@ class PterodactylClient
     }
 
     /**
-     * Check if node has enough free resources to allocate the given resources
+     * False when resources are short or cannot be determined (fail closed).
      *
      * @param  Node  $node
      * @param  int  $requireMemory
      * @param  int  $requireDisk
-     * @return bool Returns false when resources are insufficient or cannot be determined.
+     * @return bool
      */
     public function checkNodeResources(Node $node, int $requireMemory, int $requireDisk)
     {

@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 class ServerUpgradeServiceTest extends TestCase
 {
     /**
-     * Verify domain exceptions carry expected HTTP status codes.
+     * Domain exceptions carry expected HTTP status codes.
      */
     public function test_domain_exceptions_carry_correct_status_codes(): void
     {
@@ -36,7 +36,7 @@ class ServerUpgradeServiceTest extends TestCase
     }
 
     /**
-     * Verify pro-rated refund math logic calculation.
+     * Refund math sanity check.
      */
     public function test_prorated_math_on_upgrade(): void
     {
@@ -53,9 +53,8 @@ class ServerUpgradeServiceTest extends TestCase
     }
 
     /**
-     * Document the refund formula boundaries. The service computes the
-     * refund from the CURRENT (old) product's price and billing period:
-     * refund = oldPrice * (1 - timeUsed / period).
+     * Refund boundaries: refund = oldPrice * (1 - timeUsed / period).
+     * Overdue goes negative - pinned policy, not a bug.
      */
     public function test_refund_formula_boundaries(): void
     {
@@ -68,18 +67,14 @@ class ServerUpgradeServiceTest extends TestCase
         $refundAtPeriodEnd = $oldPrice - ($oldPrice * ($period / $period));
         $this->assertEqualsWithDelta(0.0, $refundAtPeriodEnd, 0.001);
 
-        // Past the billing period the formula yields a negative refund,
-        // i.e. the customer is charged more than the new product price.
-        // Pre-existing policy behavior, preserved as-is.
+        // Overdue goes negative: pinned policy, not a bug.
         $refundPastPeriod = $oldPrice - ($oldPrice * ((2 * $period) / $period));
         $this->assertEqualsWithDelta(-$oldPrice, $refundPastPeriod, 0.001);
     }
 
     /**
-     * The billing-period map is the single source of truth for both the
-     * web pre-check and the service charge. A month is a fixed 30 days,
-     * matching the previous web flow and the product price helpers.
-     * Unknown periods fall back to hourly instead of crashing.
+     * Period map is shared by pre-check and charge. Month is a fixed 30
+     * days; unknown periods fall back to hourly.
      */
     public function test_billing_period_seconds_are_fixed_and_shared(): void
     {
@@ -107,9 +102,8 @@ class ServerUpgradeServiceTest extends TestCase
     }
 
     /**
-     * The same-product (idempotency) check must recognise equal IDs even
-     * when they arrive in different scalar types (e.g. int 1 vs string "1"),
-     * otherwise a retried request would fall through to a second charge.
+     * Same-product check ignores scalar types (int 1 vs string '1'),
+     * or retries would double-charge.
      */
     public function test_is_same_product_ignores_scalar_types(): void
     {

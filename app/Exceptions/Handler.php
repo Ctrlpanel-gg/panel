@@ -51,30 +51,22 @@ class Handler extends ExceptionHandler
             //
         });
 
-        // Render Pterodactyl exceptions as JSON for API requests and with the
-        // matching error page for web requests.
         $this->renderable(function (PterodactylException $e, $request) {
             return $this->renderTypedWithErrorPage($e, $request);
         });
 
-        // Render server exceptions with their status code.
         $this->renderable(function (ServerException $e, $request) {
             return $this->renderTypedWithErrorPage($e, $request);
         });
 
-        // Render payment exceptions as JSON for API requests and with the
-        // matching error page for web requests.
         $this->renderable(function (PaymentException $e, $request) {
             return $this->renderTypedWithErrorPage($e, $request);
         });
     }
 
     /**
-     * Shared renderer for typed domain exceptions.
-     *
-     * JSON with the safe public message for API requests, otherwise the
-     * matching error page (falling back to the 500 page). One place to
-     * change so the three exception families can never drift apart.
+     * Shared renderer: safe-message JSON for APIs, matching error page
+     * for web (500 fallback). Keeps the three families from drifting.
      */
     private function renderTypedWithErrorPage(PterodactylException|ServerException|PaymentException $e, $request)
     {

@@ -22,18 +22,13 @@ class ServerUpgradeService
     private PterodactylClient $pterodactylClient;
 
     /**
-     * Bound for each Pterodactyl HTTP call in the upgrade flow. Pins the
-     * HTTP client's default (30s total / 10s connect) explicitly so the
-     * lease sizing below does not silently depend on a framework default.
+     * Per-call Pterodactyl timeout. Sized so the lock lease below holds.
      */
     private const PTERODACTYL_TIMEOUT_SECONDS = 30;
 
     /**
-     * Lock lease in seconds. Sized with a safety margin over the
-     * worst-case bounded operation (up to 5 remote calls x timeout plus
-     * the local transaction). This reduces the chance of the lease
-     * expiring mid-operation but cannot guarantee it: a hung local
-     * database or a paused process can still outlive any TTL.
+     * Lock lease. Covers worst case (remote calls x timeout + transaction)
+     * with margin. No TTL survives a hung DB or paused process.
      */
     private const LOCK_TTL_SECONDS = 300;
 
@@ -49,7 +44,7 @@ class ServerUpgradeService
     }
 
     /**
-     * Handle the server creation process.
+     * Handle the server upgrade process.
      *
      * @param User $user
      * @param Product $product
@@ -61,11 +56,8 @@ class ServerUpgradeService
      */
     public function handle(User $user, Product $product, Server $server): Server
     {
-        // Per-server lock so concurrent upgrades of the same server are
-        // serialised. Only effective across hosts when the cache backend
-        // is shared (e.g. Redis); the local file/array drivers lock
-        // per-node only. The TTL is a backstop for crashed holders with a
-        // safety margin over the bounded operation, not a guarantee.
+        // Serialise concurrent upgrades of this server. Needs a shared
+        // cache (Redis) to work across hosts.
         $lockKey = 'server_upgrade_' . $server->id;
         $lock = Cache::lock($lockKey, self::LOCK_TTL_SECONDS);
 
@@ -79,14 +71,10 @@ class ServerUpgradeService
             // Refresh server model to get authoritative product relationship under lock
             $server->refresh();
 
-            // Bound every remote call in this flow so a hung Pterodactyl
-            // cannot outlive the lock lease. Scoped to this service's own
-            // client instance; other Pterodactyl flows are untouched.
+            // Bound remote calls to the lock lease. This client instance only.
             $this->pterodactylClient->setRequestTimeout(self::PTERODACTYL_TIMEOUT_SECONDS);
 
-            // Guard: the current product row may have been deleted. Fail
-            // early with a clear error so later property access and the
-            // compensation path never receive null instead of a Product.
+            // The product row may be gone; fail before touching it or compensating.
             $oldProduct = $server->product;
             if (!$oldProduct) {
                 throw new ServerUpgradeException('Server upgrade failed. Please try again later.', 500);
@@ -96,12 +84,9 @@ class ServerUpgradeService
             $pterodactylServer = $this->pterodactylClient->getServerAttributes($server->pterodactyl_id);
             $pterodactylServerAllocation = $pterodactylServer['allocation'];
 
-            // Self-heal: a previous attempt may have applied the new build
-            // remotely while the local transaction failed and the restore
-            // also failed (local old, remote new). Restore remote to the
-            // billed product before proceeding. Skipped when remote exposes
-            // no limits data. Heal failure only warns; the upgrade's own
-            // build update sets the correct state or fails itself.
+            // Self-heal a half-applied upgrade (remote new, local old) back
+            // to the billed product. Skipped without limits data; failure
+            // only warns since the build update below sets the state anyway.
             if (!$this->isBuildInSync($pterodactylServer, $oldProduct)) {
                 try {
                     $this->pterodactylClient->updateServerBuild(
@@ -120,9 +105,8 @@ class ServerUpgradeService
                 $pterodactylServerAllocation = $pterodactylServer['allocation'];
             }
 
-            // Idempotency: If server is already on the target product, return without charging again.
-            // Product IDs are compared as strings so retries carrying the
-            // same ID in a different scalar type are still recognised.
+            // Already on target: return without charging. IDs compare as
+            // strings so retries with a different scalar type still match.
             if ($this->isSameProduct($server, $product)) {
                 return $server;
             }
@@ -183,9 +167,8 @@ class ServerUpgradeService
                 throw $e;
             }
 
-            // Restart is best-effort, failure only logged. Runs after the
-            // local commit, so a throw here must not report the upgrade
-            // as failed (retry is idempotent via isSameProduct anyway).
+            // Restart is best-effort after commit; its failure must not
+            // fail the upgrade (retry stays idempotent).
             try {
                 $powerActionResponse = $this->pterodactylClient->powerAction($server, 'restart');
                 if ($powerActionResponse->failed()) {
@@ -220,18 +203,17 @@ class ServerUpgradeService
         }
     }
 
-    /** Whether the server already targets the given product (ID comparison is type-agnostic). */
+    /**
+     * Whether the server already targets the given product (ID comparison is type-agnostic).
+     */
     private function isSameProduct(Server $server, Product $product): bool
     {
         return (string) $server->product_id === (string) $product->id;
     }
 
     /**
-     * Whether the remote build matches the given product.
-     *
-     * Only keys the remote actually exposes are compared; when it exposes
-     * no limits data at all it counts as matching so plain flows never
-     * trigger a heal.
+     * Whether the remote build matches the product. Missing keys are
+     * skipped; no limits data at all counts as matching (no heal).
      */
     private function isBuildInSync(array $remote, Product $product): bool
     {
@@ -265,7 +247,9 @@ class ServerUpgradeService
         return true;
     }
 
-    /** Validate upgrade and return net price. Caller charges after success. */
+    /**
+     * Validate upgrade and return net price. Caller charges after success.
+     */
     private function validateAndPrepare(User $user, Product $product, Server $server): int
     {
         $refundAmount = $this->calculateRefund($server, $server->product);
@@ -280,12 +264,8 @@ class ServerUpgradeService
     }
 
     /**
-     * Pro-rated refund for the unused time on the given product.
-     *
-     * Single source of truth for the refund math: the web pre-check calls
-     * this too, so the estimate and the actual charge can never drift.
-     * A month is a fixed 30 days here, matching the previous web flow and
-     * the product price helpers.
+     * Pro-rated refund for unused time. Shared with the web pre-check so
+     * estimate and charge agree. A month is a fixed 30 days.
      */
     public function calculateRefund(Server $server, Product $oldProduct): float
     {

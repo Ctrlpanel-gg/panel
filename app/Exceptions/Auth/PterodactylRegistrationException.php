@@ -5,8 +5,7 @@ namespace App\Exceptions\Auth;
 use Exception;
 
 /**
- * Thrown when a user account cannot be created on Pterodactyl during
- * registration.
+ * Pterodactyl account creation failed during registration.
  */
 class PterodactylRegistrationException extends Exception
 {

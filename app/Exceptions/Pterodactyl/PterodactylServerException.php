@@ -3,7 +3,7 @@
 namespace App\Exceptions\Pterodactyl;
 
 /**
- * Thrown when Pterodactyl returns a server-side error (HTTP 5xx).
+ * Pterodactyl 5xx.
  */
 class PterodactylServerException extends PterodactylException
 {
@@ -17,11 +17,6 @@ class PterodactylServerException extends PterodactylException
         parent::__construct($message, $statusCode, $previous);
     }
 
-    /**
-     * Get a message that is safe to show to end users.
-     *
-     * @return string
-     */
     public function getPublicMessage(): string
     {
         return 'Service temporarily unavailable. Please try again later.';

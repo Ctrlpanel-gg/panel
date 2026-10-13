@@ -17,10 +17,7 @@ class TestExceptionRendering extends TestCase
     use CreatesApplication;
 
     /**
-     * Verify the exception handler maps a PterodactylNotFoundException to a
-     * 404 JSON response.
-     *
-     * @return void
+     * NotFound renders 404 JSON.
      */
     public function test_pterodactyl_not_found_renders_404(): void
     {
@@ -36,11 +33,7 @@ class TestExceptionRendering extends TestCase
     }
 
     /**
-     * Verify the handler renders the matching web error page for a
-     * PterodactylNotFoundException on non-JSON requests (instead of a generic
-     * 500 as would happen for an unhandled exception).
-     *
-     * @return void
+     * NotFound renders the matching web error page, not a generic 500.
      */
     public function test_pterodactyl_not_found_renders_web_error_page(): void
     {
@@ -56,11 +49,7 @@ class TestExceptionRendering extends TestCase
     }
 
     /**
-     * Verify the exception handler maps a PterodactylConnectionException
-     * (which carries no HTTP status code) to a 500 JSON response instead of
-     * crashing on an invalid status code.
-     *
-     * @return void
+     * Connection (no status) renders 500 instead of crashing on status 0.
      */
     public function test_pterodactyl_connection_renders_500(): void
     {
@@ -76,11 +65,7 @@ class TestExceptionRendering extends TestCase
     }
 
     /**
-     * Verify the public response for a PterodactylConnectionException does not
-     * leak raw details of the underlying client exception (hosts, ports, TLS
-     * traces), while the raw message stays available for logging.
-     *
-     * @return void
+     * Connection hides raw client details, keeps them for logs.
      */
     public function test_pterodactyl_connection_hides_raw_details(): void
     {
@@ -107,10 +92,7 @@ class TestExceptionRendering extends TestCase
     }
 
     /**
-     * Verify the public response for a PterodactylServerException (5xx) does
-     * not leak raw details while the raw message stays available for logging.
-     *
-     * @return void
+     * Server (5xx) hides raw details, keeps them for logs.
      */
     public function test_pterodactyl_server_exception_hides_raw_details(): void
     {
@@ -137,10 +119,7 @@ class TestExceptionRendering extends TestCase
     }
 
     /**
-     * Verify the public response for a PterodactylAuthenticationException does
-     * not leak configuration details (token/env paths) to the client.
-     *
-     * @return void
+     * Auth hides config details from clients.
      */
     public function test_pterodactyl_authentication_hides_config_details(): void
     {
@@ -163,10 +142,7 @@ class TestExceptionRendering extends TestCase
     }
 
     /**
-     * Verify the exception handler maps an InsufficientCreditsException to a
-     * 422 JSON response.
-     *
-     * @return void
+     * InsufficientCredits renders 422 JSON.
      */
     public function test_insufficient_credits_renders_422(): void
     {
@@ -181,10 +157,7 @@ class TestExceptionRendering extends TestCase
     }
 
     /**
-     * Verify the exception handler maps a ServerLimitReachedException to a
-     * 422 JSON response.
-     *
-     * @return void
+     * ServerLimitReached renders 422 JSON.
      */
     public function test_server_limit_reached_renders_422(): void
     {

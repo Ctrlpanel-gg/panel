@@ -3,10 +3,8 @@
 namespace App\Exceptions\Pterodactyl;
 
 /**
- * Thrown when a requested resource does not exist on Pterodactyl (HTTP 404).
- *
- * This commonly happens when a server was deleted from Pterodactyl but not
- * from the panel.
+ * Resource missing on Pterodactyl (HTTP 404).
+ * Usually a server deleted remotely but not locally.
  */
 class PterodactylNotFoundException extends PterodactylException
 {
@@ -19,11 +17,6 @@ class PterodactylNotFoundException extends PterodactylException
         parent::__construct($message, 404, $previous);
     }
 
-    /**
-     * Get a message that is safe to show to end users.
-     *
-     * @return string
-     */
     public function getPublicMessage(): string
     {
         return 'Resource not found.';

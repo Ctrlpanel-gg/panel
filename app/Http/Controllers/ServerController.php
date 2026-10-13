@@ -517,9 +517,8 @@ class ServerController extends Controller
                     ->with('error', __('You can not create any more Servers with this product!'));
             }
 
-            // Pre-check runs inside try: getServerAttributes() throws a
-            // typed PterodactylException on outage, which the catch below
-            // turns into a friendly redirect instead of an HTML 500.
+            // Pre-check stays inside try: a Pterodactyl outage becomes a
+            // friendly redirect instead of an HTML 500.
             if (!$this->validateUpgrade($server, $oldProduct, $newProduct)) {
                 return redirect()->route('servers.show', ['server' => $server->id])
                     ->with('error', __('Insufficient resources or credits for upgrade'));
@@ -537,9 +536,8 @@ class ServerController extends Controller
                 'previous' => $e->getPrevious()?->getMessage(),
             ]);
 
-            // Only trusted typed exceptions may choose what the user sees.
-            // Anything unexpected gets a generic message; the details
-            // above stay in the server logs.
+            // Only typed exceptions pick the user message. Anything else
+            // gets a generic one; detail stays in the logs.
             if ($e instanceof ServerException || $e instanceof PterodactylException) {
                 $displayMessage = $e->getPublicMessage();
             } else {

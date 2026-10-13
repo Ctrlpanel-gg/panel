@@ -21,12 +21,8 @@ use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 /**
- * Service-level regression tests for server upgrades.
- *
- * Covers the failure scenarios that pure arithmetic tests cannot:
- * successful pro-rated charging, idempotent retries, remote failures,
- * local transaction failure after a remote update (compensation), failed
- * compensation, lock contention, and downgrade refunds.
+ * Service-level upgrade tests: charging, idempotency, remote and local
+ * failures, compensation, locks, refunds.
  */
 class ServerUpgradeServiceTest extends TestCase
 {
@@ -361,10 +357,8 @@ class ServerUpgradeServiceTest extends TestCase
 
     public function test_overdue_billing_period_preserves_existing_formula(): void
     {
-        // Two hourly periods elapsed: refund = 7200 - 7200*2 = -7200, so the
-        // charge is 10000 + 7200 = 17200. This pins the long-standing
-        // (web-parity) formula as-is; it is not an endorsement of charging
-        // more than the new product price, which would be a policy change.
+        // Overdue goes negative (refund = 7200 - 7200*2). Pinned web-parity
+        // formula; changing it is a policy decision, not a bugfix.
         $scenario = $this->makeUpgradeScenario(
             userCredits: 20000,
             oldPrice: 7200,

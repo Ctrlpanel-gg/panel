@@ -6,19 +6,12 @@ use Exception;
 
 /**
  * Base exception for server provisioning and upgrade failures.
- *
- * Used by the web UI to flash a friendly message to the user.
+ * The status doubles as the exception code for API responses.
  */
 class ServerException extends Exception
 {
-    /**
-     * The HTTP status code to return to the client, if applicable.
-     *
-     * @var int
-     */
     protected int $statusCode;
 
-    /** Optional safe message for clients. Falls back to message. */
     protected ?string $publicMessage = null;
 
     /**
@@ -33,17 +26,14 @@ class ServerException extends Exception
         $this->statusCode = $statusCode;
     }
 
-    /**
-     * Get the HTTP status code for this exception.
-     *
-     * @return int
-     */
     public function getStatusCode(): int
     {
         return $this->statusCode;
     }
 
-    /** Safe message for clients. Falls back to message. */
+    /**
+     * Safe text for clients. Falls back to the message.
+     */
     public function getPublicMessage(): string
     {
         return $this->publicMessage ?? $this->getMessage();
