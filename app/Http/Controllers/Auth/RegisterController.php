@@ -191,7 +191,15 @@ class RegisterController extends Controller
             ]);
         } catch (\Throwable $e) {
             try {
-                $this->pterodactylClient->application->delete("/application/users/{$pterodactylId}");
+                $cleanupResponse = $this->pterodactylClient->application->delete("/application/users/{$pterodactylId}");
+
+                if ($cleanupResponse->failed()) {
+                    logger()->error('Failed to delete orphaned Pterodactyl user after DB failure', [
+                        'pterodactyl_id' => $pterodactylId,
+                        'status' => $cleanupResponse->status(),
+                        'response' => $cleanupResponse->json(),
+                    ]);
+                }
             } catch (\Throwable $cleanupException) {
                 logger()->error('Failed to delete orphaned Pterodactyl user after DB failure', [
                     'pterodactyl_id' => $pterodactylId,
