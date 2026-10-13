@@ -61,7 +61,7 @@
 
         @if($exception ?? false && Auth::user()->can('errors.view'))
           <div class="alert alert-secondary">
-            <strong>{{ $exception->getMessage() }}</strong>
+            <strong>{{ method_exists($exception, 'getPublicMessage') ? $exception->getPublicMessage() : $exception->getMessage() }}</strong>
           </div>
       </div>
       @endif

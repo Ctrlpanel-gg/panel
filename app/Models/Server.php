@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use App\Classes\PterodactylClient;
 use App\Enums\BillingPriority;
+use App\Exceptions\Server\ServerDeletionException;
 use App\Settings\PterodactylSettings;
 use GuzzleHttp\Promise\PromiseInterface;
 use Hidehalo\Nanoid\Client;
@@ -14,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Client\Response;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Exception;
 
 /**
  * Class Server
@@ -105,7 +105,7 @@ class Server extends Model
             if ($response->failed() && !is_null($server->pterodactyl_id)) {
                 //only return error when it's not a 404 error
                 if ($response['errors'][0]['status'] != '404') {
-                    throw new Exception($response['errors'][0]['code']);
+                    throw new ServerDeletionException($response['errors'][0]['code']);
                 }
             }
         });
