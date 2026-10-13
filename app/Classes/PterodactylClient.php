@@ -674,12 +674,8 @@ class PterodactylClient
         try {
             $response = $this->withTimeout($this->application)->get("application/nodes/{$node->id}");
         } catch (Exception $e) {
-            logger()->warning('Cannot reach node for resource check, skipping', [
-                'node_id' => $node->id,
-                'exception' => $e->getMessage(),
-            ]);
-
-            return false;
+            // Unreachable panel fails every node check: throw, don't blame one node.
+            self::throwException($e->getMessage(), null, $e);
         }
 
         if ($response->failed()) {

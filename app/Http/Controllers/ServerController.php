@@ -157,8 +157,13 @@ class ServerController extends Controller
         } catch (Exception $e) {
             Cache::forget($lockKey);
 
+            // Typed errors bring their own safe message.
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : __('Something went wrong. Please try again later.');
+
             return redirect()->route('servers.index')
-                ->with('error', $e->getMessage());
+                ->with('error', $message);
         }
     }
 
@@ -192,7 +197,14 @@ class ServerController extends Controller
     private function validateProductRequirements(Product $product, Request $request): string|bool
     {
         $location = $request->input('location');
-        $nodeAllocation = $this->findAvailableNodeWithAllocation($location, $product);
+
+        try {
+            $nodeAllocation = $this->findAvailableNodeWithAllocation($location, $product);
+        } catch (PterodactylException $e) {
+            report($e);
+
+            return __('Something went wrong. Please try again later.');
+        }
 
         if (!$nodeAllocation) {
             return __("The selected location does not have the required memory, disk, or is overloaded.");

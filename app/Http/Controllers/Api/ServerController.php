@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Classes\PterodactylClient;
 use App\Events\ServerDeletedEvent;
 use App\Exceptions\Pterodactyl\PterodactylException;
+use App\Exceptions\Server\ServerException;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Server;
@@ -177,8 +178,12 @@ class ServerController extends Controller
 
             return ServerResource::make($server->fresh());
         } catch (Exception $e) {
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : $e->getMessage();
+
             return response()->json([
-                'message' => $e->getMessage()
+                'message' => $message
             ], 401);
         }
     }

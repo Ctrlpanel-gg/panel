@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * Pterodactyl outages must never leak raw client detail (hosts, cURL
- * traces) onto user-facing pages, on POST or on the follow-up GET.
+ * traces) onto user-facing pages, nor blame a healthy location.
  */
 class TestPteroDownErrorPages extends TestCase
 {
@@ -35,27 +35,29 @@ class TestPteroDownErrorPages extends TestCase
     }
 
     /**
-     * @return array{user: User, server: Server, oldProduct: Product, newProduct: Product}
+     * @return array{user: User, server: Server, oldProduct: Product, newProduct: Product, location: Location}
      */
     private function scenario(): array
     {
         Carbon::setTestNow(Carbon::now()->startOfSecond());
 
         $location = Location::create(['id' => random_int(100000, 999999), 'name' => 'x', 'description' => 'x']);
-        Node::create(['id' => random_int(100000, 999999), 'location_id' => $location->id, 'name' => 'x', 'description' => 'x']);
+        $node = Node::create(['id' => random_int(100000, 999999), 'location_id' => $location->id, 'name' => 'x', 'description' => 'x']);
 
         $old = Product::create(['name' => 'old', 'description' => 'o', 'price' => 10, 'billing_period' => 'hourly', 'memory' => 1024, 'disk' => 10000]);
         $new = Product::create(['name' => 'new', 'description' => 'n', 'price' => 5, 'billing_period' => 'hourly', 'memory' => 512, 'disk' => 5000]);
+        $old->nodes()->attach($node->id);
+        $new->nodes()->attach($node->id);
 
         $user = new User();
-        $user->forceFill(['name' => 'leak-user', 'email' => 'leak-' . random_int(100000, 999999) . '@example.com', 'password' => 'password', 'email_verified_at' => Carbon::now(), 'credits' => 20000]);
+        $user->forceFill(['name' => 'leak-user', 'email' => 'leak-' . random_int(100000, 999999) . '@example.com', 'password' => 'password', 'email_verified_at' => Carbon::now(), 'credits' => 20000, 'server_limit' => 5]);
         $user->save();
 
         $server = new Server();
         $server->forceFill(['name' => 'leak', 'description' => 't', 'identifier' => 'leakidentifier1234567890abcd', 'pterodactyl_id' => random_int(1000000, 9999999), 'user_id' => $user->id, 'product_id' => $old->id, 'last_billed' => Carbon::now()]);
         $server->save();
 
-        return ['user' => $user, 'server' => $server, 'oldProduct' => $old, 'newProduct' => $new];
+        return ['user' => $user, 'server' => $server, 'oldProduct' => $old, 'newProduct' => $new, 'location' => $location];
     }
 
     /**
@@ -73,6 +75,29 @@ class TestPteroDownErrorPages extends TestCase
 
         $response->assertRedirect();
         $error = (string) session('error');
+        $this->assertStringNotContainsString('cURL', $error);
+        $this->assertStringNotContainsString('ptero-unreachable.invalid', $error);
+    }
+
+    /**
+     * Creation while Pterodactyl is down reports an outage, not a fake
+     * "location full" message, and leaks nothing raw.
+     */
+    public function test_create_with_ptero_down_reports_outage(): void
+    {
+        $this->pteroDown();
+        ['user' => $user, 'oldProduct' => $old, 'location' => $location] = $this->scenario();
+
+        $response = $this->actingAs($user)->post('/servers', [
+            'name' => 'new-server',
+            'location' => $location->id,
+            'product' => $old->id,
+        ]);
+
+        $response->assertRedirect(route('servers.index'));
+        $error = (string) session('error');
+        $this->assertStringContainsString('Please try again later', $error);
+        $this->assertStringNotContainsString('required memory', $error);
         $this->assertStringNotContainsString('cURL', $error);
         $this->assertStringNotContainsString('ptero-unreachable.invalid', $error);
     }
