@@ -13,7 +13,8 @@ class SyncPermissionsCommand extends Command
 
     public function handle(GeneralPermissionsSeeder $seeder): int
     {
-        $seeder->run();
+        $seeder->createOrUpdatePermissions();
+        $seeder->createOrUpdateRoles();
 
         $this->info('Permissions and default roles synced. Existing role assignments untouched.');
 
