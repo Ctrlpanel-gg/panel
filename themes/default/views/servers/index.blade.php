@@ -198,12 +198,20 @@
                             	data-toggle="tooltip" data-placement="bottom" title="{{ __('Server Settings') }}">
                                 <i class="mx-2 fas fa-cog"></i>
                             </a>
+                            @if($server->canceled)
+                            <button onclick="handleServerResume('{{ $server->id }}');" target="__blank"
+                                class="text-center btn btn-success"
+                                data-toggle="tooltip" data-placement="bottom" title="{{ __('Resume Server') }}">
+                                <i class="mx-2 fas fa-play"></i>
+                            </button>
+                            @else
                             <button onclick="handleServerCancel('{{ $server->id }}');" target="__blank"
                                 class="text-center btn btn-warning"
                                 {{ $server->suspended || $server->canceled ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Cancel Server') }}">
                                 <i class="mx-2 fas fa-ban"></i>
                             </button>
+                            @endif
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
                                 class="float-right mr-2 text-center btn btn-danger"
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
@@ -259,12 +267,12 @@
 
         const handleServerResume = (serverId) => {
             Swal.fire({
-                title: "{{ __('Renew Subscription?') }}",
-                text: "{{ __('This will revoke the cancellation and keep your server active.') }}",
+                title: "{{ __('Resume Server?') }}",
+                text: "{{ __('This will resume your server and keep it active.') }}",
                 icon: 'question',
                 confirmButtonColor: '#5cb85c',
                 showCancelButton: true,
-                confirmButtonText: "{{ __('Yes, renew!') }}",
+                confirmButtonText: "{{ __('Yes, resume!') }}",
                 cancelButtonText: "{{ __('No, abort!') }}",
                 reverseButtons: true
             }).then((result) => {
