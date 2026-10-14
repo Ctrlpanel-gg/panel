@@ -202,12 +202,29 @@ class ExtensionHelper
                 continue;
             }
 
-            $finder = (new Finder())->in($seedersDirectory)->files()->name('*.php');
+            try {
+                $finder = (new Finder())->in($seedersDirectory)->files()->name('*.php');
+            } catch (Throwable $exception) {
+                Log::warning('Failed to scan seeders directory for extension.', [
+                    'extension' => $extension['class'] ?? $extension['namespace_path'],
+                    'error' => $exception->getMessage(),
+                ]);
+                continue;
+            }
 
             foreach ($finder as $file) {
-                $class = str_replace('/', '\\', $extension['namespace_path']) . '\\database\\seeders\\' . str_replace(['/', DIRECTORY_SEPARATOR], '\\', substr($file->getRelativePathname(), 0, -4));
+                try {
+                    $class = str_replace('/', '\\', $extension['namespace_path']) . '\\database\\seeders\\' . str_replace(['/', DIRECTORY_SEPARATOR], '\\', substr($file->getRelativePathname(), 0, -4));
 
-                if (!is_subclass_of($class, Seeder::class) || (new \ReflectionClass($class))->isAbstract()) {
+                    if (!is_subclass_of($class, Seeder::class) || (new \ReflectionClass($class))->isAbstract()) {
+                        continue;
+                    }
+                } catch (Throwable $exception) {
+                    Log::warning('Failed to load seeder for extension.', [
+                        'extension' => $extension['class'] ?? $extension['namespace_path'],
+                        'file' => $file->getRelativePathname(),
+                        'error' => $exception->getMessage(),
+                    ]);
                     continue;
                 }
 
