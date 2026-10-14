@@ -45,7 +45,7 @@ class Egg extends Model
         Nest::syncNests();
         $client = app(PterodactylClient::class);
         Nest::all()->each(function (Nest $nest) use ($client) {
-            $eggs = $client->getEggs($nest);
+            $eggs = $client->getAllEggs($nest);
 
             foreach ($eggs as $egg) {
                 $array = [];

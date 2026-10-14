@@ -10,7 +10,7 @@ Every 2FA extension resides in `app/Extensions/TwoFactor/{MethodName}/`.
 
 ```text
 app/Extensions/TwoFactor/YourMethod/
-├── migrations/             # Database changes specific to this method
+├── database/migrations/  # Database changes specific to this method
 ├── resources/views/        # Blade templates (settings, challenges)
 │   ├── auth/two-factor/    # Recommended path for challenge views
 │   └── profile_card.blade.php
@@ -64,7 +64,7 @@ public function getAllowedActions(): array
 ```
 
 ### Database & Migrations
-If your method needs custom columns (e.g., `phone_number`), create a migration in your extension's `migrations/` folder. It will be loaded automatically.
+If your method needs custom columns (e.g., `phone_number`), create a migration in your extension's `database/migrations/` folder. It will be loaded automatically.
 **Note:** Use `Schema::table('user_two_factor_methods', ...)` to extend the core table.
 
 ### Custom Routes

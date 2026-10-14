@@ -410,16 +410,16 @@ class ServerController extends Controller
             }
 
             return redirect()->route('servers.index')
-                ->with('success', __('Server cancellation has been revoked'));
+                ->with('success', __('Server has been resumed'));
         } catch (Exception $e) {
             report($e);
 
             if (request()->expectsJson()) {
-                return response()->json(['error' => __('Server cancellation revoke failed')], 500);
+                return response()->json(['error' => __('Server resume failed')], 500);
             }
 
             return redirect()->route('servers.index')
-                ->with('error', __('Server cancellation revoke failed'));
+                ->with('error', __('Server resume failed'));
         }
     }
 

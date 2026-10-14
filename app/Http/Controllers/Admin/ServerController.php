@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\Pterodactyl\PterodactylException;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
+use App\Services\ServerSyncService;
 use App\Settings\DiscordSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
@@ -233,45 +235,34 @@ class ServerController extends Controller
         return redirect()->back()->with('success', __('Server has been updated!'));
     }
 
-    public function syncServers()
+    public function syncServers(ServerSyncService $syncService)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
-        $CPServers = Server::get();
 
-        $CPIDArray = [];
-        $renameCount = 0;
-        foreach ($CPServers as $CPServer) { //go thru all CP servers and make array with IDs as keys. All values are false.
-            if ($CPServer->pterodactyl_id) {
-                $CPIDArray[$CPServer->pterodactyl_id] = false;
-            }
+        try {
+            $result = $syncService->sync();
+        } catch (PterodactylException $e) {
+            Log::error('Server sync aborted: unable to fetch server list', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', __('Server sync failed: ') . $e->getPublicMessage());
         }
 
-        foreach ($this->pterodactyl->getServers() as $server) { //go thru all ptero servers, if server exists, change value to true in array.
-            if (isset($CPIDArray[$server['attributes']['id']])) {
-                $CPIDArray[$server['attributes']['id']] = true;
+        $message = __('Servers synced successfully: :renamed renamed, :deleted deleted.', [
+            'renamed' => $result['renamed'],
+            'deleted' => $result['deleted'],
+        ]);
 
-                if (isset($server['attributes']['name'])) { //failsafe
-                    //Check if a server got renamed
-                    $savedServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first();
-                    if ($savedServer->name != $server['attributes']['name']) {
-                        $savedServer->name = $server['attributes']['name'];
-                        $savedServer->save();
-                        $renameCount++;
-                    }
-                }
-            }
-        }
-        $filteredArray = array_filter($CPIDArray, function ($v, $k) {
-            return $v == false;
-        }, ARRAY_FILTER_USE_BOTH); //Array of servers, that dont exist on ptero (value == false)
-        $deleteCount = 0;
-        foreach ($filteredArray as $key => $CPID) { //delete servers that dont exist on ptero anymore
-            if (!$this->pterodactyl->getServerAttributes($key, true)) {
-                $deleteCount++;
-            }
+        if ($result['skipped'] > 0) {
+            $message .= ' ' . __(':skipped servers skipped due to errors and kept.', [
+                'skipped' => $result['skipped'],
+            ]);
+
+            return redirect()->back()->with('warning', $message);
         }
 
-        return redirect()->back()->with('success', __('Servers synced successfully' . (($renameCount) ? (',\n' . __('renamed') . ' ' . $renameCount . ' ' . __('servers')) : '') . ((count($filteredArray)) ? (',\n' . __('deleted') . ' ' . $deleteCount . '/' . count($filteredArray) . ' ' . __('old servers')) : ''))) . '.';
+        return redirect()->back()->with('success', $message);
     }
 
     /**

@@ -34,7 +34,7 @@ class Location extends Model
     public static function syncLocations()
     {
         $client = app(PterodactylClient::class);
-        $locations = $client->getLocations();
+        $locations = $client->getAllLocations();
 
         //map response
         $locations = array_map(function ($val) {

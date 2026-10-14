@@ -28,9 +28,7 @@ class ExtensionHelper
 
     private static ?array $cachedExtensions = null;
 
-    private static array $sidebarPagesCache = [];
-
-    private static array $visibleSidebarPagesCache = [];
+    private static array $sidebarRawPagesCache = [];
 
     /**
      * Get all extensions
@@ -202,12 +200,29 @@ class ExtensionHelper
                 continue;
             }
 
-            $finder = (new Finder())->in($seedersDirectory)->files()->name('*.php');
+            try {
+                $finder = (new Finder())->in($seedersDirectory)->files()->name('*.php');
+            } catch (Throwable $exception) {
+                Log::warning('Failed to scan seeders directory for extension.', [
+                    'extension' => $extension['class'] ?? $extension['namespace_path'],
+                    'error' => $exception->getMessage(),
+                ]);
+                continue;
+            }
 
             foreach ($finder as $file) {
-                $class = str_replace('/', '\\', $extension['namespace_path']) . '\\database\\seeders\\' . str_replace(['/', DIRECTORY_SEPARATOR], '\\', substr($file->getRelativePathname(), 0, -4));
+                try {
+                    $class = str_replace('/', '\\', $extension['namespace_path']) . '\\database\\seeders\\' . str_replace(['/', DIRECTORY_SEPARATOR], '\\', substr($file->getRelativePathname(), 0, -4));
 
-                if (!is_subclass_of($class, Seeder::class) || (new \ReflectionClass($class))->isAbstract()) {
+                    if (!is_subclass_of($class, Seeder::class) || (new \ReflectionClass($class))->isAbstract()) {
+                        continue;
+                    }
+                } catch (Throwable $exception) {
+                    Log::warning('Failed to load seeder for extension.', [
+                        'extension' => $extension['class'] ?? $extension['namespace_path'],
+                        'file' => $file->getRelativePathname(),
+                        'error' => $exception->getMessage(),
+                    ]);
                     continue;
                 }
 
@@ -265,8 +280,29 @@ class ExtensionHelper
             return [];
         }
 
-        if (isset(self::$sidebarPagesCache[$area])) {
-            return self::$sidebarPagesCache[$area];
+        $pages = self::getRawSidebarPages($area);
+        $request = request();
+
+        return array_map(
+            static fn (array $page): array => $page + [
+                'active' => $page['route_name'] !== null
+                    ? $request->routeIs($page['route_name'])
+                    : ($page['external'] === false && $page['url'] !== null && $request->is(trim($page['url'], '/'))),
+            ],
+            $pages
+        );
+    }
+
+    /**
+     * Raw sidebar defs without per-request state. Cached per process.
+     *
+     * @param string $area "user" or "admin".
+     * @return array<int, array<string, mixed>>
+     */
+    private static function getRawSidebarPages(string $area): array
+    {
+        if (isset(self::$sidebarRawPagesCache[$area])) {
+            return self::$sidebarRawPagesCache[$area];
         }
 
         $pages = [];
@@ -300,7 +336,7 @@ class ExtensionHelper
 
         usort($pages, static fn (array $a, array $b): int => $a['order'] <=> $b['order']);
 
-        self::$sidebarPagesCache[$area] = $pages;
+        self::$sidebarRawPagesCache[$area] = $pages;
 
         return $pages;
     }
@@ -318,12 +354,7 @@ class ExtensionHelper
             return [];
         }
 
-        $cacheKey = $area.':'.$user->getAuthIdentifier();
-        if (isset(self::$visibleSidebarPagesCache[$cacheKey])) {
-            return self::$visibleSidebarPagesCache[$cacheKey];
-        }
-
-        $visible = array_values(array_filter(
+        return array_values(array_filter(
             self::getSidebarPages($area),
             static function (array $page) use ($user): bool {
                 if (count($page['permissions']) === 0) {
@@ -333,10 +364,6 @@ class ExtensionHelper
                 return $user->canAny($page['permissions']);
             }
         ));
-
-        self::$visibleSidebarPagesCache[$cacheKey] = $visible;
-
-        return $visible;
     }
 
     /**
@@ -446,6 +473,13 @@ class ExtensionHelper
         $class = $definition['class'] ?? null;
         if (!is_string($class) || $class === '' || !class_exists($class) || !method_exists($class, 'handle')) {
             self::warnInvalidMiddleware($extensionClass, 'Middleware class must be a resolvable class with a handle() method.');
+
+            return null;
+        }
+
+        $extensionNamespace = substr($extensionClass, 0, strrpos($extensionClass, '\\') + 1);
+        if (!str_starts_with($class, $extensionNamespace)) {
+            self::warnInvalidMiddleware($extensionClass, sprintf('Middleware class [%s] must live under the extension namespace [%s].', $class, $extensionNamespace));
 
             return null;
         }
@@ -579,9 +613,7 @@ class ExtensionHelper
             return null;
         }
 
-        $request = request();
         $lowerUrl = is_string($url) ? strtolower($url) : '';
-        $isExternal = str_starts_with($lowerUrl, 'http://') || str_starts_with($lowerUrl, 'https://');
 
         return [
             'title' => $title,
@@ -589,9 +621,7 @@ class ExtensionHelper
             'href' => $href,
             'route_name' => $routeName,
             'url' => $url,
-            'active' => $routeName !== null
-                ? $request->routeIs($routeName)
-                : (!$isExternal && $request->is(trim((string) $url, '/'))),
+            'external' => str_starts_with($lowerUrl, 'http://') || str_starts_with($lowerUrl, 'https://'),
             'permissions' => $permissions,
             'area' => $area,
             'order' => (int) ($page['order'] ?? 0),

@@ -121,7 +121,8 @@ class ExtensionServiceProvider extends ServiceProvider
     protected function registerExtensionMiddleware(): void
     {
         $router = $this->app->make(\Illuminate\Routing\Router::class);
-        $kernel = $this->app->make(\Illuminate\Foundation\Http\Kernel::class);
+        /** @var \Illuminate\Foundation\Http\Kernel $kernel */
+        $kernel = $this->app->make(\Illuminate\Contracts\Http\Kernel::class);
 
         foreach (\App\Helpers\ExtensionHelper::getAllExtensionMiddleware() as $middleware) {
             $class = $middleware['class'];
