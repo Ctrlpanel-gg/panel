@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Constants\PermissionGroups;
 use App\Facades\Currency;
 use App\Helpers\ExtensionHelper;
 use App\Http\Controllers\Controller;
@@ -137,6 +138,11 @@ class SettingsController extends Controller
      */
     public function index()
     {
+        $this->checkAnyPermission(array_merge(
+            PermissionGroups::settingsPermissions(),
+            [self::ICON_PERMISSION]
+        ));
+
         $settings = collect();
         $settingsFiles = $this->getAvailableSettingsClasses();
 
