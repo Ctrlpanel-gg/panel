@@ -34,6 +34,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('coupons:delete')->hourly();
         $schedule->command('vouchers:delete')->hourly();
         $schedule->command('model:prune')->daily();
+        $schedule->command('logs:prune')->daily();
 
         //log cronjob activity
         $schedule->call(function () {
