@@ -20,7 +20,18 @@ class DatabaseSeeder extends Seeder
         ]);
 
         if (class_exists(\App\Helpers\ExtensionHelper::class)) {
-            $this->call(\App\Helpers\ExtensionHelper::getAllExtensionSeeders());
+            $extensionSeeders = \App\Helpers\ExtensionHelper::getAllExtensionSeeders();
+            sort($extensionSeeders);
+
+            foreach ($extensionSeeders as $seeder) {
+                try {
+                    $this->call($seeder);
+                } catch (\Throwable $exception) {
+                    $this->command->error("Extension seeder failed: {$seeder} ({$exception->getMessage()})");
+
+                    throw $exception;
+                }
+            }
         }
     }
 }
