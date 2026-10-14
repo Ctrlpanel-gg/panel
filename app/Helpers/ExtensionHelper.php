@@ -477,6 +477,13 @@ class ExtensionHelper
             return null;
         }
 
+        $extensionNamespace = substr($extensionClass, 0, strrpos($extensionClass, '\\') + 1);
+        if (!str_starts_with($class, $extensionNamespace)) {
+            self::warnInvalidMiddleware($extensionClass, sprintf('Middleware class [%s] must live under the extension namespace [%s].', $class, $extensionNamespace));
+
+            return null;
+        }
+
         if (!(new \ReflectionClass($class))->isInstantiable()) {
             self::warnInvalidMiddleware($extensionClass, sprintf('Middleware class [%s] must be instantiable.', $class));
 
