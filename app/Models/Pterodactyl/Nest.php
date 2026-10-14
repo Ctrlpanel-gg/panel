@@ -33,7 +33,7 @@ class Nest extends Model
     public static function syncNests()
     {
         $client = app(PterodactylClient::class);
-        $nests = $client->getNests();
+        $nests = $client->getAllNests();
 
         //map response
         $nests = array_map(function ($nest) {
@@ -45,13 +45,15 @@ class Nest extends Model
         }, $nests);
 
         foreach ($nests as $nest) {
-            self::query()->updateOrCreate([
-                'id' => $nest['id'],
-            ], [
+            $model = self::query()->firstOrNew(['id' => $nest['id']]);
+            $model->fill([
                 'name' => $nest['name'],
                 'description' => $nest['description'],
-                'disabled' => false,
             ]);
+            if (! $model->exists) {
+                $model->disabled = false;
+            }
+            $model->save();
         }
 
         self::removeDeletedNests($nests);

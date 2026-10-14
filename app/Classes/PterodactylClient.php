@@ -234,6 +234,82 @@ class PterodactylClient
     }
 
     /**
+     * Fetch all pages of a Pterodactyl list endpoint. Reconcile callers must use getAll* variants.
+     *
+     * @throws PterodactylException
+     */
+    private function fetchAllPages(string $path): array
+    {
+        $items = [];
+        $page = 1;
+
+        do {
+            $separator = str_contains($path, '?') ? '&' : '?';
+
+            try {
+                $response = $this->application->get("{$path}{$separator}page={$page}&per_page={$this->per_page_limit}");
+            } catch (Exception $e) {
+                self::throwException($e->getMessage(), null, $e);
+            }
+
+            if ($response->failed()) {
+                self::throwForResponse('Failed to fetch paginated resource from pterodactyl -', $response);
+            }
+
+            $json = $response->json();
+
+            foreach ($json['data'] ?? [] as $item) {
+                $items[] = $item;
+            }
+
+            $totalPages = $json['meta']['pagination']['total_pages'] ?? 1;
+            $page++;
+        } while ($page <= $totalPages);
+
+        return $items;
+    }
+
+    /**
+     * @throws PterodactylException
+     */
+    public function getAllServers(): array
+    {
+        return $this->fetchAllPages('application/servers');
+    }
+
+    /**
+     * @throws PterodactylException
+     */
+    public function getAllNodes(): array
+    {
+        return $this->fetchAllPages('application/nodes');
+    }
+
+    /**
+     * @throws PterodactylException
+     */
+    public function getAllNests(): array
+    {
+        return $this->fetchAllPages('application/nests');
+    }
+
+    /**
+     * @throws PterodactylException
+     */
+    public function getAllLocations(): array
+    {
+        return $this->fetchAllPages('application/locations');
+    }
+
+    /**
+     * @throws PterodactylException
+     */
+    public function getAllEggs(Nest $nest): array
+    {
+        return $this->fetchAllPages("application/nests/{$nest->id}/eggs?include=nest,variables");
+    }
+
+    /**
      * @return array
      *
      * @throws PterodactylException
@@ -505,12 +581,12 @@ class PterodactylClient
     }
 
     /**
-     * Get serverAttributes by pterodactyl id
+     * Pure read, never deletes. Callers delete only on PterodactylNotFoundException.
      *
      * @param  int  $pterodactylId
      * @return mixed
      */
-    public function getServerAttributes(int $pterodactylId, bool $deleteOn404 = false)
+    public function getServerAttributes(int $pterodactylId)
     {
         try {
             $response = $this->withTimeout($this->application)->get("application/servers/{$pterodactylId}?include=egg,node,nest,location");
@@ -519,13 +595,7 @@ class PterodactylClient
         }
 
         if ($response->failed()) {
-            if ($deleteOn404) {  //Delete the server if it does not exist (server deleted on pterodactyl)
-                Server::where('pterodactyl_id', $pterodactylId)->first()->delete();
-
-                return;
-            } else {
-                self::throwForResponse('Failed to get server attributes from pterodactyl -', $response);
-            }
+            self::throwForResponse('Failed to get server attributes from pterodactyl -', $response);
         }
 
         return $response->json()['attributes'];
