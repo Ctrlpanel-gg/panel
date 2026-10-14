@@ -17,7 +17,12 @@ class CleanupPermissionsCommand extends Command
 
     public function handle(): int
     {
-        $keepNames = array_values(config('permissions_web'));
+        $corePermissions = config('permissions_web', []);
+        if (!is_array($corePermissions)) {
+            $corePermissions = [];
+        }
+
+        $keepNames = array_values($corePermissions);
         foreach (array_keys(ExtensionHelper::getAllExtensionPermissions()) as $permissionName) {
             $keepNames[] = $permissionName;
         }
@@ -47,7 +52,7 @@ class CleanupPermissionsCommand extends Command
             return 0;
         }
 
-        $this->warn('This will permanently delete the permissions above and detach them from all roles. This cannot be undone.');
+        $this->warn('This will permanently delete the permissions above and detach them from all roles. This cannot be undone. Use --dry-run first to review.');
 
         if (!$this->option('force') && !$this->confirm(sprintf('Delete %d stale permission(s)?', $orphans->count()), false)) {
             $this->info('Aborted. Nothing deleted.');
