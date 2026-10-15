@@ -512,7 +512,6 @@ class ServerController extends Controller
         $pteroNode = $this->pterodactyl->getNode($nodeId);
         $currentEgg = $serverInfo['egg'];
 
-        //$currentProductEggs = $currentProduct->eggs->pluck('id')->toArray();
         $user = Auth::user();
 
         return Product::orderBy('price', 'asc')
