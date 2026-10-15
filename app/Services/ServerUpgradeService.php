@@ -76,6 +76,10 @@ class ServerUpgradeService
                 throw new ServerUpgradeException('Server upgrade failed. Please try again later.', 500);
             }
 
+            if (!$server->pterodactyl_id) {
+                throw new ServerUpgradeException('Server upgrade failed. Please try again later.', 500);
+            }
+
             $pterodactylServer = $this->pterodactylClient->getServerAttributes($server->pterodactyl_id);
             $pterodactylServerAllocation = $pterodactylServer['allocation'];
 
