@@ -41,17 +41,8 @@ class ForgotPasswordController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
         ];
 
-        $recaptchaEnabled = $this->recaptcha_version;
-
-        if ($recaptchaEnabled) {
-            switch ($this->recaptcha_version) {
-                case "v2":
-                    $validateData['g-recaptcha-response'] = ['required', 'recaptcha'];
-                    break;
-                case "v3":
-                    $validateData['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.4'];
-                    break;
-            }
+        if ($this->recaptcha_version) {
+            $validateData['captcha'] = ['required', 'captcha'];
         }
 
         $this->validate($request, $validateData);

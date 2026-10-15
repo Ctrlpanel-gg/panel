@@ -1,15 +1,16 @@
-name: "\U0001F41B Bug report"
+name: "🐛 Bug report"
 description: Create a report to help us improve
 labels: ["bug"]
 body:
-  - type: textarea
-    id: what-happened
+  - type: checkboxes
+    id: existing-issues
     attributes:
-      label: What is your request about?
-      description: |
-        Provide a clear description of what the problem is.
-    validations:
-      required: true
+      label: Pre-flight checklist
+      options:
+        - label: I have searched existing issues and this has not been reported before
+          required: true
+        - label: I am using the latest available release
+          required: true
   - type: dropdown
     id: version
     attributes:
@@ -22,21 +23,39 @@ body:
     validations:
       required: true
   - type: textarea
-    id: solution
+    id: what-happened
     attributes:
-      label: Solution idea
-      description: |
-        Provide a clear description of how you want this bug to be fixed (Optional)
+      label: Bug Description
+      description: Provide a clear description of what the problem is.
     validations:
-      required: false
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide a step-by-step list of actions that reliably reproduce the issue.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
   - type: textarea
     id: ctrlpanel-logs
     attributes:
       label: CtrlPanel Logs
-      description: Please copy and paste your laravel-log output. You may also provide a link to it using the following command `tail -n 100 /var/www/ctrlpanel/storage/logs/laravel.log | nc pteropaste.com 99`
+      description: Please copy and paste your laravel-log output. You may also provide
+        a link using `tail -n 100 /var/www/ctrlpanel/storage/logs/laravel.log | nc paste.ctrlpanel.gg 9999`
       render: Shell
   - type: textarea
     id: additional-info
     attributes:
       label: Additional Info
-      description: Anything else that could be used to narrow down the issue, like your config.
+      description: Anything else that could help narrow down the issue, like your config.

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Helpers\CallHomeHelper;
 use App\Models\UsefulLink;
 use Exception;
 use Illuminate\Pagination\Paginator;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use App\Facades\Captcha;
+use App\Rules\CaptchaRule;
+use App\View\Components\CaptchaWidget;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +38,27 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
         Schema::defaultStringLength(191);
+
+        // Captcha Integration
+        Validator::extend('captcha', function ($attribute, $value, $parameters, $validator) {
+            $rule = new CaptchaRule();
+            $error = null;
+            $rule->validate($attribute, $value, function ($message) use (&$error) {
+                $error = $message;
+            });
+
+            if ($error) {
+                $validator->setCustomMessages(['captcha' => $error]);
+                return false;
+            }
+            return true;
+        });
+
+        Blade::directive('captchaScripts', function () {
+            return '<?php echo \App\Facades\Captcha::renderScripts(); ?>';
+        });
+
+        Blade::component('captcha', CaptchaWidget::class);
 
         Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
             $event->extendSocialite('discord', \SocialiteProviders\Discord\Provider::class);
@@ -62,20 +88,59 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        //get the Github Branch the panel is running on
+        CallHomeHelper::callHomeOnce();
+
+        // get the Git branch and commit the panel is running on
+        $headFileMissing = false;
+        $branchname = 'unknown';
+        $commitHash = 'unknown';
+
         try {
-            $stringfromfile = file(base_path() . '/.git/HEAD');
+            $headFilePath = base_path() . '/.git/HEAD';
+            if (!file_exists($headFilePath)) {
+                $headFileMissing = true;
+                throw new Exception('.git/HEAD file not found');
+            }
 
-            $firstLine = $stringfromfile[0]; //get the string from the array
+            $fileContent = file($headFilePath);
+            if (!$fileContent || empty($fileContent[0])) {
+                throw new Exception('.git/HEAD file is empty or unreadable');
+            }
 
-            $explodedstring = explode('/', $firstLine, 3); //seperate out by the "/" in the string
+            $firstLine = trim($fileContent[0]);
 
-            $branchname = $explodedstring[2]; //get the one that is always the branch name
+            if (str_starts_with($firstLine, 'ref:')) {
+                $ref = trim(str_replace('ref:', '', $firstLine)); // "refs/heads/main"
+                $branchname = str_replace('refs/heads/', '', $ref);
+
+                // try loose ref file first
+                $refFile = base_path() . '/.git/' . $ref;
+                if (file_exists($refFile)) {
+                    $commitHash = substr(trim(file_get_contents($refFile)), 0, 7);
+                } else {
+                    // fallback to packed-refs
+                    $packedRefsFile = base_path() . '/.git/packed-refs';
+                    if (file_exists($packedRefsFile)) {
+                        foreach (file($packedRefsFile) as $line) {
+                            $line = trim($line);
+                            if (str_ends_with($line, $ref)) {
+                                $commitHash = substr(explode(' ', $line)[0], 0, 7);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                // detached HEAD - hash is directly in HEAD
+                $branchname = 'detached';
+                $commitHash = substr($firstLine, 0, 7);
+            }
         } catch (Exception $e) {
-            $branchname = 'unknown';
-            Log::notice($e);
+            Log::debug('Could not get git branch/commit: ' . $e->getMessage());
         }
-        config(['BRANCHNAME' => $branchname]);
+
+        config(['BRANCHNAME' => $branchname, 'COMMIT_HASH' => $commitHash]);
+        view()->share('headFileMissing', $headFileMissing);
 
         // Do not run this code if no APP_KEY is set
         if (config('app.key') == null) return;

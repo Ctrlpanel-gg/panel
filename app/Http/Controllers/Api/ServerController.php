@@ -2,96 +2,482 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Classes\PterodactylClient;
+use App\Events\ServerDeletedEvent;
+use App\Exceptions\Pterodactyl\PterodactylException;
+use App\Exceptions\Server\ServerException;
+use App\Models\Product;
+use App\Models\User;
 use App\Models\Server;
-use Exception;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use App\Http\Resources\ServerResource;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Servers\CreateServerRequest;
+use App\Http\Requests\Api\Servers\DeleteServerRequest;
+use App\Http\Requests\Api\Servers\SuspendServerRequest;
+use App\Http\Requests\Api\Servers\UnsuspendServerRequest;
+use App\Http\Requests\Api\Servers\UpdateServerBuildRequest;
+use App\Http\Requests\Api\Servers\UpdateServerRequest;
+use App\Services\ServerCreationService;
+use App\Services\ServerUpgradeService;
+use App\Settings\PterodactylSettings;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use Exception;
+
+/**
+ * @group Server Management
+ */
 
 class ServerController extends Controller
 {
-    public const ALLOWED_INCLUDES = ['product', 'user'];
+    protected PterodactylSettings $pterodactylSettings;
+    protected PterodactylClient $pterodactylClient;
 
+    public function __construct(
+        protected ServerCreationService $serverCreationService,
+        protected ServerUpgradeService $serverUpgradeService
+    )
+    {
+        $this->pterodactylSettings = app(PterodactylSettings::class);
+        $this->pterodactylClient = app(PterodactylClient::class, [$this->pterodactylSettings]);
+    }
+
+    public const ALLOWED_INCLUDES = ['product', 'user'];
     public const ALLOWED_FILTERS = ['name', 'suspended', 'identifier', 'pterodactyl_id', 'user_id', 'product_id'];
 
     /**
-     * Display a listing of the resource.
+     * List all servers
+     *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
      *
      * @param  Request  $request
-     * @return LengthAwarePaginator
+     * @return ServerResource
      */
     public function index(Request $request)
     {
-        $query = QueryBuilder::for(Server::class)
+        $servers = QueryBuilder::for(Server::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->allowedFilters(self::ALLOWED_FILTERS);
+            ->allowedFilters([
+                AllowedFilter::exact('suspended')->nullable(),
+                ...self::ALLOWED_FILTERS
+            ])
+            ->paginate($request->input('per_page') ?? 50);
 
-        return $query->paginate($request->input('per_page') ?? 50);
+        return ServerResource::collection($servers);
     }
 
     /**
-     * Display the specified resource.
+     * Get server details
      *
-     * @param  Server  $server
-     * @return Server|Collection|Model
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     *
+     * @param  Request  $request
+     * @param  string  $serverId
+     * @return ServerResource
+     *
+     * @throws ModelNotFoundException
      */
-    public function show(Server $server)
+    public function show(Request $request, string $serverId)
     {
-        $query = QueryBuilder::for(Server::class)
-            ->where('id', '=', $server->id)
-            ->allowedIncludes(self::ALLOWED_INCLUDES);
+        $server = QueryBuilder::for(Server::class)
+            ->allowedIncludes(self::ALLOWED_INCLUDES)
+            ->where('id', $serverId)
+            ->firstOrFail();
 
-        return $query->firstOrFail();
+        return ServerResource::make($server);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Create server
      *
-     * @param  Server  $server
-     * @return Server
-     */
-    public function destroy(Server $server)
-    {
-        $server->delete();
-
-        return $server;
-    }
-
-    /**
-     * suspend server
+     * @bodyParam name string required The name of the server. Example: My Awesome Server
+     * @bodyParam description string The description of the server. Example: High performance gaming server
+     * @bodyParam user_id integer required The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string required The ID of the product. Example: 1
+     * @bodyParam egg_id integer required The ID of the egg. Example: 1
+     * @bodyParam location_id integer required The ID of the location. Example: 1
+     * @bodyParam egg_variables object The egg variables for the server.
+     * @bodyParam egg_variables.STARTUP string Example: ./myserver
+     * @bodyParam billing_priority integer The billing priority. Example: 0
      *
-     * @param  Server  $server
-     * @return Server|JsonResponse
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     *
+     * @param  CreateServerRequest  $request
+     * @return ServerResource
+     *
+     * @throws ValidationException
      */
-    public function suspend(Server $server)
+    public function store(CreateServerRequest $request)
     {
+        $data = $request->validated();
+
+        $user = User::findOrFail($data['user_id']);
+        $product = Product::with('eggs')->findOrFail($data['product_id']);
+
         try {
+            $server = $this->serverCreationService->handle($user, $product, $data);
+
+            return ServerResource::make($server->fresh());
+        } catch (Exception $e) {
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json([
+                'message' => $message
+            ], 401);
+        }
+    }
+
+    /**
+     * Update server
+     *
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
+     * @bodyParam name string The name of the server. Example: My Awesome Server
+     * @bodyParam description string The description of the server. Example: High performance gaming server
+     * @bodyParam user_id integer The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string The ID of the product. Example: 1
+     * @bodyParam egg_id integer The ID of the egg. Example: 1
+     * @bodyParam location_id integer The ID of the location. Example: 1
+     * @bodyParam egg_variables object The egg variables for the server.
+     * @bodyParam egg_variables.STARTUP string Example: ./myserver
+     * @bodyParam billing_priority integer The billing priority. Example: 0
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     *
+     * @param UpdateServerRequest $request
+     * @param Server $server
+     * @return ServerResource
+     *
+     * @throws ModelNotFoundException
+     * @throws Exception
+     */
+    public function update(UpdateServerRequest $request, Server $server)
+    {
+        $data = $request->validated();
+
+        $server->fill($data);
+
+        try {
+            if ($server->isDirty(['name', 'description', 'user_id'])) {
+                $pteroData = array_merge($request->only(['name', 'description']), ['user' => $data['user_id']]);
+
+                $response = $this->pterodactylClient->updateServerDetails($server, $pteroData);
+
+                if (!$response->successful()) {
+                    $response->throw();
+                }
+            }
+
+            $server->save();
+
+            return ServerResource::make($server->refresh());
+        } catch (Exception $e) {
+            logger()->error('Failed to update server in Pterodactyl.', [
+                'error' => $e->getMessage(),
+                'server_id' => $server->id
+            ]);
+
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
+        }
+    }
+
+    /**
+     * Update server resources
+     *
+     * @bodyParam user_id integer The ID of the user who owns the server. Example: 1
+     * @bodyParam product_id string The ID of the product. Example: F6QnQ-91Afeo0chihMss
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     *
+     * @param  UpdateServerBuildRequest  $request
+     * @param  Server  $server
+     * @return ServerResource|JsonResponse
+     *
+     * @throws ModelNotFoundException
+     */
+    public function updateBuild(UpdateServerBuildRequest $request, Server $server)
+    {
+        $data = $request->validated();
+
+        $user = User::findOrFail($data['user_id']);
+        $product = Product::findOrFail($data['product_id']);
+
+        try {
+            $server = $this->serverUpgradeService->handle($user, $product, $server);
+
+            return ServerResource::make($server->fresh());
+        } catch (PterodactylException $e) {
+            return response()->json(['message' => $e->getPublicMessage()], $e->getCode() ?: 500);
+        } catch (Exception $e) {
+            $message = $e instanceof ServerException
+                ? $e->getPublicMessage()
+                : 'Server upgrade failed. Please try again later.';
+
+            return response()->json(['message' => $message], $e->getCode() ?: 500);
+        }
+    }
+
+    /**
+     * Delete server
+     *
+     * @urlParam id string required The ID of the server. Example: X8BK1rMUV4qF3lo-ROWIl
+     * @bodyParam reason string User requested deletion. Example: User requested deletion
+     *
+     * @response 204 {}
+     *
+     * @param  DeleteServerRequest  $request
+     * @param  Server  $server
+     * @return \Illuminate\Http\Response
+     *
+     * @throws ModelNotFoundException
+     */
+    public function destroy(DeleteServerRequest $request, Server $server)
+    {
+        $data = $request->validated();
+
+        try {
+            $logMessage = sprintf("The server with ID: %d was deleted via API", $server->id);
+
+            if (!empty($data['reason'])) {
+                $logMessage .= " | Reason: " . e($data['reason']);
+            }
+
+            activity()->performedOn($server)->log($logMessage);
+
+            event(new ServerDeletedEvent($server));
+
+            $server->delete();
+        } catch (Exception $e) {
+            logger()->error('Failed to delete server via API.', [
+                'error' => $e->getMessage(),
+                'server_id' => $server->id,
+            ]);
+
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
+        }
+
+        return response()->noContent();
+    }
+
+    /**
+     * Suspend server
+     *
+     * @bodyParam reason string Violation of terms of use. Example: Violation of terms of use
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": true,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     *
+     * @param  SuspendServerRequest  $request
+     * @param  Server  $server
+     * @return ServerResource|JsonResponse
+     *
+     * @throws ModelNotFoundException
+     */
+    public function suspend(SuspendServerRequest $request, Server $server)
+    {
+        $data = $request->validated();
+
+        try {
+            $logMessage = sprintf("The server with ID: %d was suspended via API", $server->id);
+
+            if (!empty($data['reason'])) {
+                $logMessage .= " | Reason: " . e($data['reason']);
+            }
+
+            activity()->performedOn($server)->log($logMessage);
+
             $server->suspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->error('Failed to suspend server via API.', [
+                'error' => $exception->getMessage(),
+                'server_id' => $server->id,
+            ]);
+
+            $message = ($exception instanceof ServerException || $exception instanceof PterodactylException)
+                ? $exception->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
         }
 
-        return $server->load('product');
+        return ServerResource::make($server);
     }
 
     /**
-     * unsuspend server
+     * Unsuspend server
      *
+     * @bodyParam reason string Re-activation after review. Example: Re-activation after review
+     *
+     * @response {
+     *  "data": {
+     *      "id": "X8BK1rMUV4qF3lo-ROWIl",
+     *      "name": "My Server",
+     *      "description": "My server description",
+     *      "suspended": false,
+     *      "identifier": "a1b2c3d4",
+     *      "billing_priority": 0,
+     *      "pterodactyl_id": 10,
+     *      "user_id": 1,
+     *      "product_id": 1,
+     *      "canceled": null,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00",
+     *      "last_billed": "2026-04-26 12:00:00",
+     *      "status": "running"
+     *  }
+     * }
+     *
+     * @param  UnsuspendServerRequest  $request
      * @param  Server  $server
-     * @return Server|JsonResponse
+     * @return ServerResource|JsonResponse
+     *
+     * @throws ModelNotFoundException
      */
-    public function unSuspend(Server $server)
+    public function unSuspend(UnsuspendServerRequest $request, Server $server)
     {
+        $data = $request->validated();
+
         try {
+            $logMessage = sprintf("The server with ID: %d was unsuspended via API", $server->id);
+
+            if (!empty($data['reason'])) {
+                $logMessage .= " | Reason: " . e($data['reason']);
+            }
+
+            activity()->performedOn($server)->log($logMessage);
+
             $server->unSuspend();
         } catch (Exception $exception) {
-            return response()->json(['message' => $exception->getMessage()], 500);
+            logger()->error('Failed to unsuspend server via API.', [
+                'error' => $exception->getMessage(),
+                'server_id' => $server->id,
+            ]);
+
+            $message = ($exception instanceof ServerException || $exception instanceof PterodactylException)
+                ? $exception->getPublicMessage()
+                : 'Something went wrong. Please try again later.';
+
+            return response()->json(['message' => $message], 500);
         }
 
-        return $server->load('product');
+        return ServerResource::make($server);
     }
 }

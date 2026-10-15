@@ -18,10 +18,13 @@ if (isset($_POST['redisSetup'])) {
     try {
         $redisClient->ping();
 
-        setenv('MEMCACHED_HOST', $redisHost);
         setenv('REDIS_HOST', $redisHost);
         setenv('REDIS_PORT', $redisPort);
         setenv('REDIS_PASSWORD', ($redisPassword === '' ? 'null' : $redisPassword));
+        setenv('CACHE_DRIVER', 'redis');
+        setenv('QUEUE_CONNECTION', 'redis');
+        setenv('SESSION_DRIVER', 'redis');
+        setenv('SETTINGS_CACHE_STORE', 'redis');
 
         wh_log('Redis connection successful. Settings updated.', 'debug');
         next_step();
@@ -30,5 +33,3 @@ if (isset($_POST['redisSetup'])) {
         send_error_message("Please check your credentials!<br>" . $th->getMessage());
     }
 }
-
-?>

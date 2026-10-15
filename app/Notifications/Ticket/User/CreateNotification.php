@@ -60,9 +60,12 @@ class CreateNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        $ticketId = e($this->ticket->ticket_id);
+        $ticketTitle = e($this->ticket->title);
+
         return [
-            'title' => '[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title,
-            'content' => "Your Ticket has been Created With ID : {$this->ticket->ticket_id}",
+            'title' => '[Ticket ID: '.$ticketId.'] '.$ticketTitle,
+            'content' => "Your Ticket has been Created With ID : {$ticketId}",
         ];
     }
 }

@@ -42,5 +42,3 @@ function determineIfRunningInDocker(): bool
 {
     return file_exists('/.dockerenv');
 }
-
-?>

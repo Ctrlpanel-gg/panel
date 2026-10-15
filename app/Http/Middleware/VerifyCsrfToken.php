@@ -20,6 +20,9 @@ class VerifyCsrfToken extends Middleware
     {
         $this->app = $app;
         $this->encrypter = $encrypter;
-        $this->except = ExtensionHelper::getAllCsrfIgnoredRoutes();
+        $this->except = array_values(array_unique(array_merge(
+            $this->except,
+            ExtensionHelper::getAllCsrfIgnoredRoutes()
+        )));
     }
 }

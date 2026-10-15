@@ -6,9 +6,9 @@ use Spatie\LaravelSettings\Settings;
 
 class PterodactylSettings extends Settings
 {
+    public string $panel_url = '';
     public string $admin_token = '';
     public string $user_token = '';
-    public string $panel_url = '';
     public int $per_page_limit = 50;
 
     public static function group(): string
@@ -58,25 +58,26 @@ class PterodactylSettings extends Settings
         return [
             'category_icon' => 'fas fa-kiwi-bird',
             'position' => 12,
+            'category_description' => 'Connection details and API settings for your Pterodactyl panel',
             'panel_url' => [
                 'label' => 'Panel URL',
                 'type' => 'string',
-                'description' => 'The URL to your Pterodactyl panel.',
+                'description' => 'The URL to your Pterodactyl panel',
             ],
             'admin_token' => [
                 'label' => 'Admin Token',
-                'type' => 'string',
-                'description' => 'The admin user token for your Pterodactyl panel.',
+                'type' => 'secret',
+                'description' => 'The admin user token for your Pterodactyl panel',
             ],
             'user_token' => [
                 'label' => 'User Token',
-                'type' => 'string',
-                'description' => 'The user token for your Pterodactyl panel.',
+                'type' => 'secret',
+                'description' => 'The user token for your Pterodactyl panel',
             ],
             'per_page_limit' => [
                 'label' => 'Per Page Limit',
                 'type' => 'number',
-                'description' => 'The number of servers to show per page for the API call. Only change this when needed.',
+                'description' => 'The number of servers to show per page for the API call. Only change this when needed',
             ],
         ];
     }

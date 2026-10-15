@@ -5,7 +5,7 @@
     "src": "themes/default/js/app.js"
   },
   "themes/default/sass/app.scss": {
-    "file": "assets/app-26e8174e.css",
+    "file": "assets/app-83c7c59a.css",
     "isEntry": true,
     "src": "themes/default/sass/app.scss"
   }

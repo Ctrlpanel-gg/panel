@@ -52,6 +52,8 @@ class ApplicationApiController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:60',
         ]);
@@ -97,6 +99,8 @@ class ApplicationApiController extends Controller
      */
     public function update(Request $request, ApplicationApi $applicationApi)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:60',
         ]);
@@ -129,13 +133,15 @@ class ApplicationApiController extends Controller
      */
     public function dataTable(Request $request)
     {
+        $this->checkAnyPermission([self::READ_PERMISSION,self::WRITE_PERMISSION]);
+
         $query = ApplicationApi::query();
 
         return datatables($query)
             ->addColumn('actions', function (ApplicationApi $apiKey) {
                 return '
                 <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top"  href="'.route('admin.api.edit', $apiKey->token).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
-                <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.api.destroy', $apiKey->token).'">
+                <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route('admin.api.destroy', $apiKey->token).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>

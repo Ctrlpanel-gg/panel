@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Classes\PterodactylClient;
+use App\Exceptions\Pterodactyl\PterodactylException;
+use App\Helpers\CurrencyHelper;
 use App\Settings\PterodactylSettings;
 use App\Settings\GeneralSettings;
 use App\Http\Controllers\Controller;
@@ -16,6 +18,7 @@ use App\Models\Server;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class OverViewController extends Controller
 {
@@ -30,7 +33,7 @@ class OverViewController extends Controller
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
 
-    public function index(GeneralSettings $general_settings)
+    public function index(GeneralSettings $general_settings, CurrencyHelper $currencyHelper)
     {
         $this->checkAnyPermission([self::READ_PERMISSION,self::SYNC_PERMISSION]);
 
@@ -40,7 +43,7 @@ class OverViewController extends Controller
         $counters->put('users', collect());
         $counters['users']->active = User::where("suspended", 0)->count();
         $counters['users']->total = User::query()->count();
-        $counters->put('credits', number_format(User::query()->whereHas("roles", function($q){ $q->where("id", "!=", "1"); })->sum('credits'), 2, '.', ''));
+        $counters->put('credits', $currencyHelper->formatForDisplay(User::query()->whereHas("roles", function($q){ $q->where("id", "!=", "1"); })->sum('credits')));
         $counters->put('payments', Payment::query()->count());
         $counters->put('eggs', Egg::query()->count());
         $counters->put('nests', Nest::query()->count());
@@ -149,7 +152,7 @@ class OverViewController extends Controller
 
         //Get node information and prepare collection
         $pteroNodeIds = [];
-        foreach ($this->pterodactyl->getNodes() as $pteroNode) {
+        foreach ($this->pterodactyl->getAllNodes() as $pteroNode) {
             array_push($pteroNodeIds, $pteroNode['attributes']['id']);
         }
         $nodes = collect();
@@ -171,7 +174,7 @@ class OverViewController extends Controller
         }
         $counters['totalUsagePercent'] = ($DBnodes->count()) ? round($counters['totalUsagePercent'] / $DBnodes->count(), 2) : 0;
 
-        foreach ($this->pterodactyl->getServers() as $server) { //gets all servers from Pterodactyl and calculates total of credit usage for each node separately + total
+        foreach ($this->pterodactyl->getAllServers() as $server) { //gets all servers from Pterodactyl and calculates total of credit usage for each node separately + total
             $nodeId = $server['attributes']['node'];
 
             if ($CPServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first()) {
@@ -234,8 +237,16 @@ class OverViewController extends Controller
     {
         $this->checkPermission(self::SYNC_PERMISSION);
 
-        Node::syncNodes();
-        Egg::syncEggs();
+        try {
+            Node::syncNodes();
+            Egg::syncEggs();
+        } catch (PterodactylException $e) {
+            Log::error('Pterodactyl infrastructure sync failed', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', __('Pterodactyl sync failed: ') . $e->getPublicMessage());
+        }
 
         return redirect()->back()->with('success', __('Pterodactyl synced'));
     }

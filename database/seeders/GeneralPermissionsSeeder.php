@@ -32,20 +32,36 @@ class GeneralPermissionsSeeder extends Seeder
      */
     public function createOrUpdatePermissions()
     {
-        // If you still want to create permissions based on a config, keep this method.
-        foreach (config('permissions_web') as $permission_name => $permission_value) {
-            Permission::firstOrCreate(
+        $corePermissions = config('permissions_web', []);
+        if (!is_array($corePermissions)) {
+            $corePermissions = [];
+        }
+
+        // Create core permissions.
+        foreach ($corePermissions as $permission_name => $permission_value) {
+            Permission::updateOrCreate(
                 ['name' => $permission_value],
                 ['readable_name' => $permission_name]
             );
         }
 
-        // Remove permissions that are no longer in the config file.
-        Permission::whereNotIn('name', array_values(config('permissions_web')))->delete();
+        // Create extension permissions.
+        $extensionPermissions = \App\Helpers\ExtensionHelper::getAllExtensionPermissions();
+        foreach ($extensionPermissions as $permission_name => $readable_name) {
+            Permission::updateOrCreate(
+                ['name' => $permission_name],
+                ['readable_name' => $readable_name]
+            );
+        }
+
+        // Never delete here: a missing entry may be a temporarily unloaded
+        // extension, and deletion would wipe role assignments for good.
+        // Stale permissions go through `permissions:cleanup`.
     }
 
     /**
-     * Create or update roles and assign permissions.
+     * Create roles once during setup. Existing rows are never touched:
+     * no name, color or permission changes on later runs.
      */
     public function createOrUpdateRoles()
     {
@@ -78,23 +94,27 @@ class GeneralPermissionsSeeder extends Seeder
         ];
 
         foreach ($roles as $roleName => $roleData) {
-            // Create or update role by its unique ID.
-            $role = Role::updateOrCreate(
-                ['id' => $roleData['id']],
-                ['name' => $roleName, 'power' => $roleData['power'], 'color' => $roleData['color']]
-            );
-
-            // Sync permissions for the role.
-            if ($roleData['permissions'] === ['*']) {
-                $role->givePermissionTo(Permission::findByName('*'));
-            } else {
-                $role->syncPermissions($roleData['permissions']);
+            if (Role::where('id', $roleData['id'])->exists()) {
+                continue;
             }
+
+            $role = tap(new Role(), fn ($r) => $r->forceFill([
+                'id' => $roleData['id'],
+                'name' => $roleName,
+                'guard_name' => 'web',
+                'power' => $roleData['power'],
+                'color' => $roleData['color'],
+            ])->save());
+
+            $roleData['permissions'] === ['*']
+                ? $role->givePermissionTo(Permission::firstOrCreate(['name' => '*'], ['readable_name' => 'All Permissions']))
+                : $role->syncPermissions($roleData['permissions']);
         }
     }
 
     /**
-     * Assign roles to users based on their current state.
+     * Initial role assignment only. Never strips or changes existing roles,
+     * except the locked root pair: user id 1 always holds role id 1.
      */
     public function assignRolesToUsers()
     {
@@ -102,8 +122,10 @@ class GeneralPermissionsSeeder extends Seeder
         // Assign default role (e.g., "User") to all users by its ID.
         $defaultRole = Role::where('id', 4)->first(); // User Role is ID 4
         if ($defaultRole) {
-            User::whereDoesntHave('roles')->get()->each(function ($user) use ($defaultRole) {
-                $user->assignRole($defaultRole);
+            User::whereDoesntHave('roles')->chunkById(200, function ($users) use ($defaultRole) {
+                foreach ($users as $user) {
+                    $user->assignRole($defaultRole);
+                }
             });
         }
 

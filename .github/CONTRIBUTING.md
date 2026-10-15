@@ -1,37 +1,154 @@
-# Contributing Guidelines
+# Contributing to CtrlPanel.gg
 
-Thank you for considering contributing to this repository! Before making a contribution, please take a moment to review the following guidelines.
+Thank you for your interest in contributing to CtrlPanel.gg. This document
+outlines the process and standards we expect contributors to follow.
 
-## 🕵️‍♂️ Finding Tasks
+## Code of Conduct
 
-Check the open issues to see if there's something you can contribute to. If you have an idea or encounter a bug that's not already listed, feel free to create a new issue and wait for feedback from the development team.
+Please adhere to our [Code of Conduct](https://github.com/Ctrlpanel-gg/panel/blob/development/.github/CODE_OF_CONDUCT.md)
+and our [Contributor License](https://github.com/Ctrlpanel-gg/panel/blob/development/CONTRIBUTOR_LICENSE_AGREEMENT)
+in all your interactions with the project.
 
-## 🤝 Code of Conduct & Contributor License
+## Contributor License Agreement
 
-Please adhere to our [Code of Conduct](https://github.com/Ctrlpanel-gg/panel/blob/main/.github/CODE_OF_CONDUCT.md) and our [Contributor License](https://github.com/Ctrlpanel-gg/panel/blob/main/CONTRIBUTOR_LICENSE_AGREEMENT.md) in all your interactions with the project.
+All contributions require a signed CLA. When you open a pull request for
+the first time, a GitHub Action will automatically prompt you to sign it.
+Your PR cannot be merged until the CLA is signed.
 
-## 🌍 Localization
+You can review the full agreement here:
+[Contributor License Agreement](https://github.com/Ctrlpanel-gg/panel/blob/development/CONTRIBUTOR_LICENSE_AGREEMENT).
 
-Please read our [Localization Guide](https://github.com/Ctrlpanel-gg/panel/blob/main/lang/README.md) on how to manage and add localization to the project.
+## Branches
 
-## 🚀 Pull Request Process
+| Branch        | Purpose                                      |
+|---------------|----------------------------------------------|
+| `main`        | Stable releases only - **never push here**   |
+| `development` | All active work targets this branch          |
 
-1. Provide a clear and descriptive title for your pull request (PR) summarizing the changes in this format : 'commit-norms-action: what-you-are-doing'.
-2. If your PR is not yet finished, correctly mark it as a draft and mention any errors it's correcting.
-3. The development team will review your code and offer feedback or approve/merge it as necessary.
-4. Ensure that your PR adheres to our Code of Conduct and coding style guidelines.
-5. Test your changes thoroughly to ensure they function as expected.
-6. Include relevant documentation updates if applicable.
-7. Address any review comments promptly to expedite the review process.
+> [!CAUTION]
+> Direct pushes to `main` are not allowed under any circumstances,
+> including for maintainers.
 
-### 💻 Coding Style
+External contributors work via fork. Maintainers may work directly in the
+repository, but all changes must go through a pull request targeting
+`development`.
 
-We adhere to the PSR12 code standard for PHP.
+## Reporting Bugs
 
-- Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) commit norms.
-- Name your PR branch as [commit-norms-action]/what-you-are-doing.
-- Make clear commits, one per action, and include comments.
+Before opening a bug report, please check existing issues to avoid
+duplicates. When ready, open a [GitHub Issue][issues] using the bug report
+template. Include as much detail as possible: steps to reproduce, expected
+behavior, actual behavior, and your environment.
 
-⚠️ **Important Note:** The owner of the project has the final decision, and the development team of CtrlPanel reserves the right to close incorrect PRs. PRs that remain inactive or invalid for an extended period may also be subject to closure.
+## Suggesting Features
 
-Thank you for your contributions! 🎉
+Open a [GitHub Issue][issues] using the feature request template. Describe
+the problem you are trying to solve and your proposed solution. For larger
+changes, it is strongly recommended to discuss the idea in an issue before
+investing time in implementation.
+
+## Submitting a Pull Request
+
+### For bug fixes
+
+You may open a pull request directly without a prior issue, though linking
+to an existing issue is appreciated if one exists.
+
+### For new features or significant changes
+
+Open an issue first and wait for feedback from maintainers before starting
+work. This avoids the risk of your PR being rejected due to misaligned
+goals.
+
+### PR checklist
+
+Before submitting, make sure your pull request:
+
+- [ ] Targets the `development` branch, not `main`
+- [ ] Follows the commit message format described below
+- [ ] Adheres to PSR-12 coding standards
+- [ ] Includes a clear description of what was changed and why
+- [ ] Does not introduce unnecessary dependencies
+
+### Pull request template
+
+All PRs use the repository's pull request template. Fill it out completely -
+incomplete submissions may be closed without review.
+
+## Commit Messages
+
+This project follows the [Conventional Commits][conventional] specification.
+
+Format: `<type>(<optional scope>): <description>`
+
+| Type       | When to use                                      |
+|------------|--------------------------------------------------|
+| `feat`     | A new feature                                    |
+| `fix`      | A bug fix                                        |
+| `docs`     | Documentation changes only                       |
+| `style`    | Formatting, missing semicolons, etc.             |
+| `refactor` | Code change that is neither a fix nor a feature  |
+| `chore`    | Build process, dependency updates, tooling       |
+| `revert`   | Reverts a previous commit                        |
+
+Examples:
+
+```
+feat(billing): add invoice PDF export
+fix(auth): resolve session expiry on password reset
+chore: update composer dependencies
+```
+
+Breaking changes must include a `!` after the type and a `BREAKING CHANGE:`
+footer:
+
+```
+feat!: drop support for PHP 7.x
+
+BREAKING CHANGE: minimum required PHP version is now 8.1
+```
+
+## Coding Standards
+
+All PHP code must follow [PSR-12][psr12]. Run your code through a compatible
+linter before submitting. PRs that violate PSR-12 will be requested to
+make changes before merging.
+
+## Use of AI Tools
+
+AI-assisted development is permitted, but subject to the following rules:
+
+- **Disclosure is required.** If any part of your contribution was written
+  or significantly influenced by an AI tool, you must state this in your
+  pull request description.
+- **You are responsible for the output.** AI-generated code must be
+  reviewed, understood, and tested by you before submission. Do not submit
+  code you cannot explain or vouch for.
+- **AI is an assistant, not a contributor.** Submitting AI-generated code
+  without meaningful human oversight and validation is not acceptable.
+- **Verify affected functionality.** Any code touched or generated by an AI
+  tool must be manually verified by you to ensure nothing is broken,
+  including edge cases and related features.
+
+Pull requests that appear to be entirely AI-generated with no meaningful
+human review may be closed without merging.
+
+## Tests
+
+There are currently no tests in the project. Test coverage is planned for
+a future release. You are not required to write tests with your PR at
+this time.
+
+## Localization
+
+Please read our [Localization Guide](https://github.com/Ctrlpanel-gg/panel/blob/development/lang/README.md)
+on how to manage and add localization to the project.
+
+## Security Vulnerabilities
+
+Do not open a public issue for security vulnerabilities. See
+[SECURITY.md](SECURITY.md) for the responsible disclosure process.
+
+[issues]: https://github.com/ctrlpanel-gg/panel/issues
+[conventional]: https://www.conventionalcommits.org/
+[psr12]: https://www.php-fig.org/psr/psr-12/

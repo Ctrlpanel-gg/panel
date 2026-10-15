@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Notifications;
+
+use App\Helpers\CurrencyHelper;
+use App\Settings\MailSettings;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class ServerSuspensionWarningNotification extends Notification
+{
+    protected $servers;
+
+    public function __construct($servers)
+    {
+        $this->servers = $servers;
+    }
+
+    public function via($notifiable)
+    {
+        $channels = ['database'];
+
+        $mailSettings = app(MailSettings::class);
+
+        if ($mailSettings->mail_from_address && $mailSettings->mail_host) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
+    }
+
+    public function toMail($notifiable)
+    {
+        $sortedServers = $this->getSortedServersByPriority();
+
+        $totalCreditsNeeded = $sortedServers->sum(function ($serverData) {
+            return $serverData['server']->product->price;
+        });
+
+        $serverList = $sortedServers->map(function ($serverData) {
+            $server = $serverData['server'];
+
+            // escape name to prevent XSS
+            return '• ' . e($server->name) . ' (will be suspended on ' . $serverData['suspension_date']->format('M j, Y \a\t g:i A') . ')';
+        })->implode("\n");
+
+        $currencyHelper = app(CurrencyHelper::class);
+        $currentCredits = $currencyHelper->formatForDisplay($notifiable->credits);
+        $totalNeededDisplay = $currencyHelper->formatForDisplay($totalCreditsNeeded);
+        $additionalNeeded = max(0, $totalCreditsNeeded - $notifiable->credits);
+        $additionalNeededDisplay = $currencyHelper->formatForDisplay($additionalNeeded);
+
+        return (new MailMessage)
+            ->subject('Server Suspension Warning - Action Required')
+            ->greeting('Hello ' . e($notifiable->name) . ',')
+            ->line('Your server(s) are scheduled for suspension due to insufficient credits:')
+            ->line($serverList)
+            ->line('Credit Status:')
+            ->line('• Current balance: ' . $currentCredits)
+            ->line('• Total needed for these servers: ' . $totalNeededDisplay)
+            ->line('• Additional credits needed: ' . $additionalNeededDisplay)
+            ->line('Important: Servers will be suspended in billing priority order (lowest priority first). If you do not have enough credits for all servers, lower priority servers will be suspended before higher priority ones.')
+            ->action('Add Credits Now', route('store.index'))
+            ->line('If you have any questions, please contact our support team.')
+            ->salutation('Best regards, ' . config('app.name', 'CtrlPanel') . ' Team');
+    }
+
+    public function toArray($notifiable)
+    {
+        $sortedServers = $this->getSortedServersByPriority();
+
+        $totalCreditsNeeded = $sortedServers->sum(function ($serverData) {
+            return $serverData['server']->product->price;
+        });
+
+        $serverList = $sortedServers->map(function ($serverData, $index) {
+            $server = $serverData['server'];
+            $priorityText = '';
+
+            if ($index === 0) {
+                $priorityText = ' <strong>(Lowest priority - suspended first)</strong>';
+            } elseif ($index === $this->servers->count() - 1 && $this->servers->count() > 1) {
+                $priorityText = ' <strong>(Highest priority - suspended last)</strong>';
+            }
+
+            return '<li>' . e($server->name) . ' (will be suspended on ' . $serverData['suspension_date']->format('M j, Y \a\t g:i A') . ')' . $priorityText . '</li>';
+        })->implode('');
+
+        $currencyHelper = app(CurrencyHelper::class);
+        $currentCredits = $currencyHelper->formatForDisplay($notifiable->credits);
+        $totalNeededDisplay = $currencyHelper->formatForDisplay($totalCreditsNeeded);
+        $additionalNeeded = max(0, $totalCreditsNeeded - $notifiable->credits);
+        $additionalNeededDisplay = $currencyHelper->formatForDisplay($additionalNeeded);
+
+        return [
+            'title' => 'Server Suspension Warning - Action Required',
+            'content' => '
+                <p><strong>Hello ' . e($notifiable->name) . ',</strong></p>
+                <p>Your server(s) are scheduled for suspension due to insufficient credits:</p>
+                <ul>' . $serverList . '</ul>
+                <div style="border: 1px solid #dee2e6; padding: 12px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                    <strong>Credit Status:</strong><br>
+                    • Current balance: ' . $currentCredits . '<br>
+                    • Total needed for these servers: ' . $totalNeededDisplay . '<br>
+                    • Additional credits needed: <strong>' . $additionalNeededDisplay . '</strong>
+                </div>
+                <p><strong>Important:</strong> Servers will be suspended in billing priority order (lowest priority first). If you do not have enough credits for all servers, lower priority servers will be suspended before higher priority ones.</p>
+                <p><a href="' . route('store.index') . '" style="background: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px;">Add Credits Now</a></p>
+                <p>If you have any questions, please contact our support team.</p>
+                <p><em>Best regards,<br />' . config('app.name', 'CtrlPanel') . '</em></p>
+            ',
+        ];
+    }
+
+    private function getSortedServersByPriority()
+    {
+        // sortBy preserves original keys which can break positional indexing later
+        // so we reset them with values() to ensure 0..n-1 ordering
+        return $this->servers->sortBy(function ($serverData) {
+            $server = $serverData['server'];
+
+            return $server->billing_priority ?? $server->product->default_billing_priority;
+        })->values();
+    }
+}

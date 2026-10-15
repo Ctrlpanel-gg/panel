@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\ShopProduct;
 use App\Settings\GeneralSettings;
@@ -62,6 +63,8 @@ class ShopProductController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',
@@ -104,6 +107,8 @@ class ShopProductController extends Controller
      */
     public function update(Request $request, ShopProduct $shopProduct)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'disabled' => 'nullable',
             'type' => 'required|string',
@@ -150,6 +155,8 @@ class ShopProductController extends Controller
 
     public function dataTable(Request $request)
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = ShopProduct::query();
 
 
@@ -158,8 +165,7 @@ class ShopProductController extends Controller
                 return '
                             <a data-content="' . __('Edit') . '" data-toggle="popover" data-trigger="hover" data-placement="top" href="' . route('admin.store.edit', $shopProduct->id) . '" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">
-                            ' . csrf_field() . '
+                        <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="' . route('admin.store.destroy', $shopProduct->id) . '">                            ' . csrf_field() . '
                             ' . method_field('DELETE') . '
                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                        </form>
@@ -169,7 +175,7 @@ class ShopProductController extends Controller
                 $checked = $shopProduct->disabled == false ? 'checked' : '';
 
                 return '
-                                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.store.disable', $shopProduct->id) . '">
+                                <form class="d-inline" method="post" action="' . route('admin.store.disable', $shopProduct->id) . '">
                             ' . csrf_field() . '
                             ' . method_field('PATCH') . '
                             <div class="custom-control custom-switch">
@@ -182,8 +188,8 @@ class ShopProductController extends Controller
             ->editColumn('created_at', function (ShopProduct $shopProduct) {
                 return $shopProduct->created_at ? $shopProduct->created_at->diffForHumans() : '';
             })
-            ->editColumn('price', function (ShopProduct $shopProduct) {
-                return $shopProduct->formatToCurrency($shopProduct->price);
+            ->editColumn('price', function (ShopProduct $shopProduct, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatToCurrency($shopProduct->price, $shopProduct->currency_code);
             })
             ->rawColumns(['actions', 'disabled'])
             ->make();

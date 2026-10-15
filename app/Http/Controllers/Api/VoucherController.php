@@ -2,150 +2,177 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Voucher;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Validation\Rule;
+use App\Http\Resources\VoucherResource;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Vouchers\CreateVoucherRequest;
+use App\Http\Requests\Api\Vouchers\UpdateVoucherRequest;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+/**
+ * @group Voucher Management
+ */
 
 class VoucherController extends Controller
 {
     const ALLOWED_INCLUDES = ['users'];
-
     const ALLOWED_FILTERS = ['code', 'memo', 'credits', 'uses'];
 
     /**
-     * Display a listing of the resource.
+     * List all vouchers
      *
-     * @return LengthAwarePaginator
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "code": "SUMMER2026",
+     *      "memo": "Summer promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
+     *
+     * @param Request $request
+     * @return VoucherResource
      */
     public function index(Request $request)
     {
-        $query = QueryBuilder::for(Voucher::class)
+        $vouchers = QueryBuilder::for(Voucher::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->allowedFilters(self::ALLOWED_FILTERS);
+            ->allowedFilters(self::ALLOWED_FILTERS)
+            ->paginate($request->input('per_page') ?? 50);
 
-        return $query->paginate($request->input('per_page') ?? 50);
+        return VoucherResource::collection($vouchers);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create voucher
      *
-     * @return Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * @bodyParam memo string Description for the voucher. Example: Summer 2026 Promotion
+     * @bodyParam code string required 4-36 chars, alpha-dash format. Example: SUMMER2026
+     * @bodyParam uses integer required Max uses. Example: 100
+     * @bodyParam credits number required Credits amount. Min: 0.01, Max: 9223372036854775. Example: 50.00
+     * @bodyParam expires_at string Expiration date (d-m-Y H:i:s or d-m-Y). Example: 31-12-2026 23:59:59
      *
-     * @param  Request  $request
-     * @return Response
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'memo' => 'nullable|string|max:191',
-            'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
-            'uses' => 'required|numeric|max:2147483647|min:1',
-            'credits' => 'required|numeric|between:0,99999999',
-            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
-        ]);
-
-        return Voucher::create($request->all());
-    }
-
-    /**
-     * Display the specified resource.
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "code": "SUMMER2026",
+     *      "memo": "Summer promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
-     * @param  int  $id
-     * @return Voucher|Collection|Model
+     * @param  CreateVoucherRequest  $request
+     * @return VoucherResource
      */
-    public function show(int $id)
+    public function store(CreateVoucherRequest $request)
     {
-        $query = QueryBuilder::for(Voucher::class)
-            ->where('id', '=', $id)
-            ->allowedIncludes(self::ALLOWED_INCLUDES);
+        $data = $request->validated();
 
-        return $query->firstOrFail();
+        $voucher = Voucher::create($data);
+
+        return VoucherResource::make($voucher);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Get voucher details
      *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * @urlParam id integer required The ID of the voucher. Example: 1
      *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return Response
-     */
-    public function update(Request $request, int $id)
-    {
-        $voucher = Voucher::findOrFail($id);
-
-        $request->validate([
-            'memo' => 'nullable|string|max:191',
-            'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
-            'uses' => 'required|numeric|max:2147483647|min:1',
-            'credits' => 'required|numeric|between:0,99999999',
-            'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
-        ]);
-
-        $voucher->update($request->all());
-
-        return $voucher;
-    }
-
-    /**
-     * Remove the specified resource from storage.
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "code": "SUMMER2026",
+     *      "memo": "Summer promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
-     * @param  int  $id
-     * @return Response
+     * @param Request $request
+     * @param  int  $voucher
+     * @return VoucherResource
+     *
+     * @throws ModelNotFoundException
      */
-    public function destroy(int $id)
+    public function show(Request $request, int $voucher)
     {
-        $voucher = Voucher::findOrFail($id);
-        $voucher->delete();
+        $voucherQuery = QueryBuilder::for(Voucher::class)
+            ->allowedIncludes(self::ALLOWED_INCLUDES)
+            ->where('id', $voucher)
+            ->firstOrFail();
 
-        return $voucher;
+        return VoucherResource::make($voucherQuery);
     }
 
     /**
-     * get linked users
+     * Update voucher
+     *
+     * @urlParam id integer required The ID of the voucher. Example: 1
+     * @bodyParam memo string A description for the voucher. Example: Summer 2026 Promotion
+     * @bodyParam code string The unique code for the voucher. Example: SUMMER2026
+     * @bodyParam uses integer required The number of times the voucher can be used. Example: 100
+     * @bodyParam credits number required The amount of credits the voucher gives. Example: 50.00
+     * @bodyParam expires_at string The expiration date of the voucher (d-m-Y H:i:s or d-m-Y). Example: 31-12-2026 23:59:59
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "code": "SUMMER2026",
+     *      "memo": "Summer 2026 promotion",
+     *      "credits": "50.00",
+     *      "uses": 100,
+     *      "expires_at": "2026-12-31 23:59:59",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
      * @param  Voucher  $voucher
-     * @return LengthAwarePaginator
+     * @return VoucherResource
+     *
+     * @throws ModelNotFoundException
      */
-    public function users(Request $request, Voucher $voucher)
+    public function update(UpdateVoucherRequest $request, Voucher $voucher)
     {
-        $request->validate([
-            'include' => [
-                'nullable',
-                'string',
-                Rule::in(['discorduser']),
-            ],
-        ]);
+        $data = $request->validated();
 
-        if ($request->input('include') == 'discorduser') {
-            return $voucher->users()->with('discordUser')->paginate($request->query('per_page') ?? 50);
-        }
+        $voucher->update($data);
 
-        return $voucher->users()->paginate($request->query('per_page') ?? 50);
+        return VoucherResource::make($voucher->fresh());
+    }
+
+    /**
+     * Delete voucher
+     *
+     * @response 204 {}
+     *
+     * @param  Request  $request
+     * @param  Voucher  $voucher
+     * @return \Illuminate\Http\Response
+     *
+     * @throws ModelNotFoundException
+     */
+    public function destroy(Request $request, Voucher $voucher)
+    {
+        $voucher->delete();
+
+        return response()->noContent();
     }
 }

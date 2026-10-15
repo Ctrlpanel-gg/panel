@@ -87,7 +87,7 @@ class ActivityLogController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        abort(403, __('User does not have the right permissions.'));
     }
 
     /**
@@ -121,7 +121,7 @@ class ActivityLogController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        abort(403, __('User does not have the right permissions.'));
     }
 
     /**

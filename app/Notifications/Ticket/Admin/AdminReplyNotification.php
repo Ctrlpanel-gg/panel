@@ -67,13 +67,17 @@ class AdminReplyNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        $ticketId = e($this->ticket->ticket_id);
+        $userName = e($this->user->name);
+        $sanitizedMessage = e($this->newmessage);
+
         return [
-            'title' => '[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title,
+            'title' => '[Ticket ID: '.$ticketId.'] '.e($this->ticket->title),
             'content' => "
-                <p>Ticket With ID : {$this->ticket->ticket_id} has had a new reply posted by <strong>{$this->user->name}</strong></p>
+                <p>Ticket With ID : {$ticketId} has had a new reply posted by <strong>{$userName}</strong></p>
                 <br>
                 <p><strong>Message:</strong></p>
-                <p>{$this->newmessage}</p>
+                <p>{$sanitizedMessage}</p>
             ",
         ];
     }

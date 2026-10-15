@@ -7,7 +7,7 @@
             <div class="card card-outline card-primary">
                 <div class="text-center card-header">
                     <a href="{{ route('welcome') }}" class="h1"><b
-                            class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
+                            class="mr-1">{{ config('app.name', 'CtrlPanel.gg') }}</b></a>
                 </div>
                 <div class="card-body">
                     @if (session('status'))
@@ -36,22 +36,14 @@
                                 </span>
                             @enderror
                         </div>
-                      @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
-                      @if ($recaptchaVersion)
+                      @if (app(App\Services\CaptchaService::class)->isEnabled())
                         <div class="mb-3 input-group">
-                          @switch($recaptchaVersion)
-                            @case("v2")
-                              {!! htmlFormSnippet() !!}
-                              @break
-                            @case("v3")
-                              {!! RecaptchaV3::field('recaptchathree') !!}
-                              @break
-                          @endswitch
+                          <x-captcha />
 
-                          @error('g-recaptcha-response')
-                          <span class="text-danger" role="alert">
-                                  <small><strong>{{ $message }}</strong></small>
-                                </span>
+                          @error('captcha')
+                            <span class="text-danger" role="alert">
+                              <small><strong>{{ $message }}</strong></small>
+                            </span>
                           @enderror
                         </div>
                       @endif

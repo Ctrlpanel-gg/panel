@@ -67,13 +67,16 @@ class ReplyNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        $ticketId = e($this->ticket->ticket_id);
+        $sanitizedMessage = e($this->newmessage);
+
         return [
-            'title' => '[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title,
+            'title' => '[Ticket ID: '.$ticketId.'] '.e($this->ticket->title),
             'content' => "
-                <p>Ticket With ID : {$this->ticket->ticket_id} A response has been added to your ticket. Please see below for our response!</p>
+                <p>Ticket With ID : {$ticketId} A response has been added to your ticket. Please see below for our response!</p>
                 <br>
                 <p><strong>Message:</strong></p>
-                <p>{$this->newmessage}</p>
+                <p>{$sanitizedMessage}</p>
             ",
         ];
     }

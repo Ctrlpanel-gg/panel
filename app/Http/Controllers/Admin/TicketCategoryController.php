@@ -101,6 +101,8 @@ class TicketCategoryController extends Controller
 
     public function datatable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = TicketCategory::withCount("tickets");
 
         return datatables($query)
@@ -112,7 +114,7 @@ class TicketCategoryController extends Controller
             })
             ->addColumn('actions', function (TicketCategory $category) {
                 return '
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.ticket.category.destroy', $category->id).'">
+                           <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route('admin.ticket.category.destroy', $category->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>

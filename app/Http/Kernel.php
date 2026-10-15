@@ -75,6 +75,9 @@ class Kernel extends HttpKernel
         'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        'canAccessDocsPage' => \App\Http\Middleware\CanAccessDocsPage::class,
+        'two_factor.required' => \App\Http\Middleware\RequireTwoFactor::class,
+        'two_factor.verified' => \App\Http\Middleware\EnsureTwoFactorVerified::class,
     ];
 
 }

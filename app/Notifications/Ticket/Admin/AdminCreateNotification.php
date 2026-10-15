@@ -64,9 +64,12 @@ class AdminCreateNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
+        $ticketId = e($this->ticket->ticket_id);
+        $userName = e($this->user->name);
+
         return [
-            'title' => '[Ticket ID: '.$this->ticket->ticket_id.'] '.$this->ticket->title,
-            'content' => "Ticket With ID : {$this->ticket->ticket_id} has been opened by <strong>{$this->user->name}</strong>",
+            'title' => '[Ticket ID: '.$ticketId.'] '.e($this->ticket->title),
+            'content' => "Ticket With ID : {$ticketId} has been opened by <strong>{$userName}</strong>",
         ];
     }
 }

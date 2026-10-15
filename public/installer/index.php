@@ -6,6 +6,10 @@ error_reporting(E_ALL);
 
 session_start();
 
+if (file_exists('../../install.lock')) {
+    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
+}
+
 if (!file_exists('../../.env')) {
     echo shell_exec('cp ../../.env.example ../../.env');
 }
@@ -60,6 +64,13 @@ if (!isset($_SESSION['current_installation_step'])) {
     $_SESSION['current_installation_step'] = 1;
 }
 
+// Handle reset parameter to return to first step
+if (isset($_GET['reset'])) {
+    $_SESSION['current_installation_step'] = 1;
+    header('Location: /installer/index.php');
+    exit;
+}
+
 if (isset($_GET['step'])) {
     $stepValue = $_GET['step'];
     $currentStep = $_SESSION['current_installation_step'];
@@ -99,5 +110,3 @@ include './views/layout-bottom.php';
 
 // setting / reseting the error message
 $_SESSION['error-message'] = null;
-
-?>

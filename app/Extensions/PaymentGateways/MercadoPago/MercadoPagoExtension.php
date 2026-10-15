@@ -2,31 +2,24 @@
 
 namespace App\Extensions\PaymentGateways\MercadoPago;
 
-use App\Classes\AbstractExtension;
-use App\Enums\PaymentStatus;
-use App\Events\PaymentEvent;
-use App\Events\UserUpdateCreditsEvent;
+use App\Classes\PaymentExtension;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Models\User;
-use App\Traits\Coupon as CouponTrait;
+use App\Traits\HandlesGatewayPayments;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use App\Notifications\ConfirmPaymentNotification;
 use App\Extensions\PaymentGateways\MercadoPago\MercadoPagoSettings;
-use Illuminate\Http\RedirectResponse;
 
 /**
  * Summary of MercadoPagoExtension
  */
-class MercadoPagoExtension extends AbstractExtension
+class MercadoPagoExtension extends PaymentExtension
 {
-    use CouponTrait;
+    use HandlesGatewayPayments;
 
     public static function getConfig(): array
     {
@@ -38,7 +31,26 @@ class MercadoPagoExtension extends AbstractExtension
         ];
     }
 
-    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, string $totalPriceString): string
+    public static function getPermissions(): array
+    {
+        return [
+            'View Mercado Pago Settings' => 'settings.mercadopago.read',
+            'Manage Mercado Pago Settings' => 'settings.mercadopago.write',
+        ];
+    }
+    /**
+     * Currencies supported by Mercado Pago, matching the countries it operates in.
+     *
+     * @return array<int, string>
+     */
+    public static function getSupportedCurrencies(): array
+    {
+        return [
+            'ARS', 'BRL', 'CLP', 'COP', 'MXN', 'PEN', 'UYU',
+        ];
+    }
+
+    public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
         /**
          * For Mercado Pago to work correctly,
@@ -48,6 +60,8 @@ class MercadoPagoExtension extends AbstractExtension
         if (!str_contains(config('app.url'), 'https://')) {
             throw new Exception(__('It is not possible to purchase via MercadoPago: APP_URL does not have HTTPS, required by Mercado Pago.'));
         }
+
+        $totalPriceFormatted = (float) self::currencyHelper()->formatForForm($totalPrice, 2);
 
         $user = Auth::user();
         $user = User::findOrFail($user->id);
@@ -64,7 +78,7 @@ class MercadoPagoExtension extends AbstractExtension
                     'pending' => route('payment.MercadoPagoSuccess'),
                 ],
                 'auto_return' => 'approved',
-                'notification_url' => route('payment.MercadoPagoWebhook'),
+                'notification_url' => route('payment.MercadoPagoWebhook') . '?source_news=webhooks',
                 'payer' => [
                     'email' => $user->email,
                 ],
@@ -72,14 +86,15 @@ class MercadoPagoExtension extends AbstractExtension
                     [
                         'title' => "Order #{$payment->id} - " . $shopProduct->name,
                         'quantity' => 1,
-                        'unit_price' => floatval($totalPriceString),
-                        'currency_id' => $shopProduct->currency_code,
+                        'unit_price' => $totalPriceFormatted,
+                        'currency_id' => strtoupper($shopProduct->currency_code),
                     ],
                 ],
                 'external_reference' => $payment->id,
                 'metadata' => [
                     'credit_amount' => $shopProduct->quantity,
                     'user_id' => $user->id,
+                    'ctrl_panel_payment_id' => $payment->id,
                     'crtl_panel_payment_id' => $payment->id,
                 ],
             ]);
@@ -96,92 +111,141 @@ class MercadoPagoExtension extends AbstractExtension
         }
     }
 
-    static function Success(Request $request): RedirectResponse
+    public static function supportsRecheck(): bool
     {
-        $payment = Payment::findOrFail($request->input('external_reference'));
-
-        // In some cases, the webhook is received even before the success route.
-        if ($payment->status === PaymentStatus::PAID) {
-            return Redirect::route('home')->with('success', 'Your payment has already been processed!')->send();
-        }
-
-        $payment->status = PaymentStatus::PROCESSING;
-        $payment->save();
-
-        return Redirect::route('home')->with('success', 'Your payment is being processed!')->send();
+        return true;
     }
 
-    static function Webhook(Request $request): JsonResponse
+    // Recheck the payment status
+    public static function recheckPayment(Payment $payment): void
     {
-        $topic = $request->input('topic');
-        $action = $request->input('action');
+        if (empty($payment->payment_id)) {
+            return;
+        }
 
-        /**
-         * Mercado Pago sends several requests for information in the webhook,
-         *  but most are for other types of API, and that is why it is filtered here.
-         */
-        if ($topic && ($topic === 'merchant_order' || $topic === 'payment')) {
-            return response()->json(['success' => true]);
+        $settings = new MercadoPagoSettings();
+        $url = 'https://api.mercadopago.com/v1/payments/' . $payment->payment_id;
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $settings->access_token,
+            ])->get($url);
+
+            if (!$response->successful()) {
+                return;
+            }
+
+            $mercado = $response->json();
+            $status = $mercado['status'] ?? null;
+
+            if ($status === 'approved') {
+                self::completePayment($payment->id, $payment->payment_id);
+            } elseif (in_array($status, ['canceled', 'rejected', 'refunded', 'charged_back'], true)) {
+                self::setPaymentCanceled($payment->id, $payment->payment_id);
+            } else {
+                self::setPaymentProcessing($payment->id, $payment->payment_id);
+            }
+        } catch (Exception $e) {
+            Log::error('MercadoPago recheck failed', [
+                'payment_id' => $payment->id,
+                'gateway_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Verify MercadoPago webhook signature using HMAC-SHA256
+     * Per documentation: https://developers.mercadopago.com/en/docs/your-integrations/notifications/webhooks
+     *
+     * @param Request $request The incoming webhook request
+     * @param string $xSignature The x-signature header value (format: ts=...,v1=...)
+     * @param string $xRequestId The x-request-id header value
+     * @param string $secret The webhook secret from settings
+     * @return bool True if signature is valid, false otherwise
+     */
+    public static function verifyMercadoPagoWebhookSignature(Request $request, string $xSignature, string $xRequestId, ?string $secret): bool
+    {
+        if (empty($secret) || empty($xSignature) || empty($xRequestId)) {
+            Log::warning('MercadoPago webhook signature verification missing required headers/secret.', [
+                'secret_present' => !empty($secret),
+                'x-signature_present' => !empty($xSignature),
+                'x-request-id_present' => !empty($xRequestId),
+            ]);
+            return false;
         }
 
         try {
-            if($action) {
-                $notification = $request['data']['id'];
+            // Parse x-signature header: format is "ts=...,v1=..."
+            $signatureParts = explode(',', $xSignature);
+            $ts = null;
+            $receivedHash = null;
 
-                // Filter the API for payments
-                if (!$notification || !$action) return response()->json(['success' => false], 400);
-                // Mercado pago test api, for testing webhook request
-                if ($notification == '123456') return response()->json(['success' => true], 200);
-
-                /**
-                 * Check action have payment.*,
-                 * what is expected for this type of api
-                 */
-                if (str_contains($action, 'payment')) {
-                    $url = "https://api.mercadopago.com/v1/payments/" . $notification;
-                    $settings = new MercadoPagoSettings();
-                    $response = Http::withHeaders([
-                        'Content-Type' => 'application/json',
-                        'Authorization' => 'Bearer ' . $settings->access_token,
-                    ])->get($url);
-                    if ($response->successful()) {
-                        $mercado = $response->json();
-                        $status = $mercado['status'];
-                        $payment = Payment::findOrFail($mercado['metadata']['crtl_panel_payment_id']);
-                        $shopProduct = ShopProduct::findOrFail($payment->shop_item_product_id);
-                        if ($status == "approved") {
-                            // Avoid double addition of credits, whether due to double requests from the paid market, or a malicious user
-                            if ($payment->status !== PaymentStatus::PAID) {
-                                $user = User::findOrFail($payment->user_id);
-                                $payment->status = PaymentStatus::PAID;
-                                $payment->save();
-                                $user->notify(new ConfirmPaymentNotification($payment));
-                                event(new PaymentEvent($user, $payment, $shopProduct));
-                                event(new UserUpdateCreditsEvent($user));
-                            }
-                        } else {
-                            if ($status == "cancelled") {
-                                $user = User::findOrFail($payment->user_id);
-                                $payment->status = PaymentStatus::CANCELED;
-                            } else {
-                                $user = User::findOrFail($payment->user_id);
-                                $payment->status = PaymentStatus::PROCESSING;
-                            }
-                            $payment->save();
-                            event(new PaymentEvent($user, $payment, $shopProduct));
-                        }
-                        return response()->json(['success' => true]);
-                    } else {
-                        return response()->json(['success' => false]);
+            foreach ($signatureParts as $part) {
+                $keyValue = explode('=', trim($part), 2);
+                if (count($keyValue) === 2) {
+                    $key = trim($keyValue[0]);
+                    $value = trim($keyValue[1]);
+                    if ($key === 'ts') {
+                        $ts = $value;
+                    } elseif ($key === 'v1') {
+                        $receivedHash = $value;
                     }
-                } else {
-                    return response()->json(['success' => false]);
                 }
             }
+
+            if (empty($ts) || empty($receivedHash)) {
+                Log::warning('MercadoPago webhook signature invalid format.', [
+                    'ts_found' => !empty($ts),
+                    'v1_found' => !empty($receivedHash),
+                ]);
+                return false;
+            }
+
+            // Extract data.id from query params first, per Mercado Pago docs
+            $dataId = (string) ($request->query('data.id') ?? $request->input('data.id') ?? $request->input('id') ?? '');
+            if (empty($dataId)) {
+                Log::warning('MercadoPago webhook signature verification missing data.id.');
+                return false;
+            }
+
+            $timestamp = null;
+            if (is_numeric($ts)) {
+                $timestamp = (int) $ts;
+                if ($timestamp > 9999999999) {
+                    $timestamp = (int) floor($timestamp / 1000);
+                }
+            }
+
+            if ($timestamp === null) {
+                Log::warning('MercadoPago webhook signature invalid timestamp.', [
+                    'ts' => $ts,
+                ]);
+                return false;
+            }
+
+            if (abs(time() - $timestamp) > 300) {
+                Log::warning('MercadoPago webhook signature timestamp outside allowed tolerance.', [
+                    'ts' => $timestamp,
+                    'now' => time(),
+                ]);
+                return false;
+            }
+
+            // Build manifest per documentation: id:[data.id_url];request-id:[x-request-id_header];ts:[ts_header];
+            $manifest = "id:{$dataId};request-id:{$xRequestId};ts:{$ts};";
+
+            // Calculate HMAC-SHA256
+            $calculatedHash = hash_hmac('sha256', $manifest, $secret);
+
+            // Use hash_equals for timing-safe comparison
+            return hash_equals($calculatedHash, $receivedHash);
         } catch (Exception $ex) {
-            Log::error('MercadoPago Webhook(IPN) Payment: ' . $ex->getMessage());
-            return response()->json(['success' => false]);
+            Log::error('MercadoPago webhook signature verification exception... ', [
+                'error' => $ex->getMessage(),
+            ]);
+            return false;
         }
-        return response()->json(['success' => true]);
     }
 }

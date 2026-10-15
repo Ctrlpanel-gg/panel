@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Store') }}</h1>
                 </div>
@@ -33,7 +33,7 @@
                             <form action="{{ route('admin.store.update', $shopProduct->id) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
-                                <div class="d-flex flex-row-reverse">
+                                <div class="flex-row-reverse d-flex">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" @if ($shopProduct->disabled) checked @endif name="disabled"
                                             class="custom-control-input custom-control-input-danger" id="switch1">
@@ -81,7 +81,7 @@
 
                                 <div class="form-group">
                                     <label for="price">{{ __('Price') }}</label>
-                                    <input value="{{ $shopProduct->price }}" id="price" name="price" type="number"
+                                    <input value="{{ Currency::formatForForm($shopProduct->price) }}" id="price" name="price" type="number"
                                         placeholder="10.00" step="any"
                                         class="form-control @error('price') is-invalid @enderror" required="required">
                                     @error('price')
@@ -93,7 +93,7 @@
 
                                 <div class="form-group">
                                     <label for="quantity">{{ __('Quantity') }}</label>
-                                    <input value="{{ $shopProduct->quantity }}" id="quantity" name="quantity"
+                                    <input value="{{ $shopProduct->type == 'Credits' ? Currency::formatForForm($shopProduct->quantity) : $shopProduct->quantity }}" id="quantity" name="quantity"
                                         type="number" placeholder="1000"
                                         class="form-control @error('quantity') is-invalid @enderror" required="required">
                                     @error('quantity')
@@ -137,7 +137,7 @@
                                 </div>
 
 
-                                <div class="form-group text-right">
+                                <div class="text-right form-group">
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('Submit') }}
                                     </button>

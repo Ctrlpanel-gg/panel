@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\ServerController;
 use App\Http\Controllers\Api\UserController;
@@ -19,24 +20,35 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api.token')->group(function () {
-    Route::patch('/users/{user}/increment', [UserController::class, 'increment']);
-    Route::patch('/users/{user}/decrement', [UserController::class, 'decrement']);
-    Route::patch('/users/{user}/suspend', [UserController::class, 'suspend']);
-    Route::patch('/users/{user}/unsuspend', [UserController::class, 'unsuspend']);
-    Route::resource('users', UserController::class)->except(['create']);
+    Route::apiResource('users', UserController::class);
 
-    Route::patch('/servers/{server}/suspend', [ServerController::class, 'suspend']);
-    Route::patch('/servers/{server}/unsuspend', [ServerController::class, 'unSuspend']);
-    Route::resource('servers', ServerController::class)->except(['store', 'create', 'edit', 'update']);
+    Route::controller(UserController::class)->name('users.')->prefix('users')->group(function () {
+        Route::patch('/{user}/increment', 'increment')->name('increment');
+        Route::patch('/{user}/decrement', 'decrement')->name('decrement');
+        Route::patch('/{user}/suspend', 'suspend')->name('suspend');
+        Route::patch('/{user}/unsuspend', 'unsuspend')->name('unsuspend');
+    });
 
-    //    Route::get('/vouchers/{voucher}/users' , [VoucherController::class , 'users']);
-    Route::resource('vouchers', VoucherController::class)->except('create', 'edit');
+    Route::apiResource('servers', ServerController::class);
 
-    Route::resource('roles', RoleController::class);
+    Route::controller(ServerController::class)->name('servers.')->prefix('servers')->group(function () {
+        Route::patch('/{server}/build', 'updateBuild')->name('updateBuild');
+        Route::patch('/{server}/suspend', 'suspend')->name('suspend');
+        Route::patch('/{server}/unsuspend', 'unSuspend')->name('unsuspend');
+    });
 
-    Route::get('/notifications/{user}', [NotificationController::class, 'index']);
-    Route::get('/notifications/{user}/{notification}', [NotificationController::class, 'view']);
-    Route::post('/notifications', [NotificationController::class, 'send']);
-    Route::delete('/notifications/{user}/{notification}', [NotificationController::class, 'deleteOne']);
-    Route::delete('/notifications/{user}', [NotificationController::class, 'delete']);
+    Route::apiResource('vouchers', VoucherController::class);
+
+    Route::apiResource('roles', RoleController::class);
+
+    Route::apiResource('products', ProductController::class);
+
+    Route::controller(NotificationController::class)->name('notifications.')->prefix('notifications')->group(function () {
+        Route::get('/{user}', 'index')->name('index');
+        Route::get('/{user}/{notification}', 'view')->scopeBindings()->name('view');
+        Route::post('/send-to-users', 'sendToUsers')->name('sendToUsers');
+        Route::post('/send-to-all', 'sendToAll')->name('sendToAll');
+        Route::delete('/{user}', 'destroyAll')->name('destroyAll');
+        Route::delete('/{user}/{notification}', 'destroyOne')->scopeBindings()->name('destroyOne');
+    });
 });

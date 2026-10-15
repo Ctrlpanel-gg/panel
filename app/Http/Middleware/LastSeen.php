@@ -17,7 +17,7 @@ class LastSeen
      */
     public function handle(Request $request, Closure $next)
     {
-        if (env('APP_ENV', 'local') == 'local') {
+        if (config('app.env', 'local') == 'local') {
             return $next($request);
         }
 

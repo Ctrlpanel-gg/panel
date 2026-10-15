@@ -2,47 +2,30 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Exceptions\Auth\PterodactylRegistrationException;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Notifications\ReferralNotification;
 use App\Providers\RouteServiceProvider;
 use App\Traits\Referral;
-use Carbon\Carbon;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
+use App\Helpers\CurrencyHelper;
 use App\Settings\GeneralSettings;
 use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
 use App\Settings\WebsiteSettings;
+use App\Actions\ProcessReferralAction;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 
 class RegisterController extends Controller
 {
-    private $pterodactyl;
-
-    private $credits_display_name;
-
-    private $website_show_tos;
-
-    private $register_ip_check;
-
-    private $initial_credits;
-
-    private $initial_server_limit;
-
-    private $referral_mode;
-
-    private $referral_reward;
-    private $recaptcha_version;
-
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -68,18 +51,60 @@ class RegisterController extends Controller
      *
      * @return void
      */
-    public function __construct(PterodactylSettings $ptero_settings, GeneralSettings $general_settings, WebsiteSettings $website_settings, UserSettings $user_settings, ReferralSettings $referral_settings)
-    {
+    public function __construct(
+        protected PterodactylSettings $pterodactylSettings,
+        protected CurrencyHelper $currencyHelper,
+        protected GeneralSettings $generalSettings,
+        protected WebsiteSettings $websiteSettings,
+        protected UserSettings $userSettings,
+        protected ReferralSettings $referralSettings,
+        protected PterodactylClient $pterodactylClient,
+        private ProcessReferralAction $processReferralAction,
+    ) {
         $this->middleware('guest');
-        $this->pterodactyl = new PterodactylClient($ptero_settings);
-        $this->credits_display_name = $general_settings->credits_display_name;
-        $this->recaptcha_version = $general_settings->recaptcha_version;
-        $this->website_show_tos = $website_settings->show_tos;
-        $this->register_ip_check = $user_settings->register_ip_check;
-        $this->initial_credits = $user_settings->initial_credits;
-        $this->initial_server_limit = $user_settings->initial_server_limit;
-        $this->referral_mode = $referral_settings->mode;
-        $this->referral_reward = $referral_settings->reward;
+        $this->pterodactylSettings = $pterodactylSettings;
+        $this->pterodactylClient = new PterodactylClient($pterodactylSettings);
+        $this->currencyHelper = $currencyHelper;
+        $this->generalSettings = $generalSettings;
+        $this->websiteSettings = $websiteSettings;
+        $this->userSettings = $userSettings;
+        $this->referralSettings = $referralSettings;
+        $this->processReferralAction = $processReferralAction;
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * Pterodactyl failures surface as validation errors, not a bare 500.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        try {
+            $user = $this->create($request->all());
+        } catch (PterodactylRegistrationException $e) {
+            report($e);
+
+            throw ValidationException::withMessages([
+                'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
+            ]);
+        }
+
+        event(new Registered($user));
+
+        $this->guard()->login($user);
+
+        if ($response = $this->registered($request, $user)) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+            ? new JsonResponse([], 201)
+            : redirect($this->redirectPath());
     }
 
     /**
@@ -95,21 +120,16 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:64', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
-        if ($this->recaptcha_version) {
-            switch ($this->recaptcha_version) {
-                case "v2":
-                    $validationRules['g-recaptcha-response'] = ['required', 'recaptcha'];
-                    break;
-                case "v3":
-                    $validationRules['g-recaptcha-response'] = ['required', 'recaptchav3:recaptchathree,0.5'];
-                    break;
-            }
+        if ($this->generalSettings->recaptcha_version) {
+            $validationRules['captcha'] = ['required', 'captcha'];
         }
-        if ($this->website_show_tos) {
+        if ($this->websiteSettings->show_tos) {
             $validationRules['terms'] = ['required'];
+        } elseif ($this->websiteSettings->show_privacy) {
+            $validationRules['privacy'] = ['required'];
         }
 
-        if ($this->register_ip_check) {
+        if ($this->userSettings->register_ip_check) {
 
             //check if ip has already made an account
             $data['ip'] = session()->get('ip') ?? request()->ip();
@@ -135,75 +155,74 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'credits' => $this->initial_credits,
-            'server_limit' => $this->initial_server_limit,
-            'password' => Hash::make($data['password']),
-            'referral_code' => $this->createReferralCode(),
-            'pterodactyl_id' => Str::uuid(),
-        ]);
-
-        $user->syncRoles(Role::findById(4)); //user
-
-        $response = $this->pterodactyl->application->post('/application/users', [
-            'external_id' => null,
-            'username' => $user->name,
-            'email' => $user->email,
-            'first_name' => $user->name,
-            'last_name' => $user->name,
-            'password' => $data['password'],
-            'root_admin' => false,
-            'language' => 'en',
-        ]);
+        try {
+            $response = $this->pterodactylClient->application->post('/application/users', [
+                'external_id' => null,
+                'username' => $data['name'],
+                'email' => $data['email'],
+                'first_name' => $data['name'],
+                'last_name' => $data['name'],
+                'password' => $data['password'],
+                'root_admin' => false,
+                'language' => 'en',
+            ]);
+        } catch (\Throwable $e) {
+            throw new PterodactylRegistrationException(
+                'Pterodactyl Registration Error: ' . $e->getMessage(),
+                $e
+            );
+        }
 
         if ($response->failed()) {
-            $user->delete();
-            Log::error('Pterodactyl Registration Error: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error'));
-            throw ValidationException::withMessages([
-                'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
-            ]);
+            throw new PterodactylRegistrationException(
+                'Pterodactyl Registration Error: ' . ($response->json()['errors'][0]['detail'] ?? 'Unknown error')
+            );
         }
 
         if (!isset($response->json()['attributes']['id'])) {
-            $user->delete();
-            Log::error('Pterodactyl Registration Error: Missing user ID in response');
-            throw ValidationException::withMessages([
-                'ptero_registration_error' => [__('Failed to create account on Pterodactyl. Please contact Support!')],
-            ]);
+            throw new PterodactylRegistrationException('Pterodactyl Registration Error: Missing user ID in response');
         }
 
-        $user->update([
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-        ]);
+        $pterodactylId = $response->json()['attributes']['id'];
 
-        // delete activity log for user creation where description = 'created' or 'deleted' and subject_id = user_id
-        DB::table('activity_log')->where('description', 'created')->orWhere('description', 'deleted')->where('subject_id', $user->id)->delete();
+        try {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'credits' => $this->userSettings->initial_credits,
+                'server_limit' => $this->userSettings->initial_server_limit,
+                'password' => Hash::make($data['password']),
+                'referral_code' => $this->createReferralCode(),
+                'pterodactyl_id' => $pterodactylId,
+            ]);
+        } catch (\Throwable $e) {
+            try {
+                $cleanupResponse = $this->pterodactylClient->application->delete("/application/users/{$pterodactylId}");
 
-        //INCREMENT REFERRAL-USER CREDITS
-        if (!empty($data['referral_code'])) {
-            $ref_code = $data['referral_code'];
-            $new_user = $user->id;
-            if ($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
-                if ($this->referral_mode === 'sign-up' || $this->referral_mode === 'both') {
-                    $ref_user->increment('credits', $this->referral_reward);
-                    $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
-
-                    //LOGS REFERRALS IN THE ACTIVITY LOG
-                    activity()
-                        ->performedOn($user)
-                        ->causedBy($ref_user)
-                        ->log('gained ' . $this->referral_reward . ' ' . $this->credits_display_name . ' for sign-up-referral of ' . $user->name . ' (ID:' . $user->id . ')');
+                if ($cleanupResponse->failed()) {
+                    logger()->error('Failed to delete orphaned Pterodactyl user after DB failure', [
+                        'pterodactyl_id' => $pterodactylId,
+                        'status' => $cleanupResponse->status(),
+                        'response' => $cleanupResponse->json(),
+                    ]);
                 }
-                //INSERT INTO USER_REFERRALS TABLE
-                DB::table('user_referrals')->insert([
-                    'referral_id' => $ref_user->id,
-                    'registered_user_id' => $user->id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
+            } catch (\Throwable $cleanupException) {
+                logger()->error('Failed to delete orphaned Pterodactyl user after DB failure', [
+                    'pterodactyl_id' => $pterodactylId,
+                    'cleanup_error' => $cleanupException->getMessage(),
                 ]);
             }
+
+            throw new PterodactylRegistrationException(
+                'Failed to create local user after Pterodactyl account was created: ' . $e->getMessage(),
+                $e
+            );
+        }
+
+        $user->syncRoles(Role::findById(4));
+
+        if (!empty($data['referral_code'])) {
+            $this->processReferralAction->execute($user, $data['referral_code'], true);
         }
 
         return $user;

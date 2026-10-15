@@ -56,7 +56,7 @@
                                 <div class="form-group">
                                     <label for="credits">* {{ $credits_display_name }}</label>
                                     <input value="{{old('credits')}}" placeholder="500" id="credits" name="credits"
-                                           type="number" step="any" min="0" max="99999999"
+                                           type="number" step="any" min="0.01" max="9223372036854775"
                                            class="form-control @error('credits') is-invalid @enderror">
                                     @error('credits')
                                     <div class="text-danger">

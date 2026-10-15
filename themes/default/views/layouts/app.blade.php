@@ -14,7 +14,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'CtrlPanel.gg') }}</title>
     <link rel="icon"
         href="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('favicon.ico') ? asset('storage/favicon.ico') : asset('favicon.ico') }}"
         type="image/x-icon">
@@ -30,47 +30,42 @@
     <noscript>
         <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
     </noscript>
-  @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
-  @if ($recaptchaVersion)
-    @switch($recaptchaVersion)
-      @case("v2")
-        {!! htmlScriptTagJsApi() !!}
-        @break
-      @case("v3")
-        {!! RecaptchaV3::initJs() !!}
-        @break
-    @endswitch
-  @endif
+    @captchaScripts
     @vite('themes/default/sass/app.scss')
 </head>
 @yield('content')
+@stack('modals')
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
+@stack('scripts')
 
 <script>
-    @if (Session::has('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            html: '{{ Session::get('error') }}',
-        })
-    @endif
+    @if (!isset($suppressSweetAlert2))
+        @if (Session::has('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                html: '{{ Session::get('error') }}',
+            })
+        @endif
 
-    @if (Session::has('success'))
-        Swal.fire({
-            icon: 'success',
-            title: '{{ Session::get('success') }}',
-            position: 'top-end',
-            showConfirmButton: false,
-            background: '#343a40',
-            toast: true,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
-        })
+        @if (Session::has('success'))
+            Swal.fire({
+                icon: 'success',
+                title: '{{ Session::get('success') }}',
+                position: 'top-end',
+                showConfirmButton: false,
+                background: '#343a40',
+                toast: true,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    toast.addEventListener('click', () => Swal.close())
+                }
+            })
+        @endif
     @endif
 </script>
 

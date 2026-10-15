@@ -9,5 +9,3 @@ if (isset($_POST['timezoneConfig'])) {
     wh_log('Timezone set: ' . $timezone, 'debug');
     next_step();
 }
-
-?>

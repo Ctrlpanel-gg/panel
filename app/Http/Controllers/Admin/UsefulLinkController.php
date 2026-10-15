@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Classes\HtmlSanitizer;
 use App\Enums\UsefulLinkLocation;
 use App\Http\Controllers\Controller;
 use App\Models\UsefulLink;
@@ -50,6 +51,8 @@ class UsefulLinkController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'icon' => 'required|string',
             'title' => 'required|string|max:60',
@@ -62,7 +65,7 @@ class UsefulLinkController extends Controller
             'icon' => $request->icon,
             'title' => $request->title,
             'link' => $request->link,
-            'description' => $request->description,
+            'description' => (new HtmlSanitizer())->clean($request->description),
             'position' => implode(",",$request->position),
         ]);
 
@@ -106,6 +109,8 @@ class UsefulLinkController extends Controller
      */
     public function update(Request $request, UsefulLink $usefullink)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'icon' => 'required|string',
             'title' => 'required|string|max:60',
@@ -117,7 +122,7 @@ class UsefulLinkController extends Controller
             'icon' => $request->icon,
             'title' => $request->title,
             'link' => $request->link,
-            'description' => $request->description,
+            'description' => (new HtmlSanitizer())->clean($request->description),
             'position' => implode(",",$request->position),
         ]);
 
@@ -140,6 +145,8 @@ class UsefulLinkController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = UsefulLink::query();
 
         return datatables($query)
@@ -147,7 +154,7 @@ class UsefulLinkController extends Controller
                 return '
                             <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.usefullinks.edit', $link->id).'" class="btn btn-sm btn-info mr-1"><i class="fas fa-pen"></i></a>
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.usefullinks.destroy', $link->id).'">
+                           <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route('admin.usefullinks.destroy', $link->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>

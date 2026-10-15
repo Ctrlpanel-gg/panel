@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.products.index')}}">{{__('Products')}}</a>
+                                href="{{route('admin.products.index')}}">{{__('Products')}}</a>
                         </li>
                     </ol>
                 </div>
@@ -40,26 +40,26 @@
 
                     <table id="datatable" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th>{{__('Active')}}</th>
-                            <th>{{__('Name')}}</th>
-                            <th>{{__('Price')}}</th>
-                            <th>{{__('Billing period')}}</th>
-                            <th>{{__('Memory')}}</th>
-                            <th>{{__('Cpu')}}</th>
-                            <th>{{__('Swap')}}</th>
-                            <th>{{__('Disk')}}</th>
-                            <th>{{__('Databases')}}</th>
-                            <th>{{__('Backups')}}</th>
-                            <th>{{__('OOM Killer')}}</th>
-                            <th>{{__('Nodes')}}</th>
-                            <th>{{__('Eggs')}}</th>
-                            <th>{{__('Min Credits')}}</th>
-                            <th>{{__('Servers')}}</th>
-                             <th>{{__('Serverlimit')}}</th>
-                            <th>{{__('Created at')}}</th>
-                            <th>{{ __('Actions') }}</th>
-                        </tr>
+                            <tr>
+                                <th>{{__('Active')}}</th>
+                                <th>{{__('Name')}}</th>
+                                <th>{{__('Price')}}</th>
+                                <th>{{__('Billing period')}}</th>
+                                <th>{{__('Memory')}}</th>
+                                <th>{{__('Cpu')}}</th>
+                                <th>{{__('Swap')}}</th>
+                                <th>{{__('Disk')}}</th>
+                                <th>{{__('Databases')}}</th>
+                                <th>{{__('Backups')}}</th>
+                                <th>{{__('OOM Killer')}}</th>
+                                <th>{{__('Nodes')}}</th>
+                                <th>{{__('Eggs')}}</th>
+                                <th>{{__('Min Credits')}}</th>
+                                <th>{{__('Servers')}}</th>
+                                <th>{{__('Server limit')}}</th>
+                                <th>{{__('Created at')}}</th>
+                                <th>{{ __('Actions') }}</th>
+                            </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -75,8 +75,22 @@
     <!-- END CONTENT -->
 
     <script>
-        function submitResult() {
-            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+        function submitResult(form) {
+            Swal.fire({
+                title: '{{ __('Are you sure?') }}',
+                text: '{{ __('This action will permanently delete the product') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '{{ __('Yes, delete it!') }}',
+                cancelButtonText: '{{ __('Cancel') }}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {
@@ -92,24 +106,24 @@
                 ],
                 ajax: "{{ route('admin.products.datatable') }}",
                 columns: [
-                    {data: "disabled"},
-                    {data: "name"},
-                    {data: "price"},
-                    {data: "billing_period"},
-                    {data: "memory"},
-                    {data: "cpu"},
-                    {data: "swap"},
-                    {data: "disk"},
-                    {data: "databases"},
-                    {data: "backups"},
-                    {data: "oom_killer"},
-                    {data: "nodes", sortable: false},
-                    {data: "eggs", sortable: false},
-                    {data: "minimum_credits"},
-                    {data: "servers", sortable: false},
-                    {data: "serverlimit"},
-                    {data: "created_at"},
-                    {data: "actions", sortable: false}
+                    { data: "disabled" },
+                    { data: "name" },
+                    { data: "price" },
+                    { data: "billing_period" },
+                    { data: "memory" },
+                    { data: "cpu" },
+                    { data: "swap" },
+                    { data: "disk" },
+                    { data: "databases" },
+                    { data: "backups" },
+                    { data: "oom_killer" },
+                    { data: "nodes", sortable: false },
+                    { data: "eggs", sortable: false },
+                    { data: "minimum_credits" },
+                    { data: "servers", sortable: false },
+                    { data: "serverlimit" },
+                    { data: "created_at" },
+                    { data: "actions", sortable: false }
                 ],
                 fnDrawCallback: function (oSettings) {
                     $("[data-toggle=\"popover\"]").popover();

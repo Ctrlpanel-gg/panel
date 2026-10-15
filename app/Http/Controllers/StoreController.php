@@ -25,7 +25,7 @@ class StoreController extends Controller
         }
 
         return view('store.index')->with([
-            'products' => ShopProduct::where('disabled', '=', false)->orderBy('type', 'asc')->orderBy('price', 'asc')->get(),
+            'shopProducts' => ShopProduct::where('disabled', '=', false)->orderBy('type', 'asc')->orderBy('price', 'asc')->get(),
             'isStoreEnabled' => $isStoreEnabled,
             'credits_display_name' => $general_settings->credits_display_name
         ]);

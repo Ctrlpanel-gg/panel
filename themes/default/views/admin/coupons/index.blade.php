@@ -45,6 +45,7 @@
                         <th>{{__('Status')}}</th>
                         <th>{{__('Code')}}</th>
                         <th>{{__('Value')}}</th>
+                        <th>{{__('Min Product Price')}}</th>
                         <th>{{__('Used / Max Uses')}}</th>
                         <th>{{__('Expires')}}</th>
                         <th>{{__('Created At')}}</th>
@@ -65,8 +66,22 @@
 </section>
 <!-- END CONTENT -->
 <script>
-  function submitResult() {
-    return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+  function submitResult(form) {
+    Swal.fire({
+      title: '{{ __('Are you sure?') }}',
+      text: '{{ __('This action will permanently delete the coupon') }}',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '{{ __('Yes, delete it!') }}',
+      cancelButtonText: '{{ __('Cancel') }}',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        form.submit();
+      }
+    });
+
+    return false;
   }
 
   $(document).ready(function() {
@@ -82,6 +97,7 @@
         {data: 'status'},
         {data: 'code'},
         {data: 'value'},
+        {data: 'min_product_price'},
         {data: 'uses', sortable: false},
         {data: 'expires_at'},
         {data: 'created_at'},

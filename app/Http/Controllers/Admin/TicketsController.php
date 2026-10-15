@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Moderation\Exception;
 use App\Models\Server;
 use App\Models\Ticket;
 use App\Models\TicketBlacklist;
@@ -13,6 +12,7 @@ use App\Models\User;
 use App\Notifications\Ticket\User\ReplyNotification;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,8 +47,10 @@ class TicketsController extends Controller
         $ticketcategory = $ticket->ticketcategory;
         $server = Server::where('id', $ticket->server)->first();
         $pterodactyl_url = $ptero_settings->panel_url;
+        $ticketCategories = TicketCategory::all();
+        $priorityValues = Ticket::PRIORITY_VALUES;
 
-        return view('admin.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url'));
+        return view('admin.ticket.show', compact('ticket', 'ticketcategory', 'ticketcomments', 'server', 'pterodactyl_url', 'ticketCategories', 'priorityValues'));
     }
 
     public function changeStatus($ticket_id)
@@ -119,8 +121,33 @@ class TicketsController extends Controller
         return redirect()->back()->with('success', __('Your comment has been submitted'));
     }
 
+    public function update(Request $request, $ticket_id)
+    {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
+        $request->validate([
+            'priority' => ['required', 'in:' . implode(',', Ticket::PRIORITY_VALUES)],
+            'ticketcategory_id' => ['required', 'exists:ticket_categories,id'],
+        ]);
+
+        try {
+            $ticket = Ticket::where('ticket_id', $ticket_id)->firstOrFail();
+        } catch (Exception $e) {
+            return redirect()->back()->with('warning', __('Ticket not found on the server. It potentially got deleted earlier'));
+        }
+
+        $ticket->update([
+            'priority' => $request->input('priority'),
+            'ticketcategory_id' => $request->input('ticketcategory_id'),
+        ]);
+
+        return redirect()->back()->with('success', __('Ticket updated successfully'));
+    }
+
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Ticket::leftJoin('ticket_categories', 'tickets.ticketcategory_id', '=', 'ticket_categories.id')
             ->select(['tickets.*', 'ticket_categories.name as category_name']);
 
@@ -146,7 +173,7 @@ class TicketsController extends Controller
                                 '.method_field('POST').'
                             <button data-content="'.__($statusButtonText).'" data-toggle="popover" data-trigger="hover" data-placement="top" class="text-white btn btn-sm '.$statusButtonColor.'  mr-1"><i class="fas '.$statusButtonIcon.'"></i></button>
                             </form>
-                            <form class="d-inline"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
+                            <form class="d-inline ticket-delete-form"  method="post" action="'.route('admin.ticket.delete', ['ticket_id' => $tickets->ticket_id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
@@ -180,6 +207,12 @@ class TicketsController extends Controller
                         'raw' => $tickets->updated_at ? strtotime($tickets->updated_at) : ''];
             })
             ->orderColumn('category', 'category_name $1')
+            ->orderColumn('priority', "CASE
+                            WHEN tickets.priority = 'High' THEN 3
+                            WHEN tickets.priority = 'Medium' THEN 2
+                            WHEN tickets.priority = 'Low' THEN 1
+                            ELSE 0
+                        END $1")
             ->rawColumns(['title', 'user_id', 'status', 'priority', 'updated_at', 'actions'])
             ->make(true);
     }
@@ -257,6 +290,8 @@ class TicketsController extends Controller
 
     public function dataTableBlacklist()
     {
+        $this->checkAnyPermission([self::BLACKLIST_READ_PERMISSION, self::BLACKLIST_WRITE_PERMISSION]);
+
         $query = TicketBlacklist::with(['user']);
         $query->select('ticket_blacklists.*');
 
@@ -288,7 +323,7 @@ class TicketsController extends Controller
                                 '.method_field('POST').'
                             <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-sync-alt"></i></button>
                             </form>
-                            <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
+                            <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>

@@ -186,6 +186,8 @@ class RoleController extends Controller
      */
     public function dataTable()
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $query = Role::query()->withCount(['users', 'permissions'])->get();
 
         return datatables($query)
@@ -196,17 +198,19 @@ class RoleController extends Controller
                 return '
                             <a title="Edit" href="'.route("admin.roles.edit", $role).'" class="btn btn-sm btn-info"><i
                                     class="fa fas fa-edit"></i></a>
-                            <form class="d-inline" method="post" action="'.route("admin.roles.destroy", $role).'">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                                <button title="Delete" type="submit" class="btn btn-sm btn-danger confirm"><i
-                                        class="fa fas fa-trash"></i></button>
+                            <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route("admin.roles.destroy", $role).'">
+                                ' . csrf_field() . '
+                                ' . method_field("DELETE") . '
+                                <button title="Delete" type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fa fas fa-trash"></i>
+                                </button>
                             </form>
                 ';
             })
 
             ->editColumn('name', function (Role $role) {
-                return "<span style='background-color: $role->color' class='badge'>$role->name</span>";
+                $color = preg_match('/^[a-zA-Z0-9#\s\-(),]+$/', $role->color) ? $role->color : '#ccc';
+                return "<span style='background-color: " . e($color) . "' class='badge'>" . e($role->name) . "</span>";
             })
             ->editColumn('users_count', function ($query) {
                 return $query->users_count;

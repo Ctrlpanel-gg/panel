@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Events\UserUpdateCreditsEvent;
+use App\Helpers\CurrencyHelper;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Voucher;
@@ -57,11 +58,13 @@ class VoucherController extends Controller
      */
     public function store(Request $request)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => 'required|string|alpha_dash|max:36|min:4|unique:vouchers',
             'uses' => 'required|numeric|max:2147483647|min:1',
-            'credits' => 'required|numeric|between:0,99999999',
+            'credits' => 'required|numeric|min:0.01|max:9223372036854775',
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
@@ -105,11 +108,13 @@ class VoucherController extends Controller
      */
     public function update(Request $request, Voucher $voucher)
     {
+        $this->checkPermission(self::WRITE_PERMISSION);
+
         $request->validate([
             'memo' => 'nullable|string|max:191',
             'code' => "required|string|alpha_dash|max:36|min:4|unique:vouchers,code,{$voucher->id}",
             'uses' => 'required|numeric|max:2147483647|min:1',
-            'credits' => 'required|numeric|between:0,99999999',
+            'credits' => 'required|numeric|min:0.01|max:9223372036854775',
             'expires_at' => 'nullable|multiple_date_format:d-m-Y H:i:s,d-m-Y|after:now|before:10 years',
         ]);
 
@@ -149,7 +154,7 @@ class VoucherController extends Controller
      *
      * @throws ValidationException
      */
-    public function redeem(Request $request, GeneralSettings $general_settings)
+    public function redeem(Request $request, GeneralSettings $general_settings, CurrencyHelper $currencyHelper)
     {
         //general validations
         $request->validate([
@@ -190,20 +195,22 @@ class VoucherController extends Controller
         event(new UserUpdateCreditsEvent($request->user()));
 
         return response()->json([
-            'success' => "{$voucher->credits} ". $general_settings->credits_display_name .' '.__('have been added to your balance!'),
+            'success' => $currencyHelper->formatForDisplay($voucher->credits) . ' ' . $general_settings->credits_display_name . ' ' . __('have been added to your balance!'),
         ]);
     }
 
     public function usersDataTable(Voucher $voucher)
     {
+        $this->checkPermission(self::READ_PERMISSION);
+
         $users = $voucher->users();
 
         return datatables($users)
             ->editColumn('name', function (User $user) {
                 return '<a class="text-info" target="_blank" href="'.route('admin.users.show', $user->id).'">'.$user->name.'</a>';
             })
-            ->addColumn('credits', function (User $user) {
-                return '<i class="mr-2 fas fa-coins"></i> '.$user->credits();
+            ->addColumn('credits', function (User $user, CurrencyHelper $currencyHelper) {
+                return '<i class="mr-2 fas fa-coins"></i> '. $currencyHelper->formatForDisplay($user->credits);
             })
             ->addColumn('last_seen', function (User $user) {
                 return $user->last_seen ? $user->last_seen->diffForHumans() : '';
@@ -214,6 +221,8 @@ class VoucherController extends Controller
 
     public function dataTable()
     {
+        $this->checkAnyPermission([self::READ_PERMISSION, self::WRITE_PERMISSION]);
+
         $query = Voucher::selectRaw('
             vouchers.*,
             CASE
@@ -229,7 +238,7 @@ class VoucherController extends Controller
                             <a data-content="'.__('Users').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.users', $voucher->id).'" class="mr-1 btn btn-sm btn-primary"><i class="fas fa-users"></i></a>
                             <a data-content="'.__('Edit').'" data-toggle="popover" data-trigger="hover" data-placement="top" href="'.route('admin.vouchers.edit', $voucher->id).'" class="mr-1 btn btn-sm btn-info"><i class="fas fa-pen"></i></a>
 
-                           <form class="d-inline" onsubmit="return submitResult();" method="post" action="'.route('admin.vouchers.destroy', $voucher->id).'">
+                           <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route('admin.vouchers.destroy', $voucher->id).'">
                             '.csrf_field().'
                             '.method_field('DELETE').'
                            <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
@@ -245,8 +254,8 @@ class VoucherController extends Controller
             ->editColumn('uses', function (Voucher $voucher) {
                 return "{$voucher->used} / {$voucher->uses}";
             })
-            ->editColumn('credits', function (Voucher $voucher) {
-                return number_format($voucher->credits, 2, '.', '');
+            ->editColumn('credits', function (Voucher $voucher, CurrencyHelper $currencyHelper) {
+                return $currencyHelper->formatForDisplay($voucher->credits);
             })
             ->editColumn('expires_at', function (Voucher $voucher) {
                 if (! $voucher->expires_at) {

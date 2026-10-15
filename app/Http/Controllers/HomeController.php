@@ -9,36 +9,18 @@ use App\Settings\WebsiteSettings;
 use App\Settings\ReferralSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
+use Carbon\Carbon;
 
 class HomeController extends Controller
 {
     const TIME_LEFT_BG_SUCCESS = 'bg-success';
-
     const TIME_LEFT_BG_WARNING = 'bg-warning';
-
     const TIME_LEFT_BG_DANGER = 'bg-danger';
 
     public function __construct()
     {
         $this->middleware('auth');
     }
-
-    /*
-    * TODO: This is commented due to the fact the market is a bad dependency, will be changed later.
-    public function callHome()
-    {
-        if (Storage::exists('callHome')) {
-            return;
-        }
-        Http::asForm()->post('https://market.CtrlPanel.gg/callhome.php', [
-            'id' => Hash::make(URL::current()),
-        ]);
-        Storage::put('callHome', 'This is only used to count the installations of cpgg.');
-    }*/
 
     /**
      * @description Get the Background Color for the Days-Left-Box in HomeView
@@ -49,29 +31,13 @@ class HomeController extends Controller
     public function getTimeLeftBoxBackground(float $daysLeft): string
     {
         if ($daysLeft >= 15) {
-            return $this::TIME_LEFT_BG_SUCCESS;
+            return self::TIME_LEFT_BG_SUCCESS;
         }
         if ($daysLeft <= 7) {
-            return $this::TIME_LEFT_BG_DANGER;
+            return self::TIME_LEFT_BG_DANGER;
         }
 
-        return $this::TIME_LEFT_BG_WARNING;
-    }
-
-    /**
-     * @description Set "hours", "days" or nothing behind the remaining time
-     *
-     * @param  float  $daysLeft
-     * @param  float  $hoursLeft
-     * @return string|void
-     */
-    public function getTimeLeftBoxUnit(float $daysLeft, float $hoursLeft)
-    {
-        if ($daysLeft > 1) {
-            return __('days');
-        }
-
-        return $hoursLeft < 1 ? null : __('hours');
+        return self::TIME_LEFT_BG_WARNING;
     }
 
     /**
@@ -83,33 +49,59 @@ class HomeController extends Controller
      */
     public function getTimeLeftBoxText(float $daysLeft, float $hoursLeft)
     {
-        if ($daysLeft > 1) {
-            return strval(number_format($daysLeft, 0));
+        if ($hoursLeft < 1) {
+            return __('You ran out of Credits');
         }
 
-        return $hoursLeft < 1 ? __('You ran out of Credits') : strval($hoursLeft);
+        $fullDays = (int) floor($daysLeft);
+        $remainingHours = (int) ceil($hoursLeft - ($fullDays * 24));
+
+        if ($remainingHours >= 24) {
+            $fullDays++;
+            $remainingHours = 0;
+        }
+        if ($fullDays > 0 && $remainingHours > 0) {
+            return strval(number_format($fullDays, 0)) . __('d') . ' ' . strval(number_format($remainingHours, 0)) . __('h');
+        }
+
+        if ($fullDays > 0) {
+            return strval(number_format($fullDays, 0)) . __('d');
+        }
+
+        return strval(number_format($hoursLeft, 0)) . __('h');
     }
 
     /** Show the application dashboard. */
     public function index(GeneralSettings $general_settings, WebsiteSettings $website_settings, ReferralSettings $referral_settings)
     {
-        $usage = Auth::user()->creditUsage();
-        $credits = Auth::user()->Credits();
+        $user = Auth::user();
+        $usage = $user->creditUsage();
+        $credits = $user->credits;
         $bg = '';
         $boxText = '';
-        $unit = '';
+        $timeLeft = null;
 
         /** Build our Time-Left-Box */
-        if ($credits > 0.01 and $usage > 0) {
-            $daysLeft = number_format($credits / ($usage / 30), 2, '.', '');
-            $hoursLeft = number_format($credits / ($usage / 30 / 24), 2, '.', '');
+        if ($credits > 0 && $usage > 0) {
+            $daysLeft = $credits / ($usage / 30);
+            $hoursLeft = $credits / ($usage / 30 / 24);
 
             $bg = $this->getTimeLeftBoxBackground($daysLeft);
             $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
-            $unit = $daysLeft < 1 ? ($hoursLeft < 1 ? null : __('hours')) : __('days');
-        }
 
-        //$this->callhome(); TODO: Same as the function
+            if ($daysLeft > 1) {
+                $estimatedDate = Carbon::now()->addDays((int) ceil($daysLeft));
+            } else {
+                $estimatedDate = Carbon::now()->addHours((int) ceil($hoursLeft));
+            }
+
+            $timeLeft = [
+                'bg' => $bg,
+                'message' => __('Estimated run out: :date', ['date' => $estimatedDate->format('d-m-Y H:i')]),
+                'date' => $estimatedDate->toDateString(),
+                'value' => $boxText,
+            ];
+        }
 
         // RETURN ALL VALUES
         return view('home')->with([
@@ -118,10 +110,10 @@ class HomeController extends Controller
             'useful_links_dashboard' => UsefulLink::where("position","like","%dashboard%")->get()->sortby("id"),
             'bg' => $bg,
             'boxText' => $boxText,
-            'unit' => $unit,
-            'numberOfReferrals' => DB::table('user_referrals')->where('referral_id', '=', Auth::user()->id)->count(),
-            'partnerDiscount' => PartnerDiscount::where('user_id', Auth::user()->id)->first(),
+            'numberOfReferrals' => DB::table('user_referrals')->where('referral_id', '=', $user->id)->count(),
+            'partnerDiscount' => PartnerDiscount::where('user_id', $user->id)->first(),
             'myDiscount' => PartnerDiscount::getDiscount(),
+            'timeLeft' => $timeLeft,
             'general_settings' => $general_settings,
             'website_settings' => $website_settings,
             'referral_settings' => $referral_settings

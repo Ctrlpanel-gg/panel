@@ -7,7 +7,6 @@ use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use NumberFormatter;
 
 class Payment extends Model
 {
@@ -30,9 +29,11 @@ class Payment extends Model
         'price',
         'tax_value',
         'total_price',
+        'fee',
         'tax_percent',
         'currency_code',
         'shop_item_product_id',
+        'coupon_code',
     ];
 
     /**
@@ -59,17 +60,5 @@ class Payment extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * @param  mixed  $value
-     * @param  string  $locale
-     * @return float
-     */
-    public function formatToCurrency($value, $locale = 'en_US')
-    {
-        $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-
-        return $formatter->formatCurrency($value, $this->currency_code);
     }
 }

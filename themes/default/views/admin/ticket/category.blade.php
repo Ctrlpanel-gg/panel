@@ -105,6 +105,23 @@
     </section>
     <!-- END CONTENT -->
     <script>
+        function submitResult(form) {
+            Swal.fire({
+                title: '{{ __('Are you sure?') }}',
+                text: '{{ __('This action will permanently delete the ticket category') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '{{ __('Yes, delete it!') }}',
+                cancelButtonText: '{{ __('Cancel') }}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
+        }
         document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
                 language: {

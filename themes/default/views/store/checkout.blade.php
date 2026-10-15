@@ -4,7 +4,7 @@
     <!-- CONTENT HEADER -->
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
+            <div class="mb-2 row">
                 <div class="col-sm-6">
                     <h1>{{ __('Store') }}</h1>
                 </div>
@@ -27,7 +27,7 @@
             <form id="payment_form" action="{{ route('payment.pay') }}" method="POST">
                 @csrf
                 @method('post')
-                <div class="row d-flex justify-content-center flex-wrap">
+                <div class="flex-wrap row d-flex justify-content-center">
                     @if (!$productIsFree)
                         <div class="col-xl-4">
                             <div class="card">
@@ -36,32 +36,44 @@
                                     <ul class="list-group ">
                                         <li class="list-group-item">
                                             <div class="row">
-                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
                                                 <input type="hidden" name="payment_method" :value="payment_method"
                                                     x-model="payment_method">
                                                 <div class="col-lg-12">
                                                     <span class="h4">{{ __('Payment Methods') }}</span>
                                                     <div class="mt-2">
-                                                        @foreach ($paymentGateways as $gateway)
-                                                            <div
-                                                                class="row checkout-gateways @if (!$loop->last) mb-2 @endif">
-                                                                <div class="col-12 d-flex justify-content-between">
-                                                                    <label
-                                                                        class="form-check-label h5 checkout-gateway-label"
-                                                                        for="{{ $gateway->name }}">
-                                                                        <span class="mr-3">{{ $gateway->name }}</span>
-                                                                    </label>
-                                                                    <button class="btn btn-primary rounded" type="button"
-                                                                        name="payment_method" id="{{ $gateway->name }}"
-                                                                        value="{{ $gateway->name }}"
-                                                                        :class="payment_method === '{{ $gateway->name }}' ?
-                                                                            'active' : ''"
-                                                                        @click="payment_method = '{{ $gateway->name }}'; submitted = true;"
-                                                                        x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">Select</button>
-                                                                    </button>
-
+@foreach ($paymentGateways as $gateway)
+                                                                    <div
+                                                                        class="row checkout-gateways @if (!$loop->last) mb-2 @endif">
+                                                                    <div class="col-12 d-flex justify-content-between align-items-center">
+                                                                        <div class="d-flex flex-column">
+                                                                            <label
+                                                                                class="form-check-label h5 checkout-gateway-label mb-0 @if (!$gateway->available) text-muted @endif"
+                                                                                for="{{ $gateway->name }}">
+                                                                                <span class="mr-3">{{ $gateway->name }}</span>
+                                                                            </label>
+                                                                            @if ($gateway->fee_description)
+                                                                                <small class="text-muted checkout-gateway-fee">
+                                                                                    <i class="mr-1 fas fa-info-circle"></i>
+                                                                                    {{ __('Payment fee') }}:
+                                                                                    {{ $gateway->fee_description }}
+                                                                                </small>
+                                                                            @endif
+                                                                        </div>
+                                                                        <span @if (!$gateway->available) data-toggle="popover"
+                                                                                data-trigger="hover"
+                                                                                data-placement="top"
+                                                                                data-content="{{ $gateway->unavailable_reason }}" @endif>
+                                                                            <button class="rounded btn btn-primary @if (!$gateway->available) disabled @endif" type="button"
+                                                                                id="{{ $gateway->name }}"
+                                                                                value="{{ $gateway->name }}"
+                                                                                :class="payment_method === '{{ $gateway->name }}' ?
+                                                                                    'active' : ''"
+                                                                                :disabled="isFreeAfterCoupon || {{ $gateway->available ? 'false' : 'true' }}"
+                                                                                @click="payment_method = '{{ $gateway->name }}'; submitted = true;"
+                                                                                x-text="payment_method == '{{ $gateway->name }}' ? 'Selected' : 'Select'">Select</button>
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -74,21 +86,36 @@
                                                     @if ($isCouponsEnabled)
                                                         <span class="h4">{{ __('Coupon') }}</span>
 
-                                                        <div class="d-flex mt-2">
-                                                            <input type="text" id="coupon_code" name="coupon_code"
-                                                                value="{{ old('coupon_code') }}" :value="coupon_code"
-                                                                class="form-control @error('coupon_code') is_invalid @enderror"
-                                                                placeholder="{{ __('Enter your coupon here...') }}"
-                                                                x-on:change.debounce="setCouponCode($event)"
-                                                                x-model="coupon_code" />
-                                                            <button type="button" id="send_coupon_code"
-                                                                @click="checkCoupon()" class="btn btn-success ml-3"
-                                                                :disabled="!coupon_code.length"
-                                                                :class="!coupon_code.length ? 'disabled' : ''"
-                                                                :value="coupon_code">
-                                                                {{ __('Submit') }}
-                                                            </button>
-
+                                                        <div class="mt-2 d-flex align-items-stretch">
+                                                            <div class="input-group flex-grow-1" style="min-width: 0;">
+                                                                <input type="text" id="coupon_code" name="coupon_code"
+                                                                    value="{{ old('coupon_code') }}" :value="coupon_code"
+                                                                    class="form-control @error('coupon_code') is_invalid @enderror"
+                                                                    placeholder="{{ __('Enter your coupon here...') }}"
+                                                                    x-on:change.debounce="setCouponCode($event)"
+                                                                    x-model="coupon_code" />
+                                                                <div class="input-group-append">
+                                                                    <button type="button" id="send_coupon_code"
+                                                                        @click="checkCoupon()" class="btn btn-success"
+                                                                        :disabled="!coupon_code.length"
+                                                                        :class="!coupon_code.length ? 'disabled' : ''"
+                                                                        :value="coupon_code">
+                                                                        {{ __('Submit') }}
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div x-cloak x-show="hasAppliedCoupon"
+                                                                class="ml-2 flex-shrink-0">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-secondary d-flex align-items-center justify-content-center px-3 h-100"
+                                                                    @click="clearCoupon()"
+                                                                    data-toggle="popover"
+                                                                    data-trigger="hover"
+                                                                    data-placement="top"
+                                                                    data-content="{{ __('Remove coupon') }}">
+                                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                         @error('coupon_code')
                                                             <div class="text-danger">
@@ -114,7 +141,7 @@
                             </div>
 
                             <div class="card-body">
-                                <ul class="list-group mb-3">
+                                <ul class="mb-3 list-group">
                                     <li class="list-group-item">
                                         <div>
                                             <h5 class="my-0">{{ __('Product details') }}</h5>
@@ -127,17 +154,13 @@
                                             </li>
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Amount') }}</span>
-                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->type == 'Credits' ? Currency::formatForDisplay($product->quantity) : $product->quantity }}</span>
                                             </li>
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Total Amount') }}</span>
-                                                <span class="text-muted d-inline-block">{{ $product->quantity }}</span>
+                                                <span class="text-muted d-inline-block">{{ $product->type == 'Credits' ? Currency::formatForDisplay($product->quantity) : $product->quantity }}</span>
                                             </li>
                                         </ul>
-
-                                    </li>
-
-
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between lh-condensed">
                                         <div>
@@ -156,74 +179,77 @@
                                             <li class="d-flex justify-content-between">
                                                 <span class="text-muted d-inline-block">{{ __('Subtotal') }}</span>
                                                 <span class="text-muted d-inline-block">
-                                                    {{ $product->formatToCurrency($product->price) }}</span>
+                                                    {{ Currency::formatToCurrency($product->price, $product->currency_code) }}</span>
                                             </li>
-                                            <div class="d-flex justify-content-between">
-                                                <span class="text-muted d-inline-block">{{ __('Tax') }}
-                                                    @if ($taxpercent > 0)
-                                                        ({{ $taxpercent }}%):
-                                                    @endif
-                                                </span>
-                                                <span class="text-muted d-inline-block">
-                                                    + {{ $product->formatToCurrency($taxvalue) }}</span>
-                                            </div>
-                                            <div id="coupon_discount_details" class="d-flex justify-content-between"
-                                                style="display: none !important;">
-                                                <span class="text-muted d-inline-block">
-                                                    {{ __('Coupon Discount') }}
-                                                </span>
-                                                <span x-text="couponDiscountedValue" class="text-muted d-inline-block">
-
-                                                </span>
-                                            </div>
                                             @if ($discountpercent && $discountvalue)
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Partner Discount') }}
                                                         ({{ $discountpercent }}%)</span>
                                                     <span class="text-muted d-inline-block">
-                                                        - {{ $product->formatToCurrency($discountvalue) }}
+                                                        - {{ Currency::formatToCurrency($discountvalue, $product->currency_code) }}
                                                     </span>
                                                 </div>
                                             @endif
-                                            <hr class="text-white border-secondary">
-                                            <div class="d-flex justify-content-between">
-                                                <span class="text-muted d-inline-block">{{ __('Total') }}</span>
-                                                <input id="total_price_input" type="hidden" x-model="totalPrice">
-                                                <span class="text-muted d-inline-block"
-                                                    x-text="formatToCurrency(totalPrice)">
+                                            <div id="coupon_discount_details" class="d-flex justify-content-between"
+                                                style="display: none !important;">
+                                                <span class="text-muted d-inline-block">
+                                                    {{ __('Coupon Discount') }}
+                                                </span>
+                                                <span
+                                                    x-text="'- ' + formatToCurrency($currency.format(couponDiscountedAmount))"
+                                                    class="text-muted d-inline-block">
+
                                                 </span>
                                             </div>
-                                            <template x-if="payment_method">
+                                            <template x-if="taxPercent > 0 && taxValue > 0">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted d-inline-block">{{ __('Tax') }}
+                                                        (<span x-text="taxPercent"></span>%)</span>
+                                                    <span class="text-muted d-inline-block"
+                                                        x-text="'+ ' + formatToCurrency($currency.format(taxValue))"></span>
+                                                </div>
+                                            </template>
+                                            <template x-if="payment_method && !isFreeAfterCoupon">
                                                 <div class="d-flex justify-content-between">
                                                     <span class="text-muted d-inline-block">{{ __('Pay with') }}</span>
                                                     <span class="text-muted d-inline-block"
                                                         x-text="payment_method"></span>
                                                 </div>
                                             </template>
+                                            <template x-if="payment_method && !isFreeAfterCoupon && paymentFee > 0">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="text-muted d-inline-block">{{ __('Payment fee') }}</span>
+                                                    <span class="text-muted d-inline-block"
+                                                        x-text="formatToCurrency($currency.format(paymentFee))"></span>
+                                                </div>
+                                            </template>
+                                            <hr class="text-white border-secondary">
+                                            <div class="d-flex justify-content-between">
+                                                <span class="text-muted d-inline-block">{{ __('Total') }}</span>
+                                                <input id="total_price_input" type="hidden" x-model="totalWithFee">
+                                                <span class="text-muted d-inline-block"
+                                                    x-text="formatToCurrency($currency.format(totalWithFee))">
+                                                </span>
+                                            </div>
                                         </ul>
                                     </li>
                                 </ul>
 
                                 <button
-                                    :disabled="(!payment_method || !clicked || coupon_code) &&
-                                    {{ !$productIsFree }}"
                                     id="submit_form_button"
-                                    :class="(!payment_method || !clicked || coupon_code) &&
-                                    {{ !$productIsFree }} ? 'disabled' : ''"
-                                    :x-text="coupon_code" class="btn btn-success float-right w-100">
-                                    <i class="far fa-credit-card mr-2" @click="clicked == true"></i>
-                                    @if ($productIsFree)
-                                        {{ __('Get for free') }}
-                                    @else
-                                        {{ __('Submit Payment') }}
-                                    @endif
+                                    type="submit"
+                                    :disabled="!canSubmitPayment"
+                                    :class="!canSubmitPayment ? 'disabled' : ''"
+                                    class="float-right btn btn-success w-100">
+                                    <i class="mr-2 far fa-credit-card"></i>
+                                    <span x-cloak x-show="isFreeAfterCoupon">{{ __('Get for free') }}</span>
+                                    <span x-show="!isFreeAfterCoupon">{{ __('Submit Payment') }}</span>
                                 </button>
-                                <script></script>
                             </div>
                         </div>
                     </div>
                 </div>
-
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
             </form>
         </div>
@@ -236,32 +262,114 @@
             return {
                 // Get the product id from the url
                 productId: window.location.pathname.split('/').pop(),
-                payment_method: '',
+                productIsFreeFromServer: @json($productIsFree),
+                payment_method: null,
                 coupon_code: '',
+                appliedCouponCode: '',
                 submitted: false,
-                totalPrice: {{ $total }},
+                basePriceAfterDiscount: {{ $discountedprice }},
+                totalPrice: {{ $discountedprice }},
+                taxPercent: {{ $taxpercent }},
+                feeConfigs: @json($gatewayFeeConfigs),
+                couponType: null,
                 couponDiscountedValue: 0,
+                couponDiscountedAmount: 0,
 
+                get isFreeAfterCoupon() {
+                    return this.productIsFreeFromServer || Number(this.totalPrice) <= 0;
+                },
+
+                // Tax in thousandths, recalculated on the price after all discounts.
+                get taxValue() {
+                    return Math.round(this.totalPrice * this.taxPercent / 100);
+                },
+
+                // Product price after all discounts plus tax, before the payment fee.
+                get subtotalWithTax() {
+                    return this.totalPrice + this.taxValue;
+                },
+
+                get selectedFeeConfig() {
+                    if (!this.payment_method) {
+                        return null;
+                    }
+                    return this.feeConfigs[this.payment_method] || null;
+                },
+
+                // Payment fee in thousandths, based on the subtotal including tax.
+                get paymentFee() {
+                    const cfg = this.selectedFeeConfig;
+                    if (!cfg || cfg.type === 'none') {
+                        return 0;
+                    }
+
+                    if (cfg.type === 'fixed') {
+                        return Number(cfg.fixed || 0);
+                    }
+
+                    if (cfg.type === 'percent') {
+                        const percent = Number(cfg.percent || 0);
+                        let fee = this.subtotalWithTax * percent / 100;
+                        const min = Number(cfg.min || 0);
+                        const max = Number(cfg.max || 0);
+
+                        if (min > 0 && fee < min) {
+                            fee = min;
+                        }
+                        if (max > 0 && fee > max) {
+                            fee = max;
+                        }
+
+                        return Math.round(fee);
+                    }
+
+                    return 0;
+                },
+
+                get totalWithFee() {
+                    return this.subtotalWithTax + this.paymentFee;
+                },
+
+                get canSubmitPayment() {
+                    if (this.isFreeAfterCoupon) {
+                        return true;
+                    }
+                    return this.payment_method != null && String(this.payment_method).length > 0;
+                },
+
+                get hasAppliedCoupon() {
+                    return String(this.appliedCouponCode || '').trim().length > 0;
+                },
 
                 setCouponCode(event) {
                     this.coupon_code = event.target.value
                 },
 
+                clearCoupon() {
+                    this.totalPrice = this.basePriceAfterDiscount
+                    this.couponType = null
+                    this.couponDiscountedValue = 0
+                    this.couponDiscountedAmount = 0
+                    this.appliedCouponCode = ''
+                    this.coupon_code = ''
+                    $('#coupon_discount_details').hide()
+                },
+
                 async checkCoupon() {
                     const response = await (fetch(
-                            "{{ route('admin.coupon.redeem') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
-                                        'content')
-                                },
-                                body: JSON.stringify({
-                                    couponCode: this.coupon_code,
-                                    productId: this.productId
-                                })
-                            }
-                        )
+                        "{{ route('admin.coupon.redeem') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                'content')
+                        },
+                        body: JSON.stringify({
+                            couponCode: this.coupon_code,
+                            productId: this.productId
+                        })
+                    }
+                    )
                         .then(response => response.json()).catch((error) => {
                             Swal.fire({
                                 icon: 'error',
@@ -270,48 +378,47 @@
                             })
                         }))
 
-                    if (response.isValid && response.couponCode) {
-                        Swal.fire({
-                            icon: 'success',
-                            text: "{{ __('The coupon was successfully added to your purchase.') }}"
-
-                        })
-
-                        this.calcPriceWithCouponDiscount(response.couponValue, response
-                            .couponType)
-
-                        $('#submit_form_button').prop('disabled', false).removeClass(
-                            'disabled')
-                        $('#send_coupon_code').prop('disabled', true)
-                        $('#coupon_discount_details').prop('disabled', false).show()
-
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
-                        })
+                    if (!response || !response.isValid || !response.couponCode) {
+                        if (response !== undefined) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: response?.error ?? "{{ __('The coupon code you entered is invalid or cannot be applied to this product.') }}"
+                            })
+                        }
+                        return
                     }
+
+                    Swal.fire({
+                        icon: 'success',
+                        text: "{{ __('The coupon was successfully added to your purchase.') }}"
+                    })
+
+                    this.appliedCouponCode = String(response.couponCode || '').trim()
+                    this.calcPriceWithCouponDiscount(response.couponValue, response
+                        .couponType)
+
+                    $('#coupon_discount_details').prop('disabled', false).show()
                 },
 
-
-
                 calcPriceWithCouponDiscount(couponValue, couponType) {
-                    let newTotalPrice = this.totalPrice
+                    let newTotalPrice = this.basePriceAfterDiscount
 
-
-                    console.log(couponType)
                     if (couponType === 'percentage') {
                         newTotalPrice = newTotalPrice - (newTotalPrice * couponValue / 100)
-                        this.couponDiscountedValue = "- " + couponValue + "%"
                     } else if (couponType === 'amount') {
-
                         newTotalPrice = newTotalPrice - couponValue
-                        this.couponDiscountedValue = "- " + this.formatToCurrency(couponValue)
                     }
 
-                    // format totalPrice to currency
-                    this.totalPrice = this.formatToCurrency(newTotalPrice)
+                    newTotalPrice = Math.max(0, newTotalPrice)
+
+                    this.couponType = couponType
+                    this.couponDiscountedValue = couponValue
+                    this.couponDiscountedAmount = Math.max(0, this.basePriceAfterDiscount - newTotalPrice)
+                    this.totalPrice = newTotalPrice
+                    if (Number(this.totalPrice) <= 0) {
+                        this.payment_method = null
+                    }
                 },
 
                 formatToCurrency(amount) {

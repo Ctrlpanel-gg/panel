@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Facades\Currency;
 use App\Settings\GeneralSettings;
 use Hidehalo\Nanoid\Client;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use NumberFormatter;
 use Spatie\Activitylog\LogOptions;
@@ -13,6 +15,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class ShopProduct extends Model
 {
     use LogsActivity, CausesActivity;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -20,6 +23,7 @@ class ShopProduct extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
     /**
      * @var bool
      */
@@ -39,11 +43,30 @@ class ShopProduct extends Model
     ];
 
     /**
-     * @var string[]
+     * Set the price to be in cents.
+     *
+     * @return Attribute
      */
-    protected $casts = [
-        'price' => 'float'
-    ];
+    protected function price(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Currency::prepareForDatabase($value)
+        );
+    }
+
+    /**
+     * Set the quantity to be in cents if the type is Credits.
+     *
+     * @return Attribute
+     */
+    protected function quantity(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $this->type === 'Credits'
+                ? Currency::prepareForDatabase($value)
+                : $value
+        );
+    }
 
     public static function boot()
     {
@@ -54,18 +77,6 @@ class ShopProduct extends Model
 
             $shopProduct->{$shopProduct->getKeyName()} = $client->generateId($size = 21);
         });
-    }
-
-    /**
-     * @param  mixed  $value
-     * @param  string  $locale
-     * @return float
-     */
-    public function formatToCurrency($value, $locale = 'en_US')
-    {
-        $formatter = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-
-        return $formatter->formatCurrency($value, $this->currency_code);
     }
 
     /**
@@ -85,7 +96,8 @@ class ShopProduct extends Model
     {
         $discountRate = PartnerDiscount::getDiscount() / 100;
         $discountedPrice = $this->price * (1 - $discountRate);
-        return round($discountedPrice, 2);
+
+        return $discountedPrice;
     }
 
     /**
@@ -95,8 +107,7 @@ class ShopProduct extends Model
      */
     public function getTaxValue()
     {
-        $taxValue = $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
-        return round($taxValue, 2);
+        return $this->getPriceAfterDiscount() * $this->getTaxPercent() / 100;
     }
 
     /**
@@ -106,7 +117,6 @@ class ShopProduct extends Model
      */
     public function getTotalPrice()
     {
-        $total = $this->getPriceAfterDiscount() + $this->getTaxValue();
-        return round($total, 2);
+        return $this->getPriceAfterDiscount() + $this->getTaxValue();
     }
 }

@@ -2,357 +2,582 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Classes\Pterodactyl;
 use App\Classes\PterodactylClient;
 use App\Events\UserUpdateCreditsEvent;
-use App\Http\Controllers\Controller;
-use App\Models\DiscordUser;
+use App\Helpers\CurrencyHelper;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\ReferralNotification;
 use App\Settings\PterodactylSettings;
+use App\Settings\ReferralSettings;
 use App\Settings\UserSettings;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Users\CreateUserRequest;
+use App\Http\Requests\Api\Users\DecrementRequest;
+use App\Http\Requests\Api\Users\DeleteUserRequest;
+use App\Http\Requests\Api\Users\IncrementRequest;
+use App\Http\Requests\Api\Users\SuspendUserRequest;
+use App\Http\Requests\Api\Users\UnsuspendUserRequest;
+use App\Http\Requests\Api\Users\UpdateUserRequest;
+use App\Traits\Referral;
 use Carbon\Carbon;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @group User Management
+ */
 class UserController extends Controller
 {
-    private $pterodactyl;
+    use Referral;
 
-    public function __construct(PterodactylSettings $ptero_settings)
+    private $pterodactyl;
+    private $currencyHelper;
+    private $referralSettings;
+
+    public function __construct(PterodactylSettings $ptero_settings, ReferralSettings $referralSettings, CurrencyHelper $currencyHelper)
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
+        $this->referralSettings = $referralSettings;
+        $this->currencyHelper = $currencyHelper;
     }
-    const ALLOWED_INCLUDES = ['servers', 'notifications', 'payments', 'vouchers', 'roles', 'discordUser'];
 
-    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended'];
+    const ALLOWED_INCLUDES = ['servers.product', 'notifications', 'payments', 'vouchers.users', 'roles.permissions', 'discordUser'];
+    const ALLOWED_FILTERS = ['name', 'server_limit', 'email', 'pterodactyl_id', 'suspended', 'discordUser.id'];
 
     /**
-     * Display a listing of the resource.
+     * List all users
+     *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
      *
      * @param  Request  $request
-     * @return LengthAwarePaginator
+     * @return UserResource
      */
     public function index(Request $request)
     {
-        $query = QueryBuilder::for(User::class)
+        $users = QueryBuilder::for(User::class)
             ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->allowedFilters(self::ALLOWED_FILTERS);
+            ->allowedFilters(self::ALLOWED_FILTERS)
+            ->paginate($request->input('per_page') ?? 50);
 
-        return $query->paginate($request->input('per_page') ?? 50);
+        return UserResource::collection($users);
     }
 
     /**
-     * Display the specified resource.
+     * Get user details
      *
-     * @param  int  $id
-     * @return User|Builder|Collection|Model
-     */
-    public function show(int $id)
-    {
-        $discordUser = DiscordUser::find($id);
-        $userQuery = $discordUser
-            ? $discordUser->user()->getQuery()
-            : User::query();
-
-        $query = QueryBuilder::for($userQuery)
-            ->with('discordUser')
-            ->allowedIncludes(self::ALLOWED_INCLUDES)
-            ->where('users.id', '=', $id)
-            ->orWhereHas('discordUser', function (Builder $builder) use ($id) {
-                $builder->where('id', '=', $id);
-            });
-
-        return $query->firstOrFail();
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * @urlParam id integer required The ID of the user. Example: 1
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
-     * @param  int  $id
-     * @return User
+     * @param  int  $userId
+     * @return UserResource
+     *
+     * @throws ModelNotFoundException
      */
-    public function update(Request $request, int $id)
+    public function show(Request $request, int $userId)
     {
-        $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        $user = QueryBuilder::for(User::class)
+            ->allowedIncludes(self::ALLOWED_INCLUDES)
+            ->where('id', $userId)
+            ->firstOrFail();
 
-        $request->validate([
-            'name' => 'sometimes|string|min:4|max:30',
-            'email' => 'sometimes|string|email',
-            'credits' => 'sometimes|numeric|min:0|max:1000000',
-            'server_limit' => 'sometimes|numeric|min:0|max:1000000',
-        ]);
+        return UserResource::make($user);
+    }
 
-        event(new UserUpdateCreditsEvent($user));
+    /**
+     * Update user
+     *
+     * @urlParam id integer required The ID of the user. Example: 1
+     * @bodyParam name string required The name. Example: john_doe
+     * @bodyParam email string required The email. Example: john@example.com
+     * @bodyParam password string The password. Example: secret123
+     * @bodyParam role_id integer The role ID. Example: 1
+     * @bodyParam referral_code string Referral code of the user. Example: ABCDEF12
+     * @bodyParam pterodactyl_id integer Linked Pterodactyl ID of the user. Example: 13
+     * @bodyParam credits number The credits for the user. Example: 100.00
+     * @bodyParam server_limit integer The server limit for the user. Example: 5
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
+     *
+     * @param  UpdateUserRequest  $request
+     * @param  User  $user
+     * @return UserResource
+     *
+     * @throws ValidationException
+     * @throws ModelNotFoundException
+     */
+    public function update(UpdateUserRequest $request, User $user)
+    {
+        $data = $request->validated();
 
-        //Update Users Password on Pterodactyl
-        //Username,Mail,First and Lastname are required aswell
-        $response = $this->pterodactyl->application->patch('/application/users/'.$user->pterodactyl_id, [
-            'username' => $request->name,
-            'first_name' => $request->name,
-            'last_name' => $request->name,
-            'email' => $request->email,
-        ]);
+        try {
+            $payload = array_filter([
+                'username' => $data['name'],
+                'first_name' => $data['name'],
+                'last_name' => $data['name'],
+                'email' => $data['email'],
+                'password' => isset($data['password']) ? $data['password'] : null,
+            ]);
 
-        if ($response->failed()) {
+            $response = $this->pterodactyl->application->patch('/application/users/' . $user->pterodactyl_id, $payload);
+
+            if ($response->failed()) {
+                throw ValidationException::withMessages([
+                    'pterodactyl_error_message' => $response->toException()->getMessage(),
+                    'pterodactyl_error_status' => $response->toException()->getCode(),
+                ]);
+            }
+
+            if (isset($data['role_id'])) {
+                $user->syncRoles([$data['role_id']]);
+                unset($data['role_id']);
+            }
+
+            $dataPayload = array_filter([
+                ...$data,
+                'password' => isset($data['password']) ? Hash::make($data['password']) : null,
+            ]);
+
+            $user->update($dataPayload);
+
+            event(new UserUpdateCreditsEvent($user));
+
+            return UserResource::make($user);
+        } catch (Exception $e) {
+            report($e);
+
             throw ValidationException::withMessages([
-                'pterodactyl_error_message' => $response->toException()->getMessage(),
-                'pterodactyl_error_status' => $response->toException()->getCode(),
+                'pterodactyl_error_message' => $e->getMessage(),
+                'pterodactyl_error_status' => $e->getCode(),
             ]);
         }
-        if($request->has("role")){
-            $collectedRoles = collect($request->role)->map(fn($val)=>(int)$val);
-            $user->syncRoles($collectedRoles);
-        }
-        $user->update($request->except('role'));
-
-        return $user;
     }
 
     /**
-     * increments the users credits or/and server_limit
+     * Increment user balance or server limit
      *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return User
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "110.00",
+     *      "server_limit": 6,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
+     *
+     * @param  IncrementRequest  $request
+     * @param  User  $user
+     * @return UserResource
      *
      * @throws ValidationException
+     * @throws ModelNotFoundException
      */
-    public function increment(Request $request, int $id)
+    public function increment(IncrementRequest $request, User $user)
     {
-        $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        $data = $request->validated();
 
-        $request->validate([
-            'credits' => 'sometimes|numeric|min:0|max:1000000',
-            'server_limit' => 'sometimes|numeric|min:0|max:1000000',
-        ]);
+        if (isset($data['credits'])) {
+            $user->increment('credits', $this->currencyHelper->prepareForDatabase($data['credits']));
 
-        if ($request->credits) {
-            if ($user->credits + $request->credits >= 99999999) {
-                throw ValidationException::withMessages([
-                    'credits' => "You can't add this amount of credits because you would exceed the credit limit",
-                ]);
-            }
             event(new UserUpdateCreditsEvent($user));
-            $user->increment('credits', $request->credits);
         }
 
-        if ($request->server_limit) {
-            if ($user->server_limit + $request->server_limit >= 2147483647) {
-                throw ValidationException::withMessages([
-                    'server_limit' => 'You cannot add this amount of servers because it would exceed the server limit.',
-                ]);
-            }
-            $user->increment('server_limit', $request->server_limit);
+        if (isset($data['server_limit'])) {
+            $user->increment('server_limit', $data['server_limit']);
         }
 
-        return $user;
+        return UserResource::make($user->fresh());
     }
 
     /**
-     * decrements the users credits or/and server_limit
+     * Decrement user balance or server limit
      *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return User
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "90.00",
+     *      "server_limit": 4,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
+     * @param  DecrementRequest  $request
+     * @param  User  $user
+     * @return UserResource
+     *
+     * @throws ModelNotFoundException
      * @throws ValidationException
      */
-    public function decrement(Request $request, int $id)
+    public function decrement(DecrementRequest $request, User $user)
     {
-        $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        $data = $request->validated();
 
-        $request->validate([
-            'credits' => 'sometimes|numeric|min:0|max:1000000',
-            'server_limit' => 'sometimes|numeric|min:0|max:1000000',
-        ]);
-
-        if ($request->credits) {
-            if ($user->credits - $request->credits < 0) {
-                throw ValidationException::withMessages([
-                    'credits' => "You can't remove this amount of credits because you would exceed the minimum credit limit",
-                ]);
-            }
-            $user->decrement('credits', $request->credits);
+        if (isset($data['credits'])) {
+            $user->decrement('credits', $this->currencyHelper->prepareForDatabase($data['credits']));
         }
 
-        if ($request->server_limit) {
-            if ($user->server_limit - $request->server_limit < 0) {
-                throw ValidationException::withMessages([
-                    'server_limit' => 'You cannot remove this amount of servers because it would exceed the minimum server.',
-                ]);
-            }
-            $user->decrement('server_limit', $request->server_limit);
+        if (isset($data['server_limit'])) {
+            $user->decrement('server_limit', $data['server_limit']);
         }
 
-        return $user;
+        return UserResource::make($user->fresh());
     }
 
     /**
-     * Suspends the user
+     * Suspend user
+     *
+     * @bodyParam reason string Violation of terms of service. Example: Violation of terms of service
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": true,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
-     * @param  int  $id
-     * @return bool
+     * @param  User  $user
+     * @return UserResource|\Illuminate\Http\JsonResponse
      *
-     * @throws ValidationException
+     * @throws ModelNotFoundException
      */
-    public function suspend(Request $request, int $id)
+    public function suspend(SuspendUserRequest $request, User $user)
     {
-        $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        $data = $request->validated();
 
         if ($user->isSuspended()) {
-            throw ValidationException::withMessages([
+            return response()->json([
                 'error' => 'The user is already suspended',
-            ]);
+            ], 400);
         }
+
+        $logMessage = sprintf("The user %s (ID: %d) was suspended via API", $user->name, $user->id);
+
+        if (!empty($data['reason'])) {
+            $logMessage .= " | Reason: " . $data['reason'];
+        }
+
+        activity()->performedOn($user)->log($logMessage);
+
         $user->suspend();
 
-        return $user;
+        return UserResource::make($user);
     }
 
     /**
-     * Unsuspend the user
+     * Unsuspend user
+     *
+     * @bodyParam reason string Re-activation after review. Example: Re-activation after review
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
-     * @param  int  $id
-     * @return bool
+     * @param  User  $user
+     * @return UserResource|\Illuminate\Http\JsonResponse
      *
-     * @throws ValidationException
+     * @throws ModelNotFoundException
      */
-    public function unsuspend(Request $request, int $id)
+    public function unsuspend(UnsuspendUserRequest $request, User $user)
     {
-        $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        $data = $request->validated();
 
-        if (! $user->isSuspended()) {
-            throw ValidationException::withMessages([
-                'error' => 'You cannot unsuspend an User who is not suspended.',
-            ]);
+        if (!$user->isSuspended()) {
+            return response()->json([
+                'error' => 'The user is not suspended',
+            ], 400);
         }
+
+        $logMessage = sprintf("The user %s (ID: %d) was unsuspended via API", $user->name, $user->id);
+
+        if (!empty($data['reason'])) {
+            $logMessage .= " | Reason: " . $data['reason'];
+        }
+
+        activity()->performedOn($user)->log($logMessage);
 
         $user->unSuspend();
 
-        return $user;
+        return UserResource::make($user);
     }
 
     /**
-     * Create a unique Referral Code for User
+     * Create user
      *
-     * @return string
-     */
-    protected function createReferralCode()
-    {
-        $referralcode = STR::random(8);
-        if (User::where('referral_code', '=', $referralcode)->exists()) {
-            $this->createReferralCode();
-        }
-
-        return $referralcode;
-    }
-
-    /**
+     * @bodyParam name string required Min 4, max 30 chars. Example: john_doe
+     * @bodyParam email string required Valid email address. Example: john@example.com
+     * @bodyParam password string required Min 8 chars. Example: secret123
+     * @bodyParam role_id integer required Valid role ID. Example: 1
+     * @bodyParam credits number Initial credits. Max: 9223372036854775. Example: 100.00
+     * @bodyParam server_limit integer Initial server limit. Use 0 for unlimited. Example: 5
+     * @bodyParam referral_code string Referral code of the user. Example: ABCDEF12
+     *
+     * @response {
+     *  "data": {
+     *      "id": 1,
+     *      "name": "John Doe",
+     *      "email": "john@example.com",
+     *      "credits": "100.00",
+     *      "server_limit": 5,
+     *      "pterodactyl_id": 1,
+     *      "avatar": "https://www.gravatar.com/avatar/...",
+     *      "ip": "127.0.0.1",
+     *      "suspended": false,
+     *      "referral_code": "ABCDEF12",
+     *      "email_verified_reward": false,
+     *      "discord_verified_at": "2026-04-26 12:00:00",
+     *      "last_seen": "2026-04-26 12:00:00",
+     *      "email_verified_at": "2026-04-26 12:00:00",
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
+     *
+     * @param CreateUserRequest  $request
+     * @return UserResource
+     *
      * @throws ValidationException
      */
-    public function store(Request $request, UserSettings $userSettings)
+    public function store(CreateUserRequest $request, UserSettings $userSettings)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:30', 'min:4', 'alpha_num', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:64', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'max:191'],
-        ]);
+        $data = $request->validated();
 
-        // Prevent the creation of new users via API if this is enabled.
-        if (! $userSettings->creation_enabled) {
-            throw ValidationException::withMessages([
-                'error' => 'The creation of new users has been blocked by the system administrator.',
+        DB::beginTransaction();
+
+        try {
+            $role_id = $data['role_id'];
+            unset($data['role_id']);
+
+            $user = User::create([
+                ...$data,
+                'credits' => isset($data['credits']) ? $this->currencyHelper->prepareForDatabase($data['credits']) : $userSettings->initial_credits,
+                'server_limit' => $data['server_limit'] ?? $userSettings->initial_server_limit,
+                'referral_code' => $this->createReferralCode(),
             ]);
-        }
 
-        $user = User::create([
-            'name' => $request->input('name'),
-            'email' => $request->input('email'),
-            'credits' => config('SETTINGS::USER:INITIAL_CREDITS', 150),
-            'server_limit' => config('SETTINGS::USER:INITIAL_SERVER_LIMIT', 1),
-            'password' => Hash::make($request->input('password')),
-            'referral_code' => $this->createReferralCode(),
-        ]);
+            $user->syncRoles([$role_id]);
 
-        $response = $this->pterodactyl->application->post('/application/users', [
-            'external_id' => App::environment('local') ? Str::random(16) : (string) $user->id,
-            'username' => $user->name,
-            'email' => $user->email,
-            'first_name' => $user->name,
-            'last_name' => $user->name,
-            'password' => $request->input('password'),
-            'root_admin' => false,
-            'language' => 'en',
-        ]);
+            $this->incrementReferralUserCredits($user, $data);
 
-        if ($response->failed()) {
-            $user->delete();
-            throw ValidationException::withMessages([
-                'pterodactyl_error_message' => $response->toException()->getMessage(),
-                'pterodactyl_error_status' => $response->toException()->getCode(),
+            $response = $this->pterodactyl->application->post('/application/users', [
+                'external_id' => "0",
+                'username' => $data['name'],
+                'email' => $data['email'],
+                'first_name' => $data['name'],
+                'last_name' => $data['name'],
+                'password' => $data['password'],
+                'root_admin' => false,
+                'language' => 'en',
             ]);
-        }
 
-        $user->update([
-            'pterodactyl_id' => $response->json()['attributes']['id'],
-        ]);
-        //INCREMENT REFERRAL-USER CREDITS
-        if (! empty($request->input('referral_code'))) {
-            $ref_code = $request->input('referral_code');
-            $new_user = $user->id;
-            if ($ref_user = User::query()->where('referral_code', '=', $ref_code)->first()) {
-                if (config('SETTINGS::REFERRAL:MODE') == 'register' || config('SETTINGS::REFERRAL:MODE') == 'both') {
-                    $ref_user->increment('credits', config('SETTINGS::REFERRAL::REWARD'));
-                    $ref_user->notify(new ReferralNotification($ref_user->id, $new_user));
-                }
-                //INSERT INTO USER_REFERRALS TABLE
-                DB::table('user_referrals')->insert([
-                    'referral_id' => $ref_user->id,
-                    'registered_user_id' => $user->id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
+            if ($response->failed()) {
+                throw ValidationException::withMessages([
+                    'pterodactyl_error_message' => $response->toException()->getMessage(),
+                    'pterodactyl_error_status' => $response->toException()->getCode(),
                 ]);
             }
-        }
-        $user->sendEmailVerificationNotification();
 
-        return $user;
+            $user->update([
+                'pterodactyl_id' => $response->json()['attributes']['id'],
+            ]);
+
+            $user->sendEmailVerificationNotification();
+
+            DB::commit();
+
+            return UserResource::make($user);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw ValidationException::withMessages([
+                'pterodactyl_error_message' => $e->getMessage(),
+                'pterodactyl_error_status' => $e->getCode(),
+            ]);
+        };
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete user
      *
-     * @param  int  $id
-     * @return Application|Response|ResponseFactory
+     * @bodyParam reason string User requested deletion. Example: User requested deletion
+     *
+     * @response 204 {}
+     *
+     * @param  Request  $request
+     * @param  User  $user
+     * @return \Illuminate\Http\Response
+     *
+     * @throws ModelNotFoundException
      */
-    public function destroy(int $id)
+    public function destroy(DeleteUserRequest $request, User $user)
     {
-        $discordUser = DiscordUser::find($id);
-        $user = $discordUser ? $discordUser->user : User::findOrFail($id);
+        $data = $request->validated();
+
+        $logMessage = sprintf("The user %s (ID: %d) was deleted via API", $user->name, $user->id);
+
+        if (!empty($data['reason'])) {
+            $logMessage .= " | Reason: " . $data['reason'];
+        }
+
+        activity()->performedOn($user)->log($logMessage);
 
         $user->delete();
 
-        return response($user, 200);
+        return response()->noContent();
+    }
+
+    /**
+     * Increment the credits for the referring user.
+     *
+     * @param  User  $user
+     * @param  mixed  $data
+     * @return void
+     */
+    private function incrementReferralUserCredits(User $user, mixed $data)
+    {
+        if (!isset($data['referral_code'])) return;
+
+        $ref_code = $data['referral_code'];
+        $ref_user = User::query()->where('referral_code', $ref_code)->first();
+
+        if ($ref_user) {
+            $reward = $this->referralSettings->rewardsOnSignUp($user);
+
+            if ($reward) {
+                $ref_user->increment('credits', $this->referralSettings->reward);
+                $ref_user->notify(new ReferralNotification($user));
+            }
+
+            DB::table('user_referrals')->insert([
+                'referral_id' => $ref_user->id,
+                'registered_user_id' => $user->id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+                'rewarded_at' => $reward ? Carbon::now() : null,
+            ]);
+        }
     }
 }

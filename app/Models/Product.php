@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\BillingPriority;
+use App\Facades\Currency;
+use App\Models\Pterodactyl\Egg;
+use App\Models\Pterodactyl\Node;
 use Hidehalo\Nanoid\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,13 +13,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use App\Models\Pterodactyl\Egg;
-use App\Models\Pterodactyl\Node;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Product extends Model
 {
     use HasFactory;
     use LogsActivity;
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -26,6 +30,19 @@ class Product extends Model
     public $incrementing = false;
 
     protected $guarded = ['id'];
+
+    /**
+     * @var string[]
+     */
+    protected $appends = [
+        'display_price',
+        'display_minimum_credits',
+        'default_billing_priority_label',
+    ];
+
+    protected $casts = [
+        'default_billing_priority' => BillingPriority::class
+    ];
 
     public static function boot()
     {
@@ -43,48 +60,88 @@ class Product extends Model
         });
     }
 
+    /**
+     * Set the price to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function price(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Currency::prepareForDatabase($value)
+        );
+    }
+
+    /**
+     * Set the minimum credits to be in cents.
+     *
+     * @return Attribute
+     */
+    protected function minimumCredits(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $value ? Currency::prepareForDatabase($value) : null
+        );
+    }
+
     public function getHourlyPrice()
     {
-        // calculate the hourly price with the billing period
-        switch($this->billing_period) {
-            case 'daily':
-                return $this->price / 24;
-            case 'weekly':
-                return $this->price / 24 / 7;
-            case 'monthly':
-                return $this->price / 24 / 30;
-            case 'quarterly':
-                return $this->price / 24 / 30 / 3;
-            case 'half-annually':
-                return $this->price / 24 / 30 / 6;
-            case 'annually':
-                return $this->price / 24 / 365;
-            default:
-                return $this->price;
-        }
+        return match($this->billing_period) {
+            'daily' => $this->price / 24,
+            'weekly' => $this->price / 24 / 7,
+            'monthly' => $this->price / 24 / 30,
+            'quarterly' => $this->price / 24 / 30 / 3,
+            'half-annually' => $this->price / 24 / 30 / 6,
+            'annually' => $this->price / 24 / 365,
+            default => $this->price,
+        };
     }
 
     public function getMonthlyPrice()
     {
-        // calculate the hourly price with the billing period
-        switch($this->billing_period) {
-            case 'hourly':
-                return $this->price * 24 * 30;
-            case 'daily':
-                return $this->price * 30;
-            case 'weekly':
-                return $this->price * 4;
-            case 'monthly':
-                return $this->price;
-            case 'quarterly':
-                return $this->price / 3;
-            case 'half-annually':
-                return $this->price / 6;
-            case 'annually':
-                return $this->price / 12;
-            default:
-                return $this->price;
+        return match($this->billing_period) {
+            'hourly' => $this->price * 24 * 30,
+            'daily' => $this->price * 30,
+            'weekly' => $this->price * 4,
+            'monthly' => $this->price,
+            'quarterly' => $this->price / 3,
+            'half-annually' => $this->price / 6,
+            'annually' => $this->price / 12,
+            default => $this->price,
+        };
+    }
+
+    /**
+     * Get the display price formatted.
+     *
+     * @return string
+     */
+    public function getDisplayPriceAttribute()
+    {
+        return Currency::formatForDisplay($this->price);
+    }
+
+    /**
+     * Get the display minimum credits formatted.
+     *
+     * @return string|null
+     */
+    public function getDisplayMinimumCreditsAttribute()
+    {
+        // The minimum credits should never be less than the product price. Any
+        // NULL or numeric value below price will be treated as the price itself.
+        // legacy -1 rows will automatically be captured by the < comparison, and
+        // the migration cleans them up ahead of time.
+        if (is_null($this->minimum_credits) || $this->minimum_credits < $this->price) {
+            return Currency::formatForDisplay($this->price);
         }
+
+        return Currency::formatForDisplay($this->minimum_credits);
+    }
+
+    public function getDefaultBillingPriorityLabelAttribute()
+    {
+        return $this->default_billing_priority->label();
     }
 
     public function getWeeklyPrice()
@@ -93,11 +150,11 @@ class Product extends Model
     }
 
     /**
-     * @return BelongsTo
+     * @return hasMany
      */
     public function servers()
     {
-        return $this->belongsTo(Server::class, 'id', 'product_id');
+        return $this->hasMany(Server::class, 'product_id', 'id');
     }
 
     /**

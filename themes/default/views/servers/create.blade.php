@@ -27,8 +27,7 @@
         <div class="container-xxl">
             <!-- FORM -->
             <form action="{{ route('servers.store') }}" x-on:submit="submitClicked = true" method="post"
-                class="row justify-content-center"
-                id="serverForm">
+                class="row justify-content-center" id="serverForm">
                 @csrf
                 <div class="col-xl-6 col-lg-8 col-md-8 col-sm-10">
                     <div class="card">
@@ -39,14 +38,14 @@
                         @if (!$server_creation_enabled)
                             <div class="p-2 m-2 alert alert-warning">
                                 {{ __('The creation of new servers has been disabled for regular users, enable it again') }}
-                                <a href="{{ route('admin.settings.index', "#Server") }}">{{ __('here') }}</a>.
+                                <a href="{{ route('admin.settings.index', '#Server') }}">{{ __('here') }}</a>.
                             </div>
                         @endif
                         @if ($productCount === 0 || $nodeCount === 0 || count($nests) === 0 || count($eggs) === 0)
                             <div class="p-2 m-2 alert alert-danger">
                                 <h5><i class="icon fas fa-exclamation-circle"></i>{{ __('Error!') }}</h5>
                                 <p class="pl-4">
-                                    @if (Auth::user()->hasRole("Admin"))
+                                    @if (Auth::user()->hasRole('Admin'))
                                         {{ __('Make sure to link your products to nodes and eggs.') }} <br>
                                         {{ __('There has to be at least 1 valid product for server creation') }}
                                         <a href="{{ route('admin.overview.sync') }}">{{ __('Sync now') }}</a>
@@ -103,8 +102,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="nest">{{ __('Software / Games') }}</label>
-                                        <select class="custom-select" required name="nest" id="nest"
-                                            x-model="selectedNest" @change="setEggs();">
+                                        <select class="custom-select" required name="nest" id="nest" x-model="selectedNest"
+                                            @change="setEggs();">
                                             <option selected disabled hidden value="null">
                                                 {{ count($nests) > 0 ? __('Please select software ...') : __('---') }}
                                             </option>
@@ -135,64 +134,103 @@
                                 </div>
                             </div>
 
-                              <div class="form-group">
+                            <div class="form-group">
                                 <label for="location">{{ __('Location') }}</label>
-                                @if($location_description_enabled)
-                                  <i x-show="locationDescription != null" data-toggle="popover" data-trigger="click"
-                                     x-bind:data-content="locationDescription"
-                                     class="fas fa-info-circle"></i>
+                                @if ($location_description_enabled)
+                                    <i x-show="locationDescription != null" data-toggle="popover" data-trigger="click"
+                                        x-bind:data-content="locationDescription" class="fas fa-info-circle"></i>
                                 @endif
-                                <select name="location" required id="location" x-model="selectedLocation" :disabled="!fetchedLocations"
-                                        @change="fetchProducts();" class="custom-select">
-                                  <option x-text="getLocationInputText()" disabled selected hidden value="null">
-                                  </option>
-                                  <template x-for="location in locations" :key="location.id">
-                                    <option x-text="location.name" :value="location.id">
+                                <select name="location" required id="location" x-model="selectedLocation"
+                                    :disabled="!fetchedLocations" @change="fetchProducts();" class="custom-select">
+                                    <option x-text="getLocationInputText()" disabled selected hidden value="null">
                                     </option>
-                                  </template>
+                                    <template x-for="location in locations" :key="location.id">
+                                        <option x-text="location.name" :value="location.id">
+                                        </option>
+                                    </template>
                                 </select>
-                              </div>
-                              <template x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
+                            </div>
+                            <div class="form-group">
+                                <label for="billing_priority">
+                                    {{ __('Billing Priority') }}
+                                    <i data-toggle="popover" data-trigger="hover"
+                                        data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
+                                        class="fas fa-info-circle"></i>
+                                </label>
+                                <select id="billing_priority" style="width:100%" name="billing_priority" required
+                                    autocomplete="off"
+                                    class="custom-select @error('billing_priority') is-invalid @enderror">
+                                    <option value="" selected>
+                                        {{ __('Select') }}
+                                    </option>
+                                    @foreach (App\Enums\BillingPriority::cases() as $priority)
+                                        <option value="{{ $priority->value }}">
+                                            {{ $priority->label() }} - {{ $priority->description() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <template
+                                x-if="selectedProduct != null && selectedProduct != '' && locations.length == 0 && !loading">
                                 <div class="p-2 m-2 alert alert-danger">
-                                  {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
+                                    {{ __('There seem to be no nodes available for this specification. Admins have been notified. Please try again later of contact us.') }}
                                 </div>
-                              </template>
+                            </template>
                         </div>
                     </div>
                 </div>
 
                 <div class="w-100"></div>
-              <div class="col" x-show="selectedLocation != null" x-data="{
-                                      billingPeriodTranslations: {
-                                          'monthly': '{{ __('per Month') }}',
-                                          'half-annually': '{{ __('per 6 Months') }}',
-                                          'quarterly': '{{ __('per 3 Months') }}',
-                                          'annually': '{{ __('per Year') }}',
-                                          'weekly': '{{ __('per Week') }}',
-                                          'daily': '{{ __('per Day') }}',
-                                          'hourly': '{{ __('per Hour') }}'
-                                      }
-                                  }">
-                    <div class="mt-4 row justify-content-center">
+                <div class="col" x-show="selectedLocation != null" x-data="{
+                                billingPeriodTranslations: {
+                                    'monthly': '{{ __('per Month') }}',
+                                    'half-annually': '{{ __('per 6 Months') }}',
+                                    'quarterly': '{{ __('per 3 Months') }}',
+                                    'annually': '{{ __('per Year') }}',
+                                    'weekly': '{{ __('per Week') }}',
+                                    'daily': '{{ __('per Day') }}',
+                                    'hourly': '{{ __('per Hour') }}'
+                                }
+                            }">
+                    <div class="mb-3 ml-sm-2 ml-md-4 d-flex flex-wrap align-items-center justify-content-start" x-show="fetchedProducts && products.length > 0">
+                        <label class="mb-0 small" for="sort-products">{{ __('Sort:') }}</label>
+                        <select id="sort-products" class="w-auto custom-select custom-select-sm ml-2" x-model="sortBy"
+                            @change="sortProducts()">
+                            <option value="price">{{ __('Price') }}</option>
+                            <option value="cpu">{{ __('CPU') }}</option>
+                            <option value="memory">{{ __('Memory') }}</option>
+                            <option value="disk">{{ __('Disk') }}</option>
+                            <option value="backups">{{ __('Backups') }}</option>
+                            <option value="databases">{{ __('MySQL Databases') }}</option>
+                            <option value="allocations">{{ __('Additional allocations (ports)') }}</option>
+                        </select>
+                        <select id="sort-direction" class="w-auto custom-select custom-select-sm ml-2"
+                            x-model="sortDirection" @change="sortProducts()">
+                            <option value="asc">{{ __('Ascending') }}</option>
+                            <option value="desc">{{ __('Descending') }}</option>
+                        </select>
+                    </div>
+
+                    <div class="row justify-content-center">
                         <template x-for="product in products" :key="product.id">
                             <div class="ml-2 mr-2 card col-xl-3 col-lg-3 col-md-4 col-sm-10 ">
                                 <div class="card-body d-flex flex-column">
-                                  <div class="d-flex justify-content-between align-items-center">
-                                    <!-- Product Name -->
-                                    <h4 class="mb-0 card-title" x-text="product.name"></h4>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <!-- Product Name -->
+                                        <h4 class="mb-0 card-title" x-text="product.name"></h4>
 
-                                    <!-- Server Limit and Count -->
-                                    <span class="text-muted"
-                                          x-text="product.serverlimit > 0
-                                              ? product.servers_count + ' / ' + product.serverlimit
-                                              : '{{ __('No limit') }}'">
-                                    </span>
-                                  </div>
+                                        <!-- Server Limit and Count -->
+                                        <span class="text-muted" x-text="product.serverlimit > 0
+                                                          ? product.servers_count + ' / ' + product.serverlimit
+                                                          : '{{ __('No limit') }}'">
+                                        </span>
+                                    </div>
 
 
                                     <div class="mt-2">
                                         <div>
-                                          <p class="mb-1 card-text text-muted">{{ __('Resource Data:') }}</p>
+                                            <p class="mb-1 card-text text-muted">{{ __('Resource Data:') }}</p>
 
 
 
@@ -200,14 +238,14 @@
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-microchip"></i>
                                                         {{ __('CPU') }}</span>
-                                                    <span class=" d-inline-block"
-                                                        x-text="product.cpu + ' {{ __('vCores') }}'"></span>
+                                                    <span class="d-inline-block"
+                                                        x-text="product.cpu === 0 ? '{{ __('Unlimited') }}' : product.cpu + ' {{ __('vCores') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-memory"></i>
                                                         {{ __('Memory') }}</span>
-                                                    <span class=" d-inline-block"
-                                                        x-text="product.memory + ' {{ __('MB') }}'"></span>
+                                                    <span class="d-inline-block"
+                                                        x-text="product.memory === 0 ? '{{ __('Unlimited') }}' : product.memory + ' {{ __('MB') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <div>
@@ -217,7 +255,7 @@
                                                         </span>
                                                     </div>
                                                     <span class="d-inline-block"
-                                                        x-text="product.disk + ' {{ __('MB') }}'"></span>
+                                                        x-text="product.disk === 0 ? '{{ __('Unlimited') }}' : product.disk + ' {{ __('MB') }}'"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-save"></i>
@@ -226,34 +264,41 @@
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-database"></i>
-                                                        {{ __('MySQL') }}
-                                                        {{ __('Databases') }}</span>
+                                                        {{ __('MySQL Databases') }}</span>
                                                     <span class="d-inline-block" x-text="product.databases"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-network-wired"></i>
-                                                        {{ __('Allocations') }}
-                                                        ({{ __('ports') }})</span>
+                                                        {{ __('Additional allocations (ports)') }}</span>
                                                     <span class="d-inline-block" x-text="product.allocations"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fas fa-clock"></i>
                                                         {{ __('Billing Period') }}</span>
 
-                                                    <span class="d-inline-block" x-text="billingPeriodTranslations[product.billing_period]"></span>
+                                                    <span class="d-inline-block"
+                                                        x-text="billingPeriodTranslations[product.billing_period]"></span>
+                                                </li>
+                                                <li class="d-flex justify-content-between">
+                                                    <span class="d-inline-block">
+                                                        <i class="fas fa-flag"></i>
+                                                        {{ __('Billing Priority') }}
+                                                    </span>
+                                                    <span class="d-inline-block"
+                                                        x-text="product.default_billing_priority_label"></span>
                                                 </li>
                                                 <li class="d-flex justify-content-between">
                                                     <span class="d-inline-block"><i class="fa fa-coins"></i>
                                                         {{ __('Minimum') }} {{ $credits_display_name }}</span>
                                                     <span class="d-inline-block"
-                                                        x-text="product.minimum_credits == -1 ? {{ $min_credits_to_make_server }} : product.minimum_credits"></span>
+                                                        x-text="product.display_minimum_credits"></span>
                                                 </li>
                                             </ul>
                                         </div>
                                         <div class="mt-2 mb-2">
                                             <span class="card-text text-muted">{{ __('Description') }}</span>
-                                            <p class="card-text" style="white-space:pre-wrap"
-                                                x-text="product.description"></p>
+                                            <p class="card-text" style="white-space:pre-wrap" x-text="product.description">
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
@@ -262,34 +307,35 @@
                                                 x-text="'{{ __('Price') }}' + ' (' + billingPeriodTranslations[product.billing_period] + ')'">
                                             </span>
                                             <span class="d-inline-block"
-                                                x-text="product.price + ' {{ $credits_display_name }}'"></span>
+                                                x-text="product.display_price + ' {{ $credits_display_name }}'"></span>
                                         </div>
                                     </div>
                                     <div>
-                                        <button type="button"
-                                            :disabled="(product.minimum_credits > user.credits && product.price > user.credits) ||
-                                                product.doesNotFit == true ||
-                                                product.servers_count >= product.serverlimit && product.serverlimit != 0 ||
-                                                submitClicked"
-                                            :class="(product.minimum_credits > user.credits && product.price > user.credits) ||
-                                                product.doesNotFit == true ||
-                                                submitClicked ? 'disabled' : ''"
-                                            class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);"
-                                                x-text="product.doesNotFit == true
-                                                    ? '{{ __('Server cant fit on this Location') }}'
-                                                    : (product.servers_count >= product.serverlimit && product.serverlimit != 0
-                                                        ? '{{ __('Max. Servers with configuration reached') }}'
-                                                        : (product.minimum_credits > user.credits && product.price > user.credits
-                                                            ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
-                                                            : '{{ __('Create server') }}'))">                                        </button>
+                                        <button type="button" :disabled="(product.effective_minimum > user.credits) ||
+                                                        product.doesNotFit == true ||
+                                                            product.servers_count >= product.serverlimit && product.serverlimit !=
+                                                            0 ||
+                                                            submitClicked" :class="(product.effective_minimum > user.credits) ||
+                                                        product.doesNotFit == true ||
+                                                            product.servers_count >= product.serverlimit && product.serverlimit !=
+                                                            0 ||
+                                                            submitClicked ? 'disabled' : ''"
+                                            class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);" x-text="product.doesNotFit == true
+                                                                ? '{{ __('Server cant fit on this Location') }}'
+                                                                : (product.servers_count >= product.serverlimit && product.serverlimit != 0
+                                                                    ? '{{ __('Max. Servers with configuration reached') }}'
+                                                                    : (product.effective_minimum > user.credits
+                                                                        ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
+                                                                        : '{{ __('Create server') }}'))">
+                                        </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
-                                        <template x-if="product.price > user.credits || product.minimum_credits > user.credits">
-                                            <a href="{{ route('store.index') }}">
-                                                <button type="button" class="mt-2 btn btn-warning btn-block">
-                                                    {{ __('Buy more') }} {{ $credits_display_name }}
-                                                </button>
-                                            </a>
-                                        </template>
+                                            <template x-if="product.effective_minimum > user.credits">
+                                                <a href="{{ route('store.index') }}">
+                                                    <button type="button" class="mt-2 btn btn-warning btn-block">
+                                                        {{ __('Buy more') }} {{ $credits_display_name }}
+                                                    </button>
+                                                </a>
+                                            </template>
                                         @endif
                                     </div>
 
@@ -325,6 +371,8 @@
                 selectedLocation: null,
                 selectedProduct: null,
                 locationDescription: null,
+                sortBy: 'price',
+                sortDirection: 'asc',
 
                 //selected objects based on input
                 selectedNestObject: {},
@@ -353,10 +401,10 @@
                     this.fetchedProducts = false;
                     this.locations = [];
                     this.products = [];
-                    this.selectedEgg = 'null';
-                    this.selectedLocation = 'null';
+                    this.selectedEgg = null;
+                    this.selectedLocation = null;
                     this.selectedProduct = null;
-                    this.locationDescription = 'null';
+                    this.locationDescription = null;
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)
 
@@ -378,11 +426,11 @@
 
                     let hasEmptyRequiredVariables = this.hasEmptyRequiredVariables(this.selectedEggObject.environment);
 
-                    if(hasEmptyRequiredVariables.length > 0) {
-                      this.dispatchModal(hasEmptyRequiredVariables);
+                    if (hasEmptyRequiredVariables.length > 0) {
+                        this.dispatchModal(hasEmptyRequiredVariables);
                     } else {
-                      document.getElementById('product').value = productId;
-                      document.getElementById('serverForm').submit();
+                        document.getElementById('product').value = productId;
+                        document.getElementById('serverForm').submit();
                     }
                 },
 
@@ -397,8 +445,8 @@
                     this.fetchedProducts = false;
                     this.locations = [];
                     this.products = [];
-                    this.selectedLocation = 'null';
-                    this.selectedProduct = 'null';
+                    this.selectedLocation = null;
+                    this.selectedProduct = null;
                     this.locationDescription = null;
 
                     let response = await axios.get(`{{ route('products.locations.egg') }}/${this.selectedEgg}`)
@@ -431,30 +479,50 @@
                     this.selectedProduct = null;
 
                     let response = await axios.get(
-                            `{{ route('products.products.location') }}/${this.selectedEgg}/${this.selectedLocation}`)
+                        `{{ route('products.products.location') }}/${this.selectedEgg}/${this.selectedLocation}`)
                         .catch(console.error)
 
                     this.fetchedProducts = true;
 
-                    // TODO: Sortable by user chosen property (cpu, ram, disk...)
-                    this.products = response.data.sort((p1, p2) => parseInt(p1.price, 10) > parseInt(p2.price, 10) &&
-                        1 || -1)
+                    this.products = response.data;
 
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
                         product.cpu = product.cpu / 100;
+                        // Determine effective minimum credits: fallback to price when stored value
+                        // is missing or less than price. legacy -1 rows are covered by the comparison.
+                        let minVal = parseFloat(product.minimum_credits);
+                        product.effective_minimum = (product.minimum_credits === null || minVal < parseFloat(
+                            product.price)) ?
+                            parseFloat(product.price) :
+                            minVal;
                     })
 
-                    //format price to have no decimals if it is a whole number
-                    this.products.forEach(product => {
-                        if (product.price % 1 === 0) {
-                            product.price = Math.round(product.price);
-                        }
-                    })
+                    this.sortProducts();
 
-                    this.locationDescription = this.locations.find(location => location.id == this.selectedLocation).description ?? null;
+                    this.locationDescription = this.locations.find(location => location.id == this.selectedLocation)
+                        .description ?? null;
                     this.loading = false;
                     this.updateSelectedObjects()
+                },
+
+                /**
+                 * @description sort the products by the user chosen property
+                 * @note called whenever the sort dropdown changes or products are fetched
+                 * @see sortBy
+                 */
+                sortProducts() {
+                    const sortableProperties = ['price', 'cpu', 'memory', 'disk', 'backups', 'databases', 'allocations'];
+
+                    // Fall back to price if the chosen property is not sortable.
+                    const property = sortableProperties.includes(this.sortBy) ? this.sortBy : 'price';
+                    const direction = this.sortDirection === 'desc' ? -1 : 1;
+
+                    this.products.sort((p1, p2) => {
+                        const a = parseFloat(p1[property]) || 0;
+                        const b = parseFloat(p2[property]) || 0;
+                        return (a - b) * direction;
+                    });
                 },
 
 
@@ -469,8 +537,8 @@
                     this.selectedLocationObject = {};
                     this.locations.forEach(location => {
                         if (!this.selectedLocationObject?.id) {
-                            this.selectedLocationObject = location.nodes.find(node => node.id == this.selectedLocation) ??
-                                {};
+                            this.selectedLocationObject = location.nodes.find(node => node.id == this
+                                .selectedLocation) ?? {};
                         }
                     })
 
@@ -489,16 +557,16 @@
                     return !!this.name;
                 },
 
-              hasEmptyRequiredVariables(environment) {
-                if (!environment) return [];
+                hasEmptyRequiredVariables(environment) {
+                    if (!environment) return [];
 
-                return environment.filter((variable) => {
-                  const hasRequiredRule = variable.rules?.includes("required");
-                  const isDefaultNull = !variable.default_value;
+                    return environment.filter((variable) => {
+                        const hasRequiredRule = variable.rules?.includes("required");
+                        const isDefaultEmpty = variable.default_value === null || variable.default_value === "";
 
-                  return hasRequiredRule && isDefaultNull;
-                });
-              },
+                        return hasRequiredRule && isDefaultEmpty;
+                    });
+                },
 
                 getLocationInputText() {
                     if (this.fetchedLocations) {
@@ -530,7 +598,8 @@
                 getProductOptionText(product) {
                     let text = product.name + ' (' + product.description + ')';
 
-                    if (product.minimum_credits > this.user.credits) {
+                    // Use effective_minimum for credit checks (minimum_credits is per-product; null uses price)
+                    if (product.effective_minimum > this.user.credits) {
                         return '{{ __('Not enough credits!') }} | ' + text;
                     }
 
@@ -538,102 +607,103 @@
                 },
 
                 dispatchModal(variables) {
-                  Swal.fire({
-                    title: '{{ __('Required Variables') }}',
-                    html: `
-                      ${variables.map(variable => `
-                        <div class="text-left form-group">
-                          <div class="d-flex justify-content-between">
-                            <label for="${variable.env_variable}">${variable.name}</label>
-                            ${variable.description
-                              ? `
-                                <span>
-                                  <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
-                                </span>
-                              `
-                              : ''
-                            }
-                          </div>
-                          ${
-                            variable.rules.includes("in:")
-                              ? (() => {
-                                const inValues = variable.rules
-                                  .match(/in:([^|]+)/)[1]
-                                  .split(',');
+                    const html = variables.map(variable => {
+                        const control = variable.rules.includes('in:') ?
+                            (() => {
+                                const inValues = variable.rules.match(/in:([^|]+)/)[1].split(',');
                                 return `
-                                  <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
-                                      ${inValues.map(value => `
-                                          <option value="${value}">${value}</option>
-                                      `).join('')}
-                                  </select>
-                                `;
-                              })()
-                              : `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control">`
-                          }
-                          <div id="${variable.env_variable}-error" class="mt-1"></div>
-                        </div>
-                      `).join('')
-                      }
-                    `,
-                    confirmButtonText: '{{ __('Submit') }}',
-                    showCancelButton: true,
-                    cancelButtonText: '{{ __('Cancel') }}',
-                    showLoaderOnConfirm: true,
-                    preConfirm: async () => {
-                      const filledVariables = variables.map(variable => {
-                        const value = document.getElementById(variable.env_variable).value;
-                        return {
-                            ...variable,
-                            filled_value: value
-                        };
-                      });
+                                                <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
+                                                    ${inValues.map(value => `<option value="${value}" ${value == variable.default_value ? 'selected' : ''}>${value}</option>`).join('')}
+                                                </select>
+                                            `;
+                            })() :
+                            `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control" value="${variable.default_value ?? ''}">`;
 
-                      const response = await fetch('{{ route("servers.validateDeploymentVariables") }}', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                          variables: filledVariables
-                        })
-                      })
+                        return `
+                                        <div class="text-left form-group">
+                                            <div class="d-flex justify-content-between">
+                                                <label for="${variable.env_variable}">${variable.name}</label>
+                                                ${variable.description ? `
+                                                        <span>
+                                                            <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
+                                                        </span>
+                                                    ` : ''}
+                                            </div>
+                                            ${control}
+                                            <div id="${variable.env_variable}-error" class="mt-1"></div>
+                                        </div>
+                                    `;
+                    }).join('');
 
-                      if (!response.ok) {
-                        const errorData = await response.json();
-
-                        variables.forEach(variable => {
-                            const errorContainer = document.getElementById(`${variable.env_variable}-error`);
-                            if (errorContainer) {
-                                errorContainer.innerHTML = '';
-                            }
-                        });
-
-                        if (errorData.errors) {
-                            Object.entries(errorData.errors).forEach(([key, messages]) => {
-                                const errorContainer = document.getElementById(`${key}-error`);
-                                if (errorContainer) {
-                                    errorContainer.innerHTML = messages.map(message => `
-                                        <small class="text-danger">${message}</small>
-                                    `).join('');
-                                }
+                    Swal.fire({
+                        title: '{{ __('Required Variables') }}',
+                        html: html,
+                        confirmButtonText: '{{ __('Submit') }}',
+                        showCancelButton: true,
+                        cancelButtonText: '{{ __('Cancel') }}',
+                        showLoaderOnConfirm: true,
+                        preConfirm: async () => {
+                            const filledVariables = variables.map(variable => {
+                                const value = document.getElementById(variable.env_variable).value;
+                                return {
+                                    ...variable,
+                                    filled_value: value
+                                };
                             });
+
+                            const response = await fetch(
+                                '{{ route('servers.validateDeploymentVariables') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    variables: filledVariables
+                                })
+                            })
+
+                            if (!response.ok) {
+                                const errorData = await response.json();
+
+                                variables.forEach(variable => {
+                                    const errorContainer = document.getElementById(
+                                        `${variable.env_variable}-error`);
+                                    if (errorContainer) {
+                                        errorContainer.innerHTML = '';
+                                    }
+                                });
+
+                                if (errorData.errors) {
+                                    Object.entries(errorData.errors).forEach(([key, messages]) => {
+                                        const errorContainer = document.getElementById(`${key}-error`);
+                                        if (errorContainer) {
+                                            errorContainer.innerHTML = messages.map(message => `
+                                                    <small class="text-danger">${message}</small>
+                                                `).join('');
+                                        }
+                                    });
+                                }
+
+                                return false;
+                            }
+
+                            return response.json();
+                        },
+                        didOpen: () => {
+                            $('[data-toggle="tooltip"]').tooltip();
+                        },
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value.success) {
+                            let variables = result.value.variables.reduce((acc, variable) => {
+                                acc[variable.env_variable] = variable.filled_value;
+                                return acc;
+                            }, {});
+
+                            document.getElementById('egg_variables').value = JSON.stringify(variables);
+                            document.getElementById('serverForm').submit();
                         }
-
-                        return false;
-                      }
-
-                      return response.json();
-                    },
-                    didOpen: () => {
-                      $('[data-toggle="tooltip"]').tooltip();
-                    },
-                  }).then((result) => {
-                    if (result.isConfirmed && result.value.success) {
-                      document.getElementById('egg_variables').value = JSON.stringify(result.value.variables);
-                      document.getElementById('serverForm').submit();
-                    }
-                  });
+                    });
                 }
             }
         }
