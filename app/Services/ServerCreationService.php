@@ -333,12 +333,6 @@ class ServerCreationService
      * and also a free allocation on Pterodactyl. Returns ['node' => Node, 'allocation_id' => int]
      * or null when none available.
      */
-
-    /**
-     * Find a node in the given location for the product that has required resources
-     * and also a free allocation on Pterodactyl. Returns ['node' => Node, 'allocation_id' => int]
-     * or null when none available.
-     */
     private function findAvailableNodeWithAllocation(string $locationId, Product $product): ?array
     {
         $nodes = Node::where('location_id', $locationId)
