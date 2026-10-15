@@ -78,12 +78,24 @@ class ReconcileServerCreationJob implements ShouldQueue
         }
 
         if ($response->status() === 404) {
-            $server->delete();
-            $creditService->refund($server->user, $this->chargedPrice);
-            Log::info('ReconcileServerCreationJob: deleted server and refunded credits on confirmed 404', [
-                'server_id' => $this->serverId,
-                'amount' => $this->chargedPrice,
-            ]);
+            $user = $server->user;
+
+            // Atomic delete: only the worker that actually removes the row refunds.
+            $deleted = Server::where('id', $server->id)
+                ->where('status', '!=', Server::STATUS_FAILED)
+                ->delete();
+
+            if ($deleted === 1 && $user) {
+                $creditService->refund($user, $this->chargedPrice);
+                Log::info('ReconcileServerCreationJob: deleted server and refunded credits on confirmed 404', [
+                    'server_id' => $this->serverId,
+                    'amount' => $this->chargedPrice,
+                ]);
+            } else {
+                Log::info('ReconcileServerCreationJob: server already handled by another worker, skipping refund', [
+                    'server_id' => $this->serverId,
+                ]);
+            }
 
             return;
         }
