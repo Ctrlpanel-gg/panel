@@ -464,8 +464,23 @@ class ServerController extends Controller
                 ->with('error', __('Server is not ready yet. Please wait until it is created.'));
         }
 
-        $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-        $upgradeOptions = $this->getUpgradeOptions($server, $serverAttributes);
+        try {
+            $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+            $upgradeOptions = $this->getUpgradeOptions($server, $serverAttributes);
+        } catch (Exception $e) {
+            Log::error('Failed to load server settings', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : __('Something went wrong. Please try again later.');
+
+            return redirect()->route('servers.index')
+                ->with('error', $message);
+        }
+
         return view('servers.settings')->with([
             'server' => $server,
             'serverAttributes' => $serverAttributes,
