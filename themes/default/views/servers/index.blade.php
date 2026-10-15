@@ -59,10 +59,8 @@
                                 <div class="mb-3 row">
                                     <div class="my-auto col">{{ __('Status') }}:</div>
                                     <div class="my-auto col-7">
-                                        @if($server->status === 'provisioning')
-                                            <span class="badge badge-info">{{ __('Provisioning') }}</span>
-                                        @elseif($server->status === 'pending_reconciliation')
-                                            <span class="badge badge-info">{{ __('Reconciling') }}</span>
+                                        @if($server->status === 'provisioning' || $server->status === 'pending_reconciliation')
+                                            <span class="badge badge-info">{{ __('Setting up') }}</span>
                                         @elseif($server->status === 'failed')
                                             <span class="badge badge-danger">{{ __('Failed') }}</span>
                                         @elseif($server->suspended)
