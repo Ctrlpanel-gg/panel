@@ -331,9 +331,33 @@ class ServerController extends Controller
                 ';
             })
             ->addColumn('status', function (Server $server) {
-                $labelColor = $server->suspended ? 'text-danger' : 'text-success';
+                if ($server->status === Server::STATUS_FAILED) {
+                    $badge = 'badge-danger';
+                    $text = __('Failed');
+                    $tip = __('Creation failed. Safe to delete');
+                } elseif ($server->suspended) {
+                    $badge = 'badge-danger';
+                    $text = __('Suspended');
+                    $tip = __('Suspended :time', ['time' => $server->suspended->diffForHumans()]);
+                } elseif ($server->canceled) {
+                    $badge = 'badge-warning';
+                    $text = __('Canceled');
+                    $tip = __('Billing canceled, stays active until period end');
+                } elseif (!$server->pterodactyl_id) {
+                    $badge = 'badge-info';
+                    $text = __('Setting up');
+                    $tip = __('Waiting for Pterodactyl. No remote server yet');
+                } elseif ($server->status === Server::STATUS_PROVISIONING || $server->status === Server::STATUS_PENDING_RECONCILIATION) {
+                    $badge = 'badge-info';
+                    $text = __('Setting up');
+                    $tip = __('Reconciling with Pterodactyl');
+                } else {
+                    $badge = 'badge-success';
+                    $text = __('Active');
+                    $tip = __('Running and billing normally');
+                }
 
-                return '<i class="fas ' . $labelColor . ' fa-circle mr-2"></i>';
+                return '<span class="badge ' . $badge . '" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . e($tip) . '">' . e($text) . '</span>';
             })
             ->editColumn('created_at', function (Server $server) {
                 return $server->created_at ? $server->created_at->diffForHumans() : '';
