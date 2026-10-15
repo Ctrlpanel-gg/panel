@@ -342,8 +342,10 @@ class ServerController extends Controller
         }
 
         if (!$server->pterodactyl_id) {
+            $this->handleServerDeletion($server);
+
             return redirect()->route('servers.index')
-                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
+                ->with('success', __('Server removed'));
         }
 
         try {

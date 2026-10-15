@@ -216,7 +216,6 @@
                             @endif
                             <button onclick="handleServerDelete('{{ $server->id }}');" target="__blank"
                                 class="float-right mr-2 text-center btn btn-danger"
-                                {{ !$server->pterodactyl_id ? "disabled" : "" }}
                                 data-toggle="tooltip" data-placement="bottom" title="{{ __('Delete Server') }}">
                                 <i class="mx-2 fas fa-trash"></i>
                             </button>
