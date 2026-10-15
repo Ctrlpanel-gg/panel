@@ -118,7 +118,7 @@ class ServerCreationService
                         $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
                         dispatch(new ReconcileServerCreationJob($server->id, $credits));
                     }
-                } elseif (!$server || !$server->exists) {
+                } else {
                     $this->refundCredits($user, $credits);
                 }
             }
