@@ -39,6 +39,9 @@ public/install/logs/installer.log
 /public/vendor
 /themes/scribe
 
+# Ignore database snapshots
+database/snapshots
+
 /.idea
 cpggdatabase.sql
 /dump.rdb

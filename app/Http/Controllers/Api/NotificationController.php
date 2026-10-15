@@ -117,10 +117,7 @@ class NotificationController extends Controller
                 'both' => ['mail', 'database'],
             };
 
-            $database = in_array('database', $via) ? [
-                'title' => $data['title'],
-                'content' => $data['content'],
-            ] : null;
+            $database = in_array('database', $via) ? $this->notificationService->buildDatabaseNotification($data['title'], $data['content']) : null;
 
             $mail = in_array('mail', $via) ?
                 (new MailMessage)
@@ -172,10 +169,7 @@ class NotificationController extends Controller
                 'both' => ['mail', 'database'],
             };
 
-            $database = in_array('database', $via) ? [
-                'title' => $data['title'],
-                'content' => $data['content'],
-            ] : null;
+            $database = in_array('database', $via) ? $this->notificationService->buildDatabaseNotification($data['title'], $data['content']) : null;
 
             $mail = in_array('mail', $via) ?
                 (new MailMessage)

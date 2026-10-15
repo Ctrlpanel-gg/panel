@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\Pterodactyl\PterodactylException;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
+use App\Services\ServerSyncService;
 use App\Settings\DiscordSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
@@ -248,78 +250,33 @@ class ServerController extends Controller
         return redirect()->back()->with('success', __('Server has been updated!'));
     }
 
-    public function syncServers()
+    public function syncServers(ServerSyncService $syncService)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
-        $CPServers = Server::all();
 
-        $CPIDArray = [];
-        $renameCount = 0;
-        $recoveredCount = 0;
-        $deleteCount = 0;
 
-        // 1. Handle servers with missing pterodactyl_id (Try to recover via external_id)
-        foreach ($CPServers->whereNull('pterodactyl_id') as $serverWithoutId) {
-            try {
-                $response = $this->pterodactyl->getServerByExternalId($serverWithoutId->id);
-                if ($response->successful()) {
-                    $attributes = $response->json()['attributes'] ?? null;
-                    if ($attributes && isset($attributes['id'])) {
-                        $serverWithoutId->update([
-                            'pterodactyl_id' => $attributes['id'],
-                            'identifier' => $attributes['identifier'] ?? $serverWithoutId->identifier,
-                            'status' => Server::STATUS_ACTIVE,
-                        ]);
-                        $recoveredCount++;
-                    }
-                }
-            } catch (Exception $e) {
-                Log::error("Failed to sync server without ID {$serverWithoutId->id}: " . $e->getMessage());
-            }
+        try {
+            $result = $syncService->sync();
+        } catch (PterodactylException $e) {
+            Log::error('Server sync aborted: unable to fetch server list', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', __('Server sync failed: ') . $e->getPublicMessage());
         }
 
-        // Refresh list after recovery attempts
-        $CPServers = Server::all();
+        $message = __('Servers synced successfully: :renamed renamed, :deleted deleted.', [
+            'renamed' => $result['renamed'],
+            'deleted' => $result['deleted'],
+        ]);
 
-        // 2. Map existing pterodactyl_id for presence check
-        foreach ($CPServers as $CPServer) {
-            if ($CPServer->pterodactyl_id) {
-                $CPIDArray[$CPServer->pterodactyl_id] = false;
-            }
+        if ($result['skipped'] > 0) {
+            $message .= ' ' . __(':skipped servers skipped due to errors and kept.', [
+                'skipped' => $result['skipped'],
+            ]);
+
+            return redirect()->back()->with('warning', $message);
         }
-
-        // 3. Sync names and mark found servers
-        foreach ($this->pterodactyl->getServers() as $server) {
-            $pteroId = $server['attributes']['id'];
-            if (isset($CPIDArray[$pteroId])) {
-                $CPIDArray[$pteroId] = true;
-
-                if (isset($server['attributes']['name'])) {
-                    $savedServer = $CPServers->where('pterodactyl_id', $pteroId)->first();
-                    if ($savedServer && $savedServer->name != $server['attributes']['name']) {
-                        $savedServer->update(['name' => $server['attributes']['name']]);
-                        $renameCount++;
-                    }
-                }
-            }
-        }
-
-        // 4. Delete servers that don't exist on Pterodactyl anymore
-        $orphanedServers = array_filter($CPIDArray, fn($found) => !$found);
-        foreach ($orphanedServers as $key => $found) {
-            try {
-                // getServerAttributes with deleteOn404=true will delete the server if it's missing
-                $this->pterodactyl->getServerAttributes($key, true);
-                $deleteCount++;
-            } catch (Exception $e) {
-                Log::error("Failed to check orphaned server {$key}: " . $e->getMessage());
-            }
-        }
-
-        $message = __('Servers synced successfully.');
-        if ($renameCount > 0) $message .= ' ' . __('Renamed') . ': ' . $renameCount . '.';
-        if ($recoveredCount > 0) $message .= ' ' . __('Recovered') . ': ' . $recoveredCount . '.';
-        if ($deleteCount > 0) $message .= ' ' . __('Deleted') . ': ' . $deleteCount . '.';
 
         return redirect()->back()->with('success', $message);
     }

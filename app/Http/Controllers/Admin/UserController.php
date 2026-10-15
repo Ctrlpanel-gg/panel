@@ -6,6 +6,7 @@ use App\Events\UserUpdateCreditsEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\DynamicNotification;
+use App\Services\NotificationService;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
 use App\Classes\PterodactylClient;
@@ -42,8 +43,8 @@ class UserController extends Controller
     const CHANGE_CREDITS_PERMISSION = "admin.users.write.credits";
     const CHANGE_USERNAME_PERMISSION = "admin.users.write.username";
     const CHANGE_PASSWORD_PERMISSION = "admin.users.write.password";
-    const CHANGE_ROLE_PERMISSION ="admin.users.write.role";
-    const CHANGE_REFERRAL_PERMISSION ="admin.users.write.referral";
+    const CHANGE_ROLE_PERMISSION = "admin.users.write.role";
+    const CHANGE_REFERRAL_PERMISSION = "admin.users.write.referral";
     const CHANGE_PTERO_PERMISSION = "admin.users.write.pterodactyl";
 
     const CHANGE_SERVERLIMIT_PERMISSION = "admin.users.write.serverlimit";
@@ -54,7 +55,7 @@ class UserController extends Controller
 
     private $pterodactyl;
 
-    public function __construct(PterodactylSettings $ptero_settings)
+    public function __construct(PterodactylSettings $ptero_settings, private NotificationService $notificationService)
     {
         $this->pterodactyl = new PterodactylClient($ptero_settings);
     }
@@ -87,6 +88,12 @@ class UserController extends Controller
     public function show(User $user, LocaleSettings $locale_settings, GeneralSettings $general_settings)
     {
         $this->checkPermission(self::READ_PERMISSION);
+
+        $user->load('twoFactorMethods');
+        $enabled2faMethods = $user->twoFactorMethods
+            ->where('is_enabled', true)
+            ->pluck('method')
+            ->implode(' / ');
 
         $referralRecords = DB::table('user_referrals')->where('referral_id', '=', $user->id)->get();
         $allReferrals = [];
@@ -136,6 +143,7 @@ class UserController extends Controller
         return view('admin.users.show')->with([
             'user' => $user,
             'referrals' => $allReferrals,
+            'enabled2faMethods' => $enabled2faMethods,
             'locale_datatables' => $locale_settings->datatables,
             'credits_display_name' => $general_settings->credits_display_name
         ]);
@@ -215,16 +223,27 @@ class UserController extends Controller
 
         $data = $request->validate([
             'name' => 'required|string|min:4|max:30',
-            'pterodactyl_id' => "required|numeric|unique:users,pterodactyl_id,{$user->id}",
             'email' => 'required|string|email',
             'credits' => 'required|numeric|min:0|max:9223372036854775',
             'server_limit' => 'required|numeric|min:0|max:1000000',
             'referral_code' => "required|string|min:2|max:32|unique:users,referral_code,{$user->id}",
         ]);
 
+        if ($request->filled('pterodactyl_id')) {
+            $pterodactylIdRules = ['required', 'numeric'];
+
+            if ((string) $request->input('pterodactyl_id') !== (string) $user->pterodactyl_id) {
+                $pterodactylIdRules[] = Rule::unique('users', 'pterodactyl_id')->ignore($user->getKey());
+            }
+
+            $request->validate([
+                'pterodactyl_id' => $pterodactylIdRules,
+            ]);
+        }
+
         //update roles
         if ($request->roles && $this->can(self::CHANGE_ROLE_PERMISSION)) {
-            $collectedRoles = collect($request->roles)->map(fn($val)=>(int)$val);
+            $collectedRoles = collect($request->roles)->map(fn($val) => (int) $val);
             $user->syncRoles($collectedRoles);
         }
 
@@ -395,25 +414,33 @@ class UserController extends Controller
     {
         $this->checkPermission(self::NOTIFY_PERMISSION);
 
-//TODO: reimplement the required validation on all,users and roles . didnt work -- required_without:users,roles
         $data = $request->validate([
             'via' => 'required|min:1|array',
             'via.*' => 'required|string|in:mail,database',
             'all' => 'boolean',
-            'users' => 'min:1|array',
-            'roles' => 'min:1|array',
-            'roles.*' => 'required_without:all,users|exists:roles,id',
+            'users' => 'array',
+            'users.*' => 'integer|exists:users,id',
+            'roles' => 'array',
+            'roles.*' => 'integer|exists:roles,id',
             'title' => 'required|string|min:1',
             'content' => 'required|string|min:1',
         ]);
 
+        // Ensure at least one target (all users, specific users, or roles) is selected.
+        $hasTarget = $data['all'] ?? false
+            || !empty($data['users'])
+            || !empty($data['roles']);
+
+        if (!$hasTarget) {
+            return redirect()->back()->withErrors([
+                'all' => __('Please select at least one target: all users, specific users, or roles.'),
+            ])->withInput();
+        }
+
         $mail = null;
         $database = null;
         if (in_array('database', $data['via'])) {
-            $database = [
-                'title' => $data['title'],
-                'content' => $data['content'],
-            ];
+            $database = $this->notificationService->buildDatabaseNotification($data['title'], $data['content']);
         }
         if (in_array('mail', $data['via'])) {
             $mail = (new MailMessage)
@@ -423,9 +450,9 @@ class UserController extends Controller
         $all = $data['all'] ?? false;
         $roles = $data['roles'] ?? false;
 
-        if(!$roles){
+        if (!$roles) {
             $users = $all ? User::where('suspended', false)->get() : User::whereIn('id', $data['users'])->get();
-        } else{
+        } else {
             // Initialize an empty collection to hold users from all roles
             $users = collect();
 
@@ -485,7 +512,7 @@ class UserController extends Controller
     {
         $this->checkPermission(self::READ_PERMISSION);
 
-        $query = User::with('discordUser')
+        $query = User::with('discordUser', 'twoFactorMethods')
             ->withCount('servers')
             ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
@@ -501,6 +528,13 @@ class UserController extends Controller
             })
             ->addColumn('verified', function (User $user) {
                 return $user->getVerifiedStatus();
+            })
+            ->addColumn('two_factor', function (User $user) {
+                $enabled = $user->twoFactorMethods->where('is_enabled', true)->isNotEmpty();
+                if ($enabled) {
+                    return '<span class="badge badge-success">' . __('Enabled') . '</span>';
+                }
+                return '<span class="badge badge-secondary">' . __('Disabled') . '</span>';
             })
             ->addColumn('discordId', function (User $user) {
                 return $user->discordUser ? $user->discordUser->id : '';
@@ -519,11 +553,13 @@ class UserController extends Controller
                              ' . csrf_field() . '
                             <button data-content="' . $suspendText . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm ' . $suspendColor . ' text-white mr-1"><i class="fas ' . $suspendIcon . '"></i></button>
                           </form>
-                <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.users.destroy', $user->id) . '">
-                             ' . csrf_field() . '
-                             ' . method_field('DELETE') . '
-                            <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                        </form>
+                <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="' . route('admin.users.destroy', $user->id) . '">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
                 ';
             })
             ->editColumn('role', function (User $user) {
@@ -542,7 +578,7 @@ class UserController extends Controller
                 return '<a class="text-info" target="_blank" href="' . $ptero_settings->panel_url . '/admin/users/view/' . $user->pterodactyl_id . '">' . e($user->name) . '</a>';
             })
             ->orderColumn('role', 'role_name $1')
-            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage',  'actions'])
+            ->rawColumns(['avatar', 'name', 'credits', 'role', 'usage', 'two_factor', 'actions'])
             ->make();
     }
 }

@@ -29,37 +29,37 @@
                 [6, "desc"]
             ],
             columns: [{
-                    data: 'status',
-                    name: 'servers.suspended',
-                    sortable: false
-                },
-                {
-                    data: 'name'
-                },
-                {
-                    data: 'user',
-                    name: 'user.name',
-                },
-                {
-                    data: 'identifier'
-                },
-                {
-                    data: 'resources',
-                    name: 'product.name',
-                    sortable: false
-                },
-                {
-                    data: 'suspended'
-                },
-                {
-                    data: 'created_at'
-                },
-                {
-                    data: 'actions',
-                    sortable: false
-                },
+                data: 'status',
+                name: 'servers.suspended',
+                sortable: false
+            },
+            {
+                data: 'name'
+            },
+            {
+                data: 'user',
+                name: 'user.name',
+            },
+            {
+                data: 'identifier'
+            },
+            {
+                data: 'resources',
+                name: 'product.name',
+                sortable: false
+            },
+            {
+                data: 'suspended'
+            },
+            {
+                data: 'created_at'
+            },
+            {
+                data: 'actions',
+                sortable: false
+            },
             ],
-            fnDrawCallback: function(oSettings) {
+            fnDrawCallback: function (oSettings) {
                 $('[data-toggle="popover"]').popover();
             }
         });

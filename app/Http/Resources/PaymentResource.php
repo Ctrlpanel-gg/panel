@@ -33,6 +33,7 @@ class PaymentResource extends JsonResource
             'price' => $this->currencyHelper->convertForDisplay($this->price),
             'tax_value' => $this->currencyHelper->convertForDisplay($this->tax_value),
             'total_price' => $this->currencyHelper->convertForDisplay($this->total_price),
+            'fee' => $this->currencyHelper->convertForDisplay($this->fee),
             'tax_percent' => $this->tax_percent,
             'currency_code' => $this->currency_code,
             'payment_method' => $this->payment_method,

@@ -52,5 +52,44 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('web', function (Request $request) {
             return Limit::perMinute(40)->by($request->user()?->id ?: $request->ip());
         });
+        RateLimiter::for('2fa.verify', function (Request $request) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('verify')
+                     ?? ['attempts' => 5, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('2fa.setup', function (Request $request) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('setup')
+                     ?? ['attempts' => 3, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('2fa.enable', function (Request $request) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('enable')
+                     ?? ['attempts' => 3, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('2fa.disable', function (Request $request) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('disable')
+                     ?? ['attempts' => 3, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('2fa.action', function (Request $request) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('action')
+                     ?? ['attempts' => 3, 'minutes' => 5];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

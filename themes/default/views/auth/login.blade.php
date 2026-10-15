@@ -8,7 +8,7 @@
     <div class="card card-outline card-primary">
       <div class="text-center card-header">
         <a href="{{ route('welcome') }}" class="mb-2 h1"><b
-            class="mr-1">{{ config('app.name', 'Laravel') }}</b></a>
+            class="mr-1">{{ config('app.name', 'CtrlPanel.gg') }}</b></a>
         @if ($website_settings->enable_login_logo)
           <img
             src="{{ \Illuminate\Support\Facades\Storage::disk('public')->exists('logo.png') ? asset('storage/logo.png') : asset('images/ctrlpanel_logo.png') }}"

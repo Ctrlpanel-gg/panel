@@ -70,15 +70,16 @@ class MailSettings extends Settings
         return [
             'category_icon' => 'fas fa-envelope',
             'position' => 4,
+            'category_description' => 'Configure the mail transport and sender used by the panel',
             'mail_host' => [
                 'label' => 'Mail Host',
                 'type' => 'string',
-                'description' => 'The host of your mail server.',
+                'description' => 'The host of your mail server',
             ],
             'mail_port' => [
                 'label' => 'Mail Port',
                 'type' => 'number',
-                'description' => 'The port of your mail server.',
+                'description' => 'The port of your mail server',
             ],
             'mail_encryption' => [
                 'label' => 'Mail Encryption',
@@ -88,32 +89,32 @@ class MailSettings extends Settings
                     'tls' => 'TLS',
                     'ssl' => 'SSL'
                 ],
-                'description' => 'The encryption of your mail server.',
+                'description' => 'The encryption of your mail server',
             ],
             'mail_username' => [
                 'label' => 'Mail Username',
                 'type' => 'string',
-                'description' => 'The username of your mail server.',
+                'description' => 'The username of your mail server',
             ],
             'mail_password' => [
                 'label' => 'Mail Password',
                 'type' => 'password',
-                'description' => 'The password of your mail server.',
+                'description' => 'The password of your mail server',
             ],
             'mail_from_address' => [
                 'label' => 'Mail From Address',
                 'type' => 'string',
-                'description' => 'The from address of your mail server.',
+                'description' => 'The from address of your mail server',
             ],
             'mail_from_name' => [
                 'label' => 'Mail From Name',
                 'type' => 'string',
-                'description' => 'The from name of your mail server.',
+                'description' => 'The from name of your mail server',
             ],
             'mail_mailer' => [
                 'label' => 'Mail Mailer',
                 'type' => 'string',
-                'description' => 'The mailer of your mail server.',
+                'description' => 'The mailer of your mail server',
             ],
         ];
     }

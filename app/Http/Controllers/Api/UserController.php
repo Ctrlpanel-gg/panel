@@ -564,7 +564,9 @@ class UserController extends Controller
         $ref_user = User::query()->where('referral_code', $ref_code)->first();
 
         if ($ref_user) {
-            if ($this->referralSettings->mode == 'sign-up' || $this->referralSettings->mode == 'both') {
+            $reward = $this->referralSettings->rewardsOnSignUp($user);
+
+            if ($reward) {
                 $ref_user->increment('credits', $this->referralSettings->reward);
                 $ref_user->notify(new ReferralNotification($user));
             }
@@ -574,6 +576,7 @@ class UserController extends Controller
                 'registered_user_id' => $user->id,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
+                'rewarded_at' => $reward ? Carbon::now() : null,
             ]);
         }
     }

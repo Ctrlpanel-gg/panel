@@ -102,8 +102,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="nest">{{ __('Software / Games') }}</label>
-                                        <select class="custom-select" required name="nest" id="nest"
-                                            x-model="selectedNest" @change="setEggs();">
+                                        <select class="custom-select" required name="nest" id="nest" x-model="selectedNest"
+                                            @change="setEggs();">
                                             <option selected disabled hidden value="null">
                                                 {{ count($nests) > 0 ? __('Please select software ...') : __('---') }}
                                             </option>
@@ -157,9 +157,9 @@
                                         data-content="{{ __('Defines the priority for server billing. If not provided, the value of selected product will be used.') }}"
                                         class="fas fa-info-circle"></i>
                                 </label>
-                                <select id="billing_priority" style="width:100%" class="custom-select"
-                                    name="billing_priority" required autocomplete="off"
-                                    @error('billing_priority') is-invalid @enderror>
+                                <select id="billing_priority" style="width:100%" name="billing_priority" required
+                                    autocomplete="off"
+                                    class="custom-select @error('billing_priority') is-invalid @enderror">
                                     <option value="" selected>
                                         {{ __('Select') }}
                                     </option>
@@ -183,17 +183,36 @@
 
                 <div class="w-100"></div>
                 <div class="col" x-show="selectedLocation != null" x-data="{
-                    billingPeriodTranslations: {
-                        'monthly': '{{ __('per Month') }}',
-                        'half-annually': '{{ __('per 6 Months') }}',
-                        'quarterly': '{{ __('per 3 Months') }}',
-                        'annually': '{{ __('per Year') }}',
-                        'weekly': '{{ __('per Week') }}',
-                        'daily': '{{ __('per Day') }}',
-                        'hourly': '{{ __('per Hour') }}'
-                    }
-                }">
-                    <div class="mt-4 row justify-content-center">
+                                billingPeriodTranslations: {
+                                    'monthly': '{{ __('per Month') }}',
+                                    'half-annually': '{{ __('per 6 Months') }}',
+                                    'quarterly': '{{ __('per 3 Months') }}',
+                                    'annually': '{{ __('per Year') }}',
+                                    'weekly': '{{ __('per Week') }}',
+                                    'daily': '{{ __('per Day') }}',
+                                    'hourly': '{{ __('per Hour') }}'
+                                }
+                            }">
+                    <div class="mb-3 ml-sm-2 ml-md-4 d-flex flex-wrap align-items-center justify-content-start" x-show="fetchedProducts && products.length > 0">
+                        <label class="mb-0 small" for="sort-products">{{ __('Sort:') }}</label>
+                        <select id="sort-products" class="w-auto custom-select custom-select-sm ml-2" x-model="sortBy"
+                            @change="sortProducts()">
+                            <option value="price">{{ __('Price') }}</option>
+                            <option value="cpu">{{ __('CPU') }}</option>
+                            <option value="memory">{{ __('Memory') }}</option>
+                            <option value="disk">{{ __('Disk') }}</option>
+                            <option value="backups">{{ __('Backups') }}</option>
+                            <option value="databases">{{ __('MySQL Databases') }}</option>
+                            <option value="allocations">{{ __('Additional allocations (ports)') }}</option>
+                        </select>
+                        <select id="sort-direction" class="w-auto custom-select custom-select-sm ml-2"
+                            x-model="sortDirection" @change="sortProducts()">
+                            <option value="asc">{{ __('Ascending') }}</option>
+                            <option value="desc">{{ __('Descending') }}</option>
+                        </select>
+                    </div>
+
+                    <div class="row justify-content-center">
                         <template x-for="product in products" :key="product.id">
                             <div class="ml-2 mr-2 card col-xl-3 col-lg-3 col-md-4 col-sm-10 ">
                                 <div class="card-body d-flex flex-column">
@@ -202,10 +221,9 @@
                                         <h4 class="mb-0 card-title" x-text="product.name"></h4>
 
                                         <!-- Server Limit and Count -->
-                                        <span class="text-muted"
-                                            x-text="product.serverlimit > 0
-                                              ? product.servers_count + ' / ' + product.serverlimit
-                                              : '{{ __('No limit') }}'">
+                                        <span class="text-muted" x-text="product.serverlimit > 0
+                                                          ? product.servers_count + ' / ' + product.serverlimit
+                                                          : '{{ __('No limit') }}'">
                                         </span>
                                     </div>
 
@@ -279,8 +297,8 @@
                                         </div>
                                         <div class="mt-2 mb-2">
                                             <span class="card-text text-muted">{{ __('Description') }}</span>
-                                            <p class="card-text" style="white-space:pre-wrap"
-                                                x-text="product.description"></p>
+                                            <p class="card-text" style="white-space:pre-wrap" x-text="product.description">
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="mt-auto border rounded border-secondary">
@@ -293,25 +311,22 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <button type="button"
-                                            :disabled="(product.effective_minimum > user.credits) ||
-                                            product.doesNotFit == true ||
-                                                product.servers_count >= product.serverlimit && product.serverlimit !=
-                                                0 ||
-                                                submitClicked"
-                                            :class="(product.effective_minimum > user.credits) ||
-                                            product.doesNotFit == true ||
-                                                product.servers_count >= product.serverlimit && product.serverlimit !=
-                                                0 ||
-                                                submitClicked ? 'disabled' : ''"
-                                            class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);"
-                                            x-text="product.doesNotFit == true
-                                                    ? '{{ __('Server cant fit on this Location') }}'
-                                                    : (product.servers_count >= product.serverlimit && product.serverlimit != 0
-                                                        ? '{{ __('Max. Servers with configuration reached') }}'
-                                                        : (product.effective_minimum > user.credits
-                                                            ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
-                                                            : '{{ __('Create server') }}'))">
+                                        <button type="button" :disabled="(product.effective_minimum > user.credits) ||
+                                                        product.doesNotFit == true ||
+                                                            product.servers_count >= product.serverlimit && product.serverlimit !=
+                                                            0 ||
+                                                            submitClicked" :class="(product.effective_minimum > user.credits) ||
+                                                        product.doesNotFit == true ||
+                                                            product.servers_count >= product.serverlimit && product.serverlimit !=
+                                                            0 ||
+                                                            submitClicked ? 'disabled' : ''"
+                                            class="mt-2 btn btn-primary btn-block" @click="setProduct(product.id);" x-text="product.doesNotFit == true
+                                                                ? '{{ __('Server cant fit on this Location') }}'
+                                                                : (product.servers_count >= product.serverlimit && product.serverlimit != 0
+                                                                    ? '{{ __('Max. Servers with configuration reached') }}'
+                                                                    : (product.effective_minimum > user.credits
+                                                                        ? '{{ __('Not enough') }} {{ $credits_display_name }}!'
+                                                                        : '{{ __('Create server') }}'))">
                                         </button>
                                         @if (env('APP_ENV') == 'local' || $store_enabled)
                                             <template x-if="product.effective_minimum > user.credits">
@@ -356,6 +371,8 @@
                 selectedLocation: null,
                 selectedProduct: null,
                 locationDescription: null,
+                sortBy: 'price',
+                sortDirection: 'asc',
 
                 //selected objects based on input
                 selectedNestObject: {},
@@ -384,10 +401,10 @@
                     this.fetchedProducts = false;
                     this.locations = [];
                     this.products = [];
-                    this.selectedEgg = 'null';
-                    this.selectedLocation = 'null';
+                    this.selectedEgg = null;
+                    this.selectedLocation = null;
                     this.selectedProduct = null;
-                    this.locationDescription = 'null';
+                    this.locationDescription = null;
 
                     this.eggs = this.eggsSave.filter(egg => egg.nest_id == this.selectedNest)
 
@@ -428,8 +445,8 @@
                     this.fetchedProducts = false;
                     this.locations = [];
                     this.products = [];
-                    this.selectedLocation = 'null';
-                    this.selectedProduct = 'null';
+                    this.selectedLocation = null;
+                    this.selectedProduct = null;
                     this.locationDescription = null;
 
                     let response = await axios.get(`{{ route('products.locations.egg') }}/${this.selectedEgg}`)
@@ -462,14 +479,12 @@
                     this.selectedProduct = null;
 
                     let response = await axios.get(
-                            `{{ route('products.products.location') }}/${this.selectedEgg}/${this.selectedLocation}`)
+                        `{{ route('products.products.location') }}/${this.selectedEgg}/${this.selectedLocation}`)
                         .catch(console.error)
 
                     this.fetchedProducts = true;
 
-                    // TODO: Sortable by user chosen property (cpu, ram, disk...)
-                    this.products = response.data.sort((p1, p2) => parseInt(p1.price, 10) > parseInt(p2.price, 10) &&
-                        1 || -1)
+                    this.products = response.data;
 
                     //divide cpu by 100 for each product
                     this.products.forEach(product => {
@@ -478,15 +493,36 @@
                         // is missing or less than price. legacy -1 rows are covered by the comparison.
                         let minVal = parseFloat(product.minimum_credits);
                         product.effective_minimum = (product.minimum_credits === null || minVal < parseFloat(
-                                product.price)) ?
+                            product.price)) ?
                             parseFloat(product.price) :
                             minVal;
                     })
+
+                    this.sortProducts();
 
                     this.locationDescription = this.locations.find(location => location.id == this.selectedLocation)
                         .description ?? null;
                     this.loading = false;
                     this.updateSelectedObjects()
+                },
+
+                /**
+                 * @description sort the products by the user chosen property
+                 * @note called whenever the sort dropdown changes or products are fetched
+                 * @see sortBy
+                 */
+                sortProducts() {
+                    const sortableProperties = ['price', 'cpu', 'memory', 'disk', 'backups', 'databases', 'allocations'];
+
+                    // Fall back to price if the chosen property is not sortable.
+                    const property = sortableProperties.includes(this.sortBy) ? this.sortBy : 'price';
+                    const direction = this.sortDirection === 'desc' ? -1 : 1;
+
+                    this.products.sort((p1, p2) => {
+                        const a = parseFloat(p1[property]) || 0;
+                        const b = parseFloat(p2[property]) || 0;
+                        return (a - b) * direction;
+                    });
                 },
 
 
@@ -576,27 +612,27 @@
                             (() => {
                                 const inValues = variable.rules.match(/in:([^|]+)/)[1].split(',');
                                 return `
-                                    <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
-                                        ${inValues.map(value => `<option value="${value}" ${value == variable.default_value ? 'selected' : ''}>${value}</option>`).join('')}
-                                    </select>
-                                `;
+                                                <select name="${variable.env_variable}" id="${variable.env_variable}" required="required" class="custom-select">
+                                                    ${inValues.map(value => `<option value="${value}" ${value == variable.default_value ? 'selected' : ''}>${value}</option>`).join('')}
+                                                </select>
+                                            `;
                             })() :
                             `<input id="${variable.env_variable}" name="${variable.env_variable}" type="text" required="required" class="form-control" value="${variable.default_value ?? ''}">`;
 
                         return `
-                            <div class="text-left form-group">
-                                <div class="d-flex justify-content-between">
-                                    <label for="${variable.env_variable}">${variable.name}</label>
-                                    ${variable.description ? `
-                                            <span>
-                                                <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
-                                            </span>
-                                        ` : ''}
-                                </div>
-                                ${control}
-                                <div id="${variable.env_variable}-error" class="mt-1"></div>
-                            </div>
-                        `;
+                                        <div class="text-left form-group">
+                                            <div class="d-flex justify-content-between">
+                                                <label for="${variable.env_variable}">${variable.name}</label>
+                                                ${variable.description ? `
+                                                        <span>
+                                                            <i data-toggle="tooltip" data-placement="top" title="${variable.description}" class="fas fa-info-circle"></i>
+                                                        </span>
+                                                    ` : ''}
+                                            </div>
+                                            ${control}
+                                            <div id="${variable.env_variable}-error" class="mt-1"></div>
+                                        </div>
+                                    `;
                     }).join('');
 
                     Swal.fire({
@@ -616,7 +652,7 @@
                             });
 
                             const response = await fetch(
-                            '{{ route('servers.validateDeploymentVariables') }}', {
+                                '{{ route('servers.validateDeploymentVariables') }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -643,8 +679,8 @@
                                         const errorContainer = document.getElementById(`${key}-error`);
                                         if (errorContainer) {
                                             errorContainer.innerHTML = messages.map(message => `
-                                        <small class="text-danger">${message}</small>
-                                    `).join('');
+                                                    <small class="text-danger">${message}</small>
+                                                `).join('');
                                         }
                                     });
                                 }

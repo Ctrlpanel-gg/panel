@@ -323,7 +323,7 @@ class TicketsController extends Controller
                                 '.method_field('POST').'
                             <button data-content="'.__('Change Status').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-warning"><i class="fas fa-sync-alt"></i></button>
                             </form>
-                            <form class="d-inline"  method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
+                            <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route('admin.ticket.blacklist.delete', ['id' => $blacklist->id]).'">
                                 '.csrf_field().'
                                 '.method_field('POST').'
                             <button data-content="'.__('Delete').'" data-toggle="popover" data-trigger="hover" data-placement="top" class="mr-1 text-white btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>

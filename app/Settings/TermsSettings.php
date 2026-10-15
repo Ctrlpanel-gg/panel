@@ -38,20 +38,21 @@ class TermsSettings extends Settings
         return [
             'category_icon' => 'fas fa-file-signature',
             'position' => 1,
+            'category_description' => 'Legal documents shown to your users',
             'terms_of_service' => [
                 'label' => 'Terms of Service',
                 'type' => 'textarea',
-                'description' => 'Terms of Service shown to users.',
+                'description' => 'Terms of Service shown to users',
             ],
             'privacy_policy' => [
                 'label' => 'Privacy Policy',
                 'type' => 'textarea',
-                'description' => 'Privacy Policy shown to users.',
+                'description' => 'Privacy Policy shown to users',
             ],
             'imprint' => [
                 'label' => 'Imprint',
                 'type' => 'textarea',
-                'description' => 'Imprint shown to users.',
+                'description' => 'Imprint shown to users',
             ],
         ];
     }
