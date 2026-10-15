@@ -263,7 +263,16 @@ class ServerController extends Controller
                 continue;
             }
 
-            $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+            try {
+                $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+            } catch (Exception $e) {
+                Log::warning('Failed to fetch server info from pterodactyl, skipping server on index', [
+                    'server_id' => $server->id,
+                    'error' => $e->getMessage(),
+                ]);
+                continue;
+            }
+
             if (!$serverInfo) {
                 continue;
             }
