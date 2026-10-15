@@ -78,16 +78,28 @@ class ReconcileServerCreationJob implements ShouldQueue
         }
 
         if ($response->status() === 404) {
-            // Atomic transition to FAILED to avoid double refunds in concurrent workers.
-            $updated = Server::where('id', $server->id)
-                ->where('status', '!=', Server::STATUS_FAILED)
-                ->update(['status' => Server::STATUS_FAILED]);
+            $user = $server->user;
 
-            if ($updated === 1) {
-                $creditService->refund($server->user, $this->chargedPrice);
-                Log::info('ReconcileServerCreationJob: refunded credits on confirmed 404', [
-                    'server_id' => $server->id,
-                    'amount' => $this->chargedPrice,
+            // Atomic delete: only the worker that actually removes the row refunds.
+            $deleted = Server::where('id', $server->id)
+                ->where('status', '!=', Server::STATUS_FAILED)
+                ->delete();
+
+            if ($deleted === 1) {
+                if ($user) {
+                    $creditService->refund($user, $this->chargedPrice);
+                    Log::info('ReconcileServerCreationJob: deleted server and refunded credits on confirmed 404', [
+                        'server_id' => $this->serverId,
+                        'amount' => $this->chargedPrice,
+                    ]);
+                } else {
+                    Log::info('ReconcileServerCreationJob: deleted server with no owner, nothing to refund', [
+                        'server_id' => $this->serverId,
+                    ]);
+                }
+            } else {
+                Log::info('ReconcileServerCreationJob: server already handled by another worker, skipping refund', [
+                    'server_id' => $this->serverId,
                 ]);
             }
 
@@ -101,7 +113,7 @@ class ReconcileServerCreationJob implements ShouldQueue
     {
         $server = Server::find($this->serverId);
 
-        if (!$server || $server->status === Server::STATUS_ACTIVE) {
+        if (!$server || $server->status === Server::STATUS_ACTIVE || $server->status === Server::STATUS_FAILED) {
             return;
         }
 
@@ -110,57 +122,65 @@ class ReconcileServerCreationJob implements ShouldQueue
 
         try {
             $response = $pterodactylClient->getServerByExternalId($server->id);
-            if ($response->successful()) {
-                $attributes = $response->json()['attributes'] ?? null;
-                if ($attributes && isset($attributes['id']) && isset($attributes['identifier'])) {
-                    $server->update([
-                        'pterodactyl_id' => $attributes['id'],
-                        'identifier' => $attributes['identifier'],
-                        'status' => Server::STATUS_ACTIVE,
-                    ]);
-                    dispatch(new PostServerCreationJob($server->id));
-
-                    Log::critical('ReconcileServerCreationJob failed after retries but remote server found; marked active', [
-                        'server_id' => $this->serverId,
-                        'error' => $exception->getMessage(),
-                    ]);
-                    return;
-                }
-            }
-
-            if ($response->status() === 404) {
-                $updated = Server::where('id', $server->id)
-                    ->where('status', '!=', Server::STATUS_FAILED)
-                    ->update(['status' => Server::STATUS_FAILED]);
-
-                if ($updated === 1) {
-                    $creditService->refund($server->user, $this->chargedPrice);
-                    Log::critical('ReconcileServerCreationJob failed after retries with remote 404; refunded credits', [
-                        'server_id' => $this->serverId,
-                        'amount' => $this->chargedPrice,
-                        'error' => $exception->getMessage(),
-                    ]);
-                } else {
-                    Log::info('ReconcileServerCreationJob failed after retries with remote 404; no refund needed because status already failed', [
-                        'server_id' => $this->serverId,
-                    ]);
-                }
-
-                return;
-            }
-
-            $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
-            Log::critical('ReconcileServerCreationJob failed after maximum retries; remote state unknown, keeping pending_reconciliation', [
-                'server_id' => $this->serverId,
-                'error' => $exception->getMessage(),
-            ]);
         } catch (\Exception $e) {
-            // If remote check also fails, preserve pending state and log.
             $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
-            Log::critical('ReconcileServerCreationJob failed and remote check failed; keeping pending_reconciliation', [
+            Log::critical('ReconcileServerCreationJob failed and final remote check failed; keeping pending_reconciliation', [
                 'server_id' => $this->serverId,
                 'exception' => $e->getMessage(),
             ]);
+
+            return;
         }
+
+        if ($response->successful()) {
+            $attributes = $response->json()['attributes'] ?? null;
+            if ($attributes && isset($attributes['id']) && isset($attributes['identifier'])) {
+                $server->update([
+                    'pterodactyl_id' => $attributes['id'],
+                    'identifier' => $attributes['identifier'],
+                    'status' => Server::STATUS_ACTIVE,
+                ]);
+                dispatch(new PostServerCreationJob($server->id));
+
+                Log::critical('ReconcileServerCreationJob exhausted retries but remote server finally found; marked active', [
+                    'server_id' => $this->serverId,
+                ]);
+
+                return;
+            }
+        }
+
+        if ($response->status() === 404) {
+            $user = $server->user;
+
+            // Atomic delete: only the worker that actually removes the row refunds.
+            $deleted = Server::where('id', $server->id)
+                ->where('status', '!=', Server::STATUS_FAILED)
+                ->delete();
+
+            if ($deleted === 1) {
+                if ($user) {
+                    $creditService->refund($user, $this->chargedPrice);
+                }
+
+                Log::critical('ReconcileServerCreationJob exhausted retries with remote 404; auto-deleted', [
+                    'server_id' => $this->serverId,
+                    'amount' => $this->chargedPrice,
+                ]);
+            } else {
+                Log::info('ReconcileServerCreationJob: server already handled by another worker, skipping refund', [
+                    'server_id' => $this->serverId,
+                ]);
+            }
+
+            return;
+        }
+
+        // Unknown remote state (persistent 500/timeout): never refund blind, keep pending for admin.
+        $server->update(['status' => Server::STATUS_PENDING_RECONCILIATION]);
+        Log::critical('ReconcileServerCreationJob exhausted retries and remote state unknown; keeping pending_reconciliation', [
+            'server_id' => $this->serverId,
+            'error' => $exception->getMessage(),
+        ]);
     }
 }

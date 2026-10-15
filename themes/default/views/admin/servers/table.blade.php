@@ -1,7 +1,7 @@
 <table id="datatable" class="table table-striped">
     <thead>
         <tr>
-            <th width="20"></th>
+            <th width="110"></th>
             <th>{{ __('Name') }}</th>
             <th>{{ __('User') }}</th>
             <th>{{ __('Server id') }}</th>

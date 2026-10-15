@@ -152,6 +152,11 @@ class ServerController extends Controller
                     ->with('error', __('Server creation failed'));
             }
 
+            if ($server->status === Server::STATUS_PENDING_RECONCILIATION) {
+                return redirect()->route('servers.index')
+                    ->with('success', __('Server is being created, please wait.'));
+            }
+
             return redirect()->route('servers.index')
                 ->with('success', __('Server created'));
         } catch (Exception $e) {
@@ -254,8 +259,23 @@ class ServerController extends Controller
         $servers = Auth::user()->servers;
 
         foreach ($servers as $server) {
-            $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-            if (!$serverInfo) continue;
+            if (!$server->pterodactyl_id) {
+                continue;
+            }
+
+            try {
+                $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+            } catch (Exception $e) {
+                Log::warning('Failed to fetch server info from pterodactyl, skipping server on index', [
+                    'server_id' => $server->id,
+                    'error' => $e->getMessage(),
+                ]);
+                continue;
+            }
+
+            if (!$serverInfo) {
+                continue;
+            }
 
             $this->updateServerInfo($server, $serverInfo);
         }
@@ -321,6 +341,13 @@ class ServerController extends Controller
             return back()->with('error', __('This is not your Server!'));
         }
 
+        if (!$server->pterodactyl_id) {
+            $this->handleServerDeletion($server);
+
+            return redirect()->route('servers.index')
+                ->with('success', __('Server removed'));
+        }
+
         try {
             $serverInfo = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
 
@@ -364,6 +391,11 @@ class ServerController extends Controller
     {
         if ($server->user_id !== Auth::id()) {
             return back()->with('error', __('This is not your Server!'));
+        }
+
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
         }
 
         try {
@@ -423,14 +455,34 @@ class ServerController extends Controller
         }
     }
 
-    public function show(Server $server): \Illuminate\View\View
+    public function show(Server $server): \Illuminate\View\View|RedirectResponse
     {
         if ($server->user_id !== Auth::id()) {
             return back()->with('error', __('This is not your Server!'));
         }
 
-        $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
-        $upgradeOptions = $this->getUpgradeOptions($server, $serverAttributes);
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
+        }
+
+        try {
+            $serverAttributes = $this->pterodactyl->getServerAttributes($server->pterodactyl_id);
+            $upgradeOptions = $this->getUpgradeOptions($server, $serverAttributes);
+        } catch (Exception $e) {
+            Log::error('Failed to load server settings', [
+                'server_id' => $server->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            $message = ($e instanceof ServerException || $e instanceof PterodactylException)
+                ? $e->getPublicMessage()
+                : __('Something went wrong. Please try again later.');
+
+            return redirect()->route('servers.index')
+                ->with('error', $message);
+        }
+
         return view('servers.settings')->with([
             'server' => $server,
             'serverAttributes' => $serverAttributes,
@@ -462,7 +514,6 @@ class ServerController extends Controller
         $pteroNode = $this->pterodactyl->getNode($nodeId);
         $currentEgg = $serverInfo['egg'];
 
-        //$currentProductEggs = $currentProduct->eggs->pluck('id')->toArray();
         $user = Auth::user();
 
         return Product::orderBy('price', 'asc')
@@ -505,6 +556,11 @@ class ServerController extends Controller
         if ($server->user_id !== Auth::id()) {
             return redirect()->route('servers.index')
                 ->with('error', __('This is not your Server!'));
+        }
+
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
         }
 
         if (!$request->has('product_upgrade')) {
@@ -566,6 +622,11 @@ class ServerController extends Controller
                 ->with('error', __('This is not your Server!'));
         }
 
+        if (!$server->pterodactyl_id) {
+            return redirect()->route('servers.index')
+                ->with('error', __('Server is not ready yet. Please wait until it is created.'));
+        }
+
         $server->update($data);
 
         return redirect()->route('servers.show', ['server' => $server->id])
@@ -576,6 +637,10 @@ class ServerController extends Controller
     {
         $user = Auth::user();
         if (!$server->product) {
+            return false;
+        }
+
+        if (!$server->pterodactyl_id) {
             return false;
         }
 
