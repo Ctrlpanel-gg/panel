@@ -4,19 +4,24 @@ namespace App\Console\Commands;
 
 use App\Helpers\ExtensionHelper;
 use Illuminate\Console\Command;
+use Illuminate\Console\ConfirmableTrait;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
 class CleanupPermissionsCommand extends Command
 {
+    use ConfirmableTrait;
+
     protected $signature = 'permissions:cleanup
         {--dry-run : List stale permissions without deleting them}
-        {--force : Delete without asking for confirmation}';
+        {--force : Skip the production confirmation and the delete prompt}';
 
     protected $description = 'Delete stale permissions that are no longer provided by the core config or any loaded extension';
 
     public function handle(): int
     {
+        $this->components->info('Cleaning up stale permissions.');
+
         $corePermissions = config('permissions_web', []);
         if (!is_array($corePermissions)) {
             $corePermissions = [];
@@ -32,32 +37,32 @@ class CleanupPermissionsCommand extends Command
         $orphans = Permission::whereNotIn('name', $keepNames)->with('roles')->get();
 
         if ($orphans->isEmpty()) {
-            $this->info('No stale permissions found.');
+            $this->components->info('No stale permissions found.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
-        $this->table(
-            ['Permission', 'Readable name', 'Assigned roles'],
-            $orphans->map(fn (Permission $p) => [
-                $p->name,
-                $p->readable_name,
-                $p->roles->pluck('name')->implode(', ') ?: '-',
-            ])->toArray()
-        );
-
+        // Dry-run is read-only: list and exit without confirmation.
         if ($this->option('dry-run')) {
-            $this->info(sprintf('%d stale permission(s) listed, nothing deleted (--dry-run).', $orphans->count()));
+            $this->renderOrphans($orphans);
+            $this->components->info(sprintf('%d stale permission(s) listed, nothing deleted (--dry-run).', $orphans->count()));
 
-            return 0;
+            return self::SUCCESS;
         }
 
-        $this->warn('This will permanently delete the permissions above and detach them from all roles. This cannot be undone. Use --dry-run first to review.');
+        // Production guard: ask before showing what will be deleted.
+        if (! $this->confirmToProceed()) {
+            return self::FAILURE;
+        }
+
+        $this->renderOrphans($orphans);
+
+        $this->components->warn('This will permanently delete the permissions above and detach them from all roles. This cannot be undone. Use --dry-run first to review.');
 
         if (!$this->option('force') && !$this->confirm(sprintf('Delete %d stale permission(s)?', $orphans->count()), false)) {
-            $this->info('Aborted. Nothing deleted.');
+            $this->components->info('Aborted. Nothing deleted.');
 
-            return 0;
+            return self::SUCCESS;
         }
 
         foreach ($orphans as $permission) {
@@ -66,8 +71,26 @@ class CleanupPermissionsCommand extends Command
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $this->info(sprintf('Deleted %d stale permission(s).', $orphans->count()));
+        $this->components->info(sprintf('Deleted %d stale permission(s).', $orphans->count()));
 
-        return 0;
+        return self::SUCCESS;
+    }
+
+    /**
+     * Render the stale permissions and the roles they are attached to.
+     *
+     * @param  \Illuminate\Support\Collection<int, Permission>  $orphans
+     * @return void
+     */
+    private function renderOrphans($orphans): void
+    {
+        $this->table(
+            ['Permission', 'Readable name', 'Assigned roles'],
+            $orphans->map(fn (Permission $p) => [
+                $p->name,
+                $p->readable_name,
+                $p->roles->pluck('name')->implode(', ') ?: '-',
+            ])->toArray()
+        );
     }
 }
