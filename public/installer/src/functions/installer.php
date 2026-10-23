@@ -15,6 +15,16 @@ function next_step(): void
 }
 
 /**
+ * Check whether an install started by this installer is still in progress.
+ *
+ * @return bool
+ */
+function installer_install_in_progress(): bool
+{
+    return file_exists(dirname(__FILE__, 5) . '/install.inprogress');
+}
+
+/**
  * Detect whether the configured database is already migrated.
  *
  * @return bool

@@ -32,6 +32,7 @@ Homestead.yaml
 # Ignore installation logs and locks
 public/install/logs.txt
 install.lock
+install.inprogress
 public/install/logs/installer.log
 
 #Ignore Scribe files
