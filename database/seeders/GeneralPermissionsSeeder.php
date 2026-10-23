@@ -12,7 +12,6 @@ use Spatie\Permission\PermissionRegistrar;
 class GeneralPermissionsSeeder extends Seeder
 {
     /**
-     *
      *  This Seeder is  used in the Update process from 1.x to 1.x
      *
      * @return void
@@ -29,41 +28,58 @@ class GeneralPermissionsSeeder extends Seeder
 
     /**
      * Create or update permissions based on the configuration file.
+     *
+     * @return array{created: string[], updated: string[]} Permission names split by outcome.
      */
-    public function createOrUpdatePermissions()
+    public function createOrUpdatePermissions(): array
     {
         $corePermissions = config('permissions_web', []);
         if (!is_array($corePermissions)) {
             $corePermissions = [];
         }
 
+        // name => 'created' | 'updated'. Created wins so a permission that is
+        // later touched again in the same run is still reported as added.
+        $status = [];
+
         // Create core permissions.
         foreach ($corePermissions as $permission_name => $permission_value) {
-            Permission::updateOrCreate(
+            $permission = Permission::updateOrCreate(
                 ['name' => $permission_value],
                 ['readable_name' => $permission_name]
             );
+            $status[$permission_value] = $permission->wasRecentlyCreated ? 'created' : 'updated';
         }
 
         // Create extension permissions.
         $extensionPermissions = \App\Helpers\ExtensionHelper::getAllExtensionPermissions();
         foreach ($extensionPermissions as $permission_name => $readable_name) {
-            Permission::updateOrCreate(
+            $permission = Permission::updateOrCreate(
                 ['name' => $permission_name],
                 ['readable_name' => $readable_name]
             );
+            if ($permission->wasRecentlyCreated || ! isset($status[$permission_name])) {
+                $status[$permission_name] = $permission->wasRecentlyCreated ? 'created' : 'updated';
+            }
         }
 
         // Never delete here: a missing entry may be a temporarily unloaded
         // extension, and deletion would wipe role assignments for good.
         // Stale permissions go through `permissions:cleanup`.
+
+        return [
+            'created' => array_keys(array_filter($status, fn ($outcome) => $outcome === 'created')),
+            'updated' => array_keys(array_filter($status, fn ($outcome) => $outcome === 'updated')),
+        ];
     }
 
     /**
      * Create roles once during setup. Existing rows are never touched:
      * no name, color or permission changes on later runs.
+     *
+     * @return string[] Names of the roles that were created.
      */
-    public function createOrUpdateRoles()
+    public function createOrUpdateRoles(): array
     {
         // Define roles and their permissions using the DefaultGroupPermissions constants
         $roles = [
@@ -93,6 +109,8 @@ class GeneralPermissionsSeeder extends Seeder
             ],
         ];
 
+        $created = [];
+
         foreach ($roles as $roleName => $roleData) {
             if (Role::where('id', $roleData['id'])->exists()) {
                 continue;
@@ -109,7 +127,11 @@ class GeneralPermissionsSeeder extends Seeder
             $roleData['permissions'] === ['*']
                 ? $role->givePermissionTo(Permission::firstOrCreate(['name' => '*'], ['readable_name' => 'All Permissions']))
                 : $role->syncPermissions($roleData['permissions']);
+
+            $created[] = $roleName;
         }
+
+        return $created;
     }
 
     /**
