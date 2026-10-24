@@ -69,13 +69,14 @@
                 <a href="{{ route('home') }}" class="nav-link"><i
                             class="mr-2 fas fa-home"></i>{{ __('Home') }}</a>
             </li>
-
-            @foreach ($useful_links as $link)
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
-                                class="{{ $link->icon }}"></i> {{ $link->title }}</a>
-                </li>
-            @endforeach
+            @if($website_settings->useful_links_enabled)
+                @foreach ($useful_links as $link)
+                    <li class="nav-item d-none d-sm-inline-block">
+                        <a href="{{ $link->link }}" class="nav-link" target="__blank"><i
+                                    class="{{ $link->icon }}"></i> {{ $link->title }}</a>
+                    </li>
+                @endforeach
+            @endif
         </ul>
 
         <!-- Right navbar links -->
