@@ -45,7 +45,7 @@ class ValidateEggVariables implements DataAwareRule, ValidationRule
         $environment = collect(json_decode($egg->environment, true));
 
         $environment = $environment->filter(function ($item) {
-            return str_contains($item['rules'], 'required') && empty($item['default_value']);
+            return str_contains($item['rules'], 'required') && ($item['default_value'] === '' || $item['default_value'] === null);
         });
 
         if (!$environment->isEmpty()) {

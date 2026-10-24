@@ -13,13 +13,31 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @group Role Management
+ */
+
 class RoleController extends Controller
 {
     const ALLOWED_INCLUDES = ['permissions', 'users'];
     const ALLOWED_FILTERS = ['name'];
 
     /**
-     * Show a list of roles.
+     * List all roles
+     *
+     * @response {
+     *  "data": [
+     *    {
+     *      "id": 1,
+     *      "name": "Administrator",
+     *      "color": "#FF0000",
+     *      "power": 100,
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *    }
+     *  ],
+     *  "meta": { "total": 1 }
+     * }
      *
      * @param Request $request
      * @return RoleResource
@@ -35,9 +53,29 @@ class RoleController extends Controller
     }
 
     /**
-     * Store a new role in the system.
+     * Create role
      *
-     * @param  Request  $request
+     * @response {
+     *  "data": {
+     *      "id": 2,
+     *      "name": "Moderator",
+     *      "color": "#00FF00",
+     *      "power": 50,
+     *      "permissions": [
+     *        {
+     *          "id": 1,
+     *          "name": "admin.roles.read",
+     *          "guard_name": "web",
+     *          "created_at": "2026-04-26 12:00:00",
+     *          "updated_at": "2026-04-26 12:00:00"
+     *        }
+     *      ],
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
+     *
+     * @param  CreateRoleRequest  $request
      * @return RoleResource
      */
     public function store(CreateRoleRequest $request)
@@ -56,14 +94,34 @@ class RoleController extends Controller
     }
 
     /**
-     * Show the specified role.
-     * 
-     * @queryParam include string Comma-separated list of related resources to include. Example: permissions,users
+     * Get role details
+     *
+     * @urlParam id integer required The ID of the role. Example: 2
+     *
+     * @response {
+     *  "data": {
+     *      "id": 2,
+     *      "name": "Moderator",
+     *      "color": "#00FF00",
+     *      "power": 50,
+     *      "permissions": [
+     *        {
+     *          "id": 1,
+     *          "name": "admin.roles.read",
+     *          "guard_name": "web",
+     *          "created_at": "2026-04-26 12:00:00",
+     *          "updated_at": "2026-04-26 12:00:00"
+     *        }
+     *      ],
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
      *
      * @param  Request  $request
      * @param  int  $roleId
      * @return RoleResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function show(Request $request, int $roleId)
@@ -77,12 +135,32 @@ class RoleController extends Controller
     }
 
     /**
-     * Update the specified role in the system.
+     * Update role
      *
-     * @param  Request  $request
+     * @response {
+     *  "data": {
+     *      "id": 2,
+     *      "name": "Moderator",
+     *      "color": "#00FF00",
+     *      "power": 50,
+     *      "permissions": [
+     *        {
+     *          "id": 1,
+     *          "name": "admin.roles.read",
+     *          "guard_name": "web",
+     *          "created_at": "2026-04-26 12:00:00",
+     *          "updated_at": "2026-04-26 12:00:00"
+     *        }
+     *      ],
+     *      "created_at": "2026-04-26 12:00:00",
+     *      "updated_at": "2026-04-26 12:00:00"
+     *  }
+     * }
+     *
+     * @param  UpdateRoleRequest  $request
      * @param  Role  $role
      * @return RoleResource
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function update(UpdateRoleRequest $request, Role $role)
@@ -101,12 +179,16 @@ class RoleController extends Controller
     }
 
     /**
-     * Remove the specified role from the system.
+     * Delete role
+     *
+     * @urlParam id integer required The ID of the role. Example: 2
+     *
+     * @response 204 {}
      *
      * @param  Request  $request
      * @param  Role  $role
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
-     * 
+     *
      * @throws ModelNotFoundException
      */
     public function destroy(Request $request, Role $role)
@@ -117,10 +199,10 @@ class RoleController extends Controller
 
         $users = User::role($role)->get();
 
-        foreach($users as $user){
+        foreach ($users as $user) {
             $user->syncRoles([Roles::USER_ROLE_ID]);
         }
-        
+
         $role->delete();
 
         return response()->noContent();

@@ -78,7 +78,7 @@
                         <div class="info-box-content">
                             <span class="info-box-text">{{ $timeLeft['message'] }}
                             </span>
-                            <span class="info-box-number">{{ $timeLeft['value'] }}<sup>{{ $timeLeft['unit'] }}</sup></span>
+                            <span class="info-box-number">{{ $timeLeft['value'] }}</span>
                         </div>
                     </div>
                     <!-- /.info-box -->

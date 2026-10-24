@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 session_start();
 
 if (file_exists('../../install.lock')) {
-    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
+    exit("The installation has been completed already. Please delete the file 'install.lock' to re-run");
 }
 
 if (!file_exists('../../.env')) {
@@ -16,10 +16,25 @@ if (!file_exists('../../.env')) {
 
 use DevCoder\DotEnv;
 
-// Include systems
-require_once '../../vendor/autoload.php';
+// Load only what the database guard needs, before any shell or form code.
 require_once 'dotenv.php';
 require_once './src/functions/installer.php';
+
+// Load .env so the guard below can read DB credentials.
+(new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
+
+// A migrated database without an in-progress marker means a finished install.
+if (!installer_install_in_progress() && installer_detects_existing_installation()) {
+    @file_put_contents(dirname(__FILE__, 3) . '/install.lock', 'the installation is locked, delete this file to unlock it');
+
+    exit('The database already contains an installation, so the installer is blocked. If you are moving to a new server, follow the migration guide first: https://ctrlpanel.gg/docs/guides/migration. To force a re-run, delete install.lock and set INSTALLER_FORCE=true in .env.');
+}
+
+// Mark the install as in progress; installation-complete.php removes it.
+@file_put_contents(dirname(__FILE__, 3) . '/install.inprogress', 'the installation is in progress, this file is removed when the install completes');
+
+// Include systems
+require_once '../../vendor/autoload.php';
 
 // Include the function files
 require_once './src/functions/logging.php';
@@ -37,11 +52,8 @@ include './src/forms/pterodactyl.php';
 include './src/forms/admin.php';
 
 if (file_exists('../../install.lock')) {
-    exit("The installation has been completed already. Please delete the File 'install.lock' to re-run");
+    exit("The installation has been completed already. To re-run, delete the File 'install.lock' and set INSTALLER_FORCE=true in .env");
 }
-
-// load all the .env value in php env
-(new DotEnv(dirname(__FILE__, 3) . '/.env'))->load();
 
 $stepConfig = [
     1 => ['view' => 'mandatory-checks', 'is_revertable' => false],

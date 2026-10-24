@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\Pterodactyl\PterodactylException;
 use App\Http\Controllers\Controller;
 use App\Models\Server;
 use App\Models\User;
+use App\Services\ServerSyncService;
 use App\Settings\DiscordSettings;
 use App\Settings\LocaleSettings;
 use App\Settings\PterodactylSettings;
@@ -233,45 +235,34 @@ class ServerController extends Controller
         return redirect()->back()->with('success', __('Server has been updated!'));
     }
 
-    public function syncServers()
+    public function syncServers(ServerSyncService $syncService)
     {
         $this->checkPermission(self::WRITE_PERMISSION);
-        $CPServers = Server::get();
 
-        $CPIDArray = [];
-        $renameCount = 0;
-        foreach ($CPServers as $CPServer) { //go thru all CP servers and make array with IDs as keys. All values are false.
-            if ($CPServer->pterodactyl_id) {
-                $CPIDArray[$CPServer->pterodactyl_id] = false;
-            }
+        try {
+            $result = $syncService->sync();
+        } catch (PterodactylException $e) {
+            Log::error('Server sync aborted: unable to fetch server list', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', __('Server sync failed: ') . $e->getPublicMessage());
         }
 
-        foreach ($this->pterodactyl->getServers() as $server) { //go thru all ptero servers, if server exists, change value to true in array.
-            if (isset($CPIDArray[$server['attributes']['id']])) {
-                $CPIDArray[$server['attributes']['id']] = true;
+        $message = __('Servers synced successfully: :renamed renamed, :deleted deleted.', [
+            'renamed' => $result['renamed'],
+            'deleted' => $result['deleted'],
+        ]);
 
-                if (isset($server['attributes']['name'])) { //failsafe
-                    //Check if a server got renamed
-                    $savedServer = Server::query()->where('pterodactyl_id', $server['attributes']['id'])->first();
-                    if ($savedServer->name != $server['attributes']['name']) {
-                        $savedServer->name = $server['attributes']['name'];
-                        $savedServer->save();
-                        $renameCount++;
-                    }
-                }
-            }
-        }
-        $filteredArray = array_filter($CPIDArray, function ($v, $k) {
-            return $v == false;
-        }, ARRAY_FILTER_USE_BOTH); //Array of servers, that dont exist on ptero (value == false)
-        $deleteCount = 0;
-        foreach ($filteredArray as $key => $CPID) { //delete servers that dont exist on ptero anymore
-            if (!$this->pterodactyl->getServerAttributes($key, true)) {
-                $deleteCount++;
-            }
+        if ($result['skipped'] > 0) {
+            $message .= ' ' . __(':skipped servers skipped due to errors and kept.', [
+                'skipped' => $result['skipped'],
+            ]);
+
+            return redirect()->back()->with('warning', $message);
         }
 
-        return redirect()->back()->with('success', __('Servers synced successfully' . (($renameCount) ? (',\n' . __('renamed') . ' ' . $renameCount . ' ' . __('servers')) : '') . ((count($filteredArray)) ? (',\n' . __('deleted') . ' ' . $deleteCount . '/' . count($filteredArray) . ' ' . __('old servers')) : ''))) . '.';
+        return redirect()->back()->with('success', $message);
     }
 
     /**
@@ -329,18 +320,44 @@ class ServerController extends Controller
                         </button>
                        </form>
 
-                       <form class="d-inline" onsubmit="return submitResult();" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                           <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1"><i class="fas fa-trash"></i></button>
-                       </form>
+                <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="' . route('admin.servers.destroy', $server->id) . '">
+                    ' . csrf_field() . '
+                    ' . method_field('DELETE') . '
+                    <button data-content="' . __('Delete') . '" data-toggle="popover" data-trigger="hover" data-placement="top" class="btn btn-sm btn-danger mr-1">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
 
                 ';
             })
             ->addColumn('status', function (Server $server) {
-                $labelColor = $server->suspended ? 'text-danger' : 'text-success';
+                if ($server->status === Server::STATUS_FAILED) {
+                    $badge = 'badge-danger';
+                    $text = __('Failed');
+                    $tip = __('Creation failed. Safe to delete');
+                } elseif ($server->suspended) {
+                    $badge = 'badge-danger';
+                    $text = __('Suspended');
+                    $tip = __('Suspended :time', ['time' => $server->suspended->diffForHumans()]);
+                } elseif ($server->canceled) {
+                    $badge = 'badge-warning';
+                    $text = __('Canceled');
+                    $tip = __('Billing canceled, stays active until period end');
+                } elseif (!$server->pterodactyl_id) {
+                    $badge = 'badge-info';
+                    $text = __('Setting up');
+                    $tip = __('Waiting for Pterodactyl. No remote server yet');
+                } elseif ($server->status === Server::STATUS_PROVISIONING || $server->status === Server::STATUS_PENDING_RECONCILIATION) {
+                    $badge = 'badge-info';
+                    $text = __('Setting up');
+                    $tip = __('Reconciling with Pterodactyl');
+                } else {
+                    $badge = 'badge-success';
+                    $text = __('Active');
+                    $tip = __('Running and billing normally');
+                }
 
-                return '<i class="fas ' . $labelColor . ' fa-circle mr-2"></i>';
+                return '<span class="badge ' . $badge . '" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="' . e($tip) . '">' . e($text) . '</span>';
             })
             ->editColumn('created_at', function (Server $server) {
                 return $server->created_at ? $server->created_at->diffForHumans() : '';

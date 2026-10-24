@@ -28,20 +28,29 @@ class MercadoPagoSettings extends Settings
     {
         return [
             'category_icon' => 'fas fa-dollar-sign',
-            'access_token' => [
-                'type' => 'string',
-                'label' => 'Access Token Key',
-                'description' => 'The Access Token of your Mercado Pago App',
-            ],
-            'webhook_secret' => [
-                'type' => 'string',
-                'label' => 'Webhook Secret',
-                'description' => 'Secret token appended to webhook URLs to validate incoming requests.',
+            'category_description' => 'Enable Mercado Pago and enter your credentials',
+            'sections' => [
+                'credentials' => [
+                    'label' => 'Credentials',
+                    'description' => 'Your Mercado Pago credentials',
+                ],
             ],
             'enabled' => [
                 'type' => 'boolean',
                 'label' => 'Enabled',
                 'description' => 'Enable or disable this payment gateway',
+            ],
+            'access_token' => [
+                'type' => 'secret',
+                'label' => 'Access Token Key',
+                'description' => 'The Access Token of your Mercado Pago App',
+                'section' => 'credentials',
+            ],
+            'webhook_secret' => [
+                'type' => 'secret',
+                'label' => 'Webhook Secret',
+                'description' => 'Secret token appended to webhook URLs to validate incoming requests',
+                'section' => 'credentials',
             ],
         ];
     }
