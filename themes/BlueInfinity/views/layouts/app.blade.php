@@ -38,7 +38,7 @@
 @yield('content')
 @stack('modals')
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.14.1/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25/dist/sweetalert2.all.min.js"></script>
 @stack('scripts')
 
 <script>
