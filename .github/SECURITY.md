@@ -245,7 +245,13 @@ credit but prefer not to appear in this list, tell us and we will omit you.
 
 | Researcher | Finding | Advisory |
 |------------|---------|----------|
-| -          | -       | -        |
+| [Wiktor Dudek](https://github.com/wiktordudek) | Unauthenticated RCE via Installer Accessible After Installation and Unsanitized Shell Arguments | [GHSA-jmhr-q9q5-fqwh](https://github.com/Ctrlpanel-gg/panel/security/advisories/GHSA-jmhr-q9q5-fqwh) |
+| [Simba](https://github.com/simbabimba-dev) | Unsafe Dynamic Class Instantiation in Admin Settings Allows Potential Remote Code Execution | [GHSA-vcg3-fjrx-rg5q](https://github.com/Ctrlpanel-gg/panel/security/advisories/GHSA-vcg3-fjrx-rg5q) |
+| [Simba](https://github.com/simbabimba-dev) | Stored XSS in Admin Role Management via Unescaped DataTable HTML Output | [GHSA-wpqj-xwhq-2mmh](https://github.com/Ctrlpanel-gg/panel/security/advisories/GHSA-wpqj-xwhq-2mmh) |
+| [Lighthouse Keeper](https://github.com/lighthousekeeper1212) | Missing Authorization on Admin Write Endpoints Allows RBAC Bypass | [GHSA-pxmw-gj52-9p68](https://github.com/Ctrlpanel-gg/panel/security/advisories/GHSA-pxmw-gj52-9p68) |
+| [R34P3R](https://github.com/knull-reaper) | Stored XSS in Ticket Reply Notifications Allows Session Hijacking | [GHSA-cmrr-q3hw-3vqh](https://github.com/Ctrlpanel-gg/panel/security/advisories/GHSA-cmrr-q3hw-3vqh) |
+| [Arda](https://github.com/ardapaydin) | Missing Authorization on Admin Datatable Endpoints Allows Unauthorized Access to Sensitive Data | [GHSA-mj5g-j7fq-7hc4](https://github.com/Ctrlpanel-gg/panel/security/advisories/GHSA-mj5g-j7fq-7hc4) |
+| [Arda](https://github.com/ardapaydin) | Stored XSS vulnerability in TicketsController priority field | [GHSA-2q43-grv2-jxwh](https://github.com/Ctrlpanel-gg/panel/security/advisories/GHSA-2q43-grv2-jxwh) |
 
 ### Published advisories
 
