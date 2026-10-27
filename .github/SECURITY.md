@@ -6,7 +6,7 @@ from us in return.
 
 ## Supported Versions
 
-Fixes ship in the latest stable release. We do not backport fixes to older
+Fixes ship in the next stable release. We do not backport fixes to older
 versions, and we do not support pre-releases.
 
 We accept reports for:
@@ -14,10 +14,9 @@ We accept reports for:
 - the latest stable release
 - the current `development` branch
 
-A fix for a `development` issue ships in the next release. If you are
-running an older version, upgrade before reporting. If you cannot upgrade,
-tell us in the report; for critical issues we may advise mitigations even
-when no patch is available for your version.
+If you are running an older version, upgrade before reporting. If you cannot
+upgrade, tell us in the report; for critical issues we may advise mitigations
+even when no patch is available for your version.
 
 ## Reporting a Vulnerability
 
