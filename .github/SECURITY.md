@@ -6,8 +6,8 @@ from us in return.
 
 ## Supported Versions
 
-Security fixes are applied to the latest stable release only. We do not
-backport fixes to older versions, and we do not support pre-releases.
+Fixes ship in the latest stable release. We do not backport fixes to older
+versions, and we do not support pre-releases.
 
 We accept reports for:
 
@@ -45,21 +45,20 @@ Never send vulnerability details over Discord.
 - Any preconditions (required role, configuration)
 - Whether the issue is already public
 - Your preferred name or handle for credit, if different from your GitHub
-  username
+  display name
 
 ### Report quality and AI-generated reports
 
-We judge the finding, not the tools. You may use AI assistance to prepare a
-report, and you may tick GitHub's "I used AI assistance" disclosure box. It
-is optional, and it does not disqualify your report. An unticked box does
-not exempt you from the rules below.
-
-AI output is not evidence. A report must demonstrate the issue, not describe
-it. Filling GitHub's required proof-of-concept field is not the same as
-providing a working proof of concept. Reports without a reproducible proof
-of concept, that describe a theoretical or speculative issue, or that cannot
-be reproduced will be closed. This applies to all reports, AI-assisted or
-not.
+We judge the finding, not the tools. If you used AI to help write your report,
+please tick the "This report was submitted with AI assistance" checkbox. It
+helps us understand what to expect, but it does not disqualify your report. A
+valid, well-demonstrated report will be accepted whether or not the box is
+ticked. AI output is not evidence, though. A report must demonstrate the
+issue, not just describe it. Filling GitHub's required proof-of-concept field
+is not the same as providing a working proof of concept. Reports without a
+reproducible proof of concept, or that describe a theoretical or speculative
+issue, or that cannot be reproduced, will be closed. This applies to all
+reports, AI-assisted or not.
 
 We may ask follow-up questions. If you cannot explain or reproduce your own
 report, it will be closed. You are responsible for verifying anything you
@@ -88,9 +87,8 @@ response or fix time, but we do our best to:
 - triage and assign a severity within **30 calendar days**
 
 If you have not received a response, contact us again through the advisory
-or ping a maintainer on Discord. We commit to keeping reports moving: we
-will not leave a report unacknowledged or a fix pending without a status
-update.
+or ping a maintainer on Discord. We aim to keep reports moving and will
+provide status updates.
 
 We may ask you to retest a fix before or after release. We keep your report
 confidential until the advisory is published.
@@ -125,7 +123,7 @@ window has passed. We do not grant a right to unilateral disclosure.
 
 ## Scope
 
-CtrlPanel is self-hosted software. The project does not operate a hosted or
+The project does not operate a hosted or
 SaaS instance. This policy covers the code in this repository only, and we
 do not manage or have access to your deployment.
 
@@ -134,13 +132,13 @@ We accept reports for instances that are:
 - deployed following the official documentation
 - running the latest stable release or the current `development` branch
 - free of extensions, themes, and other modifications that alter the
-  database
+  database, now or previously
 
-For reproduction, use a clean instance with no extensions installed.
-Extensions can change the database structure, and a database that was
-modified by an extension, now or previously, is not a valid test environment
-and may make an issue unreproducible. If a problem only occurs with an
-extension installed, report it to that extension's author.
+For reproduction, use an instance with no extensions installed, now
+or previously. Extensions can change the database structure, and a database
+that was modified by an extension, now or previously, is not a valid test
+environment and may make an issue unreproducible. If a problem only occurs
+with an extension installed, report it to that extension's author.
 
 Issues that only occur in a misconfigured or unsupported deployment are out
 of scope. We cannot verify or support every configuration.
@@ -221,16 +219,15 @@ valid vulnerabilities.
 
 Confirmed reports are rewarded with a role on our Discord server:
 
-| Role                | Awarded for                                                                                                          |
-|---------------------|----------------------------------------------------------------------------------------------------------------------|
-| `Bug Hunter`        | Any confirmed report with a proof of concept, whether a regular bug or a vulnerability reported through an advisory |
-| `Golden Bug Hunter` | Maintainer discretion, for a notable contribution to finding non-critical bugs                                      |
-| `White Hat`         | Maintainer discretion, for a notable contribution to reporting vulnerabilities                                      |
+| Role                | Awarded for                                             |
+|---------------------|---------------------------------------------------------|
+| `Bug Hunter`        | Any confirmed report that meets the requirements        |
+| `Golden Bug Hunter` | Maintainer discretion for notable non-critical bugs     |
+| `White Hat`         | Maintainer discretion for notable vulnerability reports |
 
-`Golden Bug Hunter` and `White Hat` are granted by the maintainers based on
-the impact and quality of the contribution, not on report count alone. All
-valid reports receive `Bug Hunter`; `Golden Bug Hunter` and `White Hat` are
-additional honors.
+`Golden Bug Hunter` and `White Hat` are
+additional honors, granted by the maintainers based on
+the impact and quality of the contribution, not on report count alone.
 
 ### Hall of Fame
 
@@ -239,7 +236,7 @@ vulnerabilities to this project. Entries are one per advisory and are added
 after the advisory and CVE are published. Entries are listed newest first.
 
 Accepting credit in the GitHub Security Advisory automatically gives us
-permission to list you here. By default we use your GitHub username. If you
+permission to list you here. By default we use your GitHub display name. If you
 want a different name or handle, ask in the advisory thread. If you accept
 credit but prefer not to appear in this list, tell us and we will omit you.
 
