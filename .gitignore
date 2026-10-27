@@ -46,3 +46,4 @@ database/snapshots
 /.idea
 cpggdatabase.sql
 /dump.rdb
+build/.vite

@@ -10,7 +10,7 @@
         "build:default": "vite build --config themes/default/vite.config.js"
     },
     "devDependencies": {
-        "axios": "^0.25",
+        "axios": "^1.21.0",
         "bootstrap": "^4.6.0",
         "jquery": "^3.5",
         "lodash": "^4.17.19",
