@@ -103,7 +103,9 @@ class TotpExtension extends TwoFactorExtension
             ]);
         }
 
-        if (!$this->totpService->verifyCode($pendingSecret, $request->input('code'))) {
+        $timestamp = $this->totpService->verifyCode($pendingSecret, $request->input('code'), 0);
+
+        if ($timestamp === false) {
             throw ValidationException::withMessages([
                 'code' => [__('The provided two-factor authentication code was invalid.')],
             ]);
@@ -118,6 +120,7 @@ class TotpExtension extends TwoFactorExtension
                 'is_enabled' => true,
                 'totp_secret' => encrypt($pendingSecret),
                 'totp_recovery_codes' => encrypt($recoveryCodes),
+                'totp_last_timestamp' => $timestamp,
             ]
         );
 
@@ -201,7 +204,19 @@ class TotpExtension extends TwoFactorExtension
 
         if (strlen($code) === 6 && ctype_digit($code)) {
             if ($method->totp_secret) {
-                return $this->totpService->verifyCode(decrypt($method->totp_secret), $code);
+                $timestamp = $this->totpService->verifyCode(
+                    decrypt($method->totp_secret),
+                    $code,
+                    (int) ($method->totp_last_timestamp ?? 0)
+                );
+
+                if ($timestamp === false) {
+                    return false;
+                }
+
+                $method->forceFill(['totp_last_timestamp' => $timestamp])->save();
+
+                return true;
             }
         } elseif (strlen($code) === 8 && ctype_alnum($code)) {
             return $this->recoveryCodeService->verify($user, $code);
