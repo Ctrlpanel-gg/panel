@@ -75,6 +75,7 @@ return [
 
 
     'View Payments Backend' => 'admin.payments.read',
+    'Manage Payments Backend' => 'admin.payments.write',
 
     'View Partners Backend' => 'admin.partners.read',
     'Manage Partners Backend' => 'admin.partners.write',
@@ -122,18 +123,6 @@ return [
 
     'View Website Settings' => 'settings.website.read',
     'Manage Website Settings' => 'settings.website.write',
-
-    'View Paypal Settings' => 'settings.paypal.read',
-    'Manage Paypal Settings' => 'settings.paypal.write',
-
-    'View Mercado Pago Settings' => 'settings.mercadopago.read',
-    'Manage Mercado Pago Settings' => 'settings.mercadopago.write',
-
-    'View Stripe Settings' => 'settings.stripe.read',
-    'Manage Stripe Settings' => 'settings.stripe.write',
-
-    'View Mollie Settings' => 'settings.mollie.read',
-    'Manage Mollie Settings' => 'settings.mollie.write',
 
     /*
      * Permissions for users

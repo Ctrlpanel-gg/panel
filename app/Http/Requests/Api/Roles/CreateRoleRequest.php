@@ -4,6 +4,12 @@ namespace App\Http\Requests\Api\Roles;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @bodyParam name string required The name of the role. Example: Moderator
+ * @bodyParam color string required The hex color of the role. Example: #00FF00
+ * @bodyParam power integer required The power level of the role. Example: 50
+ * @bodyParam permissions string[] The permissions assigned to the role. Example: [ "admin.roles.read" ]
+ */
 class CreateRoleRequest extends FormRequest
 {
     /**

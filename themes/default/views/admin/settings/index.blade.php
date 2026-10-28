@@ -43,7 +43,7 @@
                 <div class="card-body">
                     <!-- Sidebar Menu -->
                     <div class="row d-flex">
-                        <div class="p-0 col-md-2 col-12">
+                        <div class="p-0 col-12 col-md-auto settings-menu">
                             <nav class="mt-1">
                                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="tablist"
                                     data-accordion="false">
@@ -78,7 +78,7 @@
                                 </ul>
 
 
-                                <button class="mb-2 btn btn-outline-secondary mb-md-0" type="button" data-toggle="collapse"
+                                <button class="btn btn-outline-secondary settings-extensions-toggle" type="button" data-toggle="collapse"
                                     data-target="#collapseExtensions" aria-expanded="false"
                                     aria-controls="collapseExtensions">
                                     {{ __('Extension Settings') }}
@@ -110,7 +110,7 @@
                         </div>
                         <!-- /.sidebar-menu -->
                         <!-- Content in $settings -->
-                        <div class="p-0 col-md-10 col-12">
+                        <div class="p-0 col-12 col-md settings-content">
                             <div class="tab-content">
                                 <div class="container tab-pane fade" id="icons" role="tabpanel">
 
@@ -197,11 +197,17 @@
                                                 <input type="hidden" name="settings_class"
                                                     value="{{ $options['settings_class'] }}">
                                                 <input type="hidden" name="category" value="{{ $category }}">
-                                                @foreach ($options as $key => $value)
-                                                    @if ($key == 'category_icon' || $key == 'settings_class' || $key == 'position')
-                                                        @continue
+                                                @foreach ($options['sections'] as $sectionKey => $section)
+                                                    @if ($section['label'])
+                                                        <div class="mt-3 mb-3 pb-2 border-bottom d-flex flex-column flex-md-row align-items-md-center justify-content-md-between">
+                                                            <h6 class="mb-1 mb-md-0 font-weight-bold">{{ __($section['label']) }}</h6>
+                                                            @if ($section['description'])
+                                                                <small class="text-muted">{{ __($section['description']) }}</small>
+                                                            @endif
+                                                        </div>
                                                     @endif
-                                                    <div class="mb-3 row">
+                                                    @foreach ($section['options'] as $key => $value)
+                                                    <div class="mb-3 row" id="field_{{ $category }}_{{ $key }}" @if (isset($value['visible_when'])) data-visible-when='{{ json_encode($value['visible_when']) }}' @endif>
                                                         <div class="col-md-4 col-12 d-flex align-items-center">
                                                           <label class="w-100 d-inline-flex justify-content-between align-items-center" for="{{ $key }}">
                                                             {{ $value['label'] }}
@@ -227,6 +233,14 @@
                                                                                 value="{{ $value['value'] }}">
                                                                         @break
 
+                                                                        @case($value['type'] == 'secret')
+                                                                            <input type="text" class="form-control"
+                                                                                name="{{ $key }}"
+                                                                                value="{{ $value['value'] }}"
+                                                                                autocomplete="off"
+                                                                                spellcheck="false">
+                                                                        @break
+
                                                                         @case($value['type'] == 'password')
                                                                             <input type="password" class="form-control"
                                                                                 name="{{ $key }}"
@@ -240,9 +254,22 @@
                                                                         @break
 
                                                                         @case($value['type'] == 'number')
-                                                                            <input type="number" step="{{ $value['step'] ?? '1' }}" class="form-control"
-                                                                                name="{{ $key }}"
-                                                                                value="{{ isset($value['converted_value']) ? $value['converted_value'] : $value['value'] }}">
+                                                                            @if (isset($value['suffix']))
+                                                                                <div class="input-group">
+                                                                                    <input type="number" step="{{ $value['step'] ?? '1' }}" class="form-control"
+                                                                                        name="{{ $key }}"
+                                                                                        value="{{ isset($value['converted_value']) ? $value['converted_value'] : $value['value'] }}">
+                                                                                    <div class="input-group-append">
+                                                                                        <span class="input-group-text"
+                                                                                            data-suffix-for="{{ $key }}"
+                                                                                            data-suffix-mapping='{{ json_encode($value['suffix']) }}'>&nbsp;</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @else
+                                                                                <input type="number" step="{{ $value['step'] ?? '1' }}" class="form-control"
+                                                                                    name="{{ $key }}"
+                                                                                    value="{{ isset($value['converted_value']) ? $value['converted_value'] : $value['value'] }}">
+                                                                            @endif
                                                                         @break
 
                                                                         @case($value['type'] == 'select')
@@ -298,32 +325,49 @@
 
                                                         </div>
                                                     </div>
+                                                    @endforeach
+
+								@if ($sectionKey === 'recaptcha' && !empty($section['options']))
+                                                        <div class="row">
+                                                            <div class="col-md-4 col-12 d-flex align-items-center">
+                                                                <label class="w-100 mb-0" for="recaptcha_preview">{{ __('Captcha Preview') }}</label>
+                                                            </div>
+
+                                                            <div class="col-md-8 col-12">
+                                                                @php
+                                                                    $captchaVersion = $section['options']['recaptcha_version']['value'] ?? null;
+                                                                    $captchaSiteKey = $section['options']['recaptcha_site_key']['value'] ?? null;
+                                                                    $captchaConfigured = $captchaVersion && $captchaSiteKey;
+                                                                @endphp
+
+                                                                @if ($captchaConfigured && $captchaVersion === 'v2')
+                                                                    <div class="mb-3 input-group">
+                                                                        @captchaScripts
+                                                                        <x-captcha />
+                                                                    </div>
+                                                                @elseif ($captchaConfigured)
+                                                                    <div class="alert alert-info mb-0 py-2 d-flex align-items-center">
+                                                                        <i class="fas fa-eye-slash mr-2"></i>
+                                                                        <span class="small">
+                                                                            @if ($captchaVersion === 'v3')
+                                                                                {{ __('reCAPTCHA V3 runs invisibly in the background so users are not shown a widget. A badge appears in the bottom-left corner of the page') }}
+                                                                            @elseif ($captchaVersion === 'turnstile')
+                                                                                {{ __('Turnstile widget visibility is configured in the Cloudflare dashboard so it may appear as an interactive checkbox or run invisibly, and the panel cannot detect which mode you selected') }}
+                                                                            @endif
+                                                                        </span>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="alert alert-secondary mb-0 py-2 d-flex align-items-center">
+                                                                        <i class="fas fa-info-circle mr-2"></i>
+                                                                        <span class="small">
+                                                                            {{ __('Captcha is not configured yet, select a version and provide a site key to see the preview') }}
+                                                                        </span>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 @endforeach
-
-                                                <!-- TODO: Display this only on the General tab
-
-                                                                                                                                                                    <div class="row">
-                                                                                                                                                                        <div class="col-4 d-flex align-items-center">
-                                                                                                                                                                            <label for="recaptcha_preview">{{ __('ReCAPTCHA Preview') }}</label>
-                                                                                                                                                                        </div>
-
-                                                                                                                                                                        <div class="col-8">
-
-                                                                                                                                                                                <div class="w-100">
-                                                                                                                                                                        <div class="mb-3 input-group">
-                                                                                                                                                                            {!! htmlScriptTagJsApi() !!}
-                                                                                                                                                                        {!! htmlFormSnippet() !!}
-                                                                                                                                                                        @error('g-recaptcha-response')
-            <span class="text-danger" role="alert">
-                                                                                                                                                                                                                                                                <small><strong>{{ $message }}</strong></small>
-                                                                                                                                                                                                                                                                    </span>
-        @enderror
-                                                                                                                                                                        </div>
-                                                                                                                                                                                </div>
-                                                                                                                                                                        </div>
-                                                                                                                                                                    </div>
-                                                                                                                                                                       -->
-
 
                                                 <div class="row">
                                                     <div class="col-12 d-flex align-items-center justify-content-end">
@@ -354,22 +398,131 @@
     </section>
     <!-- END CONTENT -->
 
-    <script>
-        const tabPaneHash = window.location.hash;
-        if (tabPaneHash) {
-            $('.nav-item a[href="' + tabPaneHash + '"]').tab('show');
+    <style>
+        .settings-menu .nav-sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
-        $('.nav-pills a').click(function(e) {
-            $(this).tab('show');
-            window.location.hash = this.hash;
+        .settings-menu .settings-extensions-toggle {
+            margin-bottom: 0.2rem;
+        }
+
+        .settings-menu .nav-sidebar .nav-link .nav-icon {
+            flex: 0 0 auto;
+        }
+
+        .settings-menu .nav-sidebar .nav-link p {
+            flex: 0 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: auto !important;
+            margin-left: 0 !important;
+            visibility: visible !important;
+            animation: none !important;
+        }
+
+        .settings-menu .nav-sidebar .nav-header {
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        @media (min-width: 768px) {
+            .settings-menu {
+                max-width: 240px;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .settings-menu .nav-sidebar {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+
+    <script>
+        function showSettingsTab(tabLink) {
+            $('.settings-menu .nav-link').removeClass('active');
+            $('.tab-content .tab-pane').removeClass('active show');
+            $(tabLink).addClass('active');
+            $($(tabLink).attr('href')).addClass('active show');
+        }
+
+        $('.settings-menu a[data-toggle="pill"]').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            showSettingsTab(this);
+            history.replaceState(null, '', this.hash);
         });
 
-        document.addEventListener('DOMContentLoaded', (event) => {
+        const tabPaneHash = window.location.hash;
+        if (tabPaneHash) {
+            const tabLink = $('.settings-menu a[href="' + tabPaneHash + '"]');
+            if (tabLink.length) {
+                showSettingsTab(tabLink);
+                if (tabLink.closest('#collapseExtensions').length) {
+                    $('#collapseExtensions').collapse('show');
+                }
+            }
+        }
+
+        function applySettingsFieldVisibility() {
+            // Hide/show fields based on the value of another option (visible_when).
+            // Lookups are scoped to the enclosing form so that duplicate option
+            // keys across categories (e.g. fee_type on every gateway) don't clash.
+            $('[data-visible-when]').each(function () {
+                const $row = $(this);
+                const $form = $row.closest('form');
+                const conditions = $row.data('visible-when');
+                let visible = true;
+
+                for (const [depKey, expected] of Object.entries(conditions || {})) {
+                    const $dep = $form.find('#' + depKey);
+                    if (!$dep.length) {
+                        visible = false;
+                        break;
+                    }
+
+                    const actual = $dep.val();
+                    const expectedValues = Array.isArray(expected) ? expected : [expected];
+                    if (!expectedValues.includes(actual)) {
+                        visible = false;
+                        break;
+                    }
+                }
+
+                $row.toggle(visible);
+            });
+
+            // Update the suffix of an input based on the value of another option.
+            $('[data-suffix-mapping]').each(function () {
+                const $suffix = $(this);
+                const $form = $suffix.closest('form');
+                const mapping = $suffix.data('suffix-mapping') || {};
+                const $dep = $form.find('#' + (mapping.depends_on || ''));
+                const value = $dep.length ? $dep.val() : null;
+                const text = (mapping.map && mapping.map[value]) || '';
+                $suffix.text(text || '\u00A0');
+            });
+        }
+
+        $(function () {
             $('.custom-select').select2({
                 width: '100%',
             });
-        })
+
+            applySettingsFieldVisibility();
+        });
+
+        $(document).on('change', '.custom-select', applySettingsFieldVisibility);
 
         tinymce.init({
             selector: 'textarea',

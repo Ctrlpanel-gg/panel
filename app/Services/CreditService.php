@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\Server\InsufficientCreditsException;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
@@ -16,7 +17,7 @@ class CreditService
 
         if ($reserved === 0) {
             // Either not enough credits or another concurrent request updated this user first.
-            throw new \Exception('Unable to reserve credits: either insufficient balance or concurrent provisioning in progress. Please retry.');
+            throw new InsufficientCreditsException('Unable to reserve credits: either insufficient balance or concurrent provisioning in progress. Please retry.');
         }
 
         Cache::forget('user_credits_left:' . $user->id);

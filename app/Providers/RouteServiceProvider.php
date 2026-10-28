@@ -46,11 +46,73 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function configureRateLimiting()
     {
+        $tooManyAttempts = fn (Request $request, array $headers) => $this->tooManyAttemptsResponse($headers);
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
         RateLimiter::for('web', function (Request $request) {
             return Limit::perMinute(40)->by($request->user()?->id ?: $request->ip());
         });
+        RateLimiter::for('2fa.verify', function (Request $request) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('verify')
+                     ?? ['attempts' => 5, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('2fa.setup', function (Request $request) use ($tooManyAttempts) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('setup')
+                     ?? ['attempts' => 3, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])
+                ->by($request->user()?->id ?: $request->ip())
+                ->response($tooManyAttempts);
+        });
+
+        RateLimiter::for('2fa.enable', function (Request $request) use ($tooManyAttempts) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('enable')
+                     ?? ['attempts' => 3, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])
+                ->by($request->user()?->id ?: $request->ip())
+                ->response($tooManyAttempts);
+        });
+
+        RateLimiter::for('2fa.disable', function (Request $request) use ($tooManyAttempts) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('disable')
+                     ?? ['attempts' => 3, 'minutes' => 1];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])
+                ->by($request->user()?->id ?: $request->ip())
+                ->response($tooManyAttempts);
+        });
+
+        RateLimiter::for('2fa.action', function (Request $request) use ($tooManyAttempts) {
+            $method = $request->route('method');
+            $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('action')
+                     ?? ['attempts' => 3, 'minutes' => 5];
+
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])
+                ->by($request->user()?->id ?: $request->ip())
+                ->response($tooManyAttempts);
+        });
+    }
+
+    /**
+     * Build a descriptive response for exceeded 2FA rate limits.
+     */
+    private function tooManyAttemptsResponse(array $headers)
+    {
+        $retryAfter = max(1, (int) ($headers['Retry-After'] ?? 60));
+
+        return response()->json([
+            'message' => __('Too many attempts. Please try again in :seconds seconds.', ['seconds' => $retryAfter]),
+            'retry_after' => $retryAfter,
+        ], 429, $headers);
     }
 }

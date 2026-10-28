@@ -63,8 +63,22 @@
     <!-- END CONTENT -->
 
     <script>
-        function submitResult() {
-            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+        function submitResult(form) {
+            Swal.fire({
+                title: '{{ __('Are you sure?') }}',
+                text: '{{ __('This action will permanently delete the voucher') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '{{ __('Yes, delete it!') }}',
+                cancelButtonText: '{{ __('Cancel') }}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
         }
 
         document.addEventListener("DOMContentLoaded", function () {

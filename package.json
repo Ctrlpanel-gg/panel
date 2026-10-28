@@ -1,5 +1,8 @@
 {
+    "name": "@ctrlpanel-gg/panel",
+    "description": "A free and open-source billing panel for Pterodactyl.",
     "private": true,
+    "license": "MPL-2.0",
     "scripts": {
         "development": "vite",
         "production": "vite build",
@@ -7,7 +10,7 @@
         "build:default": "vite build --config themes/default/vite.config.js"
     },
     "devDependencies": {
-        "axios": "^0.25",
+        "axios": "^1.21.0",
         "bootstrap": "^4.6.0",
         "jquery": "^3.5",
         "lodash": "^4.17.19",

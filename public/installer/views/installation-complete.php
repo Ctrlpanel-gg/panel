@@ -19,6 +19,8 @@ if (!file_exists('../../install.lock')) {
     $lockfile = fopen('../../install.lock', 'w') or exit('Unable to open file!');
     fwrite($lockfile, 'the installation is locked, delete this file to unlock it');
     fclose($lockfile);
+
+    @unlink('../../install.inprogress');
 }
 ?>
 
