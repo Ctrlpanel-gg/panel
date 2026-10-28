@@ -27,10 +27,10 @@ class TotpService
     }
 
     /**
-     * Verify a TOTP code.
+     * Verify a TOTP code and return the matched time-step.
      */
-    public function verifyCode(string $secret, string $code): bool
+    public function verifyCode(string $secret, string $code, int $oldTimestamp = 0): bool|int
     {
-        return Google2FA::verifyKey($secret, $code);
+        return Google2FA::verifyKeyNewer($secret, $code, $oldTimestamp);
     }
 }
