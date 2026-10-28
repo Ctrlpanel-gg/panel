@@ -1,11 +1,8 @@
 {
-    "name": "cpgg/dashboard",
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "ctrlpanel-gg/panel",
     "type": "project",
-    "description": "A billing and control panel made for Pterodactyl.",
-    "keywords": [
-        "framework",
-        "laravel"
-    ],
+    "description": "A free and open-source billing panel for Pterodactyl.",
     "license": "MPL-2.0",
     "require": {
         "php": "^8.2",
@@ -24,7 +21,7 @@
         "league/flysystem-aws-s3-v3": "^3.28.0",
         "paypal/paypal-checkout-sdk": "^1.0.2",
         "pragmarx/google2fa-laravel": "^3.0",
-        "predis/predis": "*",
+        "predis/predis": "^3.4",
         "qirolab/laravel-themer": "^2.3.3",
         "socialiteproviders/discord": "^4.1.2",
         "spatie/laravel-activitylog": "^4.9",
