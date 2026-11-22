@@ -34,7 +34,7 @@
 
                                 <div class="form-group">
                                     <input id="all" name="all"
-                                           type="checkbox" value="1"
+                                           type="checkbox" value="1" autocomplete="off"
                                            onchange="toggleClass('users-form', 'd-none')">
                                     <label for="all">{{__('All')}}</label><br>
                                     <div id="users-form">

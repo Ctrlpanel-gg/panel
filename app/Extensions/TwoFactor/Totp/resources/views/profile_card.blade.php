@@ -35,7 +35,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <span>{{ __('Enable') }}</span>
             <div class="custom-control custom-switch">
-                <input type="checkbox" class="custom-control-input" id="totpToggle" {{ $totp ? 'checked' : '' }}
+                <input type="checkbox" class="custom-control-input" id="totpToggle" autocomplete="off" {{ $totp ? 'checked' : '' }}
                     @click.prevent="window.dispatchEvent(new CustomEvent('totp-toggle-click', { detail: { enabled: {{ $totp ? 'true' : 'false' }} } }))">
                 <label class="custom-control-label" for="totpToggle"></label>
             </div>
