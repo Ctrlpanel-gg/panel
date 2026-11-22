@@ -4,6 +4,7 @@ namespace App\Extensions\TwoFactor\Totp\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -42,33 +43,40 @@ class RecoveryCodeService
 
         $code = strtoupper(preg_replace('/\s+/', '', $code));
 
-        $method = $user->twoFactorMethods->where('method', 'totp')->first();
+        return DB::transaction(function () use ($user, $code, $cacheKey) {
+            // Lock the row so concurrent logins see the burned list, not a stale one
+            $method = $user->twoFactorMethods()
+                ->where('method', 'totp')
+                ->lockForUpdate()
+                ->first();
 
-        if (!$method || !$method->totp_recovery_codes) {
-            return false;
-        }
-
-        $recoveryCodes = decrypt($method->totp_recovery_codes);
-        $matchedIndex = null;
-
-        foreach ($recoveryCodes as $index => $storedCode) {
-            // Using hash_equals for constant-time comparison across all codes
-            if (hash_equals($storedCode, $code)) {
-                $matchedIndex = $index;
+            if (!$method || !$method->totp_recovery_codes) {
+                return false;
             }
-        }
 
-        if ($matchedIndex !== null) {
-            // Burn the code
-            unset($recoveryCodes[$matchedIndex]);
-            $method->totp_recovery_codes = encrypt(array_values($recoveryCodes));
-            $method->save();
+            $recoveryCodes = decrypt($method->totp_recovery_codes);
+            $matchedIndex = null;
 
-            Cache::forget($cacheKey);
-            return true;
-        }
+            foreach ($recoveryCodes as $index => $storedCode) {
+                // hash_equals for constant-time comparison across all codes
+                if (hash_equals($storedCode, $code)) {
+                    $matchedIndex = $index;
+                    break;
+                }
+            }
 
-        Cache::put($cacheKey, $attempts + 1, now()->addMinutes($limit['minutes']));
-        return false;
+            if ($matchedIndex !== null) {
+                // Burn the code
+                unset($recoveryCodes[$matchedIndex]);
+                $method->totp_recovery_codes = encrypt(array_values($recoveryCodes));
+                $method->save();
+
+                Cache::forget($cacheKey);
+                return true;
+            }
+
+            Cache::put($cacheKey, $attempts + 1, now()->addMinutes($limit['minutes']));
+            return false;
+        }, attempts: 3);
     }
 }
