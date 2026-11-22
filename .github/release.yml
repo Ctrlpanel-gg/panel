@@ -1,4 +1,4 @@
-hangelog:
+changelog:
   exclude:
     labels:
       - Skip release notes
