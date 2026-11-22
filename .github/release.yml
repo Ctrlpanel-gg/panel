@@ -1,0 +1,19 @@
+hangelog:
+  exclude:
+    labels:
+      - Skip release notes
+    authors:
+      - github-actions
+  categories:
+    - title: Features & Improvements
+      labels:
+        - Enhancement
+    - title: Bug Fixes
+      labels:
+        - Bug
+    - title: Dependencies
+      labels:
+        - Dependencies
+    - title: Other Changes
+      labels:
+        - "*"
