@@ -16,7 +16,10 @@
         <form action="{{ route('login.2fa.verify', ['method' => 'dummy']) }}" method="post">
           @csrf
           <div class="form-group">
-            <input type="text" name="code" class="form-control" placeholder="123456" autofocus>
+            <input type="text" name="code" class="form-control @error('code') is-invalid @enderror" placeholder="123456" autofocus>
+            @error('code')
+              <span class="text-danger" role="alert"><small><strong>{{ $message }}</strong></small></span>
+            @enderror
           </div>
           <button type="submit" class="btn btn-primary btn-block">{{ __('Verify') }}</button>
         </form>

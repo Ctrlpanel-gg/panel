@@ -33,7 +33,7 @@ class EnsureTwoFactorVerified
             return $next($request);
         }
 
-        if ($this->twoFactorService->enabledMethods($user)->isNotEmpty() && !$this->twoFactorService->isVerified($request, $user)) {
+        if ($this->twoFactorService->challengeableMethods($user)->isNotEmpty() && !$this->twoFactorService->isVerified($request, $user)) {
             return redirect()->route('login.2fa.challenge');
         }
 

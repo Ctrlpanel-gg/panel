@@ -47,6 +47,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting()
     {
         $tooManyAttempts = fn (Request $request, array $headers) => $this->tooManyAttemptsResponse($headers);
+        $tooManyAttemptsRedirect = fn (Request $request, array $headers) => $this->tooManyAttemptsRedirectResponse($request, $headers);
 
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
@@ -54,12 +55,14 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('web', function (Request $request) {
             return Limit::perMinute(40)->by($request->user()?->id ?: $request->ip());
         });
-        RateLimiter::for('2fa.verify', function (Request $request) {
+        RateLimiter::for('2fa.verify', function (Request $request) use ($tooManyAttemptsRedirect) {
             $method = $request->route('method');
             $limit = app(\App\Services\TwoFactor\TwoFactorService::class)->getExtension($method)?->getRateLimit('verify')
                      ?? ['attempts' => 5, 'minutes' => 1];
 
-            return Limit::perMinutes($limit['minutes'], $limit['attempts'])->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinutes($limit['minutes'], $limit['attempts'])
+                ->by($request->user()?->id ?: $request->ip())
+                ->response($tooManyAttemptsRedirect);
         });
 
         RateLimiter::for('2fa.setup', function (Request $request) use ($tooManyAttempts) {
@@ -114,5 +117,26 @@ class RouteServiceProvider extends ServiceProvider
             'message' => __('Too many attempts. Please try again in :seconds seconds.', ['seconds' => $retryAfter]),
             'retry_after' => $retryAfter,
         ], 429, $headers);
+    }
+
+    /**
+     * Build a form-friendly response for exceeded 2FA rate limits.
+     * The 2FA challenge is a regular form POST, so redirect back with a
+     * validation error instead of raw JSON.
+     */
+    private function tooManyAttemptsRedirectResponse(Request $request, array $headers)
+    {
+        $retryAfter = max(1, (int) ($headers['Retry-After'] ?? 60));
+
+        $message = __('Too many attempts. Please try again in :seconds seconds.', ['seconds' => $retryAfter]);
+
+        if ($request->ajax() || $request->expectsJson()) {
+            return $this->tooManyAttemptsResponse($headers);
+        }
+
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors(['code' => $message]);
     }
 }

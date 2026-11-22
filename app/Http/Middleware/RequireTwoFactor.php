@@ -35,7 +35,7 @@ class RequireTwoFactor
         }
 
         // if user has no enabled 2FA methods > pass through
-        if ($this->twoFactorService->enabledMethods($user)->isEmpty()) {
+        if ($this->twoFactorService->challengeableMethods($user)->isEmpty()) {
             return $next($request);
         }
 

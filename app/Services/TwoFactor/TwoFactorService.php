@@ -44,6 +44,18 @@ class TwoFactorService
     }
 
     /**
+     * Get enabled 2FA methods that are actually challengeable.
+     */
+    public function challengeableMethods(User $user): Collection
+    {
+        return $this->enabledMethods($user)->filter(function ($row) use ($user) {
+            $extension = $this->getExtension($row->method);
+
+            return $extension && $extension->isAvailable($user);
+        });
+    }
+
+    /**
      * Get all enabled 2FA methods for the user.
      */
     public function enabledMethods(User $user): Collection
