@@ -43,7 +43,7 @@ class RecoveryCodeService
 
         $code = strtoupper(preg_replace('/\s+/', '', $code));
 
-        return DB::transaction(function () use ($user, $code, $cacheKey) {
+        return DB::transaction(function () use ($user, $code, $cacheKey, $attempts, $limit) {
             // Lock the row so concurrent logins see the burned list, not a stale one
             $method = $user->twoFactorMethods()
                 ->where('method', 'totp')
