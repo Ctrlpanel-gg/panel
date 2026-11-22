@@ -36,7 +36,7 @@
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" name="disabled"
                                                class="custom-control-input custom-control-input-danger"
-                                               id="switch1">
+                                               id="switch1" autocomplete="off">
                                         <label class="custom-control-label" for="switch1">{{__('Disabled')}} <i
                                                 data-toggle="popover"
                                                 data-trigger="hover"

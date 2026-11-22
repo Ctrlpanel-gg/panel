@@ -42,7 +42,7 @@
                                 <div class="d-flex flex-row-reverse">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" id="random_codes" name="random_codes"
-                                            class="custom-control-input">
+                                            class="custom-control-input" autocomplete="off">
                                         <label for="random_codes" class="custom-control-label">
                                             {{ __('Random Codes') }}
                                             <i data-toggle="popover" data-trigger="hover"

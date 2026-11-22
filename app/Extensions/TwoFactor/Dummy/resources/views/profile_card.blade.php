@@ -38,6 +38,7 @@
                 <input type="checkbox"
                        class="custom-control-input"
                        id="dummyToggle"
+                       autocomplete="off"
                        {{ $dummy ? 'checked' : '' }}
                        @click.prevent="toggleDummy()">
 

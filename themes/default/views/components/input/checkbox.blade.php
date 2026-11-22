@@ -13,6 +13,7 @@
             <input class="form-check-input" name="{{$name}}" value="1"
                    @if(old($name,  $value ?? null) == 1) checked @endif
                    type="checkbox"
+                   autocomplete="off"
                    id="{{$name}}">
             <label class="form-check-label" for="{{$name}}">{{$label}}</label>
         </div>
