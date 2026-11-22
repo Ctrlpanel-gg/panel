@@ -137,7 +137,8 @@
                             @if ($website_settings->show_tos && $website_settings->show_privacy)
                                 <div class="d-flex align-items-start mb-3">
                                     <div class="icheck-primary mb-0 mr-2">
-                                        <input type="checkbox" id="agreeTerms" name="terms" value="agree">
+                                        <input type="checkbox" id="agreeTerms" name="terms" value="agree"
+                                            autocomplete="off">
                                         <label for="agreeTerms"></label>
                                     </div>
                                     <div>
@@ -156,7 +157,8 @@
                                 @enderror
                             @elseif ($website_settings->show_tos)
                                 <div class="icheck-primary">
-                                    <input type="checkbox" id="agreeTerms" name="terms" value="agree">
+                                    <input type="checkbox" id="agreeTerms" name="terms" value="agree"
+                                        autocomplete="off">
                                     <label for="agreeTerms">
                                         {{__("I agree to the")}} <a target="_blank"
                                             href="{{ route('terms', 'tos') }}">{{__("Terms of Service")}}</a>
@@ -169,7 +171,8 @@
                                 @enderror
                             @elseif ($website_settings->show_privacy)
                                 <div class="icheck-primary">
-                                    <input type="checkbox" id="agreePrivacy" name="privacy" value="agree">
+                                    <input type="checkbox" id="agreePrivacy" name="privacy" value="agree"
+                                        autocomplete="off">
                                     <label for="agreePrivacy">
                                         {{__("I agree to the")}} <a target="_blank"
                                             href="{{ route('terms', 'privacy') }}">{{__("Privacy Policy")}}</a>

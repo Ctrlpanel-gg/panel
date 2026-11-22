@@ -43,7 +43,8 @@
                                 <div class="flex-row-reverse d-flex">
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" @checked($product->disabled) name="disabled"
-                                            class="custom-control-input custom-control-input-danger" id="switch1">
+                                            class="custom-control-input custom-control-input-danger" id="switch1"
+                                            autocomplete="off">
                                         <label class="custom-control-label" for="switch1">{{ __('Disabled') }}
                                             <i data-toggle="popover" data-trigger="hover"
                                                 data-content="{{ __('Will hide this option from being selected') }}"
@@ -293,6 +294,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <input type="checkbox" value="1" id="oom_killer" name="oom_killer"
+                                                autocomplete="off"
                                                 {{ old('oom_killer', $product->oom_killer) ? 'checked' : '' }}>
                                             <label for="oom_killer">
                                                 {{ __('OOM Killer') }}

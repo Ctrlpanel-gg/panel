@@ -179,7 +179,7 @@ class ShopProductController extends Controller
                             ' . csrf_field() . '
                             ' . method_field('PATCH') . '
                             <div class="custom-control custom-switch">
-                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $shopProduct->id . '">
+                            <input ' . $checked . ' name="disabled" onchange="this.form.submit()" type="checkbox" class="custom-control-input" id="switch' . $shopProduct->id . '" autocomplete="off">
                             <label class="custom-control-label" for="switch' . $shopProduct->id . '"></label>
                           </div>
                        </form>

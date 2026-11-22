@@ -63,11 +63,11 @@
                                 <div class="form-group">
                                     <label>{{__('Send via')}}</label><br>
                                     <input value="database" id="database" name="via[]"
-                                           type="checkbox">
+                                           type="checkbox" autocomplete="off">
                                     <label for="database">{{__('Database')}}</label>
                                     <br>
                                     <input value="mail" id="mail" name="via[]"
-                                           type="checkbox">
+                                           type="checkbox" autocomplete="off">
                                     <label for="mail">{{__('Email')}}</label>
                                     @error('via')
                                         <div class="invalid-feedback d-block">

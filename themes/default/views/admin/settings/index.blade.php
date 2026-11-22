@@ -250,6 +250,7 @@
                                                                         @case($value['type'] == 'boolean')
                                                                             <input type="checkbox" name="{{ $key }}"
                                                                                 value="{{ $value['value'] }}"
+                                                                                autocomplete="off"
                                                                                 {{ $value['value'] ? 'checked' : '' }}>
                                                                         @break
 
