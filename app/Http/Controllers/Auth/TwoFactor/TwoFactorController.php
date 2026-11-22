@@ -21,7 +21,7 @@ class TwoFactorController extends Controller
     public function showChallenge(Request $request)
     {
         $user = $request->user();
-        $enabledMethods = $this->twoFactorService->enabledMethods($user);
+        $enabledMethods = $this->twoFactorService->challengeableMethods($user);
 
         if ($enabledMethods->isEmpty()) {
             return redirect()->intended(route('home'));

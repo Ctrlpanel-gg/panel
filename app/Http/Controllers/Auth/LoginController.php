@@ -108,7 +108,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        $methods = $this->twoFactorService->enabledMethods($user);
+        $methods = $this->twoFactorService->challengeableMethods($user);
 
         if ($methods->isNotEmpty()) {
             // Redirect to 2FA challenge if the user has enabled methods but is not yet verified
