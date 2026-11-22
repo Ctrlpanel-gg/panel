@@ -214,7 +214,17 @@ class TotpExtension extends TwoFactorExtension
                     return false;
                 }
 
-                $method->forceFill(['totp_last_timestamp' => $timestamp])->save();
+                $updated = UserTwoFactorMethod::query()
+                    ->where('id', $method->id)
+                    ->where(function ($query) use ($timestamp) {
+                        $query->whereNull('totp_last_timestamp')
+                            ->orWhere('totp_last_timestamp', '<', $timestamp);
+                    })
+                    ->update(['totp_last_timestamp' => $timestamp]);
+
+                if ($updated === 0) {
+                    return false;
+                }
 
                 return true;
             }
