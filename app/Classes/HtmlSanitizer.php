@@ -84,12 +84,28 @@ class HtmlSanitizer
         'margin-left',
         'margin-right',
         'line-height',
+        'display',
+        'width',
+        'max-width',
+        'height',
+        'float',
+        'border',
+        'list-style',
+        'text-transform',
+        'white-space',
     ];
 
     /**
-     * Tags whose entire subtree is dropped (not unwrapped) when encountered.
+     * Tags whose entire subtree is dropped (not unwrapped): raw-text or
+     * dangerous elements whose content must never surface.
      */
-    public const REMOVE_TAGS = ['script', 'style', 'iframe', 'object', 'embed', 'meta', 'link', 'base', 'form', 'input', 'button', 'textarea', 'select'];
+    public const REMOVE_TAGS = ['script', 'style', 'iframe', 'object', 'embed', 'meta', 'link', 'base'];
+
+    /**
+     * Container tags that are unwrapped so any safe content inside them is
+     * preserved instead of being lost.
+     */
+    public const UNWRAP_TAGS = ['form', 'input', 'button', 'textarea', 'select'];
 
     /**
      * @param  array<string, mixed>  $config
@@ -110,6 +126,7 @@ class HtmlSanitizer
         $allowedSchemes = $this->config['allowed_schemes'] ?? self::ALLOWED_SCHEMES;
         $allowedTargets = $this->config['allowed_targets'] ?? self::ALLOWED_TARGETS;
         $allowedCss = $this->config['allowed_css_properties'] ?? self::ALLOWED_CSS_PROPERTIES;
+        $unwrapTags = $this->config['unwrap_tags'] ?? self::UNWRAP_TAGS;
 
         $dom = new DOMDocument('1.0', 'UTF-8');
         $previous = libxml_use_internal_errors(true);
