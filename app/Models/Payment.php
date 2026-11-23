@@ -29,6 +29,7 @@ class Payment extends Model
         'price',
         'tax_value',
         'total_price',
+        'fee',
         'tax_percent',
         'currency_code',
         'shop_item_product_id',

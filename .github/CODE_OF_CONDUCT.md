@@ -46,10 +46,12 @@ when an individual is officially representing the project in any capacity.
 **Bugs and feature requests:** Open a [GitHub Issue][issues].
 
 **Security vulnerabilities:** Report privately via
-[GitHub Security Advisories][advisories] and send a direct message
-to the project owner `1day2die` on Discord. Do **not** open a public issue,
-comment, or discussion - and do **not** discuss the vulnerability publicly
-anywhere until an official writeup has been published by the maintainers.
+[GitHub Security Advisories][advisories]. After submitting, you may
+optionally send a direct message on Discord to the project owner `1day2die`
+or `mrweez_` with a link to the advisory. This is not required. Do **not**
+open a public issue, comment, or discussion - and do **not** discuss the
+vulnerability publicly anywhere until an official writeup has been published
+by the maintainers. Never send vulnerability details over Discord.
 
 **Code of Conduct violations:** Send a direct message to the project owner
 `1day2die` on Discord, briefly describing the incident. Do not open a public

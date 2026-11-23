@@ -36,15 +36,16 @@ class TicketSettings extends Settings
         return [
             'category_icon' => 'fas fa-ticket-alt',
             'position' => 6,
+            'category_description' => 'Enable the support ticket system and customize the information shown',
             'enabled' => [
                 'label' => 'Enabled',
                 'type' => 'boolean',
-                'description' => 'Enable or disable the ticket system.',
+                'description' => 'Enable or disable the ticket system',
             ],
             'information' => [
                 'label' => 'Ticket Information',
                 'type' => 'textarea',
-                'description' => 'Message shown on the right side when users create a new ticket.',
+                'description' => 'Message shown on the right side when users create a new ticket',
             ],
         ];
     }

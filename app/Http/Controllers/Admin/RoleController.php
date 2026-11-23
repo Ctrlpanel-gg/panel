@@ -198,11 +198,12 @@ class RoleController extends Controller
                 return '
                             <a title="Edit" href="'.route("admin.roles.edit", $role).'" class="btn btn-sm btn-info"><i
                                     class="fa fas fa-edit"></i></a>
-                            <form class="d-inline" method="post" action="'.route("admin.roles.destroy", $role).'">
-                            ' . csrf_field() . '
-                            ' . method_field("DELETE") . '
-                                <button title="Delete" type="submit" class="btn btn-sm btn-danger confirm"><i
-                                        class="fa fas fa-trash"></i></button>
+                            <form class="d-inline" onsubmit="return submitResult(this);" method="post" action="'.route("admin.roles.destroy", $role).'">
+                                ' . csrf_field() . '
+                                ' . method_field("DELETE") . '
+                                <button title="Delete" type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fa fas fa-trash"></i>
+                                </button>
                             </form>
                 ';
             })

@@ -38,7 +38,7 @@ class CreateProductRequest extends FormRequest
             ],
             'memory' => 'required|numeric|max:1000000|min:5',
             'cpu' => 'required|numeric|max:1000000|min:0',
-            'swap' => 'required|numeric|max:1000000|min:0',
+            'swap' => 'required|numeric|max:1000000|min:-1',
             'disk' => 'required|numeric|max:1000000|min:5',
             'io' => 'required|numeric|max:1000000|min:0',
             'serverlimit' => 'required|numeric|max:1000000|min:0',

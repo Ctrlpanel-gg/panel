@@ -12,7 +12,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{route('home')}}">{{__('Dashboard')}}</a></li>
                         <li class="breadcrumb-item"><a class="text-muted"
-                                                       href="{{route('admin.partners.index')}}">{{__('Partners')}}</a></li>
+                                href="{{route('admin.partners.index')}}">{{__('Partners')}}</a></li>
                     </ol>
                 </div>
             </div>
@@ -38,14 +38,14 @@
 
                     <table id="datatable" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th>{{__('User')}}</th>
-                            <th>{{__('Partner discount')}}</th>
-                            <th>{{__('Registered user discount')}}</th>
-                            <th>{{__('Referral system commission')}}</th>
-                            <th>{{__('Created')}}</th>
-                            <th>{{__('Actions')}}</th>
-                        </tr>
+                            <tr>
+                                <th>{{__('User')}}</th>
+                                <th>{{__('Partner discount')}}</th>
+                                <th>{{__('Registered user discount')}}</th>
+                                <th>{{__('Referral system commission')}}</th>
+                                <th>{{__('Created')}}</th>
+                                <th>{{__('Actions')}}</th>
+                            </tr>
                         </thead>
                         <tbody>
                         </tbody>
@@ -62,8 +62,22 @@
     <!-- END CONTENT -->
 
     <script>
-        function submitResult() {
-            return confirm("{{__('Are you sure you wish to delete?')}}") !== false;
+        function submitResult(form) {
+            Swal.fire({
+                title: '{{ __('Are you sure?') }}',
+                text: '{{ __('This action will permanently delete the partner') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '{{ __('Yes, delete it!') }}',
+                cancelButtonText: '{{ __('Cancel') }}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
         }
         document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
@@ -75,14 +89,14 @@
                 stateSave: true,
                 ajax: "{{route('admin.partners.datatable')}}",
                 columns: [
-                    {data: 'user'},
-                    {data: 'partner_discount'},
-                    {data: 'registered_user_discount'},
-                    {data: 'referral_system_commission'},
-                    {data: 'created_at'},
-                    {data: 'actions', sortable: false}
+                    { data: 'user' },
+                    { data: 'partner_discount' },
+                    { data: 'registered_user_discount' },
+                    { data: 'referral_system_commission' },
+                    { data: 'created_at' },
+                    { data: 'actions', sortable: false }
                 ],
-                fnDrawCallback: function( oSettings ) {
+                fnDrawCallback: function (oSettings) {
                     $('[data-toggle="popover"]').popover();
                 }
             });

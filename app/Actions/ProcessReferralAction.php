@@ -15,15 +15,17 @@ class ProcessReferralAction
         protected ReferralSettings $referralSettings,
         protected GeneralSettings $generalSettings,
         protected CurrencyHelper $currencyHelper,
-    )
-    {}
+    ) {
+    }
 
     public function execute(User $user, string $referral_code, bool $log_activity = false)
     {
         $ref_user = User::query()->where('referral_code', $referral_code)->first();
 
         if ($ref_user) {
-            if ($this->referralSettings->mode === 'sign-up' || $this->referralSettings->mode === 'both') {
+            $reward = $this->referralSettings->rewardsOnSignUp($user);
+
+            if ($reward) {
                 $ref_user->increment('credits', $this->referralSettings->reward);
                 $ref_user->notify(new ReferralNotification($user));
 
@@ -48,6 +50,7 @@ class ProcessReferralAction
                 'registered_user_id' => $user->id,
                 'created_at' => now(),
                 'updated_at' => now(),
+                'rewarded_at' => $reward ? now() : null,
             ]);
         }
     }

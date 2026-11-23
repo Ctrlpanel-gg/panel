@@ -34,7 +34,7 @@
                         <a data-content="Edit" data-trigger="hover" data-toggle="tooltip"
                             href="{{ route('admin.products.edit', $product->id) }}" class="mr-1 btn btn-sm btn-info"><i
                                 class="fas fa-pen"></i></a>
-                        <form class="d-inline" onsubmit="return submitResult();" method="post"
+                        <form class="d-inline" onsubmit="return deleteProduct(this);" method="post"
                             action="{{ route('admin.products.destroy', $product->id) }}">
                             {{ csrf_field() }}
                             {{ method_field('DELETE') }}
@@ -252,4 +252,24 @@
         </div>
     </section>
     <!-- END CONTENT -->
+
+    <script>
+        function deleteProduct(form) {
+            Swal.fire({
+                title: '{{ __('Are you sure?') }}',
+                text: '{{ __('This action will permanently delete the product') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '{{ __('Yes, delete it!') }}',
+                cancelButtonText: '{{ __('Cancel') }}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
+        }
+    </script>
 @endsection

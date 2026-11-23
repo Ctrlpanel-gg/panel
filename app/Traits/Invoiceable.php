@@ -46,12 +46,20 @@ trait Invoiceable
         ]);
         $item = (new InvoiceItem())
             ->title($shopProduct->description)
-            ->pricePerUnit(($shopProduct->price/1000));
+            ->pricePerUnit(($shopProduct->price / 1000));
 
         $notes = [
             __("Payment method") . ": " . $payment->payment_method,
-            $invoice_settings->additional_notes ? : "",
         ];
+
+        if ((int) $payment->fee > 0) {
+            $notes[] = __("Payment fee") . ": " . resolve(CurrencyHelper::class)->formatToCurrency((int) $payment->fee, $payment->currency_code);
+        }
+
+        if ($invoice_settings->additional_notes) {
+            $notes[] = $invoice_settings->additional_notes;
+        }
+
         $notes = implode("<br>", $notes);
 
         $invoice = DailyInvoice::make()
@@ -59,7 +67,7 @@ trait Invoiceable
             ->name(__("Invoice"))
             ->buyer($customer)
             ->seller($seller)
-            ->discountByPercent(PartnerDiscount::getDiscount())
+            ->discountByPercent(PartnerDiscount::getDiscount($user->id))
             ->taxRate(floatval($shopProduct->getTaxPercent()))
             ->shipping(0)
             ->addItem($item)
@@ -70,7 +78,7 @@ trait Invoiceable
             ->serialNumberFormat($invoice_settings->prefix . '{DELIMITER}{SERIES}{SEQUENCE}')
             ->currencyCode(strtoupper($payment->currency_code))
             ->currencySymbol(Currencies::getSymbol(strtoupper($payment->currency_code)))
-            ->notes("<br/>".$notes);
+            ->notes("<br/>" . $notes);
 
         if (file_exists($logoPath)) {
             $invoice->logo($logoPath);

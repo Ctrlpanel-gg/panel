@@ -14,7 +14,7 @@ class CreateWebsiteSettings extends LegacySettingsMigration
         $this->migrator->add(
             'website.motd_message',
             $table_exists ? $this->getOldValue("SETTINGS::SYSTEM:MOTD_MESSAGE") :
-                "<h1 style='text-align: center;'><img style='display: block; margin-left: auto; margin-right: auto;' src='https://ctrlpanel.gg/img/controlpanel.png' alt=' width='200' height='200'><span style='font-size: 36pt;'>CtrlPanel.gg</span></h1>
+                "<h1 style='text-align: center;'><img style='display: block; margin-left: auto; margin-right: auto;' src='https://ctrlpanel.gg/img/controlpanel.png' alt='' width='200' height='200'><span style='font-size: 36pt;'>CtrlPanel.gg</span></h1>
  <p><span style='font-size: 18pt;'>Thank you for using our Software</span></p>
  <p><span style='font-size: 18pt;'>If you have any questions, make sure to join our <a href='https://discord.com/invite/4Y6HjD2uyU' target='_blank' rel='noopener'>Discord</a></span></p>
  <p><span style='font-size: 10pt;'>(you can change this message in the <a href='admin/settings#system'>Settings</a> )</span></p>"

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\Users;
 
 use App\Constants\MysqlLimits;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest
@@ -35,6 +36,12 @@ class UpdateUserRequest extends FormRequest
                 'max:' . MysqlLimits::SERVER_LIMIT_MAX,
             ],
             'role_id' => 'sometimes|integer|exists:roles,id',
+            'referral_code' => ['sometimes', 'string', 'min:2', 'max:32',
+                Rule::unique('users')->ignore($this->route('user'))
+            ],
+            'pterodactyl_id' => ['sometimes', 'numeric',
+                Rule::unique('users')->ignore($this->route('user'))
+            ],
         ];
     }
 }

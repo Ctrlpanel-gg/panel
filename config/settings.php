@@ -83,7 +83,7 @@ return [
      */
     'cache' => [
         'enabled' => env('SETTINGS_CACHE_ENABLED', true),
-        'store' => 'redis',
+        'store' => env('SETTINGS_CACHE_STORE', 'redis'),
         'prefix' => 'setting',
         'ttl' => null,
     ],

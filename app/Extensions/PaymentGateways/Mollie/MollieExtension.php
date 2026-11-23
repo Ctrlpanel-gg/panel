@@ -3,15 +3,10 @@
 namespace App\Extensions\PaymentGateways\Mollie;
 
 use App\Classes\PaymentExtension;
-use App\Enums\PaymentStatus;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Traits\HandlesGatewayPayments;
 use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
@@ -29,6 +24,27 @@ class MollieExtension extends PaymentExtension
             "RoutesIgnoreCsrf" => [
                 "payment/MollieWebhook"
             ],
+        ];
+    }
+
+    public static function getPermissions(): array
+    {
+        return [
+            'View Mollie Settings' => 'settings.mollie.read',
+            'Manage Mollie Settings' => 'settings.mollie.write',
+        ];
+    }
+    /**
+     * Currencies Mollie accepts for card payments, PayPal and other payment methods.
+     *
+     * @return array<int, string>
+     */
+    public static function getSupportedCurrencies(): array
+    {
+        return [
+            'AED', 'AUD', 'BRL', 'CAD', 'CHF', 'CZK', 'DKK', 'EUR', 'GBP', 'HKD',
+            'HUF', 'ILS', 'ISK', 'JPY', 'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN',
+            'RON', 'RUB', 'SEK', 'SGD', 'THB', 'TWD', 'USD', 'ZAR',
         ];
     }
 
@@ -69,35 +85,20 @@ class MollieExtension extends PaymentExtension
         }
     }
 
-    static function success(Request $request): RedirectResponse
+    public static function supportsRecheck(): bool
     {
-        $payment = Payment::findOrFail($request->input('payment_id'));
-        self::ensureAuthenticatedPaymentOwner($payment);
-
-        if ($payment->status === PaymentStatus::PAID) {
-            return Redirect::route('home')->with('success', 'Your payment has already been processed!');
-        }
-
-        self::setPaymentProcessing($payment->id);
-
-        return Redirect::route('home')->with('success', 'Your payment is being processed');
+        return true;
     }
 
-    static function webhook(Request $request): JsonResponse
+    // Recheck the payment status
+    public static function recheckPayment(Payment $payment): void
     {
+        if (empty($payment->payment_id)) {
+            return;
+        }
+
         $settings = new MollieSettings();
-        $incomingWebhookToken = (string) $request->query('token', '');
-        if (empty($settings->webhook_secret) || !hash_equals((string) $settings->webhook_secret, $incomingWebhookToken)) {
-            Log::warning('Mollie webhook rejected due to invalid token.');
-            return response()->json(['success' => false], 403);
-        }
-
-        $molliePaymentId = (string) $request->input('id', '');
-        if (empty($molliePaymentId)) {
-            return response()->json(['success' => false], 400);
-        }
-
-        $url = 'https://api.mollie.com/v2/payments/' . $molliePaymentId;
+        $url = 'https://api.mollie.com/v2/payments/' . $payment->payment_id;
 
         try {
             $response = Http::withHeaders([
@@ -106,56 +107,34 @@ class MollieExtension extends PaymentExtension
             ])->get($url);
 
             if (!$response->successful()) {
-                Log::error('Mollie Payment Webhook: ' . $response->body());
-                return response()->json(['success' => false], 502);
+                return;
             }
 
             $status = $response->json('status');
-            $paymentId = $response->json('metadata.payment_id');
-            if (empty($paymentId)) {
-                return response()->json(['success' => false], 422);
-            }
-
-            $payment = Payment::find($paymentId);
-            if (!$payment || $payment->payment_method !== 'Mollie') {
-                Log::warning('Mollie webhook payment lookup failed.', [
-                    'payment_id' => $paymentId,
-                    'mollie_payment_id' => $response->json('id'),
-                ]);
-
-                return response()->json(['success' => true], 200);
-            }
-
-            if (!self::matchesMollieAmountAndCurrency(
-                $payment,
-                (string) $response->json('amount.value', ''),
-                (string) $response->json('amount.currency', '')
-            )) {
-                Log::warning('Mollie webhook amount/currency mismatch.', [
-                    'payment_id' => $payment->id,
-                    'mollie_payment_id' => $response->json('id'),
-                ]);
-
-                self::setPaymentCanceled($payment->id, (string) $response->json('id'));
-                return response()->json(['success' => true], 200);
-            }
 
             if ($status === 'paid') {
-                self::completePayment($payment->id, (string) $response->json('id'));
+                if (self::matchesMollieAmountAndCurrency(
+                    $payment,
+                    (string) $response->json('amount.value', ''),
+                    (string) $response->json('amount.currency', '')
+                )) {
+                    self::completePayment($payment->id, $payment->payment_id);
+                }
             } elseif (in_array($status, ['failed', 'expired', 'canceled'], true)) {
-                self::setPaymentCanceled($payment->id, (string) $response->json('id'));
+                self::setPaymentCanceled($payment->id, $payment->payment_id);
             } elseif (in_array($status, ['authorized', 'pending', 'open'], true)) {
-                self::setPaymentProcessing($payment->id, (string) $response->json('id'));
+                self::setPaymentProcessing($payment->id, $payment->payment_id);
             }
-        } catch (Exception $ex) {
-            Log::error('Mollie Payment Webhook: ' . $ex->getMessage());
-            return response()->json(['success' => false], 500);
+        } catch (Exception $e) {
+            Log::error('Mollie recheck failed', [
+                'payment_id' => $payment->id,
+                'gateway_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
+            ]);
         }
-
-        return response()->json(['success' => true], 200);
     }
 
-    protected static function matchesMollieAmountAndCurrency(Payment $payment, string $amount, string $currency): bool
+    public static function matchesMollieAmountAndCurrency(Payment $payment, string $amount, string $currency): bool
     {
         if (!is_numeric($amount) || $currency === '') {
             return false;

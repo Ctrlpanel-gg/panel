@@ -39,7 +39,7 @@ class UpdateProductRequest extends FormRequest
             ],
             'memory' => 'sometimes|numeric|max:1000000|min:5',
             'cpu' => 'sometimes|numeric|max:1000000|min:0',
-            'swap' => 'sometimes|numeric|max:1000000|min:0',
+            'swap' => 'sometimes|numeric|max:1000000|min:-1',
             'disk' => 'sometimes|numeric|max:1000000|min:5',
             'io' => 'sometimes|numeric|max:1000000|min:0',
             'serverlimit' => 'sometimes|numeric|max:1000000|min:0',

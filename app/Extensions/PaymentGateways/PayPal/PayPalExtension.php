@@ -3,17 +3,13 @@
 namespace App\Extensions\PaymentGateways\PayPal;
 
 use App\Classes\PaymentExtension;
-use App\Enums\PaymentStatus;
 use App\Models\Payment;
 use App\Models\ShopProduct;
 use App\Traits\HandlesGatewayPayments;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
 use PayPalCheckoutSdk\Core\PayPalHttpClient;
 use PayPalCheckoutSdk\Core\ProductionEnvironment;
@@ -41,12 +37,69 @@ class PayPalExtension extends PaymentExtension
         ];
     }
 
+    public static function getPermissions(): array
+    {
+        return [
+            'View Paypal Settings' => 'settings.paypal.read',
+            'Manage Paypal Settings' => 'settings.paypal.write',
+        ];
+    }
+    /**
+     * Currencies supported by PayPal for payments and account balances.
+     *
+     * @return array<int, string>
+     */
+    public static function getSupportedCurrencies(): array
+    {
+        return [
+            'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'DKK', 'EUR', 'GBP', 'HKD',
+            'HUF', 'ILS', 'JPY', 'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'SEK',
+            'SGD', 'THB', 'TWD', 'USD',
+        ];
+    }
+
     public static function getRedirectUrl(Payment $payment, ShopProduct $shopProduct, int $totalPrice): string
     {
         $currencyHelper = self::currencyHelper();
         $totalPriceFormatted = $currencyHelper->formatForForm($totalPrice, 2);
 
+        $currencyCode = strtoupper($shopProduct->currency_code);
 
+        // Itemize the purchase unit into product, tax and fee line items.
+        // item_total must equal the sum of all items; amount.value must equal item_total.
+        $productUnit = max(0, $totalPrice - (int) $payment->fee - (int) $payment->tax_value);
+
+        $items = [];
+        $items[] = [
+            'name' => $shopProduct->display,
+            'unit_amount' => [
+                'currency_code' => $currencyCode,
+                'value' => $currencyHelper->formatForForm($productUnit, 2),
+            ],
+            'quantity' => '1',
+        ];
+
+        if ((int) $payment->tax_value > 0) {
+            $items[] = [
+                'name' => __('Tax'),
+                'unit_amount' => [
+                    'currency_code' => $currencyCode,
+                    'value' => $currencyHelper->formatForForm((int) $payment->tax_value, 2),
+                ],
+                'quantity' => '1',
+            ];
+        }
+
+        if ((int) $payment->fee > 0) {
+            $items[] = [
+                'name' => __('Payment fee'),
+                'unit_amount' => [
+                    'currency_code' => $currencyCode,
+                    'value' => $currencyHelper->formatForForm((int) $payment->fee, 2),
+                ],
+                'quantity' => '1',
+            ];
+        }
 
         $request = new OrdersCreateRequest();
         $request->prefer('return=representation');
@@ -57,23 +110,16 @@ class PayPalExtension extends PaymentExtension
                     "reference_id" => (string) $payment->id,
                     'custom_id' => (string) $payment->id,
                     "description" => $shopProduct->display,
+                    "items" => $items,
                     "amount" => [
                         "value" => $totalPriceFormatted,
-                        'currency_code' => strtoupper($shopProduct->currency_code),
+                        'currency_code' => $currencyCode,
                         'breakdown' => [
                             'item_total' => [
-                                'currency_code' => strtoupper($shopProduct->currency_code),
+                                'currency_code' => $currencyCode,
                                 'value' => $totalPriceFormatted,
                             ],
-
-                            /* Removed due to errors in the coupon discount calculation. Its not used in other paymentgateways aswell and basically nice to have but unnessecary
-
-                            'tax_total' => [
-                                'currency_code' => strtoupper($shopProduct->currency_code),
-                                'value' => round($shopProduct->getTaxValue(), 2),
-                            ]
-                            */
-                        ]
+                        ],
                     ]
                 ]
             ],
@@ -117,116 +163,43 @@ class PayPalExtension extends PaymentExtension
     }
 
 
-    static function PaypalSuccess(Request $laravelRequest): RedirectResponse
+    public static function supportsRecheck(): bool
     {
-        $payment = Payment::findOrFail($laravelRequest->payment);
-        self::ensureAuthenticatedPaymentOwner($payment);
+        return true;
+    }
 
-        if ($payment->status === PaymentStatus::PAID) {
-            return Redirect::route('home')->with('success', 'Your payment has already been processed!');
-        }
-
-        $orderId = (string) $laravelRequest->input('token', '');
-        if ($orderId === '') {
-            return Redirect::route('home')->with('error', 'Missing PayPal order details.');
+    // Recheck the payment status
+    public static function recheckPayment(Payment $payment): void
+    {
+        if (empty($payment->payment_id)) {
+            return;
         }
 
         try {
-            $order = self::getPayPalOrder($orderId);
-            $resolvedPaymentId = self::extractPaymentIdFromOrder($order);
-            if (empty($resolvedPaymentId) || $resolvedPaymentId !== $payment->id) {
-                abort(403);
-            }
+            $order = self::getPayPalOrder($payment->payment_id);
 
-            if (!self::isValidPayPalOrderAmount($payment, $order)) {
-                self::setPaymentCanceled($payment->id, $orderId);
-
-                return Redirect::route('home')->with('error', 'Unable to verify payment amount.');
-            }
-
-            self::setPaymentProcessing($payment->id, $orderId);
-
-            // Best-effort capture fallback. Final crediting still happens only via verified webhook events.
             if (strtoupper((string) ($order->status ?? '')) === 'APPROVED') {
-                self::capturePayPalOrder($orderId);
+                self::capturePayPalOrder($payment->payment_id);
+                $order = self::getPayPalOrder($payment->payment_id);
             }
 
-            return Redirect::route('home')->with('success', 'Payment received. We are confirming it now.');
-        } catch (HttpException $ex) {
-            Log::error('PayPal payment capture failed', [
+            if (strtoupper((string) ($order->status ?? '')) === 'COMPLETED') {
+                if (self::isValidPayPalOrderAmount($payment, $order)) {
+                    self::completePayment($payment->id, $payment->payment_id);
+                }
+            } elseif (in_array(strtoupper((string) ($order->status ?? '')), ['VOIDED', 'EXPIRED'], true)) {
+                self::setPaymentCanceled($payment->id, $payment->payment_id);
+            }
+        } catch (Exception $e) {
+            Log::error('PayPal recheck failed', [
                 'payment_id' => $payment->id,
-                'error' => $ex->getMessage(),
-                'status_code' => $ex->statusCode,
+                'gateway_id' => $payment->payment_id,
+                'error' => $e->getMessage(),
             ]);
-
-            self::setPaymentProcessing($payment->id, $orderId);
-            return Redirect::route('home')->with('info', 'Payment is pending confirmation. Please wait a moment and refresh.');
-        } catch (Exception $ex) {
-            Log::error('PayPal payment confirmation failed', [
-                'payment_id' => $payment->id,
-                'error' => $ex->getMessage(),
-            ]);
-
-            self::setPaymentProcessing($payment->id, $orderId);
-            return Redirect::route('home')->with('info', 'Payment is pending confirmation. Please wait a moment and refresh.');
         }
     }
 
-    public static function webhook(Request $request): JsonResponse
-    {
-        $event = $request->json()->all();
-
-        if (!is_array($event) || empty($event['event_type'])) {
-            Log::warning('PayPal webhook missing event_type or invalid payload.', [
-                'event_payload' => $event,
-            ]);
-            return response()->json(['success' => false], 400);
-        }
-
-        if (!self::verifyWebhookSignature($request, $event)) {
-            Log::warning('PayPal webhook signature verification failed.', [
-                'event_type' => $event['event_type'] ?? null,
-            ]);
-            return response()->json(['success' => false], 400);
-        }
-
-        try {
-            $eventType = strtoupper((string) $event['event_type']);
-
-            switch ($eventType) {
-                case 'CHECKOUT.ORDER.APPROVED':
-                    self::handleOrderApprovedWebhook($event);
-                    break;
-                case 'PAYMENT.CAPTURE.COMPLETED':
-                    self::handleCaptureCompletedWebhook($event);
-                    break;
-                case 'PAYMENT.CAPTURE.PENDING':
-                    self::handleCapturePendingWebhook($event);
-                    break;
-                case 'PAYMENT.CAPTURE.DENIED':
-                case 'PAYMENT.CAPTURE.DECLINED':
-                case 'PAYMENT.CAPTURE.REFUNDED':
-                case 'PAYMENT.CAPTURE.REVERSED':
-                    self::handleCaptureCanceledWebhook($event);
-                    break;
-                default:
-                    break;
-            }
-        } catch (Exception $exception) {
-            Log::error('PayPal webhook handling failed.', [
-                'event_type' => $event['event_type'] ?? null,
-                'event_id' => $event['id'] ?? null,
-                'error' => $exception->getMessage(),
-                'exception' => get_class($exception),
-            ]);
-
-            return response()->json(['success' => false], 500);
-        }
-
-        return response()->json(['success' => true], 200);
-    }
-
-    protected static function handleOrderApprovedWebhook(array $event): void
+    public static function handleOrderApprovedWebhook(array $event): void
     {
         $orderId = (string) data_get($event, 'resource.id', '');
         if ($orderId === '') {
@@ -249,7 +222,7 @@ class PayPalExtension extends PaymentExtension
         self::capturePayPalOrder($orderId);
     }
 
-    protected static function handleCaptureCompletedWebhook(array $event): void
+    public static function handleCaptureCompletedWebhook(array $event): void
     {
         $resource = (array) data_get($event, 'resource', []);
         $orderId = (string) data_get($resource, 'supplementary_data.related_ids.order_id', '');
@@ -294,7 +267,7 @@ class PayPalExtension extends PaymentExtension
         self::completePayment($payment->id, $gatewayReference !== '' ? $gatewayReference : null);
     }
 
-    protected static function handleCapturePendingWebhook(array $event): void
+    public static function handleCapturePendingWebhook(array $event): void
     {
         $orderId = (string) data_get($event, 'resource.supplementary_data.related_ids.order_id', '');
 
@@ -326,7 +299,7 @@ class PayPalExtension extends PaymentExtension
         self::setPaymentProcessing($payment->id, $gatewayReference !== '' ? $gatewayReference : null);
     }
 
-    protected static function handleCaptureCanceledWebhook(array $event): void
+    public static function handleCaptureCanceledWebhook(array $event): void
     {
         $resource = (array) data_get($event, 'resource', []);
         $orderId = (string) data_get($resource, 'supplementary_data.related_ids.order_id', '');
@@ -359,7 +332,7 @@ class PayPalExtension extends PaymentExtension
         self::setPaymentCanceled($payment->id, $gatewayReference !== '' ? $gatewayReference : null);
     }
 
-    protected static function verifyWebhookSignature(Request $request, array $event): bool
+    public static function verifyWebhookSignature(Request $request, array $event): bool
     {
         try {
             $webhookId = self::getPaypalWebhookId();
@@ -424,7 +397,7 @@ class PayPalExtension extends PaymentExtension
         }
     }
 
-    protected static function findPaymentByOrderId(string $orderId): ?Payment
+    public static function findPaymentByOrderId(string $orderId): ?Payment
     {
         $order = self::getPayPalOrder($orderId);
         $paymentId = self::extractPaymentIdFromOrder($order);
@@ -441,7 +414,7 @@ class PayPalExtension extends PaymentExtension
         return $payment;
     }
 
-    protected static function extractPaymentIdFromOrder(object $order): ?string
+    public static function extractPaymentIdFromOrder(object $order): ?string
     {
         $orderData = json_decode(json_encode($order), true);
         $paymentId = data_get($orderData, 'purchase_units.0.custom_id');
@@ -449,7 +422,7 @@ class PayPalExtension extends PaymentExtension
         return is_string($paymentId) && $paymentId !== '' ? $paymentId : null;
     }
 
-    protected static function isValidPayPalOrderAmount(Payment $payment, object $order): bool
+    public static function isValidPayPalOrderAmount(Payment $payment, object $order): bool
     {
         $orderData = json_decode(json_encode($order), true);
         $amount = data_get($orderData, 'purchase_units.0.amount.value');
@@ -458,7 +431,7 @@ class PayPalExtension extends PaymentExtension
         return self::matchesExpectedAmountAndCurrency($payment, $amount, $currency);
     }
 
-    protected static function isValidPayPalCaptureAmount(Payment $payment, array $captureResource): bool
+    public static function isValidPayPalCaptureAmount(Payment $payment, array $captureResource): bool
     {
         $amount = data_get($captureResource, 'amount.value');
         $currency = data_get($captureResource, 'amount.currency_code');
@@ -466,7 +439,7 @@ class PayPalExtension extends PaymentExtension
         return self::matchesExpectedAmountAndCurrency($payment, $amount, $currency);
     }
 
-    protected static function matchesExpectedAmountAndCurrency(Payment $payment, mixed $amount, mixed $currency): bool
+    public static function matchesExpectedAmountAndCurrency(Payment $payment, mixed $amount, mixed $currency): bool
     {
         if (!is_numeric($amount) || !is_string($currency)) {
             return false;
@@ -480,7 +453,7 @@ class PayPalExtension extends PaymentExtension
         return strtoupper($currency) === strtoupper($payment->currency_code);
     }
 
-    protected static function capturePayPalOrder(string $orderId): void
+    public static function capturePayPalOrder(string $orderId): void
     {
         $request = new OrdersCaptureRequest($orderId);
         $request->prefer('return=representation');
@@ -497,7 +470,7 @@ class PayPalExtension extends PaymentExtension
         }
     }
 
-    protected static function getPayPalOrder(string $orderId): object
+    public static function getPayPalOrder(string $orderId): object
     {
         $request = new OrdersGetRequest($orderId);
 
@@ -509,14 +482,14 @@ class PayPalExtension extends PaymentExtension
         return $response->result;
     }
 
-    protected static function getPayPalApiBaseUrl(): string
+    public static function getPayPalApiBaseUrl(): string
     {
         return config('app.env') == 'local'
             ? 'https://api-m.sandbox.paypal.com'
             : 'https://api-m.paypal.com';
     }
 
-    protected static function getPayPalAccessToken(): string
+    public static function getPayPalAccessToken(): string
     {
         $cacheKey = 'paypal_access_token_' . md5(self::getPayPalApiBaseUrl() . '|' . self::getPaypalClientId());
         $cachedToken = Cache::get($cacheKey);

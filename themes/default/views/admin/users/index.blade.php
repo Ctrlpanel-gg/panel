@@ -38,21 +38,22 @@
 
                     <table id="datatable" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th>discordId</th>
-                            <th>ip</th>
-                            <th>pterodactyl_id</th>
-                            <th>{{__('Avatar')}}</th>
-                            <th>{{__('Name')}}</th>
-                            <th>{{__('Role')}}</th>
-                            <th>{{__('Email')}}</th>
-                            <th>{{ $credits_display_name }}</th>
-                            <th>{{__('Servers')}}</th>
-                            <th>{{__('Referrals')}}</th>
-                            <th>{{__('Verified')}}</th>
-                            <th>{{__('Last seen')}}</th>
-                            <th></th>
-                        </tr>
+                            <tr>
+                                <th>discordId</th>
+                                <th>ip</th>
+                                <th>pterodactyl_id</th>
+                                <th>{{__('Avatar')}}</th>
+                                <th>{{__('Name')}}</th>
+                                <th>{{__('Role')}}</th>
+                                <th>{{__('Email')}}</th>
+                                <th>{{ $credits_display_name }}</th>
+                                <th>{{__('Servers')}}</th>
+                                <th>{{__('Referrals')}}</th>
+                                <th>{{__('Verified')}}</th>
+                                <th>{{__('2FA')}}</th>
+                                <th>{{__('Last seen')}}</th>
+                                <th></th>
+                            </tr>
                         </thead>
                         <tbody>
                         </tbody>
@@ -68,11 +69,25 @@
     <!-- END CONTENT -->
 
     <script>
-        function submitResult() {
-            return confirm("{{ __('Are you sure you wish to delete?') }}") !== false;
+        function submitResult(form) {
+            Swal.fire({
+                title: '{{ __('Are you sure?') }}',
+                text: '{{ __('This action will permanently delete the user') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '{{ __('Yes, delete it!') }}',
+                cancelButtonText: '{{ __('Cancel') }}',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+
+            return false;
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             $('#datatable').DataTable({
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.11.3/i18n/{{ $locale_datatables }}.json'
@@ -130,6 +145,10 @@
                         sortable: false
                     },
                     {
+                        data: 'two_factor',
+                        sortable: false
+                    },
+                    {
                         data: 'last_seen',
                     },
                     {
@@ -137,7 +156,7 @@
                         sortable: false
                     },
                 ],
-                fnDrawCallback: function(oSettings) {
+                fnDrawCallback: function (oSettings) {
                     $('[data-toggle="popover"]').popover();
                 }
             });

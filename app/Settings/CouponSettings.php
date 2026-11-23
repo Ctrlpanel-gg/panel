@@ -40,25 +40,26 @@ class CouponSettings extends Settings
         return [
             "category_icon" => "fas fa-ticket-alt",
             'position' => 10,
+            'category_description' => 'Enable coupons in the store and control their usage and cleanup',
             'enabled' => [
                 'label' => 'Enable Coupons',
                 'type' => 'boolean',
-                'description' => 'Enables coupons to be used in the store.'
+                'description' => 'Enables coupons to be used in the store'
             ],
             'delete_coupon_on_expires' => [
                 'label' => 'Auto Delete Expired Coupons',
                 'type' => 'boolean',
-                'description' => 'Automatically deletes the coupon if it expires.'
+                'description' => 'Automatically deletes the coupon if it expires'
             ],
             'delete_coupon_on_uses_reached' => [
                 'label' => 'Delete Coupon When Max Uses Reached',
                 'type' => 'boolean',
-                'description' => 'Delete a coupon as soon as its maximum usage is reached.'
+                'description' => 'Delete a coupon as soon as its maximum usage is reached'
             ],
             'max_uses_per_user' => [
                 'label' => 'Max Uses Per User',
                 'type' => 'number',
-                'description' => 'Maximum number of uses that a user can make of the same coupon.'
+                'description' => 'Maximum number of uses that a user can make of the same coupon'
             ],
         ];
     }

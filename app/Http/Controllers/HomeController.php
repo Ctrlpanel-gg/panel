@@ -8,10 +8,8 @@ use App\Settings\GeneralSettings;
 use App\Settings\WebsiteSettings;
 use App\Settings\ReferralSettings;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
 
 class HomeController extends Controller
 {
@@ -25,177 +23,97 @@ class HomeController extends Controller
     }
 
     /**
-     * Calculate when user will run out of credits. Holy shit what have i done? for just 1 fucking box on the dashboard?
+     * @description Get the Background Color for the Days-Left-Box in HomeView
+     *
+     * @param  float  $daysLeft
+     * @return string
      */
-    protected function calculateCreditRunout($user, $credits)
+    public function getTimeLeftBoxBackground(float $daysLeft): string
     {
-        $servers = $user->getServersWithProduct();
-        if ($servers->isEmpty()) {
-            return [
-                'run_out_date' => null,
-                'simulation_steps' => []
-            ];
+        if ($daysLeft >= 15) {
+            return self::TIME_LEFT_BG_SUCCESS;
+        }
+        if ($daysLeft <= 7) {
+            return self::TIME_LEFT_BG_DANGER;
         }
 
-        // Prepare all servers: get next billing date and price (in credits)
-        $serverStates = [];
-        foreach ($servers as $server) {
-            $product = $server->product;
-            $period = $product->billing_period;
-            $price = $product->price;
-            $lastBilled = $server->last_billed ? Carbon::parse($server->last_billed) : now();
-            $nextBilling = $lastBilled->copy();
-            while ($nextBilling->lessThanOrEqualTo(now())) {
-                switch ($period) {
-                    case 'hourly': $nextBilling->addHour(); break;
-                    case 'daily': $nextBilling->addDay(); break;
-                    case 'weekly': $nextBilling->addWeek(); break;
-                    case 'monthly': $nextBilling->addMonth(); break;
-                    case 'quarterly': $nextBilling->addMonths(3); break;
-                    case 'half-annually': $nextBilling->addMonths(6); break;
-                    case 'annually': $nextBilling->addYear(); break;
-                }
-            }
-            $serverStates[] = [
-                'server' => $server,
-                'product' => $product,
-                'period' => $period,
-                'price' => $price,
-                'nextBilling' => $nextBilling
-            ];
-        }
-
-        $simulationSteps = [];
-        $currentCredits = $credits;
-        $runOutDate = null;
-        $maxSteps = 1000; // max steps to generate events. Good accuracy for most cases, prevents infinite loops.
-        $step = 0;
-
-        while ($step < $maxSteps) {
-            // Find the next billing date among all servers
-            $nextDates = array_map(fn($s) => $s['nextBilling'], $serverStates);
-            $minDate = collect($nextDates)->min();
-            // Find all servers that bill at this date
-            $dueServers = array_filter($serverStates, fn($s) => $s['nextBilling']->equalTo($minDate));
-            $sum = 0;
-            $actions = [];
-            foreach ($dueServers as $idx => $s) {
-                $sum += $s['price'];
-                $actions[] = $s['product']->name . ' (' . $s['period'] . ')';
-            }
-            if ($currentCredits < $sum) {
-                $runOutDate = $minDate;
-                break;
-            }
-            $currentCredits -= $sum;
-            $simulationSteps[] = [
-                'date' => $minDate->format('Y-m-d H:i:s'),
-                'action' => implode(' + ', $actions),
-                'amount' => -$sum,
-                'remaining' => $currentCredits,
-                'details' => ''
-            ];
-            // Advance nextBilling for all due servers
-            foreach ($serverStates as &$s) {
-                if ($s['nextBilling']->equalTo($minDate)) {
-                    switch ($s['period']) {
-                        case 'hourly': $s['nextBilling']->addHour(); break;
-                        case 'daily': $s['nextBilling']->addDay(); break;
-                        case 'weekly': $s['nextBilling']->addWeek(); break;
-                        case 'monthly': $s['nextBilling']->addMonth(); break;
-                        case 'quarterly': $s['nextBilling']->addMonths(3); break;
-                        case 'half-annually': $s['nextBilling']->addMonths(6); break;
-                        case 'annually': $s['nextBilling']->addYear(); break;
-                    }
-                }
-            }
-            unset($s);
-            $step++;
-        }
-        if ($runOutDate === null && count($simulationSteps) > 0) {
-            $runOutDate = Carbon::parse($simulationSteps[count($simulationSteps)-1]['date']);
-        }
-        return [
-            'run_out_date' => $runOutDate,
-            'simulation_steps' => $simulationSteps
-        ];
+        return self::TIME_LEFT_BG_WARNING;
     }
 
     /**
-     * Format time left for display
+     * @description Get the Text for the Days-Left-Box in HomeView
+     *
+     * @param  float  $daysLeft
+     * @param  float  $hoursLeft
+     * @return string
      */
-    protected function formatTimeLeft($date)
+    public function getTimeLeftBoxText(float $daysLeft, float $hoursLeft)
     {
-        if (!$date) return null;
-
-        $now = now();
-        $daysLeft = $now->diffInDays($date, false);
-        $hoursLeft = $now->diffInHours($date, false);
-        $minutesLeft = $now->diffInMinutes($date, false);
-
-        if ($daysLeft > 1) {
-            return [
-                'value' => floor($daysLeft),
-                'unit' => 'days',
-                'bg' => $daysLeft >= 15 ? self::TIME_LEFT_BG_SUCCESS :
-                    ($daysLeft <= 7 ? self::TIME_LEFT_BG_DANGER : self::TIME_LEFT_BG_WARNING)
-            ];
+        if ($hoursLeft < 1) {
+            return __('You ran out of Credits');
         }
 
-        if ($hoursLeft > 1) {
-            return [
-                'value' => floor($hoursLeft),
-                'unit' => 'hours',
-                'bg' => $hoursLeft <= 24 ? self::TIME_LEFT_BG_DANGER : self::TIME_LEFT_BG_WARNING
-            ];
+        $fullDays = (int) floor($daysLeft);
+        $remainingHours = (int) ceil($hoursLeft - ($fullDays * 24));
+
+        if ($remainingHours >= 24) {
+            $fullDays++;
+            $remainingHours = 0;
+        }
+        if ($fullDays > 0 && $remainingHours > 0) {
+            return strval(number_format($fullDays, 0)) . __('d') . ' ' . strval(number_format($remainingHours, 0)) . __('h');
         }
 
-        if ($minutesLeft > 1) {
-            return [
-                'value' => floor($minutesLeft),
-                'unit' => 'minutes',
-                'bg' => self::TIME_LEFT_BG_DANGER
-            ];
+        if ($fullDays > 0) {
+            return strval(number_format($fullDays, 0)) . __('d');
         }
 
-        return [
-            'value' => 'Less than 1',
-            'unit' => 'minute',
-            'bg' => self::TIME_LEFT_BG_DANGER
-        ];
+        return strval(number_format($hoursLeft, 0)) . __('h');
     }
 
-    /**
-     * Show the application dashboard
-     */
+    /** Show the application dashboard. */
     public function index(GeneralSettings $general_settings, WebsiteSettings $website_settings, ReferralSettings $referral_settings)
     {
         $user = Auth::user();
+        $usage = $user->creditUsage();
         $credits = $user->credits;
+        $bg = '';
+        $boxText = '';
         $timeLeft = null;
 
-        if ($credits > 0) {
-            $cacheKey = 'user_credits_left:' . $user->id;
-            $calculation = Cache::remember($cacheKey, now()->addMinutes(5), function() use ($user, $credits) {
-                return $this->calculateCreditRunout($user, $credits);
-            });
+        /** Build our Time-Left-Box */
+        if ($credits > 0 && $usage > 0) {
+            $daysLeft = $credits / ($usage / 30);
+            $hoursLeft = $credits / ($usage / 30 / 24);
 
-            if ($calculation['run_out_date']) {
-                $timeLeft = $this->formatTimeLeft($calculation['run_out_date']);
-                $timeLeft['message'] = 'Estimated run out: ' . $calculation['run_out_date']->format('d.m.Y H:i');
+            $bg = $this->getTimeLeftBoxBackground($daysLeft);
+            $boxText = $this->getTimeLeftBoxText($daysLeft, $hoursLeft);
 
-                // For debugging
-                // $timeLeft['simulation'] = $calculation['simulation_steps'];
+            if ($daysLeft > 1) {
+                $estimatedDate = Carbon::now()->addDays((int) ceil($daysLeft));
+            } else {
+                $estimatedDate = Carbon::now()->addHours((int) ceil($hoursLeft));
             }
+
+            $timeLeft = [
+                'bg' => $bg,
+                'message' => __('Estimated run out: :date', ['date' => $estimatedDate->format('d-m-Y H:i')]),
+                'date' => $estimatedDate->toDateString(),
+                'value' => $boxText,
+            ];
         }
+
+        // RETURN ALL VALUES
         return view('home')->with([
-            'usage' => $user->creditUsage(),
+            'usage' => $usage,
             'credits' => $credits,
             'useful_links_dashboard' => UsefulLink::where("position","like","%dashboard%")->get()->sortby("id"),
-            'timeLeft' => $timeLeft,
+            'bg' => $bg,
+            'boxText' => $boxText,
             'numberOfReferrals' => DB::table('user_referrals')->where('referral_id', '=', $user->id)->count(),
             'partnerDiscount' => PartnerDiscount::where('user_id', $user->id)->first(),
             'myDiscount' => PartnerDiscount::getDiscount(),
+            'timeLeft' => $timeLeft,
             'general_settings' => $general_settings,
             'website_settings' => $website_settings,
             'referral_settings' => $referral_settings

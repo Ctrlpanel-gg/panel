@@ -1,15 +1,5 @@
 @extends('layouts.main')
-@php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
-@if ($recaptchaVersion)
-  @switch($recaptchaVersion)
-    @case("v2")
-      {!! htmlScriptTagJsApi() !!}
-      @break
-    @case("v3")
-      {!! RecaptchaV3::initJs() !!}
-      @break
-  @endswitch
-@endif
+
 @section('content')
     <!-- CONTENT HEADER -->
     <section class="content-header">
@@ -102,22 +92,14 @@
                                     </span>
                                     @endif
                                 </div>
-                              @php ($recaptchaVersion = app(App\Settings\GeneralSettings::class)->recaptcha_version)
-                              @if ($recaptchaVersion)
+                              @if (app(App\Services\CaptchaService::class)->isEnabled())
                                 <div class="mb-3 input-group">
-                                  @switch($recaptchaVersion)
-                                    @case("v2")
-                                      {!! htmlFormSnippet() !!}
-                                      @break
-                                    @case("v3")
-                                      {!! RecaptchaV3::field('recaptchathree') !!}
-                                      @break
-                                  @endswitch
+                                  <x-captcha />
 
-                                  @error('g-recaptcha-response')
+                                  @error('captcha')
                                     <span class="text-danger" role="alert">
-                                  <small><strong>{{ $message }}</strong></small>
-                                </span>
+                                      <small><strong>{{ $message }}</strong></small>
+                                    </span>
                                   @enderror
                                 </div>
                               @endif

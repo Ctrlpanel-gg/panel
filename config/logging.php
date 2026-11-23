@@ -19,6 +19,12 @@ return [
 
     'default' => env('LOG_CHANNEL', 'stack'),
 
+    // Retention policy enforced by `logs:prune` command (runs daily).
+    'prune' => [
+        'keep_days' => env('LOG_RETENTION_DAYS', 14),
+        'compress_after_days' => env('LOG_COMPRESS_AFTER_DAYS', 2),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Deprecations Log Channel
@@ -53,7 +59,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['daily'],
             'ignore_exceptions' => false,
         ],
 
@@ -68,7 +74,7 @@ return [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
+            'days' => env('LOG_RETENTION_DAYS', 14),
             'permission' => 0664,
         ],
 

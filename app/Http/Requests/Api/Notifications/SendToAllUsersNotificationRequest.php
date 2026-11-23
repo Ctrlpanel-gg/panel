@@ -27,4 +27,22 @@ class SendToAllUsersNotificationRequest extends FormRequest
             'content' => 'required|string|min:1',
         ];
     }
+
+    public function bodyParameters()
+    {
+        return [
+            'via' => [
+                'description' => 'The notification channel (mail, database, both).',
+                'example' => 'both',
+            ],
+            'title' => [
+                'description' => 'The title of the notification.',
+                'example' => 'Global Message',
+            ],
+            'content' => [
+                'description' => 'The content of the notification.',
+                'example' => 'Hello everyone!',
+            ],
+        ];
+    }
 }

@@ -240,6 +240,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(DiscordUser::class);
     }
 
+    /**
+     * @return HasMany
+     */
+    public function twoFactorMethods(): HasMany
+    {
+        return $this->hasMany(UserTwoFactorMethod::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function twoFactorVerifiedTokens(): HasMany
+    {
+        return $this->hasMany(TwoFactorVerifiedToken::class);
+    }
+
     public function sendEmailVerificationNotification()
     {
         try {
